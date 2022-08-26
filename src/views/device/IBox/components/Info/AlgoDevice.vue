@@ -233,7 +233,6 @@ export default class extends Mixins(AppMixin) {
   }
 
   private checkCallback(data, isChecked) {
-    console.log('data:', data)
     if (isChecked && !data.meta) {
       this.deviceId = data.deviceId
       this.meta = null
@@ -243,7 +242,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private onSubmit() {
-
+    this.$emit('submit', 'tree-data')
   }
 
   private addMeta(meta) {

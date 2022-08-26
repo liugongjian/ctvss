@@ -28,20 +28,20 @@
         </el-table-column>
       </el-table>
     </div>
-    
+
     <ai-app-detail v-if="isAppDetail" @back="backToList" />
-    <ai-app-edit v-if="step > -1" @back="backToList"/>
+    <ai-app-add v-if="step > -1" @back="backToList" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import AiAppEdit from './AiAppEdit.vue'
+import AiAppAdd from './AiAppAdd.vue'
 import AiAppDetail from './AiAppDetail.vue'
 
 @Component({
   name: 'AiAppList',
   components: {
-    AiAppEdit,
+    AiAppAdd,
     AiAppDetail
   }
 })

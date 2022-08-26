@@ -75,11 +75,24 @@ export default class extends Mixins(AppMixin) {
     try {
       this.loading.algoList = true
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.algoList = aiAbilityAlgorithms
+      this.algoList = aiAbilityAlgorithms.filter(algo => this.isHasIcon(algo))
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
       this.loading.algoList = false
+    }
+  }
+
+  /**
+   * 未配置图片的算法过滤掉，以免告警
+  */
+  private isHasIcon(algo) {
+    try {
+      require(`../../assets/icon/${algo.code}.svg`)
+      return true
+    } catch (e) {
+      console.log(`算法图片不存在：${algo.code}.svg`)
+      return false
     }
   }
 

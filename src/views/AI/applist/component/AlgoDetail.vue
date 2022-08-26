@@ -243,23 +243,16 @@ import { formRule, formTips } from '../util/form-helper'
   }
 })
 export default class extends Mixins(AppMixin) {
-  @Prop() private prod!: any
   @Prop() private step!: number
   @Prop({ default: false }) public isSelectDevice!: boolean
+  @Prop() public algoParam!: any
+  @Prop() public algoParamSubmit!: any
+
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
-  private form: any = {
-    algorithmMetadata: {
-      trashRecycleType: [],
-      helmetReflectiveType: [],
-      animalDetectType: ['Bear']
-    },
-    beeNumber: 1
-  }
   private faceLibs = []
   private isfaceLibLoading = false
   public rules: any = formRule
-  private effectiveTime: any = []
   private tips: any = formTips
   private TrashType = TrashType
   private AnimalType = AnimalType
@@ -303,9 +296,12 @@ export default class extends Mixins(AppMixin) {
         this.form.beeNumber = this.form.confidence / 100
         this.form = { ...this.form, confidence: 60 }
       }
-    } else { // 新建
+    } else { // 新建 or
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
+      if (this.algoParam) {
+        this.form = this.algoParam
+      }
     }
     try {
       const { data } = await listGroup({
@@ -370,7 +366,8 @@ export default class extends Mixins(AppMixin) {
         param = { ...param, algorithmsId: this.prod.id }
         this.$emit('update:step', this.step + 1)
         this.$emit('update:prod', this.prod)
-        this.$emit('update:algoPram', param)
+        this.$emit('update:algo-param', this.form)
+        this.$emit('update:algo-param-submit', param)
       }
     })
   }
@@ -410,29 +407,6 @@ export default class extends Mixins(AppMixin) {
       this.$alertError(e && e.message)
     }
   }
-
-  private generateAlgoParam() {
-    this.generateEffectiveTime()
-    let algorithmMetadata = this.form.algorithmMetadata
-    Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
-    if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
-      algorithmMetadata.faceRatio = '0.7'
-    }
-    let param = {
-      ...this.form,
-      effectiveTime: this.effectiveTime,
-      callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
-      algorithmMetadata: JSON.stringify(algorithmMetadata),
-      confidence: this.form.confidence / 100
-    }
-
-    // 蜜蜂数量特殊处理
-    if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
-      param.confidence = this.form.beeNumber
-    }
-
-    return param
-  }
   /**
    * 增加生效时间段选项
    */
@@ -461,22 +435,6 @@ export default class extends Mixins(AppMixin) {
     })
     this.faceLibs = data
     this.isfaceLibLoading = false
-  }
-  /**
-   * 提交信息前，转换时间
-   */
-  private generateEffectiveTime() {
-    if (this.form.effectPeriod === '全天') {
-      this.effectiveTime = [{ start_time: '00:00:00', end_time: '23:59:59' }]
-    } else {
-      this.effectiveTime = this.form.availableperiod.map(element => {
-        return {
-          start_time: element.period[0],
-          end_time: element.period[1]
-        }
-      })
-    }
-    this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
 
   /**

@@ -11,10 +11,17 @@
       <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList" />
     </div>
     <div v-if="step === 1">
-      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" @back="backToList" />
+      <AlgoDetail
+        :step.sync="step"
+        :prod.sync="prod"
+        :is-select-device="true"
+        :algo-param.sync="algoParam"
+        :algo-param-submit.sync="algoParamSubmit"
+        @back="backToList"
+      />
     </div>
     <div v-if="step === 2">
-      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList" />
+      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList" @submit="onSubmit" />
     </div>
   </div>
 </template>
@@ -27,7 +34,7 @@ import AlgoDevice from './AlgoDevice.vue'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 
 @Component({
-  name: 'AiAppEdit',
+  name: 'AiAppAdd',
   components: {
     AlgoOption,
     AlgoDetail,
@@ -36,12 +43,18 @@ import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 })
 export default class extends Mixins(AppMixin) {
   private step: number = 0
-  private prod: any = {}// 新建时传入组件的参数
+  public prod: any = {}// 新建时传入组件的参数
   private isLoading: boolean = false
   private algoParam: any = null
+  private algoParamSubmit: any = null
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }
+
+  private onSubmit(treeData) {
+    // algoParamSubmit、prod
+  }
+
   private backToList() {
     this.$emit('back')
   }
