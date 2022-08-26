@@ -154,6 +154,8 @@ interface DeviceAddress {
 
 export {
   DeviceAddress,
+  DeviceBasic,
   VideoDevice,
+  Industry,
   Device
 }

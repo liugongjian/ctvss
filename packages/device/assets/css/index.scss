@@ -278,6 +278,41 @@
           }
         }
       }
+
+      /* 接入方式 */
+      .device-in-type + .device-in-type {
+        &:before {
+          content: ',';
+          margin-right: $margin-small;
+        }
+      }
+    }
+
+    /* 设备详情编辑 */
+    &__edit {
+      display: flex;
+      flex-wrap: wrap;
+
+      &__footer {
+        margin-left: 135px;
+      }
+
+      .el-form-item {
+        flex: 1 0 50%;
+      }
+
+      .el-input:not(.el-input-number > .el-input, .longlat-input),
+      .el-select,
+      .el-textarea,
+      .el-cascader,
+      .tags {
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .longlat-input {
+        width: 40%;
+      }
     }
   }
 

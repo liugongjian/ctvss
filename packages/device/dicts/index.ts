@@ -35,6 +35,22 @@ export const VersionByInVideoProtocol = {
 }
 
 /*
+  接入网络
+*/
+export const InNetworkType = {
+  [enums.InNetworkTypeEnum.Public]: '互联网',
+  [enums.InNetworkTypeEnum.Private]: '专线网络'
+}
+
+/*
+  接入网络
+*/
+export const OutNetworkType = {
+  [enums.OutNetworkTypeEnum.Public]: '互联网',
+  [enums.OutNetworkTypeEnum.Private]: '专线网络'
+}
+
+/*
   设备类型
 */
 export const DeviceType = {

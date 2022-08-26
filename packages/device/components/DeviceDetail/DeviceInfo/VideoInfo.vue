@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button type="text">编辑</el-button>
+      <el-button type="text" @click="edit">编辑</el-button>
       <el-button type="text">配置资源包</el-button>
       <el-dropdown>
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
@@ -116,6 +116,11 @@ export default class extends Vue {
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
     return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop)
+  }
+
+  // 进入编辑模式
+  private edit() {
+    this.$emit('edit')
   }
 }
 </script>

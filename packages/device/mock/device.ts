@@ -1,7 +1,7 @@
 export const deviceMock = {
   device: {
     deviceId: '29941916753760267',
-    deviceName: '设备名称',
+    deviceName: '设备名称ABC',
     deviceType: 'ipc',
     deviceLongitude: '111',
     deviceLatitude: '222',
@@ -116,5 +116,7 @@ export const deviceMock = {
   ],
   industry: {
     industryName: '零售'
-  }
+  },
+  inNetworkType: 'public',
+  outNetworkType: 'public'
 }
