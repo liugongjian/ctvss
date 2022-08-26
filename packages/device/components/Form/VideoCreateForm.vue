@@ -240,15 +240,15 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { DeviceEnum, DeviceTypeEnum, InTypeEnum, InVideoProtocolEnum } from '../enums/index'
-import { InVideoProtocolByDeviceType, VersionByInVideoProtocol, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../dicts/index'
-import { DeviceTips } from '../dicts/tips'
+import { DeviceEnum, DeviceTypeEnum, InTypeEnum, InVideoProtocolEnum } from '../../enums/index'
+import { InVideoProtocolByDeviceType, VersionByInVideoProtocol, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../../dicts/index'
+import { DeviceTips } from '../../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import { validGbId } from '../api/device'
-import { checkVideoVisible } from '../utils/param'
+import { validGbId } from '../../api/device'
+import { checkVideoVisible } from '../../utils/param'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import ResourceTabs from './ResourceTabs.vue'
-import Tags from './Tags.vue'
+import ResourceTabs from '../ResourceTabs.vue'
+import Tags from '../Tags.vue'
 
 @Component({
   name: 'VideoCreateForm',
