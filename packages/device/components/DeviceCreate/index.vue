@@ -238,8 +238,8 @@ import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InVi
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { createDevice } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
-import VideoCreateForm from '../VideoCreateForm.vue'
-import ViidCreateForm from '../ViidCreateForm.vue'
+import VideoCreateForm from '../Form/VideoCreateForm.vue'
+import ViidCreateForm from '../Form/ViidCreateForm.vue'
 import deviceFormMixin from '../../mixin/deviceFormMixin'
 
 @Component({
