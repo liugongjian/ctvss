@@ -66,9 +66,9 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../dicts/index'
-import { DeviceEnum, InViidProtocolEnum } from '../enums/index'
-import { checkViidVisible } from '../utils/param'
+import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../../dicts/index'
+import { DeviceEnum, InViidProtocolEnum } from '../../enums/index'
+import { checkViidVisible } from '../../utils/param'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 

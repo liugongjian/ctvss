@@ -4,6 +4,8 @@
     class="common-tree"
   >
     <div
+      v-show="hasRoot"
+      ref="root"
       class="common-tree__root"
       :class="{'common-tree__root--active': currentNodeKey === null}"
       @click="handleNode(null)"
@@ -37,6 +39,7 @@
     >
       <div
         slot-scope="{node, data}"
+        v-item-directive="{node}"
         class="common-tree__item"
       >
         <div class="common-tree__item__label-prefix">
@@ -59,7 +62,10 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
-  name: 'CommonTree'
+  name: 'CommonTree',
+  directives: {
+    'test': {}
+  }
 })
 export default class extends Vue {
   @Prop({ default: () => [] })
@@ -80,12 +86,32 @@ export default class extends Vue {
   @Prop({ default: null })
   private getNodeInfo
 
+  @Prop({ default: () => {} })
+  private itemDirective
+
+  private hasRoot: boolean = false
   private treeLoading: boolean = false
   private treeKey: string = 'ct' + new Date().getTime()
   private currentNodeKey = null
 
+  private created() {
+    Vue.directive('item-directive', this.itemDirective)
+  }
+
   private mounted() {
     this.initTree()
+    this.checkRootVisable()
+  }
+
+  /**
+   * 判断是否显示root
+   */
+  private checkRootVisable() {
+    const rootChildren = [...(this.$refs.root as HTMLDivElement).children]
+    if (!rootChildren.length) return
+    this.hasRoot = rootChildren.reduce((pre, cur) => {
+      return pre || cur.children.length !== 0
+    }, false)
   }
 
   /**
@@ -134,106 +160,3 @@ export default class extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.common-tree {
-  flex: 1;
-  position: relative;
-
-  ::v-deep .svg-icon {
-    color: $color-grey-15;
-    font-size: $text-size-medium;
-  }
-
-  &__root {
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-bottom: 1px solid $border-color-primary;
-    padding: $padding-small;
-    margin-bottom: $margin-small;
-    background: $color-white;
-    cursor: pointer;
-
-    &--active {
-      background: $color-grey-8;
-    }
-
-    &__label {
-      flex-shrink: 0;
-      position: relative;
-      margin-right: $margin-small;
-    }
-
-    &__label-prefix {
-      position: relative;
-      margin-right: $margin-small;
-    }
-
-    &__label-suffix {
-      position: relative;
-      color: $color-grey-15;
-    }
-
-    &__tools {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
-      position: sticky;
-      right: $padding-small;
-      background: inherit;
-
-      ::v-deep {
-        .el-button {
-          padding: 0;
-        }
-      }
-    }
-  }
-
-  &__item {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    position: relative;
-
-    &__label {
-      position: relative;
-      margin-right: $margin-small;
-    }
-
-    &__label-prefix {
-      position: relative;
-      margin-right: $margin-small;
-    }
-
-    &__label-suffix {
-      position: relative;
-      color: $color-grey-15;
-    }
-
-    &:hover {
-      .common-tree__item__tools {
-        display: flex;
-      }
-    }
-
-    &__tools {
-      display: none;
-      position: absolute;
-      right: $padding-small;
-      background: $color-grey-8;
-
-      ::v-deep {
-        .el-button {
-          padding: 0;
-        }
-
-        .el-button + .el-button {
-          margin-left: $margin-tiny;
-        }
-      }
-    }
-  }
-}
-</style>

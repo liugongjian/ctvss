@@ -3,22 +3,16 @@
     <common-layout>
       <template slot="leftHeader">
         <!-- TODO -->
-        <el-tooltip effect="dark" content="子目录排序" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleLeftHeaderTools('sortSubdirectory')"><svg-icon name="sort" /></el-button>
+        <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
+          <el-button type="text" @click="handleLeftHeaderTools('autoPlay')"><svg-icon name="auto-play" /></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleLeftHeaderTools('refreshDirectory')"><svg-icon name="refresh" /></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="添加目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleLeftHeaderTools('addDirectory')"><svg-icon name="plus" /></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="目录设置" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleLeftHeaderTools('setDirectory')"><i class="el-icon-setting" /></el-button>
+          <el-button type="text" @click="handleLeftHeaderTools('refresh')"><svg-icon name="refresh" /></el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
         <!-- TODO -->
-        <device-tree
+        <replay-tree
           ref="deviceTree"
           :lazy="lazy"
           :data="treeSearchResult"
@@ -56,12 +50,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { AdvancedSearch as AdvancedSearchType } from '@/type/advancedSearch'
 import AdvancedSearch from './components/AdvancedSearch.vue'
-import DeviceTree from './components/DeviceTree.vue'
+import ReplayTree from './components/Tree/ReplayTree.vue'
 
 @Component({
-  name: 'Device',
+  name: 'Replay',
   components: {
-    DeviceTree,
+    ReplayTree,
     AdvancedSearch
   }
 })

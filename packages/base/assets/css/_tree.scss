@@ -1,0 +1,108 @@
+.common-tree {
+  flex: 1;
+  position: relative;
+
+  .svg-icon {
+    color: $color-grey-15;
+    font-size: $text-size-medium;
+  }
+
+  &__root {
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-bottom: 1px solid $border-color-primary;
+    padding: $padding-small;
+    margin-bottom: $margin-small;
+    background: $color-white;
+    cursor: pointer;
+
+    &--active {
+      background: $color-grey-8;
+    }
+
+    &__label {
+      flex-shrink: 0;
+      position: relative;
+      margin-right: $margin-small;
+    }
+
+    &__label-prefix {
+      position: relative;
+      margin-right: $margin-small;
+    }
+
+    &__label-suffix {
+      position: relative;
+      color: $color-grey-15;
+    }
+
+    &__tools {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      position: sticky;
+      right: $padding-small;
+      background: inherit;
+
+      .el-button {
+        padding: 0;
+      }
+    }
+  }
+
+  &__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    user-select: none;
+
+    &__label {
+      position: relative;
+      margin-right: $margin-small;
+    }
+
+    &__label-prefix {
+      position: relative;
+      margin-right: $margin-small;
+    }
+
+    &__label-suffix {
+      position: relative;
+      color: $color-grey-15;
+    }
+
+    &:hover {
+      .common-tree__item__tools {
+        display: flex;
+      }
+    }
+
+    &__tools {
+      display: none;
+      position: absolute;
+      right: $padding-small;
+      background: $color-grey-8;
+
+      .el-button {
+        padding: 0;
+      }
+
+      .el-button + .el-button {
+        margin-left: $margin-tiny;
+      }
+    }
+  }
+
+  &__item.dragging-node {
+    width: auto;
+    background: rgba($color: $color-white, $alpha: 40%);
+    padding: 6px;
+    border-radius: 5px;
+
+    .svg-icon {
+      color: $color-grey-15;
+    }
+  }
+}

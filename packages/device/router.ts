@@ -1,6 +1,6 @@
 import Layout from '@/layout/index.vue'
 
-export default {
+export const deviceRouter = {
   path: '/device-refactor',
   component: Layout,
   meta: {
@@ -14,7 +14,7 @@ export default {
   children: [
     {
       path: '',
-      component: () => import(/* webpackChunkName: "device" */ './index.vue'),
+      component: () => import(/* webpackChunkName: "device" */ './Device.vue'),
       name: 'device-refactor',
       meta: {
         title: '设备管理重构',
@@ -140,6 +140,86 @@ export default {
             title: '创建设备',
             perms: ['DescribeDevice'],
             activeMenu: '/device-refactor',
+            groupSelector: true
+          }
+        }
+      ]
+    }
+  ]
+}
+
+export const previewRouter = {
+  path: '/preview-refactor',
+  component: Layout,
+  meta: {
+    title: '实时预览',
+    icon: 'menu-device',
+    perms: ['DescribeDevice'],
+    alwaysShow: false,
+    only: true,
+    groupSelector: true
+  },
+  children: [
+    {
+      path: '',
+      component: () => import(/* webpackChunkName: "device" */ './Preview.vue'),
+      name: 'preview-refactor',
+      meta: {
+        title: '实时预览重构',
+        icon: 'menu-device',
+        breadcrumb: false,
+        perms: ['DescribeDevice'],
+        groupSelector: true
+      },
+      children: [
+        {
+          path: '',
+          component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
+          name: 'DeviceList',
+          meta: {
+            title: '设备列表',
+            perms: ['DescribeDevice'],
+            activeMenu: '/preview-refactor',
+            groupSelector: true
+          }
+        }
+      ]
+    }
+  ]
+}
+
+export const replayRouter = {
+  path: '/replay-refactor',
+  component: Layout,
+  meta: {
+    title: '录像回放',
+    icon: 'menu-device',
+    perms: ['DescribeDevice'],
+    alwaysShow: false,
+    only: true,
+    groupSelector: true
+  },
+  children: [
+    {
+      path: '',
+      component: () => import(/* webpackChunkName: "device" */ './Replay.vue'),
+      name: 'replay-refactor',
+      meta: {
+        title: '录像回放重构',
+        icon: 'menu-device',
+        breadcrumb: false,
+        perms: ['DescribeDevice'],
+        groupSelector: true
+      },
+      children: [
+        {
+          path: '',
+          component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
+          name: 'DeviceList',
+          meta: {
+            title: '设备列表',
+            perms: ['DescribeDevice'],
+            activeMenu: '/replay-refactor',
             groupSelector: true
           }
         }
