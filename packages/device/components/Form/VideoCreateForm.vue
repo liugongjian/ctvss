@@ -242,11 +242,10 @@
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import VideoFormMixin from '../../mixin/videoFormMixin'
 import { DeviceEnum, DeviceTypeEnum, InTypeEnum, InVideoProtocolEnum } from '../../enums/index'
-import { InVideoProtocolByDeviceType, VersionByInVideoProtocol, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../../dicts/index'
+import { InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../../dicts/index'
 import { DeviceTips } from '../../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../../api/device'
-import { checkVideoVisible } from '../../utils/param'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from '../ResourceTabs.vue'
 import Tags from '../Tags.vue'
@@ -260,13 +259,9 @@ import Tags from '../Tags.vue'
   }
 })
 export default class extends Mixins(VideoFormMixin) {
-  @Prop({ default: () => {} })
-  private deviceForm
-
   private deviceEnum = DeviceEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
   private tips = DeviceTips
-  private versionByInVideoProtocol = VersionByInVideoProtocol
   private deviceVendor = DeviceVendor
   private inVideoProtocol = InVideoProtocolByDeviceType
   private inType = InType
@@ -303,27 +298,12 @@ export default class extends Mixins(VideoFormMixin) {
   public orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
 
-  /**
-   * 设备类型变化
-   */
-  @Watch('deviceForm.deviceType')
-  private deviceTypeChange() {
-    this.videoForm.inVideoProtocol = this.inVideoProtocolEnum.Gb28181
-  }
-
   private mounted() {
     this.getGbAccounts()
   }
 
   private updated() {
     this.checkIsShwoMore()
-  }
-
-  /**
-   * 判断是否显示form-item
-   */
-  private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
   }
 
   /**

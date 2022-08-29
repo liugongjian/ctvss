@@ -89,10 +89,3 @@ export default class extends Vue {
   }
 }
 </script>
-<style lang="scss">
-  .address-cascader {
-    .el-cascader-menu__list {
-      min-width: 200px;
-    }
-  }
-</style>

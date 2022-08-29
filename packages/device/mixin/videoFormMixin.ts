@@ -1,12 +1,16 @@
-import { Component, Vue } from 'vue-property-decorator'
-import { DeviceEnum, DeviceTypeEnum } from '../enums'
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
+import { DeviceEnum, DeviceTypeEnum, InVideoProtocolEnum } from '../enums'
 import { VersionByInVideoProtocol } from '../dicts'
 import { validGbId } from '../api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
+import { checkVideoVisible } from '../utils/param'
 
 @Component
 export default class VideoFormMixin extends Vue {
+  @Prop({ default: () => {} })
+  public deviceForm
   public videoForm
+  private versionByInVideoProtocol = VersionByInVideoProtocol
 
   public loading = {
     account: false
@@ -61,6 +65,14 @@ export default class VideoFormMixin extends Vue {
   }
 
   /**
+   * 设备类型变化
+   */
+  @Watch('deviceForm.deviceType')
+  public deviceTypeChange() {
+    this.videoForm.inVideoProtocol = InVideoProtocolEnum.Gb28181
+  }
+
+  /**
    * 视频接入协议变化
    */
   public inVideoProtocolChange(val) {
@@ -90,25 +102,6 @@ export default class VideoFormMixin extends Vue {
   }
 
   /**
-   * 打开弹出框
-   */
-  private openDialog(type: string) {
-    // @ts-ignore
-    this.dialog[type] = true
-  }
-
-  /**
-   * 关闭弹出框
-   */
-  private closeDialog(type: string, payload: any) {
-    // @ts-ignore
-    this.dialog[type] = false
-    if (type === 'createGb28181Certificate' && payload === true) {
-      this.getGbAccounts()
-    }
-  }
-
-  /**
    * 码流数变化回调
    */
   public onDeviceStreamSizeChange() {
@@ -132,6 +125,13 @@ export default class VideoFormMixin extends Vue {
       this.videoForm.aIApps = res
     }
     this.videoForm.vssAIApps = res
+  }
+
+  /**
+   * 判断是否显示form-item
+   */
+  public checkVisible(prop) {
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
   }
 
   /*

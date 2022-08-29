@@ -19,6 +19,26 @@
           {{ value }}
         </el-radio>
       </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
+        <el-select v-model="videoForm.videoVendor">
+          <el-option
+            v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+            :key="key"
+            :label="value"
+            :value="key"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.InVersion)" label="版本:" :prop="deviceEnum.InVersion">
+        <el-radio-group v-model="videoForm.inVersion">
+          <el-radio-button
+            v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
+            :key="key"
+            :label="value"
+            :value="key"
+          />
+        </el-radio-group>
+      </el-form-item>
     </el-form>
 
     <div class="detail-wrap__edit__footer">

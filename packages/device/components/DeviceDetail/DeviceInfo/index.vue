@@ -15,7 +15,7 @@
         <el-tabs v-model="activeTab" type="card" class="detail__tabs">
           <el-tab-pane v-if="hasVideo" label="视频接入" :name="deviceInTypeEnum.Video">
             <video-info v-if="!isEdit.videoInfo" :device="device" @edit="isEdit.videoInfo = true" />
-            <video-info-edit v-else :device="device" @cancel="isEdit.videoInfo = false" />
+            <video-info-edit v-else :device="device" :device-form="device.device" @cancel="isEdit.videoInfo = false" />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
             <viid-info :device="device" />

@@ -1,8 +1,15 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceAddress } from '../type/Device'
 import { DeviceEnum } from '../enums'
+import AddressCascader from '../components/AddressCascader.vue'
+import RegionCascader from '../components/RegionCascader.vue'
 
-@Component
+@Component({
+  components: {
+    AddressCascader,
+    RegionCascader
+  }
+})
 export default class DeviceFormMixin extends Vue {
   public deviceForm
 

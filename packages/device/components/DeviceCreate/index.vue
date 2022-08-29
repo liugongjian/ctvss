@@ -233,8 +233,6 @@ import { DeviceTips } from '../../dicts/tips'
 import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { createDevice } from '../../api/device'
-import AddressCascader from '../AddressCascader.vue'
-import RegionCascader from '../RegionCascader.vue'
 import VideoCreateForm from '../Form/VideoCreateForm.vue'
 import ViidCreateForm from '../Form/ViidCreateForm.vue'
 import deviceFormMixin from '../../mixin/deviceFormMixin'
@@ -242,8 +240,6 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
 @Component({
   name: 'DeviceCreate',
   components: {
-    AddressCascader,
-    RegionCascader,
     VideoCreateForm,
     ViidCreateForm
   }

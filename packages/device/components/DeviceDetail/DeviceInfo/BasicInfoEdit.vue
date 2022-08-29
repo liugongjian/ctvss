@@ -106,16 +106,10 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice } from '@vss/device/type/Device'
-import AddressCascader from '../../AddressCascader.vue'
-import RegionCascader from '../../RegionCascader.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
-  name: 'BasicInfoEdit',
-  components: {
-    AddressCascader,
-    RegionCascader
-  }
+  name: 'BasicInfoEdit'
 })
 export default class extends Mixins(deviceFormMixin) {
   @Prop() private device: Device
