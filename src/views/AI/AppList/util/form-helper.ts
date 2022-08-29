@@ -53,6 +53,16 @@ export const getRule = (msg) => {
           }
         },
         trigger: 'blur' })
+    } else if (msg === '静默时间' || msg === '告警数量阈值') {
+      rule.push({
+        validator: (rule, value, callback) => {
+          if (parseInt(value) === 0) {
+            callback(new Error('请输入大于等于1的整数'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur' })
     }
   } else if (msg === '起始时间') {
     rule.push({
@@ -96,5 +106,6 @@ export const formTips = {
   offDutyThreShold: '不能超过600分钟',
   sleepOnDutyThreShold: '不能超过600分钟',
   pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
-  jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵'
+  jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵',
+  alertDisabled: '针对于AI告警信息频繁的情况，用户开启静默功能，并配置静默规则后，可以压缩AI告警信息'
 }

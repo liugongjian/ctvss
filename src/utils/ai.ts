@@ -123,7 +123,7 @@ export const parseMetaData = (type: string, metaData: any) => {
               label = '狗熊'
               break
             default:
-              label = box.Label
+              label = box.LabelCh
               break
           }
           return {

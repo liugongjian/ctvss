@@ -220,14 +220,40 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-divider content-position="left">告警配置</el-divider>
-      <el-form-item label="告警配置">
+      <el-form-item>
+        <template slot="label">
+          告警配置:
+          <el-popover
+            placement="top-start"
+            title="告警配置"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.alertDisabled"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
         <el-switch
           v-model="alertDisabled"
           active-color="#fa8334"
           inactive-color="#C0C4CC"
         />
       </el-form-item>
-      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" label="告警周期" prop="alertPeriod" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertPeriod" class="inline-form-item">
+        <template slot="label">
+          告警周期:
+          <el-popover
+            placement="top-start"
+            title="告警周期"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content=""
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
         <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
       <el-select v-if="alertDisabled && !ifShow('10001', '10034')" v-model="interval.alertPeriod" class="interval-unit">
@@ -236,12 +262,38 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <br>
-      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertTriggerThreshold" class="inline-form-item">
+        <template slot="label">
+          告警数量阈值:
+          <el-popover
+            placement="top-start"
+            title="告警数量阈值"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content=""
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
         <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
       <span v-if="alertDisabled && !ifShow('10001', '10034')" style="margin-left: 16px;">个</span>
       <br>
-      <el-form-item v-if="alertDisabled" label="静默时间" prop="alertSilencePeriod" class="inline-form-item">
+      <el-form-item v-if="alertDisabled" prop="alertSilencePeriod" class="inline-form-item">
+        <template slot="label">
+          静默时间:
+          <el-popover
+            placement="top-start"
+            title="静默时间"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content=""
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
         <el-input v-model="form.alertSilencePeriod" class="alarm" />
       </el-form-item>
       <el-select v-if="alertDisabled" v-model="interval.alertSilencePeriod" class="interval-unit">
@@ -611,7 +663,7 @@ export default class extends Mixins(AppMixin) {
 
   .alarm {
     width: 112px;
-    margin-right: 10px;
+    margin-right: 18px;
 
     & + .el-select {
       width: 80px;
