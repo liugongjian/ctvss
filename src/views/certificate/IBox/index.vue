@@ -16,7 +16,7 @@
       <div class="certificate-ibox__number">
         <div class="certificate-ibox__number-box">
           <p>接入凭证码</p>
-          <h2>{{code}}</h2>
+          <h2>{{ code }}</h2>
           <el-button>点击更换凭证</el-button>
         </div>
       </div>
