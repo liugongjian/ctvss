@@ -121,6 +121,7 @@ export const deviceMock = {
     inOrgRegion: '12011900',
     inOrgRegionLevel: '3'
   },
+  region: '0230001',
   inNetworkType: 'public',
   outNetworkType: 'public'
 }

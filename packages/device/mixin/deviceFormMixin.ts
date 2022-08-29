@@ -1,6 +1,5 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceAddress } from '../type/Device'
-import { getRegions } from '../api/region'
 import { DeviceEnum } from '../enums'
 
 @Component
@@ -48,8 +47,6 @@ export default class DeviceFormMixin extends Vue {
     ]
   }
 
-  public regionList = []
-
   public loading = {
     submit: false,
     region: false
@@ -57,20 +54,6 @@ export default class DeviceFormMixin extends Vue {
 
   public get isChannel() {
     return false
-  }
-
-  /**
-   * 获取接入区域列表
-   */
-  public async getRegionList() {
-    this.loading.region = true
-    try {
-      this.regionList = await getRegions()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.region = false
-    }
   }
 
   /**

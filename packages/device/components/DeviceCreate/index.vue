@@ -141,11 +141,7 @@
                   <svg-icon slot="reference" class="form-question" name="help" />
                 </el-popover>
               </template>
-              <el-cascader
-                v-model="deviceForm.region"
-                placeholder="请选择"
-                :options="regionList"
-              />
+              <region-cascader v-model="deviceForm.region" />
             </el-form-item>
             <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
               <address-cascader
@@ -238,6 +234,7 @@ import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InVi
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { createDevice } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
+import RegionCascader from '../RegionCascader.vue'
 import VideoCreateForm from '../Form/VideoCreateForm.vue'
 import ViidCreateForm from '../Form/ViidCreateForm.vue'
 import deviceFormMixin from '../../mixin/deviceFormMixin'
@@ -246,6 +243,7 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
   name: 'DeviceCreate',
   components: {
     AddressCascader,
+    RegionCascader,
     VideoCreateForm,
     ViidCreateForm
   }
@@ -302,10 +300,6 @@ export default class extends Mixins(deviceFormMixin) {
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
-  }
-
-  private mounted() {
-    this.getRegionList()
   }
 
   private updated() {

@@ -33,11 +33,7 @@
         </el-select>
       </el-form-item>
       <el-form-item v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
-        <el-cascader
-          v-model="deviceForm.region"
-          placeholder="请选择"
-          :options="regionList"
-        />
+        <region-cascader v-model="deviceForm.region" />
       </el-form-item>
       <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
         <address-cascader
@@ -111,12 +107,14 @@ import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice } from '@vss/device/type/Device'
 import AddressCascader from '../../AddressCascader.vue'
+import RegionCascader from '../../RegionCascader.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
   name: 'BasicInfoEdit',
   components: {
-    AddressCascader
+    AddressCascader,
+    RegionCascader
   }
 })
 export default class extends Mixins(deviceFormMixin) {
@@ -195,11 +193,7 @@ export default class extends Mixins(deviceFormMixin) {
 
   // 是否含国标ID
   private get hasOutId() {
-    return this.videoInfo && this.videoInfo.outId
-  }
-
-  private mounted() {
-    this.getRegionList()
+    return this.videoInfo && !!this.videoInfo.outId
   }
 
   private submit() {
