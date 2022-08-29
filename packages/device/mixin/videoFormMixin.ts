@@ -1,26 +1,37 @@
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { DeviceEnum, DeviceTypeEnum, InVideoProtocolEnum } from '../enums'
-import { VersionByInVideoProtocol } from '../dicts'
+import { DeviceEnum, InVideoProtocolEnum } from '../enums/index'
+import { InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '../dicts/index'
+import { DeviceTips } from '../dicts/tips'
 import { validGbId } from '../api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { checkVideoVisible } from '../utils/param'
+import CertificateSelect from '../components/CertificateSelect.vue'
+import Tags from '../components/Tags.vue'
 
-@Component
+@Component({
+  components: {
+    CertificateSelect,
+    Tags
+  }
+})
 export default class VideoFormMixin extends Vue {
   @Prop({ default: () => {} })
   public deviceForm
   public videoForm
+
+  private deviceEnum = DeviceEnum
+  private inVideoProtocolEnum = InVideoProtocolEnum
+  private tips = DeviceTips
+  private deviceVendor = DeviceVendor
+  private inVideoProtocolByDeviceType = InVideoProtocolByDeviceType
+  private inType = InType
+  private deviceStreamSize = DeviceStreamSize
+  private deviceStreamPullIndex = DeviceStreamPullIndex
   private versionByInVideoProtocol = VersionByInVideoProtocol
-
-  public loading = {
-    account: false
-  }
-  public dialog = {
-    createGb28181Certificate: false
-  }
-
   public orginalResourceIdList: Array<string> = []
-  public gbAccountList = []
+  private showMore: boolean = false
+  private showMoreVisable: boolean = false
+  private minChannelSize = 1
 
   public rules = {
     [DeviceEnum.InVideoProtocol]: [
@@ -72,6 +83,18 @@ export default class VideoFormMixin extends Vue {
     this.videoForm.inVideoProtocol = InVideoProtocolEnum.Gb28181
   }
 
+  private updated() {
+    this.checkIsShwoMore()
+  }
+
+  /**
+   * 判断是否显示更多下拉框
+   */
+  private checkIsShwoMore() {
+    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
+    this.showMoreVisable = showMoreForm.children.length !== 0
+  }
+
   /**
    * 视频接入协议变化
    */
@@ -82,23 +105,6 @@ export default class VideoFormMixin extends Vue {
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
-  }
-
-  /**
-   * 获取国标账号
-   */
-  public async getGbAccounts() {
-    try {
-      this.loading.account = true
-      const res = await getGbList({
-        pageSize: 1000
-      })
-      this.gbAccountList = res.gbCerts
-    } catch (e) {
-      console.error(e)
-    } finally {
-      this.loading.account = false
-    }
   }
 
   /**

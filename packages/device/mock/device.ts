@@ -28,7 +28,7 @@ export const deviceMock = {
         sipUdpPort: '234',
         outId: '123',
         inVersion: '2016',
-        inUserName: 'abc',
+        inUserName: '123',
         deviceStreamAutoPull: 1,
         streamTransProtocol: 'udp',
         sipTransType: 'udp',

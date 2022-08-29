@@ -57,7 +57,9 @@ interface VideoDevice {
   [DeviceEnum.OutId]?: string;
   [DeviceEnum.InVersion]?: string;
   [DeviceEnum.InUserName]?: string;
+  [DeviceEnum.DeviceStreamSize]?: number;
   [DeviceEnum.DeviceStreamAutoPull]?: number;
+  [DeviceEnum.DeviceStreamPullIndex]?: number;
   [DeviceEnum.StreamTransProtocol]?: string;
   [DeviceEnum.SipTransType]?: string;
   [DeviceEnum.SipId]?: string;
@@ -68,9 +70,14 @@ interface VideoDevice {
   [DeviceEnum.PushType]?: number; // 是否启用自动激活推流地址，InType设置为push，该字段才有效。
   [DeviceEnum.PushUrl]?: string;
   [DeviceEnum.PullUrl]?: string;
+  [DeviceEnum.UserName]?: string;
+  [DeviceEnum.Password]?: string;
+  [DeviceEnum.DeviceIp]?: string;
+  [DeviceEnum.DevicePort]?: string;
   [DeviceEnum.EnableDomain]?: number; // 是否启动域名
   [DeviceEnum.DeviceDomain]?: string; // 设备域名
   [DeviceEnum.DeviceStatus]: DeviceStatus;
+  [DeviceEnum.Tags]: string;
   [DeviceEnum.Stream]: Stream;
   [DeviceEnum.ErrorMsg]: string;
 }

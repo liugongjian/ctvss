@@ -1,6 +1,7 @@
 <template>
   <el-dialog
     title="新建GA1400凭证"
+    :append-to-body="true"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="700px"

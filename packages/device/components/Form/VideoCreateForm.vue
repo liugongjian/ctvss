@@ -9,7 +9,7 @@
     >
       <el-form-item label="接入协议:" :prop="deviceEnum.InVideoProtocol">
         <el-radio
-          v-for="(value, key) in inVideoProtocol[deviceForm.deviceType]"
+          v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm.deviceType]"
           :key="key"
           v-model="videoForm.inVideoProtocol"
           :label="key"
@@ -46,21 +46,7 @@
         />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-        <el-select v-model="videoForm.inUserName" :loading="loading.account">
-          <el-option
-            v-for="item in gbAccountList"
-            :key="item.userName"
-            :label="item.userName"
-            :value="item.userName"
-          />
-        </el-select>
-        <el-button
-          type="text"
-          class="ml10"
-          @click="openDialog('createGb28181Certificate')"
-        >
-          新建GB28181凭证
-        </el-button>
+        <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
         <el-radio
@@ -231,45 +217,22 @@
         </div>
       </div>
     </el-form>
-    <create-gb28181-certificate
-      v-if="dialog.createGb28181Certificate"
-      @on-close="closeDialog('createGb28181Certificate', ...arguments)"
-    />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import VideoFormMixin from '../../mixin/videoFormMixin'
-import { DeviceEnum, DeviceTypeEnum, InTypeEnum, InVideoProtocolEnum } from '../../enums/index'
-import { InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../../dicts/index'
-import { DeviceTips } from '../../dicts/tips'
-import { getList as getGbList } from '@/api/certificate/gb28181'
-import { validGbId } from '../../api/device'
-import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import { DeviceEnum, InTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import ResourceTabs from '../ResourceTabs.vue'
-import Tags from '../Tags.vue'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
-    CreateGb28181Certificate,
-    Tags,
     ResourceTabs
   }
 })
 export default class extends Mixins(VideoFormMixin) {
-  private deviceEnum = DeviceEnum
-  private inVideoProtocolEnum = InVideoProtocolEnum
-  private tips = DeviceTips
-  private deviceVendor = DeviceVendor
-  private inVideoProtocol = InVideoProtocolByDeviceType
-  private inType = InType
-  private deviceStreamSize = DeviceStreamSize
-  private deviceStreamPullIndex = DeviceStreamPullIndex
-  private minChannelSize = 1
-  private showMore: boolean = false
-  private showMoreVisable: boolean = false
   public videoForm = {
     [DeviceEnum.InVideoProtocol]: InVideoProtocolEnum.Gb28181,
     [DeviceEnum.VideoVendor]: '',
@@ -297,22 +260,6 @@ export default class extends Mixins(VideoFormMixin) {
   }
   public orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
-
-  private mounted() {
-    this.getGbAccounts()
-  }
-
-  private updated() {
-    this.checkIsShwoMore()
-  }
-
-  /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShwoMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
-  }
 
   /**
    * 校验video表单

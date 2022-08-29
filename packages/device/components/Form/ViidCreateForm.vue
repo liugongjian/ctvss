@@ -34,21 +34,7 @@
         </el-select>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GA1400凭证:" :prop="deviceEnum.InUserName">
-        <el-select v-model="viidForm.inUserName" :loading="loading.account">
-          <el-option
-            v-for="item in ga1400AccountList"
-            :key="item.id"
-            :label="item.userName"
-            :value="item.id"
-          />
-        </el-select>
-        <el-button
-          type="text"
-          class="ml10"
-          @click="openDialog('createGa1400Certificate')"
-        >
-          新建GA1400凭证
-        </el-button>
+        <certificate-select v-model="viidForm.inUserName" :type="inViidProtocolEnum.Ga1400" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP:" :prop="deviceEnum.Ip">
         <el-input v-model="viidForm.ip" placeholder="请输入平台IP" />
@@ -57,10 +43,6 @@
         <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
       </el-form-item>
     </el-form>
-    <create-ga1400-certificate
-      v-if="dialog.createGa1400Certificate"
-      @on-close="closeDialog('createGa1400Certificate', ...arguments)"
-    />
   </div>
 </template>
 
@@ -69,13 +51,12 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../../dicts/index'
 import { DeviceEnum, InViidProtocolEnum } from '../../enums/index'
 import { checkViidVisible } from '../../utils/param'
-import { getList as getGa1400List } from '@/api/certificate/ga1400'
-import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import CertificateSelect from '../../components/CertificateSelect.vue'
 
 @Component({
   name: 'ViidCreateForm',
   components: {
-    CreateGa1400Certificate
+    CertificateSelect
   }
 })
 export default class extends Vue {
@@ -83,6 +64,7 @@ export default class extends Vue {
   private deviceForm
 
   private deviceEnum = DeviceEnum
+  private inViidProtocolEnum = InViidProtocolEnum
   private inViidProtocol = InViidProtocol
   private protocolDeviceTypeByDeviceType = ProtocolDeviceTypeByDeviceType
   private ga1400AccountList = []
@@ -117,20 +99,10 @@ export default class extends Vue {
       { validator: this.validateDevicePort, trigger: 'change' }
     ]
   }
-  private loading = {
-    account: false
-  }
-  private dialog = {
-    createGa1400Certificate: false
-  }
 
   @Watch('deviceForm.deviceType')
   private deviceTypeChange() {
     this.viidForm.protocolDeviceType = ''
-  }
-
-  private mounted() {
-    this.getGa1400Accounts()
   }
 
   private checkVisible(prop) {
@@ -147,42 +119,6 @@ export default class extends Vue {
       validFlag = valid
     })
     return validFlag
-  }
-
-  /**
-   * 打开弹出框
-   */
-  private openDialog(type: string) {
-    // @ts-ignore
-    this.dialog[type] = true
-  }
-
-  /**
-   * 关闭弹出框
-   */
-  private closeDialog(type: string, payload: any) {
-    // @ts-ignore
-    this.dialog[type] = false
-    if (type === 'createGa1400Certificate' && payload === true) {
-      this.getGa1400Accounts()
-    }
-  }
-
-  /**
-   * 获取ga1400账号
-   */
-  private async getGa1400Accounts() {
-    try {
-      this.loading.account = true
-      const res = await getGa1400List({
-        pageSize: 1000
-      })
-      this.ga1400AccountList = res.data
-    } catch (e) {
-      console.error(e)
-    } finally {
-      this.loading.account = false
-    }
   }
 
   /**
