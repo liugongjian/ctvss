@@ -21,6 +21,10 @@ interface DeviceBasic {
   [DeviceEnum.Description]?: string;
   [DeviceEnum.DeviceIp]?: string;
   [DeviceEnum.DevicePort]?: string;
+  [DeviceEnum.DeviceSerialNumber]?: string; // 设备序列号
+  [DeviceEnum.DeviceModel]?: string; // 设备型号
+  [DeviceEnum.DeviceMac]?: string; // 设备MAC地址
+  [DeviceEnum.DevicePoleId]?: string; // 设备杆号
   [DeviceEnum.DeviceChannelSize]?: number;
   [DeviceEnum.DeviceStats]?: DeviceStats;
 }
@@ -53,10 +57,6 @@ interface VideoDevice {
   [DeviceEnum.OutId]?: string;
   [DeviceEnum.InVersion]?: string;
   [DeviceEnum.InUserName]?: string;
-  [DeviceEnum.DeviceSerialNumber]?: string;
-  [DeviceEnum.DeviceModel]?: string;
-  [DeviceEnum.DeviceMac]?: string;
-  [DeviceEnum.DevicePoleId]?: string;
   [DeviceEnum.DeviceStreamAutoPull]?: number;
   [DeviceEnum.StreamTransProtocol]?: string;
   [DeviceEnum.SipTransType]?: string;

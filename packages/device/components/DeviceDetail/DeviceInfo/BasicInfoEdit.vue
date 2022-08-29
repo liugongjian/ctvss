@@ -8,7 +8,7 @@
       label-position="right"
       label-width="135px"
     >
-      <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName" class="form-with-tip">
+      <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName">
         <el-input v-model="deviceForm.deviceName" />
       </el-form-item>
       <el-form-item label="设备分类:">
@@ -43,12 +43,14 @@
         <address-cascader
           :code="deviceForm.inOrgRegion"
           :level="deviceForm.inOrgRegionLevel"
+          :disabled="hasOutId"
           @change="onDeviceAddressChange"
         />
       </el-form-item>
       <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
         <el-select
           v-model="deviceForm.industryCode"
+          :disabled="hasOutId"
           placeholder="请选择所属行业"
         >
           <el-option
@@ -62,6 +64,7 @@
       <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
         <el-select
           v-model="deviceForm.networkCode"
+          :disabled="hasOutId"
           placeholder="请选择网络标识"
         >
           <el-option
@@ -106,7 +109,7 @@
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
-import { Device, DeviceBasic, Industry } from '@vss/device/type/Device'
+import { Device, DeviceBasic, Industry, VideoDevice } from '@vss/device/type/Device'
 import AddressCascader from '../../AddressCascader.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
@@ -133,31 +136,30 @@ export default class extends Mixins(deviceFormMixin) {
     immediate: true
   })
   private onDeviceChange() {
-    const basicInfo = this.device.device
+    const basicInfo: DeviceBasic = this.device.device
+    const industry: Industry = this.device.industry
     this.deviceForm = {
-      // step0
       [DeviceEnum.DeviceName]: basicInfo.deviceName,
       [DeviceEnum.DeviceType]: basicInfo.deviceType,
       [DeviceEnum.DeviceInType]: DeviceInTypeEnum.VideoAndViid,
       [DeviceEnum.InNetworkType]: this.device.inNetworkType,
       [DeviceEnum.OutNetworkType]: this.device.outNetworkType,
-      // step1
       longlat: 'required',
-      [DeviceEnum.DeviceLongitude]: '0.000000',
-      [DeviceEnum.DeviceLatitude]: '0.000000',
-      [DeviceEnum.DeviceVendor]: '',
-      [DeviceEnum.Region]: '',
-      [DeviceEnum.InOrgRegion]: '',
-      [DeviceEnum.InOrgRegionLevel]: null,
-      [DeviceEnum.IndustryCode]: '',
-      [DeviceEnum.NetworkCode]: '7',
-      [DeviceEnum.Description]: '',
-      [DeviceEnum.DeviceIp]: '',
-      [DeviceEnum.DevicePort]: '',
-      [DeviceEnum.DevicePoleId]: '',
-      [DeviceEnum.DeviceMac]: '',
-      [DeviceEnum.DeviceSerialNumber]: '',
-      [DeviceEnum.DeviceModel]: ''
+      [DeviceEnum.DeviceLongitude]: basicInfo.deviceLongitude,
+      [DeviceEnum.DeviceLatitude]: basicInfo.deviceLatitude,
+      [DeviceEnum.DeviceVendor]: basicInfo.deviceVendor,
+      [DeviceEnum.Description]: basicInfo.description,
+      [DeviceEnum.DeviceIp]: basicInfo.deviceIp,
+      [DeviceEnum.DevicePort]: basicInfo.devicePort,
+      [DeviceEnum.DevicePoleId]: basicInfo.devicePoleId,
+      [DeviceEnum.DeviceMac]: basicInfo.deviceMac,
+      [DeviceEnum.DeviceSerialNumber]: basicInfo.deviceSerialNumber,
+      [DeviceEnum.DeviceModel]: basicInfo.deviceModel,
+      [DeviceEnum.InOrgRegion]: industry.inOrgRegion,
+      [DeviceEnum.InOrgRegionLevel]: industry.inOrgRegionLevel,
+      [DeviceEnum.IndustryCode]: industry.industryCode,
+      [DeviceEnum.NetworkCode]: industry.networkCode,
+      [DeviceEnum.Region]: this.device.region
     }
   }
 
@@ -176,6 +178,11 @@ export default class extends Mixins(deviceFormMixin) {
     return this.device.videos && this.device.videos[0]!.inVideoProtocol
   }
 
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
+  }
+
   // 是否含视频
   private get hasVideo() {
     return this.device.videos && this.device.videos.length
@@ -184,6 +191,11 @@ export default class extends Mixins(deviceFormMixin) {
   // 是否含视图库
   private get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 是否含国标ID
+  private get hasOutId() {
+    return this.videoInfo && this.videoInfo.outId
   }
 
   private mounted() {

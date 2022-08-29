@@ -9,6 +9,10 @@ export const deviceMock = {
     description: '设备描述',
     deviceIp: '1.1.1.1',
     devicePort: '123',
+    deviceSerialNumber: '382393',
+    deviceModel: 'A1292',
+    deviceMac: '23882323',
+    devicePoleId: '123123',
     deviceChannelSize: 5,
     deviceStats: {
       onlineChannels: 4
@@ -25,10 +29,6 @@ export const deviceMock = {
         outId: '123',
         inVersion: '2016',
         inUserName: 'abc',
-        deviceSerialNumber: '382393',
-        deviceModel: 'A1292',
-        deviceMac: '23882323',
-        devicePoleId: '123123',
         deviceStreamAutoPull: 1,
         streamTransProtocol: 'udp',
         sipTransType: 'udp',
@@ -115,7 +115,11 @@ export const deviceMock = {
     }
   ],
   industry: {
-    industryName: '零售'
+    industryName: '零售',
+    industryCode: '11',
+    networkCode: '6',
+    inOrgRegion: '12011900',
+    inOrgRegionLevel: '3'
   },
   inNetworkType: 'public',
   outNetworkType: 'public'

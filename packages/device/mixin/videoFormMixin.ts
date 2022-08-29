@@ -1,8 +1,8 @@
 import { Component, Vue } from 'vue-property-decorator'
-import { DeviceAddress } from '../type/Device'
-import { getRegions } from '../api/region'
 import { DeviceEnum, DeviceTypeEnum } from '../enums'
+import { VersionByInVideoProtocol } from '../dicts'
 import { validGbId } from '../api/device'
+import { getList as getGbList } from '@/api/certificate/gb28181'
 
 @Component
 export default class VideoFormMixin extends Vue {
@@ -16,6 +16,7 @@ export default class VideoFormMixin extends Vue {
   }
 
   public orginalResourceIdList: Array<string> = []
+  public gbAccountList = []
 
   public rules = {
     [DeviceEnum.InVideoProtocol]: [
@@ -57,6 +58,54 @@ export default class VideoFormMixin extends Vue {
     [DeviceEnum.OutId]: [
       { validator: this.validateGbId, trigger: 'blur' }
     ]
+  }
+
+  /**
+   * 视频接入协议变化
+   */
+  public inVideoProtocolChange(val) {
+    this.$emit('inVideoProtocolChange', val)
+    // 重置vendor
+    this.videoForm.videoVendor = ''
+    // 重置version
+    const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
+    versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+  }
+
+  /**
+   * 获取国标账号
+   */
+  public async getGbAccounts() {
+    try {
+      this.loading.account = true
+      const res = await getGbList({
+        pageSize: 1000
+      })
+      this.gbAccountList = res.gbCerts
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
+    }
+  }
+
+  /**
+   * 打开弹出框
+   */
+  private openDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = true
+  }
+
+  /**
+   * 关闭弹出框
+   */
+  private closeDialog(type: string, payload: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    if (type === 'createGb28181Certificate' && payload === true) {
+      this.getGbAccounts()
+    }
   }
 
   /**

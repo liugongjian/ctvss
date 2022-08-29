@@ -4,11 +4,21 @@
       ref="videoForm"
       class="detail-wrap__edit"
       :rules="rules"
-      :model="deviceForm"
+      :model="videoForm"
       label-position="right"
       label-width="135px"
     >
-      1
+      <el-form-item label="接入协议:" :prop="deviceEnum.InVideoProtocol">
+        <el-radio
+          v-for="(value, key) in dicts.InVideoProtocolByDeviceType[basicInfo.deviceType]"
+          :key="key"
+          v-model="videoForm.inVideoProtocol"
+          :label="key"
+          @change="inVideoProtocolChange"
+        >
+          {{ value }}
+        </el-radio>
+      </el-form-item>
     </el-form>
 
     <div class="detail-wrap__edit__footer">
@@ -19,12 +29,12 @@
 </template>
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import VideoFormMixin from '@vss/device/mixin/videoFormMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
-import { Device, DeviceBasic, Industry } from '@vss/device/type/Device'
+import { Device, DeviceBasic, Industry, VideoDevice } from '@vss/device/type/Device'
 import AddressCascader from '../../AddressCascader.vue'
-import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
   name: 'VideoInfoEdit',
@@ -33,7 +43,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
     AddressCascader
   }
 })
-export default class extends Mixins(deviceFormMixin) {
+export default class extends Mixins(VideoFormMixin) {
   @Prop() private device: Device
 
   private dicts = dicts
@@ -44,37 +54,36 @@ export default class extends Mixins(deviceFormMixin) {
   private deviceVendor = dicts.DeviceVendor
   private industryMap = dicts.IndustryMap
   private networkMap = dicts.NetworkMap
-  public deviceForm = {}
+  public videoForm = {}
 
   @Watch('device', {
     immediate: true
   })
   private onDeviceChange() {
-    const basicInfo = this.device.device
-    this.deviceForm = {
-      // step0
-      [DeviceEnum.DeviceName]: basicInfo.deviceName,
-      [DeviceEnum.DeviceType]: basicInfo.deviceType,
-      [DeviceEnum.DeviceInType]: DeviceInTypeEnum.VideoAndViid,
-      [DeviceEnum.InNetworkType]: this.device.inNetworkType,
-      [DeviceEnum.OutNetworkType]: this.device.outNetworkType,
-      // step1
-      longlat: 'required',
-      [DeviceEnum.DeviceLongitude]: '0.000000',
-      [DeviceEnum.DeviceLatitude]: '0.000000',
-      [DeviceEnum.DeviceVendor]: '',
-      [DeviceEnum.Region]: '',
-      [DeviceEnum.InOrgRegion]: '',
-      [DeviceEnum.InOrgRegionLevel]: null,
-      [DeviceEnum.IndustryCode]: '',
-      [DeviceEnum.NetworkCode]: '7',
-      [DeviceEnum.Description]: '',
+    this.videoForm = {
+      [DeviceEnum.InVideoProtocol]: this.inVideoProtocol,
+      [DeviceEnum.VideoVendor]: '',
+      [DeviceEnum.InVersion]: '2016',
+      [DeviceEnum.DeviceChannelSize]: 1,
+      [DeviceEnum.InUserName]: '',
+      [DeviceEnum.InType]: '',
+      [DeviceEnum.PullUrl]: '',
+      [DeviceEnum.UserName]: '',
+      [DeviceEnum.Password]: '',
+      [DeviceEnum.EnableDomain]: 2,
+      [DeviceEnum.DeviceDomain]: '',
       [DeviceEnum.DeviceIp]: '',
       [DeviceEnum.DevicePort]: '',
-      [DeviceEnum.DevicePoleId]: '',
-      [DeviceEnum.DeviceMac]: '',
-      [DeviceEnum.DeviceSerialNumber]: '',
-      [DeviceEnum.DeviceModel]: ''
+      [DeviceEnum.DeviceStreamSize]: 1,
+      [DeviceEnum.DeviceStreamAutoPull]: 1,
+      [DeviceEnum.DeviceStreamPullIndex]: 1,
+      [DeviceEnum.PushType]: 1,
+      [DeviceEnum.StreamTransProtocol]: 'tcp',
+      [DeviceEnum.OutId]: '',
+      [DeviceEnum.Tags]: '',
+      [DeviceEnum.Resources]: [],
+      vssAIApps: [],
+      aIApps: []
     }
   }
 
@@ -93,18 +102,12 @@ export default class extends Mixins(deviceFormMixin) {
     return this.device.videos && this.device.videos[0]!.inVideoProtocol
   }
 
-  // 是否含视频
-  private get hasVideo() {
-    return this.device.videos && this.device.videos.length
-  }
-
-  // 是否含视图库
-  private get hasViid() {
-    return this.device.viids && this.device.viids.length
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   private mounted() {
-    this.getRegionList()
   }
 
   private submit() {
