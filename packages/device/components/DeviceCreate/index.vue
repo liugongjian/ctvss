@@ -40,7 +40,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="接入类型:" :prop="deviceEnum.DeviceInType">
+            <el-form-item label="接入方式:" :prop="deviceEnum.DeviceInType">
               <el-radio
                 v-for="(value, key) in deviceInType[deviceForm.deviceType]"
                 :key="key"
@@ -64,8 +64,13 @@
                 </el-popover>
               </template>
               <el-radio-group v-model="deviceForm.inNetworkType">
-                <el-radio :label="inNetworkTypeEnum.Public">互联网</el-radio>
-                <el-radio :label="inNetworkTypeEnum.Private">专线网络</el-radio>
+                <el-radio
+                  v-for="(value, key) in inNetworkType"
+                  :key="key"
+                  :label="key"
+                >
+                  {{ value }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item :prop="deviceEnum.OutNetworkType">
@@ -82,8 +87,13 @@
                 </el-popover>
               </template>
               <el-radio-group v-model="deviceForm.outNetworkType">
-                <el-radio :label="outNetworkTypeEnum.Public">互联网</el-radio>
-                <el-radio :label="outNetworkTypeEnum.Private">专线网络</el-radio>
+                <el-radio
+                  v-for="(value, key) in outNetworkType"
+                  :key="key"
+                  :label="key"
+                >
+                  {{ value }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
             <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Viid">
@@ -131,11 +141,7 @@
                   <svg-icon slot="reference" class="form-question" name="help" />
                 </el-popover>
               </template>
-              <el-cascader
-                v-model="deviceForm.region"
-                placeholder="请选择"
-                :options="regionList"
-              />
+              <region-cascader v-model="deviceForm.region" />
             </el-form-item>
             <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
               <address-cascader
@@ -219,29 +225,26 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping } from '../../dicts/index'
-import { DeviceAddress } from '../../type/Device'
-import { getRegions } from '../../api/region'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
 import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
 import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { createDevice } from '../../api/device'
-import AddressCascader from '../AddressCascader.vue'
 import VideoCreateForm from '../Form/VideoCreateForm.vue'
 import ViidCreateForm from '../Form/ViidCreateForm.vue'
+import deviceFormMixin from '../../mixin/deviceFormMixin'
 
 @Component({
   name: 'DeviceCreate',
   components: {
-    AddressCascader,
     VideoCreateForm,
     ViidCreateForm
   }
 })
-export default class extends Vue {
+export default class extends Mixins(deviceFormMixin) {
   private tips = DeviceTips
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
@@ -255,12 +258,14 @@ export default class extends Vue {
   private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap
+  private inNetworkType = InNetworkType
+  private outNetworkType = OutNetworkType
   private breadCrumbContent = '添加设备'
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
   private activeStep: number = 0
   private showMore: boolean = false
   private showMoreVisable: boolean = false
-  private deviceForm = {
+  public deviceForm = {
     // step0
     [DeviceEnum.DeviceName]: '',
     [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
@@ -287,62 +292,10 @@ export default class extends Vue {
   }
   private videoForm: any = {}
   private viidForm: any = {}
-  private rules = {
-    [DeviceEnum.DeviceName]: [
-      { required: true, message: '请输入设备名称', trigger: 'blur' },
-      { validator: this.validateDeviceName, trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceType]: [
-      { required: true, message: '请选择设备类型', trigger: 'change' }
-    ],
-    longlat: [
-      { required: true, message: '请选择经纬度', trigger: 'blur' },
-      { validator: this.validateLonglat, trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceVendor]: [
-      { required: true, message: '请选择厂商', trigger: 'change' }
-    ],
-    [DeviceEnum.Region]: [
-      { required: true, message: '请选择区域', trigger: 'change' }
-    ],
-    [DeviceEnum.InOrgRegion]: [
-      { required: true, message: '请选择设备地址', trigger: 'change' }
-    ],
-    [DeviceEnum.IndustryCode]: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
-    ],
-    [DeviceEnum.NetworkCode]: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceIp]: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    [DeviceEnum.DevicePort]: [
-      { validator: this.validateDevicePort, trigger: 'change' }
-    ],
-    [DeviceEnum.DevicePoleId]: [
-      { validator: this.validatePoleId, trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceMac]: [
-      { validator: this.validateMacAddr, trigger: 'blur' }
-    ]
-  }
-  private regionList = []
-  private loading = {
-    submit: false,
-    region: false
-  }
-  private get isChannel() {
-    return false
-  }
 
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
-  }
-
-  private mounted() {
-    this.getRegionList()
   }
 
   private updated() {
@@ -376,28 +329,6 @@ export default class extends Vue {
    */
   private inVideoProtocolChange(val) {
     this.inVideoProtocol = val
-  }
-
-  /**
-   * 选择设备地址
-   */
-  public onDeviceAddressChange(region: DeviceAddress) {
-    this.deviceForm.inOrgRegion = region.code
-    this.deviceForm.inOrgRegionLevel = region.level
-  }
-
-  /**
-   * 获取接入区域列表
-   */
-  private async getRegionList() {
-    this.loading.region = true
-    try {
-      this.regionList = await getRegions()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.region = false
-    }
   }
 
   /**
@@ -525,78 +456,6 @@ export default class extends Vue {
 
   private back() {
     this.$router.push({ name: 'DeviceList' })
-  }
-
-  /**
-   * 校验设备/通道名称
-   */
-  public validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{2,64}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'))
-    } else if (/^[\s]|[\s]$/.test(value)) {
-      callback(new Error('不能以空格作为名称的首尾。'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
-   * 校验经纬度
-   */
-  public validateLonglat(rule: any, value: string, callback: Function) {
-    if (!this.deviceForm.deviceLongitude || !this.deviceForm.deviceLatitude) {
-      callback(new Error('请填写经度及纬度坐标'))
-    } else if (!/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(this.deviceForm.deviceLongitude)) {
-      callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(this.deviceForm.deviceLatitude)) {
-      callback(new Error('纬度坐标格式错误'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
-   * 校验设备IP格式
-   */
-  public validateDeviceIp(rule: any, value: string, callback: Function) {
-    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
-      callback(new Error('设备IP格式不正确'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
-   * 校验端口号
-   */
-  public validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
-      callback(new Error('设备端口仅支持数字'))
-    } else {
-      callback()
-    }
-  }
-
-  /*
-   * 校验设备Domain格式
-   */
-  public validateDeviceDomain(rule: any, value: string, callback: Function) {
-    if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
-      callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
-   * 校验通道号
-   */
-  public validateChannelNum(rule: any, value: string, callback: Function) {
-    if (!/^[0-9]+$/.test(value)) {
-      callback(new Error('设备号仅支持数字'))
-    } else {
-      callback()
-    }
   }
 }
 </script>
