@@ -1,4 +1,8 @@
-import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum } from './enums'
+import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, ToolsEnum, DirectoryTypeEnum } from './enums'
+/**
+ * ==============================================================================================================================
+ * VIDEO
+ */
 
 /**
  * 接入协议对应的视频接入字段
@@ -27,8 +31,8 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.Password,
     DeviceEnum.EnableDomain,
     DeviceEnum.DeviceDomain,
-    DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort,
+    DeviceEnum.Ip,
+    DeviceEnum.Port,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.DeviceStreamPullIndex,
@@ -114,6 +118,11 @@ export const DeviceTypeDenyParamsForVideo = {
 }
 
 /**
+ * ==============================================================================================================================
+ * VIID
+ */
+
+/**
  * 接入协议对应的视图接入字段
  * 仅用在创建设备
  */
@@ -157,5 +166,35 @@ export const DeviceTypeDenyParamsForViid = {
     DeviceEnum.Port
   ]),
   [DeviceTypeEnum.Platform]: new Set([
+  ])
+}
+
+/**
+ * ==============================================================================================================================
+ * TOOLS
+ */
+
+/**
+ * 根据目录类型需要显示的字段
+ */
+export const DirectoryTypeAllowParams = {
+  [DirectoryTypeEnum.Ipc]: new Set([
+    ToolsEnum.StreamStatus,
+    ToolsEnum.SetStreamNum
+  ]),
+  [DirectoryTypeEnum.Dir]: new Set([
+    ToolsEnum.SortDirectory,
+    ToolsEnum.AddDirectory,
+    ToolsEnum.EditDirectory,
+    ToolsEnum.DeleteDirectory,
+    ToolsEnum.ShowMore
+  ]),
+  [DirectoryTypeEnum.Nvr]: new Set([
+    ToolsEnum.SortDirectory,
+    ToolsEnum.ShowMore
+  ]),
+  [DirectoryTypeEnum.Platform]: new Set([
+    ToolsEnum.SortDirectory,
+    ToolsEnum.ShowMore
   ])
 }

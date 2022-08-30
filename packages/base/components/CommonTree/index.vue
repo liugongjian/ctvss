@@ -62,10 +62,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
-  name: 'CommonTree',
-  directives: {
-    'test': {}
-  }
+  name: 'CommonTree'
 })
 export default class extends Vue {
   @Prop({ default: () => [] })
@@ -83,14 +80,21 @@ export default class extends Vue {
   @Prop({ default: true })
   private lazy: boolean
 
+  @Prop({ default: () => {} })
+  private load
+
+  @Prop({ default: false })
+  private treeLoading: boolean
+
   @Prop({ default: null })
   private getNodeInfo
 
-  @Prop({ default: () => {} })
+  @Prop({ default: () => {
+    return { bind: () => {} }
+  } })
   private itemDirective
 
   private hasRoot: boolean = false
-  private treeLoading: boolean = false
   private treeKey: string = 'ct' + new Date().getTime()
   private currentNodeKey = null
 
@@ -125,29 +129,6 @@ export default class extends Vue {
     this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
-  }
-
-  /**
-   * 加载节点
-   */
-  private async load(node: any, resolve: Function) {
-    try {
-      if (node.level === 0) {
-        this.treeLoading = true
-        resolve(await this.getNodeInfo('root'))
-        this.treeLoading = false
-      } else if (node.level < 4) {
-        resolve(await this.getNodeInfo('node'))
-      } else if (node.level === 4) {
-        resolve(await this.getNodeInfo('leaf'))
-      } else {
-        resolve([])
-      }
-    } catch (e) {
-      resolve([])
-    } finally {
-      this.treeLoading = false
-    }
   }
 
   /**
