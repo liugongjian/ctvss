@@ -249,7 +249,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content=""
+            :content="tips.alertPeriod"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
@@ -271,7 +271,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content=""
+            :content="tips.alertTriggerThreshold"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
@@ -289,7 +289,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content=""
+            :content="tips.alertSilencePeriod"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
