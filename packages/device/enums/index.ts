@@ -1,4 +1,3 @@
-
 /**
  * 设备字段名
  */
@@ -182,4 +181,37 @@ export enum InNetworkTypeEnum {
 export enum OutNetworkTypeEnum {
   Public = 'public',
   Private = 'private'
+}
+
+/**
+ * commonLayout左侧工具栏按钮对应enum
+ */
+export enum ToolsEnum {
+  StreamStatus = 'streamStatus',
+  SortDirectory = 'sortDirectory',
+  RefreshDirectory = 'refreshDirectory',
+  AddDirectory = 'addDirectory',
+  EditDirectory = 'editDirectory',
+  DeleteDirectory = 'deleteDirectory',
+  Polling = 'polling',
+  AutoPlay = 'autoPlay',
+  ExportSearchResult = 'exportSearchResult',
+  SetStreamNum = 'setStreamNum',
+  PausePolling = 'pausePolling',
+  ResumePolling = 'resumePolling',
+  StopPolling = 'stopPolling',
+  IntervalChange = 'intervalChange',
+  AdvanceSearch = 'advanceSearch',
+  ShowMore = 'showMore',
+  Refresh = 'refresh'
+}
+
+/**
+ * 目录类型
+ */
+export enum DirectoryTypeEnum {
+  Ipc = 'ipc',
+  Dir = 'dir',
+  Nvr = 'nvr',
+  Platform = 'platform'
 }

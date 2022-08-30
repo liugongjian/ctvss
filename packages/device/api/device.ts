@@ -12,16 +12,19 @@ export const getNodeInfo = (params: any): Promise<any> => {
     res = [
       {
         id: count++,
+        type: 'platform',
         label: 'root1',
         children: []
       },
       {
         id: count++,
+        type: 'platform',
         label: 'root2',
         children: []
       },
       {
         id: count++,
+        type: 'platform',
         label: 'root3',
         children: []
       }
@@ -30,16 +33,19 @@ export const getNodeInfo = (params: any): Promise<any> => {
     res = [
       {
         id: count++,
+        type: 'dir',
         label: 'node1',
         children: []
       },
       {
         id: count++,
+        type: 'dir',
         label: 'node2',
         children: []
       },
       {
         id: count++,
+        type: 'dir',
         label: 'node3',
         children: []
       }
@@ -48,15 +54,21 @@ export const getNodeInfo = (params: any): Promise<any> => {
     res = [
       {
         id: count++,
-        label: 'leaf1'
+        type: 'ipc',
+        label: 'leaf1',
+        isLeaf: true
       },
       {
         id: count++,
-        label: 'leaf2'
+        type: 'ipc',
+        label: 'leaf2',
+        isLeaf: true
       },
       {
         id: count++,
-        label: 'leaf3'
+        type: 'nvr',
+        label: 'leaf3',
+        isLeaf: true
       }
     ]
   }

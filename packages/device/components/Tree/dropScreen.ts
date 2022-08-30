@@ -56,9 +56,8 @@ export const dropScreen: DirectiveOptions = {
   bind(el: any, binding, vnode) {
     // console.log(binding.value, el)
     const { node } = binding.value
-    console.log(node.data)
     // if (view !== 'screen') return
-    // if (node.data.type !== 'ipc') return
+    if (node.data.type !== 'ipc') return
     // if (isLive && node.data.deviceStatus !== 'on') return
     drag.context = vnode.context
     el.node = node

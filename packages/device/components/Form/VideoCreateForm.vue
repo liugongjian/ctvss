@@ -80,10 +80,10 @@
         <el-form-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名:" :prop="deviceEnum.DeviceDomain">
           <el-input v-model="videoForm.deviceDomain" />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
+        <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="接入IP:" :prop="deviceEnum.DeviceIp">
           <el-input v-model="videoForm.deviceIp" />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
+        <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.DevicePort">
           <el-input v-model.number="videoForm.devicePort" />
         </el-form-item>
       </template>
