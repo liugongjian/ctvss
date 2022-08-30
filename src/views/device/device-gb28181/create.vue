@@ -349,6 +349,7 @@
                 :vss-ai-apps="form.vssAIApps"
                 @on-change="onResourceChange"
                 @changevssaiapps="changeVSSAIApps"
+                @changeAiDisabledStatus="changeAiDisabledStatus"
               />
             </el-form-item>
           </div>
@@ -475,6 +476,7 @@
             :vss-ai-apps="form.vssAIApps"
             @on-change="onResourceChange"
             @changevssaiapps="changeVSSAIApps"
+            @changeAiDisabledStatus="changeAiDisabledStatus"
           />
         </el-form-item>
       </template>

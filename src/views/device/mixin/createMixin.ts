@@ -45,7 +45,9 @@ export default class CreateMixin extends Vue {
 
   public tips = DeviceTips
 
-  public aiLoadingStatus = false
+  public aiDisabledStatus = false
+
+  public ifDisbled = false
 
   public ga1400Form = {
     inProtocol: 'GA1400',
@@ -534,7 +536,7 @@ export default class CreateMixin extends Vue {
   }
 
   // 接受子组件传来的VSSAIApps
-  private changeVSSAIApps(res: any) {
+  public changeVSSAIApps(res: any) {
     if (this.isUpdate) {
       this.form.aIApps = res
     }
@@ -553,14 +555,12 @@ export default class CreateMixin extends Vue {
   /**
    * 配置资源包  loading状态均为false时回调
    */
-  public changeAiLoadingStatus() {
-    this.aiLoadingStatus = true
+  public changeAiDisabledStatus(value: boolean) {
+    this.aiDisabledStatus = value
   }
 
-  /**
-   * 接口未加载完全，确定按钮不可点
-   */
-  public get ifDisbled() {
-    return !this.aiLoadingStatus && this.loading.device && this.loading.account
+  @Watch('aiDisabledStatus', { immediate: true, deep: true })
+  public onAiDisabledStatusChange(value: boolean) {
+    this.ifDisbled = value
   }
 }

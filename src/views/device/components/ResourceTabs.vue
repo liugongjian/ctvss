@@ -104,6 +104,7 @@
         <el-tabs
           v-if="form.resouceAiId !== -1"
           v-model="algoTabType"
+          v-loading="loading.abilityList"
           type="card"
           class="algo-tab"
           @tab-click="changeTabType"
@@ -240,7 +241,9 @@ export default class extends Vue {
     resouceVideoList: false,
     resouceAiList: false,
     resouceUploadList: false,
-    resouceAiTable: false
+    resouceAiTable: false,
+    abilityList: false,
+    resourceIdAttachedAppIds: false
   }
   private resouceVideoList = []
   private resouceAiList = []
@@ -458,26 +461,45 @@ export default class extends Vue {
   }
 
   private async getResourceIdAttachedAppIds(row: any) {
-    // if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
-
+    try {
+      this.loading.resourceIdAttachedAppIds = true
+      this.$emit('changeAiDisabledStatus', true)
+      const { appIdList } = await getResourceIdAttachedAppIds({
+        resourceId: row.resourceId,
+        deviceId: this.deviceId
+      })
+      this.resourceHasAppIds = appIdList
+      this.selectAlgoInfo = this.resourceHasAppIds
+      // if (this.selectAlgoId.length === 0) {
+      this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
     // }
-    const { appIdList } = await getResourceIdAttachedAppIds({
-      resourceId: row.resourceId,
-      deviceId: this.deviceId
-    })
-    this.resourceHasAppIds = appIdList
-    this.selectAlgoInfo = this.resourceHasAppIds
-    // if (this.selectAlgoId.length === 0) {
-    this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
-    // }
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.resourceIdAttachedAppIds = false
+      this.loadingStatus()
+    }
   }
 
   // 获取算法名
   private async getAiAlgoList(row: any) {
-    const { aiAbilityList } = await getAbilityList({ id: row.id })
-    this.aiAbilityTab = aiAbilityList
-    this.algoTabType = aiAbilityList[0]?.id
-    this.getAlgoList()
+    try {
+      this.loading.abilityList = true
+      this.$emit('changeAiDisabledStatus', true)
+      const { aiAbilityList } = await getAbilityList({ id: row.id })
+      this.aiAbilityTab = aiAbilityList
+      this.algoTabType = aiAbilityList[0]?.id
+      this.getAlgoList()
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.abilityList = false
+      this.loadingStatus()
+    }
   }
 
   // 关闭两个tips
@@ -500,6 +522,7 @@ export default class extends Vue {
   private async getAlgoList() {
     try {
       this.loading.resouceAiTable = true
+      this.$emit('changeAiDisabledStatus', true)
       const algoListResult = await getAppList({ abilityId: this.algoTabType })
       this.algoListData = algoListResult.aiApps
 
@@ -744,7 +767,7 @@ export default class extends Vue {
   public loadingStatus() {
     const final = Object.keys(this.loading).every(item => this.loading[item] === false)
     if (final) {
-      this.$emit('changeAiLoadingStatus')
+      this.$emit('changeAiDisabledStatus', false)
     }
   }
 }
