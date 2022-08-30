@@ -45,6 +45,8 @@ export default class CreateMixin extends Vue {
 
   public tips = DeviceTips
 
+  public aiLoadingStatus = false
+
   public ga1400Form = {
     inProtocol: 'GA1400',
     apeType: 'APE',
@@ -546,5 +548,19 @@ export default class CreateMixin extends Vue {
     const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
     const ifUse = temp.value === 'true'
     this.ifUseDeviceName = ifUse
+  }
+
+  /**
+   * 配置资源包  loading状态均为false时回调
+   */
+  public changeAiLoadingStatus() {
+    this.aiLoadingStatus = true
+  }
+
+  /**
+   * 接口未加载完全，确定按钮不可点
+   */
+  public get ifDisbled() {
+    return !this.aiLoadingStatus && this.loading.device && this.loading.account
   }
 }
