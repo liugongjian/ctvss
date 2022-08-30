@@ -371,7 +371,7 @@
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item :label=" isUpdate && ifUseDeviceName ? '通道实际名称:' :'通道名称:' " prop="channelName" class="form-with-tip">
-          <el-input v-model="form.channelName" :disabled="ifUseDeviceName" />
+          <el-input v-model="form.channelName" :disabled="isUpdate && ifUseDeviceName" />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>

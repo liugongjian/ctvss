@@ -1,5 +1,5 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
-import { Base64 } from 'js-base64'
+import { encrypt } from '@/utils/encrypt'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
@@ -122,8 +122,9 @@ class User extends VuexModule implements IUserState {
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
-      userName,
-      password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
+      userName: encrypt(userName),
+      password: encrypt(password),
+      version: '2.0'
     })
     setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
@@ -301,8 +302,9 @@ class User extends VuexModule implements IUserState {
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
     let { originalPwd, newPwd } = form
     await changePassword({
-      oldPassword: originalPwd,
-      newPassword: newPwd
+      oldPassword: encrypt(originalPwd),
+      newPassword: encrypt(newPwd),
+      version: '2.0'
     })
   }
 
@@ -311,9 +313,10 @@ class User extends VuexModule implements IUserState {
     let { mainUserID, subUserName, originalPwd, newPwd } = form
     const data = await resetIAMPassword({
       mainUserID,
-      subUserName,
-      oldPassword: originalPwd,
-      newPassword: newPwd
+      subUserName: encrypt(subUserName),
+      oldPassword: encrypt(originalPwd),
+      newPassword: encrypt(newPwd),
+      version: '2.0'
     })
     return data
   }
