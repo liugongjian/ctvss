@@ -8,7 +8,7 @@
       label-position="right"
       label-width="135px"
     >
-      <el-form-item label="接入协议:" :prop="deviceEnum.InVideoProtocol">
+      <el-form-item label="接入协议:" class="full-row" :prop="deviceEnum.InVideoProtocol">
         <el-radio
           v-for="(value, key) in inVideoProtocolByDeviceType[basicInfo.deviceType]"
           :key="key"
@@ -139,7 +139,7 @@
       <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
         <el-input v-model="videoForm.outId" />
       </el-form-item>
-      <!-- <el-form-item v-if="checkVisible(deviceEnum.Resources)" label="配置资源包:" :prop="deviceEnum.Resources">
+      <el-form-item v-if="checkVisible(deviceEnum.Resources)" label="配置资源包:" class="full-row" :prop="deviceEnum.Resources">
         <resource-tabs
           v-model="videoForm.resources"
           :is-private-in-network="deviceForm.inNetworkType === 'private'"
@@ -148,7 +148,7 @@
           @on-change="onResourceChange"
           @changevssaiapps="changeVSSAIApps"
         />
-      </el-form-item> -->
+      </el-form-item>
       <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>

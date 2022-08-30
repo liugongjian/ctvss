@@ -3,15 +3,16 @@ import { DeviceEnum, InVideoProtocolEnum } from '../enums/index'
 import { InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { validGbId } from '../api/device'
-import { getList as getGbList } from '@/api/certificate/gb28181'
 import { checkVideoVisible } from '../utils/param'
 import CertificateSelect from '../components/CertificateSelect.vue'
 import Tags from '../components/Tags.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   components: {
     CertificateSelect,
-    Tags
+    Tags,
+    ResourceTabs
   }
 })
 export default class VideoFormMixin extends Vue {

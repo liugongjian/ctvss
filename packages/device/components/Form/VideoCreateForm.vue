@@ -224,13 +224,9 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import VideoFormMixin from '../../mixin/videoFormMixin'
 import { DeviceEnum, InTypeEnum, InVideoProtocolEnum } from '../../enums/index'
-import ResourceTabs from '../ResourceTabs.vue'
 
 @Component({
-  name: 'VideoCreateForm',
-  components: {
-    ResourceTabs
-  }
+  name: 'VideoCreateForm'
 })
 export default class extends Mixins(VideoFormMixin) {
   public videoForm = {
