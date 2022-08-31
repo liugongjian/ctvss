@@ -483,9 +483,10 @@ export default class extends Vue {
       this.loadingStatus.resourceIdAttachedAppIds = false
     // }
     } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
     } finally {
       this.loading.resourceIdAttachedAppIds = false
       this.loadingStatusChange()
@@ -504,9 +505,10 @@ export default class extends Vue {
       await this.getAlgoList()
       this.loadingStatus.abilityList = false
     } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
     } finally {
       this.loading.abilityList = false
       this.loadingStatusChange()
@@ -574,9 +576,10 @@ export default class extends Vue {
       // this.$emit('changevssaiapps', this.selectAlgoInfo)
       this.loadingStatus.resouceAiTable = false
     } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
     } finally {
       this.loading.resouceAiTable = false
       this.loadingStatusChange()
