@@ -77,9 +77,9 @@ interface VideoDevice {
   [DeviceEnum.EnableDomain]?: number; // 是否启动域名
   [DeviceEnum.DeviceDomain]?: string; // 设备域名
   [DeviceEnum.DeviceStatus]: DeviceStatus;
-  [DeviceEnum.Tags]: string;
-  [DeviceEnum.Stream]: Stream;
-  [DeviceEnum.ErrorMsg]: string;
+  [DeviceEnum.Tags]?: string;
+  [DeviceEnum.Stream]?: Stream;
+  [DeviceEnum.ErrorMsg]?: string;
 }
 
 /**
@@ -101,6 +101,11 @@ interface ViidDevice {
   [DeviceEnum.HttpEndpoint]: string;
   [DeviceEnum.HttpsEndpoint]: string;
   [DeviceEnum.OutId]: string;
+  [DeviceEnum.LowerApsId]: string;
+  [DeviceEnum.ProtocolDeviceType]: string;
+  [DeviceEnum.InUserName]: string;
+  [DeviceEnum.Ip]: string;
+  [DeviceEnum.Port]: string;
   [DeviceEnum.DeviceStatus]: DeviceStatus;
 }
 
@@ -108,7 +113,7 @@ interface ViidDevice {
  * 视图接入
  */
 interface Viid {
-  [DeviceEnum.InVideoProtocol]: string;
+  [DeviceEnum.InViidProtocol]: string;
   [DeviceEnum.Ga1400Device]?: ViidDevice;
 }
 
@@ -163,6 +168,7 @@ export {
   DeviceAddress,
   DeviceBasic,
   VideoDevice,
+  ViidDevice,
   Industry,
   Device
 }

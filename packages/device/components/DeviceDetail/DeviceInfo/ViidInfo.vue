@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button type="text">编辑</el-button>
+      <el-button type="text" @click="edit">编辑</el-button>
       <el-dropdown>
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
@@ -63,6 +63,11 @@ export default class extends Vue {
   // 视图库接入信息
   private get viidInfo() {
     return this.inViidProtocol && this.device.viids[0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
+  }
+
+  // 进入编辑模式
+  private edit() {
+    this.$emit('edit')
   }
 }
 </script>

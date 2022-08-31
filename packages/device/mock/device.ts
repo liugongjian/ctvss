@@ -20,7 +20,7 @@ export const deviceMock = {
   },
   videos: [
     {
-      inVideoProtocol: 'gb28181',
+      inVideoProtocol: 'rtsp',
       gb28181Device: {
         sipId: '31011500012008469596',
         sipIp: '1.1.1.1',
@@ -74,6 +74,7 @@ export const deviceMock = {
         outId: '123',
         inVersion: '2020',
         userName: 'abc',
+        password: '333',
         streamTransProtocol: 'udp',
         sipTransType: 'udp',
         errorMsg: '设备下线',
@@ -81,6 +82,8 @@ export const deviceMock = {
         pullUrl: 'http://abc.com',
         enableDomain: 2,
         deviceDomain: 'http://www.domain.com',
+        deviceIp: '1.1.1.1',
+        devicePort: '123',
         deviceStreamAutoPull: 1,
         deviceStreamSize: 3,
         deviceStreamPullIndex: 1,
@@ -108,6 +111,8 @@ export const deviceMock = {
         viidServerPort: '1322',
         ip: '1.1.1.1',
         port: '1322',
+        lowerApsId: '123',
+        protocolDeviceType: 'aps',
         deviceStatus: {
           isOnline: 'on'
         }

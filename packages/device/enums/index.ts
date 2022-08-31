@@ -95,8 +95,8 @@ export enum DeviceEnum {
   HttpsEndpoint = 'httpsEndpoint',
   IncludeDeviceStats = 'includeDeviceStats',
   IncludeDeviceDir = 'includeDeviceDir',
-  LowerApsId = 'lowerApsId',
-  ProtocolDeviceType = 'protocolDeviceType',
+  LowerApsId = 'lowerApsId', // 视图编码
+  ProtocolDeviceType = 'protocolDeviceType', // 视图接入类型
   Ip = 'ip',
   Port = 'port',
   DeviceStats = 'deviceStats',

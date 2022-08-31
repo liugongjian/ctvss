@@ -1,8 +1,7 @@
 <template>
-  <div class="detail-wrap__edit-wrap">
+  <div class="detail-wrap__edit">
     <el-form
       ref="deviceForm"
-      class="detail-wrap__edit"
       :rules="rules"
       :model="deviceForm"
       label-position="right"

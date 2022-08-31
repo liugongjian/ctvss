@@ -18,7 +18,8 @@
             <video-info-edit v-else :device="device" :device-form="device.device" @cancel="isEdit.videoInfo = false" />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
-            <viid-info :device="device" />
+            <viid-info v-if="!isEdit.viidInfo" :device="device" @edit="isEdit.viidInfo = true" />
+            <viid-info-edit v-else :device="device" :device-form="device.device" @cancel="isEdit.viidInfo = false" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -33,6 +34,7 @@ import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
 import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
+import ViidInfoEdit from './ViidInfoEdit.vue'
 import { DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/detailMixin'
 
@@ -43,7 +45,8 @@ import detailMixin from '@vss/device/mixin/detailMixin'
     BasicInfoEdit,
     VideoInfo,
     VideoInfoEdit,
-    ViidInfo
+    ViidInfo,
+    ViidInfoEdit
   }
 })
 export default class extends Mixins(detailMixin) {
@@ -51,7 +54,8 @@ export default class extends Mixins(detailMixin) {
   private activeTab = DeviceInTypeEnum.Video
   private isEdit = {
     basicInfo: false,
-    videoInfo: false
+    videoInfo: false,
+    viidInfo: false
   }
 
   public async mounted() {

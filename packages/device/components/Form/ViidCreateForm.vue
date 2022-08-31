@@ -48,8 +48,9 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../../dicts/index'
+import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '../../dicts/index'
 import { DeviceEnum, InViidProtocolEnum } from '../../enums/index'
+import { Device, ViidDevice } from '@vss/device/type/Device'
 import { checkViidVisible } from '../../utils/param'
 import CertificateSelect from '../../components/CertificateSelect.vue'
 
@@ -60,6 +61,7 @@ import CertificateSelect from '../../components/CertificateSelect.vue'
   }
 })
 export default class extends Vue {
+  @Prop() private device: Device
   @Prop({ default: () => {} })
   private deviceForm
 
@@ -68,14 +70,7 @@ export default class extends Vue {
   private inViidProtocol = InViidProtocol
   private protocolDeviceTypeByDeviceType = ProtocolDeviceTypeByDeviceType
   private ga1400AccountList = []
-  private viidForm = {
-    [DeviceEnum.InViidProtocol]: InViidProtocolEnum.Ga1400,
-    [DeviceEnum.LowerApsId]: '',
-    [DeviceEnum.ProtocolDeviceType]: '',
-    [DeviceEnum.InUserName]: '',
-    [DeviceEnum.Ip]: '',
-    [DeviceEnum.Port]: ''
-  }
+  public viidForm: any = {}
   private rules = {
     [DeviceEnum.InViidProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
@@ -98,6 +93,31 @@ export default class extends Vue {
       { required: true, message: '请输入端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
     ]
+  }
+
+  // 视图库接入协议
+  private get inProtocol() {
+    return this.device && this.device.viids && this.device.viids[0]!.inViidProtocol
+  }
+
+  // 视图库接入信息
+  private get viidInfo(): ViidDevice {
+    return (this.inProtocol && this.device.viids[0]![InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+  }
+
+  @Watch('device', {
+    immediate: true
+  })
+  private onDeviceChange() {
+    console.log('🌞', this.inProtocol)
+    this.viidForm = {
+      [DeviceEnum.InViidProtocol]: this.inProtocol || InViidProtocolEnum.Ga1400,
+      [DeviceEnum.LowerApsId]: this.viidInfo.lowerApsId,
+      [DeviceEnum.ProtocolDeviceType]: this.viidInfo.protocolDeviceType,
+      [DeviceEnum.InUserName]: this.viidInfo.inUserName,
+      [DeviceEnum.Ip]: this.viidInfo.ip,
+      [DeviceEnum.Port]: this.viidInfo.port
+    }
   }
 
   @Watch('deviceForm.deviceType')

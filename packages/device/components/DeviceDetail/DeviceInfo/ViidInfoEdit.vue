@@ -1,6 +1,6 @@
 <template>
   <div class="detail-wrap__edit">
-    <video-create-form ref="form" :device-form="basicInfo" :device="device" />
+    <viid-create-form ref="form" :device-form="basicInfo" :device="device" />
     <div class="detail-wrap__edit__footer">
       <el-button size="medium" type="primary" @click="submit">确 定</el-button>
       <el-button size="medium" @click="cancel">取 消</el-button>
@@ -10,12 +10,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
-import VideoCreateForm from '../../Form/VideoCreateForm.vue'
+import ViidCreateForm from '../../Form/ViidCreateForm.vue'
 
 @Component({
-  name: 'VideoInfoEdit',
+  name: 'ViidInfoEdit',
   components: {
-    VideoCreateForm
+    ViidCreateForm
   }
 })
 export default class extends Vue {
@@ -27,9 +27,9 @@ export default class extends Vue {
   }
 
   private submit() {
-    const form = this.$refs.form as VideoCreateForm
+    const form = this.$refs.form as ViidCreateForm
     if (form.validateVideoForm()) {
-      console.log(form.videoForm)
+      console.log(form.viidForm)
       this.$emit('cancel')
     }
   }
