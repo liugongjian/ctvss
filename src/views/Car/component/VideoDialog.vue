@@ -81,7 +81,7 @@ export default class extends Vue {
         deviceId: this.record?.deviceId
       }
       const res = await getCarTask(params)
-      this.Operations = [...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations]
+      this.Operations = res?.operations
     } catch (e) {
       this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
