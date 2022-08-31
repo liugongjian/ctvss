@@ -1,17 +1,18 @@
 <template>
   <el-dialog
     :visible="true"
-    width="1200px"
+    :width="info && type === 'record' ? '1200px' : '800px'"
     center
     :destroy-on-close="true"
     :close-on-click-modal="false"
     @close="closeDialog"
   >
-    <el-form label-width="70px" size="mini">
-      <el-form-item label="任务历史：">
+    <div v-if="info && type === 'record'">
+      <div style="margin-bottom: 20px; text-align: center;">任务历史</div>
+      <div class="history">
         <div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.operate)} ` }}<span style="color: #9e9e9e;">{{ `${op.operateTime}` }}</span></div>
-      </el-form-item>
-    </el-form>
+      </div>
+    </div>
     <div class="dialog-player-wrapper">
       <detail-preview
         v-if="info && type === 'preview'"
@@ -80,7 +81,7 @@ export default class extends Vue {
         deviceId: this.record?.deviceId
       }
       const res = await getCarTask(params)
-      this.Operations = res?.operations
+      this.Operations = [...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations, ...res?.operations]
     } catch (e) {
       this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
@@ -113,14 +114,18 @@ export default class extends Vue {
   max-height: 620px;
   display: flex;
   justify-content: space-evenly;
-  .el-form {
+  .history {
     overflow-y: auto;
     overflow-x: hidden;
+    width: 240px;
+    height: 500px;
+    & > div {
+      margin-bottom: 8px;
+      margin-left: 8px;
+    }
   }
 }
-::v-deep .el-form-item__content {
-  width:220px !important;
-}
+
 ::v-deep .el-dialog__footer {
   margin-top: 0 !important;
 }
