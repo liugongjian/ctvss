@@ -8,7 +8,7 @@
     @close="closeDialog"
   >
     <div v-if="info && type === 'record'">
-      <div style="margin-bottom: 20px; text-align: center;">任务历史</div>
+      <div style="margin-bottom: 20px;margin-left: 8px;">任务历史</div>
       <div class="history">
         <div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.operate)} ` }}<span style="color: #9e9e9e;">{{ `${op.operateTime}` }}</span></div>
       </div>
