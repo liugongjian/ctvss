@@ -132,7 +132,7 @@ export default class extends Vue {
   /**
    * 校验viid表单
    */
-  private validateViidForm() {
+  public validateViidForm() {
     let validFlag = true
     const viidForm: any = this.$refs.viidForm
     viidForm.validate((valid) => {
