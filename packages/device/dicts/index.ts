@@ -157,11 +157,11 @@ export const InVideoProtocol = {
  * 视频接入协议对应的中台模型字段名
  */
 export const InVideoProtocolModelMapping = {
-  [enums.InVideoProtocolEnum.Gb28181]: 'gb28181Device',
-  [enums.InVideoProtocolEnum.Rtmp]: 'rtmpDevice',
-  [enums.InVideoProtocolEnum.Rtsp]: 'rtspDevice',
-  [enums.InVideoProtocolEnum.Ehome]: 'ehomeDevice',
-  [enums.InVideoProtocolEnum.Onvif]: 'onvifDevice'
+  [enums.InVideoProtocolEnum.Gb28181]: enums.DeviceEnum.Gb28181Device,
+  [enums.InVideoProtocolEnum.Rtmp]: enums.DeviceEnum.RtmpDevice,
+  [enums.InVideoProtocolEnum.Rtsp]: enums.DeviceEnum.RtspDevice,
+  [enums.InVideoProtocolEnum.Ehome]: enums.DeviceEnum.EhomeDevice,
+  [enums.InVideoProtocolEnum.Onvif]: enums.DeviceEnum.OnvifDevice
 }
 
 /**
@@ -175,7 +175,7 @@ export const InViidProtocol = {
  * 视频接入协议对应的中台模型字段名
  */
 export const InViidProtocolModelMapping = {
-  [enums.InViidProtocolEnum.Ga1400]: 'ga1400Device'
+  [enums.InViidProtocolEnum.Ga1400]: enums.DeviceEnum.Ga1400Device
 }
 
 /**
@@ -183,14 +183,14 @@ export const InViidProtocolModelMapping = {
  */
 export const VideoParamLabel = {
   [enums.InVideoProtocolEnum.Gb28181]: {
-    'outId': '国标ID',
-    'inVersion': '国标版本',
-    'inUserName': 'GB28181凭证'
+    [enums.DeviceEnum.OutId]: '国标ID',
+    [enums.DeviceEnum.InVersion]: '国标版本',
+    [enums.DeviceEnum.InUserName]: 'GB28181凭证'
   },
   [enums.InVideoProtocolEnum.Ehome]: {
-    'outId': 'Ehome ID',
-    'inVersion': 'Ehome版本',
-    'inUserName': 'Ehome凭证'
+    [enums.DeviceEnum.OutId]: 'Ehome ID',
+    [enums.DeviceEnum.InVersion]: 'Ehome版本',
+    [enums.DeviceEnum.InUserName]: 'Ehome凭证'
   }
 }
 

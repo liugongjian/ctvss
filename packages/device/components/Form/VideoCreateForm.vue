@@ -304,25 +304,25 @@ export default class extends Vue {
   private onDeviceChange() {
     this.videoForm = {
       [DeviceEnum.InVideoProtocol]: this.inVideoProtocol || InVideoProtocolEnum.Gb28181,
-      [DeviceEnum.VideoVendor]: this.basicInfo.deviceVendor,
-      [DeviceEnum.InVersion]: this.videoInfo.inVersion || '2016',
-      [DeviceEnum.DeviceChannelSize]: this.basicInfo.deviceChannelSize || 1,
-      [DeviceEnum.InUserName]: this.videoInfo.inUserName,
-      [DeviceEnum.InType]: this.videoInfo.inType || InTypeEnum.Pull,
-      [DeviceEnum.PullUrl]: this.videoInfo.pullUrl,
-      [DeviceEnum.UserName]: this.videoInfo.userName,
-      [DeviceEnum.Password]: this.videoInfo.password,
-      [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
-      [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
-      [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
-      [DeviceEnum.DevicePort]: this.videoInfo.devicePort,
-      [DeviceEnum.DeviceStreamSize]: this.videoInfo.deviceStreamSize || 1,
-      [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.deviceStreamAutoPull || 1,
-      [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.deviceStreamPullIndex || 1,
-      [DeviceEnum.PushType]: this.videoInfo.pushType || 1,
-      [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
-      [DeviceEnum.OutId]: this.videoInfo.outId,
-      [DeviceEnum.Tags]: this.videoInfo.tags,
+      [DeviceEnum.VideoVendor]: this.basicInfo[DeviceEnum.VideoVendor],
+      [DeviceEnum.InVersion]: this.videoInfo[DeviceEnum.InVersion] || '2016',
+      [DeviceEnum.DeviceChannelSize]: this.basicInfo[DeviceEnum.DeviceChannelSize] || 1,
+      [DeviceEnum.InUserName]: this.videoInfo[DeviceEnum.InUserName],
+      [DeviceEnum.InType]: this.videoInfo[DeviceEnum.InType] || InTypeEnum.Pull,
+      [DeviceEnum.PullUrl]: this.videoInfo[DeviceEnum.PullUrl],
+      [DeviceEnum.UserName]: this.videoInfo[DeviceEnum.UserName],
+      [DeviceEnum.Password]: this.videoInfo[DeviceEnum.Password],
+      [DeviceEnum.EnableDomain]: this.videoInfo[DeviceEnum.EnableDomain] || 2,
+      [DeviceEnum.DeviceDomain]: this.videoInfo[DeviceEnum.DeviceDomain],
+      [DeviceEnum.DeviceIp]: this.videoInfo[DeviceEnum.DeviceIp],
+      [DeviceEnum.DevicePort]: this.videoInfo[DeviceEnum.DevicePort],
+      [DeviceEnum.DeviceStreamSize]: this.videoInfo[DeviceEnum.DeviceStreamSize] || 1,
+      [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo[DeviceEnum.DeviceStreamAutoPull] || 1,
+      [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1,
+      [DeviceEnum.PushType]: this.videoInfo[DeviceEnum.PushType] || 1,
+      [DeviceEnum.StreamTransProtocol]: this.videoInfo[DeviceEnum.StreamTransProtocol] || 'tcp',
+      [DeviceEnum.OutId]: this.videoInfo[DeviceEnum.OutId],
+      [DeviceEnum.Tags]: this.videoInfo[DeviceEnum.Tags],
       [DeviceEnum.Resources]: [],
       vssAIApps: [],
       aIApps: []
@@ -339,17 +339,17 @@ export default class extends Vue {
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return (this.device && this.device.device) || {} as DeviceBasic
+    return (this.device && this.device[DeviceEnum.Device]) || {} as DeviceBasic
   }
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device && this.device.videos && this.device.videos[0]!.inVideoProtocol
+    return this.device && this.device[DeviceEnum.Videos] && this.device[DeviceEnum.Videos][0]![DeviceEnum.InVideoProtocol]
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return (this.inVideoProtocol && this.device.videos[0]![InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
+    return (this.inVideoProtocol && this.device[DeviceEnum.Videos][0]![InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
   }
 
   private updated() {
@@ -382,18 +382,18 @@ export default class extends Vue {
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
     // 重置vendor
-    this.videoForm.videoVendor = ''
+    this.videoForm[DeviceEnum.VideoVendor] = ''
     // 重置version
-    const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
-    versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+    const versionMap = VersionByInVideoProtocol[this.videoForm[DeviceEnum.InVideoProtocol]]
+    versionMap && (this.videoForm[DeviceEnum.InVersion] = Object.values(versionMap)[0] as string)
   }
 
   /**
    * 码流数变化回调
    */
   private onDeviceStreamSizeChange() {
-    if (this.videoForm.deviceStreamSize < this.videoForm.deviceStreamPullIndex) {
-      this.videoForm.deviceStreamPullIndex = this.videoForm.deviceStreamSize
+    if (this.videoForm[DeviceEnum.DeviceStreamSize] < this.videoForm[DeviceEnum.DeviceStreamPullIndex]) {
+      this.videoForm[DeviceEnum.DeviceStreamPullIndex] = this.videoForm[DeviceEnum.DeviceStreamSize]
     }
   }
 
@@ -411,16 +411,16 @@ export default class extends Vue {
    */
   private changeVSSAIApps(res: any) {
     if (this.isUpdate) {
-      this.videoForm.aIApps = res
+      this.videoForm[DeviceEnum.AIApps] = res
     }
-    this.videoForm.vssAIApps = res
+    this.videoForm[DeviceEnum.VssAIApps] = res
   }
 
   /**
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm[DeviceEnum.DeviceType], this.videoForm[DeviceEnum.InVideoProtocol], prop)
   }
 
   /*
@@ -443,11 +443,11 @@ export default class extends Vue {
     const remainError: any = []
     this.videoForm.resources.forEach((resource: any) => {
       // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
-      const devicesCount = this.deviceForm.deviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.deviceChannelSize
+      const remainDeviceCount = parseInt(this.resourcesMapping[resource[DeviceEnum.ResourceId]] && this.resourcesMapping[resource[DeviceEnum.ResourceId]][DeviceEnum.RemainDeviceCount])
+      const devicesCount = this.deviceForm[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc ? 1 : this.deviceForm[DeviceEnum.DeviceChannelSize]
       // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
-      switch (resource.resourceType) {
+      const isChanged = this.orginalResourceIdList.indexOf(resource[DeviceEnum.ResourceId]) === -1
+      switch (resource[DeviceEnum.ResourceType]) {
         case 'VSS_VIDEO':
           hasVideo = true
           if (isChanged && devicesCount > remainDeviceCount) {
@@ -508,11 +508,11 @@ export default class extends Vue {
     } else if (value) {
       try {
         validInfo = await validGbId({
-          deviceId: this.deviceId,
-          inProtocol: this.videoForm.inVideoProtocol,
-          gbId: this.videoForm.outId
+          [DeviceEnum.DeviceId]: this.deviceId,
+          [DeviceEnum.InVideoProtocol]: this.videoForm[DeviceEnum.InVideoProtocol],
+          [DeviceEnum.OutId]: this.videoForm[DeviceEnum.OutId]
         })
-        if (validInfo && !validInfo.isValidGbId) {
+        if (validInfo && !validInfo.IsValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {
           callback()

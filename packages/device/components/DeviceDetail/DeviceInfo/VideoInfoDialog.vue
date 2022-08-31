@@ -21,6 +21,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
+import { DeviceEnum } from '@vss/device/enums'
 import VideoCreateForm from '../../Form/VideoCreateForm.vue'
 
 @Component({
@@ -36,7 +37,7 @@ export default class extends Vue {
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device.device
+    return this.device[DeviceEnum.Device]
   }
 
   private submit() {

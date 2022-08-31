@@ -21,6 +21,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
+import { DeviceEnum } from '@vss/device/enums'
 import ViidCreateForm from '../../Form/ViidCreateForm.vue'
 
 @Component({
@@ -31,12 +32,13 @@ import ViidCreateForm from '../../Form/ViidCreateForm.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  private deviceEnum = DeviceEnum
   private dialogVisible = true
   private submitting = false
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device.device
+    return this.device[DeviceEnum.Device]
   }
 
   private submit() {

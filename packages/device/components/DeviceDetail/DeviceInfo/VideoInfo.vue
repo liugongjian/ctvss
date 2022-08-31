@@ -13,64 +13,64 @@
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
       <el-descriptions-item label="设备状态">
-        <status-badge :status="videoInfo.deviceStatus.isOnline" />
-        {{ dicts.DeviceStatus[videoInfo.deviceStatus.isOnline] || '-' }}
+        <status-badge :status="videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
+        {{ dicts.DeviceStatus[videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="流状态">
-        <status-badge :status="videoInfo.stream.streamStatus" />
-        {{ dicts.StreamStatus[videoInfo.stream.streamStatus] || '-' }}
+        <status-badge :status="videoInfo[deviceEnum.Stream][deviceEnum.StreamStatus]" />
+        {{ dicts.StreamStatus[videoInfo[deviceEnum.Stream][deviceEnum.StreamStatus]] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="录制状态">
-        <status-badge :status="dicts.RecordStatusType[videoInfo.stream.recordStatus]" />
-        {{ dicts.RecordStatus[videoInfo.stream.recordStatus] || '-' }}
+        <status-badge :status="dicts.RecordStatusType[videoInfo[deviceEnum.Stream][deviceEnum.RecordStatus]]" />
+        {{ dicts.RecordStatus[videoInfo[deviceEnum.Stream][deviceEnum.RecordStatus]] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats.onlineChannels }}</el-descriptions-item>
-      <el-descriptions-item label="当前码率">{{ videoInfo.stream.bitrate ? (videoInfo.stream.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
-      <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo[deviceEnum.DeviceStats][deviceEnum.OnlineChannels] }}</el-descriptions-item>
+      <el-descriptions-item label="当前码率">{{ videoInfo[deviceEnum.Stream][deviceEnum.Bitrate] ? (videoInfo[deviceEnum.Stream][deviceEnum.Bitrate] / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
+      <el-descriptions-item label="异常提示">{{ videoInfo[deviceEnum.ErrorMsg] }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="协议类型">{{ dicts.InVideoProtocol[inVideoProtocol] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol].outId">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol].inVersion">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol].inUserName">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址">{{ videoInfo.deviceMac }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号">{{ videoInfo.devicePoleId }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamAutoPull)" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo.deviceStreamAutoPull] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamPullIndex)" label="自动拉取码流">{{ dicts.DeviceStreamPullIndex[videoInfo.deviceStreamPullIndex] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransProtocol)" label="优先TCP传输">{{ dicts.StreamTransProtocol[videoInfo.streamTransProtocol] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransType)" label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式">{{ dicts.InType[videoInfo.inType] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.PushType)" label="自动激活推流地址">{{ dicts.PushType[videoInfo.pushType] }}</el-descriptions-item>
-      <template v-if="basicInfo.deviceVendor === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
-        <el-descriptions-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址">{{ videoInfo.pullUrl }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.OutId]">{{ videoInfo[deviceEnum.OutId] || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo[deviceEnum.InVersion] || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo[deviceEnum.InUserName] || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="通道数量">{{ basicInfo[deviceEnum.DeviceChannelSize] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址">{{ videoInfo[deviceEnum.DeviceMac] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号">{{ videoInfo[deviceEnum.DevicePoleId] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo[deviceEnum.SipTransType]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo[deviceEnum.DeviceStreamSize]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamAutoPull)" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo[deviceEnum.DeviceStreamAutoPull]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamPullIndex)" label="自动拉取码流">{{ dicts.DeviceStreamPullIndex[videoInfo[deviceEnum.DeviceStreamPullIndex]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransProtocol)" label="优先TCP传输">{{ dicts.StreamTransProtocol[videoInfo[deviceEnum.StreamTransProtocol]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransType)" label="流传输模式">{{ dicts.StreamTransType[videoInfo[deviceEnum.Stream][deviceEnum.StreamTransType]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式">{{ dicts.InType[videoInfo[deviceEnum.InType]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.PushType)" label="自动激活推流地址">{{ dicts.PushType[videoInfo[deviceEnum.PushType]] }}</el-descriptions-item>
+      <template v-if="basicInfo[deviceEnum.DeviceVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
+        <el-descriptions-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址">{{ videoInfo[deviceEnum.PullUrl] }}</el-descriptions-item>
       </template>
       <template v-else>
-        <el-descriptions-item v-if="checkVisible(deviceEnum.UserName)" label="用户名">{{ videoInfo.userName }}</el-descriptions-item>
-        <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名">{{ videoInfo.deviceDomain }}</el-descriptions-item>
-        <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
-        <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.UserName)" label="用户名">{{ videoInfo[deviceEnum.UserName] }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名">{{ videoInfo[deviceEnum.DeviceDomain] }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP">{{ basicInfo[deviceEnum.DeviceIp] }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口">{{ basicInfo[deviceEnum.DevicePort] }}</el-descriptions-item>
       </template>
     </el-descriptions>
 
     <!-- 国标SIP信息 -->
     <el-descriptions v-if="checkVisible(deviceEnum.Gb28181SipInfo)" title="SIP信息" :column="2">
-      <el-descriptions-item label="SIP服务器ID">{{ videoInfo.sipId || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="SIP服务器ID">{{ videoInfo[deviceEnum.SipId] || '-' }}</el-descriptions-item>
       <el-descriptions-item label="SIP服务器域">{{ sipDomain }}</el-descriptions-item>
-      <el-descriptions-item label="SIP服务器地址">{{ videoInfo.sipIp || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="SIP服务器TCP端口">{{ videoInfo.sipTcpPort || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="SIP服务器UDP端口">{{ videoInfo.sipUdpPort || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="SIP服务器地址">{{ videoInfo[deviceEnum.SipIp] || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="SIP服务器TCP端口">{{ videoInfo[deviceEnum.SipTcpPort] || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="SIP服务器UDP端口">{{ videoInfo[deviceEnum.SipUdpPort] || '-' }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- EHOME SIP信息 -->
     <el-descriptions v-if="checkVisible(deviceEnum.EhomeSipInfo)" title="EHOME服务信息" :column="2">
-      <el-descriptions-item label="EHOME服务器地址">{{ videoInfo.sipIp || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="EHOME服务器TCP端口">{{ videoInfo.sipTcpPort || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="EHOME服务器UDP端口">{{ videoInfo.sipUdpPort || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="EHOME服务器地址">{{ videoInfo[deviceEnum.SipIp] || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="EHOME服务器TCP端口">{{ videoInfo[deviceEnum.SipTcpPort] || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="EHOME服务器UDP端口">{{ videoInfo[deviceEnum.SipUdpPort] || '-' }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -95,27 +95,27 @@ export default class extends Vue {
 
   // 设备基本信息
   private get basicInfo() {
-    return this.device.device
+    return this.device[DeviceEnum.Device]
   }
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device.videos && this.device.videos[0]!.inVideoProtocol
+    return this.device[DeviceEnum.Videos] && this.device[DeviceEnum.Videos][0]![DeviceEnum.InVideoProtocol]
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
+    return this.inVideoProtocol && this.device[DeviceEnum.Videos][0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // SIP服务器域
   public get sipDomain() {
-    return this.videoInfo && this.videoInfo.sipId && this.videoInfo.sipId.toString().substr(0, 10)
+    return this.videoInfo && this.videoInfo[DeviceEnum.SipId] && this.videoInfo[DeviceEnum.SipId].toString().substr(0, 10)
   }
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoInfo, this.basicInfo[DeviceEnum.DeviceType], this.inVideoProtocol, prop)
   }
 
   // 进入编辑模式

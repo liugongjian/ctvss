@@ -12,24 +12,24 @@
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
       <el-descriptions-item label="设备状态">
-        <status-badge :status="viidInfo.deviceStatus.isOnline" />
-        {{ dicts.DeviceStatus[viidInfo.deviceStatus.isOnline] || '-' }}
+        <status-badge :status="viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
+        {{ dicts.DeviceStatus[viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
       </el-descriptions-item>
     </el-descriptions>
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
-      <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
-      <el-descriptions-item label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
-      <el-descriptions-item label="端口">{{ viidInfo.port }}</el-descriptions-item>
+      <el-descriptions-item label="视图ID">{{ viidInfo[deviceEnum.OutId] || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="GA1400凭证">{{ viidInfo[deviceEnum.InUserName] }}</el-descriptions-item>
+      <el-descriptions-item label="平台IP">{{ viidInfo[deviceEnum.Ip] }}</el-descriptions-item>
+      <el-descriptions-item label="端口">{{ viidInfo[deviceEnum.Port] }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 视图库信息 -->
     <el-descriptions title="视图库信息" :column="2">
-      <el-descriptions-item label="视图库IP">{{ viidInfo.viidServerIp }}</el-descriptions-item>
-      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidServerPort }}</el-descriptions-item>
+      <el-descriptions-item label="视图库IP">{{ viidInfo[deviceEnum.ViidServerIp] }}</el-descriptions-item>
+      <el-descriptions-item label="视图库端口号">{{ viidInfo[deviceEnum.ViidServerPort] }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -37,7 +37,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import * as enums from '@vss/device/enums'
+import { DeviceEnum } from '@vss/device/enums'
 
 @Component({
   name: 'ViidInfo',
@@ -48,21 +48,21 @@ import * as enums from '@vss/device/enums'
 export default class extends Vue {
   @Prop() private device
   private dicts = dicts
-  private enums = enums
+  private deviceEnum = DeviceEnum
 
   // 设备基本信息
   private get basicInfo() {
-    return this.device.device
+    return this.device[DeviceEnum.Device]
   }
 
   // 视图库接入协议
   private get inViidProtocol() {
-    return this.device.viids && this.device.viids[0]!.inViidProtocol
+    return this.device[DeviceEnum.Viids] && this.device[DeviceEnum.Viids][0]![DeviceEnum.InViidProtocol]
   }
 
   // 视图库接入信息
   private get viidInfo() {
-    return this.inViidProtocol && this.device.viids[0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
+    return this.inViidProtocol && this.device[DeviceEnum.Viids][0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
   }
 
   // 进入编辑模式

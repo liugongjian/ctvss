@@ -67,7 +67,10 @@ export enum DeviceEnum {
   WorkOrderId = 'WorkOrderId',
   ResourceType = 'ResourceType',
   ResourceId = 'ResourceId',
+  AIApps = 'AIApps',
+  VssAIApps = 'VssAIApps',
   AnalyseType = 'AnalyseType',
+  RemainDeviceCount = 'RemainDeviceCount',
   CreatedTime = 'CreatedTime',
   UpdatedTime = 'UpdatedTime',
   IsOnline = 'IsOnline',
@@ -103,11 +106,11 @@ export enum DeviceEnum {
   DeviceStatus = 'DeviceStatus',
   Stream = 'Stream',
   VideoVendor = 'VideoVendor', // 用于RTSP对应视频接入的厂商，如果是“其他”需要手动填入拉流地址
-  Gb28181Devices = 'Gb28181Devices',
+  Gb28181Device = 'Gb28181Device',
   RtmpDevice = 'RtmpDevice',
   RtspDevice = 'RtspDevice',
   EhomeDevice = 'EhomeDevice',
-  OnvifDevicevice = 'OnvifDevicevice',
+  OnvifDevice = 'OnvifDevice',
   Ga1400Device = 'Ga1400Device',
   Gb28181SipInfo = 'Gb28181SipInfo', // 详情中的国标SIP信息
   EhomeSipInfo = 'EhomeSipInfo', // 详情中的Ehome SIP信息

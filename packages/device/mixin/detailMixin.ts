@@ -1,6 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
+import { DeviceEnum } from '@vss/device/enums'
 
 @Component
 export default class DetailMixin extends Vue {
@@ -18,20 +19,13 @@ export default class DetailMixin extends Vue {
 
   // 是否含视频
   private get hasVideo() {
-    return this.device.videos && this.device.videos.length
+    return this.device[DeviceEnum.Videos] && this.device[DeviceEnum.Videos].length
   }
 
   // 是否含视图库
   private get hasViid() {
-    return this.device.viids && this.device.viids.length
+    return this.device[DeviceEnum.Viids] && this.device[DeviceEnum.Viids].length
   }
-
-  /**
-   * 视频接入协议
-   */
-  // public get inVideoProtocol() {
-  //   return this.device && this.device.videos.length && this.device.videos[0].inVideoProtocol
-  // }
 
   /**
    * 获取设备详情
