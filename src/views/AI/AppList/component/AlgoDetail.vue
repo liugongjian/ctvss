@@ -391,6 +391,12 @@ export default class extends Mixins(AppMixin) {
       if (this.form.alertPeriod > 0 || this.form.alertSilencePeriod > 0 || this.form.alertTriggerThreshold > 0) {
         this.alertDisabled = true
       }
+      // eslint-disable-next-line eqeqeq
+      if (this.form.alertPeriod == 0 && this.form.alertSilencePeriod == 0 && this.form.alertTriggerThreshold == 0) {
+        this.form.alertPeriod = '0'
+        this.form.alertSilencePeriod = '3'
+        this.form.alertTriggerThreshold = '1'
+      }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
       this.form = {
@@ -423,7 +429,8 @@ export default class extends Mixins(AppMixin) {
 
   private transformInterval(pName) {
     if (this.form[pName] % 60 === 0) {
-      if (this.form[pName] === 0) {
+      // eslint-disable-next-line eqeqeq
+      if (this.form[pName] == 0) {
         this.interval[pName] = 's'
       } else if (this.form[pName] / 60 < 60) {
         this.interval[pName] = 'm'

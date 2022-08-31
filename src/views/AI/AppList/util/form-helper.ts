@@ -53,7 +53,7 @@ export const getRule = (msg) => {
           }
         },
         trigger: 'blur' })
-    } else if (msg === '静默时间' || msg === '告警数量阈值') {
+    } else if (msg === '告警数量阈值') {
       rule.push({
         validator: (rule, value, callback) => {
           if (parseInt(value) === 0) {
@@ -108,7 +108,7 @@ export const formTips = {
   pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
   jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵',
   alertDisabled: '针对于AI告警信息频繁的情况，并配置静默规则之后，可以压缩AI告警信息，默认关闭',
-  alertPeriod: '检测告警信息的时间区段，默认0分钟',
-  alertTriggerThreshold: '检测告警信息的数量阈值，默认0',
-  alertSilencePeriod: '静默时间内，不产生任何的AI告警信息，告警周期内触发告警之后即进入静默期，待达到静默时间之后，重新进行新一轮的告警判断，默认0分钟'
+  alertPeriod: '检测告警信息的时间区段，默认0秒',
+  alertTriggerThreshold: '检测告警信息的数量阈值，默认1个',
+  alertSilencePeriod: '静默时间内，不产生任何的AI告警信息，告警周期内触发告警之后即进入静默期，待达到静默时间之后，重新进行新一轮的告警判断，默认3秒'
 }
