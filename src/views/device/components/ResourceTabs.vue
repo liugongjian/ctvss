@@ -245,6 +245,14 @@ export default class extends Vue {
     abilityList: false,
     resourceIdAttachedAppIds: false
   }
+
+  // 用来判断 确定按钮的可点击
+  private loadingStatus: any = {
+    resouceAiTable: false,
+    abilityList: false,
+    resourceIdAttachedAppIds: false
+  }
+
   private resouceVideoList = []
   private resouceAiList = []
   private resouceUploadList = []
@@ -314,7 +322,6 @@ export default class extends Vue {
       this.$message.error(e.message)
     } finally {
       this.loading[loadingType] = false
-      this.loadingStatus()
     }
   }
 
@@ -463,6 +470,7 @@ export default class extends Vue {
   private async getResourceIdAttachedAppIds(row: any) {
     try {
       this.loading.resourceIdAttachedAppIds = true
+      this.loadingStatus.resourceIdAttachedAppIds = true
       this.$emit('changeAiDisabledStatus', true)
       const { appIdList } = await getResourceIdAttachedAppIds({
         resourceId: row.resourceId,
@@ -472,6 +480,7 @@ export default class extends Vue {
       this.selectAlgoInfo = this.resourceHasAppIds
       // if (this.selectAlgoId.length === 0) {
       this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
+      this.loadingStatus.resourceIdAttachedAppIds = false
     // }
     } catch (e) {
       if (e && e.code !== 5) {
@@ -479,7 +488,7 @@ export default class extends Vue {
       }
     } finally {
       this.loading.resourceIdAttachedAppIds = false
-      this.loadingStatus()
+      this.loadingStatusChange()
     }
   }
 
@@ -487,18 +496,20 @@ export default class extends Vue {
   private async getAiAlgoList(row: any) {
     try {
       this.loading.abilityList = true
+      this.loadingStatus.abilityList = true
       this.$emit('changeAiDisabledStatus', true)
       const { aiAbilityList } = await getAbilityList({ id: row.id })
       this.aiAbilityTab = aiAbilityList
       this.algoTabType = aiAbilityList[0]?.id
-      this.getAlgoList()
+      await this.getAlgoList()
+      this.loadingStatus.abilityList = false
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
       this.loading.abilityList = false
-      this.loadingStatus()
+      this.loadingStatusChange()
     }
   }
 
@@ -522,6 +533,7 @@ export default class extends Vue {
   private async getAlgoList() {
     try {
       this.loading.resouceAiTable = true
+      this.loadingStatus.resouceAiTable = true
       this.$emit('changeAiDisabledStatus', true)
       const algoListResult = await getAppList({ abilityId: this.algoTabType })
       this.algoListData = algoListResult.aiApps
@@ -560,13 +572,14 @@ export default class extends Vue {
       // this.setChecked()
       this.filterCheckedStatus()
       // this.$emit('changevssaiapps', this.selectAlgoInfo)
+      this.loadingStatus.resouceAiTable = false
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
       this.loading.resouceAiTable = false
-      this.loadingStatus()
+      this.loadingStatusChange()
     }
   }
 
@@ -764,8 +777,8 @@ export default class extends Vue {
   }
 
   // loading状态回调
-  public loadingStatus() {
-    const final = Object.keys(this.loading).every(item => this.loading[item] === false)
+  public loadingStatusChange() {
+    const final = Object.keys(this.loadingStatus).every(item => this.loadingStatus[item] === false)
     if (final) {
       this.$emit('changeAiDisabledStatus', false)
     }
