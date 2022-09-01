@@ -101,6 +101,8 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '29':// 垃圾站
     case '10026':// 垃圾站
+    case '35':// 标准工作服检测
+    case '10035':// 标准工作服检测
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           let label
@@ -120,13 +122,16 @@ export const parseMetaData = (type: string, metaData: any) => {
             case 'Bear':
               label = '狗熊'
               break
+            default:
+              label = box.LabelCh
+              break
           }
           return {
             top: box.TopLeftY,
             left: box.TopLeftX,
             width: box.BottomRightX - box.TopLeftX,
             height: box.BottomRightY - box.TopLeftY,
-            isWarning: box.Score.length > 0 && box.Score > 60,
+            isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
             label
           }
         } catch (error) {
@@ -213,6 +218,13 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
       }
       break
 

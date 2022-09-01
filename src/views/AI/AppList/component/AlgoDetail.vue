@@ -153,7 +153,7 @@
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id+''" />
         </el-select>
-        <i class="el-icon-refresh" @click="refreshFaceLib" />
+        <!-- <i class="el-icon-refresh" @click="refreshFaceLib" /> -->
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
@@ -219,6 +219,88 @@
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
+      <el-divider content-position="left">告警配置</el-divider>
+      <el-form-item>
+        <template slot="label">
+          告警配置:
+          <el-popover
+            placement="top-start"
+            title="告警配置"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.alertDisabled"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-switch
+          v-model="alertDisabled"
+          active-color="#fa8334"
+          inactive-color="#C0C4CC"
+        />
+      </el-form-item>
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertPeriod" class="inline-form-item">
+        <template slot="label">
+          告警周期:
+          <el-popover
+            placement="top-start"
+            title="告警周期"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.alertPeriod"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-input v-model="form.alertPeriod" class="alarm" />
+      </el-form-item>
+      <el-select v-if="alertDisabled && !ifShow('10001', '10034')" v-model="interval.alertPeriod" class="interval-unit">
+        <el-option key="second" label="秒" value="s" />
+        <el-option key="minute" label="分" value="m" />
+        <el-option key="hour" label="时" value="h" />
+      </el-select>
+      <br>
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertTriggerThreshold" class="inline-form-item">
+        <template slot="label">
+          告警数量阈值:
+          <el-popover
+            placement="top-start"
+            title="告警数量阈值"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.alertTriggerThreshold"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-input v-model="form.alertTriggerThreshold" class="alarm" />
+      </el-form-item>
+      <span v-if="alertDisabled && !ifShow('10001', '10034')" style="margin-left: 16px;">个</span>
+      <br>
+      <el-form-item v-if="alertDisabled" prop="alertSilencePeriod" class="inline-form-item">
+        <template slot="label">
+          静默时间:
+          <el-popover
+            placement="top-start"
+            title="静默时间"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.alertSilencePeriod"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-input v-model="form.alertSilencePeriod" class="alarm" />
+      </el-form-item>
+      <el-select v-if="alertDisabled" v-model="interval.alertSilencePeriod" class="interval-unit">
+        <el-option key="second" label="秒" value="s" />
+        <el-option key="minute" label="分" value="m" />
+        <el-option key="hour" label="时" value="h" />
+      </el-select>
       <el-form-item>
         <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -260,6 +342,11 @@ export default class extends Mixins(AppMixin) {
   private TrashType = TrashType
   private AnimalType = AnimalType
   private HelmetClothType: any = HelmetClothType
+  private alertDisabled = false
+  private interval = {
+    alertPeriod: 's',
+    alertSilencePeriod: 's'
+  }
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
@@ -292,6 +379,8 @@ export default class extends Mixins(AppMixin) {
       this.editTransformFaceData()
       // 处理老安全帽反光服meta
       this.editTransformHelmetReflectiveType()
+      // 处理告警静默参数
+      this.editTransformInterval()
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
       // 蜜蜂阈值特别处理
@@ -299,9 +388,28 @@ export default class extends Mixins(AppMixin) {
         this.form.beeNumber = this.form.confidence / 100
         this.form = { ...this.form, confidence: 60 }
       }
+      if (this.form.alertPeriod > 0 || this.form.alertSilencePeriod > 0 || this.form.alertTriggerThreshold > 0) {
+        this.alertDisabled = true
+      }
+      // eslint-disable-next-line eqeqeq
+      if (this.form.alertPeriod == 0 && this.form.alertSilencePeriod == 0 && this.form.alertTriggerThreshold == 0) {
+        this.form.alertPeriod = '0'
+        this.form.alertSilencePeriod = '3'
+        this.form.alertTriggerThreshold = '1'
+      }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
+      this.form = {
+        algoName: this.prod.name,
+        algorithmMetadata,
+        availableperiod: [],
+        validateType: '无验证',
+        confidence: 60,
+        beeNumber: 1,
+        alertTriggerThreshold: '1',
+        alertPeriod: '0',
+        alertSilencePeriod: '3'
+      }
     }
     try {
       const { data } = await listGroup({
@@ -311,6 +419,28 @@ export default class extends Mixins(AppMixin) {
       this.faceLibs = data
     } catch (e) {
       this.$alertError(e && e.message)
+    }
+  }
+
+  private editTransformInterval() {
+    this.transformInterval('alertPeriod')
+    this.transformInterval('alertSilencePeriod')
+  }
+
+  private transformInterval(pName) {
+    if (this.form[pName] % 60 === 0) {
+      // eslint-disable-next-line eqeqeq
+      if (this.form[pName] == 0) {
+        this.interval[pName] = 's'
+      } else if (this.form[pName] / 60 < 60) {
+        this.interval[pName] = 'm'
+        this.form[pName] = this.form[pName] / 60
+      } else {
+        this.interval[pName] = 'h'
+        this.form[pName] = this.form[pName] / 60 / 60
+      }
+    } else {
+      this.interval[pName] = 's'
     }
   }
 
@@ -392,7 +522,10 @@ export default class extends Mixins(AppMixin) {
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
-      confidence: this.form.confidence / 100
+      confidence: this.form.confidence / 100,
+      alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '0',
+      alertPeriod: this.alertDisabled ? (this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? +this.form.alertPeriod * 60 : +this.form.alertPeriod * 60 * 60).toString() : '0',
+      alertSilencePeriod: this.alertDisabled ? (this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? +this.form.alertSilencePeriod * 60 : +this.form.alertSilencePeriod * 60 * 60).toString() : '0'
     }
 
     // 蜜蜂数量特殊处理
@@ -533,6 +666,24 @@ export default class extends Mixins(AppMixin) {
 
   .el-form-item.is-error.el-form-item--medium {
     margin-bottom: 20px;
+  }
+
+  .alarm {
+    width: 112px;
+    margin-right: 18px;
+
+    & + .el-select {
+      width: 80px;
+    }
+  }
+
+  .inline-form-item {
+    width: fit-content;
+    display: inline-block;
+  }
+
+  .interval-unit {
+    width: 65px;
   }
 }
 </style>
