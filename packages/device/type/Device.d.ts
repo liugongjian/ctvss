@@ -141,6 +141,7 @@ interface Resource {
  * 设备
  */
 interface Device {
+  [DeviceEnum.DeviceId]?: string;
   [DeviceEnum.Region]: string;
   [DeviceEnum.InNetworkType]: string; // 接入网络类型, 取值：public, private, 默认public
   [DeviceEnum.OutNetworkType]: string; // 播放网络类型, 取值：public, private, 默认public

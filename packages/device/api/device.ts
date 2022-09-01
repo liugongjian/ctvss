@@ -7,23 +7,22 @@ import { UserModule } from '@/store/modules/user'
 export const getNodeInfo = (params: any): Promise<any> => {
   // mock
   let res: any
-  let count: number = 0
   if (params === 'root') {
     res = [
       {
-        id: count++,
+        id: '00',
         type: 'platform',
         label: 'root1',
         children: []
       },
       {
-        id: count++,
+        id: '01',
         type: 'platform',
         label: 'root2',
         children: []
       },
       {
-        id: count++,
+        id: '02',
         type: 'platform',
         label: 'root3',
         children: []
@@ -32,19 +31,19 @@ export const getNodeInfo = (params: any): Promise<any> => {
   } else if (params === 'node') {
     res = [
       {
-        id: count++,
+        id: '03',
         type: 'dir',
         label: 'node1',
         children: []
       },
       {
-        id: count++,
+        id: '04',
         type: 'dir',
         label: 'node2',
         children: []
       },
       {
-        id: count++,
+        id: '05',
         type: 'dir',
         label: 'node3',
         children: []
@@ -53,25 +52,96 @@ export const getNodeInfo = (params: any): Promise<any> => {
   } else {
     res = [
       {
-        id: count++,
+        id: '06',
         type: 'ipc',
         label: 'leaf1',
         isLeaf: true
       },
       {
-        id: count++,
+        id: '07',
         type: 'ipc',
         label: 'leaf2',
         isLeaf: true
       },
       {
-        id: count++,
+        id: '08',
         type: 'nvr',
         label: 'leaf3',
         isLeaf: true
       }
     ]
   }
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(res)
+    }, 1000)
+  })
+}
+
+export const getDeviceTree = (params: any): Promise<any> => {
+  let res = [{
+    id: 1,
+    type: 'platform',
+    label: '一级 1',
+    children: [{
+      id: 4,
+      type: 'dir',
+      label: '二级 1-1',
+      children: [{
+        id: 9,
+        type: 'ipc',
+        label: '三级 1-1-1'
+      }, {
+        id: 10,
+        type: 'ipc',
+        label: '三级 1-1-2'
+      }]
+    }]
+  }, {
+    id: 2,
+    type: 'platform',
+    label: '一级 2',
+    children: [{
+      id: 5,
+      type: 'ipc',
+      label: '二级 2-1'
+    }, {
+      id: 6,
+      type: 'ipc',
+      label: '二级 2-2'
+    }]
+  }, {
+    id: 3,
+    type: 'platform',
+    label: '一级 3',
+    children: [{
+      id: 7,
+      type: 'dir',
+      label: '二级 3-1'
+    }, {
+      id: 8,
+      type: 'dir',
+      label: '二级 3-2',
+      children: [{
+        id: 9,
+        type: 'dir',
+        label: '二级 3-1'
+      }, {
+        id: 10,
+        type: 'nvr',
+        label: '二级 3-2',
+        children: [{
+          id: 11,
+          type: 'ipc',
+          label: '二级 3-1'
+        }, {
+          id: 12,
+          type: 'ipc',
+          label: '二级 3-2'
+        }]
+      }]
+    }]
+  }]
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(res)
@@ -153,20 +223,20 @@ export const deleteDevice = (params: any): Promise<any> =>
 /**
  * 获取设备目录树
  */
-export const getDeviceTree = (params: any): Promise<any> => {
-  const headers = params['self-defined-headers']
-  delete params['self-defined-headers']
-  return request({
-    url: '/device/tree',
-    method: 'get',
-    params: {
-      ...params,
-      sortBy: 'OrderSequence',
-      sortDirection: 'asc'
-    },
-    headers: headers
-  })
-}
+// export const getDeviceTree = (params: any): Promise<any> => {
+//   const headers = params['self-defined-headers']
+//   delete params['self-defined-headers']
+//   return request({
+//     url: '/device/tree',
+//     method: 'get',
+//     params: {
+//       ...params,
+//       sortBy: 'OrderSequence',
+//       sortDirection: 'asc'
+//     },
+//     headers: headers
+//   })
+// }
 
 /**
  * 子目排序

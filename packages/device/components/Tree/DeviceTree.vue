@@ -18,11 +18,11 @@
       {{ rootLabel }}
     </template>
     <template slot="rootLabelSuffix">
-      <span>{{ `(1/11)` }}</span>
+      <span>{{ `(${rootSums.online}/${rootSums.total})` }}</span>
     </template>
     <template slot="rootTools" slot-scope="{data}">
       <el-tooltip effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
-        <el-button type="text" @click.stop="handleTools('exportSearchResult', data)"><svg-icon name="export" /></el-button>
+        <el-button type="text" @click.stop="handleTools(toolsEnum.ExportSearchResult, data)"><svg-icon name="export" /></el-button>
       </el-tooltip>
     </template>
     <template slot="itemLabelPrefix" slot-scope="{data}">
@@ -32,8 +32,8 @@
     <template slot="itemLabel" slot-scope="{node}">
       {{ node.label }}
     </template>
-    <template slot="itemLabelSuffix">
-      <span>{{ `(1/11)` }}</span>
+    <template slot="itemLabelSuffix" slot-scope="{data}">
+      <span>{{ `(${11}/${11})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{data}">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SortDirectory)" effect="dark" content="子目录排序" placement="top" :open-delay="300">

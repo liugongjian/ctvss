@@ -32,7 +32,7 @@
       :empty-text="emptyText"
       :props="props"
       :lazy="lazy"
-      :load="load"
+      :load="loadChildren"
       :default-expand-all="!lazy"
       highlight-current
       @node-click="handleNode"
@@ -83,9 +83,6 @@ export default class extends Vue {
   @Prop({ default: () => {} })
   private load
 
-  @Prop({ default: false })
-  private treeLoading: boolean
-
   @Prop({ default: null })
   private getNodeInfo
 
@@ -94,16 +91,24 @@ export default class extends Vue {
   } })
   private itemDirective
 
+  @Prop({ default: false })
+  private treeLoading: boolean
+
   private hasRoot: boolean = false
   private treeKey: string = 'ct' + new Date().getTime()
   private currentNodeKey = null
+
+  private get tree() {
+    return this.$refs.Tree as any
+  }
 
   private created() {
     Vue.directive('item-directive', this.itemDirective)
   }
 
   private mounted() {
-    this.initTree()
+    // this.initTree()
+    console.log('treeMounted')
     this.checkRootVisable()
   }
 
@@ -124,7 +129,7 @@ export default class extends Vue {
   private initTree() {
     console.log('init')
     this.currentNodeKey = this.defaultKey
-    const node = (this.$refs.Tree as any).getNode(this.currentNodeKey)
+    const node = this.tree.getNode(this.currentNodeKey)
     const data = node && node.data
     this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
@@ -132,11 +137,39 @@ export default class extends Vue {
   }
 
   /**
+   * 懒加载时加载子目录
+   */
+  public async loadChildren(payload: any, resolve?: Function) {
+    // 判断为key则获取node
+    if (typeof payload === 'string') {
+      payload = this.tree.getNode(payload)
+    }
+    // 未传则使用自定义resolve
+    if (!resolve) {
+      resolve = this.resolveChildren.bind(this, payload)
+    }
+    try {
+      payload.loading = true
+      resolve(await this.load(payload))
+      payload.loading = false
+    } catch (e) {
+      resolve([])
+    }
+  }
+
+  private resolveChildren = function(node, data) {
+    if (!node) return
+    this.tree.updateKeyChildren(node.data.id, data)
+    node.expanded = true
+    node.loaded = true
+  }
+
+  /**
    * node点击事件
    */
   private handleNode(data: any, node: any) {
-    this.currentNodeKey = node ? node.key : null;
-    (this.$refs.Tree as any).setCurrentKey(this.currentNodeKey)
+    this.currentNodeKey = node ? node.key : null
+    this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('handle-node', data)
   }
 }

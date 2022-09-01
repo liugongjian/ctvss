@@ -17,6 +17,7 @@
         <!-- TODO -->
         <device-tree
           ref="deviceTree"
+          v-loading="loading.tree"
           :lazy="lazy"
           :data="treeSearchResult"
           @handle-node="handleTreeNode"
@@ -46,6 +47,8 @@
         <router-view />
       </template>
     </common-layout>
+    <create-dir v-if="dialog[toolsEnum.EditDirectory]" :parent-dir="parentDir" :current-dir="currentDir" @on-close="closeDialog(toolsEnum.EditDirectory, ...arguments)" />
+    <sort-dir v-if="dialog[toolsEnum.SortDirectory]" @on-close="closeDialog(toolsEnum.SortDirectory, ...arguments)" />
   </div>
 </template>
 
@@ -53,11 +56,15 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import layoutMxin from './mixin/layoutMixin'
 import DeviceTree from './components/Tree/DeviceTree.vue'
+import SortDir from './components/SortDir.vue'
+import CreateDir from './components/CreateDir.vue'
 
 @Component({
   name: 'Device',
   components: {
-    DeviceTree
+    DeviceTree,
+    SortDir,
+    CreateDir
   }
 })
 export default class extends Mixins(layoutMxin) {

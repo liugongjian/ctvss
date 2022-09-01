@@ -3,6 +3,7 @@ import { getNodeInfo } from '../../api/device'
 import { dropScreen } from './dropScreen'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { ToolsEnum } from '../../enums/index'
+import DeviceManager from '../../services/Device/DeviceManager'
 import StreamSelector from '../StreamSelector.vue'
 
 @Component({
@@ -31,34 +32,43 @@ export default class DetailMixin extends Vue {
     label: 'label',
     isLeaf: 'isLeaf'
   }
+  public rootSums = {
+    online: 0,
+    total: 0
+  }
   public treeLoading: boolean = false
 
+  public get commonTree() {
+    return this.$refs.commonTree as any
+  }
+
+  public mounted() {
+  }
+
   public initCommonTree() {
-    let commonTree: any = this.$refs.commonTree
-    commonTree.initTree()
+    this.commonTree.initTree()
   }
 
   /**
    * 加载节点
    */
-  public async load(node: any, resolve: Function) {
-    try {
-      if (node.level === 0) {
-        this.treeLoading = true
-        resolve(await this.getNodeInfo('root'))
-        this.treeLoading = false
-      } else if (node.level < 4) {
-        resolve(await this.getNodeInfo('node'))
-      } else if (node.level === 4) {
-        resolve(await this.getNodeInfo('leaf'))
-      } else {
-        resolve([])
-      }
-    } catch (e) {
-      resolve([])
-    } finally {
-      this.treeLoading = false
+  private async load(node) {
+    let children
+    if (node.level === 0) {
+      this.treeLoading = true
+      children = await this.getNodeInfo('root')
+      window.setImmediate(() => {
+        this.commonTree.loadChildren('01')
+      })
+    } else if (node.level < 4) {
+      children = await this.getNodeInfo('node')
+    } else if (node.level === 4) {
+      children = await this.getNodeInfo('leaf')
+    } else {
+      children = []
     }
+    this.treeLoading = false
+    return children
   }
 
   /**

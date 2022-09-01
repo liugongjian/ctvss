@@ -68,7 +68,7 @@
           <el-input v-model="videoForm.userName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-          <el-input v-model="videoForm.password" type="password" />
+          <el-input v-model="videoForm[deviceEnum.Password]" type="password" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
           <el-switch
