@@ -155,6 +155,7 @@
           :vss-ai-apps="form.vssAIApps"
           @on-change="onResourceChange"
           @changevssaiapps="changeVSSAIApps"
+          @changeAiDisabledStatus="changeAiDisabledStatus"
         />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
@@ -382,6 +383,7 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
