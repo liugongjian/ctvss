@@ -76,7 +76,7 @@ export default class AiAppList extends Vue {
 
 <style lang="scss" scoped>
 .algo-container {
-  height: 100%;
+  height: calc(100% - 30px);
   overflow-y: auto;
 }
 </style>

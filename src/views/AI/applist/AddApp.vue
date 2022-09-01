@@ -31,7 +31,7 @@ import AppMixin from '../mixin/app-mixin' // 考虑优化的mixin
 })
 export default class extends Mixins(AppMixin) {
   private step: number = 0
-  private prod: any = {}// 新建时传入组件的参数
+  public prod: any = {}// 新建时传入组件的参数
   private isLoading: boolean = false
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'

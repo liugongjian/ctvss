@@ -1,5 +1,5 @@
 <template>
-  <div class="ibox-list">
+  <div class="ibox-list" :class="{'of-hidden': ['ai-manage','app-list'].includes(activeName)}">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-for="(item,index) in infoList" :key="index" :label="item.label" :name="item.name" />
     </el-tabs>
@@ -46,7 +46,9 @@ export default class IBoxList extends Vue {
 .ibox-list {
   overflow: auto;
 }
-
+.of-hidden{
+  overflow: hidden;
+}
 .ibox-list::-webkit-scrollbar {
   /* 滚动条整体样式 */
   width: 5px;  /* 高宽分别对应横竖滚动条的尺寸 */

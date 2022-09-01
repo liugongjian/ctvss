@@ -8,8 +8,12 @@
       <div class="prod__desc">{{ prod.summary }}</div>
       <div class="prod__buttons">
         <el-button type="primary" class="prod__buttons--select" @click="onChooseProd">选择</el-button>
+        <el-button v-if="false" type="primary" class="prod__buttons--select" @click="onChooseProd">下发</el-button>
         <!-- <el-button type="text" class="ml10">查看算法介绍</el-button> -->
       </div>
+    </div>
+    <div class="badge-wrapper">
+      <el-image :src="require(`../../assets/icon/badge.png`)" />
     </div>
   </el-card>
 </template>
@@ -33,6 +37,7 @@ export default class extends Vue {
 </script>
 <style lang='scss' scoped>
 .el-card {
+  position: relative;
   ::v-deep .el-card__body {
     height: 100%;
     padding: 20px !important;
@@ -82,6 +87,11 @@ export default class extends Vue {
         padding: 10px 30px;
       }
     }
+  }
+  .badge-wrapper{
+    position: absolute;
+    top: -2px;
+    right: -1px;
   }
 }
 </style>
