@@ -99,6 +99,7 @@ export default class extends Vue {
   private currentNodeKey = null
 
   private get tree() {
+    console.log(this.treeKey)
     return this.$refs.Tree as any
   }
 
@@ -107,8 +108,6 @@ export default class extends Vue {
   }
 
   private mounted() {
-    // this.initTree()
-    console.log('treeMounted')
     this.checkRootVisable()
   }
 

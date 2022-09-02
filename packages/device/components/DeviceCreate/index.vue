@@ -21,14 +21,14 @@
         >
           <div v-show="activeStep === 0">
             <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName" class="form-with-tip">
-              <el-input v-model="deviceForm.deviceName" />
+              <el-input v-model="deviceForm[deviceEnum.DeviceName]" />
               <div class="form-tip">
                 2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
               </div>
             </el-form-item>
             <el-form-item label="设备分类:" :prop="deviceEnum.DeviceType">
               <el-select
-                v-model="deviceForm.deviceType"
+                v-model="deviceForm[deviceEnum.DeviceType]"
                 placeholder="请选择"
                 @change="deviceTypeChange"
               >
@@ -42,9 +42,9 @@
             </el-form-item>
             <el-form-item label="接入方式:" :prop="deviceEnum.DeviceInType">
               <el-radio
-                v-for="(value, key) in deviceInType[deviceForm.deviceType]"
+                v-for="(value, key) in deviceInType[deviceForm[deviceEnum.DeviceType]]"
                 :key="key"
-                v-model="deviceForm.deviceInType"
+                v-model="deviceForm[deviceEnum.DeviceInType]"
                 :label="key"
               >
                 {{ value }}
@@ -63,7 +63,7 @@
                   <svg-icon slot="reference" class="form-question" name="help" />
                 </el-popover>
               </template>
-              <el-radio-group v-model="deviceForm.inNetworkType">
+              <el-radio-group v-model="deviceForm[deviceEnum.InNetworkType]">
                 <el-radio
                   v-for="(value, key) in inNetworkType"
                   :key="key"
@@ -86,7 +86,7 @@
                   <svg-icon slot="reference" class="form-question" name="help" />
                 </el-popover>
               </template>
-              <el-radio-group v-model="deviceForm.outNetworkType">
+              <el-radio-group v-model="deviceForm[deviceEnum.OutNetworkType]">
                 <el-radio
                   v-for="(value, key) in outNetworkType"
                   :key="key"
@@ -96,7 +96,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Viid">
+            <div v-show="deviceForm[deviceEnum.DeviceInType] !== deviceInTypeEnum.Viid">
               <div class="form-title">视频接入信息</div>
               <video-create-form
                 ref="videoForm"
@@ -104,7 +104,7 @@
                 @inVideoProtocolChange="inVideoProtocolChange"
               />
             </div>
-            <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Video">
+            <div v-show="deviceForm[deviceEnum.DeviceInType] !== deviceInTypeEnum.Video">
               <div class="form-title">视图接入信息</div>
               <viid-create-form
                 ref="viidForm"
@@ -114,13 +114,13 @@
           </div>
           <div v-show="activeStep === 1">
             <el-form-item label="经纬度:" :prop="deviceEnum.Longlat">
-              <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
-              <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
+              <el-input v-model="deviceForm[deviceEnum.DeviceLongitude]" class="longlat-input" /> :
+              <el-input v-model="deviceForm[deviceEnum.DeviceLatitude]" class="longlat-input" />
             </el-form-item>
             <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
-              <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
+              <el-select v-model="deviceForm[deviceEnum.DeviceVendor]" :disabled="videoForm[deviceEnum.InVideoProtocol] === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+                  v-for="(value, key) in deviceVendor[videoForm[deviceEnum.InVideoProtocol]]"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -141,18 +141,18 @@
                   <svg-icon slot="reference" class="form-question" name="help" />
                 </el-popover>
               </template>
-              <region-cascader v-model="deviceForm.region" />
+              <region-cascader v-model="deviceForm[deviceEnum.Region]" />
             </el-form-item>
             <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
               <address-cascader
-                :code="deviceForm.inOrgRegion"
-                :level="deviceForm.inOrgRegionLevel"
+                :code="deviceForm[deviceEnum.InOrgRegion]"
+                :level="deviceForm[deviceEnum.InOrgRegionLevel]"
                 @change="onDeviceAddressChange"
               />
             </el-form-item>
             <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
               <el-select
-                v-model="deviceForm.industryCode"
+                v-model="deviceForm[deviceEnum.IndustryCode]"
                 placeholder="请选择所属行业"
               >
                 <el-option
@@ -165,7 +165,7 @@
             </el-form-item>
             <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
               <el-select
-                v-model="deviceForm.networkCode"
+                v-model="deviceForm[deviceEnum.NetworkCode]"
                 placeholder="请选择网络标识"
               >
                 <el-option
@@ -182,28 +182,28 @@
               </el-form-item>
               <div ref="showMoreForm" class="show-more--form">
                 <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
-                  <el-input v-model="deviceForm.deviceIp" />
+                  <el-input v-model="deviceForm[deviceEnum.DeviceIp]" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
-                  <el-input v-model="deviceForm.devicePort" />
+                  <el-input v-model="deviceForm[deviceEnum.DevicePort]" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
-                  <el-input v-model="deviceForm.devicePoleId " />
+                  <el-input v-model="deviceForm[deviceEnum.DevicePoleId] " />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址:" :prop="deviceEnum.DeviceMac">
-                  <el-input v-model="deviceForm.deviceMac" />
+                  <el-input v-model="deviceForm[deviceEnum.DeviceMac]" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DeviceSerialNumber)" label="设备SN码:" :prop="deviceEnum.DeviceSerialNumber">
-                  <el-input v-model="deviceForm.deviceSerialNumber" />
+                  <el-input v-model="deviceForm[deviceEnum.DeviceSerialNumber]" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DeviceModel)" label="设备型号:" :prop="deviceEnum.DeviceModel">
-                  <el-input v-model="deviceForm.deviceModel" />
+                  <el-input v-model="deviceForm[deviceEnum.DeviceModel]" />
                 </el-form-item>
               </div>
             </div>
             <el-form-item label="设备描述:" :prop="deviceEnum.Description">
               <el-input
-                v-model="deviceForm.description"
+                v-model="deviceForm[deviceEnum.Description]"
                 type="textarea"
                 :rows="3"
                 placeholder="请输入设备描述，如设备用途"
@@ -293,9 +293,9 @@ export default class extends Mixins(deviceFormMixin) {
   private videoForm: any = {}
   private viidForm: any = {}
 
-  @Watch('videoForm.videoVendor')
+  @Watch(`videoForm[${DeviceEnum.VideoVendor}]`)
   private vendorChange(val) {
-    this.deviceForm.deviceVendor = val
+    this.deviceForm[DeviceEnum.DeviceVendor] = val
   }
 
   private updated() {
@@ -306,7 +306,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm[DeviceEnum.DeviceType], this.inVideoProtocol, prop)
   }
 
   /**
@@ -321,7 +321,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 设备类型变化
    */
   private deviceTypeChange() {
-    this.deviceForm.deviceInType = DeviceInTypeEnum.Video
+    this.deviceForm[DeviceEnum.DeviceInType] = DeviceInTypeEnum.Video
   }
 
   /**
@@ -352,13 +352,13 @@ export default class extends Mixins(deviceFormMixin) {
       })
       // 校验videoForm
       const videoFormObj: any = this.$refs.videoForm
-      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
+      if (this.deviceForm[DeviceEnum.DeviceInType] !== this.deviceInTypeEnum.Viid) {
         validFlag = videoFormObj.validateVideoForm() && validFlag
         this.videoForm = videoFormObj.videoForm
       }
       // 校验viidForm
       const viidFormObj: any = this.$refs.viidForm
-      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Video) {
+      if (this.deviceForm[DeviceEnum.DeviceInType] !== this.deviceInTypeEnum.Video) {
         validFlag = viidFormObj.validateViidForm() && validFlag
         this.viidForm = viidFormObj.viidForm
       }
@@ -424,33 +424,32 @@ export default class extends Mixins(deviceFormMixin) {
             DeviceEnum.NetworkCode
           ])
         },
-        resource: this.videoForm.resources
+        resource: this.videoForm[DeviceEnum.Resources]
       }
       // 补充视频接入信息
-      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
+      if (this.deviceForm[DeviceEnum.DeviceInType] !== this.deviceInTypeEnum.Viid) {
         params.videos = {
           ...pick(this.videoForm, [
             DeviceEnum.InVideoProtocol
           ])
         }
         // 补充协议信息
-        params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
-          ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm.inVideoProtocol]])
+        params.videos[InVideoProtocolModelMapping[this.videoForm[DeviceEnum.InVideoProtocol]]] = {
+          ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm[DeviceEnum.InVideoProtocol]]])
         }
       }
       // 补充视图接入信息
-      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
+      if (this.deviceForm[DeviceEnum.DeviceInType] !== this.deviceInTypeEnum.Viid) {
         params.viids = {
           ...pick(this.viidForm, [
             DeviceEnum.InViidProtocol
           ])
         }
         // 补充协议信息
-        params.viids[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
-          ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
+        params.viids[InViidProtocolModelMapping[this.viidForm[DeviceEnum.InViidProtocol]]] = {
+          ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm[DeviceEnum.InViidProtocol]]])
         }
       }
-      console.log(params)
     }
   }
 

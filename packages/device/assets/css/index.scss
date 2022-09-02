@@ -276,6 +276,11 @@
             border-top: none;
             padding: $padding-medium;
           }
+
+          .resource-tabs .el-tabs__content {
+            border: none;
+            padding: 0;
+          }
         }
       }
 
@@ -290,33 +295,47 @@
 
     /* 设备详情编辑 */
     &__edit {
-      display: flex;
-      flex-wrap: wrap;
-
       &__footer {
         margin-left: 135px;
       }
 
-      .el-form-item {
-        flex: 1 0 50%;
-      }
+      .el-form {
+        display: flex;
+        flex-wrap: wrap;
 
-      .el-input:not(.el-input-number > .el-input, .longlat-input),
-      .el-select,
-      .el-textarea,
-      .el-cascader,
-      .tags {
-        width: 100%;
-        max-width: 420px;
-      }
+        .el-form-item {
+          flex: 1 0 50%;
+          padding-right: $padding-medium;
+          max-width: 50%;
 
-      .longlat-input {
-        width: 48%;
-        max-width: 203px;
-      }
+          &.full-row {
+            flex: 1 0 100%;
+            width: 0;
+            max-width: 100%;
+          }
+        }
 
-      .certificate-select {
-        width: 60%;
+        .el-input:not(.el-input-number > .el-input, .longlat-input),
+        .el-select,
+        .el-textarea,
+        .el-cascader,
+        .tags {
+          width: 100%;
+          max-width: 420px;
+        }
+
+        .longlat-input {
+          width: 48%;
+          max-width: 203px;
+        }
+
+        .certificate-select {
+          width: 60%;
+        }
+
+        .resource-tabs .el-tabs__item {
+          font-size: $text-size-medium;
+        }
       }
     }
   }

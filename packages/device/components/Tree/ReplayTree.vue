@@ -22,14 +22,14 @@
     <template slot="itemLabelSuffix">
       <span>{{ `(1/11)` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{data}">
+    <template slot="itemTools" slot-scope="{node, data}">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
           <template slot="tooltipBase">
             <el-button type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data)">一键播放</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, node)">一键播放</el-button>
           </template>
         </hover-selector>
       </el-tooltip>

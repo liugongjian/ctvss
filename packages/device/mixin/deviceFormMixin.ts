@@ -67,8 +67,8 @@ export default class DeviceFormMixin extends Vue {
    * 选择设备地址
    */
   public onDeviceAddressChange(region: DeviceAddress) {
-    this.deviceForm.inOrgRegion = region.code
-    this.deviceForm.inOrgRegionLevel = region.level
+    this.deviceForm[DeviceEnum.InOrgRegion] = region.code
+    this.deviceForm[DeviceEnum.InOrgRegionLevel] = region.level
   }
 
   /**

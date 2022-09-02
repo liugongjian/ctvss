@@ -22,7 +22,7 @@
     <template slot="itemLabelSuffix">
       <span>{{ `(1/11)` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{data}">
+    <template slot="itemTools" slot-scope="{node, data}">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SetStreamNum)" effect="dark" content="切换主子码流" placement="top" :open-delay="500">
         <stream-selector :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="handleTools(toolsEnum.SetStreamNum, $event)" />
       </el-tooltip>
@@ -32,8 +32,8 @@
             <el-button type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data)">轮巡</el-button>
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data)">一键播放</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, node)">轮巡</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, node)">一键播放</el-button>
           </template>
         </hover-selector>
       </el-tooltip>

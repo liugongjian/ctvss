@@ -1,127 +1,132 @@
 export const deviceMock = {
-  device: {
-    deviceId: '29941916753760267',
-    deviceName: '设备名称ABC',
-    deviceType: 'ipc',
-    deviceLongitude: '111',
-    deviceLatitude: '222',
-    deviceVendor: '海康',
-    description: '设备描述',
-    deviceIp: '1.1.1.1',
-    devicePort: '123',
-    deviceSerialNumber: '382393',
-    deviceModel: 'A1292',
-    deviceMac: '23882323',
-    devicePoleId: '123123',
-    deviceChannelSize: 5,
-    deviceStats: {
-      onlineChannels: 4
+  Device: {
+    DeviceId: '29941916753760267',
+    DeviceName: '设备名称ABC',
+    DeviceType: 'ipc',
+    DeviceLongitude: '111',
+    DeviceLatitude: '222',
+    DeviceVendor: '海康',
+    Description: '设备描述',
+    DeviceIp: '1.1.1.1',
+    DevicePort: '123',
+    DeviceSerialNumber: '382393',
+    DeviceModel: 'A1292',
+    DeviceMac: '23882323',
+    DevicePoleId: '123123',
+    DeviceChannelSize: 5,
+    DeviceStats: {
+      OnlineChannels: 4
     }
   },
-  videos: [
+  Videos: [
     {
-      inVideoProtocol: 'gb28181',
-      gb28181Device: {
-        sipId: '31011500012008469596',
-        sipIp: '1.1.1.1',
-        sipTcpPort: '123',
-        sipUdpPort: '234',
-        outId: '123',
-        inVersion: '2016',
-        inUserName: '123',
-        deviceStreamAutoPull: 1,
-        streamTransProtocol: 'udp',
-        sipTransType: 'udp',
-        errorMsg: '设备下线',
-        deviceStatus: {
-          isOnline: 'on'
+      InVideoProtocol: 'rtsp',
+      Gb28181Device: {
+        SipId: '31011500012008469596',
+        SipIp: '1.1.1.1',
+        SipTcpPort: '123',
+        SipUdpPort: '234',
+        OutId: '123',
+        InVersion: '2016',
+        InUserName: '123',
+        DeviceStreamAutoPull: 1,
+        StreamTransProtocol: 'udp',
+        SipTransType: 'udp',
+        ErrorMsg: '设备下线',
+        DeviceStatus: {
+          IsOnline: 'on'
         },
-        stream: {
-          streamStatus: 'on',
-          recordStatus: 1,
-          streamTransType: 'ps_rtp_udp',
-          bitrate: 12
+        Stream: {
+          StreamStatus: 'on',
+          RecordStatus: 1,
+          StreamTransType: 'ps_rtp_udp',
+          Bitrate: 12
         }
       },
-      ehomeDevice: {
-        sipIp: '1.1.1.1',
-        sipTcpPort: '123',
-        sipUdpPort: '234',
-        outId: '123',
-        inVersion: '2020',
-        inUserName: 'abc',
-        deviceMac: '23882323',
-        deviceStreamAutoPull: 1,
-        deviceStreamSize: 3,
-        deviceStreamPullIndex: 1,
-        streamTransProtocol: 'udp',
-        sipTransType: 'udp',
-        errorMsg: '设备下线',
-        deviceStatus: {
-          isOnline: 'on'
+      EhomeDevice: {
+        SipIp: '1.1.1.1',
+        SipTcpPort: '123',
+        SipUdpPort: '234',
+        OutId: '123',
+        InVersion: '2020',
+        InUserName: 'abc',
+        DeviceMac: '23882323',
+        DeviceStreamAutoPull: 1,
+        DeviceStreamSize: 3,
+        DeviceStreamPullIndex: 1,
+        StreamTransProtocol: 'udp',
+        SipTransType: 'udp',
+        ErrorMsg: '设备下线',
+        DeviceStatus: {
+          IsOnline: 'on'
         },
-        stream: {
-          streamStatus: 'on',
-          recordStatus: 1,
-          streamTransType: 'ps_rtp_udp',
-          bitrate: 12
+        Stream: {
+          StreamStatus: 'on',
+          RecordStatus: 1,
+          StreamTransType: 'ps_rtp_udp',
+          Bitrate: 12
         }
       },
-      rtspDevice: {
-        sipIp: '1.1.1.1',
-        sipTcpPort: '123',
-        sipUdpPort: '234',
-        outId: '123',
-        inVersion: '2020',
-        userName: 'abc',
-        streamTransProtocol: 'udp',
-        sipTransType: 'udp',
-        errorMsg: '设备下线',
-        inType: 'pull',
-        pullUrl: 'http://abc.com',
-        enableDomain: 2,
-        deviceDomain: 'http://www.domain.com',
-        deviceStreamAutoPull: 1,
-        deviceStreamSize: 3,
-        deviceStreamPullIndex: 1,
-        deviceStatus: {
-          isOnline: 'on'
+      RtspDevice: {
+        SipIp: '1.1.1.1',
+        SipTcpPort: '123',
+        SipUdpPort: '234',
+        OutId: '123',
+        InVersion: '2020',
+        UserName: 'abc',
+        Password: '333',
+        StreamTransProtocol: 'udp',
+        SipTransType: 'udp',
+        ErrorMsg: '设备下线',
+        InType: 'pull',
+        PullUrl: 'http://abc.com',
+        EnableDomain: 2,
+        DeviceDomain: 'http://www.domain.com',
+        DeviceIp: '1.1.1.1',
+        DevicePort: '123',
+        DeviceStreamAutoPull: 1,
+        DeviceStreamSize: 3,
+        DeviceStreamPullIndex: 1,
+        DeviceStatus: {
+          IsOnline: 'on'
         },
-        stream: {
-          streamStatus: 'on',
-          recordStatus: 1,
-          streamTransType: 'ps_rtp_udp',
-          bitrate: 12
+        Stream: {
+          StreamStatus: 'on',
+          RecordStatus: 1,
+          StreamTransType: 'ps_rtp_udp',
+          Bitrate: 12
         }
       }
     }
   ],
-  viids: [
+  Viids: [
     {
-      inViidProtocol: 'ga1400',
-      ga1400Device: {
-        httpEndpoint: '',
-        httpsEndpoint: '',
-        outId: '1233',
-        inUserName: 'abc',
-        viidServerIp: '1.1.1.1',
-        viidServerPort: '1322',
-        ip: '1.1.1.1',
-        port: '1322',
-        deviceStatus: {
-          isOnline: 'on'
+      InViidProtocol: 'ga1400',
+      Ga1400Device: {
+        HttpEndpoint: '',
+        HttpsEndpoint: '',
+        OutId: '1233',
+        InUserName: 'abc',
+        ViidServerIp: '1.1.1.1',
+        ViidServerPort: '1322',
+        Ip: '1.1.1.1',
+        Port: '1322',
+        LowerApsId: '123',
+        ProtocolDeviceType: 'aps',
+        DeviceStatus: {
+          IsOnline: 'on'
         }
       }
     }
   ],
-  industry: {
-    industryName: '零售',
-    industryCode: '11',
-    networkCode: '6',
-    inOrgRegion: '12011900',
-    inOrgRegionLevel: '3'
+  Industry: {
+    IndustryName: '零售',
+    IndustryCode: '11',
+    NetworkCode: '6',
+    InOrgRegion: '12011900',
+    InOrgRegionLevel: '3'
   },
-  region: '0230001',
-  inNetworkType: 'public',
-  outNetworkType: 'public'
+  Region: '0230001',
+  InNetworkType: 'public',
+  OutNetworkType: 'public'
 }

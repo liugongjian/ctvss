@@ -146,7 +146,6 @@ export default class extends Vue {
   }
 
   private mounted() {
-    // this.initSearchStatus()
   }
 
   private openAdvancedSearch() {
@@ -163,29 +162,6 @@ export default class extends Vue {
     }
     this.filterSearchResult()
   }
-
-  /**
-   * 初始化过滤
-   */
-  // public initSearchStatus() {
-  //   const query: any = this.$route.query
-  //   this.advancedSearchForm.deviceStatusKeys = (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
-  //   this.advancedSearchForm.streamStatusKeys = (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
-  //   if (query.deviceAddresses) {
-  //     const temp = query.deviceAddresses.split(',')
-  //     this.advancedSearchForm.deviceAddresses = {
-  //       code: temp[0],
-  //       level: temp[1]
-  //     }
-  //   }
-  //   this.advancedSearchForm.matchKeys = (query.matchKeys && query.matchKeys.split(',')) || []
-  //   this.advancedSearchForm.inputKey = query.searchKey || ''
-  //   this.advancedSearchForm.searchKey = query.searchKey || ''
-  //   this.advancedSearchForm.revertSearchFlag = Boolean(this.advancedSearchForm.searchKey ||
-  //                                                       this.advancedSearchForm.deviceStatusKeys.length ||
-  //                                                       this.advancedSearchForm.streamStatusKeys.length ||
-  //                                                       this.advancedSearchForm.deviceAddresses.code)
-  // }
 
   /**
    * 搜索过滤

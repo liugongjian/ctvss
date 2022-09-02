@@ -3,7 +3,6 @@ import { getNodeInfo } from '../../api/device'
 import { dropScreen } from './dropScreen'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { ToolsEnum } from '../../enums/index'
-import DeviceManager from '../../services/Device/DeviceManager'
 import StreamSelector from '../StreamSelector.vue'
 
 @Component({

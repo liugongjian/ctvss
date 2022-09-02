@@ -640,7 +640,7 @@ export default class extends Vue {
     }
 
     &__content {
-      border: 1px solid #dfe4ed;
+      border: 1px solid $border-color-light-1;
       border-top: none;
       padding: 10px;
 

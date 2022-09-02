@@ -4,7 +4,7 @@ import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
-import { getDeviceTree } from '../api/device'
+import ScreenBoard from '../components/ScreenBoard/index.vue'
 
 @Component({
   components: {
@@ -12,6 +12,7 @@ import { getDeviceTree } from '../api/device'
   }
 })
 export default class DetailMixin extends Vue {
+  public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
@@ -46,7 +47,7 @@ export default class DetailMixin extends Vue {
   }
   // 功能回调字典
   public handleToolsMap = {
-    [ToolsEnum.Refresh]: DeviceManager.initDirs,
+    [ToolsEnum.Refresh]: DeviceManager.advanceSearch,
     [ToolsEnum.ExportSearchResult]: DeviceManager.exportSearchResult,
     [ToolsEnum.AddDirectory]: function() {
       DeviceManager.openDirectoryDialog.call(this, ToolsEnum.AddDirectory, ...arguments)
@@ -58,35 +59,40 @@ export default class DetailMixin extends Vue {
       DeviceManager.openDirectoryDialog.call(this, ToolsEnum.SortDirectory, ...arguments)
     },
     [ToolsEnum.DeleteDirectory]: DeviceManager.deleteDir,
+    [ToolsEnum.Polling]: function(node) {
+      DeviceManager.executeQueue.call(this, node, !node, 'polling')
+    },
+    [ToolsEnum.AutoPlay]: function(node) {
+      DeviceManager.executeQueue.call(this, node, !node, 'autoPlay')
+    },
+    [ToolsEnum.IntervalChange]: DeviceManager.intervalChange,
+    [ToolsEnum.StopPolling]: DeviceManager.stopPolling,
+    [ToolsEnum.PausePolling]: DeviceManager.pausePolling,
+    [ToolsEnum.ResumePolling]: DeviceManager.resumePolling,
     [ToolsEnum.AdvanceSearch]: DeviceManager.advanceSearch
   }
-
-  public get lazy(): boolean {
-    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].some(param => {
-      console.log(param, !!this.$route.query[param])
-      !!this.$route.query[param]
-    })
-
-    return !this.$route.query.searchKey
-  }
-
+  /* 设备目录树 */
   public get deviceTree() {
     return this.$refs.deviceTree
   }
 
-  public mounted() {
-    this.init()
+  /* 设备目录树是否懒加载依据 */
+  public get lazy(): boolean {
+    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(param => !this.$route.query[param])
   }
 
-  public async init() {
-    !this.lazy && (this.treeSearchResult = await getDeviceTree({
-      id: 0,
-      deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-      streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-      matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
-      deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
-      searchKey: this.advancedSearchForm.searchKey || undefined
-    }))
+  /* 播放器管理实例 */
+  public get screenManager() {
+    return (this.$refs.screenBoard as any)!.screenManager
+  }
+
+  /* 视频队列执行器 */
+  private get queueExecutor() {
+    return this.screenManager && this.screenManager.refs.queueExecutor
+  }
+
+  public mounted() {
+    DeviceManager.initAdvancedSearch.call(this)
   }
 
   /**
