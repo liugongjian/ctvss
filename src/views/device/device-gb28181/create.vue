@@ -97,13 +97,29 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
+          <el-form-item
+            label="设备名称:"
+            prop="deviceName"
+            class="form-with-tip"
+          >
             <el-input v-model="form.deviceName" />
             <div class="form-tip">
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
             </div>
           </el-form-item>
-          <el-form-item v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel' || form.deviceClass === 'nvr')) && (!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
+          <el-form-item
+            v-if="
+              !(
+                form.platFormMsg === 'Y' &&
+                (form.deviceClass === 'ipc' ||
+                  form.deviceClass === 'channel' ||
+                  form.deviceClass === 'nvr')
+              ) &&
+                (!isUpdate || form.gbRegion || !deviceGbId)
+            "
+            label="设备地址:"
+            prop="gbRegion"
+          >
             <AddressCascader
               :code="form.gbRegion"
               :level="form.gbRegionLevel"
@@ -122,7 +138,15 @@
             <el-input v-model="form.deviceModel" />
           </el-form-item>
           <el-form-item
-            v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel' || form.deviceClass === 'nvr')) &&(!isUpdate || form.industryCode || !deviceGbId)"
+            v-if="
+              !(
+                form.platFormMsg === 'Y' &&
+                (form.deviceClass === 'ipc' ||
+                  form.deviceClass === 'channel' ||
+                  form.deviceClass === 'nvr')
+              ) &&
+                (!isUpdate || form.industryCode || !deviceGbId)
+            "
             label="所属行业:"
             prop="industryCode"
           >
@@ -140,7 +164,10 @@
             </el-select>
           </el-form-item>
           <el-form-item
-            v-if="form.deviceType === 'platform' ||( (!isUpdate || form.networkCode || !deviceGbId) && networkFlag)"
+            v-if="
+              form.deviceType === 'platform' ||
+                ((!isUpdate || form.networkCode || !deviceGbId) && networkFlag)
+            "
             label="网络标识:"
             prop="networkCode"
           >
@@ -167,16 +194,38 @@
           </el-form-item>
         </div>
         <div v-show="activeStep === 1" class="step-container">
-          <el-tabs v-model="activeTabPane" type="card" class="title-tabs" @tab-click="1">
-            <el-tab-pane v-for="item in tabPaneList" :key="item.name" :label="item.label" :name="item.name"><br></el-tab-pane>
+          <el-tabs
+            v-model="activeTabPane"
+            type="card"
+            class="title-tabs"
+            @tab-click="1"
+          >
+            <el-tab-pane
+              v-for="item in tabPaneList"
+              :key="item.name"
+              :label="item.label"
+              :name="item.name"
+            >
+              <br>
+            </el-tab-pane>
           </el-tabs>
-          <el-tooltip v-if="tabPaneList.length === 1 && isIPC && isUpdate && ga1400Flag" content="接入视图库设备" placement="top">
-            <el-button class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
+          <el-tooltip
+            v-if="tabPaneList.length === 1 && isIPC && isUpdate && ga1400Flag"
+            content="接入视图库设备"
+            placement="top"
+          >
+            <el-button class="add-btn" type="text" @click="addTabPane">
+              <svg-icon name="plus" />
+            </el-button>
           </el-tooltip>
           <div v-show="activeTabPane === 'video'">
             <el-form-item label="接入协议:" prop="inProtocol">
               <el-radio-group v-model="form.inProtocol">
-                <el-radio label="gb28181">{{ form.inProtocol && form.inProtocol.toUpperCase() }}</el-radio>
+                <el-radio
+                  label="gb28181"
+                >
+                  {{ form.inProtocol && form.inProtocol.toUpperCase() }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="设备类型:" prop="deviceType">
@@ -235,7 +284,11 @@
                   :open-delay="300"
                   :content="tips.pullType"
                 >
-                  <svg-icon slot="reference" class="form-question" name="help" />
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
                 </el-popover>
               </template>
               <el-switch
@@ -245,7 +298,11 @@
               />
             </el-form-item>
             <el-form-item
-              v-if="form.deviceType === 'nvr' || form.deviceType === 'platform' || isIPC"
+              v-if="
+                form.deviceType === 'nvr' ||
+                  form.deviceType === 'platform' ||
+                  isIPC
+              "
               prop="transPriority"
             >
               <template slot="label">
@@ -258,7 +315,11 @@
                   :open-delay="300"
                   :content="tips.transPriority"
                 >
-                  <svg-icon slot="reference" class="form-question" name="help" />
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
                 </el-popover>
               </template>
               <el-switch
@@ -275,7 +336,7 @@
               label="杆号:"
               prop="poleId"
             >
-              <el-input v-model="form.poleId " />
+              <el-input v-model="form.poleId" />
             </el-form-item>
             <el-form-item label="配置资源包:" prop="resources">
               <ResourceTabs
@@ -288,6 +349,7 @@
                 :vss-ai-apps="form.vssAIApps"
                 @on-change="onResourceChange"
                 @changevssaiapps="changeVSSAIApps"
+                @changeAiDisabledStatus="changeAiDisabledStatus"
               />
             </el-form-item>
           </div>
@@ -301,7 +363,11 @@
             >
               <el-form-item label="接入协议:" prop="inProtocol">
                 <el-radio-group v-model="ga1400Form.inProtocol">
-                  <el-radio label="GA1400">{{ ga1400Form.inProtocol && ga1400Form.inProtocol.toUpperCase() }}</el-radio>
+                  <el-radio
+                    label="GA1400"
+                  >
+                    {{ ga1400Form.inProtocol && ga1400Form.inProtocol.toUpperCase() }}
+                  </el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="接入类型:" prop="apeType">
@@ -319,7 +385,10 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="GA1400凭证:" prop="certId">
-                <el-select v-model="ga1400Form.certId" :loading="loading.account">
+                <el-select
+                  v-model="ga1400Form.certId"
+                  :loading="loading.account"
+                >
                   <el-option
                     v-for="item in ga1400AccountList"
                     :key="item.id"
@@ -366,12 +435,23 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+        <el-form-item
+          v-show="form.deviceType !== 'platform'"
+          label="经纬度:"
+          prop="longlat"
+        >
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item :label=" isUpdate && ifUseDeviceName ? '通道实际名称:' :'通道名称:' " prop="channelName" class="form-with-tip">
-          <el-input v-model="form.channelName" :disabled="isUpdate && ifUseDeviceName" />
+        <el-form-item
+          :label="isUpdate && ifUseDeviceName ? '通道实际名称:' : '通道名称:'"
+          prop="channelName"
+          class="form-with-tip"
+        >
+          <el-input
+            v-model="form.channelName"
+            :disabled="isUpdate && ifUseDeviceName"
+          />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
@@ -382,11 +462,8 @@
         <el-form-item label="设备型号:" prop="deviceModel">
           <el-input v-model="form.deviceModel" />
         </el-form-item>
-        <el-form-item
-          label="杆号:"
-          prop="poleId"
-        >
-          <el-input v-model="form.poleId " />
+        <el-form-item label="杆号:" prop="poleId">
+          <el-input v-model="form.poleId" />
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs
@@ -399,13 +476,34 @@
             :vss-ai-apps="form.vssAIApps"
             @on-change="onResourceChange"
             @changevssaiapps="changeVSSAIApps"
+            @changeAiDisabledStatus="changeAiDisabledStatus"
           />
         </el-form-item>
       </template>
       <el-form-item label="">
-        <el-button v-if="!isChannel && activeStep === 1" type="primary" @click="stepChange(0)">上一步</el-button>
-        <el-button v-if="!isChannel && activeStep === 0" type="primary" @click="stepChange(1)">下一步</el-button>
-        <el-button v-if="isChannel || activeStep === 1" type="primary" :loading="submitting" @click="submit">确 定</el-button>
+        <el-button
+          v-if="!isChannel && activeStep === 1"
+          type="primary"
+          @click="stepChange(0)"
+        >
+          上一步
+        </el-button>
+        <el-button
+          v-if="!isChannel && activeStep === 0"
+          type="primary"
+          @click="stepChange(1)"
+        >
+          下一步
+        </el-button>
+        <el-button
+          v-if="isChannel || activeStep === 1"
+          type="primary"
+          :loading="submitting"
+          :disabled="ifDisbled"
+          @click="submit"
+        >
+          确 定
+        </el-button>
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
@@ -419,12 +517,20 @@
     />
   </div>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
-import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '@/api/device'
+import {
+  createDevice,
+  updateDevice,
+  getDevice,
+  validGbId,
+  createViewLib,
+  getViewLibInfo,
+  updateViewLib
+} from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { getList as getGbList } from '@/api/certificate/gb28181'
@@ -465,24 +571,16 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    gbId: [
-      { validator: this.validateGbId, trigger: 'blur' }
-    ],
+    gbId: [{ validator: this.validateGbId, trigger: 'blur' }],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
     networkCode: [
       { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
-    userName: [
-      { required: true, message: '请选择账号', trigger: 'change' }
-    ],
-    deviceIp: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    devicePort: [
-      { validator: this.validateDevicePort, trigger: 'change' }
-    ],
+    userName: [{ required: true, message: '请选择账号', trigger: 'change' }],
+    deviceIp: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
+    devicePort: [{ validator: this.validateDevicePort, trigger: 'change' }],
     gbRegion: [
       { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
@@ -490,12 +588,8 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
     ],
-    macAddr: [
-      { validator: this.validateMacAddr, trigger: 'blur' }
-    ],
-    poleId: [
-      { validator: this.validatePoleId, trigger: 'blur' }
-    ],
+    macAddr: [{ validator: this.validateMacAddr, trigger: 'blur' }],
+    poleId: [{ validator: this.validatePoleId, trigger: 'blur' }],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -593,10 +687,42 @@ export default class extends Mixins(createMixin) {
         return channel.channelNum
       })
       if (this.isUpdate) {
-        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel',
-          'industryCode', 'networkCode', 'poleId', 'macAddr', 'deviceClass', 'platFormMsg']))
+        this.form = Object.assign(
+          this.form,
+          pick(info, [
+            'groupId',
+            'dirId',
+            'deviceId',
+            'deviceName',
+            'inProtocol',
+            'deviceType',
+            'deviceVendor',
+            'gbVersion',
+            'deviceIp',
+            'devicePort',
+            'channelNum',
+            'channelName',
+            'description',
+            'createSubDevice',
+            'pullType',
+            'transPriority',
+            'parentDeviceId',
+            'gbId',
+            'userName',
+            'deviceLongitude',
+            'deviceLatitude',
+            'serialNumber',
+            'deviceModel',
+            'gbRegion',
+            'gbRegionLevel',
+            'industryCode',
+            'networkCode',
+            'poleId',
+            'macAddr',
+            'deviceClass',
+            'platFormMsg'
+          ])
+        )
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
@@ -706,9 +832,14 @@ export default class extends Mixins(createMixin) {
     this.setIfUseDeviceName()
     // 新增逻辑，使用设备名称时，屏蔽效验正则
     if (this.ifUseDeviceName) {
-      this.rules = { ...this.rules,
-        ...{ deviceName: [
-          { required: true, message: '请输入设备名称', trigger: 'blur' } ] } }
+      this.rules = {
+        ...this.rules,
+        ...{
+          deviceName: [
+            { required: true, message: '请输入设备名称', trigger: 'blur' }
+          ]
+        }
+      }
     }
   }
 
@@ -792,15 +923,21 @@ export default class extends Mixins(createMixin) {
         }
       } else {
         // NVR通道
-        params = Object.assign(params, {
-          deviceType: 'ipc',
-          createSubDevice: this.isUpdate ? null : '2',
-          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
-          channelName: this.form.channelName,
-          channelNum: this.form.channelNum,
-          serialNumber: this.form.serialNumber,
-          deviceModel: this.form.deviceModel
-        }, pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude']))
+        params = Object.assign(
+          params,
+          {
+            deviceType: 'ipc',
+            createSubDevice: this.isUpdate ? null : '2',
+            parentDeviceId: this.isUpdate
+              ? this.form.parentDeviceId
+              : this.deviceId,
+            channelName: this.form.channelName,
+            channelNum: this.form.channelNum,
+            serialNumber: this.form.serialNumber,
+            deviceModel: this.form.deviceModel
+          },
+          pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude'])
+        )
       }
       if (this.isUpdate) {
         delete params.deviceType
@@ -856,8 +993,19 @@ export default class extends Mixins(createMixin) {
         port: this.ga1400Form.port
       }
       // 载入公共参数
-      const commonParams = ['latitude', 'longitude', 'name', 'deviceType', 'dirId', 'placeCode', 'groupId', 'orgCode', 'gbDeviceId', 'model']
-      commonParams.forEach(param => {
+      const commonParams = [
+        'latitude',
+        'longitude',
+        'name',
+        'deviceType',
+        'dirId',
+        'placeCode',
+        'groupId',
+        'orgCode',
+        'gbDeviceId',
+        'model'
+      ]
+      commonParams.forEach((param) => {
         params[param] = this.form[ViewLib2Device[param]]
       })
       await createViewLib(params)
@@ -1040,5 +1188,4 @@ export default class extends Mixins(createMixin) {
     z-index: 1000;
   }
 }
-
 </style>

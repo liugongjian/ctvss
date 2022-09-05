@@ -41,7 +41,7 @@ export const getResourceDevices = (params: any): Promise<any> =>
   })
 
 //  获取资源包下已绑定过的能力
-export const getResourceIdAttachedAppIds = (params:any):Promise<any> =>
+export const getResourceIdAttachedAppIds = (params: any): Promise<any> =>
   request({
     url: 'ai/aiAPP/describeResourceIdAttachedAppIds',
     method: 'get',

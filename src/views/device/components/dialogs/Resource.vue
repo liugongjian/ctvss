@@ -18,7 +18,7 @@
         <ResourceTabs
           v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol"
           :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" :device-id="device.deviceId" :form-info="form"
-          :algo-tab-type-default="algoTabTypeDefault" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          :algo-tab-type-default="algoTabTypeDefault" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" @changeAiDisabledStatus="changeAiDisabledStatus"
         />
       </el-form-item>
     </el-form>

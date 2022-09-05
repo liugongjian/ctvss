@@ -392,7 +392,7 @@ export default class extends Vue {
   }
 
   private validateEmail(rule: any, value: string, callback: Function) {
-    if (value && !/^[\w-]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/gi.test(value)) {
+    if (value && !/^[\w-.]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/gi.test(value)) {
       callback(new Error('请输入正确的邮箱'))
     } else {
       callback()

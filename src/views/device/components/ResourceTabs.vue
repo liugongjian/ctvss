@@ -3,11 +3,23 @@
     <el-tab-pane label="视频包" name="video">
       <!--视频包-->
       <div v-loading="loading.resouceVideoList" class="resource-tabs__content">
-        <el-table :data="resouceVideoList" fit @row-click="onResourceRowClick('video', ...arguments)">
-          <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
+        <el-table
+          :data="resouceVideoList"
+          fit
+          @row-click="onResourceRowClick('video', ...arguments)"
+        >
+          <el-table-column
+            show-overflow-tooltip
+            prop="resourceId"
+            label="订单号"
+            min-width="120"
+          >
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
+                <el-radio
+                  v-model="form.resouceVideoId"
+                  :label="scope.row.resourceId"
+                />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
@@ -36,7 +48,13 @@
           <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
-          <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange(false)">不绑定任何视频包</el-radio>
+          <el-radio
+            v-model="form.resouceVideoId"
+            :label="-1"
+            @change="onFormChange(false)"
+          >
+            不绑定任何视频包
+          </el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -44,11 +62,18 @@
     <el-tab-pane label="AI包" name="ai">
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
-        <el-table :data="resouceAiList" fit @row-click="onResourceRowClick('ai', ...arguments)">
+        <el-table
+          :data="resouceAiList"
+          fit
+          @row-click="onResourceRowClick('ai', ...arguments)"
+        >
           <el-table-column prop="resourceId" label="订单号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
+                <el-radio
+                  v-model="form.resouceAiId"
+                  :label="scope.row.resourceId"
+                />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
@@ -72,14 +97,28 @@
           <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div class="resource-tabs__none">
-          <el-radio v-model="form.resouceAiId" :label="-1" @change="doNotBind">不绑定任何AI包</el-radio>
+          <el-radio v-model="form.resouceAiId" :label="-1" @change="doNotBind">
+            不绑定任何AI包
+          </el-radio>
         </div>
-        <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
-          <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="`${item.name}(${item.aiApps})`" :name="item.id">
+        <el-tabs
+          v-if="form.resouceAiId !== -1"
+          v-model="algoTabType"
+          v-loading="loading.abilityList"
+          type="card"
+          class="algo-tab"
+          @tab-click="changeTabType"
+        >
+          <el-tab-pane
+            v-for="item in aiAbilityTab"
+            :key="item.id"
+            :label="`${item.name}(${item.aiApps})`"
+            :name="item.id"
+          >
             <el-table
               :ref="`algoTable${Number(item.id)}`"
               v-loading="loading.resouceAiTable"
-              class="algoTabTable"
+              class="algo-tab-table"
               :class="ifHiddenThis()"
               tooltip-effect="dark"
               :data="algoListData"
@@ -89,38 +128,58 @@
               @select="selectHandle"
               @row-click="onResourceTabsRowClick"
             >
-              <el-table-column type="selection" width="55" :selectable="ifDisable" prop="selection" />
+              <el-table-column
+                type="selection"
+                width="55"
+                :selectable="ifDisable"
+                prop="selection"
+              />
               <el-table-column prop="name" label="应用名称" />
               <el-table-column label="算法类型" width="120">
-                <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
+                <template slot-scope="scope">
+                  {{ scope.row.algorithm.name }}
+                </template>
               </el-table-column>
               <el-table-column prop="analyseType" label="分析类型">
                 <template slot-scope="scope">
                   {{ resourceAiType[scope.row.analyseType] }}
                 </template>
               </el-table-column>
-              <el-table-column prop="description" label="描述" show-overflow-tooltip />
+              <el-table-column
+                prop="description"
+                label="描述"
+                show-overflow-tooltip
+              />
             </el-table>
           </el-tab-pane>
         </el-tabs>
-        <div v-if="showTips" class="algoWarning algoWarningTip">
+        <div v-if="showTips" class=".algo-warning algo-warning-tip">
           <i class="el-icon-warning" />
           <span>已选择{{ selectAlgoId.length }}种AI应用</span><span v-if="!isNvr && tipsText.length">，{{ tipsText }}</span>
         </div>
-        <div v-if="showError" class="algoWarning algoWarningError">
+        <div v-if="showError" class=".algo-warning algo-warning-error">
           <i class="el-icon-warning" />
-          <span>已选择{{ selectAlgoId.length }}种AI应用，{{ chooseData.resouceAiId }}包接入余量不足。</span>
+          <span>已选择{{ selectAlgoId.length }}种AI应用，{{ chooseData.resouceAiId
+
+          }}包接入余量不足。</span>
         </div>
       </div>
     </el-tab-pane>
     <el-tab-pane v-if="!isPrivateInNetwork" label="上行带宽包" name="upload">
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
-        <el-table :data="resouceUploadList" fit @row-click="onResourceRowClick('upload', ...arguments)">
+        <el-table
+          :data="resouceUploadList"
+          fit
+          @row-click="onResourceRowClick('upload', ...arguments)"
+        >
           <el-table-column prop="resourceId" label="订单号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
+                <el-radio
+                  v-model="form.resouceUploadId"
+                  :label="scope.row.resourceId"
+                />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
@@ -139,13 +198,19 @@
           <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
-          <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange(false)">不绑定任何上行带宽包</el-radio>
+          <el-radio
+            v-model="form.resouceUploadId"
+            :label="-1"
+            @change="onFormChange(false)"
+          >
+            不绑定任何上行带宽包
+          </el-radio>
         </div>
       </div>
     </el-tab-pane>
   </el-tabs>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { getResources, getResourceIdAttachedAppIds } from '@/api/billing'
@@ -176,8 +241,18 @@ export default class extends Vue {
     resouceVideoList: false,
     resouceAiList: false,
     resouceUploadList: false,
-    resouceAiTable: false
+    resouceAiTable: false,
+    abilityList: false,
+    resourceIdAttachedAppIds: false
   }
+
+  // 用来判断 确定按钮的可点击
+  private loadingStatus: any = {
+    resouceAiTable: false,
+    abilityList: false,
+    resourceIdAttachedAppIds: false
+  }
+
   private resouceVideoList = []
   private resouceAiList = []
   private resouceUploadList = []
@@ -212,9 +287,15 @@ export default class extends Vue {
 
   private async mounted() {
     this.deviceInfo = this.formInfo
-    this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
+    this.resouceVideoList = await this.getResouces(
+      'VSS_VIDEO',
+      'resouceVideoList'
+    )
     this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
-    this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
+    this.resouceUploadList = await this.getResouces(
+      'VSS_UPLOAD_BW',
+      'resouceUploadList'
+    )
     this.handleResourceAppIds()
     this.onFormChange(true)
     this.defaultTab()
@@ -278,9 +359,15 @@ export default class extends Vue {
    * 切换资源包
    */
   private onFormChange(isInit: boolean) {
-    const resouceVideo = this.resouceVideoList.find((resource: any) => resource.resourceId === this.form.resouceVideoId)
-    const resouceAi = this.resouceAiList.find((resource: any) => resource.resourceId === this.form.resouceAiId)
-    const resouceUpload = this.resouceUploadList.find((resource: any) => resource.resourceId === this.form.resouceUploadId)
+    const resouceVideo = this.resouceVideoList.find(
+      (resource: any) => resource.resourceId === this.form.resouceVideoId
+    )
+    const resouceAi = this.resouceAiList.find(
+      (resource: any) => resource.resourceId === this.form.resouceAiId
+    )
+    const resouceUpload = this.resouceUploadList.find(
+      (resource: any) => resource.resourceId === this.form.resouceUploadId
+    )
     const resources = [resouceVideo, resouceAi, resouceUpload]
     const result: any = []
     const mapping: any = []
@@ -293,7 +380,9 @@ export default class extends Vue {
           resourceType: resource.type
         }
         result.push(resourceResult)
-        mapping[resource.resourceId] = Object.assign(resourceResult, { remainDeviceCount: resource.remainDeviceCount })
+        mapping[resource.resourceId] = Object.assign(resourceResult, {
+          remainDeviceCount: resource.remainDeviceCount
+        })
       }
     })
     if (!isInit) {
@@ -334,7 +423,7 @@ export default class extends Vue {
   }
 
   private createCheckInfo() {
-    this.resouceAiList.forEach(item => {
+    this.resouceAiList.forEach((item) => {
       this.checkInfoObj[item.resourceId] = {}
       this.shouldRemove[item.resourceId] = {}
       this.shouldAdd[item.resourceId] = {}
@@ -344,8 +433,9 @@ export default class extends Vue {
   // 判断是否是编辑进入
   private ifHasCheceked() {
     if (this.isUpdate) {
-      this.selectAlgoId = this.vssAiApps && this.vssAiApps.length ? this.vssAiApps : []
-      const result = this.resouceAiList.find(item => {
+      this.selectAlgoId =
+        this.vssAiApps && this.vssAiApps.length ? this.vssAiApps : []
+      const result = this.resouceAiList.find((item) => {
         return this.value.some((val: any) => {
           return item.resourceId === val.resourceId
         })
@@ -378,23 +468,51 @@ export default class extends Vue {
   }
 
   private async getResourceIdAttachedAppIds(row: any) {
-    // if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
-
+    try {
+      this.loading.resourceIdAttachedAppIds = true
+      this.loadingStatus.resourceIdAttachedAppIds = true
+      this.$emit('changeAiDisabledStatus', true)
+      const { appIdList } = await getResourceIdAttachedAppIds({
+        resourceId: row.resourceId,
+        deviceId: this.deviceId
+      })
+      this.resourceHasAppIds = appIdList
+      this.selectAlgoInfo = this.resourceHasAppIds
+      // if (this.selectAlgoId.length === 0) {
+      this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
+      this.loadingStatus.resourceIdAttachedAppIds = false
     // }
-    const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId, deviceId: this.deviceId })
-    this.resourceHasAppIds = appIdList
-    this.selectAlgoInfo = this.resourceHasAppIds
-    // if (this.selectAlgoId.length === 0) {
-    this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
-    // }
+    } catch (e) {
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
+    } finally {
+      this.loading.resourceIdAttachedAppIds = false
+      this.loadingStatusChange()
+    }
   }
 
   // 获取算法名
   private async getAiAlgoList(row: any) {
-    const { aiAbilityList } = await getAbilityList({ id: row.id })
-    this.aiAbilityTab = aiAbilityList
-    this.algoTabType = aiAbilityList[0]?.id
-    this.getAlgoList()
+    try {
+      this.loading.abilityList = true
+      this.loadingStatus.abilityList = true
+      this.$emit('changeAiDisabledStatus', true)
+      const { aiAbilityList } = await getAbilityList({ id: row.id })
+      this.aiAbilityTab = aiAbilityList
+      this.algoTabType = aiAbilityList[0]?.id
+      await this.getAlgoList()
+      this.loadingStatus.abilityList = false
+    } catch (e) {
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
+    } finally {
+      this.loading.abilityList = false
+      this.loadingStatusChange()
+    }
   }
 
   // 关闭两个tips
@@ -404,9 +522,11 @@ export default class extends Vue {
   }
 
   private ifHiddenThis() {
-    const result = this.algoListData.filter((item: any) => item.analyseType <= this.chooseData.aiType)
+    const result = this.algoListData.filter(
+      (item: any) => item.analyseType <= this.chooseData.aiType
+    )
     if (result.length === 0) {
-      return 'algoTabTableHidden'
+      return 'algo-tab-table-hidden'
     }
     return ''
   }
@@ -415,6 +535,8 @@ export default class extends Vue {
   private async getAlgoList() {
     try {
       this.loading.resouceAiTable = true
+      this.loadingStatus.resouceAiTable = true
+      this.$emit('changeAiDisabledStatus', true)
       const algoListResult = await getAppList({ abilityId: this.algoTabType })
       this.algoListData = algoListResult.aiApps
 
@@ -430,27 +552,37 @@ export default class extends Vue {
               : (hash[curVal.id] = true && preVal.push(curVal))
             return preVal
           }, [])
-          const result = this.algoListData.filter((item: any) => this.resourceHasAppIds.some(val => item.id === val.appId))
+          const result = this.algoListData.filter((item: any) =>
+            this.resourceHasAppIds.some((val) => item.id === val.appId)
+          )
           // 过滤已选中数据和已编辑过得数据
           if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
-            const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item: any) => result.some((val: any) => val.id !== item.id))
+            const resultFinal =
+              this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] &&
+              this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item: any) =>
+                result.some((val: any) => val.id !== item.id)
+              )
             if (resultFinal && resultFinal.length > 0) {
               this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
             }
           } else {
-            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
+            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] =
+              result
           }
         }
       }
       // this.setChecked()
       this.filterCheckedStatus()
       // this.$emit('changevssaiapps', this.selectAlgoInfo)
+      this.loadingStatus.resouceAiTable = false
     } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
+      // if (e && e.code !== 5) {
+      //   this.$message.error(e && e.message)
+      // }
+      this.$message.error('请稍后重试~')
     } finally {
       this.loading.resouceAiTable = false
+      this.loadingStatusChange()
     }
   }
 
@@ -482,7 +614,9 @@ export default class extends Vue {
       } else if (num > 0) {
         this.tipsText = `将扣除${this.chooseData.workOrderNo}包中${num}路资源`
       } else {
-        this.tipsText = `将释放${this.chooseData.workOrderNo}包中${Math.abs(num)}路资源`
+        this.tipsText = `将释放${this.chooseData.workOrderNo}包中${Math.abs(
+          num
+        )}路资源`
       }
     } else {
       this.tipsText = `将扣除${this.chooseData.workOrderNo}包中${this.selectAlgoId.length}路资源。`
@@ -504,7 +638,10 @@ export default class extends Vue {
     if (result.length > 0) {
       this.setChecked()
     } else {
-      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item: any) => item.id !== row.id)
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] =
+        this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter(
+          (item: any) => item.id !== row.id
+        )
     }
   }
 
@@ -513,7 +650,12 @@ export default class extends Vue {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
     if (this.resourceHasAppIds && this.resourceHasAppIds.length) {
-      if (this.addCheckedIds.length - this.removeCheckedIds.length - this.remainDeviceConfigCount > 0) {
+      if (
+        this.addCheckedIds.length -
+          this.removeCheckedIds.length -
+          this.remainDeviceConfigCount >
+        0
+      ) {
         this.showError = true
         this.showTips = false
       } else {
@@ -538,9 +680,7 @@ export default class extends Vue {
     let hash = {}
     const result = arr.reduce((preVal: any, curVal: any) => {
       // eslint-disable-next-line no-unused-expressions
-      hash[curVal[key]]
-        ? ''
-        : (hash[curVal[key]] = true && preVal.push(curVal))
+      hash[curVal[key]] ? '' : (hash[curVal[key]] = true && preVal.push(curVal))
       return preVal
     }, [])
     return result
@@ -553,16 +693,18 @@ export default class extends Vue {
         appId: item.id,
         analyseType: item.analyseType
       }))
-      const hasIdsInThisType = this.algoListData.filter((item: any) => {
-        return this.resourceHasAppIds.some((val: any) => {
-          return item.id === val.appId
+      const hasIdsInThisType = this.algoListData
+        .filter((item: any) => {
+          return this.resourceHasAppIds.some((val: any) => {
+            return item.id === val.appId
+          })
         })
-      }).map((item: any) => {
-        return {
-          appId: item.id,
-          analyseType: item.analyseType
-        }
-      })
+        .map((item: any) => {
+          return {
+            appId: item.id,
+            analyseType: item.analyseType
+          }
+        })
       const shouldRemove = hasIdsInThisType.filter((item: any) => {
         return selectVal.every((val: any) => {
           return item.appId !== val.appId
@@ -574,20 +716,34 @@ export default class extends Vue {
         })
       })
 
-      this.shouldRemove[this.chooseData.resourceId][this.algoTabType] = shouldRemove
+      this.shouldRemove[this.chooseData.resourceId][this.algoTabType] =
+        shouldRemove
       this.shouldAdd[this.chooseData.resourceId][this.algoTabType] = shouldAdd
 
-      this.addCheckedIds = Object.values(this.shouldAdd[this.chooseData.resourceId]).map((item: any) => item).flat()
-      this.removeCheckedIds = Object.values(this.shouldRemove[this.chooseData.resourceId]).map((item: any) => item).flat()
+      this.addCheckedIds = Object.values(
+        this.shouldAdd[this.chooseData.resourceId]
+      )
+        .map((item: any) => item)
+        .flat()
+      this.removeCheckedIds = Object.values(
+        this.shouldRemove[this.chooseData.resourceId]
+      )
+        .map((item: any) => item)
+        .flat()
 
-      const tempAlgoIds = [...this.resourceHasAppIds, ...this.addCheckedIds].filter((item: any) => {
+      const tempAlgoIds = [
+        ...this.resourceHasAppIds,
+        ...this.addCheckedIds
+      ].filter((item: any) => {
         return this.removeCheckedIds.every((val: any) => {
           return item.appId !== val.appId
         })
       })
       this.selectAlgoInfo = tempAlgoIds
     } else {
-      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item: any) => {
+      const result = Object.values(
+        this.checkInfoObj[this.chooseData.resourceId]
+      ).map((item: any) => {
         return item.map((ele: any) => {
           return {
             appId: ele.id,
@@ -614,101 +770,112 @@ export default class extends Vue {
     this.$nextTick(() => {
       result.forEach((element: any) => {
         if (this.$refs[`algoTable${this.algoTabType}`]) {
-          this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
+          this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(
+            element,
+            true
+          )
         }
       })
     })
   }
+
+  // loading状态回调
+  public loadingStatusChange() {
+    const final = Object.keys(this.loadingStatus).every(item => this.loadingStatus[item] === false)
+    if (final) {
+      this.$emit('changeAiDisabledStatus', false)
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
-  .resource-tabs {
-    &.el-tabs {
-      margin: 0;
-    }
-
-    .resource-id {
-      ::v-deep .el-radio__label {
-        display: none;
-      }
-
-      ::v-deep .el-radio__input {
-        margin-right: 3px;
-      }
-    }
-
-    ::v-deep .el-tabs__header {
-      margin-bottom: 0;
-    }
-
-    &__content {
-      border: 1px solid #dfe4ed;
-      border-top: none;
-      padding: 10px;
-
-      .el-radio__label {
-        font-weight: normal;
-      }
-    }
-
-    &__none {
-      line-height: 23px;
-      transition: 'background' 0.2s;
-
-      label {
-        padding: 10px;
-        display: block;
-      }
-
-      &:hover {
-        background: #f5f7fa;
-      }
-    }
-
-    ::v-deep .el-table .el-table__row {
-      cursor: pointer;
-    }
+.resource-tabs {
+  &.el-tabs {
+    margin: 0;
   }
 
-  .algoTab {
-    margin-top: 10px;
-
-    .algoTabTable {
-      margin-top: 10px;
-    }
-  }
-
-  .algoWarning {
-    padding: 5px 10px;
-    border: 1px solid;
-
-    span {
-      margin-left: 12px;
-      font-size: 12px;
-      display: inline-block;
-    }
-
-    ::v-deep .el-icon-warning {
-      font-size: 18px;
-      vertical-align: middle;
-    }
-
-    &.algoWarningError {
-      border-color: #950012;
-      color: #950012;
-      background: #fadee0;
-    }
-
-    &.algoWarningTip {
-      border-color: #4a88db;
-      color: #4a88db;
-      background: #edf4fe;
-    }
-  }
-
-  .algoTabTableHidden {
-    ::v-deep .el-table__header-wrapper .el-checkbox {
+  .resource-id {
+    ::v-deep .el-radio__label {
       display: none;
     }
+
+    ::v-deep .el-radio__input {
+      margin-right: 3px;
+    }
   }
+
+  ::v-deep .el-tabs__header {
+    margin-bottom: 0;
+  }
+
+  &__content {
+    border: 1px solid #dfe4ed;
+    border-top: none;
+    padding: 10px;
+
+    .el-radio__label {
+      font-weight: normal;
+    }
+  }
+
+  &__none {
+    line-height: 23px;
+    transition: 'background' 0.2s;
+
+    label {
+      padding: 10px;
+      display: block;
+    }
+
+    &:hover {
+      background: #f5f7fa;
+    }
+  }
+
+  ::v-deep .el-table .el-table__row {
+    cursor: pointer;
+  }
+}
+
+.algo-tab {
+  margin-top: 10px;
+
+  .algo-tab-table {
+    margin-top: 10px;
+  }
+}
+
+.algo-warning {
+  padding: 5px 10px;
+  border: 1px solid;
+
+  span {
+    margin-left: 12px;
+    font-size: 12px;
+    display: inline-block;
+  }
+
+  ::v-deep .el-icon-warning {
+    font-size: 18px;
+    vertical-align: middle;
+  }
+
+  &.algo-warning-error {
+    border-color: #950012;
+    color: #950012;
+    background: #fadee0;
+  }
+
+  &.algo-warning-tip {
+    border-color: #4a88db;
+    color: #4a88db;
+    background: #edf4fe;
+  }
+}
+
+.algo-tab-table-hidden {
+  ::v-deep .el-table__header-wrapper .el-checkbox {
+    display: none;
+  }
+}
 </style>

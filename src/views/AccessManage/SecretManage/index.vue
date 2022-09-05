@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-tabs v-model="activeName" type="border-card">
-      <el-tab-pane label="api密钥管理" name="secret">
+    <el-tabs v-model="activeName" v-loading="loading" type="border-card">
+      <el-tab-pane label="API密钥管理" name="secret">
         <el-alert
           type="info"
           show-icon
@@ -19,8 +19,8 @@
           <div class="filter-container">
             <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
           </div>
-          <el-table v-loading="loading" :data="dataList" fit>
-            <el-table-column label="密钥" min-width="250">
+          <el-table :data="dataList" fit>
+            <el-table-column label="密钥" min-width="300">
               <template slot-scope="{row}">
                 <div>
                   <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
@@ -29,8 +29,16 @@
                   </el-button>
                 </div>
                 <div>
-                  <span>{{ 'SecretAccessKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
-                  <el-button class="ml10" type="text" @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
+                  <span>{{ 'SecretAccessKey: ****** ' }}</span>
+                  <el-popover
+                    placement="right"
+                    width="400"
+                    trigger="hover"
+                    :open-delay="300"
+                    content="若SecretAccessKey遗失，请删除该密钥并重新创建"
+                  >
+                    <svg-icon slot="reference" class="form-question" name="help" />
+                  </el-popover>
                 </div>
               </template>
             </el-table-column>
@@ -42,7 +50,7 @@
                 {{ secretStatus[row.status] || "已启用" }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="250" fixed="right">
+            <el-table-column label="操作" min-width="200" fixed="right">
               <template slot-scope="scope">
                 <template v-if="scope.row.status">
                   <el-button type="text" disabled @click="disableSecret(scope.row)">禁用</el-button>
@@ -79,9 +87,22 @@
 
           <el-form-item label="AccessKeyId:">
             <span>{{ apiForm.accessKey ? `${apiForm.accessKey}` : '—' }}</span>
+            <el-button v-if="apiForm.type" v-clipboard:copy="apiForm.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
+              <svg-icon name="copy" />
+            </el-button>
           </el-form-item>
           <el-form-item label="SecretAccessKey:">
-            <span>{{ apiForm.secretKey ? `${apiForm.secretKey}` : '—' }}</span>
+            <span>{{ apiForm.type ? '****** ' : '—' }}</span>
+            <el-popover
+              v-if="apiForm.type"
+              placement="right"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="若SecretAccessKey遗失，请先取消授权，并重新授权"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="operateAuth">{{ `${apiForm.type ? '取消' : '立即'}授权` }}</el-button>
@@ -89,29 +110,44 @@
         </el-form>
       </el-tab-pane>
     </el-tabs>
+    <tip-dialog v-if="showTipDialog" :data="dialogData" @on-close="closeTipDialog" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { Secret } from '@/type/Secret'
+import { Secret, SecretTip } from '@/type/Secret'
 import { SecretStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import TipDialog from './components/TipDialog.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret } from '@/api/secret'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'secret-manage',
-  components: { StatusBadge }
+  components: { StatusBadge, TipDialog }
 })
 export default class extends Vue {
   private loading = false
   private dataList: Array<Secret> = []
   private secretStatus = SecretStatus
+  private showTipDialog = false
+  private dialogData: SecretTip
 
   private activeName = 'secret'
   private apiForm: any = { type: false }
+
+  private closeTipDialog() {
+    this.dialogData = {
+      type: '',
+      headline: '',
+      id: '',
+      accessKey: '',
+      secretKey: ''
+    }
+    this.showTipDialog = false
+  }
 
   private async mounted() {
     await this.getList()
@@ -169,10 +205,6 @@ export default class extends Vue {
     })
   }
 
-  private toggleHidden(row: Secret) {
-    this.$set(row, 'hidden', !row.hidden)
-  }
-
   private async enableSecret(row: Secret) {
     try {
       this.loading = true
@@ -209,8 +241,16 @@ export default class extends Vue {
 
   private async createSecret() {
     try {
-      await createSecret()
-      this.getList()
+      const res = await createSecret()
+      await this.getList()
+      this.dialogData = {
+        type: 'api',
+        headline: '新建密钥成功',
+        id: res.id,
+        accessKey: res.accessKey,
+        secretKey: res.secretKey
+      }
+      this.showTipDialog = true
     } catch (e) {
       // TODO
       // 错误处理
@@ -237,11 +277,11 @@ export default class extends Vue {
       try {
         this.loading = true
         await deleteSecret(row.id)
-        this.loading = false
-        this.getList()
+        await this.getList()
       } catch (e) {
         // TODO LIST
         // 错误处理
+      } finally {
         this.loading = false
       }
     })
@@ -257,17 +297,30 @@ export default class extends Vue {
         cancelButtonText: '取消'
       }).then(async() => {
       try {
-        this.apiForm.type ? await deleteSecret(this.apiForm.id, 'public') : await createSecret({ type: 'public' })
+        this.loading = true
+        const res = this.apiForm.type ? await deleteSecret(this.apiForm.id, 'public') : await createSecret({ type: 'public' })
         this.$message({
           message: `${this.apiForm.type ? '取消' : ''}授权成功`,
           type: 'success'
         })
-        this.getAuth()
+        await this.getAuth()
+        if (this.apiForm.type) {
+          this.dialogData = {
+            type: 'public',
+            headline: 'OpenAPI授权成功',
+            id: res.id,
+            accessKey: res.accessKey,
+            secretKey: res.secretKey
+          }
+          this.showTipDialog = true
+        }
       } catch (e) {
         this.$message({
           message: `${this.apiForm.type ? '取消' : ''}授权失败 :${e}`,
           type: 'error'
         })
+      } finally {
+        this.loading = false
       }
     })
   }

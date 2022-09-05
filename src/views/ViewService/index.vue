@@ -151,7 +151,7 @@ export default class extends Vue {
    */
   private edit(row: any) {
     this.$router.push({
-      name: 'view-up-platform-update',
+      name: 'viewUpPlatformUpdate',
       params: {
         platformDetails: row
       }

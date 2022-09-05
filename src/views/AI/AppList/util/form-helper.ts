@@ -5,8 +5,9 @@ export const getRule = (msg) => {
   } else if (['人员数量阈值', '车辆数量阈值',
     '临停时间', '拥堵车辆阈值', '人员数量阈值',
     '脱岗超时时间', '睡岗超时时间', '临停时间',
-    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间', '蜜蜂数量'].includes(msg)) {
-    rule.push({ required: true, message: '不能为空', trigger: 'blur' })
+    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间',
+    '蜜蜂数量', '告警周期', '告警数量阈值', '静默时间'].includes(msg)) {
+    rule.push({ required: true, message: '请输入' + msg, trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
         if (/^(?:[0-9]\d*)$/.test(value) === false) {
@@ -52,6 +53,16 @@ export const getRule = (msg) => {
           }
         },
         trigger: 'blur' })
+    } else if (msg === '告警数量阈值') {
+      rule.push({
+        validator: (rule, value, callback) => {
+          if (parseInt(value) === 0) {
+            callback(new Error('请输入大于等于1的整数'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur' })
     }
   } else if (msg === '起始时间') {
     rule.push({
@@ -85,12 +96,19 @@ export const formRule = {
   'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
   'algorithmMetadata.animalDetectType': getRule('动物列表'),
   beeNumber: getRule('蜜蜂数量'),
-  period: getRule('起始时间')
+  period: getRule('起始时间'),
+  alertPeriod: getRule('告警周期'),
+  alertTriggerThreshold: getRule('告警数量阈值'),
+  alertSilencePeriod: getRule('静默时间')
 }
 
 export const formTips = {
   offDutyThreShold: '不能超过600分钟',
   sleepOnDutyThreShold: '不能超过600分钟',
   pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
-  jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵'
+  jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵',
+  alertDisabled: '针对于AI告警信息频繁的情况，并配置静默规则之后，可以压缩AI告警信息，默认关闭',
+  alertPeriod: '检测告警信息的时间区段，默认0秒',
+  alertTriggerThreshold: '检测告警信息的数量阈值，默认1个',
+  alertSilencePeriod: '静默时间内，不产生任何的AI告警信息，告警周期内触发告警之后即进入静默期，待达到静默时间之后，重新进行新一轮的告警判断，默认3秒'
 }

@@ -1,7 +1,8 @@
-import { parseISO, lightFormat } from 'date-fns'
+// import { parseISO, lightFormat } from 'date-fns'
 
 const formatTime = function(isoTime) {
-  return lightFormat(parseISO(isoTime), 'yyyy-MM-dd HH:mm:ss')
+  // return lightFormat(parseISO(isoTime), 'yyyy-MM-dd HH:mm:ss')
+  return isoTime
 }
 
 const isOrNot = function(n) {
