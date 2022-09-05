@@ -1,7 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import { deviceRouter, previewRouter, replayRouter } from '@vss/device/router'
+import { deviceRouter, videoRouter } from '@vss/device/router'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -293,8 +293,7 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   deviceRouter,
-  previewRouter,
-  replayRouter,
+  videoRouter,
   {
     path: '/screen',
     component: Layout,

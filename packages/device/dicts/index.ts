@@ -222,8 +222,7 @@ export const ProtocolDeviceType = {
 export const DeviceInTypeByDeviceType = {
   [enums.DeviceTypeEnum.Ipc]: {
     [enums.DeviceInTypeEnum.Video]: '视频',
-    [enums.DeviceInTypeEnum.Viid]: '视图',
-    [enums.DeviceInTypeEnum.VideoAndViid]: '视频、视图'
+    [enums.DeviceInTypeEnum.Viid]: '视图'
   },
   [enums.DeviceTypeEnum.Nvr]: {
     [enums.DeviceInTypeEnum.Video]: '视频'

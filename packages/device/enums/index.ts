@@ -33,6 +33,7 @@ export enum DeviceEnum {
   DeviceStreamPullIndex = 'DeviceStreamPullIndex',
   Description = 'Description',
   DeviceInType = 'DeviceInType',
+  DeviceInTypeRadio = 'DeviceInTypeRadio',
   InVideoProtocol = 'InVideoProtocol',
   InViidProtocol = 'InViidProtocol',
   InVersion = 'InVersion',
@@ -124,8 +125,7 @@ export enum DeviceEnum {
  */
 export enum DeviceInTypeEnum {
   Video = 'video',
-  Viid = 'viid',
-  VideoAndViid = 'videoAndViid'
+  Viid = 'viid'
 }
 
 /**

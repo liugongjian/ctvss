@@ -8,9 +8,9 @@
   >
     <el-form-item class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
       <el-radio
-        v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm.deviceType]"
+        v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm[deviceEnum.DeviceType]]"
         :key="key"
-        v-model="videoForm.inVideoProtocol"
+        v-model="videoForm[deviceEnum.InVideoProtocol]"
         :label="key"
         @change="inVideoProtocolChange"
       >
@@ -18,9 +18,9 @@
       </el-radio>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
-      <el-select v-model="videoForm.videoVendor">
+      <el-select v-model="videoForm[deviceEnum.VideoVendor]">
         <el-option
-          v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+          v-for="(value, key) in deviceVendor[videoForm[deviceEnum.InVideoProtocol]]"
           :key="key"
           :label="value"
           :value="key"
@@ -28,9 +28,9 @@
       </el-select>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InVersion)" label="版本:" :prop="deviceEnum.InVersion">
-      <el-radio-group v-model="videoForm.inVersion">
+      <el-radio-group v-model="videoForm[deviceEnum.InVersion]">
         <el-radio-button
-          v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
+          v-for="(value, key) in versionByInVideoProtocol[videoForm[deviceEnum.InVideoProtocol]]"
           :key="key"
           :label="value"
           :value="key"
@@ -39,51 +39,51 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
       <el-input-number
-        v-model="videoForm.deviceChannelSize"
+        v-model="videoForm[deviceEnum.DeviceChannelSize]"
         :min="minChannelSize"
         type="number"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm[deviceEnum.InUserName]" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
         v-for="(value, key) in inType"
         :key="key"
-        v-model="videoForm.inType"
+        v-model="videoForm[deviceEnum.InType]"
         :label="key"
       >
         {{ value }}
       </el-radio>
     </el-form-item>
-    <template v-if="videoForm.videoVendor === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
+    <template v-if="videoForm[deviceEnum.VideoVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
       <el-form-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址:" :prop="deviceEnum.PullUrl">
-        <el-input v-model="videoForm.pullUrl" />
+        <el-input v-model="videoForm[deviceEnum.PullUrl]" />
       </el-form-item>
     </template>
     <template v-else>
       <el-form-item v-if="checkVisible(deviceEnum.UserName)" label="用户名:" :prop="deviceEnum.UserName">
-        <el-input v-model="videoForm.userName" />
+        <el-input v-model="videoForm[deviceEnum.UserName]" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-        <el-input v-model="videoForm.password" type="password" />
+        <el-input v-model="videoForm[deviceEnum.Password]" type="password" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
         <el-switch
-          v-model="videoForm.enableDomain"
+          v-model="videoForm[deviceEnum.EnableDomain]"
           :active-value="1"
           :inactive-value="2"
         />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名:" :prop="deviceEnum.DeviceDomain">
-        <el-input v-model="videoForm.deviceDomain" />
+        <el-input v-model="videoForm[deviceEnum.DeviceDomain]" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="接入IP:" :prop="deviceEnum.DeviceIp">
-        <el-input v-model="videoForm.deviceIp" />
+        <el-input v-model="videoForm[deviceEnum.DeviceIp]" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.DevicePort">
-        <el-input v-model.number="videoForm.devicePort" />
+        <el-input v-model.number="videoForm[deviceEnum.DevicePort]" />
       </el-form-item>
     </template>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">
@@ -106,9 +106,9 @@
       <el-radio
         v-for="(value, key) in deviceStreamSize"
         :key="key"
-        v-model="videoForm.deviceStreamSize"
+        v-model="videoForm[deviceEnum.DeviceStreamSize]"
         :label="+key"
-        :disabled="deviceForm.deviceType === 'nvr' && +key === 3 "
+        :disabled="deviceForm[deviceEnum.DeviceType] === deviceTypeEnum.Nvr && +key === 3 "
         @change="onDeviceStreamSizeChange"
       >
         {{ value }}
@@ -129,7 +129,7 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm.deviceStreamAutoPull"
+        v-model="videoForm[deviceEnum.DeviceStreamAutoPull]"
         :active-value="1"
         :inactive-value="2"
       />
@@ -142,9 +142,9 @@
       <el-radio
         v-for="(value, key) in deviceStreamPullIndex"
         :key="key"
-        v-model="videoForm.deviceStreamPullIndex"
+        v-model="videoForm[deviceEnum.DeviceStreamPullIndex]"
         :label="+key"
-        :disabled="+key > videoForm.deviceStreamSize"
+        :disabled="+key > videoForm[deviceEnum.DeviceStreamSize]"
       >
         {{ value }}
       </el-radio>
@@ -164,7 +164,7 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm.pushType"
+        v-model="videoForm[deviceEnum.PushType]"
         :active-value="1"
         :inactive-value="2"
       />
@@ -184,7 +184,7 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm.streamTransProtocol"
+        v-model="videoForm[deviceEnum.StreamTransProtocol]"
         active-value="tcp"
         inactive-value="udp"
       />
@@ -197,8 +197,8 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
       <resource-tabs
-        v-model="videoForm.resources"
-        :is-private-in-network="deviceForm.inNetworkType === 'private'"
+        v-model="videoForm[deviceEnum.Resources]"
+        :is-private-in-network="deviceForm[deviceEnum.InNetworkType] === inNetworkTypeEnum.Private"
         :form-info="videoForm"
         :vss-ai-apps="videoForm.vssAIApps"
         @on-change="onResourceChange"
@@ -211,7 +211,7 @@
       </el-form-item>
       <div ref="showMoreForm" class="show-more--form">
         <el-form-item v-if="checkVisible(deviceEnum.Tags)" label="视频标签:" :prop="deviceEnum.Tags">
-          <tags v-model="videoForm.tags" class="tags" />
+          <tags v-model="videoForm[deviceEnum.Tags]" class="tags" />
         </el-form-item>
       </div>
     </div>
@@ -220,7 +220,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum } from '../../enums/index'
+import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum, InNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '@vss/device/dicts'
 import { Device, DeviceBasic, VideoDevice } from '@vss/device/type/Device'
 import { DeviceTips } from '../../dicts/tips'
@@ -245,7 +245,9 @@ export default class extends Vue {
   private orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
   private deviceEnum = DeviceEnum
+  private deviceTypeEnum = DeviceTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
+  private inNetworkTypeEnum = InNetworkTypeEnum
   private tips = DeviceTips
   private deviceVendor = DeviceVendor
   private inVideoProtocolByDeviceType = InVideoProtocolByDeviceType

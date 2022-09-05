@@ -148,28 +148,26 @@ export const deviceRouter = {
   ]
 }
 
-export const previewRouter = {
-  path: '/preview-refactor',
+export const videoRouter = {
+  path: '/video',
   component: Layout,
+  redirect: 'noredirect',
   meta: {
-    title: '实时预览',
-    icon: 'menu-device',
+    title: '视频服务',
+    icon: 'menu-live',
     perms: ['DescribeDevice'],
-    alwaysShow: false,
-    only: true,
-    groupSelector: true
+    alwaysShow: true,
+    breadcrumb: true
   },
   children: [
     {
-      path: '',
+      path: 'preview',
       component: () => import(/* webpackChunkName: "device" */ './Preview.vue'),
-      name: 'preview-refactor',
+      name: 'preview',
       meta: {
-        title: '实时预览重构',
-        icon: 'menu-device',
+        title: '实时预览',
         breadcrumb: false,
-        perms: ['DescribeDevice'],
-        groupSelector: true
+        perms: ['DescribeDevice']
       },
       children: [
         {
@@ -177,39 +175,22 @@ export const previewRouter = {
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
           name: 'DeviceList',
           meta: {
-            title: '设备列表',
+            title: '实时预览',
+            icon: 'dot',
             perms: ['DescribeDevice'],
-            activeMenu: '/preview-refactor',
-            groupSelector: true
+            activeMenu: '/video/preview'
           }
         }
       ]
-    }
-  ]
-}
-
-export const replayRouter = {
-  path: '/replay-refactor',
-  component: Layout,
-  meta: {
-    title: '录像回放',
-    icon: 'menu-device',
-    perms: ['DescribeDevice'],
-    alwaysShow: false,
-    only: true,
-    groupSelector: true
-  },
-  children: [
+    },
     {
-      path: '',
+      path: 'replay',
       component: () => import(/* webpackChunkName: "device" */ './Replay.vue'),
-      name: 'replay-refactor',
+      name: 'replay',
       meta: {
-        title: '录像回放重构',
-        icon: 'menu-device',
+        title: '录像回放',
         breadcrumb: false,
-        perms: ['DescribeDevice'],
-        groupSelector: true
+        perms: ['DescribeDevice']
       },
       children: [
         {
@@ -217,10 +198,10 @@ export const replayRouter = {
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
           name: 'DeviceList',
           meta: {
-            title: '设备列表',
+            title: '录像回放',
+            icon: 'dot',
             perms: ['DescribeDevice'],
-            activeMenu: '/replay-refactor',
-            groupSelector: true
+            activeMenu: '/video/replay'
           }
         }
       ]
