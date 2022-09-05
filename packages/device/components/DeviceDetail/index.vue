@@ -9,8 +9,8 @@
           <el-tab-pane label="设备事件" name="DeviceEvents" />
           <el-tab-pane label="实时预览" name="DevicePreview" />
           <el-tab-pane label="录像回放" name="DeviceReplay" />
-          <el-tab-pane label="AI分析" name="DeviceAI" />
-          <el-tab-pane label="视图数据" name="DeviceVIID" />
+          <el-tab-pane label="AI分析" name="DeviceAi" />
+          <el-tab-pane label="视图数据" name="DeviceViid" />
         </el-tabs>
       </div>
       <div class="detail-wrap__body">
