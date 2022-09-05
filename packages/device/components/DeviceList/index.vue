@@ -95,10 +95,8 @@
                 {{ 'D' + row.channelNum }}
               </template>
             </el-table-column>
-            <el-table-column label="接入类型" min-width="200">
-            </el-table-column>
-            <el-table-column label="接入协议" min-width="200">
-            </el-table-column>
+            <el-table-column label="接入类型" min-width="200" />
+            <el-table-column label="接入协议" min-width="200" />
             <el-table-column
               v-if="!isNVR"
               key="deviceType"
@@ -361,8 +359,6 @@ export default class extends Vue {
     return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus || this.filter.recordStatus)
   }
 
-  private get 
-
   private loading = {}
 
   private keyword = ''
@@ -390,7 +386,6 @@ export default class extends Vue {
       PageSize: 10,
       PageNum: 1
     })
-    
   }
 
   private initTableSize() {
