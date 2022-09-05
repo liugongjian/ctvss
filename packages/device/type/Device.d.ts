@@ -1,4 +1,4 @@
-import { DeviceEnum } from '../enums'
+import { DeviceEnum, StatusEnum } from '../enums'
 
 interface DeviceStats {
   [DeviceEnum.ChannelSize]: number; // 通道数量
@@ -33,7 +33,7 @@ interface DeviceBasic {
  * 视频接入协议
  */
 interface DeviceStatus {
-  [DeviceEnum.IsOnline]: 'on' | 'off'; // 是否在线,on-在线，off-离线
+  [DeviceEnum.IsOnline]: StatusEnum; // 是否在线,on-在线，off-离线
   [DeviceEnum.RegisterTime]: number; // 注册时间
   [DeviceEnum.KeepliveTime]: number; // 保活时间
   [DeviceEnum.UnregisterTime]: number; // 注销时间
@@ -44,8 +44,8 @@ interface DeviceStatus {
  */
 interface Stream {
   [DeviceEnum.StreamNum]: string;
-  [DeviceEnum.StreamStatus]: string;
-  [DeviceEnum.RecordStatus]: string;
+  [DeviceEnum.StreamStatus]: StatusEnum;
+  [DeviceEnum.RecordStatus]: StatusEnum;
   [DeviceEnum.StreamTransType]: string; // 流传输类型
   [DeviceEnum.Bitrate]: number;
 }

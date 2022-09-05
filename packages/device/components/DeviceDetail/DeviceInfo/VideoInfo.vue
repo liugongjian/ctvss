@@ -12,15 +12,15 @@
     </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
-      <el-descriptions-item label="设备状态">
+      <el-descriptions-item label="视频接入">
         <status-badge :status="videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
         {{ dicts.DeviceStatus[videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item label="流状态">
+      <el-descriptions-item label="视频流">
         <status-badge :status="streamStatus" />
         {{ dicts.StreamStatus[streamStatus] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item label="录制状态">
+      <el-descriptions-item label="视频录制">
         <status-badge :status="recordStatus" />
         {{ dicts.RecordStatus[recordStatus] || '-' }}
       </el-descriptions-item>
@@ -78,7 +78,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum } from '@vss/device/enums'
+import { DeviceEnum, StatusEnum } from '@vss/device/enums'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
 
@@ -120,8 +120,8 @@ export default class extends Vue {
 
   // 流状态
   public get streamStatus() {
-    const streamStataus = this.videoInfo && this.videoInfo[DeviceEnum.Streams].length && this.videoInfo[DeviceEnum.Streams].some(stream => stream[DeviceEnum.StreamStatus] === 'on')
-    return streamStataus ? 'on' : 'off'
+    const streamStataus = this.videoInfo && this.videoInfo[DeviceEnum.Streams].length && this.videoInfo[DeviceEnum.Streams].some(stream => stream[DeviceEnum.StreamStatus] === StatusEnum.On)
+    return streamStataus ? StatusEnum.On : StatusEnum.Off
   }
 
   // 录制状态
