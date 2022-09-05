@@ -167,6 +167,7 @@
   "__npminstall_done": false,
   "workspaces": [
     "packages/base",
-    "packages/device"
+    "packages/device",
+    "packages/ai"
   ]
 }
