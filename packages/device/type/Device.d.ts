@@ -45,7 +45,7 @@ interface DeviceStatus {
 interface Stream {
   [DeviceEnum.StreamNum]: string;
   [DeviceEnum.StreamStatus]: string;
-  [DeviceEnum.RecordStatus]: number;
+  [DeviceEnum.RecordStatus]: string;
   [DeviceEnum.StreamTransType]: string; // 流传输类型
   [DeviceEnum.Bitrate]: number;
 }
@@ -78,7 +78,7 @@ interface VideoDevice {
   [DeviceEnum.DeviceDomain]?: string; // 设备域名
   [DeviceEnum.DeviceStatus]: DeviceStatus;
   [DeviceEnum.Tags]?: string;
-  [DeviceEnum.Stream]?: Stream;
+  [DeviceEnum.Streams]?: Stream[];
   [DeviceEnum.ErrorMsg]?: string;
 }
 

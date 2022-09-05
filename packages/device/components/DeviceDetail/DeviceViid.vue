@@ -8,7 +8,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'DeviceVIID'
+  name: 'DeviceViid'
 })
 export default class extends Vue {
 }

@@ -30,18 +30,19 @@ export const deviceMock = {
         InVersion: '2016',
         InUserName: '123',
         DeviceStreamAutoPull: 1,
+        DeviceStreamPullIndex: 0,
         StreamTransProtocol: 'udp',
         SipTransType: 'udp',
         ErrorMsg: '设备下线',
         DeviceStatus: {
           IsOnline: 'on'
         },
-        Stream: {
+        Streams: [{
           StreamStatus: 'on',
-          RecordStatus: 1,
+          RecordStatus: 'on',
           StreamTransType: 'ps_rtp_udp',
           Bitrate: 12
-        }
+        }]
       },
       EhomeDevice: {
         SipIp: '1.1.1.1',
@@ -53,19 +54,19 @@ export const deviceMock = {
         DeviceMac: '23882323',
         DeviceStreamAutoPull: 1,
         DeviceStreamSize: 3,
-        DeviceStreamPullIndex: 1,
+        DeviceStreamPullIndex: 0,
         StreamTransProtocol: 'udp',
         SipTransType: 'udp',
         ErrorMsg: '设备下线',
         DeviceStatus: {
           IsOnline: 'on'
         },
-        Stream: {
+        Streams: [{
           StreamStatus: 'on',
-          RecordStatus: 1,
+          RecordStatus: 'on',
           StreamTransType: 'ps_rtp_udp',
           Bitrate: 12
-        }
+        }]
       },
       RtspDevice: {
         SipIp: '1.1.1.1',
@@ -86,16 +87,16 @@ export const deviceMock = {
         DevicePort: '123',
         DeviceStreamAutoPull: 1,
         DeviceStreamSize: 3,
-        DeviceStreamPullIndex: 1,
+        DeviceStreamPullIndex: 0,
         DeviceStatus: {
           IsOnline: 'on'
         },
-        Stream: {
+        Streams: [{
           StreamStatus: 'on',
-          RecordStatus: 1,
+          RecordStatus: 'on',
           StreamTransType: 'ps_rtp_udp',
           Bitrate: 12
-        }
+        }]
       }
     }
   ],
