@@ -95,17 +95,19 @@
                 {{ 'D' + row.channelNum }}
               </template>
             </el-table-column>
+            <el-table-column label="接入类型" min-width="200" />
+            <el-table-column label="接入协议" min-width="200" />
             <el-table-column
               v-if="!isNVR"
               key="deviceType"
               column-key="deviceType"
               prop="deviceType"
-              label="类型"
+              label="设备类型"
               :filters="isIPC ? [] : filtersArray.deviceType"
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">类型</span>
+                <span class="filter">设备类型</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
@@ -130,11 +132,6 @@
                 {{ deviceStatus[row.deviceStatus] || '-' }}
               </template>
             </el-table-column>
-            <el-table-column v-if="isGb && ga1400Flag" key="inProtocol" prop="inProtocol" label="接入协议" min-width="100">
-              <template slot-scope="{row}">
-                {{ 'GB28181' + (row.apeId && '、GA1400') }}
-              </template>
-            </el-table-column>
             <el-table-column
               key="streamStatus"
               column-key="streamStatus"
@@ -157,7 +154,6 @@
               key="recordStatus"
               column-key="recordStatus"
               prop="recordStatus"
-              label="录制状态"
               min-width="110"
               :filters="isIPC ? [] : filtersArray.recordStatus"
               :filter-multiple="false"
@@ -171,44 +167,21 @@
                 <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column key="bitrate" min-width="100" prop="bitrate" label="当前码率">
-              <template slot-scope="{row}">
-                {{ row.bitrate ? (row.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
+            <el-table-column
+              key="viidStatus"
+              column-key="viidStatus"
+              prop="viidStatus"
+              min-width="110"
+              :filters="isIPC ? [] : filtersArray.viidStatus"
+              :filter-multiple="false"
+            >
+              <template slot="header">
+                <span class="filter">视图状态</span>
+                <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
-            </el-table-column>
-            <el-table-column key="errorMessage" prop="errorMessage" label="异常提示">
               <template slot-scope="{row}">
-                {{ row.errorMessage || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
-              <template slot-scope="{row}">
-                {{ row.deviceVendor || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.gbId || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="ga1400Flag && (isGb || isNVR)" key="apeId" prop="apeId" label="视图编码" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.apeId || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="isGb || !isNVR" key="sipTransType" prop="sipTransType" label="信令传输模式" min-width="110">
-              <template slot-scope="{row}">
-                {{ sipTransType[row.sipTransType] || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="isGb || !isNVR" key="streamTransType" prop="streamTransType" label="流传输模式" min-width="110">
-              <template slot-scope="{row}">
-                {{ streamTransType[row.streamTransType] || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="isGb || !isNVR" key="streamTransProtocol" prop="streamTransProtocol" label="优先TCP传输" min-width="110">
-              <template slot-scope="{row}">
-                {{ streamTransProtocol[row.transPriority] || '-' }}
+                <span v-if="row.deviceType === 'nvr'">-</span>
+                <span v-else><status-badge :status="viidStatusStatusType[row.viidStatus]" />{{ viidStatusStatus[row.viidStatusStatus] || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
@@ -216,19 +189,9 @@
                 {{ row.deviceStats && row.deviceStats.channelSize || '-' }}
               </template>
             </el-table-column>
-            <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备IP" min-width="130">
+            <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
               <template slot-scope="{row}">
-                {{ row.deviceIp || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column v-if="isGb && !isNVR" key="devicePort" label="设备端口">
-              <template slot-scope="{row}">
-                {{ row.devicePort || '-' }}
-              </template>
-            </el-table-column>
-            <el-table-column key="createdTime" label="创建时间" min-width="180">
-              <template slot-scope="{row}">
-                {{ row.createdTime }}
+                {{ row.deviceVendor || '-' }}
               </template>
             </el-table-column>
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
@@ -306,6 +269,7 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
 import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
+import { describeDevices } from '../../api/device'
 
 @Component({
   name: 'DeviceList'
@@ -408,18 +372,29 @@ export default class extends Vue {
   private eventsList = []
 
   private mounted() {
-    this.calTableMaxHeight()
-    // @ts-ignore
-    this.observer = new ResizeObserver(() => {
-      this.calTableMaxHeight()
-    })
-    const deviceTable: any = this.$refs.deviceTable
-    deviceTable && this.observer.observe(deviceTable)
+    this.initTableSize()
   }
 
   public beforeDestroy() {
     const deviceTable: any = this.$refs.deviceTable
     deviceTable && this.observer.unobserve(deviceTable)
+  }
+
+  private async initTable() {
+    const res = await describeDevices({
+      DirId: '',
+      PageSize: 10,
+      PageNum: 1
+    })
+  }
+
+  private initTableSize() {
+    this.calTableMaxHeight()
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const deviceTable: any = this.$refs.deviceTable
+    deviceTable && this.observer.observe(deviceTable)
   }
 
   private rowClick() {

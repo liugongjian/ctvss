@@ -138,6 +138,9 @@ export default class DeviceManager {
 
   /**
    * 打开目录对话框
+   * @param type 触发打开窗口的事件类型
+   * @param payload 操作目录信息
+   * @param node 操作目录树节点
    */
   public static openDirectoryDialog = function(type: string, payload: any, node?: any) {
     switch (type) {
@@ -164,15 +167,15 @@ export default class DeviceManager {
 
   /**
    * 关闭目录对话框
-   * @param dir 目录信息
+   * @param type 触发关闭窗口的事件类型
+   * @param isRefresh 是否更新树
    */
-  public static closeDirectoryDialog = function(type: string, payload: any) {
-    console.log(type)
+  public static closeDirectoryDialog = function(type: string, isRefresh: any) {
     // @ts-ignore
     this.dialog[type] = false
     switch (type) {
       case ToolsEnum.SortDirectory:
-        if (payload === true) {
+        if (isRefresh === true) {
           if (this.sortDir.id === '0') {
             (this.deviceTree as any).initCommonTree()
           } else {
@@ -185,7 +188,7 @@ export default class DeviceManager {
       case ToolsEnum.EditDirectory:
         this.currentDir = null
         this.parentDir = null
-        if (payload === true) {
+        if (isRefresh === true) {
           (this.deviceTree as any).initCommonTree()
         }
         break
@@ -222,6 +225,7 @@ export default class DeviceManager {
   public static openScreen = function(data: any, streamNum?: number) {
     this.screenManager.openTreeItem(data, streamNum)
   }
+
   /**
    * 获取需要执行的视频队列并按策略执行
    * @param node 起始树节点

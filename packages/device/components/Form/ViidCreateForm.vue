@@ -120,7 +120,7 @@ export default class extends Vue {
     }
   }
 
-  @Watch('deviceForm.deviceType')
+  @Watch(`videoForm.${DeviceEnum.DeviceType}`)
   private deviceTypeChange() {
     this.viidForm[DeviceEnum.ProtocolDeviceType] = ''
   }

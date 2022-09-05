@@ -1,5 +1,7 @@
 import request from '@/utils/request'
 import { UserModule } from '@/store/modules/user'
+import { DeviceEnum, StatusEnum } from '../enums/index'
+import { DeviceInType } from '../dicts/index'
 
 /**
  * 获取设备目录树
@@ -142,6 +144,162 @@ export const getDeviceTree = (params: any): Promise<any> => {
       }]
     }]
   }]
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(res)
+    }, 1000)
+  })
+}
+
+export const describeDevices = (params: any): Promise<any> => {
+  let res: any = {
+    Devices: [
+      {
+        Device: { DeviceId: '123321', DeviceName: 'a1', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Videos: [{
+          InVideoProtocol: 'gb28181',
+          Gb28181Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            },
+            DeviceStreamPullIndex: 1,
+            Streams: [
+              {
+                StreamNum: 1,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              },
+              {
+                StreamNum: 2,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              },
+              {
+                StreamNum: 3,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              }
+            ]
+          }
+        }],
+        Viids: [{
+          InViidProtocol: 'ga1400',
+          Ga1400Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            }
+          }
+        }]
+      },
+      {
+        Device: { DeviceId: '123322', DeviceName: 'a2', DeviceType: 'nvr', DeviceVendor: '海康', DeviceChannelSize: '4' },
+        Videos: [{
+          InVideoProtocol: 'ehome',
+          Gb28181Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            },
+            DeviceStreamPullIndex: 1,
+            Streams: [
+              {
+                StreamNum: 1,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              }
+            ]
+          }
+        }],
+        Viids: [{
+          InViidProtocol: 'ga1400',
+          Ga1400Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            }
+          }
+        }]
+      },
+      {
+        Device: { DeviceId: '123323', DeviceName: 'a3', DeviceType: 'ipc', DeviceVendor: '大华', DeviceChannelSize: '' },
+        Videos: [{
+          InVideoProtocol: 'rtsp',
+          Gb28181Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            },
+            DeviceStreamPullIndex: 1,
+            Streams: [
+              {
+                StreamNum: 1,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              }
+            ]
+          }
+        }],
+        Viids: [{
+          InViidProtocol: 'ga1400',
+          Ga1400Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            }
+          }
+        }]
+      },
+      {
+        Device: { DeviceId: '123324', DeviceName: 'a4', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Videos: [{
+          InVideoProtocol: 'rtmp',
+          Gb28181Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            },
+            DeviceStreamPullIndex: 1,
+            Streams: [
+              {
+                StreamNum: 1,
+                StreamStatus: 'on',
+                RecordStatus: 'on'
+              }
+            ]
+          }
+        }]
+      },
+      {
+        Device: { DeviceId: '123325', DeviceName: 'a5', DeviceType: 'platform', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Viids: [{
+          InViidProtocol: 'ga1400',
+          Ga1400Device: {
+            DeviceStatus: {
+              IsOnline: 'on'
+            }
+          }
+        }]
+      }
+    ],
+    PageNum: 1,
+    PageSize: 10,
+    TotalNum: 10
+  }
+  res.Devices = res.Devices.map(item => {
+    let inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
+    let inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
+    const data = {
+      [DeviceEnum.DeviceName]: item.Device[DeviceEnum.DeviceName],
+      [DeviceEnum.DeviceId]: item.Device[DeviceEnum.DeviceId],
+      [DeviceEnum.DeviceInType]: [],
+      [DeviceEnum.InProtocol]: [],
+      [DeviceEnum.DeviceType]: item.Device[DeviceEnum.DeviceType],
+      [DeviceEnum.VideoStatus]: '-',
+      [DeviceEnum.StreamStatus]: '-',
+      [DeviceEnum.RecordStatus]: '-',
+      [DeviceEnum.ViidStatus]: '-',
+      [DeviceEnum.DeviceChannelSize]: item.Device[DeviceEnum.DeviceChannelSize],
+      [DeviceEnum.DeviceVendor]: item.Device[DeviceEnum.DeviceVendor]
+    }
+    if (inVideoProtocol) {
+      data[DeviceEnum.DeviceInType].push()
+    }
+  })
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(res)

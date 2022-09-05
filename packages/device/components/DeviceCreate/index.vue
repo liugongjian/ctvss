@@ -41,14 +41,24 @@
               </el-select>
             </el-form-item>
             <el-form-item label="接入方式:" :prop="deviceEnum.DeviceInType">
-              <el-radio
-                v-for="(value, key) in deviceInType[deviceForm[deviceEnum.DeviceType]]"
-                :key="key"
-                v-model="deviceForm[deviceEnum.DeviceInType]"
-                :label="key"
-              >
-                {{ value }}
-              </el-radio>
+              <el-radio-group v-if="checkVisible(deviceEnum.DeviceInTypeRadio)" v-model="deviceForm[deviceEnum.DeviceInType][0]">
+                <el-radio
+                  v-for="(value, key) in deviceInType[deviceForm[deviceEnum.DeviceType]]"
+                  :key="key"
+                  :label="key"
+                >
+                  {{ value }}
+                </el-radio>
+              </el-radio-group>
+              <el-checkbox-group v-if="checkVisible(deviceEnum.DeviceInType)" v-model="deviceForm[deviceEnum.DeviceInType]">
+                <el-checkbox
+                  v-for="(value, key) in deviceInType[deviceForm[deviceEnum.DeviceType]]"
+                  :key="key"
+                  :label="key"
+                >
+                  {{ value }}
+                </el-checkbox>
+              </el-checkbox-group>
             </el-form-item>
             <el-form-item :prop="deviceEnum.InNetworkType">
               <template slot="label">
@@ -96,7 +106,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <div v-show="deviceForm[deviceEnum.DeviceInType] !== deviceInTypeEnum.Viid">
+            <div v-show="deviceForm[deviceEnum.DeviceInType].includes(deviceInTypeEnum.Video)">
               <div class="form-title">视频接入信息</div>
               <video-create-form
                 ref="videoForm"
@@ -104,7 +114,7 @@
                 @inVideoProtocolChange="inVideoProtocolChange"
               />
             </div>
-            <div v-show="deviceForm[deviceEnum.DeviceInType] !== deviceInTypeEnum.Video">
+            <div v-show="deviceForm[deviceEnum.DeviceInType].includes(deviceInTypeEnum.Viid)">
               <div class="form-title">视图接入信息</div>
               <viid-create-form
                 ref="viidForm"
@@ -269,7 +279,7 @@ export default class extends Mixins(deviceFormMixin) {
     // step0
     [DeviceEnum.DeviceName]: '',
     [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
-    [DeviceEnum.DeviceInType]: DeviceInTypeEnum.VideoAndViid,
+    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video, DeviceInTypeEnum.Viid],
     [DeviceEnum.InNetworkType]: InNetworkTypeEnum.Public,
     [DeviceEnum.OutNetworkType]: OutNetworkTypeEnum.Public,
     // step1
@@ -293,7 +303,7 @@ export default class extends Mixins(deviceFormMixin) {
   private videoForm: any = {}
   private viidForm: any = {}
 
-  @Watch(`videoForm[${DeviceEnum.VideoVendor}]`)
+  @Watch(`videoForm.${DeviceEnum.VideoVendor}`)
   private vendorChange(val) {
     this.deviceForm[DeviceEnum.DeviceVendor] = val
   }
@@ -321,7 +331,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 设备类型变化
    */
   private deviceTypeChange() {
-    this.deviceForm[DeviceEnum.DeviceInType] = DeviceInTypeEnum.Video
+    this.deviceForm[DeviceEnum.DeviceInType] = [DeviceInTypeEnum.Video]
   }
 
   /**

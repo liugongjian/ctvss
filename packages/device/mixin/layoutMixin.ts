@@ -4,6 +4,7 @@ import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
+import { getNodeInfo } from '../api/device'
 import ScreenBoard from '../components/ScreenBoard/index.vue'
 
 @Component({
@@ -59,6 +60,7 @@ export default class DetailMixin extends Vue {
       DeviceManager.openDirectoryDialog.call(this, ToolsEnum.SortDirectory, ...arguments)
     },
     [ToolsEnum.DeleteDirectory]: DeviceManager.deleteDir,
+    [ToolsEnum.SetStreamNum]: DeviceManager.openScreen,
     [ToolsEnum.Polling]: function(node) {
       DeviceManager.executeQueue.call(this, node, !node, 'polling')
     },
@@ -73,7 +75,7 @@ export default class DetailMixin extends Vue {
   }
   /* 设备目录树 */
   public get deviceTree() {
-    return this.$refs.deviceTree
+    return this.$refs.deviceTree as any
   }
 
   /* 设备目录树是否懒加载依据 */
@@ -94,6 +96,27 @@ export default class DetailMixin extends Vue {
   public mounted() {
     DeviceManager.initAdvancedSearch.call(this)
   }
+
+  /**
+   * 懒加载时加载节点方法
+   * @param node 节点信息
+   */
+  public treeLoad = async function(node) {
+    let children
+    if (node.level === 0) {
+      this.loading.tree = true
+      children = await getNodeInfo('root')
+      this.deviceTree.loadChildren('01')
+    } else if (node.level < 4) {
+      children = await getNodeInfo('node')
+    } else if (node.level === 4) {
+      children = await getNodeInfo('leaf')
+    } else {
+      children = []
+    }
+    this.loading.tree = false
+    return children
+  }.bind(this)
 
   /**
    * 左侧功能触发回调

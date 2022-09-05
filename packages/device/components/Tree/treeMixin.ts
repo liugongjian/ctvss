@@ -20,6 +20,9 @@ export default class DetailMixin extends Vue {
   @Prop({ default: () => [] })
   public data
 
+  @Prop({ default: () => {} })
+  public load
+
   public dropScreen = dropScreen
   public toolsEnum = ToolsEnum
   public getNodeInfo = getNodeInfo
@@ -49,25 +52,13 @@ export default class DetailMixin extends Vue {
   }
 
   /**
-   * 加载节点
+   * 懒加载展开指定目录
+   * @param payload node/key
    */
-  private async load(node) {
-    let children
-    if (node.level === 0) {
-      this.treeLoading = true
-      children = await this.getNodeInfo('root')
-      window.setImmediate(() => {
-        this.commonTree.loadChildren('01')
-      })
-    } else if (node.level < 4) {
-      children = await this.getNodeInfo('node')
-    } else if (node.level === 4) {
-      children = await this.getNodeInfo('leaf')
-    } else {
-      children = []
-    }
-    this.treeLoading = false
-    return children
+  public loadChildren(payload) {
+    window.setImmediate(() => {
+      this.commonTree.loadChildren(payload)
+    })
   }
 
   /**

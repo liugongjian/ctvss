@@ -33,6 +33,7 @@ export enum DeviceEnum {
   DeviceStreamPullIndex = 'DeviceStreamPullIndex',
   Description = 'Description',
   DeviceInType = 'DeviceInType',
+  DeviceInTypeRadio = 'DeviceInTypeRadio',
   InVideoProtocol = 'InVideoProtocol',
   InViidProtocol = 'InViidProtocol',
   InVersion = 'InVersion',
@@ -117,7 +118,24 @@ export enum DeviceEnum {
   EhomeSipInfo = 'EhomeSipInfo',
   ErrorCode = 'ErrorCode',
   ErrorMsg = 'ErrorMsg',
-  OnvifDevicevice = 'OnvifDevicevice'
+  OnvifDevicevice = 'OnvifDevicevice',
+  // 列表相关
+  VideoStatus = 'VideoStatus',
+  ViidStatus = 'ViidStatus',
+  InProtocol = 'InProtocol',
+  PageNum = 'PageNum',
+  PageSize = 'PageSize',
+  TotalNum = 'TotalNum',
+}
+
+/**
+ * 开关状态
+ */
+export enum StatusEnum {
+  On = 'on',
+  Off = 'off',
+  Failed = 'failed',
+  Error = 'error'
 }
 
 /**
@@ -125,8 +143,7 @@ export enum DeviceEnum {
  */
 export enum DeviceInTypeEnum {
   Video = 'video',
-  Viid = 'viid',
-  VideoAndViid = 'videoAndViid'
+  Viid = 'viid'
 }
 
 /**
@@ -192,6 +209,7 @@ export enum OutNetworkTypeEnum {
  * commonLayout左侧工具栏按钮对应enum
  */
 export enum ToolsEnum {
+  // 设备树相关
   StreamStatus = 'streamStatus',
   SortDirectory = 'sortDirectory',
   RefreshDirectory = 'refreshDirectory',
@@ -208,7 +226,27 @@ export enum ToolsEnum {
   IntervalChange = 'intervalChange',
   AdvanceSearch = 'advanceSearch',
   ShowMore = 'showMore',
-  Refresh = 'refresh'
+  Refresh = 'refresh',
+  // 设备列表相关
+  DeviceInfo = 'deviceInfo',
+  CreateDevice = 'createDevice',
+  ViewDetails = 'viewDetails',
+  EditDevice = 'editDevice',
+  SyncDevice = 'syncDevice',
+  Export = 'export',
+  ExportAll = 'exportAll',
+  ExportCurrentPage = 'exportCurrentPage',
+  ExportSelect = 'exportSelect',
+  Import = 'import',
+  ExportTemplate = 'exportTemplate',
+  OperateDevices = 'operateDevices',
+  MoveDevice = 'moveDevice',
+  StartDevice = 'startDevice',
+  StopDevice = 'stopDevice',
+  StartRecord = 'startRecord',
+  StopRecord = 'stopRecord',
+  DeleteDevice = 'deleteDevice',
+  UpdateResource = 'updateResource'
 }
 
 /**
