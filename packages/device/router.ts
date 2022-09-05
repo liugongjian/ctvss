@@ -108,8 +108,8 @@ export const deviceRouter = {
             },
             {
               path: 'ai',
-              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceAI.vue'),
-              name: 'DeviceAI',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceAi.vue'),
+              name: 'DeviceAi',
               meta: {
                 title: 'AI分析',
                 breadcrumb: false,
@@ -120,8 +120,8 @@ export const deviceRouter = {
             },
             {
               path: 'viid',
-              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceVIID.vue'),
-              name: 'DeviceVIID',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceViid.vue'),
+              name: 'DeviceViid',
               meta: {
                 title: '视图库',
                 breadcrumb: false,
