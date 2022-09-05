@@ -10,7 +10,7 @@
  * }
  */
 
-import { AnimalType } from '@/dics'
+import { AnimalType, CityGovType } from '@/dics'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -132,6 +132,36 @@ export const parseMetaData = (type: string, metaData: any) => {
             width: box.BottomRightX - box.TopLeftX,
             height: box.BottomRightY - box.TopLeftY,
             isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
+            label
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
+
+    case '37':// 城市治理检测
+    case '10037':// 城市治理检测
+      locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+        try {
+          let label
+          const temp = CityGovType.filter(type => type.label === box.Label)
+          if (temp.length > 0) {
+            label = temp[0].cname
+          }
+          return {
+            top: box.TopLeftY,
+            left: box.TopLeftX,
+            width: box.BottomRightX - box.TopLeftX,
+            height: box.BottomRightY - box.TopLeftY,
+            isWarning: (box.Score.length > 0 && box.Score > 60),
             label
           }
         } catch (error) {

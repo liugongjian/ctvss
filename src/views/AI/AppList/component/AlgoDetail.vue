@@ -185,6 +185,12 @@
           <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
+      <!-- 城市治理监测 -->
+      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+        <el-select v-model="form.algorithmMetadata.cityGovType" multiple collapse-tags>
+          <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
+        </el-select>
+      </el-form-item>
       <!-- 安全帽反光服 -->
       <el-form-item v-if="ifShow('10004')" label="检测项" prop="algorithmMetadata.helmetReflectiveType">
         <el-checkbox-group v-model="form.algorithmMetadata.helmetReflectiveType">
@@ -313,7 +319,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType, AnimalType, CityGovType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -329,6 +335,7 @@ export default class extends Mixins(AppMixin) {
   private form: any = {
     algorithmMetadata: {
       trashRecycleType: [],
+      cityGovType: [],
       helmetReflectiveType: [],
       animalDetectType: ['Bear']
     },
@@ -341,6 +348,7 @@ export default class extends Mixins(AppMixin) {
   private tips: any = formTips
   private TrashType = TrashType
   private AnimalType = AnimalType
+  private CityGovType = CityGovType
   private HelmetClothType: any = HelmetClothType
   private alertDisabled = false
   private interval = {

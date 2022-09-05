@@ -206,7 +206,8 @@ export const AlertType: any = {
   33: '动物检测',
   34: '人脸识别v2',
   35: '工作服检测',
-  36: '河道垃圾检测'
+  36: '河道垃圾检测',
+  37: '城市治理监测'
 }
 
 export const AiMaskType: any = {
@@ -311,4 +312,24 @@ export const HelmetClothType = [
 
 export const AnimalType = [
   { label: 'Bear', cname: '狗熊' }
+]
+
+export const CityGovType = [
+  { label: 'dianwai', cname: '店外经营' },
+  { label: 'youtan', cname: '游摊小贩' },
+  { label: 'zhandao', cname: '占道经营' },
+  { label: 'wuliao', cname: '乱堆无聊' },
+  { label: 'guanggao', cname: '户外广告' },
+  { label: 'dabaolaji', cname: '打包垃圾' },
+  { label: 'baolulaji', cname: '暴露垃圾' },
+  { label: 'liangshai', cname: '沿街晾晒' },
+  { label: 'chengsan', cname: '违规撑伞' },
+  { label: 'disuo', cname: '地桩地锁' },
+  { label: 'lvhuasunhuai', cname: '绿化损坏' },
+  { label: 'daoluposun', cname: '道路破损' },
+  { label: 'weijiagai', cname: '垃圾箱未加盖' },
+  { label: 'manyi', cname: '垃圾箱满溢' },
+  { label: 'qimogongmeng', cname: '气拱门' },
+  { label: 'banner', cname: '横幅' },
+  { label: 'cover', cname: '井盖异常' }
 ]
