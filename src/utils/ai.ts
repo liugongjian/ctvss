@@ -162,7 +162,8 @@ export const parseMetaData = (type: string, metaData: any) => {
             width: box.BottomRightX - box.TopLeftX,
             height: box.BottomRightY - box.TopLeftY,
             isWarning: (box.Score.length > 0 && box.Score > 60),
-            label
+            label,
+            label_en: box.Label
           }
         } catch (error) {
           console.log(error)
@@ -375,8 +376,8 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       })
       break
-    // 在场人员+口罩检测
-    case '20':
+
+    case '20':// 在场人员+口罩检测
     case '10017':// 在场人员+口罩检测
       if (metaData.Data && metaData.Data.FaceRectangles) {
         const boxes = metaData.Data.FaceRectangles

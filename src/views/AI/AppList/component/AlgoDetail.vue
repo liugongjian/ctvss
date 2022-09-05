@@ -153,7 +153,7 @@
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id+''" />
         </el-select>
-        <!-- <i class="el-icon-refresh" @click="refreshFaceLib" /> -->
+        <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
@@ -186,8 +186,8 @@
         </el-checkbox-group>
       </el-form-item>
       <!-- 城市治理监测 -->
-      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
-        <el-select v-model="form.algorithmMetadata.cityGovType" multiple collapse-tags>
+      <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+        <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
           <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
         </el-select>
       </el-form-item>
@@ -692,6 +692,12 @@ export default class extends Mixins(AppMixin) {
 
   .interval-unit {
     width: 65px;
+  }
+  .city-gov-type{
+    width: 500px;
+    ::v-deep .el-tag{
+      margin-right: 8px;
+    }
   }
 }
 </style>

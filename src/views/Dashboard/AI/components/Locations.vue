@@ -8,7 +8,11 @@
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
         :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective}, `ai-recognation__images__item__mask--${type}`]"
-        :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+        :style="`top:${location.clientTopPercent}%;
+                left:${location.clientLeftPercent}%;
+                width:${location.clientWidthPercent}%;
+                height:${location.clientHeightPercent}%;
+                ${location.label_en && ['37', '10037'].includes(type) ? colorFromLabel(label_en) : ''}`"
         @click="clickLocation(locationIndex)"
       >
         <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
@@ -65,6 +69,14 @@ export default class extends Vue {
       this.currentIndex = 0
       this.clickLocation(this.currentIndex)
     }
+  }
+
+  private colorFromLabel(label) {
+    let color = ''
+    for (let i = 0; i < 3; i++) {
+      color += label.charCodeAt(i).toString(16)
+    }
+    return 'border: 2px solid #' + color
   }
 
   private clickLocation(locationIndex: number) {
