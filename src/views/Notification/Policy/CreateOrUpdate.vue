@@ -294,7 +294,7 @@ export default class extends Vue {
   }
 
   private get isUpdate() {
-    return this.$route.name === 'notificationPolicyEdit'
+    return this.$route.name === 'NotificationPolicyEdit'
   }
 
   private handleSourceChange(newValue: string) {

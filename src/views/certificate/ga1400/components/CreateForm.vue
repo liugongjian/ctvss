@@ -29,8 +29,8 @@
   </el-form>
 </template>
 <script lang='ts'>
-import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
+import { encrypt } from '@/utils/encrypt'
 import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/ga1400'
 
 @Component({
@@ -115,18 +115,20 @@ export default class extends Vue {
         try {
           if (this.disabled) {
             data = {
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               description: this.form.description,
-              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl',
-              newPassword: 'YmNjIW' + Base64.encode(this.form.newPassword as string) + '1mZSNl'
+              password: encrypt(this.form.password),
+              newPassword: encrypt(this.form.newPassword),
+              version: '2.0'
             }
             await updateCertificate(data, this.form.id)
           } else {
             this.form.password = this.form.newPassword
             data = {
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               description: this.form.description,
-              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl'
+              password: encrypt(this.form.password),
+              version: '2.0'
             }
             await createCertificate(data)
           }

@@ -13,7 +13,7 @@
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice />
+        <AtachedDevice v-if="tabNum === '1'" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">

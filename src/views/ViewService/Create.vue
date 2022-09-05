@@ -128,7 +128,7 @@ export default class extends Vue {
   }
 
   private get isUpdate() {
-    return this.$route.name === 'view-up-platform-update'
+    return this.$route.name === 'viewUpPlatformUpdate'
   }
 
   private async mounted() {
@@ -262,9 +262,11 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  .el-textarea, .el-input {
+  .el-textarea,
+  .el-input {
     width: 400px;
   }
+
   .short-width {
     width: 200px;
   }

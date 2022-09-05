@@ -41,3 +41,10 @@ export const disableSecret = (params: number): Promise<any> =>
       id: params
     }
   })
+
+export const exportSecret = (data: any): Promise<any> =>
+  request({
+    url: '/openapi/exportAkskOption',
+    method: 'post',
+    data
+  })

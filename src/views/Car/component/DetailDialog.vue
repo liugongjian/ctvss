@@ -7,7 +7,7 @@
     :destroy-on-close="true"
     @close="closeDialog"
   >
-    <el-form label-width="100px" size="mini">
+    <el-form label-width="120px" size="mini">
       <el-form-item label="设备名：">
         <span>{{ VehicleTask.deviceName }}</span>
       </el-form-item>
@@ -29,8 +29,23 @@
       <el-form-item label="工厂：">
         <span>{{ VehicleTask.factory }}</span>
       </el-form-item>
-      <el-form-item label="运输公司：">
+      <el-form-item label="设备状态：">
+        <span class="status">
+          <status-badge :status="VehicleTask.deviceStatus === 'on' ? 'on' : 'error'" />
+          {{ VehicleTask.deviceStatus === 'on' ? '在线' : '离线' }}
+        </span>
+      </el-form-item>
+      <el-form-item label="流状态：">
+        <span class="status">
+          <status-badge :status="VehicleTask.streamStatus === 'on' ? 'on' : 'error'" />
+          {{ VehicleTask.streamStatus === 'on' ? '在线' : '离线' }}
+        </span>
+      </el-form-item>
+      <el-form-item label="原粮出库点：">
         <span>{{ VehicleTask.transCompany }}</span>
+      </el-form-item>
+      <el-form-item label="管理工厂：">
+        <span>{{ VehicleTask.manageFactory }}</span>
       </el-form-item>
       <el-form-item label="运输任务：">
         <span>{{ VehicleTask.transDetail }}</span>
