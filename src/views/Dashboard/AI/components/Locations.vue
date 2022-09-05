@@ -12,7 +12,7 @@
                 left:${location.clientLeftPercent}%;
                 width:${location.clientWidthPercent}%;
                 height:${location.clientHeightPercent}%;
-                ${location.label_en && ['37', '10037'].includes(type) ? colorFromLabel(label_en) : ''}`"
+                ${location.label_en ? colorFromLabel(label_en) : ''}`"
         @click="clickLocation(locationIndex)"
       >
         <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
