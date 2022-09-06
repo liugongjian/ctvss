@@ -16,11 +16,11 @@
             </span>
             <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
           </el-descriptions-item>
-          <el-descriptions-item label="设备ID">{{ deviceInfo.deviceID }}</el-descriptions-item>
-          <el-descriptions-item label="IP地址">{{ deviceInfo.ip }}</el-descriptions-item>
-          <el-descriptions-item label="序列号">{{ deviceInfo.seriesNum }}</el-descriptions-item>
+          <el-descriptions-item label="设备ID">{{ basic.deviceId }}</el-descriptions-item>
+          <el-descriptions-item label="IP地址">{{ basic.ip }}</el-descriptions-item>
+          <el-descriptions-item label="序列号">{{ basic.sn }}</el-descriptions-item>
           <el-descriptions-item label="描述">
-            <span v-if="!isEditDes">{{ descriptions }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeDes" /></span>
+            <span v-if="!isEditDes">{{ description }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeDes" /></span>
             <span v-if="isEditDes" class="name-edit">
               <el-input ref="des" v-model="editDes" :maxlength="16" autofocus />
               <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
@@ -34,30 +34,31 @@
         <span>硬件信息</span>
       </div>
       <div class="info-chart">
-        <BarChart class="bar-chart" :barChartId="0" :chartData="hardwareInfo.ram" :type="'ram'" :barColor="customColor_usage" />
-        <BarChart class="bar-chart" :barChartId="1" :chartData="hardwareInfo.storage" :type="'storage'" :barColor="customColor_usage" />
-        <BarChart class="bar-chart" :barChartId="2" :chartData="hardwareInfo.cpu" :type="'cpu'" :barColor="customColor_usageRate" />
-        <BarChart class="bar-chart" :barChartId="3" :chartData="hardwareInfo.gpu" :type="'gpu'" :barColor="customColor_usageRate" />
+        <BarChart class="bar-chart" :barChartId="0" :chartData="hardware.ram" :type="'ram'" :barColor="customColor_usage" />
+        <BarChart class="bar-chart" :barChartId="1" :chartData="hardware.storage" :type="'storage'" :barColor="customColor_usage" />
+        <BarChart class="bar-chart" :barChartId="2" :chartData="hardware.cpu" :type="'cpu'" :barColor="customColor_usageRate" />
+        <BarChart class="bar-chart" :barChartId="3" :chartData="hardware.gpu" :type="'gpu'" :barColor="customColor_usageRate" />
       </div>
       <div class="title">
         <span>应用信息</span>
       </div>
       <div class="info-chart">
         <!-- 设备、算法、分析路数 -->
-        <BarChart :barChartId="4" :chartData="appInfo.device" :type="'device'" :barColor="customColor_app" /> 
-        <BarChart :barChartId="5" :chartData="appInfo.calculate" :type="'calculate'" :barColor="customColor_app" />
-        <BarChart :barChartId="6" :chartData="appInfo.analysis" :type="'analysis'" :barColor="customColor_app" />
+        <BarChart :barChartId="4" :chartData="app.stream" :type="'stream'" :barColor="customColor_app" /> 
+        <BarChart :barChartId="5" :chartData="app.aiAlgo" :type="'aiAlgo'" :barColor="customColor_app" />
+        <BarChart :barChartId="6" :chartData="app.aiApp" :type="'aiApp'" :barColor="customColor_app" />
+        <BarChart :barChartId="7" :chartData="app.aiAlarm" :type="'aiAlarm'" :barColor="customColor_app" />
       </div>
     <div class="title">
         <span>SIP服务信息</span>
       </div>
       <div class="info">
         <el-descriptions :column=2>
-          <el-descriptions-item label="SIP服务器ID">{{ sipInfo.sipIp }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器域">{{ sipInfo.sipUrl }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器地址">{{ sipInfo.sipAddress }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器TCP端口">{{ sipInfo.sipTcp }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器UDP端口">{{ sipInfo.sipUdp }}</el-descriptions-item>
+          <el-descriptions-item label="SIP服务器ID">{{ sip.sipId }}</el-descriptions-item>
+          <el-descriptions-item label="SIP服务器域">{{ sip.sipRegion }}</el-descriptions-item>
+          <el-descriptions-item label="SIP服务器地址">{{ sip.sipIp }}</el-descriptions-item>
+          <el-descriptions-item label="SIP服务器TCP端口">{{ sip.sipTcpPort }}</el-descriptions-item>
+          <el-descriptions-item label="SIP服务器UDP端口">{{ sip.sipUdpPort }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </el-card>
@@ -66,6 +67,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import BarChart from './components/BarChart.vue'
+import { getIBoxDetail, updateIBox } from '@/api/ibox'
 
 @Component({
   name: 'IBoxInfo',
@@ -74,35 +76,35 @@ import BarChart from './components/BarChart.vue'
   }
 })
 export default class extends Vue {
-  private deviceInfo = {
+  private basic = {
     deviceStatus: 'on',
     deviceName: '天翼云边缘盒子',
-    deviceID: '8992ASDAAAAAA',
+    deviceId: '8992ASDAAAAAA',
     ip: '192.9.2.3',
-    seriesNum: 'XXXXXXXXXXX',
-    descriptions: 'XXXXXXXXXXX',
+    sn: 'XXXXXXXXXXX',
+    description: 'XXXXXXXXXXX',
   }
-  private sipInfo = {
-    sipIp: '31011500012008469596',
-    sipUrl: '3101150001',
-    sipAddress: '113.250.16.3',
-    sipTcp: '15060',
-    sipUdp: '15060',
+  private sip = {
+    sipId: '31011500012008469596',
+    sipRegion: '3101150001',
+    sipIp: '113.250.16.3',
+    sipTcpPort: '15060',
+    sipUdpPort: '15060',
   }
-  private appInfo = {
-    "device": {
+  private app = {
+    "stream": {
       "total": 16,
       "usage": 2,
     },
-    "calculate": {
+    "aiAlgo": {
       "total": 8,
       "usage": 0,
     },
-    "analysis": {
+    "aiApp": {
       "total": 3,
       "usage": 1,
     },
-    "alarm": {
+    "aiAlarm": {
       "total": 8000,
       "usage": 4000,
     }
@@ -111,7 +113,7 @@ export default class extends Vue {
   private isOnline: string
   // private isRegistered: boolean
   private chartData: any
-  private hardwareInfo: any
+  private hardware: any
   private statusStyle: any = null
   private registerStatus: string = ''
 
@@ -121,7 +123,7 @@ export default class extends Vue {
   private isEditDes = false
   private editDeviceName: string = ''
   private deviceName: string = ''
-  private descriptions: string = ''
+  private description: string = ''
   private checkedFalse = false
 
 
@@ -144,26 +146,32 @@ export default class extends Vue {
   //   return UserModule && UserModule.userInfo
   // }
   
-  private created() {
+  private async mounted() {
+    try {
+      this.loading = true
+      const res = await getIBoxDetail()
+    } catch (e) {
+
+    }
     // const res = this.dashboardInfo
     console.log('获取概览页面数据')
     // this.transStatus(res.data.basic.deviceStatus)
     // mock
     const res = {
-      "deviceInfo": {
+      "basic": {
         "deviceStatus": 'on',
         "deviceName": '天翼云边缘盒子',
-        "deviceID": '8992ASDAAAAAA',
+        "deviceId": '8992ASDAAAAAA',
         "ip": '192.9.2.3',
-        "seriesNum": 'XXXXXXXXXXX',
-        "descriptions": 'XXXXXXXXXXX',
+        "sn": 'XXXXXXXXXXX',
+        "description": 'XXXXXXXXXXX',
       },
-      "sipInfo": {
-        "sipIp": '31011500012008469596',
-        "sipUrl": '3101150001',
-        "sipAddress": '113.250.16.3',
-        "sipTcp": '15060',
-        "sipUdp": '15060',
+      "sip": {
+        "sipId": '31011500012008469596',
+        "sipRegion": '3101150001',
+        "sipIp": '113.250.16.3',
+        "sipTcpPort": '15060',
+        "sipUdpPort": '15060',
       },
       "hardware": {
         "ram": {
@@ -184,19 +192,19 @@ export default class extends Vue {
         }
       },
       "app": {
-        "device": {
+        "stream": {
           "total": 16,
           "usage": 2,
         },
-        "calculate": {
+        "aiAlgo": {
           "total": 8,
           "usage": 0,
         },
-        "analysis": {
+        "aiApp": {
           "total": 3,
           "usage": 1,
         },
-        "alarm": {
+        "aiAlarm": {
           "total": 8000,
           "usage": 4000,
         }
@@ -213,13 +221,13 @@ export default class extends Vue {
         "account": "vss-demo@xx.cn"
       }
     }
-    this.transStatus(res.deviceInfo.deviceStatus)
-    this.deviceName = res.deviceInfo.deviceName
-    this.descriptions = res.deviceInfo.descriptions
-    this.deviceInfo = res.deviceInfo
-    this.sipInfo = res.sipInfo
-    this.hardwareInfo = res.hardware
-    this.appInfo = res.app
+    this.transStatus(res.basic.deviceStatus)
+    this.deviceName = res.basic.deviceName
+    this.description = res.basic.description
+    this.basic = res.basic
+    this.sip = res.sip
+    this.hardware = res.hardware
+    this.app = res.app
   }
 
   private transStatus(status: string) {
@@ -322,7 +330,7 @@ export default class extends Vue {
   }
 
   private cancelEdit() {
-    this.editDes = this.descriptions
+    this.editDes = this.description
     const refs: any = this.$refs['des']
     refs.blur()
     this.isEditDes = false

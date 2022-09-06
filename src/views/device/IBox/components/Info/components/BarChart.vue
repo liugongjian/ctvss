@@ -177,29 +177,35 @@ export default class extends Vue {
           }
         }
       ]
-    // } else if (this.type === 'stream' || this.type === 'aiAlgo' || this.type === 'aiApp' || this.type === 'alarm') {
-    } else if (this.type === 'device' || this.type === 'calculate' || this.type === 'analysis') {
+    } else if (this.type === 'stream' || this.type === 'aiAlgo' || this.type === 'aiApp' || this.type === 'aiAlarm') {
+    // } else if (this.type === 'device' || this.type === 'calculate' || this.type === 'analysis') {
       const unuse = chartData.total - chartData.usage
       this.title = chartData.usage
       let name1, name2
       switch(this.type + '') {
-        case 'device':
+        case 'stream':
           this.unit = '路'
           this.subtitle = '视频接入'
-          name1 = '上限: '
+          name1 = '总量: '
           name2 = '已接入: '
           break
-        case 'calculate':
+        case 'aiAlgo':
           this.unit = '个'
           this.subtitle = 'AI算法'
           name1 = '上限: '
           name2 = '已部署: '
           break
-        case 'analysis':
-          this.unit = '路'
+        case 'aiApp':
+          this.unit = '个'
           this.subtitle = '分析路数'
           name1 = '并行上限: '
-          name2 = '已启用: '
+          name2 = '运行中: '
+          break
+        case 'aiAlarm':
+          this.unit = 'G'
+          this.subtitle = '分析路数'
+          name1 = '存储上限: '
+          name2 = '已使用: '
           break
         default:
           console.log('类型判断错误')
