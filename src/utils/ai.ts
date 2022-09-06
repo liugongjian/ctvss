@@ -200,7 +200,6 @@ export const parseMetaData = (type: string, metaData: any) => {
           console.log(error)
         }
       })
-      console.log('counts 2:', counts)
       if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
         locations.push(
           {
