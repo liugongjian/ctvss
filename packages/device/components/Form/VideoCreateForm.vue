@@ -8,9 +8,9 @@
   >
     <el-form-item class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
       <el-radio
-        v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm[deviceEnum.DeviceType]]"
+        v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm.DeviceType]"
         :key="key"
-        v-model="videoForm[deviceEnum.InVideoProtocol]"
+        v-model="videoForm.InVideoProtocol"
         :label="key"
         @change="inVideoProtocolChange"
       >
@@ -18,7 +18,7 @@
       </el-radio>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
-      <el-select v-model="videoForm[deviceEnum.VideoVendor]">
+      <el-select v-model="videoForm.VideoVendor">
         <el-option
           v-for="(value, key) in deviceVendor[videoForm[deviceEnum.InVideoProtocol]]"
           :key="key"
@@ -28,7 +28,7 @@
       </el-select>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InVersion)" label="版本:" :prop="deviceEnum.InVersion">
-      <el-radio-group v-model="videoForm[deviceEnum.InVersion]">
+      <el-radio-group v-model="videoForm.InVersion">
         <el-radio-button
           v-for="(value, key) in versionByInVideoProtocol[videoForm[deviceEnum.InVideoProtocol]]"
           :key="key"
@@ -39,19 +39,19 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
       <el-input-number
-        v-model="videoForm[deviceEnum.DeviceChannelSize]"
+        v-model="videoForm.DeviceChannelSize"
         :min="minChannelSize"
         type="number"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm[deviceEnum.InUserName]" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm.InUserName" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
         v-for="(value, key) in inType"
         :key="key"
-        v-model="videoForm[deviceEnum.InType]"
+        v-model="videoForm.InType"
         :label="key"
       >
         {{ value }}
@@ -59,31 +59,31 @@
     </el-form-item>
     <template v-if="videoForm[deviceEnum.VideoVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
       <el-form-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址:" :prop="deviceEnum.PullUrl">
-        <el-input v-model="videoForm[deviceEnum.PullUrl]" />
+        <el-input v-model="videoForm.PullUrl" />
       </el-form-item>
     </template>
     <template v-else>
       <el-form-item v-if="checkVisible(deviceEnum.UserName)" label="用户名:" :prop="deviceEnum.UserName">
-        <el-input v-model="videoForm[deviceEnum.UserName]" />
+        <el-input v-model="videoForm.UserName" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-        <el-input v-model="videoForm[deviceEnum.Password]" type="password" />
+        <el-input v-model="videoForm.Password" type="password" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
         <el-switch
-          v-model="videoForm[deviceEnum.EnableDomain]"
+          v-model="videoForm.EnableDomain"
           :active-value="1"
           :inactive-value="2"
         />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名:" :prop="deviceEnum.DeviceDomain">
-        <el-input v-model="videoForm[deviceEnum.DeviceDomain]" />
+        <el-input v-model="videoForm.DeviceDomain" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="接入IP:" :prop="deviceEnum.DeviceIp">
-        <el-input v-model="videoForm[deviceEnum.DeviceIp]" />
+        <el-input v-model="videoForm.DeviceIp" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.DevicePort">
-        <el-input v-model.number="videoForm[deviceEnum.DevicePort]" />
+        <el-input v-model.number="videoForm.DevicePort" />
       </el-form-item>
     </template>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">
@@ -106,9 +106,9 @@
       <el-radio
         v-for="(value, key) in deviceStreamSize"
         :key="key"
-        v-model="videoForm[deviceEnum.DeviceStreamSize]"
+        v-model="videoForm.DeviceStreamSize"
         :label="+key"
-        :disabled="deviceForm[deviceEnum.DeviceType] === deviceTypeEnum.Nvr && +key === 3 "
+        :disabled="deviceForm.DeviceType === deviceTypeEnum.Nvr && +key === 3 "
         @change="onDeviceStreamSizeChange"
       >
         {{ value }}
@@ -129,7 +129,7 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm[deviceEnum.DeviceStreamAutoPull]"
+        v-model="videoForm.DeviceStreamAutoPull"
         :active-value="1"
         :inactive-value="2"
       />
@@ -142,9 +142,9 @@
       <el-radio
         v-for="(value, key) in deviceStreamPullIndex"
         :key="key"
-        v-model="videoForm[deviceEnum.DeviceStreamPullIndex]"
+        v-model="videoForm.DeviceStreamPullIndex"
         :label="+key"
-        :disabled="+key > videoForm[deviceEnum.DeviceStreamSize]"
+        :disabled="+key > videoForm.DeviceStreamSize"
       >
         {{ value }}
       </el-radio>
@@ -184,23 +184,23 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm[deviceEnum.StreamTransProtocol]"
+        v-model="videoForm.StreamTransProtocol"
         active-value="tcp"
         inactive-value="udp"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
-      <el-input v-model="videoForm.outId" />
+      <el-input v-model="videoForm.OutId" />
       <div class="form-tip">
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
       <resource-tabs
-        v-model="videoForm[deviceEnum.Resources]"
-        :is-private-in-network="deviceForm[deviceEnum.InNetworkType] === inNetworkTypeEnum.Private"
+        v-model="videoForm.Resources"
+        :is-private-in-network="deviceForm.InNetworkType === inNetworkTypeEnum.Private"
         :form-info="videoForm"
-        :vss-ai-apps="videoForm.vssAIApps"
+        :vss-ai-apps="videoForm.VssAIApps"
         @on-change="onResourceChange"
         @changevssaiapps="changeVSSAIApps"
       />
@@ -211,7 +211,7 @@
       </el-form-item>
       <div ref="showMoreForm" class="show-more--form">
         <el-form-item v-if="checkVisible(deviceEnum.Tags)" label="视频标签:" :prop="deviceEnum.Tags">
-          <tags v-model="videoForm[deviceEnum.Tags]" class="tags" />
+          <tags v-model="videoForm.Tags" class="tags" />
         </el-form-item>
       </div>
     </div>
@@ -222,7 +222,7 @@
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum, InNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '@vss/device/dicts'
-import { Device, DeviceBasic, VideoDevice } from '@vss/device/type/Device'
+import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '../../dicts/tips'
 import { validGbId } from '../../api/device'
 import { checkVideoVisible } from '../../utils/param'
@@ -240,8 +240,8 @@ import ResourceTabs from '../ResourceTabs.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
-  @Prop({ default: () => {} }) private deviceForm
-  public videoForm: any = {}
+  @Prop({ default: () => {} }) private deviceForm: DeviceBasicForm
+  public videoForm: VideoDeviceForm = {}
   private orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
   private deviceEnum = DeviceEnum
@@ -300,34 +300,49 @@ export default class extends Vue {
     ]
   }
 
+  // 设备基本信息
+  private get basicInfo(): DeviceBasic {
+    return (this.device && this.device.Device) || {} as DeviceBasic
+  }
+
+  // 视频接入协议
+  private get inVideoProtocol() {
+    return this.device && this.device.Videos && this.device.Videos[0]!.InVideoProtocol
+  }
+
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return (this.inVideoProtocol && this.device.Videos[0]![InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
+  }
+
   @Watch('device', {
     immediate: true
   })
   private onDeviceChange() {
     this.videoForm = {
       [DeviceEnum.InVideoProtocol]: this.inVideoProtocol || InVideoProtocolEnum.Gb28181,
-      [DeviceEnum.VideoVendor]: this.basicInfo[DeviceEnum.VideoVendor],
-      [DeviceEnum.InVersion]: this.videoInfo[DeviceEnum.InVersion] || '2016',
-      [DeviceEnum.DeviceChannelSize]: this.basicInfo[DeviceEnum.DeviceChannelSize] || 1,
-      [DeviceEnum.InUserName]: this.videoInfo[DeviceEnum.InUserName],
-      [DeviceEnum.InType]: this.videoInfo[DeviceEnum.InType] || InTypeEnum.Pull,
-      [DeviceEnum.PullUrl]: this.videoInfo[DeviceEnum.PullUrl],
-      [DeviceEnum.UserName]: this.videoInfo[DeviceEnum.UserName],
-      [DeviceEnum.Password]: this.videoInfo[DeviceEnum.Password],
-      [DeviceEnum.EnableDomain]: this.videoInfo[DeviceEnum.EnableDomain] || 2,
-      [DeviceEnum.DeviceDomain]: this.videoInfo[DeviceEnum.DeviceDomain],
-      [DeviceEnum.DeviceIp]: this.videoInfo[DeviceEnum.DeviceIp],
-      [DeviceEnum.DevicePort]: this.videoInfo[DeviceEnum.DevicePort],
-      [DeviceEnum.DeviceStreamSize]: this.videoInfo[DeviceEnum.DeviceStreamSize] || 1,
-      [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo[DeviceEnum.DeviceStreamAutoPull] || 1,
-      [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1,
-      [DeviceEnum.PushType]: this.videoInfo[DeviceEnum.PushType] || 1,
-      [DeviceEnum.StreamTransProtocol]: this.videoInfo[DeviceEnum.StreamTransProtocol] || 'tcp',
-      [DeviceEnum.OutId]: this.videoInfo[DeviceEnum.OutId],
-      [DeviceEnum.Tags]: this.videoInfo[DeviceEnum.Tags],
+      [DeviceEnum.VideoVendor]: this.basicInfo.DeviceVendor,
+      [DeviceEnum.InVersion]: this.videoInfo.InVersion || '2016',
+      [DeviceEnum.DeviceChannelSize]: this.basicInfo.DeviceChannelSize || 1,
+      [DeviceEnum.InUserName]: this.videoInfo.InUserName,
+      [DeviceEnum.InType]: this.videoInfo.InType || InTypeEnum.Pull,
+      [DeviceEnum.PullUrl]: this.videoInfo.PullUrl,
+      [DeviceEnum.UserName]: this.videoInfo.UserName,
+      [DeviceEnum.Password]: this.videoInfo.Password,
+      [DeviceEnum.EnableDomain]: this.videoInfo.EnableDomain || 2,
+      [DeviceEnum.DeviceDomain]: this.videoInfo.DeviceDomain,
+      [DeviceEnum.DeviceIp]: this.videoInfo.DeviceIp,
+      [DeviceEnum.DevicePort]: this.videoInfo.DevicePort,
+      [DeviceEnum.DeviceStreamSize]: this.videoInfo.DeviceStreamSize || 1,
+      [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.DeviceStreamAutoPull || 1,
+      [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.DeviceStreamPullIndex || 1,
+      [DeviceEnum.PushType]: this.videoInfo.PushType || 1,
+      [DeviceEnum.StreamTransProtocol]: this.videoInfo.StreamTransProtocol || 'tcp',
+      [DeviceEnum.OutId]: this.videoInfo.OutId,
+      [DeviceEnum.Tags]: this.videoInfo.Tags,
       [DeviceEnum.Resources]: [],
-      vssAIApps: [],
-      aIApps: []
+      VssAIApps: [],
+      AIApps: []
     }
   }
 
@@ -336,22 +351,7 @@ export default class extends Vue {
    */
   @Watch('deviceForm.deviceType')
   private deviceTypeChange() {
-    this.videoForm.inVideoProtocol = InVideoProtocolEnum.Gb28181
-  }
-
-  // 设备基本信息
-  private get basicInfo(): DeviceBasic {
-    return (this.device && this.device[DeviceEnum.Device]) || {} as DeviceBasic
-  }
-
-  // 视频接入协议
-  private get inVideoProtocol() {
-    return this.device && this.device[DeviceEnum.Videos] && this.device[DeviceEnum.Videos][0]![DeviceEnum.InVideoProtocol]
-  }
-
-  // 视频接入信息
-  private get videoInfo(): VideoDevice {
-    return (this.inVideoProtocol && this.device[DeviceEnum.Videos][0]![InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
+    this.videoForm.InVideoProtocol = InVideoProtocolEnum.Gb28181
   }
 
   private updated() {
@@ -384,18 +384,18 @@ export default class extends Vue {
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
     // 重置vendor
-    this.videoForm[DeviceEnum.VideoVendor] = ''
+    this.videoForm.VideoVendor = ''
     // 重置version
-    const versionMap = VersionByInVideoProtocol[this.videoForm[DeviceEnum.InVideoProtocol]]
-    versionMap && (this.videoForm[DeviceEnum.InVersion] = Object.values(versionMap)[0] as string)
+    const versionMap = VersionByInVideoProtocol[this.videoForm.InVideoProtocol]
+    versionMap && (this.videoForm.InVersion = Object.values(versionMap)[0] as string)
   }
 
   /**
    * 码流数变化回调
    */
   private onDeviceStreamSizeChange() {
-    if (this.videoForm[DeviceEnum.DeviceStreamSize] < this.videoForm[DeviceEnum.DeviceStreamPullIndex]) {
-      this.videoForm[DeviceEnum.DeviceStreamPullIndex] = this.videoForm[DeviceEnum.DeviceStreamSize]
+    if (this.videoForm.DeviceStreamSize < this.videoForm.DeviceStreamPullIndex) {
+      this.videoForm.DeviceStreamPullIndex = this.videoForm.DeviceStreamSize
     }
   }
 
@@ -413,16 +413,16 @@ export default class extends Vue {
    */
   private changeVSSAIApps(res: any) {
     if (this.isUpdate) {
-      this.videoForm[DeviceEnum.AIApps] = res
+      this.videoForm.AIApps = res
     }
-    this.videoForm[DeviceEnum.VssAIApps] = res
+    this.videoForm.VssAIApps = res
   }
 
   /**
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm[DeviceEnum.DeviceType], this.videoForm[DeviceEnum.InVideoProtocol], prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.DeviceType, this.videoForm.InVideoProtocol, prop)
   }
 
   /*
@@ -443,13 +443,13 @@ export default class extends Vue {
     let hasVideo = false
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const remainError: any = []
-    this.videoForm.resources.forEach((resource: any) => {
+    this.videoForm.Resources.forEach((resource: any) => {
       // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource[DeviceEnum.ResourceId]] && this.resourcesMapping[resource[DeviceEnum.ResourceId]][DeviceEnum.RemainDeviceCount])
-      const devicesCount = this.deviceForm[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc ? 1 : this.deviceForm[DeviceEnum.DeviceChannelSize]
+      const remainDeviceCount = parseInt(this.resourcesMapping[resource.ResourceId] && this.resourcesMapping[resource.ResourceId].RemainDeviceCount)
+      const devicesCount = this.deviceForm.DeviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.DeviceChannelSize
       // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource[DeviceEnum.ResourceId]) === -1
-      switch (resource[DeviceEnum.ResourceType]) {
+      const isChanged = this.orginalResourceIdList.indexOf(resource.ResourceId) === -1
+      switch (resource.ResourceType) {
         case 'VSS_VIDEO':
           hasVideo = true
           if (isChanged && devicesCount > remainDeviceCount) {
@@ -511,8 +511,8 @@ export default class extends Vue {
       try {
         validInfo = await validGbId({
           [DeviceEnum.DeviceId]: this.deviceId,
-          [DeviceEnum.InVideoProtocol]: this.videoForm[DeviceEnum.InVideoProtocol],
-          [DeviceEnum.OutId]: this.videoForm[DeviceEnum.OutId]
+          [DeviceEnum.InVideoProtocol]: this.videoForm.InVideoProtocol,
+          [DeviceEnum.OutId]: this.videoForm.OutId
         })
         if (validInfo && !validInfo.IsValidGbId) {
           callback(new Error('存在重复国标ID'))

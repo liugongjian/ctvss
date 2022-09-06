@@ -286,12 +286,12 @@ export default class extends Vue {
     resources.forEach((resource: any) => {
       if (resource) {
         const resourceResult = {
-          workOrderId: resource.workOrderId,
-          resourceId: resource.resourceId,
-          resourceType: resource.type
+          WorkOrderId: resource.workOrderId,
+          ResourceId: resource.resourceId,
+          ResourceType: resource.type
         }
         result.push(resourceResult)
-        mapping[resource.resourceId] = Object.assign(resourceResult, { remainDeviceCount: resource.remainDeviceCount })
+        mapping[resource.resourceId] = Object.assign(resourceResult, { RemainDeviceCount: resource.remainDeviceCount })
       }
     })
     if (!isInit) {

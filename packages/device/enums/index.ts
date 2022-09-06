@@ -23,6 +23,7 @@ export enum DeviceEnum {
   DeviceModel = 'DeviceModel',
   DeviceLongitude = 'DeviceLongitude',
   DeviceLatitude = 'DeviceLatitude',
+  Longlat = 'Longlat',
   DeviceMac = 'DeviceMac',
   DevicePoleId = 'DevicePoleId',
   CreateSubDevice = 'CreateSubDevice',

@@ -12,24 +12,24 @@
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
       <el-descriptions-item label="视图接入">
-        <status-badge :status="viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
-        {{ dicts.DeviceStatus[viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
+        <status-badge :status="viidInfo.DeviceStatus.IsOnline" />
+        {{ dicts.DeviceStatus[viidInfo.DeviceStatus.IsOnline] || '-' }}
       </el-descriptions-item>
     </el-descriptions>
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
-      <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
-      <el-descriptions-item label="视图ID">{{ viidInfo[deviceEnum.OutId] || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GA1400凭证">{{ viidInfo[deviceEnum.InUserName] }}</el-descriptions-item>
-      <el-descriptions-item label="平台IP">{{ viidInfo[deviceEnum.Ip] }}</el-descriptions-item>
-      <el-descriptions-item label="端口">{{ viidInfo[deviceEnum.Port] }}</el-descriptions-item>
+      <el-descriptions-item label="协议类型">{{ dicts.inViidProtocol }}</el-descriptions-item>
+      <el-descriptions-item label="视图ID">{{ viidInfo.OutId || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="GA1400凭证">{{ viidInfo.InUserName }}</el-descriptions-item>
+      <el-descriptions-item label="平台IP">{{ viidInfo.Ip }}</el-descriptions-item>
+      <el-descriptions-item label="端口">{{ viidInfo.Port }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 视图库信息 -->
     <el-descriptions title="视图库信息" :column="2">
-      <el-descriptions-item label="视图库IP">{{ viidInfo[deviceEnum.ViidServerIp] }}</el-descriptions-item>
-      <el-descriptions-item label="视图库端口号">{{ viidInfo[deviceEnum.ViidServerPort] }}</el-descriptions-item>
+      <el-descriptions-item label="视图库IP">{{ viidInfo.ViidServerIp }}</el-descriptions-item>
+      <el-descriptions-item label="视图库端口号">{{ viidInfo.ViidServerPort }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -38,6 +38,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum } from '@vss/device/enums'
+import { Device, DeviceBasic, ViidDevice } from '@vss/device/type/Device'
 
 @Component({
   name: 'ViidInfo',
@@ -46,23 +47,23 @@ import { DeviceEnum } from '@vss/device/enums'
   }
 })
 export default class extends Vue {
-  @Prop() private device
+  @Prop() private device: Device
   private dicts = dicts
   private deviceEnum = DeviceEnum
 
   // 设备基本信息
-  private get basicInfo() {
-    return this.device[DeviceEnum.Device]
+  private get basicInfo(): DeviceBasic {
+    return this.device.Device
   }
 
   // 视图库接入协议
   private get inViidProtocol() {
-    return this.device[DeviceEnum.Viids] && this.device[DeviceEnum.Viids][0]![DeviceEnum.InViidProtocol]
+    return this.device.Viids && this.device.Viids[0]!.InViidProtocol
   }
 
   // 视图库接入信息
-  private get viidInfo() {
-    return this.inViidProtocol && this.device[DeviceEnum.Viids][0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
+  private get viidInfo(): ViidDevice {
+    return this.inViidProtocol && this.device.Viids[0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
   }
 
   // 进入编辑模式
