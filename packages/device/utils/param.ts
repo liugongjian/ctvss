@@ -1,4 +1,4 @@
-import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid, DirectoryTypeAllowParams } from '../settings'
+import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid, DirectoryTypeAllowParams, DeviceListToolsAllowParams } from '../settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '../enums/index'
 
 /**
@@ -78,4 +78,14 @@ export function checkViidVisible(deviceType, inViidProtocol, prop: string): bool
  */
 export function checkTreeToolsVisible(type: string, prop: string): boolean {
   return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop)
+}
+
+/**
+ * 判断设备列表显隐
+ * @param type 目录类型
+ * @param prop 参数名
+ * @returns 判断结果
+ */
+export function checkDeviceListVisible(type: string, prop: string): boolean {
+  return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop)
 }

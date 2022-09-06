@@ -1,7 +1,8 @@
 import request from '@/utils/request'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
-import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping } from '../dicts/index'
+import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
+import { DeviceBasic } from '../type/Device'
 
 /**
  * 获取设备目录树
@@ -155,14 +156,14 @@ export const describeDevices = (params: any): Promise<any> => {
   let res: any = {
     Devices: [
       {
-        Device: { DeviceId: '123321', DeviceName: 'a1', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Device: { DeviceId: '12345678900987654321', DeviceName: 'a1', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
         Videos: [{
           InVideoProtocol: 'gb28181',
           Gb28181Device: {
             DeviceStatus: {
               IsOnline: 'on'
             },
-            DeviceStreamPullIndex: 1,
+            DeviceStreamPullIndex: 2,
             Streams: [
               {
                 StreamNum: 1,
@@ -192,21 +193,13 @@ export const describeDevices = (params: any): Promise<any> => {
         }]
       },
       {
-        Device: { DeviceId: '123322', DeviceName: 'a2', DeviceType: 'nvr', DeviceVendor: '海康', DeviceChannelSize: '4' },
+        Device: { DeviceId: '12345678900987654322', DeviceName: 'a2', DeviceType: 'nvr', DeviceVendor: '海康', DeviceChannelSize: '4' },
         Videos: [{
           InVideoProtocol: 'ehome',
-          Gb28181Device: {
+          EhomeDevice: {
             DeviceStatus: {
               IsOnline: 'on'
-            },
-            DeviceStreamPullIndex: 1,
-            Streams: [
-              {
-                StreamNum: 1,
-                StreamStatus: 'on',
-                RecordStatus: 'on'
-              }
-            ]
+            }
           }
         }],
         Viids: [{
@@ -219,19 +212,18 @@ export const describeDevices = (params: any): Promise<any> => {
         }]
       },
       {
-        Device: { DeviceId: '123323', DeviceName: 'a3', DeviceType: 'ipc', DeviceVendor: '大华', DeviceChannelSize: '' },
+        Device: { DeviceId: '12345678900987654323', DeviceName: 'a3', DeviceType: 'ipc', DeviceVendor: '大华', DeviceChannelSize: '' },
         Videos: [{
           InVideoProtocol: 'rtsp',
-          Gb28181Device: {
+          RtspDevice: {
             DeviceStatus: {
               IsOnline: 'on'
             },
-            DeviceStreamPullIndex: 1,
             Streams: [
               {
                 StreamNum: 1,
                 StreamStatus: 'on',
-                RecordStatus: 'on'
+                RecordStatus: 'failed'
               }
             ]
           }
@@ -246,26 +238,25 @@ export const describeDevices = (params: any): Promise<any> => {
         }]
       },
       {
-        Device: { DeviceId: '123324', DeviceName: 'a4', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Device: { DeviceId: '12345678900987654324', DeviceName: 'a4', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
         Videos: [{
           InVideoProtocol: 'rtmp',
-          Gb28181Device: {
+          RtmpDevice: {
             DeviceStatus: {
               IsOnline: 'on'
             },
-            DeviceStreamPullIndex: 1,
             Streams: [
               {
                 StreamNum: 1,
                 StreamStatus: 'on',
-                RecordStatus: 'on'
+                RecordStatus: 'error'
               }
             ]
           }
         }]
       },
       {
-        Device: { DeviceId: '123325', DeviceName: 'a5', DeviceType: 'platform', DeviceVendor: '海康', DeviceChannelSize: '' },
+        Device: { DeviceId: '12345678900987654325', DeviceName: 'a5', DeviceType: 'platform', DeviceVendor: '海康', DeviceChannelSize: '' },
         Viids: [{
           InViidProtocol: 'ga1400',
           Ga1400Device: {
@@ -295,26 +286,26 @@ export const describeDevices = (params: any): Promise<any> => {
       [DeviceEnum.DeviceVendor]: item.Device[DeviceEnum.DeviceVendor]
     }
 
-    let inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
-    let inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
-    let deviceStreamPullIndex = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol][DeviceEnum.DeviceStreamPullIndex]
+    const inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
+    const inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
 
     if (inVideoProtocol) {
+      const videoInfo = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+      const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
-      data[DeviceEnum.InProtocol].push(inVideoProtocol)
-
-      console.log(item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]])
-      data[DeviceEnum.VideoStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].DeviceStatus.IsOnline
-      data[DeviceEnum.StreamStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].Streams.some(
-        stream => stream.StreamStatus === StatusEnum.On
-      )
-      data[DeviceEnum.RecordStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].Streams[(data[deviceStreamPullIndex] || -1) + 1][DeviceEnum.RecordStatus]
+      data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
+      data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+      data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].some(
+        stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
+      ) ? StatusEnum.On : StatusEnum.Off) : null
+      data[DeviceEnum.RecordStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams][deviceStreamPullIndex - 1][DeviceEnum.RecordStatus]) : null
     }
 
     if (inViidProtocol) {
+      const viidInfo = item.Viids[0][InViidProtocolModelMapping[inViidProtocol]]
       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
-      data[DeviceEnum.InProtocol].push(inViidProtocol)
-      data[DeviceEnum.ViidStatus] = item.Viids[0][InViidProtocolModelMapping[inViidProtocol]].DeviceStatus.IsOnline
+      data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
+      data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
     }
     return data
   })

@@ -1,5 +1,5 @@
 <template>
-  <div class="status-badge" :class="`status-badge--${status}`" />
+  <div v-if="status" class="status-badge" :class="`status-badge--${status}`" />
 </template>
 
 <script lang="ts">
@@ -21,20 +21,20 @@ export default class extends Vue {
     border-radius: 100px;
     vertical-align: middle;
     margin-right: 5px;
-    background-color: #ccc;
+    background-color: $color-table-status-info;
 
     &--on {
-      background-color: $success;
+      background-color: $color-table-status-success;
     }
 
     &--warning {
-      background-color: $primary;
+      background-color: $color-table-status-warning;
     }
 
     &--red,
     &--failed,
     &--error {
-      background-color: #ccc;
+      background-color: $color-table-status-info;
     }
   }
 </style>

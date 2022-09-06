@@ -2,7 +2,7 @@
   <div class="device-container">
     <div class="list-wrap">
       <div class="list-wrap__header">
-        <info-list v-if="isNVR" label-width="80">
+        <info-list v-if="checkToolsVisible(deviceEnum.ShowDeviceInfo)" label-width="80">
           <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
           <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
           <info-list-item label="设备状态:">
@@ -14,20 +14,10 @@
           <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats }}</info-list-item>
           <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats }}</info-list-item>
         </info-list>
-        <info-list v-if="isPlatform" label-width="80">
-          <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
-          <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
-          <info-list-item label="设备状态:">
-            <status-badge :status="deviceInfo.deviceStatus" />
-            {{ deviceStatus[deviceInfo.deviceStatus] }}
-          </info-list-item>
-          <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
-        </info-list>
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="create-button" type="primary" @click="goToCreate">{{ '添加设备' }}</el-button>
-          <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="sub-create-button" type="primary" @click="1">{{ '添加子设备' }}</el-button>
+          <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="create-button" type="primary" @click="handleTools(toolsEnum.AddDevice, currentDir.id)">{{ '添加设备' }}</el-button>
           <el-button v-if="isNVR" key="check-nvr-detail" @click="1">查看NVR设备详情</el-button>
           <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="1">编辑NVR设备</el-button>
           <el-button v-if="isPlatform" key="check-platform" @click="1">查看Platform详情</el-button>
@@ -79,8 +69,8 @@
         </div>
       </div>
       <div class="list-wrap__body">
-        <div v-if="deviceList.length" ref="deviceTable" class="list-wrap__body__table">
-          <el-table :height="tableMaxHeight" :data="deviceList" fit @row-click="rowClick">
+        <div ref="deviceTable" class="list-wrap__body__table">
+          <el-table v-loading="loading.table" :height="tableMaxHeight" :data="deviceList" fit @row-click="rowClick">
             <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
             <el-table-column label="设备ID/名称" min-width="200">
               <template slot-scope="{row}">
@@ -95,12 +85,12 @@
                 {{ 'D' + row.channelNum }}
               </template>
             </el-table-column>
-            <el-table-column label="接入类型" min-width="200">
+            <el-table-column label="接入类型" min-width="110">
               <template slot-scope="{row}">
-                {{ row[deviceEnum.DeviceInType] }}
+                {{ row[deviceEnum.DeviceInType] && row[deviceEnum.DeviceInType].join('、') }}
               </template>
             </el-table-column>
-            <el-table-column label="接入协议" min-width="200">
+            <el-table-column label="接入协议" min-width="110">
               <template slot-scope="{row}">
                 <div v-for="(item, key) in row[deviceEnum.InProtocol]" :key="key">
                   {{ item }}
@@ -108,16 +98,16 @@
               </template>
             </el-table-column>
             <el-table-column
-              v-if="!isNVR"
               key="deviceType"
               column-key="deviceType"
               prop="deviceType"
               label="设备类型"
+              min-width="110"
               :filters="isIPC ? [] : filtersArray.deviceType"
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">设备类型</span>
+                <span class="filtersArrayDeviceStatus&quot;filter&quot;">设备类型</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
@@ -128,13 +118,12 @@
               v-if="isGb"
               key="deviceStatus"
               column-key="deviceStatus"
-              label="设备状态"
               min-width="110"
               :filters="isIPC ? [] : filtersArray.deviceStatus"
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">设备状态</span>
+                <span class="filter">视频接入</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
@@ -146,13 +135,12 @@
               key="streamStatus"
               column-key="streamStatus"
               prop="streamStatus"
-              label="流状态"
               min-width="110"
               :filters="isIPC ? [] : filtersArray.streamStatus"
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">流状态</span>
+                <span class="filter">视频流</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
@@ -169,12 +157,12 @@
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">录制状态</span>
+                <span class="filter">视频录制</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
                 <span v-if="row.deviceType === 'nvr'">-</span>
-                <span v-else><status-badge :status="row[deviceEnum.RecordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+                <span v-else><status-badge :status="row[deviceEnum.RecordStatus]" />{{ recordStatus[row[deviceEnum.RecordStatus]] || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -186,7 +174,7 @@
               :filter-multiple="false"
             >
               <template slot="header">
-                <span class="filter">视图状态</span>
+                <span class="filter">视图接入</span>
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
@@ -194,7 +182,7 @@
                 <span v-else><status-badge :status="row[deviceEnum.ViidStatus]" />{{ viidStatus[row[deviceEnum.ViidStatus]] || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
+            <el-table-column key="tunnelNum" prop="tunnelNum" label="通道数">
               <template slot-scope="{row}">
                 {{ row[deviceEnum.DeviceChannelSize] || '-' }}
               </template>
@@ -250,11 +238,7 @@
             </el-table-column>
           </el-table>
         </div>
-        <div v-if="!deviceList.length && !loading.list" class="list-wrap__body__empty-text">
-          当前{{ isNVR ? 'NVR' : '目录' }}暂无设备
-        </div>
         <el-pagination
-          v-if="deviceList.length && isNVR"
           :current-page="pager.pageNum"
           :page-size="pager.pageSize"
           :total="pager.total"
@@ -262,32 +246,33 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-        <div v-if="!isNVR" class="el-pagination">
-          <div class="el-pagination__total">共{{ deviceList.length }}条</div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '../../type/Device'
-import { DeviceEnum } from '../../enums/index'
+import { DeviceEnum, DirectoryTypeEnum, ToolsEnum } from '../../enums/index'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, ViidStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, StreamTransProtocol } from '../../dicts/index'
 import { checkPermission } from '@/utils/permission'
+import { checkDeviceListVisible } from '../../utils/param'
+import { describeDevices } from '../../api/device'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
 import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
-import { describeDevices } from '../../api/device'
 
 @Component({
   name: 'DeviceList'
 })
 export default class extends Vue {
+  @Inject('handleTools')
+  private handleTools!: Function
   private checkPermission = checkPermission
   private deviceEnum = DeviceEnum
+  private toolsEnum = ToolsEnum
   private deviceParams = DeviceParams
   private deviceStatus = DeviceStatus
   private streamStatus = StreamStatus
@@ -312,6 +297,15 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
+  }
+
+  public loading = {
+    table: true
+  }
+
+  private currentDir = {
+    type: DirectoryTypeEnum.Dir,
+    id: ''
   }
 
   // 筛选类型
@@ -372,20 +366,17 @@ export default class extends Vue {
     return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus || this.filter.recordStatus)
   }
 
-  private loading = {}
-
   private keyword = ''
 
   private deviceInfo: any = {}
 
-  private deviceList: Array<Device> = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+  private deviceList: Array<Device> = []
 
   private selectedDeviceList: Array<Device> = []
 
   private eventsList = []
 
   private mounted() {
-    console.log(123)
     this.initTable()
     this.initTableSize()
   }
@@ -396,12 +387,14 @@ export default class extends Vue {
   }
 
   private async initTable() {
-    this.deviceList = await describeDevices({
+    this.loading.table = true
+    let res: any = await describeDevices({
       DirId: '',
       PageSize: 10,
       PageNum: 1
     })
-    console.log(this.deviceList)
+    this.deviceList = res.Devices
+    this.loading.table = false
   }
 
   private initTableSize() {
@@ -413,6 +406,10 @@ export default class extends Vue {
     deviceTable && this.observer.observe(deviceTable)
   }
 
+  private checkToolsVisible(prop, type = this.currentDir.type) {
+    return checkDeviceListVisible(type, prop)
+  }
+
   private rowClick() {
     this.$router.push({ path: '/device-refactor/detail', query: { deviceId: '29941916753760267' } })
   }
@@ -420,10 +417,6 @@ export default class extends Vue {
   private calTableMaxHeight() {
     const deviceTable: any = this.$refs.deviceTable
     this.tableMaxHeight = deviceTable.offsetHeight
-  }
-
-  private goToCreate() {
-    this.$router.push({ name: 'DeviceCreate' })
   }
 
   /**

@@ -229,15 +229,16 @@ export enum ToolsEnum {
   ShowMore = 'showMore',
   Refresh = 'refresh',
   // 设备列表相关
-  DeviceInfo = 'deviceInfo',
-  CreateDevice = 'createDevice',
-  ViewDetails = 'viewDetails',
+  ShowDeviceInfo = 'showDeviceInfo',
+  AddDevice = 'addDevice',
+  ViewDevice = 'viewDetails',
   EditDevice = 'editDevice',
   SyncDevice = 'syncDevice',
+  ViewChannels = 'viewChannels',
   Export = 'export',
   ExportAll = 'exportAll',
   ExportCurrentPage = 'exportCurrentPage',
-  ExportSelect = 'exportSelect',
+  ExportSelected = 'exportSelected',
   Import = 'import',
   ExportTemplate = 'exportTemplate',
   OperateDevices = 'operateDevices',
@@ -247,7 +248,11 @@ export enum ToolsEnum {
   StartRecord = 'startRecord',
   StopRecord = 'stopRecord',
   DeleteDevice = 'deleteDevice',
-  UpdateResource = 'updateResource'
+  UpdateResource = 'updateResource',
+  PreviewEvents = 'previewEvents',
+  PreviewVideo = 'previewVideo',
+  ReplayVideo = 'replayVideo',
+  PreviewViid = 'previewViid'
 }
 
 /**
