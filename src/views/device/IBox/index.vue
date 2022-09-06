@@ -14,6 +14,8 @@
               :data="dirList"
               :load="loadDirs"
               lazy
+              node-key="id"
+              :default-expanded-keys="defaultKey"
               :props="treeProp"
               highlight-current
               @node-click="handleNodeClick"
@@ -85,6 +87,8 @@ export default class IBox extends Vue {
 
   public iboxList = []
 
+  public defaultExpandedKeys = []
+
   async mounted() {
     this.calcHeight()
     window.addEventListener('resize', this.calcHeight)
@@ -92,6 +96,14 @@ export default class IBox extends Vue {
       window.removeEventListener('resize', this.calcHeight)
     })
     await this.getDirList()
+  }
+
+  public get defaultKey() {
+    const id = this.$route.query.deviceId
+    if (!id) {
+      return null
+    }
+    return [id]
   }
 
   public calcHeight() {
@@ -107,18 +119,18 @@ export default class IBox extends Vue {
 
   public handleNodeClick(item: any, node: any) {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
-    // console.log(item)
+    console.log('handleNodeClick--->', item)
     node.expanded = true
-    console.log('node', node, node.level, this.iboxDevice)
+    // console.log('node', node, node.level, this.iboxDevice)
+    const { deviceId } = item
     switch (node.level) {
       case 1:
-
-        this.setListInfo('device', this.iboxDevice)
+        this.setListInfo('device', this.iboxDevice, deviceId)
         break
       case 2:
         if (item.deviceType === 'nvr') {
           const iboxNvr = this.getIboxNvr(node)
-          this.setListInfo('nvrlist', iboxNvr)
+          this.setListInfo('nvrlist', iboxNvr, deviceId)
         } else if (item.deviceType === 'ipc') {
         // Todo 展示详情页
         } else {
@@ -129,12 +141,14 @@ export default class IBox extends Vue {
         // Todo 展示详情页
         break
       default:
-        this.setListInfo('rootlist', this.iboxes)
+        this.setListInfo('rootlist', this.iboxes, null)
     }
   }
 
   // 获取ibox目录
   public async getDirList() {
+    const { query: { deviceId, type = 'rootlist' } } = this.$route
+    this.defaultExpandedKeys = [deviceId]
     // const param = {
     //   pageNum: 1,
     //   pageSize: 9999// 第一次请求，为了获取目录，传入9999
@@ -184,6 +198,7 @@ export default class IBox extends Vue {
     this.dirList = dirs.map((item: any) => {
       return {
         label: item.name,
+        deviceId: item.id,
         ...item
       }
     })
@@ -192,7 +207,7 @@ export default class IBox extends Vue {
 
     this.iboxes = iboxes
 
-    this.setListInfo('rootlist', iboxes)
+    this.setListInfo(type, iboxes, deviceId)
   }
 
   // 获取ibox下设备目录
@@ -220,7 +235,7 @@ export default class IBox extends Vue {
       const { data } = node
       if (data.deviceType === 'nvr') {
         const iboxNvr = this.getIboxNvr(node)
-        this.setListInfo('nvrlist', iboxNvr)
+        this.setListInfo('nvrlist', iboxNvr, null)
         return resolve(iboxNvr)
       }
       return resolve([])
@@ -369,12 +384,28 @@ export default class IBox extends Vue {
     this.iboxDevice = data.devices
   }
 
-  public setListInfo(type: string = 'rootlist', data: any = []) {
+  public setListInfo(type: string = 'rootlist', data: any = [], deviceId: string) {
     const listInfo = {
       type,
       data
     }
+
+    let query: any = {}
+    if (deviceId) {
+      query = {
+        deviceId,
+        type
+      }
+    } else {
+      query = { type }
+    }
+
+    const router: any = {
+      path: (this.$router as any).path,
+      query
+    }
     IBoxModule.SetList(listInfo)
+    this.$router.push(router)
   }
 
   // 区分计算树的 在线展示
