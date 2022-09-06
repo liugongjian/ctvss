@@ -106,6 +106,7 @@ export enum DeviceEnum {
   DeviceStats = 'DeviceStats',
   DeviceStatus = 'DeviceStatus',
   Stream = 'Stream',
+  Streams = 'Streams',
   VideoVendor = 'VideoVendor',
   Gb28181Device = 'Gb28181Device',
   RtmpDevice = 'RtmpDevice',

@@ -11,7 +11,7 @@
     </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
-      <el-descriptions-item label="设备状态">
+      <el-descriptions-item label="视图接入">
         <status-badge :status="viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
         {{ dicts.DeviceStatus[viidInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
       </el-descriptions-item>

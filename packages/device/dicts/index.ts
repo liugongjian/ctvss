@@ -81,10 +81,10 @@ export const StreamStatus = {
   录制状态
 */
 export const RecordStatus = {
-  0: '未录制',
-  1: '录制中',
-  2: '录制中',
-  3: '录制失败'
+  'on': '录制中',
+  'off': '未录制',
+  'failed': '录制失败',
+  'error': '录制错误'
 }
 
 /*
@@ -98,12 +98,7 @@ export const ViidStatus = {
 /*
   录制状态对应的图标类型
 */
-export const RecordStatusType = {
-  0: 'off',
-  1: 'on',
-  2: 'on',
-  3: 'error'
-}
+export const RecordStatusType = {}
 
 /*
   是否启用自动拉流

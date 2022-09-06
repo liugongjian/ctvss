@@ -12,20 +12,20 @@
     </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
-      <el-descriptions-item label="设备状态">
+      <el-descriptions-item label="视频接入">
         <status-badge :status="videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]" />
         {{ dicts.DeviceStatus[videoInfo[deviceEnum.DeviceStatus][deviceEnum.IsOnline]] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item label="流状态">
-        <status-badge :status="videoInfo[deviceEnum.Stream][deviceEnum.StreamStatus]" />
-        {{ dicts.StreamStatus[videoInfo[deviceEnum.Stream][deviceEnum.StreamStatus]] || '-' }}
+      <el-descriptions-item label="视频流">
+        <status-badge :status="streamStatus" />
+        {{ dicts.StreamStatus[streamStatus] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item label="录制状态">
-        <status-badge :status="dicts.RecordStatusType[videoInfo[deviceEnum.Stream][deviceEnum.RecordStatus]]" />
-        {{ dicts.RecordStatus[videoInfo[deviceEnum.Stream][deviceEnum.RecordStatus]] || '-' }}
+      <el-descriptions-item label="视频录制">
+        <status-badge :status="recordStatus" />
+        {{ dicts.RecordStatus[recordStatus] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo[deviceEnum.DeviceStats][deviceEnum.OnlineChannels] }}</el-descriptions-item>
-      <el-descriptions-item label="当前码率">{{ videoInfo[deviceEnum.Stream][deviceEnum.Bitrate] ? (videoInfo[deviceEnum.Stream][deviceEnum.Bitrate] / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
+      <el-descriptions-item label="当前码率">{{ streamInfo[deviceEnum.Bitrate] ? (streamInfo[deviceEnum.Bitrate] / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
       <el-descriptions-item label="异常提示">{{ videoInfo[deviceEnum.ErrorMsg] }}</el-descriptions-item>
     </el-descriptions>
 
@@ -43,7 +43,7 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamAutoPull)" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo[deviceEnum.DeviceStreamAutoPull]] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamPullIndex)" label="自动拉取码流">{{ dicts.DeviceStreamPullIndex[videoInfo[deviceEnum.DeviceStreamPullIndex]] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransProtocol)" label="优先TCP传输">{{ dicts.StreamTransProtocol[videoInfo[deviceEnum.StreamTransProtocol]] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransType)" label="流传输模式">{{ dicts.StreamTransType[videoInfo[deviceEnum.Stream][deviceEnum.StreamTransType]] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransType)" label="流传输模式">{{ dicts.StreamTransType[streamInfo[deviceEnum.StreamTransType]] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式">{{ dicts.InType[videoInfo[deviceEnum.InType]] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.PushType)" label="自动激活推流地址">{{ dicts.PushType[videoInfo[deviceEnum.PushType]] }}</el-descriptions-item>
       <template v-if="basicInfo[deviceEnum.DeviceVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
@@ -78,7 +78,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum } from '@vss/device/enums'
+import { DeviceEnum, StatusEnum } from '@vss/device/enums'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
 
@@ -111,6 +111,22 @@ export default class extends Vue {
   // SIP服务器域
   public get sipDomain() {
     return this.videoInfo && this.videoInfo[DeviceEnum.SipId] && this.videoInfo[DeviceEnum.SipId].toString().substr(0, 10)
+  }
+
+  // 流信息
+  public get streamInfo() {
+    return this.videoInfo && this.videoInfo[DeviceEnum.Streams].length && this.videoInfo[DeviceEnum.Streams][this.videoInfo[DeviceEnum.DeviceStreamPullIndex]]
+  }
+
+  // 流状态
+  public get streamStatus() {
+    const streamStataus = this.videoInfo && this.videoInfo[DeviceEnum.Streams].length && this.videoInfo[DeviceEnum.Streams].some(stream => stream[DeviceEnum.StreamStatus] === StatusEnum.On)
+    return streamStataus ? StatusEnum.On : StatusEnum.Off
+  }
+
+  // 录制状态
+  public get recordStatus() {
+    return this.streamInfo && this.streamInfo[DeviceEnum.RecordStatus]
   }
 
   // 根据设备类型 & 接入协议判断字段是否显示
