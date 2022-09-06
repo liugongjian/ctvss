@@ -18,6 +18,7 @@
               :default-expanded-keys="defaultKey"
               :props="treeProp"
               highlight-current
+              default-expand-all
               @node-click="handleNodeClick"
             >
               <span slot-scope="{node,data}">
@@ -119,9 +120,9 @@ export default class IBox extends Vue {
 
   public handleNodeClick(item: any, node: any) {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
-    console.log('handleNodeClick--->', item)
+
     node.expanded = true
-    // console.log('node', node, node.level, this.iboxDevice)
+    console.log('node', node, node.level, item.deviceId, item.deviceType)
     const { deviceId } = item
     switch (node.level) {
       case 1:
@@ -147,7 +148,8 @@ export default class IBox extends Vue {
 
   // 获取ibox目录
   public async getDirList() {
-    const { query: { deviceId, type = 'rootlist' } } = this.$route
+    const { query } = (this.$route) as any
+    const { deviceId, type = 'rootlist' }: { deviceId: string, type: string } = query
     this.defaultExpandedKeys = [deviceId]
     // const param = {
     //   pageNum: 1,
@@ -212,6 +214,8 @@ export default class IBox extends Vue {
 
   // 获取ibox下设备目录
   public async loadDirs(node, resolve) {
+    const { query } = (this.$route) as any
+    const { deviceId } = query
     await this.loadIboxDevice()
     // 根据 deviceType确定是否是子节点
     const iboxList = this.iboxDevice.map((item: any) => {
@@ -235,7 +239,7 @@ export default class IBox extends Vue {
       const { data } = node
       if (data.deviceType === 'nvr') {
         const iboxNvr = this.getIboxNvr(node)
-        this.setListInfo('nvrlist', iboxNvr, null)
+        this.setListInfo('nvrlist', iboxNvr, deviceId)
         return resolve(iboxNvr)
       }
       return resolve([])
@@ -390,6 +394,7 @@ export default class IBox extends Vue {
       data
     }
 
+    IBoxModule.SetList(listInfo)
     let query: any = {}
     if (deviceId) {
       query = {
@@ -404,7 +409,7 @@ export default class IBox extends Vue {
       path: (this.$router as any).path,
       query
     }
-    IBoxModule.SetList(listInfo)
+    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
   }
 
