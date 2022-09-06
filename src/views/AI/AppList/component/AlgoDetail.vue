@@ -186,7 +186,7 @@
         </el-checkbox-group>
       </el-form-item>
       <!-- 城市治理监测 -->
-      <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
         <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
           <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
         </el-select>
