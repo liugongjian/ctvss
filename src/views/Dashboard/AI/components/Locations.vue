@@ -12,14 +12,14 @@
                 left:${location.clientLeftPercent}%;
                 width:${location.clientWidthPercent}%;
                 height:${location.clientHeightPercent}%;
-                ${location.label_en ? colorFromLabel(label_en) : ''}`"
+                ${location.label_en ? colorFromLabel(location.label_en) : ''}`"
         @click="clickLocation(locationIndex)"
       >
         <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
           <span v-if="['4', '10001', '34', '10034'].includes(type)">姓名:{{ location.name }}</span>
         </div>
-        <div v-if="['29', '10026', '35', '10035'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['29', '10026', '35', '10035', '37', '10037'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
@@ -73,8 +73,8 @@ export default class extends Vue {
 
   private colorFromLabel(label) {
     let color = ''
-    for (let i = 0; i < 3; i++) {
-      color += label.charCodeAt(i).toString(16)
+    for (let i = label.length - 1; i > label.length - 4; i--) {
+      color = label.charCodeAt(i).toString(16) + color
     }
     return 'border: 2px solid #' + color
   }
