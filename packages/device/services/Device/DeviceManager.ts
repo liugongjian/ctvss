@@ -11,6 +11,13 @@ export default class DeviceManager {
    * 操作设备
    */
   /**
+   * 创建设备
+   */
+  public static addDevice = function() {
+    this.$router.push({ name: 'DeviceCreate' })
+  }
+
+  /**
    * 批量移动设备
    */
   public static moveDirs() {

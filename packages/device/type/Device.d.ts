@@ -53,7 +53,7 @@ interface Stream {
 /**
  * 视频各协议设备输出信息
  */
-interface VideoDevice {
+type VideoDevice = {
   [DeviceEnum.OutId]?: string;
   [DeviceEnum.InVersion]?: string;
   [DeviceEnum.InUserName]?: string;

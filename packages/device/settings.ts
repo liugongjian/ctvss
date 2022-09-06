@@ -1,7 +1,7 @@
 import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, ToolsEnum, DirectoryTypeEnum } from './enums'
 /**
  * ==============================================================================================================================
- * VIDEO
+ * DEVICE-CREATE-VIDEO
  */
 
 /**
@@ -130,7 +130,7 @@ export const DeviceTypeDenyParamsForVideo = {
 
 /**
  * ==============================================================================================================================
- * VIID
+ * DEVICE-CREATE--VIID
  */
 
 /**
@@ -182,7 +182,7 @@ export const DeviceTypeDenyParamsForViid = {
 
 /**
  * ==============================================================================================================================
- * TOOLS
+ * DEVICE-TREE-TOOLS
  */
 
 /**
@@ -205,6 +205,106 @@ export const DirectoryTypeAllowParams = {
     ToolsEnum.ShowMore
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
+    ToolsEnum.SortDirectory,
+    ToolsEnum.ShowMore
+  ])
+}
+
+/**
+ * ==============================================================================================================================
+ * DEVICE-LIST
+ */
+export const DeviceListToolsAllowParams = {
+  [DirectoryTypeEnum.Dir]: new Set([
+    // Tools相关
+    ToolsEnum.AddDevice,
+    ToolsEnum.ViewDevice,
+    ToolsEnum.EditDevice,
+    ToolsEnum.DeleteDevice,
+    ToolsEnum.SyncDevice,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage,
+    ToolsEnum.ExportSelected,
+    ToolsEnum.Import,
+    ToolsEnum.ExportTemplate,
+    ToolsEnum.OperateDevices,
+    ToolsEnum.StartDevice,
+    ToolsEnum.StopDevice,
+    ToolsEnum.StartRecord,
+    ToolsEnum.StopRecord,
+    ToolsEnum.MoveDevice,
+    ToolsEnum.UpdateResource,
+    ToolsEnum.PreviewEvents,
+    ToolsEnum.PreviewVideo,
+    ToolsEnum.ReplayVideo
+  ]),
+  [DirectoryTypeEnum.Ipc]: new Set([
+    // Tools相关
+    ToolsEnum.AddDevice,
+    ToolsEnum.ViewDevice,
+    ToolsEnum.EditDevice,
+    ToolsEnum.DeleteDevice,
+    ToolsEnum.SyncDevice,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage,
+    ToolsEnum.ExportSelected,
+    ToolsEnum.Import,
+    ToolsEnum.ExportTemplate,
+    ToolsEnum.OperateDevices,
+    ToolsEnum.StartDevice,
+    ToolsEnum.StopDevice,
+    ToolsEnum.StartRecord,
+    ToolsEnum.StopRecord,
+    ToolsEnum.MoveDevice,
+    ToolsEnum.UpdateResource,
+    ToolsEnum.PreviewEvents,
+    ToolsEnum.PreviewVideo,
+    ToolsEnum.ReplayVideo
+  ]),
+  [DirectoryTypeEnum.Nvr]: new Set([
+    ToolsEnum.ShowDeviceInfo,
+    ToolsEnum.ViewDevice,
+    ToolsEnum.EditDevice,
+    ToolsEnum.DeleteDevice,
+    ToolsEnum.SyncDevice,
+    ToolsEnum.ViewChannels,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage,
+    ToolsEnum.ExportSelected,
+    ToolsEnum.OperateDevices,
+    ToolsEnum.StartDevice,
+    ToolsEnum.StopDevice,
+    ToolsEnum.MoveDevice,
+    ToolsEnum.UpdateResource,
+    ToolsEnum.PreviewEvents
+  ]),
+  [DirectoryTypeEnum.Platform]: new Set([
+    ToolsEnum.ShowDeviceInfo,
+    ToolsEnum.ViewDevice,
+    ToolsEnum.EditDevice,
+    ToolsEnum.DeleteDevice,
+    ToolsEnum.SyncDevice,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage,
+    ToolsEnum.MoveDevice,
+    ToolsEnum.UpdateResource
+  ])
+}
+
+export const DeviceTableColumnAllowParams = {
+  [DeviceTypeEnum.Ipc]: new Set([
+    ToolsEnum.StreamStatus,
+    ToolsEnum.SetStreamNum
+  ]),
+  [DeviceTypeEnum.Nvr]: new Set([
+    ToolsEnum.SortDirectory,
+    ToolsEnum.ShowMore
+  ]),
+  [DeviceTypeEnum.Platform]: new Set([
     ToolsEnum.SortDirectory,
     ToolsEnum.ShowMore
   ])
