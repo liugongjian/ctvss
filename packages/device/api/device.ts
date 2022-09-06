@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 import { UserModule } from '@/store/modules/user'
-import { DeviceEnum, StatusEnum } from '../enums/index'
-import { DeviceInType } from '../dicts/index'
+import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
+import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping } from '../dicts/index'
 
 /**
  * 获取设备目录树
@@ -281,24 +281,42 @@ export const describeDevices = (params: any): Promise<any> => {
     TotalNum: 10
   }
   res.Devices = res.Devices.map(item => {
-    let inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
-    let inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
     const data = {
       [DeviceEnum.DeviceName]: item.Device[DeviceEnum.DeviceName],
       [DeviceEnum.DeviceId]: item.Device[DeviceEnum.DeviceId],
       [DeviceEnum.DeviceInType]: [],
       [DeviceEnum.InProtocol]: [],
       [DeviceEnum.DeviceType]: item.Device[DeviceEnum.DeviceType],
-      [DeviceEnum.VideoStatus]: '-',
-      [DeviceEnum.StreamStatus]: '-',
-      [DeviceEnum.RecordStatus]: '-',
-      [DeviceEnum.ViidStatus]: '-',
+      [DeviceEnum.VideoStatus]: '',
+      [DeviceEnum.StreamStatus]: '',
+      [DeviceEnum.RecordStatus]: '',
+      [DeviceEnum.ViidStatus]: '',
       [DeviceEnum.DeviceChannelSize]: item.Device[DeviceEnum.DeviceChannelSize],
       [DeviceEnum.DeviceVendor]: item.Device[DeviceEnum.DeviceVendor]
     }
+
+    let inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
+    let inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
+    let deviceStreamPullIndex = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol][DeviceEnum.DeviceStreamPullIndex]
+
     if (inVideoProtocol) {
-      data[DeviceEnum.DeviceInType].push()
+      data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
+      data[DeviceEnum.InProtocol].push(inVideoProtocol)
+
+      console.log(item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]])
+      data[DeviceEnum.VideoStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].DeviceStatus.IsOnline
+      data[DeviceEnum.StreamStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].Streams.some(
+        stream => stream.StreamStatus === StatusEnum.On
+      )
+      data[DeviceEnum.RecordStatus] = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]].Streams[(data[deviceStreamPullIndex] || -1) + 1][DeviceEnum.RecordStatus]
     }
+
+    if (inViidProtocol) {
+      data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
+      data[DeviceEnum.InProtocol].push(inViidProtocol)
+      data[DeviceEnum.ViidStatus] = item.Viids[0][InViidProtocolModelMapping[inViidProtocol]].DeviceStatus.IsOnline
+    }
+    return data
   })
   return new Promise(resolve => {
     setTimeout(() => {

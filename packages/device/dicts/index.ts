@@ -88,6 +88,14 @@ export const RecordStatus = {
 }
 
 /*
+  视图状态
+*/
+export const ViidStatus = {
+  'on': '在线',
+  'off': '离线'
+}
+
+/*
   录制状态对应的图标类型
 */
 export const RecordStatusType = {

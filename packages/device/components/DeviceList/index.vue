@@ -85,8 +85,8 @@
             <el-table-column label="设备ID/名称" min-width="200">
               <template slot-scope="{row}">
                 <div class="device-name">
-                  <div class="device-id">{{ row.deviceId }}</div>
-                  <div>{{ row.deviceName }}</div>
+                  <div class="device-id">{{ row[deviceEnum.DeviceId] }}</div>
+                  <div>{{ row[deviceEnum.DeviceName] }}</div>
                 </div>
               </template>
             </el-table-column>
@@ -95,8 +95,18 @@
                 {{ 'D' + row.channelNum }}
               </template>
             </el-table-column>
-            <el-table-column label="接入类型" min-width="200" />
-            <el-table-column label="接入协议" min-width="200" />
+            <el-table-column label="接入类型" min-width="200">
+              <template slot-scope="{row}">
+                {{ row[deviceEnum.DeviceInType] }}
+              </template>
+            </el-table-column>
+            <el-table-column label="接入协议" min-width="200">
+              <template slot-scope="{row}">
+                <div v-for="(item, key) in row[deviceEnum.InProtocol]" :key="key">
+                  {{ item }}
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column
               v-if="!isNVR"
               key="deviceType"
@@ -111,7 +121,7 @@
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
-                {{ deviceType[row.deviceType] }}
+                {{ deviceType[row[deviceEnum.DeviceType]] }}
               </template>
             </el-table-column>
             <el-table-column
@@ -128,8 +138,8 @@
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
-                <status-badge :status="row.deviceStatus" />
-                {{ deviceStatus[row.deviceStatus] || '-' }}
+                <status-badge :status="row[deviceEnum.VideoStatus]" />
+                {{ deviceStatus[row[deviceEnum.VideoStatus]] || '-' }}
               </template>
             </el-table-column>
             <el-table-column
@@ -146,8 +156,8 @@
                 <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{row}">
-                <status-badge :status="row.streamStatus" />
-                {{ streamStatus[row.streamStatus] || '-' }}
+                <status-badge :status="row[deviceEnum.StreamStatus]" />
+                {{ streamStatus[row[deviceEnum.StreamStatus]] || '-' }}
               </template>
             </el-table-column>
             <el-table-column
@@ -164,7 +174,7 @@
               </template>
               <template slot-scope="{row}">
                 <span v-if="row.deviceType === 'nvr'">-</span>
-                <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+                <span v-else><status-badge :status="row[deviceEnum.RecordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -181,17 +191,17 @@
               </template>
               <template slot-scope="{row}">
                 <span v-if="row.deviceType === 'nvr'">-</span>
-                <span v-else><status-badge :status="viidStatusStatusType[row.viidStatus]" />{{ viidStatusStatus[row.viidStatusStatus] || '-' }}</span>
+                <span v-else><status-badge :status="row[deviceEnum.ViidStatus]" />{{ viidStatus[row[deviceEnum.ViidStatus]] || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
               <template slot-scope="{row}">
-                {{ row.deviceStats && row.deviceStats.channelSize || '-' }}
+                {{ row[deviceEnum.DeviceChannelSize] || '-' }}
               </template>
             </el-table-column>
             <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
               <template slot-scope="{row}">
-                {{ row.deviceVendor || '-' }}
+                {{ row[deviceEnum.DeviceVendor] || '-' }}
               </template>
             </el-table-column>
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
@@ -263,7 +273,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Device } from '../../type/Device'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, StreamTransProtocol } from '../../dicts/index'
+import { DeviceEnum } from '../../enums/index'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, ViidStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, StreamTransProtocol } from '../../dicts/index'
 import { checkPermission } from '@/utils/permission'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
@@ -276,10 +287,12 @@ import { describeDevices } from '../../api/device'
 })
 export default class extends Vue {
   private checkPermission = checkPermission
+  private deviceEnum = DeviceEnum
   private deviceParams = DeviceParams
   private deviceStatus = DeviceStatus
   private streamStatus = StreamStatus
   private recordStatus = RecordStatus
+  private viidStatus = ViidStatus
   private recordStatusType = RecordStatusType
   private recordStatusFilterType = RecordStatusFilterType
   private deviceType = DeviceGb28181Type
@@ -372,6 +385,8 @@ export default class extends Vue {
   private eventsList = []
 
   private mounted() {
+    console.log(123)
+    this.initTable()
     this.initTableSize()
   }
 
@@ -381,11 +396,12 @@ export default class extends Vue {
   }
 
   private async initTable() {
-    const res = await describeDevices({
+    this.deviceList = await describeDevices({
       DirId: '',
       PageSize: 10,
       PageNum: 1
     })
+    console.log(this.deviceList)
   }
 
   private initTableSize() {
