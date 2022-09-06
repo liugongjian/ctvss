@@ -318,7 +318,7 @@ export const CityGovType = [
   { label: 'dianwai', cname: '店外经营' },
   { label: 'youtan', cname: '游摊小贩' },
   { label: 'zhandao', cname: '占道经营' },
-  { label: 'wuliao', cname: '乱堆无聊' },
+  { label: 'wuliao', cname: '乱堆物料' },
   { label: 'guanggao', cname: '户外广告' },
   { label: 'dabaolaji', cname: '打包垃圾' },
   { label: 'baolulaji', cname: '暴露垃圾' },
