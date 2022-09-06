@@ -149,9 +149,16 @@ export default class extends Vue {
   private async mounted() {
     try {
       this.loading = true
-      const res = await getIBoxDetail()
+      console.log('。。  query  。。    ', this.$route.query)
+      let deviceId = this.$route.query.deviceId || '29941916753723399'
+      let res = await getIBoxDetail(deviceId)
+      res = res.data
+      this.transStatus(res.basic.deviceStatus)
+      this.dataInfo(res)
     } catch (e) {
 
+    } finally {
+      this.loading = false
     }
     // const res = this.dashboardInfo
     console.log('获取概览页面数据')
@@ -221,7 +228,17 @@ export default class extends Vue {
         "account": "vss-demo@xx.cn"
       }
     }
-    this.transStatus(res.basic.deviceStatus)
+    // this.transStatus(res.basic.deviceStatus)
+    // this.dataInfo(res)
+    // this.deviceName = res.basic.deviceName
+    // this.description = res.basic.description
+    // this.basic = res.basic
+    // this.sip = res.sip
+    // this.hardware = res.hardware
+    // this.app = res.app
+  }
+
+  private dataInfo(res: any){
     this.deviceName = res.basic.deviceName
     this.description = res.basic.description
     this.basic = res.basic
