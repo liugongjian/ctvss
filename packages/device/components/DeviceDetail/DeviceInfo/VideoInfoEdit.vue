@@ -23,7 +23,7 @@ export default class extends Vue {
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device.Device
+    return this.device.device
   }
 
   private submit() {

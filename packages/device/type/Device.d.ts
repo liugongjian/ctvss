@@ -148,6 +148,14 @@ type Resource = {
 }
 
 /**
+ * 设备地址
+ */
+type DeviceAddress = {
+  code: string;
+  level: string;
+}
+
+/**
  * 设备
  */
 type Device = {
@@ -193,11 +201,18 @@ type ViidDeviceForm = ViidDevice & {
 }
 
 /**
- * 设备地址
+ * 设备整体表单
  */
-type DeviceAddress = {
-  code: string;
-  level: string;
+type DeviceForm = {
+  [DeviceEnum.DeviceId]?: string;
+  [DeviceEnum.Region]?: string;
+  [DeviceEnum.InNetworkType]?: string;
+  [DeviceEnum.OutNetworkType]?: string;
+  [DeviceEnum.Device]?: DeviceBasicForm;
+  [DeviceEnum.Videos]?: VideoDeviceForm[];
+  [DeviceEnum.Viids]?: ViidDeviceForm[];
+  [DeviceEnum.Industry]?: Industry;
+  [DeviceEnum.Resources]?: Resource[];
 }
 
 export {
@@ -209,5 +224,6 @@ export {
   Device,
   DeviceBasicForm,
   VideoDeviceForm,
-  ViidDeviceForm
+  ViidDeviceForm,
+  DeviceForm
 }

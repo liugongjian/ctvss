@@ -242,7 +242,7 @@ import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
 import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
-import { Device, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
+import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
 import { createDevice } from '../../api/device'
 import VideoCreateForm from '../Form/VideoCreateForm.vue'
 import ViidCreateForm from '../Form/ViidCreateForm.vue'
@@ -363,13 +363,13 @@ export default class extends Mixins(deviceFormMixin) {
       })
       // 校验videoForm
       const videoFormObj: any = this.$refs.videoForm
-      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
+      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
         validFlag = videoFormObj.validateVideoForm() && validFlag
         this.videoForm = videoFormObj.videoForm
       }
       // 校验viidForm
       const viidFormObj: any = this.$refs.viidForm
-      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
         validFlag = viidFormObj.validateViidForm() && validFlag
         this.viidForm = viidFormObj.viidForm
       }
@@ -404,7 +404,7 @@ export default class extends Mixins(deviceFormMixin) {
     })
     // 判断校验结果
     if (validFlag) {
-      const params: Device = {
+      const params: DeviceForm = {
         ...pick(this.deviceForm, [
           DeviceEnum.Region,
           DeviceEnum.InNetworkType,
@@ -438,28 +438,30 @@ export default class extends Mixins(deviceFormMixin) {
         resources: this.videoForm.resources
       }
       // 补充视频接入信息
-      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
-        params.videos = {
+      if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+        const videoDevice: VideoDeviceForm = {
           ...pick(this.videoForm, [
             DeviceEnum.InVideoProtocol
           ])
         }
         // 补充协议信息
-        params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+        videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
           ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm.inVideoProtocol]])
         }
+        params.videos = [ videoDevice ]
       }
       // 补充视图接入信息
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
-        params.viids = {
+        const viidDevice: ViidDeviceForm = {
           ...pick(this.viidForm, [
             DeviceEnum.InViidProtocol
           ])
         }
         // 补充协议信息
-        params.viids[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
+        viidDevice[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
           ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
         }
+        params.viids = [ viidDevice ]
       }
       console.log(params)
     }
