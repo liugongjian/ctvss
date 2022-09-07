@@ -20,25 +20,24 @@
           <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleTools(toolsEnum.AddDevice)">添加</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleTools(toolsEnum.ViewDevice)">查看详情</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleTools(toolsEnum.EditDevice)">编辑</el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleTools(toolsEnum.SyncDevice)">同步</el-button>
-          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom">
+          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleTools($event)">
             <el-button>导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="exportAll" :disabled="!deviceList.length" @click="handleTools(toolsEnum.ExportAll)">导出所有分页</el-dropdown-item>
-              <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
-              <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+              <el-dropdown-item :command="toolsEnum.ExportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
+              <el-dropdown-item :command="toolsEnum.ExportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
+              <el-dropdown-item :command="toolsEnum.ExportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
           <el-upload
             ref="excelUpload"
             action="#"
             :show-file-list="false"
-            :http-request="() => {}"
+            :http-request="handleTools"
             class="import-button"
           >
             <el-button>导入</el-button>
           </el-upload>
-          <el-button @click="1">下载模板</el-button>
+          <el-button @click="handleTools($event)">下载模板</el-button>
           <el-dropdown v-if="!isVGroup" key="dropdown" placement="bottom" @command="1">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
@@ -53,7 +52,7 @@
           <el-input v-show="false" v-model="keyword" class="search-group" placeholder="请输入关键词">
             <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button v-if="!isVGroup && !isChannel" class="el-button-rect sync-button" :disabled="false" :class="{'loading': false}" @click="1"><svg-icon name="refresh" />同步设备状态</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleTools(toolsEnum.SyncDevice)">同步</el-button>
         </div>
       </div>
       <div v-if="filterButtons.length" class="filter-buttons list-wrap__filter">
@@ -246,6 +245,9 @@
         />
       </div>
     </div>
+    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <upload-excel v-if="dialog.uploadExcel" :file="selectedFile" :data="fileData" @on-close="closeDialog('uploadExcel', ...arguments)" />
+    <resource v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" />
   </div>
 </template>
 
@@ -264,7 +266,12 @@ import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
 
 @Component({
-  name: 'DeviceList'
+  name: 'DeviceList',
+  components: {
+    MoveDir,
+    UploadExcel,
+    Resource
+  }
 })
 export default class extends Vue {
   @Inject('handleTools')
@@ -284,6 +291,7 @@ export default class extends Vue {
   private sipTransType = SipTransType
   private streamTransType = StreamTransType
   private streamTransProtocol = StreamTransProtocol
+
   public tableMaxHeight: any = null
   public observer: any = null
   public filter: any = {
@@ -302,6 +310,12 @@ export default class extends Vue {
   public loading = {
     table: false,
     syncDevice: false
+  }
+
+  public dialog = {
+    moveDir: false,
+    uploadExcel: false,
+    resource: false
   }
 
   private currentDir = {
