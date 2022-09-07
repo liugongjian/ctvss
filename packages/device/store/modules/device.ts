@@ -1,5 +1,6 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
 import store from '@vss/device/store'
+import { toLowerCase } from '@vss/base/utils/param'
 import { deviceMock } from '@vss/device/mock/device'
 
 export interface IDeviceState {
@@ -30,7 +31,7 @@ export class Device extends VuexModule implements IDeviceState {
   @Action
   public async getDevice(deviceId) {
     if (!this.device || this.device.deviceId !== deviceId) {
-      this.SET_DEVICE(deviceMock)
+      this.SET_DEVICE(toLowerCase(deviceMock))
     }
     return this.device
   }

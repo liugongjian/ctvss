@@ -1,7 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
-import { DeviceEnum } from '@vss/device/enums'
 
 @Component
 export default class DetailMixin extends Vue {
@@ -19,12 +18,12 @@ export default class DetailMixin extends Vue {
 
   // 是否含视频
   private get hasVideo() {
-    return this.device[DeviceEnum.Videos] && this.device[DeviceEnum.Videos].length
+    return this.device.videos && this.device.videos.length
   }
 
   // 是否含视图库
   private get hasViid() {
-    return this.device[DeviceEnum.Viids] && this.device[DeviceEnum.Viids].length
+    return this.device.viids && this.device.viids.length
   }
 
   /**

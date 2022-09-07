@@ -27,12 +27,12 @@
         label-width="120px"
         @submit.native.prevent
       >
-        <el-form-item label="设备状态:" prop="deviceStatusKeys">
+        <el-form-item label="视频接入:" prop="deviceStatusKeys">
           <el-checkbox-group v-model="innerForm.deviceStatusKeys">
             <el-checkbox v-for="deviceStatus in deviceStatusList" :key="deviceStatus.value" :label="deviceStatus.value">{{ deviceStatus.label }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="流状态:" prop="streamStatusKeys">
+        <el-form-item label="视频流:" prop="streamStatusKeys">
           <el-checkbox-group v-model="innerForm.streamStatusKeys">
             <el-checkbox v-for="streamStatus in streamStatusList" :key="streamStatus.value" :label="streamStatus.value">{{ streamStatus.label }}</el-checkbox>
           </el-checkbox-group>

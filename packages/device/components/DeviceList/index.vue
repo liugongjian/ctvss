@@ -394,7 +394,7 @@ export default class extends Vue {
       PageSize: 10,
       PageNum: 1
     })
-    this.deviceList = res.Devices
+    this.deviceList = res.devices
     this.loading.table = false
   }
 

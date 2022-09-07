@@ -1,5 +1,5 @@
 import { Component, Vue } from 'vue-property-decorator'
-import { DeviceAddress } from '../type/Device'
+import { DeviceBasicForm, DeviceAddress } from '../type/Device'
 import { DeviceEnum } from '../enums'
 import AddressCascader from '../components/AddressCascader.vue'
 import RegionCascader from '../components/RegionCascader.vue'
@@ -11,7 +11,7 @@ import RegionCascader from '../components/RegionCascader.vue'
   }
 })
 export default class DeviceFormMixin extends Vue {
-  public deviceForm
+  public deviceForm: DeviceBasicForm
 
   public rules = {
     [DeviceEnum.DeviceName]: [
@@ -67,8 +67,8 @@ export default class DeviceFormMixin extends Vue {
    * 选择设备地址
    */
   public onDeviceAddressChange(region: DeviceAddress) {
-    this.deviceForm[DeviceEnum.InOrgRegion] = region.code
-    this.deviceForm[DeviceEnum.InOrgRegionLevel] = region.level
+    this.deviceForm.inOrgRegion = region.code
+    this.deviceForm.inOrgRegionLevel = region.level
   }
 
   /**
