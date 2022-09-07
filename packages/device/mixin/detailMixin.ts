@@ -18,12 +18,12 @@ export default class DetailMixin extends Vue {
 
   // 是否含视频
   private get hasVideo() {
-    return this.device.Videos && this.device.Videos.length
+    return this.device.videos && this.device.videos.length
   }
 
   // 是否含视图库
   private get hasViid() {
-    return this.device.Viids && this.device.Viids.length
+    return this.device.viids && this.device.viids.length
   }
 
   /**

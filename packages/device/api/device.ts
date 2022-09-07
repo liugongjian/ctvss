@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { toLowerCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -271,26 +272,29 @@ export const describeDevices = (params: any): Promise<any> => {
     PageSize: 10,
     TotalNum: 10
   }
-  res.Devices = res.Devices.map(item => {
+  // TODO: 后端转换
+  res = toLowerCase(res)
+  console.log(res)
+  res.devices = res.devices.map(item => {
     const data = {
-      [DeviceEnum.DeviceName]: item.Device[DeviceEnum.DeviceName],
-      [DeviceEnum.DeviceId]: item.Device[DeviceEnum.DeviceId],
+      [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
+      [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
       [DeviceEnum.DeviceInType]: [],
       [DeviceEnum.InProtocol]: [],
-      [DeviceEnum.DeviceType]: item.Device[DeviceEnum.DeviceType],
+      [DeviceEnum.DeviceType]: item.device[DeviceEnum.DeviceType],
       [DeviceEnum.VideoStatus]: '',
       [DeviceEnum.StreamStatus]: '',
       [DeviceEnum.RecordStatus]: '',
       [DeviceEnum.ViidStatus]: '',
-      [DeviceEnum.DeviceChannelSize]: item.Device[DeviceEnum.DeviceChannelSize],
-      [DeviceEnum.DeviceVendor]: item.Device[DeviceEnum.DeviceVendor]
+      [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
+      [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
     }
-
-    const inVideoProtocol = item.Videos && item.Videos[0][DeviceEnum.InVideoProtocol]
-    const inViidProtocol = item.Viids && item.Viids[0][DeviceEnum.InViidProtocol]
+    console.log(item.videos)
+    const inVideoProtocol = item.videos && item.videos[0][DeviceEnum.InVideoProtocol]
+    const inViidProtocol = item.viids && item.viids[0][DeviceEnum.InViidProtocol]
 
     if (inVideoProtocol) {
-      const videoInfo = item.Videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+      const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
       const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
       data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
@@ -302,7 +306,7 @@ export const describeDevices = (params: any): Promise<any> => {
     }
 
     if (inViidProtocol) {
-      const viidInfo = item.Viids[0][InViidProtocolModelMapping[inViidProtocol]]
+      const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
       data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
       data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]

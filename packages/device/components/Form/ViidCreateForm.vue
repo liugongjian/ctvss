@@ -11,22 +11,22 @@
         <el-radio
           v-for="(value, key) in inViidProtocol"
           :key="key"
-          v-model="viidForm.InViidProtocol"
+          v-model="viidForm.inViidProtocol"
           :label="key"
         >
           {{ value }}
         </el-radio>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码:" :prop="deviceEnum.LowerApsId">
-        <el-input v-model="viidForm.ApsId" />
+        <el-input v-model="viidForm.apsId" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型:" :prop="deviceEnum.ProtocolDeviceType">
         <el-select
-          v-model="viidForm.ProtocolDeviceType"
+          v-model="viidForm.protocolDeviceType"
           placeholder="请选择"
         >
           <el-option
-            v-for="(value, key) in protocolDeviceTypeByDeviceType[deviceForm.DeviceType]"
+            v-for="(value, key) in protocolDeviceTypeByDeviceType[deviceForm.deviceType]"
             :key="key"
             :label="value"
             :value="key"
@@ -34,13 +34,13 @@
         </el-select>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GA1400凭证:" :prop="deviceEnum.InUserName">
-        <certificate-select v-model="viidForm.InUserName" :type="inViidProtocolEnum.Ga1400" />
+        <certificate-select v-model="viidForm.inUserName" :type="inViidProtocolEnum.Ga1400" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP:" :prop="deviceEnum.Ip">
-        <el-input v-model="viidForm.Ip" placeholder="请输入平台IP" />
+        <el-input v-model="viidForm.ip" placeholder="请输入平台IP" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.Port">
-        <el-input v-model.number="viidForm.Port" placeholder="请输入端口" />
+        <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
       </el-form-item>
     </el-form>
   </div>
@@ -97,12 +97,12 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inProtocol() {
-    return this.device && this.device.Viids && this.device.Viids[0]!.InViidProtocol
+    return this.device && this.device.viids && this.device.viids[0]!.inViidProtocol
   }
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    return (this.inProtocol && this.device.Viids[0]![InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    return (this.inProtocol && this.device.viids[0]![InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
   }
 
   @Watch('device', {
@@ -111,21 +111,21 @@ export default class extends Vue {
   private onDeviceChange() {
     this.viidForm = {
       [DeviceEnum.InViidProtocol]: this.inProtocol || InViidProtocolEnum.Ga1400,
-      [DeviceEnum.LowerApsId]: this.viidInfo.LowerApsId,
-      [DeviceEnum.ProtocolDeviceType]: this.viidInfo.ProtocolDeviceType,
-      [DeviceEnum.InUserName]: this.viidInfo.InUserName,
-      [DeviceEnum.Ip]: this.viidInfo.Ip,
-      [DeviceEnum.Port]: this.viidInfo.Port
+      [DeviceEnum.LowerApsId]: this.viidInfo.lowerApsId,
+      [DeviceEnum.ProtocolDeviceType]: this.viidInfo.protocolDeviceType,
+      [DeviceEnum.InUserName]: this.viidInfo.inUserName,
+      [DeviceEnum.Ip]: this.viidInfo.ip,
+      [DeviceEnum.Port]: this.viidInfo.port
     }
   }
 
-  @Watch('videoForm.DeviceType')
+  @Watch('videoForm.deviceType')
   private deviceTypeChange() {
-    this.viidForm.ProtocolDeviceType = ''
+    this.viidForm.protocolDeviceType = ''
   }
 
   private checkVisible(prop) {
-    return checkViidVisible.call(this.viidForm, this.deviceForm.DeviceType, this.viidForm.InViidProtocol, prop)
+    return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.viidForm.inViidProtocol, prop)
   }
 
   /**

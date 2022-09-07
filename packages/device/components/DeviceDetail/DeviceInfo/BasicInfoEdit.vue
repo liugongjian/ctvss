@@ -8,21 +8,21 @@
       label-width="135px"
     >
       <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName">
-        <el-input v-model="deviceForm.DeviceName" />
+        <el-input v-model="deviceForm.deviceName" />
       </el-form-item>
       <el-form-item label="设备分类:">
-        {{ dicts.DeviceType[basicInfo.DeviceType] }}
+        {{ dicts.DeviceType[basicInfo.deviceType] }}
       </el-form-item>
       <el-form-item label="接入方式:">
         <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
         <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
       </el-form-item>
       <el-form-item label="经纬度:" :prop="DeviceEnum.Longlat">
-        <el-input v-model="deviceForm.DeviceLongitude" class="longlat-input" /> :
-        <el-input v-model="deviceForm.DeviceLatitude" class="longlat-input" />
+        <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
+        <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
       </el-form-item>
       <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
-        <el-select v-model="deviceForm.DeviceVendor">
+        <el-select v-model="deviceForm.deviceVendor">
           <el-option
             v-for="(value, key) in deviceVendor[inVideoProtocol]"
             :key="key"
@@ -32,19 +32,19 @@
         </el-select>
       </el-form-item>
       <el-form-item v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
-        <region-cascader v-model="deviceForm.Region" />
+        <region-cascader v-model="deviceForm.region" />
       </el-form-item>
       <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
         <address-cascader
-          :code="deviceForm.InOrgRegion"
-          :level="deviceForm.InOrgRegionLevel"
+          :code="deviceForm.inOrgRegion"
+          :level="deviceForm.inOrgRegionLevel"
           :disabled="hasOutId"
           @change="onDeviceAddressChange"
         />
       </el-form-item>
       <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
         <el-select
-          v-model="deviceForm.IndustryCode"
+          v-model="deviceForm.industryCode"
           :disabled="hasOutId"
           placeholder="请选择所属行业"
         >
@@ -58,7 +58,7 @@
       </el-form-item>
       <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
         <el-select
-          v-model="deviceForm.NetworkCode"
+          v-model="deviceForm.networkCode"
           :disabled="hasOutId"
           placeholder="请选择网络标识"
         >
@@ -71,7 +71,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="接入网络:" :prop="deviceEnum.InNetworkType">
-        <el-radio-group v-model="deviceForm.InNetworkType">
+        <el-radio-group v-model="deviceForm.inNetworkType">
           <el-radio
             v-for="(value, key) in dicts.InNetworkType"
             :key="key"
@@ -82,7 +82,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="播放网络:" :prop="deviceEnum.OutNetworkType">
-        <el-radio-group v-model="deviceForm.OutNetworkType">
+        <el-radio-group v-model="deviceForm.outNetworkType">
           <el-radio
             v-for="(value, key) in dicts.OutNetworkType"
             :key="key"
@@ -127,65 +127,65 @@ export default class extends Mixins(deviceFormMixin) {
     immediate: true
   })
   private onDeviceChange() {
-    const basicInfo: DeviceBasic = this.device.Device
-    const industry: Industry = this.device.Industry
+    const basicInfo: DeviceBasic = this.device.device
+    const industry: Industry = this.device.industry
     this.deviceForm = {
-      [DeviceEnum.DeviceName]: basicInfo.DeviceName,
-      [DeviceEnum.DeviceType]: basicInfo.DeviceType,
-      [DeviceEnum.InNetworkType]: this.device.InNetworkType,
-      [DeviceEnum.OutNetworkType]: this.device.OutNetworkType,
+      [DeviceEnum.DeviceName]: basicInfo.deviceName,
+      [DeviceEnum.DeviceType]: basicInfo.deviceType,
+      [DeviceEnum.InNetworkType]: this.device.inNetworkType,
+      [DeviceEnum.OutNetworkType]: this.device.outNetworkType,
       [DeviceEnum.Longlat]: 'required',
-      [DeviceEnum.DeviceLongitude]: basicInfo.DeviceLongitude,
-      [DeviceEnum.DeviceLatitude]: basicInfo.DeviceLatitude,
-      [DeviceEnum.DeviceVendor]: basicInfo.DeviceVendor,
-      [DeviceEnum.Description]: basicInfo.Description,
-      [DeviceEnum.DeviceIp]: basicInfo.DeviceIp,
-      [DeviceEnum.DevicePort]: basicInfo.DevicePort,
-      [DeviceEnum.DevicePoleId]: basicInfo.DevicePoleId,
-      [DeviceEnum.DeviceMac]: basicInfo.DeviceMac,
-      [DeviceEnum.DeviceSerialNumber]: basicInfo.DeviceSerialNumber,
-      [DeviceEnum.DeviceModel]: basicInfo.DeviceModel,
-      [DeviceEnum.InOrgRegion]: industry.InOrgRegion,
-      [DeviceEnum.InOrgRegionLevel]: industry.InOrgRegionLevel,
-      [DeviceEnum.IndustryCode]: industry.IndustryCode,
-      [DeviceEnum.NetworkCode]: industry.NetworkCode,
-      [DeviceEnum.Region]: this.device.Region
+      [DeviceEnum.DeviceLongitude]: basicInfo.deviceLongitude,
+      [DeviceEnum.DeviceLatitude]: basicInfo.deviceLatitude,
+      [DeviceEnum.DeviceVendor]: basicInfo.deviceVendor,
+      [DeviceEnum.Description]: basicInfo.description,
+      [DeviceEnum.DeviceIp]: basicInfo.deviceIp,
+      [DeviceEnum.DevicePort]: basicInfo.devicePort,
+      [DeviceEnum.DevicePoleId]: basicInfo.devicePoleId,
+      [DeviceEnum.DeviceMac]: basicInfo.deviceMac,
+      [DeviceEnum.DeviceSerialNumber]: basicInfo.deviceSerialNumber,
+      [DeviceEnum.DeviceModel]: basicInfo.deviceModel,
+      [DeviceEnum.InOrgRegion]: industry.inOrgRegion,
+      [DeviceEnum.InOrgRegionLevel]: industry.inOrgRegionLevel,
+      [DeviceEnum.IndustryCode]: industry.industryCode,
+      [DeviceEnum.NetworkCode]: industry.networkCode,
+      [DeviceEnum.Region]: this.device.region
     }
   }
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device.Device
+    return this.device.device
   }
 
   // 设备行业信息
   private get industry(): Industry {
-    return this.device.Industry
+    return this.device.industry
   }
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device.Videos && this.device.Videos[0]!.InVideoProtocol
+    return this.device.videos && this.device.videos[0]!.inVideoProtocol
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return this.inVideoProtocol && this.device.Videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
+    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // 是否含视频
   private get hasVideo() {
-    return this.device.Videos && this.device.Videos.length
+    return this.device.videos && this.device.videos.length
   }
 
   // 是否含视图库
   private get hasViid() {
-    return this.device.Viids && this.device.Viids.length
+    return this.device.viids && this.device.viids.length
   }
 
   // 是否含国标ID
   private get hasOutId() {
-    return this.videoInfo && !!this.videoInfo.OutId
+    return this.videoInfo && !!this.videoInfo.outId
   }
 
   private submit() {

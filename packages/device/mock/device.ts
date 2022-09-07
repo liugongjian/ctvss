@@ -30,7 +30,7 @@ export const deviceMock = {
         InVersion: '2016',
         InUserName: '123',
         DeviceStreamAutoPull: 1,
-        DeviceStreamPullIndex: 0,
+        DeviceStreamPullIndex: 1,
         StreamTransProtocol: 'udp',
         SipTransType: 'udp',
         ErrorMsg: '设备下线',
@@ -54,7 +54,7 @@ export const deviceMock = {
         DeviceMac: '23882323',
         DeviceStreamAutoPull: 1,
         DeviceStreamSize: 3,
-        DeviceStreamPullIndex: 0,
+        DeviceStreamPullIndex: 1,
         StreamTransProtocol: 'udp',
         SipTransType: 'udp',
         ErrorMsg: '设备下线',
@@ -87,7 +87,7 @@ export const deviceMock = {
         DevicePort: '123',
         DeviceStreamAutoPull: 1,
         DeviceStreamSize: 3,
-        DeviceStreamPullIndex: 0,
+        DeviceStreamPullIndex: 1,
         DeviceStatus: {
           IsOnline: 'on'
         },
