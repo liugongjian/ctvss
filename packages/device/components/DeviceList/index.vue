@@ -1,8 +1,8 @@
 <template>
   <div class="device-container">
     <div class="list-wrap">
-      <div class="list-wrap__header">
-        <info-list v-if="checkToolsVisible(deviceEnum.ShowDeviceInfo)" label-width="80">
+      <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
+        <info-list label-width="80">
           <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
           <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
           <info-list-item label="设备状态:">
@@ -17,16 +17,14 @@
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="create-button" type="primary" @click="handleTools(toolsEnum.AddDevice, currentDir.id)">{{ '添加设备' }}</el-button>
-          <el-button v-if="isNVR" key="check-nvr-detail" @click="1">查看NVR设备详情</el-button>
-          <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="1">编辑NVR设备</el-button>
-          <el-button v-if="isPlatform" key="check-platform" @click="1">查看Platform详情</el-button>
-          <el-button v-if="isPlatform && checkPermission(['AdminDevice'])" key="edit-platform" @click="1">编辑Platform</el-button>
-          <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="1">同步</el-button>
-          <el-dropdown placement="bottom" @command="1">
+          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleTools(toolsEnum.AddDevice)">添加</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleTools(toolsEnum.ViewDevice)">查看详情</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleTools(toolsEnum.EditDevice)">编辑</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleTools(toolsEnum.SyncDevice)">同步</el-button>
+          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom">
             <el-button>导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
+              <el-dropdown-item command="exportAll" :disabled="!deviceList.length" @click="handleTools(toolsEnum.ExportAll)">导出所有分页</el-dropdown-item>
               <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
               <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
             </el-dropdown-menu>
@@ -255,8 +253,9 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '../../type/Device'
 import { DeviceEnum, DirectoryTypeEnum, ToolsEnum } from '../../enums/index'
+import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, ViidStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, StreamTransProtocol } from '../../dicts/index'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceListVisible } from '../../utils/param'
 import { describeDevices } from '../../api/device'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -273,6 +272,7 @@ export default class extends Vue {
   private checkPermission = checkPermission
   private deviceEnum = DeviceEnum
   private toolsEnum = ToolsEnum
+  private policyEnum = PolicyEnum
   private deviceParams = DeviceParams
   private deviceStatus = DeviceStatus
   private streamStatus = StreamStatus
@@ -300,7 +300,8 @@ export default class extends Vue {
   }
 
   public loading = {
-    table: true
+    table: false,
+    syncDevice: false
   }
 
   private currentDir = {
@@ -406,9 +407,20 @@ export default class extends Vue {
     deviceTable && this.observer.observe(deviceTable)
   }
 
-  private checkToolsVisible(prop, type = this.currentDir.type) {
-    return checkDeviceListVisible(type, prop)
+  /**
+   * 判断是否显示tools
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  private checkToolsVisible(prop, permissions?, row?) {
+    !row && (row = { type: this.currentDir.type })
+    return checkDeviceListVisible(row.type, prop) && checkPermission(permissions)
   }
+
+  // private checkColumnsVisible(prop, permission, type = ) {
+  //   return checkDeviceListVisible(type, prop)
+  // }
 
   private rowClick() {
     this.$router.push({ path: '/device-refactor/detail', query: { deviceId: '29941916753760267' } })

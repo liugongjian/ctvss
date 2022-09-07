@@ -230,7 +230,7 @@ export enum ToolsEnum {
   // 设备列表相关
   ShowDeviceInfo = 'showDeviceInfo',
   AddDevice = 'addDevice',
-  ViewDevice = 'viewDetails',
+  ViewDevice = 'viewDevice',
   EditDevice = 'editDevice',
   SyncDevice = 'syncDevice',
   ViewChannels = 'viewChannels',
