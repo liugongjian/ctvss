@@ -44,7 +44,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { AiMaskType, AnimalType } from '@/dics'
+import { AiMaskType, AnimalType, CityGovType } from '@/dics'
+import { colors } from '@/dics/color'
 
 @Component({
   name: 'DashboardAILocation'
@@ -72,11 +73,8 @@ export default class extends Vue {
   }
 
   private colorFromLabel(label) {
-    let color = ''
-    for (let i = label.length - 1; i > label.length - 4; i--) {
-      color = label.charCodeAt(i).toString(16) + color
-    }
-    return 'border: 2px solid #' + color
+    const index = CityGovType.findIndex(type => type.label === label)
+    return 'border: 2px solid ' + colors[index]
   }
 
   private clickLocation(locationIndex: number) {

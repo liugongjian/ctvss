@@ -70,6 +70,8 @@ export const getRule = (msg) => {
         value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
       },
       trigger: 'blur' })
+  } else if (msg === '细分检测项') {
+    rule.push({ required: true, trigger: 'blur', message: '请选择' + msg })
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule

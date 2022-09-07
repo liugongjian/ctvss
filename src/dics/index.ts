@@ -207,7 +207,7 @@ export const AlertType: any = {
   34: '人脸识别v2',
   35: '工作服检测',
   36: '河道垃圾检测',
-  37: '城市治理监测'
+  37: '城市治理'
 }
 
 export const AiMaskType: any = {
@@ -330,6 +330,6 @@ export const CityGovType = [
   { label: 'weijiagai', cname: '垃圾箱未加盖' },
   { label: 'manyi', cname: '垃圾箱满溢' },
   { label: 'qimogongmeng', cname: '气拱门' },
-  { label: 'banner', cname: '横幅' },
+  { label: 'banner', cname: '横幅识别' },
   { label: 'cover', cname: '井盖异常' }
 ]
