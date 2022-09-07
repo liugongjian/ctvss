@@ -307,7 +307,7 @@ export default class extends Vue {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device && this.device.videos && this.device.videos[0]!.InVideoProtocol
+    return this.device && this.device.videos && this.device.videos[0]!.inVideoProtocol
   }
 
   // 视频接入信息
@@ -445,11 +445,11 @@ export default class extends Vue {
     const remainError: any = []
     this.videoForm.resources.forEach((resource: any) => {
       // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource.ResourceId] && this.resourcesMapping[resource.ResourceId].RemainDeviceCount)
+      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
       const devicesCount = this.deviceForm.deviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.deviceChannelSize
       // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource.ResourceId) === -1
-      switch (resource.ResourceType) {
+      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
+      switch (resource.resourceType) {
         case 'VSS_VIDEO':
           hasVideo = true
           if (isChanged && devicesCount > remainDeviceCount) {

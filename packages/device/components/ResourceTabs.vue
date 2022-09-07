@@ -150,6 +150,7 @@ import { ResourceAiType } from '@/dics'
 import { getResources, getResourceIdAttachedAppIds } from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
+import { DeviceEnum } from '../enums'
 
 @Component({
   name: 'ResourceTabs'
@@ -286,12 +287,12 @@ export default class extends Vue {
     resources.forEach((resource: any) => {
       if (resource) {
         const resourceResult = {
-          WorkOrderId: resource.workOrderId,
-          ResourceId: resource.resourceId,
-          ResourceType: resource.type
+          [DeviceEnum.WorkOrderId]: resource.workOrderId,
+          [DeviceEnum.ResourceId]: resource.resourceId,
+          [DeviceEnum.ResourceType]: resource.type
         }
         result.push(resourceResult)
-        mapping[resource.resourceId] = Object.assign(resourceResult, { RemainDeviceCount: resource.remainDeviceCount })
+        mapping[resource.resourceId] = Object.assign(resourceResult, { [DeviceEnum.RemainDeviceCount]: resource.remainDeviceCount })
       }
     })
     if (!isInit) {
