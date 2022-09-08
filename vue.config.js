@@ -5,11 +5,12 @@ const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   // local: 'http://192.168.245.1:8081', // 本地环境
-  local: 'http://172.24.6.33:8081',//煮雨
+  local: 'http://172.24.6.33:8081', // 朱雨
   dev: 'https://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   test: 'http://182.43.127.35:9080', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
+  test2: '182.43.127.35:9067', // 开发环境test-2
   pre: 'https://182.43.127.35:9070', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
@@ -19,6 +20,7 @@ const portMapping = {
   dev1: 9191,
   test: 9080,
   test1: 9060,
+  test2: 9067,
   pre: 9070,
   prod: 443
 }

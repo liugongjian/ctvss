@@ -14,11 +14,12 @@
               :data="dirList"
               :load="loadDirs"
               lazy
+              empty-text="暂无目录或设备"
               node-key="id"
-              :default-expanded-keys="defaultKey"
+              :default-expanded-keys="defaultExpandedKeys"
+              :current-node-key="defaultKey"
               :props="treeProp"
               highlight-current
-              default-expand-all
               @node-click="handleNodeClick"
             >
               <span slot-scope="{node,data}">
@@ -104,7 +105,7 @@ export default class IBox extends Vue {
     if (!id) {
       return null
     }
-    return [id]
+    return id
   }
 
   public calcHeight() {
@@ -122,11 +123,13 @@ export default class IBox extends Vue {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
 
     node.expanded = true
-    console.log('node', node, node.level, item.deviceId, item.deviceType)
+    console.log('node', node, item)
+
     const { deviceId } = item
     switch (node.level) {
       case 1:
         this.setListInfo('device', this.iboxDevice, deviceId)
+        // this.breadcrumb =
         break
       case 2:
         if (item.deviceType === 'nvr') {
@@ -169,13 +172,13 @@ export default class IBox extends Vue {
           'name': '天翼云盒子1',
           'deviceSize': 3,
           'onlineSize': 1
-        },
-        {
-          'id': '123458',
-          'name': '天翼云盒子2',
-          'deviceSize': 0,
-          'onlineSize': 0
         }
+        // {
+        //   'id': '123458',
+        //   'name': '天翼云盒子2',
+        //   'deviceSize': 0,
+        //   'onlineSize': 0
+        // }
       ],
       'iboxes': [
         {
@@ -210,10 +213,15 @@ export default class IBox extends Vue {
     this.iboxes = iboxes
 
     this.setListInfo(type, iboxes, deviceId)
+    this.$nextTick(() => {
+      const dirTree: any = this.$refs.dirTree
+      dirTree.setCurrentKey(this.defaultKey)
+      this.defaultExpandedKeys = [this.defaultKey.toString()]
+    })
   }
 
   // 获取ibox下设备目录
-  public async loadDirs(node, resolve) {
+  public async loadDirs(node: any, resolve: any) {
     const { query } = (this.$route) as any
     const { deviceId } = query
     await this.loadIboxDevice()
@@ -232,9 +240,7 @@ export default class IBox extends Vue {
       }
     })
     if (node.level === 1) {
-      window.setTimeout(() => {
-        return resolve(iboxList)
-      }, 600)
+      return resolve(iboxList)
     } else if (node.level === 2) {
       const { data } = node
       if (data.deviceType === 'nvr') {
