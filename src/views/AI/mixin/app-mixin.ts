@@ -1,9 +1,10 @@
-import { deleteApps, startOrStopApps } from '@/api/ai-app'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { startOrStopApps, deleteApps } from '@/api/ai-app'
 import { checkPermission } from '@/utils/permission'
-import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class AppMixin extends Vue {
+  @Prop() public prod!: any
   public checkPermission = checkPermission
   public alarms: any = []
   public period: any = {
@@ -11,6 +12,22 @@ export default class AppMixin extends Vue {
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
   }
   public msOfADay = 864 * 100000
+
+  public form: any = {
+    algorithmMetadata: {
+      trashRecycleType: [],
+      helmetReflectiveType: [],
+      animalDetectType: ['Bear']
+    },
+    beeNumber: 1
+  }
+
+  public effectiveTime: any = []
+  public alertDisabled = false
+  public interval = {
+    alertPeriod: 's',
+    alertSilencePeriod: 's'
+  }
 
   /**
    * 刷新数据
@@ -85,6 +102,17 @@ export default class AppMixin extends Vue {
     }
   }
 
+  /**
+   * 返回应用列表
+   */
+  public cancel() {
+    if (this.$route.path.endsWith('ibox')) {
+      this.$emit('back')
+    } else {
+      this.backToAppList()
+    }
+  }
+
   public backToAppList() {
     this.$router.push({
       name: 'AIAppList'
@@ -108,5 +136,43 @@ export default class AppMixin extends Vue {
    */
   public handleChange() {
     this.getAlarms()
+  }
+
+  public generateAlgoParam() {
+    this.generateEffectiveTime()
+    let algorithmMetadata = this.form.algorithmMetadata
+    Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
+    if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
+      algorithmMetadata.faceRatio = '0.7'
+    }
+    let param = {
+      ...this.form,
+      effectiveTime: this.effectiveTime,
+      callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
+      algorithmMetadata: JSON.stringify(algorithmMetadata),
+      confidence: this.form.confidence / 100,
+      alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '0',
+      alertPeriod: this.alertDisabled ? (this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? +this.form.alertPeriod * 60 : +this.form.alertPeriod * 60 * 60).toString() : '0',
+      alertSilencePeriod: this.alertDisabled ? (this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? +this.form.alertSilencePeriod * 60 : +this.form.alertSilencePeriod * 60 * 60).toString() : '0'
+    }
+
+    // 蜜蜂数量特殊处理
+    if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+      param.confidence = this.form.beeNumber
+    }
+  }
+
+  public generateEffectiveTime() {
+    if (this.form.effectPeriod === '全天') {
+      this.effectiveTime = [{ start_time: '00:00:00', end_time: '23:59:59' }]
+    } else {
+      this.effectiveTime = this.form.availableperiod.map(element => {
+        return {
+          start_time: element.period[0],
+          end_time: element.period[1]
+        }
+      })
+    }
+    this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
 }

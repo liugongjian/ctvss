@@ -17,30 +17,6 @@
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
-          <!-- <div
-            class="device-list__handle"
-            :style="`left: ${dirDrag.width}px`"
-            @mousedown="changeWidthStartAndResize($event)"
-          />
-          <div ref="dirList" class="left" :style="`width: ${dirDrag.width}px`">
-            <el-tree
-              ref="dirTree"
-              node-key="id"
-              lazy
-              :data="dirList"
-              :load="loadDirs"
-              :props="treeProp"
-              :check-strictly="false"
-              @node-click="selectDevice"
-            >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-                <span class="node-name" :class="data.deviceStatus === 'on' ? 'online': 'offline'">
-                  <svg-icon :name="data.type" />
-                  {{ node.label }}
-                </span>
-              </span>
-            </el-tree>
-          </div> -->
           <div class="app-container__result__device">
             <span>设备:</span>
             <el-select v-model="device" placeholder="请选择" value-key="deviceId">
@@ -63,13 +39,10 @@
 </template>
 <script lang="ts">
 import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
-import { getAIConfigGroupData } from '@/api/aiConfig'
-import { getDeviceTree } from '@/api/device'
-import { getGroups } from '@/api/group'
-import { listGroup } from '@/api/face'
+// import { getAIConfigGroupData } from '@/api/aiConfig'
+import AppMixin from '../mixin/app-mixin'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import { Component, Mixins } from 'vue-property-decorator'
-import AppMixin from '../mixin/app-mixin'
 import AppSubDetail from './component/AppSubDetail.vue'
 import AtachedDevice from './component/AtachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
@@ -82,12 +55,6 @@ import BasicAppInfo from './component/BasicAppInfo.vue'
   }
 })
 export default class extends Mixins(AppMixin, IndexMixin) {
-  // private treeProp = {
-  //   label: 'label',
-  //   children: 'children',
-  //   isLeaf: 'isLeaf'
-  // }
-  // private dirList: any = []
   private breadCrumbContent: String = '应用详情'
   private appInfo: any = {}
   private device: any = {
@@ -101,25 +68,12 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private async mounted() {
     this.tabNum = this.$route.query.tabNum
     this.appInfo = await getAppInfo({ id: this.$route.query.appid })
-    this.initDirs()
-    const { data } = await listGroup({
-      pageNum: 0,
-      pageSize: 3000
-    })
-    this.initFaceLib(data)
     const { deviceList } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageSize: 3000
     })
     this.deviceList = deviceList
     deviceList.length > 0 && (this.device = deviceList[0])
-  }
-
-  private initFaceLib(groups) {
-    const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-    if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(item => (item.id + '') === algorithmMetadata.FaceDbName)[0]
-    }
   }
 
   public changeWidthStartAndResize(ev) {
@@ -130,106 +84,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     window.dispatchEvent(e)
   }
 
-  /**
-     * 初始化设备列表
-     */
-  public async initDirs() {
-    try {
-      this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-          this.dirList.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            disabled: true,
-            path: [{
-              id: group.groupId,
-              label: group.groupName,
-              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-            }],
-            deviceStatus: group.deviceStatus
-          })
-        )
-      })
-    } catch (e) {
-      this.dirList = []
-    } finally {
-      this.loading.dir = false
-    }
-  }
-
-  /**
-     * 展开设备列表时Load子树
-     */
-  public async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
-  }
-
-  /**
-     * 获取设备列表时Load子树数据
-     */
-  private async getTree(node: any) {
-    try {
-      if (node.data.type === 'role') {
-        node.data.roleId = node.data.id
-      } else if (node.data.type === 'group') {
-        node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = node.data.inProtocol
-      }
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
-        'self-defined-headers': {
-          'role-id': node.data.roleId,
-          'real-group-id': node.data.realGroupId
-        }
-      })
-      if (node.data.type === 'role') {
-        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
-      }
-      let dirs: any = devices.dirs.map((dir: any) => {
-        let sharedFlag = false
-        return {
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: dir.inProtocol || node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          disabled: dir.type !== 'ipc' || sharedFlag,
-          path: node.data.path.concat([dir]),
-          sharedFlag: sharedFlag,
-          roleId: node.data.roleId || '',
-          realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || '',
-          deviceStatus: dir.deviceStatus || ''
-        }
-      })
-      return dirs
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
-     * 获取设备列表时Load子树数据
-     */
-  private selectDevice(data: any) {
-    data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setCurrentKey(data.id)
-  }
   private handleTabClick() {
     // resize 为了让图表触发刷新从而自适应尺寸
     const e = document.createEvent('Event')

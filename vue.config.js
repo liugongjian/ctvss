@@ -18,6 +18,7 @@ const portMapping = {
   dev1: 9191,
   test: 9080,
   test1: 9060,
+  test2: 9067,
   pre: 9070,
   prod: 443
 }

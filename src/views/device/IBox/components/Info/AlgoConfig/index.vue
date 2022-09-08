@@ -6,7 +6,7 @@
       :destroy-on-close="true"
       :modal-append-to-body="false"
       top="7vh"
-      @close="closeThis"
+      @close="cancel"
     >
       <div class="configureInfo">
         <div class="configureDetail">
@@ -16,16 +16,16 @@
         <div class="configureDetail">
           <span class="configureName">生效时段：</span>
           <span class="configureValue">
-            {{ configAlgoInfo.effectiveTime ? `${JSON.parse(configAlgoInfo.effectiveTime)[0].start_time} ~ ${JSON.parse(configAlgoInfo.effectiveTime)[0].end_time}` : '' }}
+            {{ configAlgoInfo.effectiveTime ? `${configAlgoInfo.effectiveTime[0].start_time} ~ ${configAlgoInfo.effectiveTime[0].end_time}` : '' }}
           </span>
         </div>
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <!--   -->
-            <el-button v-if="configAlgoInfo.algorithm.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
-            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
-            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
+            <!--  v-if="configAlgoInfo.algorithm.code === '10032'" -->
+            <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -46,7 +46,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sureThis">确 定</el-button>
-        <el-button @click="closeThis">取 消</el-button>
+        <el-button @click="cancel">取 消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -58,10 +58,7 @@ import math from './utils/math'
 import { getRectPropFromPoints,
   getVerticalLinePoints, drawArrow
 } from './utils/index'
-import { getAppDescribeLine, sendAppDescribeLine
-// getAlgoStreamFrame
-} from '@/api/ai-app'
-// import plate from './plate4.jpg'
+import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
 } from './contants'
@@ -79,12 +76,11 @@ interface ValueObject<> {
 })
 
 export default class extends Vue {
-  @Prop() private inProtocol?: string
   @Prop() private deviceId?: string
   @Prop() private canvasIf?: boolean
   @Prop() private configAlgoInfo?: any
-  @Prop() private deviceInfo?: any
   @Prop() private frameImage?: any
+  @Prop() private meta!: any
 
   private mode = ''
   private isDraw = false
@@ -98,22 +94,17 @@ export default class extends Vue {
   private direction = false
 
   private mounted() {
-    // this.$nextTick(() => {
-    //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
-    //   this.img2Base64(plate)
-    // })
     this.$nextTick(() => {
-      this.initCanvas()
+      // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
+      this.img2Base64(plate)
     })
+    // this.$nextTick(() => {
+    //   this.initCanvas()
+    // })
   }
 
   // 获取已编辑过的划线
   private getHasLine() {
-    const param = {
-      id: this.configAlgoInfo.id,
-      deviceId: this.deviceId
-    }
-
     // 一维数组变成二维数组 后续有时间优化此函数
     const oneToTwo = (arr: any) => {
       const len = arr.length
@@ -127,51 +118,47 @@ export default class extends Vue {
       return res
     }
 
-    getAppDescribeLine(param).then(res => {
-      if (res) {
-        const { algorithmMetadata } = res
-        const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
-        const { DangerZone } = algorithmMetadataParse
-        // const DangerZoneParse = JSON.parse(DangerZone)
-        if (DangerZone) {
-          const DangerZoneParse = oneToTwo(DangerZone)
-          if (DangerZoneParse.length) {
-            this.cannotDraw = true
-            const shape = () => {
-              if (this.configAlgoInfo.algorithm.code === '10032') {
+    if (this.meta) {
+      const { algorithmMetadata } = this.meta
+      const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
+      const { DangerZone } = algorithmMetadataParse
+      // const DangerZoneParse = JSON.parse(DangerZone)
+      if (DangerZone) {
+        const DangerZoneParse = oneToTwo(DangerZone)
+        if (DangerZoneParse.length) {
+          this.cannotDraw = true
+          const shape = () => {
+            if (this.configAlgoInfo.algorithm.code === '10032') {
+              return 'line'
+            } else {
+              if (DangerZoneParse.length === 2) {
                 return 'line'
-              } else {
-                if (DangerZoneParse.length === 2) {
-                  return 'line'
-                } else if (DangerZoneParse.length === 4) {
-                  return 'rect'
-                } else if (DangerZoneParse.length > 4) {
-                  return 'polygon'
-                }
+              } else if (DangerZoneParse.length === 4) {
+                return 'rect'
+              } else if (DangerZoneParse.length > 4) {
+                return 'polygon'
               }
             }
-            const perDangerZoneParse = DangerZoneParse.map((item: any) => {
-              const [x, y] = item
-              return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
-            })
-
-            this.areas = [
-              {
-                shape: shape(),
-                points: perDangerZoneParse,
-                ratio: 1,
-                imageHeight: this.imageHeight,
-                imageWidth: this.imageWidth,
-                name: `area-${this.areas.length}`
-              }
-            ]
-            this.renderBeforeAreas()
           }
+          const perDangerZoneParse = DangerZoneParse.map((item: any) => {
+            const [x, y] = item
+            return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
+          })
+
+          this.areas = [
+            {
+              shape: shape(),
+              points: perDangerZoneParse,
+              ratio: 1,
+              imageHeight: this.imageHeight,
+              imageWidth: this.imageWidth,
+              name: `area-${this.areas.length}`
+            }
+          ]
+          this.renderBeforeAreas()
         }
       }
-    }).catch(e => {
-      this.$message.error(e && e.message)
-    })
+    }
   }
 
   private initCanvas() {
@@ -179,9 +166,9 @@ export default class extends Vue {
     this.imgSrc = this.frameImage
     const that = this
     const img = new Image()
-    img.src = `data:image/png;base64,${this.imgSrc}`
+    // img.src = `data:image/png;base64,${this.imgSrc}`
     // let img = new Image()
-    // img.src = that.dataURL
+    img.src = that.dataURL
 
     const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
     const backgroundCtx = backgroundLayer.getContext('2d')!
@@ -255,6 +242,11 @@ export default class extends Vue {
     this.$parent.closeCanvasDialog()
   }
 
+  private cancel() {
+    this.closeThis()
+    this.$parent.setNodeOppositeChecked(this.deviceId)
+  }
+
   private sureThis() {
     let pointsInfo = []
     if (this.areas && this.areas[0] && Object.keys(this.areas[0]).length > 0) {
@@ -300,14 +292,18 @@ export default class extends Vue {
       deviceId: this.deviceId,
       appId: this.configAlgoInfo.id
     }
-    sendAppDescribeLine(param).then((res) => {
-      if (res) {
-        this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
-        this.$parent.closeCanvasDialog()
-      }
-    }).catch(e => {
-      this.$message.error(e && e.message)
-    })
+
+    console.log('param:', param)
+    this.$emit('add-meta', param)
+    this.closeThis()
+    // sendAppDescribeLine(param).then((res) => {
+    //   if (res) {
+    //     this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
+    //     this.$parent.closeCanvasDialog()
+    //   }
+    // }).catch(e => {
+    //   this.$message.error(e && e.message)
+    // })
   }
 
   private clear() {
@@ -625,6 +621,7 @@ export default class extends Vue {
 </script>
 
 <style  lang="scss" scoped>
+/* stylelint-disable selector-class-pattern */
 .canvasBox {
   ::v-deep.el-dialog {
     .el-dialog__header {

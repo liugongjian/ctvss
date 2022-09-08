@@ -1,43 +1,62 @@
 <template>
   <div class="app-container">
-    <el-page-header :content="`${header}AI应用`" @back="back" />
-    <div v-if="!$route.query.id" class="process">
+    <div class="process">
       <el-steps :active="step" simple>
         <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
         <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
+        <el-step title="选择分析设备"><span slot="icon">3</span></el-step>
       </el-steps>
     </div>
-    <div v-if="!step && !$route.query.id">
-      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" />
+    <div v-if="!step">
+      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList" />
     </div>
-    <div v-if="step || $route.query.id">
-      <AlgoDetail :step.sync="step" :prod="prod" />
+    <div v-if="step === 1">
+      <AlgoDetail
+        :step.sync="step"
+        :prod.sync="prod"
+        :is-select-device="true"
+        :algo-param.sync="algoParam"
+        :algo-param-submit.sync="algoParamSubmit"
+        @back="backToList"
+      />
+    </div>
+    <div v-if="step === 2">
+      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList" @submit="onSubmit" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import AlgoOption from './component/AlgoOption.vue'
-import AlgoDetail from './component/AlgoDetail.vue'
-import AppMixin from '../mixin/app-mixin' // 考虑优化的mixin
+import AlgoOption from '@/views/AI/applist/component/AlgoOption.vue'
+import AlgoDetail from '@/views/AI/applist/component/AlgoDetail.vue'
+import AlgoDevice from './AlgoDevice.vue'
+import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 
 @Component({
-  name: 'AddApp',
+  name: 'AiAppAdd',
   components: {
     AlgoOption,
-    AlgoDetail
+    AlgoDetail,
+    AlgoDevice
   }
 })
 export default class extends Mixins(AppMixin) {
   private step: number = 0
   public prod: any = {}// 新建时传入组件的参数
   private isLoading: boolean = false
+  private algoParam: any = null
+  private algoParamSubmit: any = null
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }
-  private back() {
-    this.backToAppList()
+
+  private onSubmit(treeData) {
+    // algoParamSubmit、prod
+  }
+
+  private backToList() {
+    this.$emit('back')
   }
 }
 </script>
@@ -72,7 +91,7 @@ export default class extends Mixins(AppMixin) {
   border-top: 1px solid $borderGrey2;
 
   .el-steps--simple {
-    width: 400px;
+    width: 575px;
     background: none;
     padding: 0;
 

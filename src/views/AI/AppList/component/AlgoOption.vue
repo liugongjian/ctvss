@@ -3,7 +3,7 @@
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleTabType">
       <el-tab-pane v-for="tab in abilityList" :key="tab.id" :label="tab.name" :name="tab.id">
         <div v-loading="loading.algoList" class="algo__container">
-          <ProdCard v-for="prod in algoList" :key="prod.id" :prod="prod" @changeStep="changeStep" />
+          <ProdCard v-for="prod in algoList" :key="prod.id" :prod="prod" :step="step" :direction="direction" @changeStep="changeStep" />
         </div>
         <div class="algo__return">
           <el-button size="large" @click="cancel">取消</el-button>
@@ -36,6 +36,7 @@ import AppMixin from '../../mixin/app-mixin'
 })
 export default class extends Mixins(AppMixin) {
   @Prop({ default: 0 }) private step!: number
+  @Prop() private direction!: string
 
   private loading = {
     algoList: false,
@@ -47,7 +48,7 @@ export default class extends Mixins(AppMixin) {
   private algoList: any = []
 
   private async mounted() {
-    this.activeName = this.$route.query.abilityId + ''
+    this.activeName = (this.$route.query.abilityId || 0) + ''
     await this.getAbilityList()
     await this.getAlgorithmList()
   }
@@ -74,11 +75,24 @@ export default class extends Mixins(AppMixin) {
     try {
       this.loading.algoList = true
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.algoList = aiAbilityAlgorithms
+      this.algoList = aiAbilityAlgorithms.filter(algo => this.isHasIcon(algo))
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
       this.loading.algoList = false
+    }
+  }
+
+  /**
+   * 未配置图片的算法过滤掉，以免告警
+  */
+  private isHasIcon(algo) {
+    try {
+      require(`../../assets/icon/${algo.code}.svg`)
+      return true
+    } catch (e) {
+      console.log(`算法图片不存在：${algo.code}.svg`)
+      return false
     }
   }
 
@@ -103,13 +117,6 @@ export default class extends Mixins(AppMixin) {
    */
   private async handleSearch() {
     this.getAlgorithmList()
-  }
-
-  /**
-   * 返回应用列表
-   */
-  private cancel() {
-    this.backToAppList()
   }
 }
 </script>
