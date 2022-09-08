@@ -26,7 +26,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import AlgoOption from '@/views/AI/applist/component/AlgoOption.vue'
+import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
 
 @Component({
   name: 'AiManage',

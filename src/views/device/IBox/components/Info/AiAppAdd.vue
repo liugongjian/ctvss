@@ -28,8 +28,8 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import AlgoOption from '@/views/AI/applist/component/AlgoOption.vue'
-import AlgoDetail from '@/views/AI/applist/component/AlgoDetail.vue'
+import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
+import AlgoDetail from '@/views/AI/AppList/component/AlgoDetail.vue'
 import AlgoDevice from './AlgoDevice.vue'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 

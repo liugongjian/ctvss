@@ -31,9 +31,9 @@
 </template>
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import BasicAppInfo from '@/views/AI/applist/component/BasicAppInfo.vue'
-import AppSubDetail from '@/views/AI/applist/component/AppSubDetail.vue'
-import AtachedDevice from '@/views/AI/applist/component/AtachedDevice.vue'
+import BasicAppInfo from '@/views/AI/AppList/component/BasicAppInfo.vue'
+import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
+import AtachedDevice from '@/views/AI/AppList/component/AtachedDevice.vue'
 import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
 // import { getDeviceTree } from '@/api/device'
 // import { getGroups } from '@/api/group'
