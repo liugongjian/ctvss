@@ -141,18 +141,83 @@ export default class extends Vue {
     mainColor: '#F19E4B',
     subColor: '#F7CC8B',
   }
-
-  // private get dashboardInfo() {
-  //   return UserModule && UserModule.userInfo
-  // }
   
   private async mounted() {
     try {
       this.loading = true
       console.log('。。  query  。。    ', this.$route.query)
       let deviceId = this.$route.query.deviceId || '29941916753723399'
-      let res = await getIBoxDetail(deviceId)
-      res = res.data
+      // let res = await getIBoxDetail(deviceId)
+      let res = {
+    "Code": 0,
+    "Message": "",
+    "RequestId": "32b60f92bcc84a6fb9fe146f57d6a7b3",
+    "Data": {
+        "Basic": {
+            "DeviceId": "29941916753723399",
+            "DeviceName": "盒子",
+            "DeviceStatus": "on",
+            "Ip": "192.168.233.133",
+            "Sn": "1424321006681",
+            "Description": "盒子描述"
+        },
+        "Hardware": {
+            "Ram": {
+                "Total": 3.798664,
+                "Usage": 0.45184326,
+                "Unit": "G",
+                "UsageRate": 0
+            },
+            "Storage": {
+                "Total": 37.227966,
+                "Usage": 17.027058,
+                "Unit": "G",
+                "UsageRate": 0
+            },
+            "Cpu": {
+                "Total": 0,
+                "Usage": 0,
+                "Unit": "",
+                "UsageRate": 0.176471
+            },
+            "Gpu": {
+                "Total": 0,
+                "Usage": 0,
+                "Unit": "",
+                "UsageRate": 0
+            }
+        },
+        "App": {
+            "Stream": {
+                "Total": 1,
+                "Usage": 0,
+                "Unit": "",
+                "UsageRate": 0
+            },
+            "AiAlgo": {
+                "Total": 1,
+                "Usage": 0,
+                "Unit": "",
+                "UsageRate": 0
+            },
+            "AiApp": {
+                "Total": 1,
+                "Usage": 0,
+                "Unit": "",
+                "UsageRate": 0
+            }
+        },
+        "Sip": {
+            "SipId": "31011500012008469596",
+            "SipIp": "192.168.233.134",
+            "SipTcpPort": 15060,
+            "SipUdpPort": 15060,
+            "SipRegion": "3101150001"
+        },
+        "RequestId": "075a99f936894228bcf7320ab4a06f26"
+    }
+}
+      res = this.jsonKeysCaseTrans(res.Data)
       this.transStatus(res.basic.deviceStatus)
       this.dataInfo(res)
     } catch (e) {
@@ -160,82 +225,6 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
-    // const res = this.dashboardInfo
-    console.log('获取概览页面数据')
-    // this.transStatus(res.data.basic.deviceStatus)
-    // mock
-    const res = {
-      "basic": {
-        "deviceStatus": 'on',
-        "deviceName": '天翼云边缘盒子',
-        "deviceId": '8992ASDAAAAAA',
-        "ip": '192.9.2.3',
-        "sn": 'XXXXXXXXXXX',
-        "description": 'XXXXXXXXXXX',
-      },
-      "sip": {
-        "sipId": '31011500012008469596',
-        "sipRegion": '3101150001',
-        "sipIp": '113.250.16.3',
-        "sipTcpPort": '15060',
-        "sipUdpPort": '15060',
-      },
-      "hardware": {
-        "ram": {
-          "total": 8000,
-          "usage": 4000,
-          "unit": "M",
-        },
-        "storage":{
-          "total": 8000,
-          "usage": 4000,
-          "unit": "M",
-        },
-        "cpu":{
-          "usageRate": 0.25,
-        },
-        "gpu": {
-            "usageRate": 0.35,
-        }
-      },
-      "app": {
-        "stream": {
-          "total": 16,
-          "usage": 2,
-        },
-        "aiAlgo": {
-          "total": 8,
-          "usage": 0,
-        },
-        "aiApp": {
-          "total": 3,
-          "usage": 1,
-        },
-        "aiAlarm": {
-          "total": 8000,
-          "usage": 4000,
-        }
-      },
-      "version": {
-        "model": "iBox-02",
-        "sn": "123456",
-        "version": "V1.0.0"
-      },
-      "register": {
-        "deviceStatus": "on",
-        "platformType": "public",
-        "url": "http://vcn.ctyun.cn",
-        "account": "vss-demo@xx.cn"
-      }
-    }
-    // this.transStatus(res.basic.deviceStatus)
-    // this.dataInfo(res)
-    // this.deviceName = res.basic.deviceName
-    // this.description = res.basic.description
-    // this.basic = res.basic
-    // this.sip = res.sip
-    // this.hardware = res.hardware
-    // this.app = res.app
   }
 
   private dataInfo(res: any){
@@ -351,6 +340,48 @@ export default class extends Vue {
     const refs: any = this.$refs['des']
     refs.blur()
     this.isEditDes = false
+  }
+
+  // 临时用于变量大小写转换
+  private jsonKeysCaseTrans(json: any, type?: number) {
+    if (typeof json === 'object') {
+      let tmpJson = JSON.parse(JSON.stringify(json))
+      caseTrans(tmpJson)
+      return tmpJson
+    } else {
+      return json
+    }
+     function caseTrans(json: any) {
+      if (typeof json === 'object') {
+        if (Array.isArray(json)) {
+          json.forEach((item: any) => {
+            caseTrans(item)
+          })
+        } else {
+          for (let key in json) {
+            let item = json[key]
+            if (typeof item === 'object') {
+              caseTrans(item)
+            }
+            delete(json[key])
+            switch (type) {
+              case 1:
+                // 首字母大写
+                json[key.substring(0,1).toUpperCase() + key.substring(1)] = item
+                break
+              case 2:
+                // 全小写
+                json[key.toLowerCase()] = item
+                break
+              default:
+                // 默认首字母小写
+                json[key.substring(0,1).toLowerCase() + key.substring(1)] = item
+                break
+            }
+          }
+        }
+      }
+     }
   }
 
 }
