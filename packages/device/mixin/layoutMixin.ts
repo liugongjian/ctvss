@@ -87,7 +87,7 @@ export default class DetailMixin extends Vue {
   }
 
   public mounted() {
-    DeviceManager.initAdvancedSearch.call(this)
+    DeviceManager.initAdvancedSearch(this)
   }
 
   /**
