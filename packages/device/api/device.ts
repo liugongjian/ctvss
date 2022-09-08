@@ -27,9 +27,9 @@ export const getNodeInfo = (params: any): Promise<any> => {
       },
       {
         id: '02',
-        type: 'platform',
-        label: 'root3',
-        children: []
+        type: 'ipc',
+        label: 'device',
+        isLeaf: true
       }
     ]
   } else if (params === 'node') {
