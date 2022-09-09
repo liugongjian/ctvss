@@ -457,8 +457,7 @@ import { formRule, formTips } from '../util/form-helper'
 
 @Component({
   name: 'AlgoDetail',
-  components: {
-  }
+  components: {}
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private step!: number
@@ -487,11 +486,16 @@ export default class extends Mixins(AppMixin) {
   }
 
   private ifShow(...codes) {
-    let res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
+    let res = codes.filter(
+      (code) =>
+        this.prod?.code === code ||
+        (this.form.algorithm && this.form.algorithm.code === code)
+    )
     return res.length > 0
   }
   private async mounted() {
-    if (this.$route.query.id) { // 编辑
+    if (this.$route.query.id) {
+      // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
       this.$set(this.form, 'algoName', this.form.algorithm.name)
@@ -509,23 +513,40 @@ export default class extends Mixins(AppMixin) {
       // 处理告警静默参数
       this.editTransformInterval()
       // 处理置信度
-      this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
+      this.form = {
+        ...this.form,
+        confidence: parseInt(this.form.confidence * 100 + '')
+      }
       // 蜜蜂阈值特别处理
-      if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+      if (
+        this.form.algorithm?.code === '10010' ||
+        this.prod?.code === '10010'
+      ) {
         this.form.beeNumber = this.form.confidence / 100
         this.form = { ...this.form, confidence: 60 }
       }
-      if (this.form.alertPeriod > 0 || this.form.alertSilencePeriod > 0 || this.form.alertTriggerThreshold > 0) {
+      if (
+        this.form.alertPeriod > 0 ||
+        this.form.alertSilencePeriod > 0 ||
+        this.form.alertTriggerThreshold > 0
+      ) {
         this.alertDisabled = true
       }
       // eslint-disable-next-line eqeqeq
-      if (this.form.alertPeriod == 0 && this.form.alertSilencePeriod == 0 && this.form.alertTriggerThreshold == 0) {
+      if (
+        this.form.alertPeriod == 0 &&
+        this.form.alertSilencePeriod == 0 &&
+        this.form.alertTriggerThreshold == 0
+      ) {
         this.form.alertPeriod = '0'
         this.form.alertSilencePeriod = '3'
         this.form.alertTriggerThreshold = '1'
       }
-    } else { // 新建
-      const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
+    } else {
+      // 新建
+      const algorithmMetadata = this.ifShow('10021')
+        ? { pvTime: '10' }
+        : this.form.algorithmMetadata
       this.form = {
         algoName: this.prod.name,
         algorithmMetadata,
@@ -579,9 +600,15 @@ export default class extends Mixins(AppMixin) {
    */
   private editTransformEffectiveTime() {
     const effectiveTime = JSON.parse(this.form.effectiveTime)
-    const period = effectiveTime.map(item => ({ period: [item.start_time, item.end_time] }))
+    const period = effectiveTime.map((item) => ({
+      period: [item.start_time, item.end_time]
+    }))
     this.$set(this.form, 'availableperiod', period)
-    if (effectiveTime.length === 1 && effectiveTime[0].start_time === '00:00:00' && effectiveTime[0].end_time === '23:59:59') {
+    if (
+      effectiveTime.length === 1 &&
+      effectiveTime[0].start_time === '00:00:00' &&
+      effectiveTime[0].end_time === '23:59:59'
+    ) {
       this.$set(this.form, 'effectPeriod', '全天')
     } else {
       this.$set(this.form, 'effectPeriod', '时间段')
@@ -594,11 +621,18 @@ export default class extends Mixins(AppMixin) {
   private editTransformFaceData() {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
-      : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
+      : (this.form = {
+        ...this.form,
+        algorithmMetadata: { FaceDbName: '', pedThreshold: '' }
+      })
   }
 
   private editTransformHelmetReflectiveType() {
-    !this.form.algorithmMetadata.helmetReflectiveType && this.$set(this.form.algorithmMetadata, 'helmetReflectiveType', ['helmet', 'reflective'])
+    !this.form.algorithmMetadata.helmetReflectiveType &&
+      this.$set(this.form.algorithmMetadata, 'helmetReflectiveType', [
+        'helmet',
+        'reflective'
+      ])
   }
 
   private getHourInterval = (min, max) => {
@@ -651,6 +685,7 @@ export default class extends Mixins(AppMixin) {
     let param: any = this.generateAlgoParam()
     try {
       if (this.$route.query.id) {
+        console.log('param:', param)
         // 如果有关联的设备则不能传analyseType参数
         if (parseInt(param.associateDevices) > 0) {
           delete param.analyseType

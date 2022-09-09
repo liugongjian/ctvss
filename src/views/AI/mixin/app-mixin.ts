@@ -160,6 +160,7 @@ export default class AppMixin extends Vue {
     if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
       param.confidence = this.form.beeNumber
     }
+    return param
   }
 
   public generateEffectiveTime() {
