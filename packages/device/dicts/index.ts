@@ -69,6 +69,15 @@ export const DeviceStatus = {
 }
 
 /*
+  视频状态
+*/
+export const VideoStatus = {
+  'on': '在线',
+  'off': '离线',
+  'new': '未注册'
+}
+
+/*
   流状态
 */
 export const StreamStatus = {
@@ -93,6 +102,17 @@ export const RecordStatus = {
 export const ViidStatus = {
   'on': '在线',
   'off': '离线'
+}
+
+/**
+ * 过滤标签名
+ */
+export const DeviceFiltersLabel = {
+  [enums.DeviceEnum.DeviceType]: '设备类型',
+  [enums.DeviceEnum.VideoStatus]: '视频接入',
+  [enums.DeviceEnum.StreamStatus]: '视频流',
+  [enums.DeviceEnum.RecordStatus]: '视频录制',
+  [enums.DeviceEnum.ViidStatus]: '视图接入'
 }
 
 /*
@@ -408,13 +428,6 @@ export const RecordStatusFilterType = {
 export const StreamType = {
   1: '全量视频',
   2: '移动侦测'
-}
-
-export const DeviceParams = {
-  'deviceType': '类型',
-  'deviceStatus': '设备状态',
-  'streamStatus': '流状态',
-  'recordStatus': '录制状态'
 }
 
 export const AlertLevel = {

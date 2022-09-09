@@ -274,7 +274,6 @@ export const describeDevices = (params: any): Promise<any> => {
   }
   // TODO: 后端转换
   res = toLowerCase(res)
-  console.log(res)
   res.devices = res.devices.map(item => {
     const data = {
       [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
@@ -289,7 +288,6 @@ export const describeDevices = (params: any): Promise<any> => {
       [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
       [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
     }
-    console.log(item.videos)
     const inVideoProtocol = item.videos && item.videos[0][DeviceEnum.InVideoProtocol]
     const inViidProtocol = item.viids && item.viids[0][DeviceEnum.InViidProtocol]
 

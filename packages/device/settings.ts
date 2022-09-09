@@ -218,10 +218,8 @@ export const DeviceListToolsAllowParams = {
   [DirectoryTypeEnum.Dir]: new Set([
     // Tools相关
     ToolsEnum.AddDevice,
-    ToolsEnum.ViewDevice,
-    ToolsEnum.EditDevice,
     ToolsEnum.DeleteDevice,
-    ToolsEnum.SyncDevice,
+    ToolsEnum.SyncDeviceStatus,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
@@ -240,12 +238,11 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.ReplayVideo
   ]),
   [DirectoryTypeEnum.Ipc]: new Set([
-    // Tools相关
     ToolsEnum.AddDevice,
     ToolsEnum.ViewDevice,
     ToolsEnum.EditDevice,
     ToolsEnum.DeleteDevice,
-    ToolsEnum.SyncDevice,
+    ToolsEnum.SyncDeviceStatus,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
@@ -268,15 +265,13 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.ViewDevice,
     ToolsEnum.EditDevice,
     ToolsEnum.DeleteDevice,
-    ToolsEnum.SyncDevice,
+    ToolsEnum.SyncDeviceStatus,
     ToolsEnum.ViewChannels,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
     ToolsEnum.ExportSelected,
     ToolsEnum.OperateDevices,
-    ToolsEnum.StartDevice,
-    ToolsEnum.StopDevice,
     ToolsEnum.MoveDevice,
     ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents
@@ -287,6 +282,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.EditDevice,
     ToolsEnum.DeleteDevice,
     ToolsEnum.SyncDevice,
+    ToolsEnum.SyncDeviceStatus,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
@@ -296,16 +292,36 @@ export const DeviceListToolsAllowParams = {
 }
 
 export const DeviceTableColumnAllowParams = {
-  [DeviceTypeEnum.Ipc]: new Set([
-    ToolsEnum.StreamStatus,
-    ToolsEnum.SetStreamNum
+  [DirectoryTypeEnum.Dir]: new Set([
+    DeviceEnum.DeviceInType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.DeviceType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.ViidStatus,
+    DeviceEnum.DeviceChannelSize,
+    DeviceEnum.DeviceVendor
   ]),
-  [DeviceTypeEnum.Nvr]: new Set([
-    ToolsEnum.SortDirectory,
-    ToolsEnum.ShowMore
+  [DirectoryTypeEnum.Nvr]: new Set([
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.InProtocol,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.DeviceVendor
   ]),
-  [DeviceTypeEnum.Platform]: new Set([
-    ToolsEnum.SortDirectory,
-    ToolsEnum.ShowMore
+  [DirectoryTypeEnum.Platform]: new Set([
+    DeviceEnum.DeviceInType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.DeviceType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.ViidStatus,
+    DeviceEnum.DeviceChannelSize,
+    DeviceEnum.DeviceVendor
   ])
 }

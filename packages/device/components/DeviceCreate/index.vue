@@ -50,7 +50,7 @@
                   {{ value }}
                 </el-radio>
               </el-radio-group>
-              <el-checkbox-group v-if="checkVisible(deviceEnum.DeviceInType)" v-model="deviceForm.deviceInType">
+              <el-checkbox-group v-if="checkVisible(deviceEnum.DeviceInType)" v-model="deviceForm.deviceInType" :min="1">
                 <el-checkbox
                   v-for="(value, key) in deviceInType[deviceForm.deviceType]"
                   :key="key"

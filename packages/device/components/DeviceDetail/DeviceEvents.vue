@@ -53,7 +53,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getDeviceEvents } from '@/api/device'
 import { errorLevel, eventsType } from '@/dics/index'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceEvents'

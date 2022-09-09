@@ -13,7 +13,7 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '../../services/Screen/ScreenManager'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceReplay',

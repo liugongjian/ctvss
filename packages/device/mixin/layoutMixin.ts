@@ -48,7 +48,6 @@ export default class DetailMixin extends Vue {
   }
   // 功能回调字典
   public handleToolsMap = {
-    // 设备树相关
     [ToolsEnum.Refresh]: DeviceManager.advanceSearch,
     [ToolsEnum.ExportSearchResult]: DeviceManager.exportSearchResult,
     [ToolsEnum.AddDirectory]: function() {
@@ -72,9 +71,7 @@ export default class DetailMixin extends Vue {
     [ToolsEnum.StopPolling]: DeviceManager.stopPolling,
     [ToolsEnum.PausePolling]: DeviceManager.pausePolling,
     [ToolsEnum.ResumePolling]: DeviceManager.resumePolling,
-    [ToolsEnum.AdvanceSearch]: DeviceManager.advanceSearch,
-    // 设备列表相关
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice
+    [ToolsEnum.AdvanceSearch]: DeviceManager.advanceSearch
   }
   /* 设备目录树 */
   public get deviceTree() {

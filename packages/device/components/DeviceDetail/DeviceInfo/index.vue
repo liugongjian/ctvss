@@ -36,7 +36,7 @@ import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
 import { DeviceInTypeEnum } from '@vss/device/enums'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceInfo',

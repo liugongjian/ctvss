@@ -14,7 +14,7 @@ import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DevicePreview',

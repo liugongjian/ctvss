@@ -26,7 +26,7 @@ import { Component, Vue, Prop, Mixins } from 'vue-property-decorator'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
 import { getAppList } from '@/api/ai-app'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DetailAi',

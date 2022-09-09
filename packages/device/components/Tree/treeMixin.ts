@@ -45,6 +45,7 @@ export default class DetailMixin extends Vue {
   }
 
   public mounted() {
+    console.log(this)
   }
 
   public initCommonTree() {
@@ -66,6 +67,13 @@ export default class DetailMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
+    this.$router.push({
+      name: 'DeviceList',
+      query: {
+        type: data && data.type,
+        dirId: data && data.id
+      }
+    })
     this.$emit('handle-node', data)
   }
 
