@@ -275,7 +275,7 @@ const openScreen = function(state: { screenManager: ScreenManager }, data: any, 
  * @param isRoot 是否为根节点
  * @param policy 执行策略
  */
-const executeQueue = async function(state: { screenManager: ScreenManager, dirList: any, queueExecutor: any, deviceTree: any, currentNode: any, polling: any, maxSize: number, advancedSearchForm: AdvancedSearch, setDirsStreamStatus: Function }, node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
+const executeQueue = async function(state: { screenManager: ScreenManager, queueExecutor: any, deviceTree: any, currentNode: any, polling: any, maxSize: number, advancedSearchForm: AdvancedSearch, setDirsStreamStatus: Function }, node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
   let devicesQueue: Device[] = []
   const deviceTree: any = state.deviceTree
   if (node) {
@@ -286,13 +286,13 @@ const executeQueue = async function(state: { screenManager: ScreenManager, dirLi
     // VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
   }
   policy === 'polling' && (state.polling.isLoading = true)
-  if (isRoot) {
-    for (let i = 0, length = state.dirList.length; i < length; i++) {
-      await deepDispatchTree(state, deviceTree, deviceTree.getNode(state.dirList[i].id), devicesQueue, policy)
-    }
-  } else {
-    await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
-  }
+  // if (isRoot) {
+  //   for (let i = 0, length = state.dirList.length; i < length; i++) {
+  //     await deepDispatchTree(state, deviceTree, deviceTree.getNode(state.dirList[i].id), devicesQueue, policy)
+  //   }
+  // } else {
+  await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
+  // }
   policy === 'polling' && (state.polling.isLoading = false)
   if (state.queueExecutor) {
     state.screenManager.devicesQueue = devicesQueue

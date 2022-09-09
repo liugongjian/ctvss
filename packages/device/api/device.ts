@@ -29,6 +29,15 @@ export const getNodeInfo = (params: any): Promise<any> => {
         id: '02',
         type: 'ipc',
         label: 'device',
+        multiStreamSize: 3,
+        autoStreamNum: 1,
+        streamStatus: 'on',
+        deviceStreams: [
+          {
+            streamNum: 1,
+            streamStatus: 'on'
+          }
+        ],
         isLeaf: true
       }
     ]

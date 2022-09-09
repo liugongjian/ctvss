@@ -57,7 +57,7 @@ export default class DetailMixin extends Vue {
     [ToolsEnum.DeleteDirectory]: (data) => DeviceManager.deleteDir(this, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
     [ToolsEnum.Polling]: (node) => DeviceManager.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: (node) => DeviceManager.executeQueue.call(this, node, !node, 'autoPlay'),
+    [ToolsEnum.AutoPlay]: (node) => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
     [ToolsEnum.IntervalChange]: (interval) => DeviceManager.intervalChange(this, interval),
     [ToolsEnum.StopPolling]: () => DeviceManager.stopPolling(this),
     [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),

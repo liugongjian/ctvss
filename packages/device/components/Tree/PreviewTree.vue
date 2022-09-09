@@ -14,7 +14,7 @@
   >
     <template slot="itemLabelPrefix" slot-scope="{data}">
       <svg-icon :name="data.type" />
-      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" status="on" />
+      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data.streamStatus" />
     </template>
     <template slot="itemLabel" slot-scope="{node}">
       {{ node.label }}
