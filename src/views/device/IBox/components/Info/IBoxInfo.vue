@@ -1,4 +1,5 @@
 <template>
+<div class="ibox-bar">
   <div class="ibox-info">
     <el-card v-loading="loading" class="base-info">
       <div class="title">
@@ -62,6 +63,7 @@
       </div>
     </el-card>
   </div>
+</div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -363,9 +365,37 @@ export default class extends Vue {
   height: 20px;
   line-height: 32px;
 }
+
+.ibox-bar {
+  overflow-y: auto;
+}
+
+.ibox-bar::-webkit-scrollbar {
+  /* 滚动条整体样式 */
+  width: 5px;  /* 高宽分别对应横竖滚动条的尺寸 */
+  height: 10px;
+}
+
+.ibox-bar::-webkit-scrollbar-thumb {
+  /* 滚动条里面小方块 */
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+  background: #ddd;
+}
+
+.ibox-bar::-webkit-scrollbar-track {
+  /* 滚动条里面轨道 */
+  // box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+  border-radius: 20px;
+  background: transparent;
+}
 </style>
 <style lang="scss">
-.base-info,
+.ibox-bar {
+  height: 700px;
+}
+
+// .base-info,
 .hard-info,
 .app-info {
   margin-bottom: 10px;
