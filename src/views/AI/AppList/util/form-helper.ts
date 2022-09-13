@@ -70,6 +70,8 @@ export const getRule = (msg) => {
         value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
       },
       trigger: 'blur' })
+  } else if (msg === '细分检测项') {
+    rule.push({ required: true, trigger: 'blur', message: '请选择' + msg })
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule
@@ -93,6 +95,7 @@ export const formRule = {
   'algorithmMetadata.lingerInterval': getRule('徘徊时间'),
   'algorithmMetadata.areaThreshold': getRule('视野遮挡阈值'),
   'algorithmMetadata.trashRecycleType': getRule('细分检测项'),
+  'algorithmMetadata.cityGovType': getRule('细分检测项'),
   'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
   'algorithmMetadata.animalDetectType': getRule('动物列表'),
   beeNumber: getRule('蜜蜂数量'),

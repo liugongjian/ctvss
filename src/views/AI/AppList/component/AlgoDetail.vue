@@ -153,7 +153,7 @@
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id+''" />
         </el-select>
-        <!-- <i class="el-icon-refresh" @click="refreshFaceLib" /> -->
+        <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
@@ -184,6 +184,12 @@
         <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
           <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
+      </el-form-item>
+      <!-- 城市治理监测 -->
+      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+        <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
+          <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
+        </el-select>
       </el-form-item>
       <!-- 安全帽反光服 -->
       <el-form-item v-if="ifShow('10004')" label="检测项" prop="algorithmMetadata.helmetReflectiveType">
@@ -313,7 +319,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType, AnimalType, CityGovType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -329,6 +335,7 @@ export default class extends Mixins(AppMixin) {
   private form: any = {
     algorithmMetadata: {
       trashRecycleType: [],
+      cityGovType: [],
       helmetReflectiveType: [],
       animalDetectType: ['Bear']
     },
@@ -341,6 +348,7 @@ export default class extends Mixins(AppMixin) {
   private tips: any = formTips
   private TrashType = TrashType
   private AnimalType = AnimalType
+  private CityGovType = CityGovType
   private HelmetClothType: any = HelmetClothType
   private alertDisabled = false
   private interval = {
@@ -684,6 +692,12 @@ export default class extends Mixins(AppMixin) {
 
   .interval-unit {
     width: 65px;
+  }
+  .city-gov-type{
+    width: 500px;
+    ::v-deep .el-tag{
+      margin-right: 8px;
+    }
   }
 }
 </style>
