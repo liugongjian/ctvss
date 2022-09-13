@@ -23,3 +23,11 @@ export const updateIBox = (data: any) =>
     method: 'put',
     data
   })
+
+// 设备列表查询
+export const getDeviceList = (params: any): Promise<any> =>
+  request({
+    url: '/ibox/device',
+    method: 'get',
+    params
+  })

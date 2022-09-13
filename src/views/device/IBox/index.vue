@@ -52,7 +52,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-import { getIBoxList } from '@/api/ibox'
+import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
@@ -91,6 +91,8 @@ export default class IBox extends Vue {
 
   public defaultExpandedKeys = []
 
+  public treeIboxId = ''
+
   async mounted() {
     this.calcHeight()
     window.addEventListener('resize', this.calcHeight)
@@ -119,13 +121,14 @@ export default class IBox extends Vue {
     this.isExpanded = !this.isExpanded
   }
 
-  public handleNodeClick(item: any, node: any) {
+  public async handleNodeClick(item: any, node: any) {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
 
     node.expanded = true
     console.log('node', node, item)
 
     const { deviceId } = item
+    this.treeIboxId = deviceId
     switch (node.level) {
       case 1:
         this.setListInfo('device', this.iboxDevice, deviceId)
@@ -161,46 +164,6 @@ export default class IBox extends Vue {
 
     const data = await getIBoxList(param)
 
-    console.log('data0--->', data)
-
-    // const data = {
-    //   'dirStats': {
-    //     'deviceSize': 2,
-    //     'onlineSize': 1
-    //   },
-    //   'dirs': [
-    //     {
-    //       'id': '123456',
-    //       'name': '天翼云盒子1',
-    //       'deviceSize': 3,
-    //       'onlineSize': 1
-    //     }
-    //     // {
-    //     //   'id': '123458',
-    //     //   'name': '天翼云盒子2',
-    //     //   'deviceSize': 0,
-    //     //   'onlineSize': 0
-    //     // }
-    //   ],
-    //   'iboxes': [
-    //     {
-    //       'deviceId': '80001',
-    //       'deviceName': '天翼云盒子1',
-    //       'deviceStatus': 'on',
-    //       'ip': '192.168.1.100',
-    //       'registerTime': 1659660550057,
-    //       'channelSize': 3
-    //     },
-    //     {
-    //       'deviceId': '80002',
-    //       'deviceName': '天翼云盒子2',
-    //       'deviceStatus': 'off',
-    //       'ip': '192.168.1.100',
-    //       'registerTime': 1659660560057,
-    //       'channelSize': 0
-    //     }
-    //   ]
-    // }
     const { dirs, iboxes } = data
 
     this.dirList = dirs.map((item: any) => {
@@ -227,7 +190,13 @@ export default class IBox extends Vue {
   public async loadDirs(node: any, resolve: any) {
     const { query } = (this.$route) as any
     const { deviceId } = query
-    await this.loadIboxDevice()
+    console.log('node--->', node)
+    // if (deviceId) {
+    //   await this.loadIboxDevice()
+    // }
+    // if (this.treeIboxId) {
+    //   await this.loadIboxDevice()
+    // }
     // 根据 deviceType确定是否是子节点
     const iboxList = this.iboxDevice.map((item: any) => {
       if (item.deviceType === 'nvr') {
@@ -264,136 +233,10 @@ export default class IBox extends Vue {
 
   // 获取ibox下设备
   public async loadIboxDevice() {
-    const data = {
-      'pageNum': 1,
-      'pageSize': 20,
-      'totalPage': 1,
-      'totalNum': 3,
-      'devices': [
-        {
-          'deviceId': '29942077814997590',
-          'groupId': '883904285310976',
-          'parentDeviceId': '29942103584801365',
-          'dirId': '-1',
-          'deviceType': 'ipc',
-          'deviceVendor': '',
-          'deviceName': 'test-ipc',
-          'description': '',
-          'deviceIp': '',
-          'devicePort': 0,
-          'inProtocol': '',
-          'userName': 'user',
-          'userPassword': 'user',
-          'gbId': '34082400011328566275',
-          'pullType': 2,
-          'transPriority': 'tcp',
-          'deviceEnabled': 1,
-          'deviceStatus': 'new',
-          'streamStatus': '',
-          'sipTransType': '',
-          'streamTransType': '',
-          'createSubDevice': 1,
-          'gbVersion': '2011',
-          'deviceStats': {
-            'channelSize': 1,
-            'onlineChannels': 0,
-            'offlineChannels': 0,
-            'onlineStreams': 0,
-            'offlineStreams': 0,
-            'failedStreams': 0
-          },
-          'deviceDir': {
-            'dirId': '0',
-            'dirName': '',
-            'description': '',
-            'groupId': '0',
-            'parentDirId': '0',
-            'createdTime': '0001-01-01 00:00:00',
-            'updatedTime': '0001-01-01 00:00:00'
-          },
-          'createdTime': '2020-09-02 17:44:12',
-          'updatedTime': '2020-09-02 18:14:21',
-          'requestId': '3247575e6e1044668962f5a464fa3885'
-        },
-        {
-          'deviceId': '29942071372546647',
-          'groupId': '883904285310976',
-          'parentDeviceId': '29942103584801365',
-          'dirId': '-1',
-          'deviceType': 'nvr',
-          'deviceChannels': [
-            {
-              'deviceId': '123',
-              'outId': '1111111',
-              'deviceChannelNum': '333',
-              'deviceName': 'nvr-设备1',
-              'deviceStatus': 'on',
-              'streams': []
-            }, {
-              'deviceId': '223',
-              'outId': '2222',
-              'deviceChannelNum': '332',
-              'deviceName': 'nvr-设备2',
-              'deviceStatus': 'off',
-              'streams': []
-            }, {
-              'deviceId': '323',
-              'outId': '3333333',
-              'deviceChannelNum': '323333',
-              'deviceName': 'nvr-设备3',
-              'deviceStatus': 'on',
-              'streams': []
-            }, {
-              'deviceId': '423',
-              'outId': '44444',
-              'deviceChannelNum': '423333',
-              'deviceName': 'nvr-设备4',
-              'deviceStatus': 'new',
-              'streams': []
-            }
-          ],
-          'deviceVendor': '',
-          'deviceName': 'test-nvr',
-          'description': '',
-          'deviceIp': '',
-          'devicePort': 0,
-          'inProtocol': '',
-          'userName': 'user',
-          'userPassword': 'user',
-          'gbId': '34082400011328199910',
-          'pullType': 2,
-          'transPriority': 'tcp',
-          'deviceEnabled': 1,
-          'deviceStatus': 'new',
-          'streamStatus': '',
-          'sipTransType': '',
-          'streamTransType': '',
-          'createSubDevice': 1,
-          'gbVersion': '2011',
-          'deviceStats': {
-            'channelSize': 1,
-            'onlineChannels': 0,
-            'offlineChannels': 0,
-            'onlineStreams': 0,
-            'offlineStreams': 0,
-            'failedStreams': 0
-          },
-          'deviceDir': {
-            'uirId': '0',
-            'uirName': '',
-            'uescription': '',
-            'uroupId': '0',
-            'uarentDirId': '0',
-            'ureatedTime': '0001-01-01 00:00:00',
-            'updatedTime': '0001-01-01 00:00:00'
-          },
-          'createdTime': '2020-09-02 17:44:12',
-          'updatedTime': '2020-09-02 18:14:21',
-          'requestId': '3247575e6e1044668962f5a464fa3885'
-        }
-      ]
-
+    const param = {
+      dirId: this.treeIboxId
     }
+    const data: any = getDeviceList(param)
     this.iboxDevice = data.devices
   }
 
