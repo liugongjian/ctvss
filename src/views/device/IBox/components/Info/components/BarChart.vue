@@ -29,7 +29,6 @@ export default class extends Vue {
 
   private created() {
     this.transData(this.chartData)
-    console.log('this.chartData:    ', this.chartData)
     this.options = {
       title: {
         itemGap: 15,
@@ -112,7 +111,7 @@ export default class extends Vue {
 
   private mounted() {
     this.$nextTick(() => {
-      const chartDom = document.getElementById('' + this.barChartId)
+      const chartDom: any = document.getElementById('' + this.barChartId)
       this.chartObj = echarts.init(chartDom)
       this.options && this.chartObj.setOption(this.options)
       window.addEventListener('resize',this.resizeCharts)
@@ -131,7 +130,6 @@ export default class extends Vue {
   }
 
   private transData(chartData: any) {
-     console.log('data:    ', chartData)
     // 识别不同类型的数据
     // 硬件信息
     if (this.type === 'ram' || this.type === 'storage') {
@@ -158,8 +156,7 @@ export default class extends Vue {
       ]
     }else if (this.type === 'cpu' || this.type === 'gpu') {
       chartData.usageRate = +(chartData.usageRate).toFixed(2)
-      console.log('蛤蟆皮    ', chartData.usageRate)
-      const unuse = 1 - chartData.usageRate
+      const unuse = +(1 - chartData.usageRate).toFixed(2)
       this.title = '' + chartData.usageRate * 100
       this.subtitle = this.type === 'cpu' ? 'CPU使用率' : 'GPU使用率'
       this.unit = '%'
@@ -179,7 +176,7 @@ export default class extends Vue {
       ]
     } else if (this.type === 'stream' || this.type === 'aiAlgo' || this.type === 'aiApp' || this.type === 'aiAlarm') {
     // } else if (this.type === 'device' || this.type === 'calculate' || this.type === 'analysis') {
-      const unuse = chartData.total - chartData.usage
+      const unuse = +(chartData.total - chartData.usage).toFixed(2)
       this.title = chartData.usage
       let name1, name2
       switch(this.type + '') {

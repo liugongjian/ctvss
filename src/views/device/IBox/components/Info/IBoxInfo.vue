@@ -22,7 +22,7 @@
           <el-descriptions-item label="描述">
             <span v-if="!isEditDes">{{ description }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeDes" /></span>
             <span v-if="isEditDes" class="name-edit">
-              <el-input ref="des" v-model="editDes" :maxlength="16" autofocus />
+              <el-input ref="des" v-model="editDes" :maxlength="64" autofocus />
               <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
               <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelEdit" />
             </span>
@@ -47,7 +47,6 @@
         <BarChart :barChartId="4" :chartData="app.stream" :type="'stream'" :barColor="customColor_app" /> 
         <BarChart :barChartId="5" :chartData="app.aiAlgo" :type="'aiAlgo'" :barColor="customColor_app" />
         <BarChart :barChartId="6" :chartData="app.aiApp" :type="'aiApp'" :barColor="customColor_app" />
-        <BarChart :barChartId="7" :chartData="app.aiAlarm" :type="'aiAlarm'" :barColor="customColor_app" />
       </div>
     <div class="title">
         <span>SIP服务信息</span>
@@ -113,7 +112,32 @@ export default class extends Vue {
   private isOnline: string
   // private isRegistered: boolean
   private chartData: any
-  private hardware: any
+    private hardware = {
+    "ram": {
+                "total": 6.4,
+                "usage": 0.7784326,
+                "unit": "G",
+                "usageRate": 0
+            },
+            "storage": {
+                "total": 70.227966,
+                "usage": 40.027058,
+                "unit": "G",
+                "usageRate": 0
+            },
+            "cpu": {
+                "total": 10,
+                "usage": 5,
+                "unit": "",
+                "usageRate": 0.176471
+            },
+            "gpu": {
+                "total": 0,
+                "usage": 0,
+                "unit": "",
+                "usageRate": 0
+            }
+  }
   private statusStyle: any = null
   private registerStatus: string = ''
 
@@ -125,7 +149,12 @@ export default class extends Vue {
   private deviceName: string = ''
   private description: string = ''
   private checkedFalse = false
+  private checkedFalseDes = false
+  private editDes: string = ''
 
+  private get deviceId() {
+    return this.$route.query && this.$route.query.deviceId
+  }
 
   private customColor_usage = {
     mainColor: '#9FCD54',
@@ -145,86 +174,24 @@ export default class extends Vue {
   private async mounted() {
     try {
       this.loading = true
-      console.log('。。  query  。。    ', this.$route.query)
-      let deviceId = this.$route.query.deviceId || '29941916753723399'
-      // let res = await getIBoxDetail(deviceId)
-      let res = {
-    "Code": 0,
-    "Message": "",
-    "RequestId": "32b60f92bcc84a6fb9fe146f57d6a7b3",
-    "Data": {
-        "Basic": {
-            "DeviceId": "29941916753723399",
-            "DeviceName": "盒子",
-            "DeviceStatus": "on",
-            "Ip": "192.168.233.133",
-            "Sn": "1424321006681",
-            "Description": "盒子描述"
-        },
-        "Hardware": {
-            "Ram": {
-                "Total": 3.798664,
-                "Usage": 0.45184326,
-                "Unit": "G",
-                "UsageRate": 0
-            },
-            "Storage": {
-                "Total": 37.227966,
-                "Usage": 17.027058,
-                "Unit": "G",
-                "UsageRate": 0
-            },
-            "Cpu": {
-                "Total": 0,
-                "Usage": 0,
-                "Unit": "",
-                "UsageRate": 0.176471
-            },
-            "Gpu": {
-                "Total": 0,
-                "Usage": 0,
-                "Unit": "",
-                "UsageRate": 0
-            }
-        },
-        "App": {
-            "Stream": {
-                "Total": 1,
-                "Usage": 0,
-                "Unit": "",
-                "UsageRate": 0
-            },
-            "AiAlgo": {
-                "Total": 1,
-                "Usage": 0,
-                "Unit": "",
-                "UsageRate": 0
-            },
-            "AiApp": {
-                "Total": 1,
-                "Usage": 0,
-                "Unit": "",
-                "UsageRate": 0
-            }
-        },
-        "Sip": {
-            "SipId": "31011500012008469596",
-            "SipIp": "192.168.233.134",
-            "SipTcpPort": 15060,
-            "SipUdpPort": 15060,
-            "SipRegion": "3101150001"
-        },
-        "RequestId": "075a99f936894228bcf7320ab4a06f26"
-    }
-}
-      res = this.jsonKeysCaseTrans(res.Data)
-      this.transStatus(res.basic.deviceStatus)
-      this.dataInfo(res)
+      this.checkedFalse = false
+      this.checkedFalseDes = false
+      let params = {
+        DeviceId: '29941991915651403' || this.$route.query.deviceId
+      }
+      let res = await getIBoxDetail(params)
+      // res = this.jsonKeysCaseTrans(res.Data)
+      this.renderInfo(res)
     } catch (e) {
 
     } finally {
       this.loading = false
     }
+  }
+
+  private renderInfo(res: any) {
+    this.transStatus(res.basic.deviceStatus)
+    this.dataInfo(res)
   }
 
   private dataInfo(res: any){
@@ -237,7 +204,6 @@ export default class extends Vue {
   }
 
   private transStatus(status: string) {
-    console.log('status  :', status)
     // this.statusJoining = false
     switch(status) {
       case 'on':
@@ -269,62 +235,60 @@ export default class extends Vue {
   }
 
   private showChangeName() {
-    console.log('编辑姓名')
     this.isEditDeviceName = !this.isEditDeviceName
   }
 
   private showChangeDes() {
-    console.log('编辑描述内容')
     this.isEditDes = !this.isEditDes
   }
 
-   private async changeName() {
+  private async changeName() {
     try {
-      console.log('修改名字噢')
-      // if (!this.editBoxName) {
-      //   this.checkedFalse = true
-      //   return
-      // } else {
-      //   this.loadEdit = true
-      //   this.checkedFalse = false
-      //   const params = {
-      //     deviceName: this.editBoxName
-      //   }
-      //   await changeDeviceName(params)
-      //   await UserModule.getUserInfo()
-      //   this.renderInfo(this.dashboardInfo)
-      //   // this.iBoxName = this.editBoxName
-      //   this.isEdit = !this.isEdit
-      //   this.loadEdit = false
-      // }
-      // // console.log('新名称：   ', this.editBoxName)
+      if (!this.editDeviceName) {
+        this.checkedFalse = true
+        return
+      } else {
+        this.loading = true
+        this.checkedFalse = false
+        const params = {
+          deviceId: this.deviceId,
+          deviceName: this.editDeviceName
+        }
+        await updateIBox(params)
+        const res = await getIBoxDetail({ deviceId: this.deviceId })
+        this.renderInfo(res)
+      }
     } catch (e) {
       this.$message.error(e)
+    } finally {
+      this.isEditDeviceName = false
+      this.checkedFalse = false
+      this.loading = false
     }
   }
 
   private async changeDes() {
     try {
-      console.log('修改名字噢')
-      // if (!this.editBoxName) {
-      //   this.checkedFalse = true
-      //   return
-      // } else {
-      //   this.loadEdit = true
-      //   this.checkedFalse = false
-      //   const params = {
-      //     deviceName: this.editBoxName
-      //   }
-      //   await changeDeviceName(params)
-      //   await UserModule.getUserInfo()
-      //   this.renderInfo(this.dashboardInfo)
-      //   // this.iBoxName = this.editBoxName
-      //   this.isEdit = !this.isEdit
-      //   this.loadEdit = false
-      // }
-      // // console.log('新名称：   ', this.editBoxName)
+      if (!this.editDes) {
+        this.checkedFalseDes = true
+        return
+      } else {
+        this.loading = true
+        this.checkedFalseDes = false
+        const params = {
+          deviceId: this.deviceId,
+          description: this.editDes
+        }
+        await updateIBox(params)
+        const res = await getIBoxDetail({ deviceId: this.deviceId })
+        this.renderInfo(res)
+      }
     } catch (e) {
       this.$message.error(e)
+    } finally {
+      this.isEditDes = false
+      this.checkedFalseDes = false
+      this.loading = false
     }
   }
 
