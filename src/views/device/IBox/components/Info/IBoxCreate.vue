@@ -5,8 +5,8 @@
     </el-button>
     <div class="process" />
     <el-steps :active="active" finish-status="success" simple>
-      <el-step title="设备配置" />
-      <el-step title="接入配置" />
+      <el-step title="设备配置"><span slot="icon">1</span></el-step>
+      <el-step title="接入配置"><span slot="icon">2</span></el-step>
     </el-steps>
     <div v-if="active===1" class="ibox-create">
       <el-form ref="form" :model="formData" label-width="130px" :rules="rules">
