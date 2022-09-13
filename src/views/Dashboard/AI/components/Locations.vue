@@ -15,9 +15,9 @@
                 ${location.label_en ? colorFromLabel(location.label_en) : ''}`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['4', '10001', '34', '10034','19','10016'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
-          <span v-if="['4', '10001', '34', '10034'].includes(type)">姓名:{{ location.name }}</span>
+          <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
         </div>
         <div v-if="['29', '10026', '35', '10035', '37', '10037'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}

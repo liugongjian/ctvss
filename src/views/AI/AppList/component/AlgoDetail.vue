@@ -693,9 +693,11 @@ export default class extends Mixins(AppMixin) {
   .interval-unit {
     width: 65px;
   }
-  .city-gov-type{
+
+  .city-gov-type {
     width: 500px;
-    ::v-deep .el-tag{
+
+    ::v-deep .el-tag {
       margin-right: 8px;
     }
   }
