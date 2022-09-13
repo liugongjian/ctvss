@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { toLowerCase } from '@vss/base/utils/param'
+import { toLowerCase, toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -375,9 +375,9 @@ export const getChannels = (params: any): Promise<any> =>
  */
 export const createDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/create',
+    url: '/ibox/device',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 /**

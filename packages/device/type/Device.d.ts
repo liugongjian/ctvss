@@ -17,6 +17,7 @@ type DeviceStats = {
  */
 type DeviceBasic = {
   [DeviceEnum.DeviceId]?: string;
+  [DeviceEnum.ParentDeviceId]?: string;
   [DeviceEnum.DeviceName]?: string;
   [DeviceEnum.DeviceLocalName]?: string; // 设备侧名称
   [DeviceEnum.DeviceType]?: string,
@@ -174,6 +175,7 @@ type Device = {
  * 设备基本信息表单
  */
 type DeviceBasicForm = DeviceBasic & Industry & {
+  [DeviceEnum.ParentDeviceId]?: string;
   [DeviceEnum.InNetworkType]?: string;
   [DeviceEnum.OutNetworkType]?: string;
   [DeviceEnum.Region]?: string;
