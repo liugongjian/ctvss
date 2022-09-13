@@ -44,11 +44,13 @@ export default class IBoxList extends Vue {
 </script>
 <style lang="scss" scoped>
 .ibox-list {
-  overflow: auto;
+  // overflow: auto;
 }
-.of-hidden{
+
+.of-hidden {
   overflow: hidden;
 }
+
 .ibox-list::-webkit-scrollbar {
   /* 滚动条整体样式 */
   width: 5px;  /* 高宽分别对应横竖滚动条的尺寸 */

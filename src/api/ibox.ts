@@ -27,7 +27,7 @@ export const updateIBox = (data: any) =>
 // 设备列表查询
 export const getDeviceList = (params: any): Promise<any> =>
   request({
-    url: '/ibox/device',
+    url: '/ibox/devicelist',
     method: 'get',
     params
   })

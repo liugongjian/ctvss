@@ -33,7 +33,8 @@
         label="接入时间"
       >
         <template slot-scope="{row}">
-          {{ dateFormat(row.registerTime) }}
+          <!-- {{ row.registerTime }} -->
+          {{ dateFormat(Number(row.registerTime)) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -49,7 +50,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getIBoxList } from '@/api/ibox'
-import { IBoxModule } from '@/store/modules/ibox'
+// import { IBoxModule } from '@/store/modules/ibox'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -78,12 +79,11 @@ export default class IBoxList extends Vue {
       pageSize: 10
     }
     try {
-      await getIBoxList(param)
+      const data = await getIBoxList(param)
+      this.tableData = data.iboxes
     } catch (error) {
       console.log(error)
     }
-    this.tableData = IBoxModule.iboxList.data
-    console.log('IBoxModule--->', IBoxModule.iboxList)
   }
 }
 </script>

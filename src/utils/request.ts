@@ -28,8 +28,11 @@ service.interceptors.request.use(
         }
       }
     }
-    config.data = toUpperCase(config.data)
-    config.params = toUpperCase(config.params)
+    if (config.url.indexOf('login') === -1) {
+      config.data = toUpperCase(config.data)
+      config.params = toUpperCase(config.params)
+    }
+
     return config
   },
   (error) => {

@@ -121,7 +121,7 @@ export default class IBox extends Vue {
     this.isExpanded = !this.isExpanded
   }
 
-  public async handleNodeClick(item: any, node: any) {
+  public handleNodeClick(item: any, node: any) {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
 
     node.expanded = true
@@ -155,50 +155,52 @@ export default class IBox extends Vue {
   // 获取ibox目录
   public async getDirList() {
     const { query } = (this.$route) as any
-    const { deviceId, type = 'rootlist' }: { deviceId: string, type: string } = query
-    this.defaultExpandedKeys = [deviceId]
+    const { deviceId = '', type = 'rootlist' }: { deviceId: string, type: string } = query
+
     const param = {
       pageNum: 1,
       pageSize: 9999// 第一次请求，为了获取目录，传入9999
     }
+    try {
+      const data = await getIBoxList(param)
 
-    const data = await getIBoxList(param)
+      const { dirs = [], iboxes } = data
 
-    const { dirs, iboxes } = data
+      this.dirList = dirs.map((item: any) => {
+        return {
+          label: item.name,
+          deviceId: item.id,
+          ...item
+        }
+      })
 
-    this.dirList = dirs.map((item: any) => {
-      return {
-        label: item.name,
-        deviceId: item.id,
-        ...item
-      }
-    })
+      this.iboxes = iboxes
 
-    // await this.loadIboxDevice()
-
-    this.iboxes = iboxes
-
-    this.setListInfo(type, iboxes, deviceId)
-    this.$nextTick(() => {
-      const dirTree: any = this.$refs.dirTree
-      dirTree.setCurrentKey(this.defaultKey)
-      this.defaultExpandedKeys = [this.defaultKey]
-    })
+      this.setListInfo(type, iboxes, deviceId)
+      this.$nextTick(() => {
+        if (deviceId) {
+          const dirTree: any = this.$refs.dirTree
+          dirTree.setCurrentKey(this.defaultKey)
+          this.defaultExpandedKeys = [this.defaultKey]
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   // 获取ibox下设备目录
   public async loadDirs(node: any, resolve: any) {
     const { query } = (this.$route) as any
-    const { deviceId } = query
+    // const { deviceId } = query
     console.log('node--->', node)
-    // if (deviceId) {
-    //   await this.loadIboxDevice()
-    // }
-    // if (this.treeIboxId) {
-    //   await this.loadIboxDevice()
-    // }
+    const { data } = node
+    const deviceId = query.deviceId || data.deviceId
+
+    await this.loadIboxDevice(deviceId)
+
     // 根据 deviceType确定是否是子节点
-    const iboxList = this.iboxDevice.map((item: any) => {
+    const iboxList = this.iboxDevice ? this.iboxDevice.map((item: any) => {
       if (item.deviceType === 'nvr') {
         return {
           isLeaf: false,
@@ -210,14 +212,14 @@ export default class IBox extends Vue {
           ...item
         }
       }
-    })
+    }) : []
     if (node.level === 1) {
       return resolve(iboxList)
     } else if (node.level === 2) {
       const { data } = node
       if (data.deviceType === 'nvr') {
         const iboxNvr = this.getIboxNvr(node)
-        this.setListInfo('nvrlist', iboxNvr, deviceId)
+        this.setListInfo('nvrlist', iboxNvr, data.deviceId)
         return resolve(iboxNvr)
       }
       return resolve([])
@@ -232,12 +234,17 @@ export default class IBox extends Vue {
   }
 
   // 获取ibox下设备
-  public async loadIboxDevice() {
+  public async loadIboxDevice(id: string) {
     const param = {
-      dirId: this.treeIboxId
+      ParentDeviceId: id
     }
-    const data: any = getDeviceList(param)
-    this.iboxDevice = data.devices
+
+    try {
+      const data: any = getDeviceList(param)
+      this.iboxDevice = data.devices
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   public setListInfo(type: string = 'rootlist', data: any = [], deviceId: string) {
