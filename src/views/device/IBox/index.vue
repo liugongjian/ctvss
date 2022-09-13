@@ -164,6 +164,8 @@ export default class IBox extends Vue {
     try {
       const data = await getIBoxList(param)
 
+      console.log('data----->', data)
+
       const { dirs = [], iboxes } = data
 
       this.dirList = dirs.map((item: any) => {
