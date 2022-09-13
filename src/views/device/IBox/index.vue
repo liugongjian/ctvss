@@ -52,7 +52,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-// import { getIBoxList } from '@/api/ibox'
+import { getIBoxList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
@@ -129,7 +129,7 @@ export default class IBox extends Vue {
     switch (node.level) {
       case 1:
         this.setListInfo('device', this.iboxDevice, deviceId)
-        // this.breadcrumb =
+        this.breadcrumb = []
         break
       case 2:
         if (item.deviceType === 'nvr') {
@@ -154,52 +154,55 @@ export default class IBox extends Vue {
     const { query } = (this.$route) as any
     const { deviceId, type = 'rootlist' }: { deviceId: string, type: string } = query
     this.defaultExpandedKeys = [deviceId]
-    // const param = {
-    //   pageNum: 1,
-    //   pageSize: 9999// 第一次请求，为了获取目录，传入9999
-    // }
-
-    // await getIBoxList(param)
-
-    const data = {
-      'dirStats': {
-        'deviceSize': 2,
-        'onlineSize': 1
-      },
-      'dirs': [
-        {
-          'id': '123456',
-          'name': '天翼云盒子1',
-          'deviceSize': 3,
-          'onlineSize': 1
-        }
-        // {
-        //   'id': '123458',
-        //   'name': '天翼云盒子2',
-        //   'deviceSize': 0,
-        //   'onlineSize': 0
-        // }
-      ],
-      'iboxes': [
-        {
-          'deviceId': '80001',
-          'deviceName': '天翼云盒子1',
-          'deviceStatus': 'on',
-          'ip': '192.168.1.100',
-          'registerTime': 1659660550057,
-          'channelSize': 3
-        },
-        {
-          'deviceId': '80002',
-          'deviceName': '天翼云盒子2',
-          'deviceStatus': 'off',
-          'ip': '192.168.1.100',
-          'registerTime': 1659660560057,
-          'channelSize': 0
-        }
-      ]
+    const param = {
+      pageNum: 1,
+      pageSize: 9999// 第一次请求，为了获取目录，传入9999
     }
+
+    const data = await getIBoxList(param)
+
+    console.log('data0--->', data)
+
+    // const data = {
+    //   'dirStats': {
+    //     'deviceSize': 2,
+    //     'onlineSize': 1
+    //   },
+    //   'dirs': [
+    //     {
+    //       'id': '123456',
+    //       'name': '天翼云盒子1',
+    //       'deviceSize': 3,
+    //       'onlineSize': 1
+    //     }
+    //     // {
+    //     //   'id': '123458',
+    //     //   'name': '天翼云盒子2',
+    //     //   'deviceSize': 0,
+    //     //   'onlineSize': 0
+    //     // }
+    //   ],
+    //   'iboxes': [
+    //     {
+    //       'deviceId': '80001',
+    //       'deviceName': '天翼云盒子1',
+    //       'deviceStatus': 'on',
+    //       'ip': '192.168.1.100',
+    //       'registerTime': 1659660550057,
+    //       'channelSize': 3
+    //     },
+    //     {
+    //       'deviceId': '80002',
+    //       'deviceName': '天翼云盒子2',
+    //       'deviceStatus': 'off',
+    //       'ip': '192.168.1.100',
+    //       'registerTime': 1659660560057,
+    //       'channelSize': 0
+    //     }
+    //   ]
+    // }
     const { dirs, iboxes } = data
+
     this.dirList = dirs.map((item: any) => {
       return {
         label: item.name,
@@ -216,7 +219,7 @@ export default class IBox extends Vue {
     this.$nextTick(() => {
       const dirTree: any = this.$refs.dirTree
       dirTree.setCurrentKey(this.defaultKey)
-      this.defaultExpandedKeys = [this.defaultKey.toString()]
+      this.defaultExpandedKeys = [this.defaultKey]
     })
   }
 

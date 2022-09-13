@@ -5,6 +5,7 @@ import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
+import { toUpperCase, toLowerCase } from '@/utils/param'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -54,7 +55,7 @@ service.interceptors.response.use(
 
 function responseHandler(response: any) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    return response.data
+    return (toLowerCase(response.data) as any).data
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
