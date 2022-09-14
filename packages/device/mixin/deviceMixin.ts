@@ -5,7 +5,7 @@ import { Device } from '@vss/device/type/Device'
 @Component
 export default class DeviceMixin extends Vue {
   // 设备详情
-  public device: Device = null
+  public device: Device = {} as Device
   // 设备详情加载状态
   public deviceLoading = false
 
@@ -29,10 +29,10 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice() {
+  public async getDevice(deviceId: string = this.deviceId) {
     try {
       this.deviceLoading = true
-      this.device = await DeviceModule.getDevice(this.deviceId)
+      this.device = await DeviceModule.getDevice(deviceId)
     } catch (e) {
       this.$alertError(e)
     } finally {

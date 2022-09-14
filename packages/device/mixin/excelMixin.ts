@@ -4,6 +4,7 @@ import { exportDeviceAll, exportDeviceOption, getDevice } from '../api/device'
 // import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import { getResources } from '../api/billing'
 import { ResourceAiType } from '../dicts/index'
+import { downloadFileUrl } from '@vss/base/utils/excel'
 // import ExcelJS from 'exceljs'
 
 export default class ExcelMixin extends Vue {
@@ -756,48 +757,9 @@ export default class ExcelMixin extends Vue {
         params.deviceIds = data.deviceIds
         res = await exportDeviceOption(params)
       }
-      this.downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
+      downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
     } catch (e) {
       console.log(e)
     }
-  }
-
-  // 下载表格
-  public downloadFileUrl(fileName: string, file: any) {
-    const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    var link = document.createElement('a')
-    link.href = window.URL.createObjectURL(blob)
-    link.download = `${fileName}.xlsx`
-    link.click()
-  }
-  // base64转blob
-  public base64ToBlob(base64: any) {
-    var arr = base64.split(',')
-    var mime = arr[0].match(/:(.*?);/)[1]
-    var bstr = atob(arr[1])
-    var n = bstr.length
-    var u8arr = new Uint8Array(n)
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n)
-    }
-    return new Blob([u8arr], { type: mime })
-  }
-
-  // 文件转base64
-  public fileToBase64(file: any, reader: any) {
-    return new Promise((resolve, reject) => {
-      reader = new FileReader()
-      let fileResult: any = ''
-      reader.readAsDataURL(file)
-      reader.onload = function() {
-        fileResult = reader.result
-      }
-      reader.onerror = function(error: any) {
-        reject(error)
-      }
-      reader.onloadend = function() {
-        resolve(fileResult)
-      }
-    })
   }
 }

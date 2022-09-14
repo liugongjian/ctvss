@@ -67,13 +67,6 @@ export default class DetailMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
-    this.$router.push({
-      name: 'DeviceList',
-      query: {
-        type: data && data.type,
-        dirId: data && data.id
-      }
-    })
     this.$emit('handle-node', data)
   }
 
@@ -87,9 +80,9 @@ export default class DetailMixin extends Vue {
   /**
    * 工具栏功能触发回调
    * @param type 触发功能类型
-   * @param data node信息
+   * @param payload 参数payload
    */
-  public handleTools(type: any, data: any) {
-    this.$emit('handle-tools', type, data)
+  public handleTools(type: any, ...payload) {
+    this.$emit('handle-tools', type, ...payload)
   }
 }

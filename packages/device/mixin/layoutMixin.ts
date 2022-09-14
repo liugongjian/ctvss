@@ -1,11 +1,10 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { ToolsEnum } from '../enums/index'
+import { DeviceTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
 import { getNodeInfo } from '../api/device'
-import ScreenBoard from '../components/ScreenBoard/index.vue'
 
 @Component({
   components: {
@@ -37,7 +36,7 @@ export default class DetailMixin extends Vue {
   public currentDir = null
   // 排序目录标志
   public sortDir = null
-  private sortNode = null
+  public sortNode = null
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
@@ -48,30 +47,22 @@ export default class DetailMixin extends Vue {
   }
   // 功能回调字典
   public handleToolsMap = {
-    [ToolsEnum.Refresh]: DeviceManager.advanceSearch,
-    [ToolsEnum.ExportSearchResult]: DeviceManager.exportSearchResult,
-    [ToolsEnum.AddDirectory]: function() {
-      DeviceManager.openDirectoryDialog.call(this, ToolsEnum.AddDirectory, ...arguments)
-    },
-    [ToolsEnum.EditDirectory]: function() {
-      DeviceManager.openDirectoryDialog.call(this, ToolsEnum.EditDirectory, ...arguments)
-    },
-    [ToolsEnum.SortDirectory]: function() {
-      DeviceManager.openDirectoryDialog.call(this, ToolsEnum.SortDirectory, ...arguments)
-    },
-    [ToolsEnum.DeleteDirectory]: DeviceManager.deleteDir,
-    [ToolsEnum.SetStreamNum]: DeviceManager.openScreen,
-    [ToolsEnum.Polling]: function(node) {
-      DeviceManager.executeQueue.call(this, node, !node, 'polling')
-    },
-    [ToolsEnum.AutoPlay]: function(node) {
-      DeviceManager.executeQueue.call(this, node, !node, 'autoPlay')
-    },
-    [ToolsEnum.IntervalChange]: DeviceManager.intervalChange,
-    [ToolsEnum.StopPolling]: DeviceManager.stopPolling,
-    [ToolsEnum.PausePolling]: DeviceManager.pausePolling,
-    [ToolsEnum.ResumePolling]: DeviceManager.resumePolling,
-    [ToolsEnum.AdvanceSearch]: DeviceManager.advanceSearch
+    // 设备树相关
+    [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
+    [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
+    [ToolsEnum.AddDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
+    [ToolsEnum.EditDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
+    [ToolsEnum.SortDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this, type, isfresh),
+    [ToolsEnum.DeleteDirectory]: (data) => DeviceManager.deleteDir(this, data),
+    [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
+    [ToolsEnum.Polling]: (node) => DeviceManager.executeQueue(this, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: (node) => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: (interval) => DeviceManager.intervalChange(this, interval),
+    [ToolsEnum.StopPolling]: () => DeviceManager.stopPolling(this),
+    [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
+    [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
+    [ToolsEnum.AdvanceSearch]: (filterData) => DeviceManager.advanceSearch(this, filterData)
   }
   /* 设备目录树 */
   public get deviceTree() {
@@ -89,12 +80,12 @@ export default class DetailMixin extends Vue {
   }
 
   /* 视频队列执行器 */
-  private get queueExecutor() {
+  public get queueExecutor() {
     return this.screenManager && this.screenManager.refs.queueExecutor
   }
 
   public mounted() {
-    DeviceManager.initAdvancedSearch.call(this)
+    DeviceManager.initAdvancedSearch(this)
   }
 
   /**
@@ -123,9 +114,9 @@ export default class DetailMixin extends Vue {
    * @param type 功能类型
    */
   @Provide('handleTools')
-  public handleTools(type: string, data?: any) {
-    console.log(type, data)
-    this.handleToolsMap[type].call(this, data)
+  public handleTools(type: string, ...payload: any) {
+    console.log(type, ...payload)
+    this.handleToolsMap[type](...payload)
   }
 
   /**
@@ -134,5 +125,22 @@ export default class DetailMixin extends Vue {
    */
   public handleTreeNode(data: any) {
     console.log(data)
+    const { id, type } = data || {}
+    if (type === DeviceTypeEnum.Ipc) {
+      this.$router.push({
+        name: 'DeviceInfo',
+        query: {
+          deviceId: '29941916753760267'
+        }
+      })
+    } else {
+      this.$router.push({
+        name: 'DeviceList',
+        query: {
+          type: type,
+          dirId: id
+        }
+      })
+    }
   }
 }

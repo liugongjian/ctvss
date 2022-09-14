@@ -10,7 +10,7 @@
           <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)"><svg-icon name="plus" /></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.Refresh)"><svg-icon name="refresh" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"><svg-icon name="refresh" /></el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
@@ -48,8 +48,8 @@
         <router-view />
       </template>
     </common-layout>
-    <create-dir v-if="dialog[toolsEnum.EditDirectory]" :parent-dir="parentDir" :current-dir="currentDir" @on-close="closeDialog(toolsEnum.EditDirectory, ...arguments)" />
-    <sort-dir v-if="dialog[toolsEnum.SortDirectory]" @on-close="closeDialog(toolsEnum.SortDirectory, ...arguments)" />
+    <create-dir v-if="dialog[toolsEnum.EditDirectory]" :parent-dir="parentDir" :current-dir="currentDir" @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.EditDirectory, $event)" />
+    <sort-dir v-if="dialog[toolsEnum.SortDirectory]" @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.SortDirectory, $event)" />
   </div>
 </template>
 

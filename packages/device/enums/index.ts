@@ -228,6 +228,7 @@ export enum ToolsEnum {
   AdvanceSearch = 'advanceSearch',
   ShowMore = 'showMore',
   Refresh = 'refresh',
+  CloseDialog = 'closeDialog',
   // 设备列表相关
   ShowDeviceInfo = 'showDeviceInfo',
   AddDevice = 'addDevice',

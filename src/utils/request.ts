@@ -1,10 +1,11 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
+import { toLowerCase } from '@vss/base/utils/param'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -52,9 +53,11 @@ service.interceptors.response.use(
   }
 )
 
-function responseHandler(response: any) {
+function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    return response.data
+    // TODO: 后端处理大小写
+    const resData = response.data.Data ? toLowerCase(response.data.Data) : toLowerCase(response.data)
+    return resData as AxiosResponse
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(

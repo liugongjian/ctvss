@@ -3,24 +3,24 @@
     <div class="list-wrap">
       <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
         <info-list label-width="80">
-          <!-- <info-list-item label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
+          <info-list-item label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
           <info-list-item label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
           <info-list-item label="设备状态:">
             <status-badge :status="basicInfo.deviceStatus" />
-            {{ deviceStatus[basicInfo.deviceStatus] }}
+            {{ videoStatus[basicInfo.deviceStatus] }}
           </info-list-item>
           <info-list-item label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
           <info-list-item v-if="basicInfo.createSubDevice === 2" label="可支持通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
           <info-list-item v-else label="通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item> -->
+          <info-list-item label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice, currentDirId)">添加</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleListTools(toolsEnum.ViewDevice)">查看详情</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice, currentDirId)">同步</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event)">
             <el-button>导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
@@ -56,7 +56,7 @@
             class="el-button-rect filter-container__sync-button"
             :disabled="loading.syncDeviceStatus"
             :class="{'loading': loading.syncDeviceStatus}"
-            @click="handleListTools(toolsEnum.syncDeviceStatus)"
+            @click="handleListTools(toolsEnum.syncDeviceStatus, currentDirId, currentDirType)"
           >
             <svg-icon name="refresh" /> 同步设备状态
           </el-button>
@@ -287,7 +287,6 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
 import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
-import { DeviceTypeEnum } from 'packages/device/enums'
 
 @Component({
   name: 'DeviceList',
@@ -316,6 +315,7 @@ export default class extends Mixins(deviceMixin) {
   private selectedDeviceList: Array<Device> = []
   private tableMaxHeight: any = null
   private observer: any = null
+  private pollingTimes: number = 1
   private filterForm: any = {
     [DeviceEnum.DeviceType]: undefined,
     [DeviceEnum.VideoStatus]: undefined,
@@ -358,18 +358,33 @@ export default class extends Mixins(deviceMixin) {
 
   // 功能回调字典
   private handleListToolsMap = {
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice,
-    [ToolsEnum.ViewDevice]: DeviceManager.addDevice,
-    [ToolsEnum.EditDevice]: DeviceManager.addDevice,
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice,
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice,
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice,
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice
+    [ToolsEnum.AddDevice]: (dirId) => DeviceManager.addDevice(this, dirId),
+    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row),
+    [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row),
+    [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row),
+    [ToolsEnum.SyncDevice]: (dirId) => DeviceManager.syncDevice(this, dirId),
+    [ToolsEnum.SyncDeviceStatus]: (dirId, dirType) => DeviceManager.syncDeviceStatus(this, dirId, dirType),
+    [ToolsEnum.ViewChannels]: DeviceManager.addDevice,
+    [ToolsEnum.ExportAll]: DeviceManager.addDevice,
+    [ToolsEnum.ExportCurrentPage]: DeviceManager.addDevice,
+    [ToolsEnum.ExportSelected]: DeviceManager.addDevice,
+    [ToolsEnum.Import]: DeviceManager.addDevice,
+    [ToolsEnum.ExportTemplate]: DeviceManager.addDevice,
+    [ToolsEnum.MoveDevice]: DeviceManager.addDevice,
+    [ToolsEnum.StartDevice]: DeviceManager.addDevice,
+    [ToolsEnum.StopDevice]: DeviceManager.addDevice,
+    [ToolsEnum.StartRecord]: DeviceManager.addDevice,
+    [ToolsEnum.StopRecord]: DeviceManager.addDevice,
+    [ToolsEnum.UpdateResource]: DeviceManager.addDevice,
+    [ToolsEnum.PreviewEvents]: DeviceManager.addDevice,
+    [ToolsEnum.PreviewVideo]: DeviceManager.addDevice,
+    [ToolsEnum.ReplayVideo]: DeviceManager.addDevice,
+    [ToolsEnum.PreviewViid]: DeviceManager.addDevice
   }
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device && this.device.device
+    return this.device.device || {}
   }
 
   private get filterButtons() {
@@ -389,11 +404,25 @@ export default class extends Mixins(deviceMixin) {
     return this.$refs.deviceTable as any
   }
 
-  @Watch('$route.query.dirId')
-  private dirIdChange() {
-    this.initTable()
-    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Dir].includes(this.$route.query.type as DirectoryTypeEnum)) {
-      this.getDevice()
+  private get currentDirId() {
+    return this.$route.query.dirId as string
+  }
+
+  private get currentDirType() {
+    return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
+  }
+
+  @Watch('currentDirId', { immediate: true })
+  private async dirIdChange() {
+    this.initList()
+  }
+
+  @Watch('$route.params', { deep: true, immediate: true })
+  private async statusChange(val) {
+    if (val.deviceListRefreshFlag === 'true') {
+      console.log(this.$route.params, 'isfresh')
+      this.initList()
+      DeviceManager.refreshDeviceList(this, 'false')
     }
   }
 
@@ -403,7 +432,6 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private mounted() {
-    this.initTable()
     this.initTableSize()
   }
 
@@ -412,20 +440,24 @@ export default class extends Mixins(deviceMixin) {
   }
 
   /**
-   * 设备信息初始化
+   * 设备列表初始化
    */
-  private async initInfo() {
-
+  private async initList() {
+    this.initTable()
+    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
+      await this.getDevice(this.currentId)
+      console.log('deviceInfo', this.device)
+    }
   }
 
   /**
-   * 设备列表初始化
+   * 设备table初始化
    */
   private async initTable() {
     this.loading.table = true
     let params = {
-      DirId: this.$route.query.dirId,
-      Type: this.$route.query.type,
+      DirId: this.currentDirId,
+      Type: this.currentDirType,
       PageSize: this.pager.pageSize,
       PageNum: this.pager.pageNum,
       filterForm: this.filterForm
@@ -452,9 +484,9 @@ export default class extends Mixins(deviceMixin) {
    * @param type 功能字段名
    * @param data 回调参数
    */
-  private handleListTools(type: string, data?: any) {
-    console.log(type, data)
-    this.handleListToolsMap[type].call(this, data)
+  private handleListTools(type: string, ...payload: any) {
+    console.log(type, ...payload)
+    this.handleListToolsMap[type](...payload)
   }
 
   /**
@@ -464,7 +496,7 @@ export default class extends Mixins(deviceMixin) {
    * @param row 具体信息
    */
   private checkToolsVisible(prop, permissions?, row?: DeviceBasic) {
-    !row && (row = { deviceType: this.$route.query.type as DeviceTypeEnum })
+    !row && (row = { deviceType: this.currentDirType })
     return checkDeviceListVisible(row.deviceType, prop) && checkPermission(permissions)
   }
 
@@ -473,7 +505,7 @@ export default class extends Mixins(deviceMixin) {
    * @param prop 字段名
    * @param type 目录类型
    */
-  private checkColumnsVisible(prop, type = this.$route.query.type as DirectoryTypeEnum) {
+  private checkColumnsVisible(prop, type = this.currentDirType) {
     return checkDeviceColumnsVisible(type, prop)
   }
 
@@ -484,7 +516,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      this.$router.push({ path: '/device-refactor/detail', query: { deviceId: '29941916753760267' } })
+      this.$router.push({ name: 'DeviceInfo', query: { deviceId: '29941916753760267' } })
     }
   }
 

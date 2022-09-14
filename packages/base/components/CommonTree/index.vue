@@ -34,6 +34,7 @@
       :lazy="lazy"
       :load="loadChildren"
       :default-expand-all="!lazy"
+      :expand-on-click-node="false"
       highlight-current
       @node-click="handleNode"
     >

@@ -158,7 +158,7 @@ export const exportTable2Excel = (id: string) => {
   }
 }
 
-export const exportJson2Excel = (header: string[], data: any, filename: string = 'excel-list', multiHeader: string[][] = [], merges:any[] = [], autoWidth: boolean = true, bookType: string = 'xlsx') => {
+export const exportJson2Excel = (header: string[], data: any, filename: string = 'excel-list', multiHeader: string[][] = [], merges: any[] = [], autoWidth: boolean = true, bookType: string = 'xlsx') => {
   data = [...data]
   data.unshift(header)
   for (let i = multiHeader.length - 1; i > -1; i--) {
@@ -222,4 +222,41 @@ export const exportJson2Excel = (header: string[], data: any, filename: string =
   saveAs(new Blob([s2ab(wbout)], {
     type: 'application/octet-stream'
   }), `${filename}.${bookType}`)
+}
+
+export const base64ToBlob = (base64: any) => {
+  var arr = base64.split(',')
+  var mime = arr[0].match(/:(.*?);/)[1]
+  var bstr = atob(arr[1])
+  var n = bstr.length
+  var u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new Blob([u8arr], { type: mime })
+}
+
+export const fileToBase64 = (file: any, reader: any) => {
+  return new Promise((resolve, reject) => {
+    reader = new FileReader()
+    let fileResult: any = ''
+    reader.readAsDataURL(file)
+    reader.onload = function() {
+      fileResult = reader.result
+    }
+    reader.onerror = function(error: any) {
+      reject(error)
+    }
+    reader.onloadend = function() {
+      resolve(fileResult)
+    }
+  })
+}
+
+export const downloadFileUrl = (fileName: string, file: any) => {
+  const blob = base64ToBlob(`data:application/zip;base64,${file}`)
+  var link = document.createElement('a')
+  link.href = window.URL.createObjectURL(blob)
+  link.download = `${fileName}.xlsx`
+  link.click()
 }
