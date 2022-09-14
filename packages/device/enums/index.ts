@@ -236,6 +236,7 @@ export enum ToolsEnum {
   EditDevice = 'editDevice',
   SyncDevice = 'syncDevice',
   SyncDeviceStatus = 'syncDeviceStatus',
+  RefreshDeviceList = 'refreshDeviceList',
   ViewChannels = 'viewChannels',
   Export = 'export',
   ExportAll = 'exportAll',

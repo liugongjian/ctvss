@@ -327,6 +327,9 @@ export const describeDevices = (params: any): Promise<any> => {
   })
 }
 
+export const exportDevicesExcel = (params: any): Promise<any> => {
+}
+
 /* ----------------------------------------------- */
 /**
  * 获取设备详情
