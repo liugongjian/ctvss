@@ -308,6 +308,13 @@ export default class extends Mixins(deviceFormMixin) {
   private videoForm: VideoDeviceForm = {}
   private viidForm: ViidDeviceForm = {}
 
+  /**
+   * 父级设备ID
+   */
+  private get parentDeviceId() {
+    return this.$route.query.parentDeviceId.toString()
+  }
+
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
@@ -431,7 +438,9 @@ export default class extends Mixins(deviceFormMixin) {
           ]),
           ...pick(this.videoForm, [
             DeviceEnum.DeviceChannelSize
-          ])
+          ]),
+          // 父级设备ID
+          parentDeviceId: this.parentDeviceId
         },
         industry: {
           ...pick(this.deviceForm, [
@@ -467,7 +476,6 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [ viidDevice ]
       }
-      params.device.parentDeviceId = '29941991915651403'
       createDevice(params)
     }
   }
