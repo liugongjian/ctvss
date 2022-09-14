@@ -164,8 +164,6 @@ export default class IBox extends Vue {
     try {
       const data = await getIBoxList(param)
 
-      console.log('data----->', data)
-
       const { dirs = [], iboxes } = data
 
       this.dirList = dirs.map((item: any) => {
@@ -193,28 +191,32 @@ export default class IBox extends Vue {
 
   // 获取ibox下设备目录
   public async loadDirs(node: any, resolve: any) {
-    const { query } = (this.$route) as any
+    // const { query } = (this.$route) as any
     // const { deviceId } = query
-    console.log('node--->', node)
     const { data } = node
-    const deviceId = query.deviceId || data.deviceId
+    const deviceId = data.deviceId
 
     await this.loadIboxDevice(deviceId)
 
     // 根据 deviceType确定是否是子节点
     const iboxList = this.iboxDevice ? this.iboxDevice.map((item: any) => {
-      if (item.deviceType === 'nvr') {
+      if (item.device.deviceType === 'nvr') {
         return {
           isLeaf: false,
+          ...item.device,
+          ...item.industry,
           ...item
         }
-      } else if (item.deviceType === 'ipc') {
+      } else if (item.device.deviceType === 'ipc') {
         return {
           isLeaf: true,
+          ...item.device,
+          ...item.industry,
           ...item
         }
       }
     }) : []
+
     if (node.level === 1) {
       return resolve(iboxList)
     } else if (node.level === 2) {
@@ -241,12 +243,17 @@ export default class IBox extends Vue {
       ParentDeviceId: id
     }
 
-    try {
-      const data: any = getDeviceList(param)
-      this.iboxDevice = data.devices
-    } catch (error) {
-      console.log(error)
-    }
+    await getDeviceList(param).then((res: any) => {
+      this.iboxDevice = res.devices
+    })
+
+    // try {
+    //   const data: any = getDeviceList(param)
+    //   console.log('data----->', data)
+    //   this.iboxDevice = data.devices
+    // } catch (error) {
+    //   console.log(error)
+    // }
   }
 
   public setListInfo(type: string = 'rootlist', data: any = [], deviceId: string) {

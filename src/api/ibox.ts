@@ -32,3 +32,11 @@ export const getDeviceList = (params: any): Promise<any> =>
     method: 'get',
     params: toUpperCase(params)
   }).then(res => (toLowerCase(res) as any).data)
+
+// 设备创建
+export const createDevice = (data: any) =>
+  request({
+    url: '/ibox/device',
+    method: 'post',
+    data: toUpperCase(data)
+  }).then(res => (toLowerCase(res) as any).data)

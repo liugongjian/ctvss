@@ -1,6 +1,6 @@
 <template>
   <div class="ibox-list">
-    <ibox-create v-if="showAdd" />
+    <ibox-create v-if="showAdd" :cb="refreshList" />
 
     <div v-else>
       <div class="ibox-list__btn-box">
@@ -134,25 +134,33 @@ export default class IBoxList extends Vue {
     new: '未注册'
   }
 
-  async mounted() {
+  public async mounted() {
     await this.getIBoxList()
   }
 
-  async getIBoxList() {
+  public async getIBoxList() {
+    const { query } = (this.$route) as any
+    const { deviceId = '' } = query
     const param = {
       pageNum: 1,
-      pageSize: 10
+      pageSize: 10,
+      ParentDeviceId: deviceId
     }
     try {
-      await getIBoxList(param)
+      this.tableData = await getIBoxList(param).data
     } catch (error) {
       console.log(error)
     }
-    this.tableData = IBoxModule.iboxList.data
+    // this.tableData = IBoxModule.iboxList.data
   }
 
   public addIBox() {
     this.showAdd = !this.show
+  }
+
+  public refreshList() {
+    this.showAdd = false
+    this.getIBoxList()
   }
 }
 </script>
