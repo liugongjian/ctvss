@@ -111,7 +111,7 @@
                 <div class="dialogue-right__section__title">基础信息</div>
                 <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
                   <div v-for="(val,key) in objectInfos" :key="key">
-                    <div v-if="detailPic[key]" class="dialogue-right__section__item">
+                    <div v-if="isShow(detailPic[key],key)" class="dialogue-right__section__item">
                       <span class="dialogue-right__section__item__key">{{ val }}:</span>
                       <span class="dialogue-right__section__item__value">{{ detailPic[key] | filter(key, currentPic.type) }}</span>
                     </div>
@@ -136,7 +136,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
 import { ViewTypes } from '@/dics/index'
-import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@/dics/ga1400'
+import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters, isShow } from '@/dics/ga1400'
 import { getViewsList, getViewDetail } from '@/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
@@ -174,6 +174,7 @@ export default class extends Vue {
   @Prop() private inProtocol!: any
 
   private viewTypes = ViewTypes
+  private isShow = isShow
   private picInfos = []
   private detailPic: any = {}
   private currentPic: any = {}
