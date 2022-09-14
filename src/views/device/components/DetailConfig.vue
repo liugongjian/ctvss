@@ -444,7 +444,11 @@ export default class extends Vue {
   private async getAlgoList() {
     try {
       this.loading.AITable = true
-      const algoListResult = await getAppList({ deviceId: this.deviceId })
+      const param = {
+        deviceId: this.deviceId,
+        pageSize: 999
+      }
+      const algoListResult = await getAppList(param)
       this.algoListData = algoListResult.aiApps
     } catch (e) {
       if (e && e.code !== 5) {
