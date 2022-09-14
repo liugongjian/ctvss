@@ -10,7 +10,7 @@
  * }
  */
 
-import { AnimalType } from '@/dics'
+import { AnimalType, CityGovType } from '@/dics'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -101,6 +101,8 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '29':// 垃圾站
     case '10026':// 垃圾站
+    case '35':// 标准工作服检测
+    case '10035':// 标准工作服检测
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           let label
@@ -120,14 +122,48 @@ export const parseMetaData = (type: string, metaData: any) => {
             case 'Bear':
               label = '狗熊'
               break
+            default:
+              label = box.LabelCh
+              break
           }
           return {
             top: box.TopLeftY,
             left: box.TopLeftX,
             width: box.BottomRightX - box.TopLeftX,
             height: box.BottomRightY - box.TopLeftY,
-            isWarning: box.Score.length > 0 && box.Score > 60,
+            isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
             label
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
+
+    case '37':// 城市治理检测
+    case '10037':// 城市治理检测
+      locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+        try {
+          let label
+          const temp = CityGovType.filter(type => type.label === box.Label)
+          if (temp.length > 0) {
+            label = temp[0].cname
+          }
+          return {
+            top: box.TopLeftY,
+            left: box.TopLeftX,
+            width: box.BottomRightX - box.TopLeftX,
+            height: box.BottomRightY - box.TopLeftY,
+            isWarning: (box.Score.length > 0 && box.Score > 60),
+            label,
+            label_en: box.Label
           }
         } catch (error) {
           console.log(error)
@@ -164,7 +200,6 @@ export const parseMetaData = (type: string, metaData: any) => {
           console.log(error)
         }
       })
-      console.log('counts 2:', counts)
       if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
         locations.push(
           {
@@ -213,6 +248,13 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
       }
       break
 
@@ -333,8 +375,8 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       })
       break
-    // 在场人员+口罩检测
-    case '20':
+
+    case '20':// 在场人员+口罩检测
     case '10017':// 在场人员+口罩检测
       if (metaData.Data && metaData.Data.FaceRectangles) {
         const boxes = metaData.Data.FaceRectangles

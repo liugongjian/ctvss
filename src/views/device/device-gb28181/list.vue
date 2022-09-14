@@ -11,7 +11,7 @@
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
         <info-list-item v-if="deviceInfo.createSubDevice === 2" label="可支持通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
         <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
-        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
+        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineStreams }}</info-list-item>
       </info-list>
     </div>
     <div v-if="isPlatform" ref="infoWrap" v-loading="loading.info" class="device-info">

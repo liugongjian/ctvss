@@ -153,7 +153,7 @@
                           {{ info.deviceStats && info.deviceStats.maxChannelSize }}
                         </el-descriptions-item>
                         <el-descriptions-item label="在线流数量">
-                          {{ info.deviceStats && info.deviceStats.onlineSize }}
+                          {{ info.deviceStats && info.deviceStats.onlineStreams }}
                         </el-descriptions-item>
                       </template>
                       <!--平台信息-->
@@ -162,7 +162,7 @@
                           {{ info.deviceStats && info.deviceStats.channelSize }}
                         </el-descriptions-item>
                         <el-descriptions-item label="在线流数量">
-                          {{ info.deviceStats && info.deviceStats.onlineSize }}
+                          {{ info.deviceStats && info.deviceStats.onlineStreams }}
                         </el-descriptions-item>
                       </template>
                       <!--通用信息-->

@@ -578,6 +578,7 @@ export default class extends Vue {
     switch (rowCode) {
       case '10006':
       case '10001':
+      case '10004':
       case '10014':
       case '10015':
       case '10020':
@@ -590,6 +591,9 @@ export default class extends Vue {
       case '10026':
       case '10028':
       case '10033':
+      case '10035':
+      case '10036':
+      case '10037':
         return true
       default:
         return false
