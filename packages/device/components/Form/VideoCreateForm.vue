@@ -44,9 +44,9 @@
         type="number"
       />
     </el-form-item>
-    <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
+    <!-- <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
       <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
         v-for="(value, key) in inType"
@@ -195,7 +195,7 @@
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
-    <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
+    <!-- <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
       <resource-tabs
         v-model="videoForm.resources"
         :is-private-in-network="deviceForm.inNetworkType === inNetworkTypeEnum.Private"
@@ -204,7 +204,7 @@
         @on-change="onResourceChange"
         @changevssaiapps="changeVSSAIApps"
       />
-    </el-form-item>
+    </el-form-item> -->
     <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
       <el-form-item>
         <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>

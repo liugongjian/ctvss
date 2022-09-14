@@ -137,7 +137,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
+            <!-- <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -159,7 +159,7 @@
                 :level="deviceForm.inOrgRegionLevel"
                 @change="onDeviceAddressChange"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
               <el-select
                 v-model="deviceForm.industryCode"
@@ -235,7 +235,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Prop } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
 import { checkVideoVisible } from '../../utils/param'
@@ -256,6 +256,10 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
   }
 })
 export default class extends Mixins(deviceFormMixin) {
+  @Prop({
+    default: createDevice
+  })
+  private createDevice: Function
   private tips = DeviceTips
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
@@ -303,6 +307,13 @@ export default class extends Mixins(deviceFormMixin) {
   }
   private videoForm: VideoDeviceForm = {}
   private viidForm: ViidDeviceForm = {}
+
+  /**
+   * 父级设备ID
+   */
+  private get parentDeviceId() {
+    return this.$route.query.parentDeviceId.toString()
+  }
 
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
@@ -427,7 +438,9 @@ export default class extends Mixins(deviceFormMixin) {
           ]),
           ...pick(this.videoForm, [
             DeviceEnum.DeviceChannelSize
-          ])
+          ]),
+          // 父级设备ID
+          parentDeviceId: this.parentDeviceId
         },
         industry: {
           ...pick(this.deviceForm, [
@@ -463,7 +476,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [ viidDevice ]
       }
-      console.log(params)
+      createDevice(params)
     }
   }
 
