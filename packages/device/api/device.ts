@@ -3,7 +3,6 @@ import { toLowerCase, toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
-import { DeviceBasic } from '../type/Device'
 
 /**
  * 获取设备目录树
@@ -162,7 +161,7 @@ export const getDeviceTree = (params: any): Promise<any> => {
   })
 }
 
-export const describeDevices = (params: any): Promise<any> => {
+export const getDevices = (params: any): Promise<any> => {
   let res: any = {
     Devices: [
       {
@@ -327,6 +326,56 @@ export const describeDevices = (params: any): Promise<any> => {
   })
 }
 
+export const getDevicesIbox = (params: any): Promise<any> => {
+  return new Promise(resolve => {
+    request({
+      url: '/ibox/devicelist',
+      method: 'get',
+      params: toUpperCase(params)
+    }).then((res: any) => {
+      console.log(res)
+      res.devices = res.devices.map(item => {
+        const data = {
+          [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
+          [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
+          [DeviceEnum.DeviceInType]: [],
+          [DeviceEnum.InProtocol]: [],
+          [DeviceEnum.DeviceType]: item.device[DeviceEnum.DeviceType],
+          [DeviceEnum.VideoStatus]: '',
+          [DeviceEnum.StreamStatus]: '',
+          [DeviceEnum.RecordStatus]: '',
+          [DeviceEnum.ViidStatus]: '',
+          [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
+          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+        }
+        const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
+        const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
+
+        if (inVideoProtocol) {
+          const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+          const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
+          data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
+          data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
+          data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+          data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].some(
+            stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
+          ) ? StatusEnum.On : StatusEnum.Off) : null
+          data[DeviceEnum.RecordStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams][deviceStreamPullIndex - 1][DeviceEnum.RecordStatus]) : null
+        }
+
+        if (inViidProtocol) {
+          const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
+          data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
+          data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
+          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+        }
+        return data
+      })
+      resolve(res)
+    })
+  })
+}
+
 /* ----------------------------------------------- */
 /**
  * 获取设备详情
@@ -339,10 +388,18 @@ export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
     cancelToken
   })
 
+export const getDeviceIbox = (params: any, cancelToken?: any): Promise<any> =>
+  request({
+    url: '/ibox/device',
+    method: 'get',
+    params: toUpperCase(params),
+    cancelToken
+  })
+
 /**
  * 获取设备列表
  */
-export const getDevices = (params: any, cancelToken?: any): Promise<any> =>
+export const getDevicesOld = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/list',
     method: 'get',
@@ -372,6 +429,13 @@ export const getChannels = (params: any): Promise<any> =>
  * 创建设备
  */
 export const createDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/create',
+    method: 'post',
+    data: params
+  })
+
+export const createDeviceIbox = (params: any): Promise<any> =>
   request({
     url: '/ibox/device',
     method: 'post',

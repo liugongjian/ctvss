@@ -257,9 +257,9 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
 })
 export default class extends Mixins(deviceFormMixin) {
   @Prop({
-    default: createDevice
+    default: () => createDevice
   })
-  private createDevice: Function
+  private createDeviceApi: Function
   private tips = DeviceTips
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
@@ -312,7 +312,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 父级设备ID
    */
   private get parentDeviceId() {
-    return this.$route.query.parentDeviceId.toString()
+    return this.$route.query.parentDeviceId && this.$route.query.parentDeviceId.toString()
   }
 
   @Watch('videoForm.videoVendor')
@@ -476,7 +476,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [ viidDevice ]
       }
-      createDevice(params)
+      this.createDeviceApi(params)
     }
   }
 

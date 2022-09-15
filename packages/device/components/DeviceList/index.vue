@@ -273,14 +273,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '../../type/Device'
 import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '../../dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceListVisible, checkDeviceColumnsVisible } from '../../utils/param'
-import { describeDevices } from '../../api/device'
+import { getDevices } from '../../api/device'
 import deviceMixin from '../../mixin/deviceMixin'
 import DeviceManager from '../../services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -299,6 +299,10 @@ import Resource from '../Resource.vue'
 export default class extends Mixins(deviceMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+  @Prop({
+    default: () => getDevices
+  })
+  private getDevicesApi: Function
   private checkPermission = checkPermission
   private deviceEnum = DeviceEnum
   private toolsEnum = ToolsEnum
@@ -456,14 +460,15 @@ export default class extends Mixins(deviceMixin) {
   private async initTable() {
     this.loading.table = true
     let params = {
-      DirId: this.currentDirId,
-      Type: this.currentDirType,
-      PageSize: this.pager.pageSize,
-      PageNum: this.pager.pageNum,
+      parentDeviceId: this.deviceId,
+      dirId: this.currentDirId,
+      type: this.currentDirType,
+      pageSize: this.pager.pageSize,
+      pageNum: this.pager.pageNum,
       filterForm: this.filterForm
     }
-    let res: any = await describeDevices(params)
-    console.log('getList', params)
+    let res: any = await this.getDevicesApi(params)
+    console.log('getList', res.devices)
     this.deviceList = res.devices
     this.loading.table = false
   }
