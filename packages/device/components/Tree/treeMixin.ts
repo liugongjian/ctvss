@@ -45,6 +45,7 @@ export default class DetailMixin extends Vue {
   }
 
   public mounted() {
+    console.log(this)
   }
 
   public initCommonTree() {

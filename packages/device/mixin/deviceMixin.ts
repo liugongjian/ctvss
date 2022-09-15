@@ -1,11 +1,15 @@
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 
 @Component
-export default class DetailMixin extends Vue {
+export default class DeviceMixin extends Vue {
+  @Prop({
+    default: null
+  })
+  public getDeviceApi: Function
   // 设备详情
-  public device: Device = null
+  public device: Device = {} as Device
   // 设备详情加载状态
   public deviceLoading = false
 
@@ -13,7 +17,7 @@ export default class DetailMixin extends Vue {
    * 设备ID
    */
   public get deviceId() {
-    return this.$route.query.deviceId.toString()
+    return this.$route.query.deviceId && this.$route.query.deviceId.toString()
   }
 
   // 是否含视频
@@ -29,10 +33,13 @@ export default class DetailMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice() {
+  public async getDevice(deviceId: string = this.deviceId) {
     try {
       this.deviceLoading = true
-      this.device = await DeviceModule.getDevice(this.deviceId)
+      this.device = await DeviceModule.getDevice({
+        deviceId,
+        fetch: this.getDeviceApi
+      })
     } catch (e) {
       this.$alertError(e)
     } finally {

@@ -231,7 +231,7 @@ import { checkPermission } from '@/utils/permission'
 
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
-import detailMixin from '@vss/device/mixin/detailMixin'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceConfig',

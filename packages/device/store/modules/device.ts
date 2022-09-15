@@ -1,3 +1,6 @@
+/**
+ * 需将在主工程中引用当前vuex store
+ */
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
 import store from '@vss/device/store'
 import { toLowerCase } from '@vss/base/utils/param'
@@ -29,9 +32,18 @@ export class Device extends VuexModule implements IDeviceState {
    * @returns device
    */
   @Action
-  public async getDevice(deviceId) {
-    if (!this.device || this.device.deviceId !== deviceId) {
-      this.SET_DEVICE(toLowerCase(deviceMock))
+  public async getDevice(payload: { deviceId: string, fetch: Function }) {
+    if (!this.device || this.device.deviceId !== payload.deviceId) {
+      let device
+      if (payload.fetch) {
+        const res = await payload.fetch({
+          deviceId: payload.deviceId
+        })
+        device = res
+      } else {
+        device = toLowerCase(deviceMock)
+      }
+      this.SET_DEVICE(device)
     }
     return this.device
   }

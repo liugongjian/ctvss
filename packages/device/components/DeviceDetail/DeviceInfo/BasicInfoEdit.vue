@@ -130,26 +130,26 @@ export default class extends Mixins(deviceFormMixin) {
     const basicInfo: DeviceBasic = this.device.device
     const industry: Industry = this.device.industry
     this.deviceForm = {
-      [DeviceEnum.DeviceName]: basicInfo.deviceName,
-      [DeviceEnum.DeviceType]: basicInfo.deviceType,
-      [DeviceEnum.InNetworkType]: this.device.inNetworkType,
-      [DeviceEnum.OutNetworkType]: this.device.outNetworkType,
-      [DeviceEnum.Longlat]: 'required',
-      [DeviceEnum.DeviceLongitude]: basicInfo.deviceLongitude,
-      [DeviceEnum.DeviceLatitude]: basicInfo.deviceLatitude,
-      [DeviceEnum.DeviceVendor]: basicInfo.deviceVendor,
-      [DeviceEnum.Description]: basicInfo.description,
-      [DeviceEnum.DeviceIp]: basicInfo.deviceIp,
-      [DeviceEnum.DevicePort]: basicInfo.devicePort,
-      [DeviceEnum.DevicePoleId]: basicInfo.devicePoleId,
-      [DeviceEnum.DeviceMac]: basicInfo.deviceMac,
-      [DeviceEnum.DeviceSerialNumber]: basicInfo.deviceSerialNumber,
-      [DeviceEnum.DeviceModel]: basicInfo.deviceModel,
-      [DeviceEnum.InOrgRegion]: industry.inOrgRegion,
-      [DeviceEnum.InOrgRegionLevel]: industry.inOrgRegionLevel,
-      [DeviceEnum.IndustryCode]: industry.industryCode,
-      [DeviceEnum.NetworkCode]: industry.networkCode,
-      [DeviceEnum.Region]: this.device.region
+      deviceName: basicInfo.deviceName,
+      deviceType: basicInfo.deviceType,
+      inNetworkType: this.device.inNetworkType,
+      outNetworkType: this.device.outNetworkType,
+      longlat: 'required',
+      deviceLongitude: basicInfo.deviceLongitude,
+      deviceLatitude: basicInfo.deviceLatitude,
+      deviceVendor: basicInfo.deviceVendor,
+      description: basicInfo.description,
+      deviceIp: basicInfo.deviceIp,
+      devicePort: basicInfo.devicePort,
+      devicePoleId: basicInfo.devicePoleId,
+      deviceMac: basicInfo.deviceMac,
+      deviceSerialNumber: basicInfo.deviceSerialNumber,
+      deviceModel: basicInfo.deviceModel,
+      inOrgRegion: industry.inOrgRegion,
+      inOrgRegionLevel: industry.inOrgRegionLevel,
+      industryCode: industry.industryCode,
+      networkCode: industry.networkCode,
+      region: this.device.region
     }
   }
 

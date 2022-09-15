@@ -7,7 +7,7 @@
           <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)"><svg-icon name="auto-play" /></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.Refresh)"><svg-icon name="refresh" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"><svg-icon name="refresh" /></el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
@@ -67,6 +67,13 @@ import ReplayTree from './components/Tree/ReplayTree.vue'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  /**
+   * 树节点点击事件
+   * @param data node信息
+   */
+  private handleTreeNode(data: any) {
+    console.log(data)
+  }
 }
 </script>
 

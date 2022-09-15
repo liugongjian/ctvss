@@ -1,4 +1,13 @@
-import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid, DirectoryTypeAllowParams, DeviceListToolsAllowParams } from '../settings'
+import {
+  InVideoProtocolAllowParams,
+  DeviceTypeDenyParamsForVideo,
+  InViidProtocolAllowParams,
+  DeviceTypeDenyParamsForViid,
+  DirectoryTypeAllowParams,
+  DeviceListToolsAllowParams,
+  DeviceTableColumnAllowParams,
+  DeviceTypeDenyParamsForIbox
+} from '../settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '../enums/index'
 
 /**
@@ -25,10 +34,11 @@ const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
  * 视频接入form-item显示判断
  * @param deviceType 设备类型
  * @param inVideoProtocol 视频接入协议
+ * @param isIbox 是否为IBOX类型
  * @param prop 参数名
  * @return 判断结果
  */
-export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): boolean {
+export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, prop: string): boolean {
   // 接入方式
   if (this.inType === InTypeEnum.Push) {
     if ([
@@ -53,6 +63,9 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
   } else {
     if ([DeviceEnum.DeviceDomain as string].includes(prop)) return false
   }
+
+  // 过滤IBOX的字段
+  if (isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
@@ -81,11 +94,21 @@ export function checkTreeToolsVisible(type: string, prop: string): boolean {
 }
 
 /**
- * 判断设备列表显隐
+ * 判断设备列表按钮显隐
  * @param type 目录类型
  * @param prop 参数名
  * @returns 判断结果
  */
 export function checkDeviceListVisible(type: string, prop: string): boolean {
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop)
+}
+
+/**
+ * 判断设备列表按钮显隐
+ * @param type 目录类型
+ * @param prop 参数名
+ * @returns 判断结果
+ */
+export function checkDeviceColumnsVisible(type: string, prop: string): boolean {
+  return DeviceTableColumnAllowParams[type] && DeviceTableColumnAllowParams[type].has(prop)
 }

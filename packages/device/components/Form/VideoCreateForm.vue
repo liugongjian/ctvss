@@ -195,7 +195,7 @@
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
-    <!-- <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
+    <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
       <resource-tabs
         v-model="videoForm.resources"
         :is-private-in-network="deviceForm.inNetworkType === inNetworkTypeEnum.Private"
@@ -204,7 +204,7 @@
         @on-change="onResourceChange"
         @changevssaiapps="changeVSSAIApps"
       />
-    </el-form-item> -->
+    </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
       <el-form-item>
         <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
@@ -241,6 +241,7 @@ import ResourceTabs from '../ResourceTabs.vue'
 export default class extends Vue {
   @Prop() private device: Device
   @Prop({ default: () => {} }) private deviceForm: DeviceBasicForm
+  @Prop({ default: false }) private isIbox: boolean
   public videoForm: VideoDeviceForm = {}
   private orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
@@ -422,7 +423,7 @@ export default class extends Vue {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, this.isIbox, prop)
   }
 
   /*

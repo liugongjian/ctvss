@@ -1,11 +1,11 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { ToolsEnum } from '../enums/index'
+import { DeviceTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
 import { getNodeInfo } from '../api/device'
-import ScreenBoard from '../components/ScreenBoard/index.vue'
+import { Console } from 'console'
 
 @Component({
   components: {
@@ -15,6 +15,7 @@ import ScreenBoard from '../components/ScreenBoard/index.vue'
 export default class DetailMixin extends Vue {
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
+  public deviceTypeEnum = DeviceTypeEnum
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
     deviceStatusKeys: [],
@@ -49,11 +50,12 @@ export default class DetailMixin extends Vue {
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
-    [ToolsEnum.Refresh]: () => DeviceManager.advanceSearch(this),
+    [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
     [ToolsEnum.AddDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
     [ToolsEnum.EditDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
     [ToolsEnum.SortDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this, type, isfresh),
     [ToolsEnum.DeleteDirectory]: (data) => DeviceManager.deleteDir(this, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
     [ToolsEnum.Polling]: (node) => DeviceManager.executeQueue(this, node, !node, 'polling'),
@@ -63,8 +65,7 @@ export default class DetailMixin extends Vue {
     [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
     [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: (filterData) => DeviceManager.advanceSearch(this, filterData),
-    // 设备列表相关
-    [ToolsEnum.AddDevice]: DeviceManager.addDevice
+    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag)
   }
   /* 设备目录树 */
   public get deviceTree() {
@@ -119,13 +120,5 @@ export default class DetailMixin extends Vue {
   public handleTools(type: string, ...payload: any) {
     console.log(type, ...payload)
     this.handleToolsMap[type](...payload)
-  }
-
-  /**
-   * 树节点点击事件
-   * @param data node信息
-   */
-  public handleTreeNode(data: any) {
-    console.log(data)
   }
 }

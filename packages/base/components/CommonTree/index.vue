@@ -34,6 +34,7 @@
       :lazy="lazy"
       :load="loadChildren"
       :default-expand-all="!lazy"
+      :expand-on-click-node="false"
       highlight-current
       @node-click="handleNode"
     >
@@ -109,6 +110,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.initTree()
     this.checkRootVisable()
   }
 
@@ -129,9 +131,9 @@ export default class extends Vue {
   private initTree() {
     console.log('init')
     this.currentNodeKey = this.defaultKey
-    const node = this.tree.getNode(this.currentNodeKey)
-    const data = node && node.data
-    this.handleNode(data, node)
+    // const node = this.tree.getNode(this.currentNodeKey)
+    // const data = node && node.data
+    // this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
   }
