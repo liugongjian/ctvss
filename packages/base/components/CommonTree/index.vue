@@ -131,9 +131,9 @@ export default class extends Vue {
   private initTree() {
     console.log('init')
     this.currentNodeKey = this.defaultKey
-    const node = this.tree.getNode(this.currentNodeKey)
-    const data = node && node.data
-    this.handleNode(data, node)
+    // const node = this.tree.getNode(this.currentNodeKey)
+    // const data = node && node.data
+    // this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
   }
