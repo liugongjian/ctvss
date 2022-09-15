@@ -40,7 +40,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="接入方式:" :prop="deviceEnum.DeviceInType">
+            <el-form-item v-if="checkVisible(deviceEnum.DeviceInType) || checkVisible(deviceEnum.DeviceInTypeRadio)" label="接入方式:" :prop="deviceEnum.DeviceInType">
               <el-radio-group v-if="checkVisible(deviceEnum.DeviceInTypeRadio)" v-model="deviceForm.deviceInType[0]">
                 <el-radio
                   v-for="(value, key) in deviceInType[deviceForm.deviceType]"
@@ -111,6 +111,7 @@
               <video-create-form
                 ref="videoForm"
                 :device-form="deviceForm"
+                :is-ibox="isIbox"
                 @inVideoProtocolChange="inVideoProtocolChange"
               />
             </div>
@@ -256,10 +257,8 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
   }
 })
 export default class extends Mixins(deviceFormMixin) {
-  @Prop({
-    default: createDevice
-  })
-  private createDevice: Function
+  @Prop({ default: () => createDevice }) private createDeviceApi: Function
+  @Prop({ default: false }) private isIbox: boolean
   private tips = DeviceTips
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
@@ -312,12 +311,18 @@ export default class extends Mixins(deviceFormMixin) {
    * 父级设备ID
    */
   private get parentDeviceId() {
-    return this.$route.query.parentDeviceId.toString()
+    return this.$route.query.parentDeviceId && this.$route.query.parentDeviceId.toString()
   }
 
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
+  }
+
+  private mounted() {
+    if (this.isIbox) {
+      this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    }
   }
 
   private updated() {
@@ -328,7 +333,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
   }
 
   /**
@@ -476,7 +481,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [ viidDevice ]
       }
-      createDevice(params)
+      this.createDeviceApi(params)
     }
   }
 

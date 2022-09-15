@@ -1,7 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import { deviceRouter, videoRouter } from '@vss/device/router'
+import { deviceRouter, videoRouter, iboxRouter } from '@vss/device/router'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -294,6 +294,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
   deviceRouter,
   videoRouter,
+  iboxRouter,
   {
     path: '/screen',
     component: Layout,

@@ -5,7 +5,8 @@ import {
   DeviceTypeDenyParamsForViid,
   DirectoryTypeAllowParams,
   DeviceListToolsAllowParams,
-  DeviceTableColumnAllowParams
+  DeviceTableColumnAllowParams,
+  DeviceTypeDenyParamsForIbox
 } from '../settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '../enums/index'
 
@@ -33,10 +34,11 @@ const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
  * 视频接入form-item显示判断
  * @param deviceType 设备类型
  * @param inVideoProtocol 视频接入协议
+ * @param isIbox 是否为IBOX类型
  * @param prop 参数名
  * @return 判断结果
  */
-export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): boolean {
+export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, prop: string): boolean {
   // 接入方式
   if (this.inType === InTypeEnum.Push) {
     if ([
@@ -61,6 +63,9 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
   } else {
     if ([DeviceEnum.DeviceDomain as string].includes(prop)) return false
   }
+
+  // 过滤IBOX的字段
+  if (isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
