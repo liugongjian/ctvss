@@ -168,6 +168,7 @@ export default class extends Vue {
    */
   private async filterSearchResult() {
     const query = {
+      ...this.$route.query,
       inProtocol: this.$route.query.inProtocal,
       deviceStatusKeys: this.form.deviceStatusKeys.join(','),
       streamStatusKeys: this.form.streamStatusKeys.join(','),

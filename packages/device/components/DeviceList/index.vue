@@ -17,12 +17,12 @@
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice, currentDirId)">添加</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleListTools(toolsEnum.ViewDevice)">查看详情</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice, currentDirId)">同步</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event)">
-            <el-button>导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
+            <el-button :loading="loading.export">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="toolsEnum.ExportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
               <el-dropdown-item :command="toolsEnum.ExportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
@@ -34,7 +34,7 @@
             ref="excelUpload"
             action="#"
             :show-file-list="false"
-            :http-request="handleListTools"
+            :http-request="handleListTools.bind(null, toolsEnum.Import)"
             class="import-button"
           >
             <el-button>导入</el-button>
@@ -56,7 +56,7 @@
             class="el-button-rect filter-container__sync-button"
             :disabled="loading.syncDeviceStatus"
             :class="{'loading': loading.syncDeviceStatus}"
-            @click="handleListTools(toolsEnum.syncDeviceStatus, currentDirId, currentDirType)"
+            @click="handleListTools(toolsEnum.syncDeviceStatus)"
           >
             <svg-icon name="refresh" /> 同步设备状态
           </el-button>
@@ -335,6 +335,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private loading = {
+    export: false,
     table: false,
     syncDevice: false,
     syncDeviceStatus: false
@@ -362,18 +363,19 @@ export default class extends Mixins(deviceMixin) {
 
   // 功能回调字典
   private handleListToolsMap = {
-    [ToolsEnum.AddDevice]: (dirId) => DeviceManager.addDevice(this, dirId),
-    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row),
-    [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row),
+    [ToolsEnum.AddDevice]: () => DeviceManager.addDevice(this, this.currentDirId),
+    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
+    [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
     [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row),
-    [ToolsEnum.SyncDevice]: (dirId) => DeviceManager.syncDevice(this, dirId),
-    [ToolsEnum.SyncDeviceStatus]: (dirId, dirType) => DeviceManager.syncDeviceStatus(this, dirId, dirType),
-    [ToolsEnum.ViewChannels]: DeviceManager.addDevice,
-    [ToolsEnum.ExportAll]: DeviceManager.addDevice,
-    [ToolsEnum.ExportCurrentPage]: DeviceManager.addDevice,
-    [ToolsEnum.ExportSelected]: DeviceManager.addDevice,
-    [ToolsEnum.Import]: DeviceManager.addDevice,
-    [ToolsEnum.ExportTemplate]: DeviceManager.addDevice,
+    [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
+    [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
+    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
+    [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
+    [ToolsEnum.ExportAll]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll),
+    [ToolsEnum.ExportCurrentPage]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage),
+    [ToolsEnum.ExportSelected]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected),
+    [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this, data),
+    [ToolsEnum.ExportTemplate]: () => DeviceManager.exportTemplate(this),
     [ToolsEnum.MoveDevice]: DeviceManager.addDevice,
     [ToolsEnum.StartDevice]: DeviceManager.addDevice,
     [ToolsEnum.StopDevice]: DeviceManager.addDevice,
@@ -416,17 +418,11 @@ export default class extends Mixins(deviceMixin) {
     return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
   }
 
-  @Watch('currentDirId', { immediate: true })
-  private async dirIdChange() {
-    this.initList()
-  }
-
-  @Watch('$route.params', { deep: true, immediate: true })
+  @Watch('$route.query', { deep: true, immediate: true })
   private async statusChange(val) {
     if (val.deviceListRefreshFlag === 'true') {
-      console.log(this.$route.params, 'isfresh')
       this.initList()
-      DeviceManager.refreshDeviceList(this, 'false')
+      this.handleListTools(ToolsEnum.RefreshDeviceList, 'false')
     }
   }
 

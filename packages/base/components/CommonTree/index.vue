@@ -110,6 +110,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.initTree()
     this.checkRootVisable()
   }
 
