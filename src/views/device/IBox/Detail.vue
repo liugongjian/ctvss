@@ -1,25 +1,49 @@
 <template>
-  <div class="ibox-detail">
-    Detail {{ text }}
+  <div class="device-container">
+    <div class="detail-wrap">
+      <div class="detail-wrap__header">
+        <el-page-header content="设备详情" @back="back" />
+        <el-tabs v-model="activeRouteName" @tab-click="handleClick">
+          <el-tab-pane label="基本信息" name="IBoxDeviceInfo" />
+          <el-tab-pane label="配置信息" name="IBoxDeviceConfig" />
+          <el-tab-pane label="设备事件" name="IBoxDeviceEvents" />
+          <el-tab-pane label="实时预览" name="IBoxDevicePreview" />
+          <el-tab-pane label="AI分析" name="IBoxDeviceAi" />
+        </el-tabs>
+      </div>
+      <div class="detail-wrap__body">
+        <div class="detail-wrap__body__content">
+          <router-view />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
-  name: 'IBoxDetail',
-  components: {
-  }
+  name: 'DeviceDetail'
 })
+export default class extends Vue {
+  private activeRouteName: string = 'IBoxDeviceInfo'
 
-export default class IBoxList extends Vue {
-  async mounted() {
-    this.text = '乌拉~'
+  private get deviceId() {
+    return this.$route.query.deviceId.toString()
+  }
+
+  private handleClick(tab) {
+    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
+  }
+
+  @Watch('$route.name', { immediate: true })
+  private routeChange(activeRouteName: string) {
+    this.activeRouteName = activeRouteName
+  }
+
+  private back() {
+    this.$router.push({ name: 'IBoxDeviceList' })
   }
 }
 </script>
-<style lang="scss" scoped>
-.ibox-list {
-  margin-right: 200px;
-}
-</style>

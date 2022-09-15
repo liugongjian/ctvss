@@ -1,7 +1,7 @@
 <template>
   <div class="ibox-list" :class="{'of-hidden': ['ai-manage','app-list'].includes(activeName)}">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane class="tab" v-for="(item,index) in infoList" :key="index" :label="item.label" :name="item.name" />
+      <el-tab-pane v-for="(item,index) in infoList" :key="index" class="tab" :label="item.label" :name="item.name" />
     </el-tabs>
 
     <component :is="activeName" :key="activeName" />

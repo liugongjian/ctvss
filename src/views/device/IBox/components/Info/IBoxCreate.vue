@@ -45,7 +45,7 @@
         </el-form-item>
       </el-form>
       <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
-      <el-button style="margin-top: 12px;" @click="cancel">取消</el-button>
+      <el-button style="margin-top: 12px;" @click="refresh">取消</el-button>
     </div>
     <div v-if="active===2" class="ibox-create">
       <el-form ref="form2" :model="formData2" label-width="130px" :rules="rules">
@@ -84,12 +84,12 @@
       </el-form>
       <el-button style="margin-top: 12px;" @click="pre">上一步</el-button>
       <el-button style="margin-top: 12px;" @click="create">创建</el-button>
-      <el-button style="margin-top: 12px;" @click="cancel">取消</el-button>
+      <el-button style="margin-top: 12px;" @click="refresh">取消</el-button>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { createDevice } from '@/api/ibox'
 
 @Component({
@@ -99,6 +99,8 @@ import { createDevice } from '@/api/ibox'
 })
 
 export default class CreateIBox extends Vue {
+  @Prop() public cb?: Function
+
   public active = 1
 
   public formData1 = {
@@ -159,8 +161,8 @@ export default class CreateIBox extends Vue {
     this.active = 1
   }
 
-  public cancel() {
-
+  public refresh() {
+    this.cb()
   }
 
   public async create() {
@@ -189,8 +191,7 @@ export default class CreateIBox extends Vue {
 
     }
     createDevice(param).then(() => {
-      this.$parent.showAdd()
-      this.$parent.getBoxList()
+      this.refresh()
     })
   }
 }

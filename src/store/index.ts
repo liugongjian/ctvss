@@ -11,6 +11,7 @@ import { IGroupState } from './modules/group'
 import { IScreenState } from './modules/screen'
 import { IMapState } from './modules/map'
 import { IIBoxState } from './modules/ibox'
+import { Device as DeviceNew } from '@vss/device/store/modules/device'
 
 Vue.use(Vuex)
 
@@ -29,4 +30,8 @@ export interface IRootState {
 }
 
 // Declare empty store first, dynamically register all modules later.
-export default new Vuex.Store<IRootState>({})
+export default new Vuex.Store<IRootState>({
+  modules: {
+    deviceNew: DeviceNew
+  }
+})

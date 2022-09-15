@@ -1,63 +1,70 @@
 <template>
   <div class="ibox-list">
-    <div class="ibox-list__btn-box">
-      <el-button type="primary">添加设备</el-button>
+    <ibox-create v-if="showAdd" :cb="cb" />
+    <div v-else class="ibox-list-table">
+      <div class="ibox-list__btn-box">
+        <el-button type="primary" @click="addIBox">添加设备</el-button>
+      </div>
+      <el-table :data="tableData" fit>
+        <el-table-column
+          fixed
+          prop="deviceId"
+          label="设备ID/名称"
+          width="180"
+        >
+          <template slot-scope="scope">
+            <div>{{ scope.row.deviceId }}/</div>
+            <div>{{ scope.row.deviceName }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="deviceStatus"
+          label="状态"
+          width="120"
+        >
+          <template slot-scope="scope">
+            {{ statusMap[scope.row.deviceStatus.isOnline] || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="deviceIp"
+          label="IP地址"
+        />
+        <el-table-column
+          prop="zip"
+          label="序列号"
+        />
+        <el-table-column
+          prop="registerTime"
+          label="接入时间"
+        >
+          <template slot-scope="{row}">
+            {{ dateFormat(Number(row.deviceStatus.registerTime)) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="channelSize"
+          label="通道总数"
+        />
+        <el-table-column
+          label="操作"
+        />
+      </el-table>
     </div>
-    <el-table :data="tableData" fit>
-      <el-table-column
-        fixed
-        prop="deviceId"
-        label="设备ID/名称"
-      >
-        <template slot-scope="scope">
-          <div>{{ scope.row.deviceId }}/</div>
-          <div>{{ scope.row.deviceName }}</div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="deviceStatus"
-        label="状态"
-        width="120"
-      >
-        <template slot-scope="scope">
-          {{ statusMap[scope.row.deviceStatus] }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="ip"
-        label="IP地址"
-      />
-      <el-table-column
-        prop="zip"
-        label="序列号"
-      />
-      <el-table-column
-        prop="registerTime"
-        label="接入时间"
-      >
-        <template slot-scope="{row}">
-          {{ dateFormat(row.registerTime) }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="channelSize"
-        label="通道总数"
-      />
-      <el-table-column
-        label="操作"
-      />
-    </el-table>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getIBoxList } from '@/api/ibox'
-import { IBoxModule } from '@/store/modules/ibox'
+import { getDeviceList } from '@/api/ibox'
+// import { IBoxModule } from '@/store/modules/ibox'
+import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { dateFormat } from '@/utils/date'
+import iboxCreate from '../Info/IBoxCreate.vue'
 
 @Component({
   name: 'NvrList',
   components: {
+    iboxCreate
   }
 })
 
@@ -71,22 +78,53 @@ export default class IBoxList extends Vue {
     new: '未注册'
   }
 
-  async mounted() {
-    await this.getIBoxList()
+  public pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
   }
 
-  async getIBoxList() {
+  public showAdd = false
+
+  public async mounted() {
+    await this.getDeviceList()
+  }
+
+  public async getDeviceList() {
+    const { query } = (this.$route) as any
+    const { deviceId = '' } = query
     const param = {
-      pageNum: 1,
-      pageSize: 10
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize,
+      ParentDeviceId: deviceId
     }
     try {
-      await getIBoxList(param)
+      await getDeviceList(param).then((res: any) => {
+        this.tableData = res.devices.map((item: any) => {
+          let videosInfo = item.videos[0]
+          console.log('videosInfo.InVideoProtocol--->', InVideoProtocolModelMapping[videosInfo.inVideoProtocol])
+          videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
+          return {
+            ...item.device,
+            ...item.industry,
+            ...videosInfo,
+            ...item
+          }
+        })
+      })
     } catch (error) {
       console.log(error)
     }
-    this.tableData = IBoxModule.iboxList.data
-    console.log('IBoxModule--->', IBoxModule.iboxList)
+    // this.tableData = IBoxModule.iboxList.data
+    console.log('tableData--->', this.tableData)
+  }
+  public cb() {
+    this.addIBox()
+    this.getDeviceList()
+  }
+
+  public addIBox() {
+    this.showAdd = !this.showAdd
   }
 }
 </script>

@@ -1,6 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
+import { getDeviceDetail } from '@/api/ibox'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -315,18 +316,107 @@ export const asyncRoutes: RouteConfig[] = [
               // groupSelector: true
             }
           },
+          // {
+          //   path: 'detail',
+          //   component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/index.vue'),
+          //   name: 'IBoxDeviceDetail',
+          //   meta: {
+          //     title: 'iBox设备列表',
+          //     breadcrumb: false,
+          //     perms: ['DescribeDevice'],
+          //     activeMenu: '/device/ibox',
+          //     hidden: true
+          //     // groupSelector: true
+          //   }
+          // },
           {
-            path: '',
+            path: 'detail',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/Detail.vue'),
             name: 'IBoxDeviceDetail',
             meta: {
-              title: 'iBox设备列表',
-              breadcrumb: false,
+              title: '设备详情',
+              hidden: true,
               perms: ['DescribeDevice'],
-              activeMenu: '/device/ibox',
-              hidden: true
-              // groupSelector: true
-            }
+              activeMenu: '/device-refactor',
+              groupSelector: true
+            },
+            children: [
+              {
+                path: '',
+                component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceInfo/index.vue'),
+                name: 'IBoxDeviceInfo',
+                props: {
+                  getDeviceApi: getDeviceDetail
+                },
+                meta: {
+                  title: '基本信息',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device-detail',
+                  groupSelector: true
+                }
+              },
+              {
+                path: 'events',
+                component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceEvents.vue'),
+                name: 'IBoxDeviceEvents',
+                props: {
+                  getDeviceApi: getDeviceDetail
+                },
+                meta: {
+                  title: '设备/流信息',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device-detail',
+                  groupSelector: true
+                }
+              },
+              {
+                path: 'config',
+                component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceConfig/index.vue'),
+                name: 'IBoxDeviceConfig',
+                props: {
+                  getDeviceApi: getDeviceDetail
+                },
+                meta: {
+                  title: '配置信息',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device-detail',
+                  groupSelector: true
+                }
+              },
+              {
+                path: 'preview',
+                component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DevicePreview.vue'),
+                name: 'IBoxDevicePreview',
+                props: {
+                  getDeviceApi: getDeviceDetail
+                },
+                meta: {
+                  title: '实时预览',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device-detail',
+                  groupSelector: true
+                }
+              },
+              {
+                path: 'ai',
+                component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceAi.vue'),
+                name: 'IBoxDeviceAi',
+                props: {
+                  getDeviceApi: getDeviceDetail
+                },
+                meta: {
+                  title: 'AI分析',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device-detail',
+                  groupSelector: true
+                }
+              }
+            ]
           }
         ]
       }

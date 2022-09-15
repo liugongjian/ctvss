@@ -22,6 +22,9 @@ import * as filters from '@/filters'
 
 import { initLogin } from '@/services/loginService'
 
+// import VssBase from '@vss/base'
+import VssDevice from '@vss/device'
+
 // @ts-ignore
 window._typeof = (e: any) => {
   return typeof e
@@ -41,6 +44,9 @@ Vue.use(SvgIcon, {
 
 Vue.use(InfoList)
 Vue.use(ShowAlert)
+
+// Vue.use(VssBase)
+Vue.use(VssDevice)
 
 // Register global directives
 Object.keys(directives).forEach(key => {

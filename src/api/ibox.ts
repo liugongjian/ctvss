@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { toUpperCase, toLowerCase } from '@/utils/param'
+import { toUpperCase } from '@/utils/param'
 
 // 获取盒子设备列表
 export const getIBoxList = (params: any): Promise<any> =>
@@ -7,7 +7,7 @@ export const getIBoxList = (params: any): Promise<any> =>
     url: '/iboxes',
     method: 'get',
     params: toUpperCase(params)
-  }).then(res => (toLowerCase(res) as any).data)
+  })
 
 // 获取盒子详情
 export const getIBoxDetail = (params: any): Promise<any> =>
@@ -15,7 +15,7 @@ export const getIBoxDetail = (params: any): Promise<any> =>
     url: '/ibox',
     method: 'get',
     params: toUpperCase(params)
-  }).then(res => (toLowerCase(res) as any).data)
+  })
 
 // 修改盒子信息
 export const updateIBox = (data: any): Promise<any> =>
@@ -23,7 +23,7 @@ export const updateIBox = (data: any): Promise<any> =>
     url: '/ibox',
     method: 'put',
     data: toUpperCase(data)
-  }).then(res => (toLowerCase(res) as any).data)
+  })
 
 // 设备列表查询
 export const getDeviceList = (params: any): Promise<any> =>
@@ -31,7 +31,7 @@ export const getDeviceList = (params: any): Promise<any> =>
     url: '/ibox/devicelist',
     method: 'get',
     params: toUpperCase(params)
-  }).then(res => (toLowerCase(res) as any).data)
+  })
 
 // 设备创建
 export const createDevice = (data: any) =>
@@ -39,4 +39,20 @@ export const createDevice = (data: any) =>
     url: '/ibox/device',
     method: 'post',
     data: toUpperCase(data)
-  }).then(res => (toLowerCase(res) as any).data)
+  })
+
+// 设备详情
+export const getDeviceDetail = (params: any) =>
+  request({
+    url: '/ibox/device',
+    method: 'get',
+    params: toUpperCase(params)
+  })
+
+// ibox凭证 /v1/ibox/certificates
+export const getIBoxCertificates = () =>
+  request({
+    url: '/ibox/certificates',
+    method: 'post'
+    // data: toUpperCase(data)
+  })

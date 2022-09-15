@@ -93,7 +93,7 @@ export default class IBox extends Vue {
 
   public treeIboxId = ''
 
-  async mounted() {
+  public async mounted() {
     this.calcHeight()
     window.addEventListener('resize', this.calcHeight)
     this.$once('hook:beforeDestroy', () => {
@@ -122,7 +122,7 @@ export default class IBox extends Vue {
   }
 
   public handleNodeClick(item: any, node: any) {
-    // TODO 根据 dirList对应层级，判断右侧是list或者是detail
+    // TODO 面包屑及刷新后选中逻辑
 
     node.expanded = true
     console.log('node', node, item)
@@ -178,8 +178,14 @@ export default class IBox extends Vue {
 
       this.setListInfo(type, iboxes, deviceId)
       this.$nextTick(() => {
+        const path: string | (string | null)[] | null = this.$route.query.path
+        const keyPath = path ? path.toString().split(',') : null
+        console.log('keyPath--->', keyPath)
+
         if (deviceId) {
           const dirTree: any = this.$refs.dirTree
+          const node = dirTree.getNode(deviceId)
+          console.log('node--->', node)
           dirTree.setCurrentKey(this.defaultKey)
           this.defaultExpandedKeys = [this.defaultKey]
         }
@@ -196,10 +202,12 @@ export default class IBox extends Vue {
     const { data } = node
     const deviceId = data.deviceId
 
-    await this.loadIboxDevice(deviceId)
+    if (deviceId) {
+      await this.loadIboxDevice(deviceId)
+    }
 
     // 根据 deviceType确定是否是子节点
-    const iboxList = this.iboxDevice ? this.iboxDevice.map((item: any) => {
+    const iboxList = this.iboxDevice && this.iboxDevice.length ? this.iboxDevice.map((item: any) => {
       if (item.device.deviceType === 'nvr') {
         return {
           isLeaf: false,
@@ -274,9 +282,10 @@ export default class IBox extends Vue {
     }
 
     const router: any = {
-      path: (this.$router as any).path,
+      name: 'IBoxDeviceList',
       query
     }
+
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
   }

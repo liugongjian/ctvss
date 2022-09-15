@@ -26,16 +26,17 @@
           <p>管理员将显示的接入凭证码告知安装员</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第一步：告知安装员</h3>
-          <p>管理员将显示的接入凭证码告知安装员</p>
+          <h3>第二步：填写平台地址</h3>
+          <p>共有云地址：http://vcn.ctyun.cn</p>
+          <p>私有云地址：服务器[IP]:端口号[Port]</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第一步：告知安装员</h3>
-          <p>管理员将显示的接入凭证码告知安装员</p>
+          <h3>第三步：填写接入凭证码</h3>
+          <p>安装员在设备端填写接入凭证码（一码可填多台设备）</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第一步：告知安装员</h3>
-          <p>管理员将显示的接入凭证码告知安装员</p>
+          <h3>第四步：绑定设备</h3>
+          <p>设备连接平台，并完成用户绑定</p>
         </div>
       </div>
     </el-card>
@@ -43,11 +44,35 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-export default class extends Vue {
+import { getIBoxCertificates } from '@/api/ibox'
+
+@Component({
+  name: 'IBoxCertificate',
+  components: {
+  }
+})
+
+export default class IBoxCertificate extends Vue {
   public code = '828 368 287'
+
+  public async mounted() {
+    console.log('3123123')
+    await this.getCode()
+  }
+
+  public async getCode() {
+    await getIBoxCertificates().then(res => {
+      console.log(res)
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
+  .app-container{
+    ::v-deep .el-card{
+      overflow: auto;
+    }
+  }
 .certificate-ibox {
   &__info-text {
     font-size: 20px;
@@ -59,7 +84,7 @@ export default class extends Vue {
     height: calc(100vh - 316px);
 
     &-box {
-      width: 300px;
+      width: 600px;
       height: 200px;
       position: absolute;
       top: 50%;
@@ -70,6 +95,16 @@ export default class extends Vue {
       p,
       h2 {
         text-align: center;
+      }
+
+      p{
+        font-size: 16px;
+      }
+
+      h2{
+        font-size: 80px;
+        margin-top: 0;
+        margin-bottom: 10px;
       }
     }
   }
