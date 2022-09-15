@@ -15,6 +15,7 @@ import { Console } from 'console'
 export default class DetailMixin extends Vue {
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
+  public deviceTypeEnum = DeviceTypeEnum
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
     deviceStatusKeys: [],
@@ -119,32 +120,5 @@ export default class DetailMixin extends Vue {
   public handleTools(type: string, ...payload: any) {
     console.log(type, ...payload)
     this.handleToolsMap[type](...payload)
-  }
-
-  /**
-   * 树节点点击事件
-   * @param data node信息
-   */
-  public handleTreeNode(data: any) {
-    console.log(data)
-    const { id, type } = data || {}
-    if (type === DeviceTypeEnum.Ipc) {
-      this.$router.push({
-        name: 'DeviceInfo',
-        query: {
-          deviceId: '29941916753760267'
-        }
-      })
-    } else {
-      this.$router.push({
-        name: 'DeviceList',
-        query: {
-          ...this.$route.query,
-          type: type,
-          dirId: id
-        }
-      })
-      this.handleTools(ToolsEnum.RefreshDeviceList)
-    }
   }
 }

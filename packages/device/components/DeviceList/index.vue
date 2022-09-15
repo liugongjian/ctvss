@@ -245,6 +245,7 @@
                       <el-dropdown-item v-if="row[deviceEnum.RecordStatus] === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
                       <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
                     </div>
+                    <el-dropdown-item v-if="checkToolsVisible(toolsEnum.PreviewEvents, null, row)" :command="toolsEnum.PreviewEvents">设备事件</el-dropdown-item>
                     <el-dropdown-item v-if="checkToolsVisible(toolsEnum.UpdateResource, policyEnum.AdminDevice, row)" :command="toolsEnum.UpdateResource">配置资源包</el-dropdown-item>
                     <el-dropdown-item v-if="checkToolsVisible(toolsEnum.MoveDevice, policyEnum.AdminDevice, row)" :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
                     <el-dropdown-item v-if="checkToolsVisible(toolsEnum.EditDevice, policyEnum.AdminDevice, row)" :command="toolsEnum.EditDevice">编辑</el-dropdown-item>
@@ -266,9 +267,9 @@
         />
       </div>
     </div>
-    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
-    <upload-excel v-if="dialog.uploadExcel" :file="selectedFile" :data="fileData" @on-close="closeDialog('uploadExcel', ...arguments)" />
-    <resource v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" />
+    <move-dir v-if="dialog[toolsEnum.MoveDevice]" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog(toolsEnum.MoveDevice, $event)" />
+    <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="closeDialog(toolsEnum.Import, $event)" />
+    <resource v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
   </div>
 </template>
 
@@ -338,15 +339,15 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private dialog = {
-    moveDir: false,
-    uploadExcel: false,
-    resource: false
+    [ToolsEnum.MoveDevice]: false,
+    [ToolsEnum.Import]: false,
+    [ToolsEnum.UpdateResource]: false
   }
 
-  private currentDir = {
-    type: DirectoryTypeEnum.Dir,
-    dirId: ''
-  }
+  private isBatchMoveDir = false
+  private currentDevice = null
+  private selectedFile = null
+  private fileData = null
 
   // 筛选类型
   private filtersArray = {
@@ -372,16 +373,17 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.ExportSelected]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected),
     [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this, data),
     [ToolsEnum.ExportTemplate]: () => DeviceManager.exportTemplate(this),
-    [ToolsEnum.MoveDevice]: DeviceManager.addDevice,
-    [ToolsEnum.StartDevice]: DeviceManager.addDevice,
-    [ToolsEnum.StopDevice]: DeviceManager.addDevice,
-    [ToolsEnum.StartRecord]: DeviceManager.addDevice,
-    [ToolsEnum.StopRecord]: DeviceManager.addDevice,
-    [ToolsEnum.UpdateResource]: DeviceManager.addDevice,
-    [ToolsEnum.PreviewEvents]: DeviceManager.addDevice,
-    [ToolsEnum.PreviewVideo]: DeviceManager.addDevice,
-    [ToolsEnum.ReplayVideo]: DeviceManager.addDevice,
-    [ToolsEnum.PreviewViid]: DeviceManager.addDevice
+    [ToolsEnum.MoveDevice]: (row) => DeviceManager.openListDialog(this, ToolsEnum.MoveDevice, row),
+    [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
+    [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
+    [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
+    [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
+    [ToolsEnum.UpdateResource]: (row) => DeviceManager.openListDialog(this, ToolsEnum.UpdateResource, row),
+    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeListDialog(this, type, isfresh),
+    [ToolsEnum.PreviewEvents]: () => DeviceManager.previewEvents(this, this.currentDirId),
+    [ToolsEnum.PreviewVideo]: () => DeviceManager.previewVideo(this, this.currentDirId),
+    [ToolsEnum.ReplayVideo]: () => DeviceManager.replayVideo(this, this.currentDirId),
+    [ToolsEnum.PreviewViid]: () => DeviceManager.previewViid(this, this.currentDirId)
   }
 
   // 设备基本信息
@@ -414,9 +416,9 @@ export default class extends Mixins(deviceMixin) {
     return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
   }
 
-  @Watch('$route.query', { deep: true, immediate: true })
+  @Watch('$route.query.deviceListRefreshFlag', { deep: true, immediate: true })
   private async statusChange(val) {
-    if (val.deviceListRefreshFlag === 'true') {
+    if (val === 'true') {
       this.initList()
       this.handleListTools(ToolsEnum.RefreshDeviceList, 'false')
     }
@@ -428,6 +430,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private mounted() {
+    this.handleTools(ToolsEnum.RefreshDeviceList)
     this.initTableSize()
   }
 
@@ -473,6 +476,13 @@ export default class extends Mixins(deviceMixin) {
       this.calTableMaxHeight()
     })
     this.tableContainer && this.observer.observe(this.tableContainer)
+  }
+
+  /**
+   * 计算表格高度
+   */
+  private calTableMaxHeight() {
+    this.tableMaxHeight = this.tableContainer && this.tableContainer.offsetHeight
   }
 
   /**
@@ -541,14 +551,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   /**
-   * 计算表格高度
-   */
-  private calTableMaxHeight() {
-    this.tableMaxHeight = this.tableContainer && this.tableContainer.offsetHeight
-  }
-
-  /**
-   * 将字典转为筛选数组
+   * 将筛选字典转为筛选数组
    */
   private dictToFilterArray(dict: any) {
     const filterArray = []

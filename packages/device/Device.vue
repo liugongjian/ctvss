@@ -69,5 +69,31 @@ import CreateDir from './components/CreateDir.vue'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  /**
+   * 树节点点击事件
+   * @param data node信息
+   */
+  private handleTreeNode(data: any) {
+    console.log(data)
+    const { id, type } = data || {}
+    if (type === this.deviceTypeEnum.Ipc) {
+      this.$router.push({
+        name: 'DeviceInfo',
+        query: {
+          deviceId: '29941916753760267'
+        }
+      })
+    } else {
+      this.$router.push({
+        name: 'DeviceList',
+        query: {
+          ...this.$route.query,
+          type: type,
+          dirId: id
+        }
+      })
+      this.handleTools(this.toolsEnum.RefreshDeviceList)
+    }
+  }
 }
 </script>
