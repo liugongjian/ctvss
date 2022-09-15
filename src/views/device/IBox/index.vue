@@ -403,5 +403,11 @@ export default class IBox extends Vue {
     padding: 10px 15px;
     background: #f8f8f8;
   }
+
+  &__list {
+    display: flex;
+    position: relative;
+    padding: $padding-medium;
+  }
 }
 </style>
