@@ -167,7 +167,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
-import PicCard from './PicCard.vue'
+import PicCard from '@vss/ai/component/PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
 import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/Dashboard/AI/components/Locations.vue'
