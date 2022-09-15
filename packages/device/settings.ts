@@ -129,6 +129,16 @@ export const DeviceTypeDenyParamsForVideo = {
 }
 
 /**
+ * IBOX设备需要隐藏的字段
+ * 注意下面是不显示的字段(DENY)
+ */
+export const DeviceTypeDenyParamsForIbox = new Set([
+  DeviceEnum.DeviceInType,
+  DeviceEnum.DeviceInTypeRadio,
+  DeviceEnum.Resources
+])
+
+/**
  * ==============================================================================================================================
  * DEVICE-CREATE--VIID
  */
