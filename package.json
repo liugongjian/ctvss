@@ -63,6 +63,7 @@
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
     "path-to-regexp": "^6.1.0",
+    "phantomjs-prebuilt": "^2.1.16",
     "postcss-scss": "^4.0.3",
     "register-service-worker": "^1.6.2",
     "screenfull": "^5.0.1",

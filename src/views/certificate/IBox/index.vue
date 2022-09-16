@@ -16,8 +16,8 @@
       <div class="certificate-ibox__number">
         <div class="certificate-ibox__number-box">
           <p>接入凭证码</p>
-          <h2>{{ code }}</h2>
-          <el-button>点击更换凭证</el-button>
+          <h2>{{ captcha }}</h2>
+          <el-button type="text" icon="el-icon-refresh" @click="changeDialog">点击更换凭证</el-button>
         </div>
       </div>
       <div class="certificate-ibox__step">
@@ -40,6 +40,19 @@
         </div>
       </div>
     </el-card>
+    <el-dialog
+      title="更换凭证"
+      :visible.sync="ifShowDialog"
+      width="30%"
+      center
+    >
+      <span>确定更换AI_BOX接入凭证吗？确定更换后，已接入平台的AI_BOX不受影响；新的AI_BOX配置接入时，需使用新的凭证，旧的凭证将失效。</span>
+      <span slot="footer" class="dialog-footer">
+
+        <el-button type="primary" @click="changeCaptcha">确 定</el-button>
+        <el-button @click="changeDialog">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -53,17 +66,30 @@ import { getIBoxCertificates } from '@/api/ibox'
 })
 
 export default class IBoxCertificate extends Vue {
-  public code = '828 368 287'
+  public captcha = '828 368 287'
+  public ifShowDialog = false
 
   public async mounted() {
     console.log('3123123')
-    await this.getCode()
+    await this.getCaptcha()
   }
 
-  public async getCode() {
-    await getIBoxCertificates().then(res => {
-      console.log(res)
-    })
+  public async getCaptcha() {
+    try {
+      const res: any = await getIBoxCertificates()
+      this.captcha = (res.captcha || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1 ')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  public changeDialog() {
+    this.ifShowDialog = !this.ifShowDialog
+  }
+
+  public async changeCaptcha() {
+    await this.getCaptcha()
+    this.ifShowDialog = false
   }
 }
 </script>

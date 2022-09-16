@@ -1,6 +1,4 @@
 import request from '@/utils/request'
-import { toUpperCase, toLowerCase } from '@/utils/param'
-import { resolve } from 'path'
 
 export const getUsers = (params: any) =>
   request({
@@ -45,7 +43,7 @@ export const login = (data: any) => request({
   url: '/user/login',
   method: 'post',
   data
-}).then(res => (toLowerCase(res) as any).data)
+})
 
 export const logout = () =>
   request({
