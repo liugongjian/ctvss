@@ -140,6 +140,14 @@ const refreshDeviceList = function(state, flag = 'true') {
     }
   })
 }
+/**
+ * 跳转设备列表
+ */
+const goToDeviceList = function(state) {
+  state.$router.push({
+    name: 'DeviceList'
+  })
+}
 
 /**
 * 同步设备
@@ -550,5 +558,6 @@ export default {
   previewEvents,
   previewVideo,
   replayVideo,
-  previewViid
+  previewViid,
+  goToDeviceList
 }

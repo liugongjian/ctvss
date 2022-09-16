@@ -5,7 +5,6 @@ import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
 import { getNodeInfo } from '../api/device'
-import { Console } from 'console'
 
 @Component({
   components: {
@@ -65,7 +64,8 @@ export default class DetailMixin extends Vue {
     [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
     [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: (filterData) => DeviceManager.advanceSearch(this, filterData),
-    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag)
+    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
+    [ToolsEnum.GoToDeviceList]: () => DeviceManager.goToDeviceList(this)
   }
   /* 设备目录树 */
   public get deviceTree() {

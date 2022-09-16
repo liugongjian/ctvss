@@ -255,7 +255,8 @@ export enum ToolsEnum {
   PreviewEvents = 'previewEvents',
   PreviewVideo = 'previewVideo',
   ReplayVideo = 'replayVideo',
-  PreviewViid = 'previewViid'
+  PreviewViid = 'previewViid',
+  GoToDeviceList = 'goToDeviceList'
 }
 
 /**
