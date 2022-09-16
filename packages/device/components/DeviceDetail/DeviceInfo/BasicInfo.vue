@@ -7,7 +7,7 @@
         <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
         <span class="device-in-type__buttons">
           <el-button v-if="!hasVideo" type="text" @click="openDialog(deviceInTypeEnum.Video)">添加视频</el-button>
-          <el-button v-if="!hasViid" type="text" @click="openDialog(deviceInTypeEnum.Viid)">添加视图</el-button>
+          <el-button v-if="!hasViid && !isIbox" type="text" @click="openDialog(deviceInTypeEnum.Viid)">添加视图</el-button>
         </span>
       </el-descriptions-item>
       <el-descriptions-item label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
@@ -43,6 +43,7 @@ import ViidInfoDialog from './ViidInfoDialog.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  @Prop({ default: false }) public isIbox: boolean
 
   private dicts = dicts
   private deviceInTypeEnum = DeviceInTypeEnum

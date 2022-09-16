@@ -8,7 +8,7 @@
             <el-button v-if="!isEdit.basicInfo" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
           </div>
         </div>
-        <basic-info v-if="!isEdit.basicInfo" :device="device" />
+        <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" />
         <basic-info-edit v-else :device="device" @cancel="isEdit.basicInfo = false" />
       </div>
       <div class="detail__section">
