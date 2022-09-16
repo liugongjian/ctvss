@@ -54,7 +54,6 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
     }
     return
   }
-
   // Determine whether the user has logged in
   if (UserModule.token) {
     // Check whether the user has obtained his permission
@@ -70,8 +69,13 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
         if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+          const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+          if (menuRoutes.length > 0) {
+            to = menuRoutes[0]
+          } else {
           // @ts-ignore
-          to = PermissionModule.dynamicRoutes[0]
+            to = PermissionModule.dynamicRoutes[0]
+          }
         }
         // 单点登录菜单高亮
         UserModule.casLoginId && casService.activeCasMenu(to)
