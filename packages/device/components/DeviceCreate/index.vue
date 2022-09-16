@@ -115,7 +115,7 @@
                 @inVideoProtocolChange="inVideoProtocolChange"
               />
             </div>
-            <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Viid)">
+            <div v-if="checkVisible(deviceEnum.Viids)" v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Viid)">
               <div class="form-title">视图接入信息</div>
               <viid-create-form
                 ref="viidForm"
