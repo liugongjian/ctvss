@@ -13,9 +13,10 @@
       <el-descriptions-item label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
       <el-descriptions-item label="设备ID">{{ basicInfo.deviceId }}</el-descriptions-item>
       <el-descriptions-item label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
-      <el-descriptions-item label="接入区域">缺失</el-descriptions-item>
-      <el-descriptions-item label="所属行业">{{ industry.industryName || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="设备地址">缺失</el-descriptions-item>
+      <el-descriptions-item label="接入区域">{{ device.region }}</el-descriptions-item>
+      <el-descriptions-item label="所属行业">{{ dicts.IndustryMap[industry.industryCode] }}</el-descriptions-item>
+      <el-descriptions-item label="网络标识">{{ dicts.NetworkMap[industry.networkCode] }}</el-descriptions-item>
+      <el-descriptions-item label="设备地址">{{ industry.inOrgRegion}},{{ industry.inOrgRegionLevel }}</el-descriptions-item>
       <el-descriptions-item label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>

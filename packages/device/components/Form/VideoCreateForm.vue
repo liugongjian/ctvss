@@ -44,9 +44,9 @@
         type="number"
       />
     </el-form-item>
-    <!-- <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
+    <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
       <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
-    </el-form-item> -->
+    </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
         v-for="(value, key) in inType"

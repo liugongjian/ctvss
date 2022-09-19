@@ -138,7 +138,7 @@
                 />
               </el-select>
             </el-form-item>
-            <!-- <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
+            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -160,7 +160,7 @@
                 :level="deviceForm.inOrgRegionLevel"
                 @change="onDeviceAddressChange"
               />
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
               <el-select
                 v-model="deviceForm.industryCode"
@@ -415,6 +415,9 @@ export default class extends Mixins(deviceFormMixin) {
       DeviceEnum.DevicePoleId,
       DeviceEnum.DeviceMac
     ]
+    this.deviceForm.region = '0431001'
+    this.deviceForm.inOrgRegion = '11011100'
+    this.deviceForm.inOrgRegionLevel = 3
     form.validateField(validArr, (err) => {
       if (err !== '') {
         validFlag = false
@@ -451,6 +454,8 @@ export default class extends Mixins(deviceFormMixin) {
         },
         industry: {
           ...pick(this.deviceForm, [
+            DeviceEnum.InOrgRegion,
+            DeviceEnum.InOrgRegionLevel,
             DeviceEnum.IndustryCode,
             DeviceEnum.NetworkCode
           ])

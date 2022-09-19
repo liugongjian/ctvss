@@ -90,6 +90,7 @@ import { Device, VideoDevice } from '@vss/device/type/Device'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  @Prop({ default: false }) private isIbox: boolean
   private dicts = dicts
   private deviceEnum = DeviceEnum
 
@@ -131,7 +132,7 @@ export default class extends Vue {
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, this.isIbox, prop)
   }
 
   // 进入编辑模式
