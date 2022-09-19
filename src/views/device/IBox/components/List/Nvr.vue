@@ -1,7 +1,6 @@
 <template>
   <div class="ibox-list">
-    <ibox-create v-if="showAdd" :cb="cb" />
-    <div v-else class="ibox-list-table">
+    <div class="ibox-list-table">
       <div class="ibox-list__btn-box">
         <el-button type="primary" @click="addIBox">添加设备</el-button>
       </div>
@@ -12,9 +11,11 @@
           label="设备ID/名称"
           width="180"
         >
-          <template slot-scope="scope">
-            <div>{{ scope.row.deviceId }}/</div>
-            <div>{{ scope.row.deviceName }}</div>
+          <template slot-scope="{row}">
+            <div class="ibox-list-table--text" @click="toDetail(row)">
+              <div class="ibox-list-table--id">{{ row.deviceId }}</div>
+              <div>{{ row.deviceName }}</div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -59,12 +60,10 @@ import { getDeviceList } from '@/api/ibox'
 // import { IBoxModule } from '@/store/modules/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { dateFormat } from '@/utils/date'
-import iboxCreate from '../Info/IBoxCreate.vue'
 
 @Component({
   name: 'NvrList',
   components: {
-    iboxCreate
   }
 })
 
@@ -83,8 +82,6 @@ export default class IBoxList extends Vue {
     pageSize: 10,
     total: 0
   }
-
-  public showAdd = false
 
   public async mounted() {
     await this.getDeviceList()
@@ -118,18 +115,51 @@ export default class IBoxList extends Vue {
     // this.tableData = IBoxModule.iboxList.data
     console.log('tableData--->', this.tableData)
   }
-  public cb() {
-    this.addIBox()
-    this.getDeviceList()
-  }
 
   public addIBox() {
-    this.showAdd = !this.showAdd
+    let query: any = {
+      deviceId: this.$route.query.deviceId,
+      parentDeviceId: this.$route.query.deviceId,
+      type: this.$route.query.type
+    }
+    // IBoxDeviceCreate
+    const router: any = {
+      name: 'IBoxDeviceCreate',
+      query
+    }
+    this.$router.push(router)
+  }
+
+  public toDetail(row: any) {
+    let query: any = {
+      deviceId: row.deviceId,
+      type: this.$route.query.type
+    }
+    const router: any = {
+      name: 'IBoxDeviceInfo',
+      query
+    }
+
+    // if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    this.$router.push(router)
   }
 }
 </script>
 <style lang="scss" scoped>
 .ibox-list {
   width: 100%;
+
+  .ibox-list-table {
+    overflow: auto;
+    height: calc(100% - 40px);
+
+    &--text {
+      cursor: pointer;
+    }
+
+    &--id {
+      color: #fa8334;
+    }
+  }
 }
 </style>

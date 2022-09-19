@@ -330,6 +330,22 @@ export const asyncRoutes: RouteConfig[] = [
           //   }
           // },
           {
+            path: 'create',
+            component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceCreate/index.vue'),
+            name: 'IBoxDeviceCreate',
+            props: {
+              isIbox: true
+              // getDeviceApi: getDeviceDetail
+            },
+            meta: {
+              title: 'iBox设备创建',
+              breadcrumb: false,
+              perms: ['DescribeDevice'],
+              activeMenu: '/device/ibox',
+              hidden: true
+            }
+          },
+          {
             path: 'detail',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/Detail.vue'),
             name: 'IBoxDeviceDetail',
@@ -346,6 +362,7 @@ export const asyncRoutes: RouteConfig[] = [
                 component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceInfo/index.vue'),
                 name: 'IBoxDeviceInfo',
                 props: {
+                  isIbox: true,
                   getDeviceApi: getDeviceDetail
                 },
                 meta: {

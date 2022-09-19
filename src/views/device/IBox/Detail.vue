@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 
 @Component({
   name: 'DeviceDetail'
@@ -42,8 +42,10 @@ export default class extends Vue {
     this.activeRouteName = activeRouteName
   }
 
+  @Inject('handleTools')
+  private handleTools!: Function
   private back() {
-    this.$router.push({ name: 'IBoxDeviceList' })
+    this.handleTools()
   }
 }
 </script>

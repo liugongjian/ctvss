@@ -1,8 +1,6 @@
 <template>
   <div class="ibox-list">
-    <ibox-create v-if="showAdd" :cb="cb" />
-
-    <div v-else class="ibox-list-table">
+    <div class="ibox-list-table">
       <div class="ibox-list__btn-box">
         <el-button type="primary" @click="addIBox">添加设备</el-button>
       </div>
@@ -74,29 +72,25 @@
         />
         <el-table-column
           width="120"
-          prop="zip"
+          prop="sipTransType"
           label="信息传输模式"
         />
         <el-table-column
-          prop="zip"
+          prop="streamTransProtocol"
           label="流传输模式"
           width="120"
         />
         <el-table-column
-          prop="zip"
+          prop="streamTransProtocol"
           label="优先TCP传输"
           width="120"
         />
         <el-table-column
-          prop="channelSize"
+          prop="deviceChannelSize"
           label="通道数"
-        >
-          <template slot-scope="{row}">
-            {{ statusMap[row.deviceStats.channelSize] }}
-          </template>
-        </el-table-column>
+        />
         <el-table-column
-          prop="deviceIP"
+          prop="deviceIp"
           label="设备IP"
         />
         <el-table-column
@@ -106,6 +100,7 @@
         <el-table-column
           prop="registerTime"
           label="创建时间"
+          width="180"
         >
           <template slot-scope="{row}">
             {{ dateFormat(Number(row.deviceStatus.registerTime)) }}
@@ -133,20 +128,16 @@ import { getDeviceList } from '@/api/ibox'
 // import { IBoxModule } from '@/store/modules/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { dateFormat } from '@/utils/date'
-import iboxCreate from './IBoxCreate.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
-    iboxCreate
   }
 })
 
 export default class IBoxList extends Vue {
   public tableData = []
   public dateFormat = dateFormat
-
-  public showAdd = false
 
   public statusMap = {
     on: '在线',
@@ -215,18 +206,30 @@ export default class IBoxList extends Vue {
   }
 
   public addIBox() {
-    this.showAdd = !this.showAdd
+    let query: any = {
+      deviceId: this.$route.query.deviceId,
+      parentDeviceId: this.$route.query.deviceId,
+      type: this.$route.query.type
+    }
+    // IBoxDeviceCreate
+    const router: any = {
+      name: 'IBoxDeviceCreate',
+      query
+    }
+    this.$router.push(router)
   }
 
-  public cb() {
-    this.addIBox()
-    this.getDeviceList()
-  }
+  // public cb() {
+  //   this.addIBox()
+  //   this.getDeviceList()
+  //   const path = this.$route.path
+  //   this.$router.push(path)
+  // }
 
   public toDetail(row: any) {
-    console.log('row--->', row)
     let query: any = {
-      deviceId: row.deviceId
+      deviceId: row.deviceId,
+      type: this.$route.query.type
     }
     const router: any = {
       name: 'IBoxDeviceInfo',
@@ -241,15 +244,16 @@ export default class IBoxList extends Vue {
 <style lang="scss" scoped>
   .ibox-list {
     height: 100%;
-    .ibox-list-table{
+
+    .ibox-list-table {
       overflow: auto;
       height: calc(100% - 40px);
 
-      &--text{
+      &--text {
         cursor: pointer;
       }
 
-      &--id{
+      &--id {
         color: #fa8334;
       }
     }

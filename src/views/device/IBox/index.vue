@@ -42,7 +42,7 @@
             </span>
           </div>
           <div class="ibox-container__list" :style="{height: `${height - 40}px`}">
-            <router-view />
+            <router-view :key="$route.fullPath" />
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Provide } from 'vue-property-decorator'
 
 import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
@@ -62,9 +62,10 @@ import { IBoxModule } from '@/store/modules/ibox'
 })
 
 export default class IBox extends Vue {
-  // public loading = {
-  //   'dirTree': false
-  // }
+  public loading = {
+    'dirTree': false,
+    iboxTable: false
+  }
   public isExpanded = true
   public height = 0
   public dirDrag = {
@@ -117,7 +118,7 @@ export default class IBox extends Vue {
     this.height = documentHeight - top - 22
   }
 
-  toggledirList() {
+  public toggledirList() {
     this.isExpanded = !this.isExpanded
   }
 
@@ -139,13 +140,13 @@ export default class IBox extends Vue {
           const iboxNvr = this.getIboxNvr(node)
           this.setListInfo('nvrlist', iboxNvr, deviceId)
         } else if (item.deviceType === 'ipc') {
-        // Todo 展示详情页
+          this.toDetail(item)
         } else {
-        // todo 展示详情页
+          this.toDetail(item)
         }
         break
       case 3:
-        // Todo 展示详情页
+        this.toDetail(item)
         break
       default:
         this.setListInfo('rootlist', this.iboxes, null)
@@ -162,6 +163,7 @@ export default class IBox extends Vue {
       pageSize: 9999// 第一次请求，为了获取目录，传入9999
     }
     try {
+      this.loading.dirTree = true
       const data = await getIBoxList(param)
 
       const { dirs = [], iboxes } = data
@@ -192,6 +194,8 @@ export default class IBox extends Vue {
       })
     } catch (error) {
       console.log(error)
+    } finally {
+      this.loading.dirTree = false
     }
   }
 
@@ -251,17 +255,20 @@ export default class IBox extends Vue {
       ParentDeviceId: id
     }
 
-    await getDeviceList(param).then((res: any) => {
-      this.iboxDevice = res.devices
-    })
+    // await getDeviceList(param).then((res: any) => {
+    //   this.iboxDevice = res.devices
+    // })
 
-    // try {
-    //   const data: any = getDeviceList(param)
-    //   console.log('data----->', data)
-    //   this.iboxDevice = data.devices
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    try {
+      this.loading.iboxTable = true
+      const data: any = await getDeviceList(param)
+
+      this.iboxDevice = data.devices
+    } catch (error) {
+      console.log(error)
+    } finally {
+      this.loading.iboxTable = false
+    }
   }
 
   public setListInfo(type: string = 'rootlist', data: any = [], deviceId: string) {
@@ -307,6 +314,18 @@ export default class IBox extends Vue {
 
   }
 
+  public toDetail(item: any) {
+    let query: any = {
+      deviceId: item.deviceId
+    }
+    const router: any = {
+      name: 'IBoxDeviceInfo',
+      query
+    }
+
+    this.$router.push(router)
+  }
+
   /**
    * 设置左侧宽度
    */
@@ -326,6 +345,20 @@ export default class IBox extends Vue {
     window.addEventListener('mouseup', () => {
       this.dirDrag.isDragging = false
     })
+  }
+
+  @Provide('handleTools')
+  public handleTools() {
+    let query: any = {
+      deviceId: this.$route.query.deviceId,
+      type: this.$route.query.type
+    }
+    // IBoxDeviceCreate
+    const router: any = {
+      name: 'IBox',
+      query
+    }
+    this.$router.push(router, () => { this.$router.go(0) })
   }
 }
 </script>

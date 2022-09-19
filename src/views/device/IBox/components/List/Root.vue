@@ -6,9 +6,11 @@
         prop="deviceId"
         label="设备ID/名称"
       >
-        <template slot-scope="scope">
-          <div>{{ scope.row.deviceId }}/</div>
-          <div>{{ scope.row.deviceName }}</div>
+        <template slot-scope="{row}">
+          <div class="ibox-list-table--text" @click="toDetail(row)">
+            <div>{{ row.deviceId }}/</div>
+            <div>{{ row.deviceName }}</div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -50,7 +52,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getIBoxList } from '@/api/ibox'
-// import { IBoxModule } from '@/store/modules/ibox'
+import { IBoxModule } from '@/store/modules/ibox'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -85,10 +87,42 @@ export default class IBoxList extends Vue {
       console.log(error)
     }
   }
+  public toDetail(row: any) {
+    const listInfo = {
+      type: 'device',
+      data: row
+    }
+
+    IBoxModule.SetList(listInfo)
+    let query: any = {
+      deviceId: row.deviceId,
+      type: 'device'
+    }
+    const router: any = {
+      name: 'IBoxDeviceList',
+      query
+    }
+
+    // if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    this.$router.push(router)
+  }
 }
 </script>
 <style lang="scss" scoped>
 .ibox-list {
   width: 100%;
+
+  .ibox-list-table {
+    overflow: auto;
+    height: calc(100% - 40px);
+
+    &--text {
+      cursor: pointer;
+    }
+
+    &--id {
+      color: #fa8334;
+    }
+  }
 }
 </style>
