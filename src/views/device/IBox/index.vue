@@ -353,12 +353,12 @@ export default class IBox extends Vue {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
     }
-    // IBoxDeviceCreate
+
     const router: any = {
       name: 'IBox',
       query
     }
-    this.$router.push(router, () => { this.$router.go(0) })
+    this.$router.go(router)
   }
 }
 </script>
