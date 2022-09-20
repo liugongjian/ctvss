@@ -17,7 +17,7 @@
           :rules="rules"
           :model="deviceForm"
           label-position="right"
-          label-width="135px"
+          label-width="165px"
         >
           <div v-show="activeStep === 0">
             <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName" class="form-with-tip">

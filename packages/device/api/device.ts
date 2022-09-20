@@ -385,9 +385,9 @@ export const exportDevicesExcel = (params: any): Promise<any> => {
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/device',
+    url: '/new/device',
     method: 'get',
-    params,
+    params: toUpperCase(params),
     cancelToken
   })
 
@@ -433,9 +433,9 @@ export const getChannels = (params: any): Promise<any> =>
  */
 export const createDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/create',
+    url: '/new/device',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 export const createDeviceIbox = (params: any): Promise<any> =>
