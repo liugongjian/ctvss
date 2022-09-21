@@ -1,56 +1,77 @@
 <template>
   <div class="ibox-list">
-    <el-table :data="tableData" fit>
-      <el-table-column
-        fixed
-        prop="deviceId"
-        label="设备ID/名称"
-      >
-        <template slot-scope="{row}">
-          <div class="ibox-list-table--text" @click="toDetail(row)">
-            <div>{{ row.deviceId }}/</div>
-            <div>{{ row.deviceName }}</div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="deviceStatus"
-        label="状态"
-        width="120"
-      >
-        <template slot-scope="scope">
-          {{ statusMap[scope.row.deviceStatus] }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="ip"
-        label="IP地址"
+    <div class="ibox-list-table">
+      <el-table :data="tableData" fit>
+        <el-table-column
+          fixed
+          prop="deviceId"
+          label="设备ID/名称"
+          width="180"
+        >
+          <template slot-scope="{row}">
+            <div class="ibox-list-table--text" @click="toDetail(row)">
+              <div class="ibox-list-table--id">{{ row.deviceId }}</div>
+              <div>{{ row.deviceName }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="deviceStatus"
+          label="状态"
+          width="120"
+        >
+          <template slot-scope="scope">
+            {{ statusMap[scope.row.deviceStatus] }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="ip"
+          label="IP地址"
+          width="120"
+        />
+        <el-table-column
+          prop="sn"
+          label="序列号"
+          width="160"
+        />
+        <el-table-column
+          prop="registerTime"
+          label="接入时间"
+          width="190"
+        >
+          <template slot-scope="{row}">
+            <!-- {{ row.registerTime }} -->
+            {{ dateFormat(Number(row.registerTime)) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="channelSize"
+          label="通道总数"
+        />
+        <el-table-column
+          label="操作"
+        >
+          <template slot-scope="{row}">
+            <div class="ibox-list-table--detail" @click="toDetail(row)">
+              查看详情
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        v-if="tableData.length"
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
-      <el-table-column
-        prop="zip"
-        label="序列号"
-      />
-      <el-table-column
-        prop="registerTime"
-        label="接入时间"
-      >
-        <template slot-scope="{row}">
-          <!-- {{ row.registerTime }} -->
-          {{ dateFormat(Number(row.registerTime)) }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="channelSize"
-        label="通道总数"
-      />
-      <el-table-column
-        label="操作"
-      />
-    </el-table>
+    </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { getIBoxList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
 import { dateFormat } from '@/utils/date'
@@ -62,6 +83,9 @@ import { dateFormat } from '@/utils/date'
 })
 
 export default class IBoxList extends Vue {
+  @Inject('handleNodeClick')
+  public handleNodeClick!: Function
+
   public tableData = []
   public dateFormat = dateFormat
 
@@ -71,22 +95,45 @@ export default class IBoxList extends Vue {
     new: '未注册'
   }
 
+  public pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
+  }
+
   async mounted() {
     await this.getIBoxList()
   }
 
   async getIBoxList() {
     const param = {
-      pageNum: 1,
-      pageSize: 10
+      pageNum: this.pageNum,
+      pageSize: this.pageSize
     }
     try {
-      const data = await getIBoxList(param)
-      this.tableData = data.iboxes
+      const res = await getIBoxList(param)
+      this.tableData = res.iboxes
+
+      this.pager = {
+        total: Number(res.totalNum),
+        pageNum: Number(res.pageNum),
+        pageSize: Number(res.pageSize)
+      }
     } catch (error) {
       console.log(error)
     }
   }
+
+  public async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getIBoxList()
+  }
+
+  public async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getIBoxList()
+  }
+
   public toDetail(row: any) {
     const listInfo = {
       type: 'device',
@@ -99,11 +146,13 @@ export default class IBoxList extends Vue {
       type: 'device'
     }
     const router: any = {
+      deviceId: row.deviceId,
       name: 'IBoxDeviceList',
       query
     }
 
-    // if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    this.handleNodeClick(router)
+
     this.$router.push(router)
   }
 }
@@ -122,6 +171,11 @@ export default class IBoxList extends Vue {
 
     &--id {
       color: #fa8334;
+    }
+
+    &--detail {
+      color: #fa8334;
+      cursor: pointer;
     }
   }
 }

@@ -27,13 +27,13 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
   name: 'DeviceDetail'
 })
 export default class extends Vue {
-  private activeRouteName: string = 'IBoxDeviceInfo'
+  public activeRouteName: string = 'IBoxDeviceInfo'
 
   private get deviceId() {
     return this.$route.query.deviceId.toString()
   }
 
-  private handleClick(tab) {
+  public handleClick(tab) {
     this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }
 
@@ -44,7 +44,7 @@ export default class extends Vue {
 
   @Inject('handleTools')
   private handleTools!: Function
-  private back() {
+  public back() {
     this.handleTools()
   }
 }

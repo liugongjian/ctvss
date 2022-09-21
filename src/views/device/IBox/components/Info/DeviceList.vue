@@ -123,7 +123,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { getDeviceList } from '@/api/ibox'
 // import { IBoxModule } from '@/store/modules/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
@@ -136,6 +136,9 @@ import { dateFormat } from '@/utils/date'
 })
 
 export default class IBoxList extends Vue {
+  @Inject('handleNodeClick')
+  public handleNodeClick!: Function
+
   public tableData = []
   public dateFormat = dateFormat
 
@@ -170,9 +173,9 @@ export default class IBoxList extends Vue {
     }
     try {
       await getDeviceList(param).then(res => {
-        this.tableData = res.devices.map((item: any) => {
+        this.tableData = res?.devices.map((item: any) => {
           let videosInfo = item.videos[0]
-          console.log('videosInfo.InVideoProtocol--->', InVideoProtocolModelMapping[videosInfo.inVideoProtocol])
+
           videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
 
           return {
@@ -182,7 +185,6 @@ export default class IBoxList extends Vue {
             ...item
           }
         })
-        console.log('this.tableData--->', this.tableData)
         this.pager = {
           total: Number(res.totalNum),
           pageNum: Number(res.pageNum),
@@ -231,13 +233,24 @@ export default class IBoxList extends Vue {
       deviceId: row.deviceId,
       type: this.$route.query.type
     }
-    const router: any = {
-      name: 'IBoxDeviceInfo',
-      query
-    }
 
-    // if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
-    this.$router.push(router)
+    let router: any = {}
+
+    if (row.deviceType === 'nvr') {
+      router = {
+        deviceId: row.deviceId,
+        type: 'nvrlist',
+        query
+      }
+      this.$router.push(router)
+      this.handleNodeClick(router)
+    } else {
+      router = {
+        name: 'IBoxDeviceInfo',
+        query
+      }
+      this.$router.push(router)
+    }
   }
 }
 </script>

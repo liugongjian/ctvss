@@ -51,11 +51,20 @@
           label="操作"
         />
       </el-table>
+      <el-pagination
+        v-if="tableData.length"
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { getDeviceList } from '@/api/ibox'
 // import { IBoxModule } from '@/store/modules/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
@@ -68,6 +77,9 @@ import { dateFormat } from '@/utils/date'
 })
 
 export default class IBoxList extends Vue {
+  @Inject('handleNodeClick')
+  public handleNodeClick!: Function
+
   public tableData = []
   public dateFormat = dateFormat
 
@@ -96,24 +108,36 @@ export default class IBoxList extends Vue {
       ParentDeviceId: deviceId
     }
     try {
-      await getDeviceList(param).then((res: any) => {
-        this.tableData = res.devices.map((item: any) => {
-          let videosInfo = item.videos[0]
-          console.log('videosInfo.InVideoProtocol--->', InVideoProtocolModelMapping[videosInfo.inVideoProtocol])
-          videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
-          return {
-            ...item.device,
-            ...item.industry,
-            ...videosInfo,
-            ...item
-          }
-        })
+      const res = await getDeviceList(param)
+      this.tableData = res?.devices.map((item: any) => {
+        let videosInfo = item.videos[0]
+
+        videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
+        return {
+          ...item.device,
+          ...item.industry,
+          ...videosInfo,
+          ...item
+        }
       })
+      this.pager = {
+        total: Number(res.totalNum),
+        pageNum: Number(res.pageNum),
+        pageSize: Number(res.pageSize)
+      }
     } catch (error) {
       console.log(error)
     }
-    // this.tableData = IBoxModule.iboxList.data
-    console.log('tableData--->', this.tableData)
+  }
+
+  public async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getDeviceList()
+  }
+
+  public async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getDeviceList()
   }
 
   public addIBox() {
@@ -140,8 +164,14 @@ export default class IBoxList extends Vue {
       query
     }
 
-    // if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    const info = {
+      deviceId: row.deviceId,
+      type: this.$route.query.type
+    }
+
     this.$router.push(router)
+
+    this.handleNodeClick(info)
   }
 }
 </script>
