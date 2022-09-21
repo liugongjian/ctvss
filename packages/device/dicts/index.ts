@@ -19,7 +19,8 @@ export const DeviceVendor = {
     '海康': '海康'
   },
   [enums.InVideoProtocolEnum.Rtmp]: defaultVendor,
-  [enums.InVideoProtocolEnum.Rtsp]: defaultVendor
+  [enums.InVideoProtocolEnum.Rtsp]: defaultVendor,
+  [enums.InViidProtocolEnum.Ga1400]: defaultVendor
 }
 
 /*
