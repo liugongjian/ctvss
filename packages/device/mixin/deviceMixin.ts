@@ -1,10 +1,11 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
+import { getDevice } from '@vss/device/api/device'
 
 @Component
 export default class DeviceMixin extends Vue {
-  @Prop({ default: null }) public getDeviceApi: Function
+  @Prop({ default: () => getDevice }) public getDeviceApi: Function
   @Prop({ default: false }) public isIbox: boolean
 
   // 设备详情

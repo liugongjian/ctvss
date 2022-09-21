@@ -435,9 +435,9 @@ export const exportDevicesExcel = (params: any): Promise<any> => {
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/device',
+    url: '/new/device',
     method: 'get',
-    params,
+    params: toUpperCase(params),
     cancelToken
   })
 

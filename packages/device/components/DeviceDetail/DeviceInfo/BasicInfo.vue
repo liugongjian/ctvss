@@ -16,12 +16,13 @@
       <el-descriptions-item label="接入区域">{{ device.region }}</el-descriptions-item>
       <el-descriptions-item label="所属行业">{{ dicts.IndustryMap[industry.industryCode] }}</el-descriptions-item>
       <el-descriptions-item label="网络标识">{{ dicts.NetworkMap[industry.networkCode] }}</el-descriptions-item>
-      <el-descriptions-item label="设备地址">{{ industry.inOrgRegion}},{{ industry.inOrgRegionLevel }}</el-descriptions-item>
+      <el-descriptions-item label="设备地址">{{ industry.inOrgRegion }},{{ industry.inOrgRegionLevel }}</el-descriptions-item>
       <el-descriptions-item label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
       <el-descriptions-item label="接入网络">{{ dicts.InNetworkType[device.inNetworkType] }}</el-descriptions-item>
       <el-descriptions-item label="播放网络">{{ dicts.OutNetworkType[device.outNetworkType] }}</el-descriptions-item>
+      <el-descriptions-item label="设备描述">{{ basicInfo.description || '-' }}</el-descriptions-item>
     </el-descriptions>
     <video-info-dialog v-if="dialog[deviceInTypeEnum.Video]" :device="device" @on-close="closeDialog([deviceInTypeEnum.Video], ...arguments)" />
     <viid-info-dialog v-if="dialog[deviceInTypeEnum.Viid]" :device="device" @on-close="closeDialog([deviceInTypeEnum.Viid], ...arguments)" />
