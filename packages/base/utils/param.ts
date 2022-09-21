@@ -10,7 +10,7 @@ const recursionData = (data, method) => {
     firstChar = method === Method.ToLowerCase ? firstChar.toLowerCase() : firstChar.toUpperCase()
     const newKey = firstChar + key.substring(1, key.length)
     let value = data[key]
-    if (typeof value === 'object') {
+    if (value && typeof value === 'object') {
       value = recursionData(value, method)
     }
     newObj[newKey] = value

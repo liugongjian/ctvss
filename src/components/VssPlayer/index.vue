@@ -10,6 +10,7 @@
       :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
+      :has-fullscreen="false"
       :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
@@ -54,12 +55,12 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
-import './styles/index.scss'
+import Player from '@vss/video-player/index.vue'
 import { PlayerType } from '@/components/Player/types/Player.d'
 import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
-import Player from '@/components/Player/index.vue'
 import { Player as PlayerModel } from '@/components/Player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
+import './styles/index.scss'
 /**
  * 子组件库
  */

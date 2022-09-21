@@ -39,6 +39,10 @@ const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
  * @return 判断结果
  */
 export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, prop: string): boolean {
+  if (!this) {
+    throw new Error('请使用call()将this指向video info')
+  }
+
   // 接入方式
   if (this.inType === InTypeEnum.Push) {
     if ([

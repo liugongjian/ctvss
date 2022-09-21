@@ -300,7 +300,7 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.NetworkCode]: '7',
     [DeviceEnum.Description]: '',
     [DeviceEnum.DeviceIp]: '',
-    [DeviceEnum.DevicePort]: '',
+    [DeviceEnum.DevicePort]: null,
     [DeviceEnum.DevicePoleId]: '',
     [DeviceEnum.DeviceMac]: '',
     [DeviceEnum.DeviceSerialNumber]: '',

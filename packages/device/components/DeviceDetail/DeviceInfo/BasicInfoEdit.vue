@@ -17,7 +17,7 @@
         <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
         <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
       </el-form-item>
-      <el-form-item label="经纬度:" :prop="DeviceEnum.Longlat">
+      <el-form-item label="经纬度:" :prop="deviceEnum.Longlat">
         <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
         <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
       </el-form-item>
