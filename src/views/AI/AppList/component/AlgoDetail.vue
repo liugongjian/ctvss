@@ -220,9 +220,9 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
-import { AlgoRef } from '@vss/ai/dics/index'
-import AlgoConfigs from '@vss/ai/component/AlgoConfig/index'
-import { formRule, formTips } from '../util/form-helper'
+import { FormRef } from '@vss/ai/dics'
+import AlgoConfigs from '@vss/ai/component/AlgoConfig'
+import { formRule, formTips } from '@vss/ai/util/form-helper'
 
 @Component({
   name: 'AlgoDetail',
@@ -284,8 +284,8 @@ export default class extends Mixins(AppMixin) {
     const names = Object.keys(AlgoConfigs.components)
     if (names.includes('form' + this.algoCode)) {
       return 'form' + this.algoCode
-    } else if (AlgoRef[this.algoCode]) {
-      return 'form' + AlgoRef[this.algoCode]
+    } else if (FormRef[this.algoCode]) {
+      return 'form' + FormRef[this.algoCode]
     } else {
       return null
     }

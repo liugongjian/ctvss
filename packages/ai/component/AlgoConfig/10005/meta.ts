@@ -1,5 +1,3 @@
-import { getDangerZone } from '@vss/ai/util/dangerzone'
-
 export const getData = (metaData) => {
   let locations = []
   if (metaData.Data && metaData.Data.DetectBoxes) {
@@ -11,11 +9,14 @@ export const getData = (metaData) => {
           left: boxes[i],
           width: boxes[i + 2],
           height: boxes[i + 3],
-          isWarning: metaData.Data.DetectClses ? metaData.Data.DetectClses[i / 4] : false
+          isWarning: !!metaData.Data.DetectClses[i / 4]
         }
       )
     }
   }
-  locations = getDangerZone(metaData, locations)
+  // @ts-ignore
+  locations.info = {
+    Persons: `聚集人数: ${locations.length || '-'}`
+  }
   return locations
 }

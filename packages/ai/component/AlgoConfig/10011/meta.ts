@@ -1,5 +1,3 @@
-import { getDangerZone } from '@vss/ai/util/dangerzone'
-
 export const getData = (metaData) => {
   let locations = []
   if (metaData.Data && metaData.Data.Boxes) {
@@ -15,12 +13,6 @@ export const getData = (metaData) => {
         }
       )
     }
-  }
-  locations = getDangerZone(metaData, locations)
-  // @ts-ignore
-  locations.info = {
-    // 根据变量的null值决定是否展示
-    JamCount: metaData.Data.JamCount ? `实际车辆数: ${metaData.Data.JamCount || 0}, 检测阈值: ${metaData.Data.JamThreshold || 0}` : null
   }
   return locations
 }

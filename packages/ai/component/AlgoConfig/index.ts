@@ -7,6 +7,7 @@ let AlgoConfigs = {
   algos: {},
   components: {}
 }
+// console.log('metas:', metas)
 const metasWithoutIndex = metas.keys().filter(key => {
   const name = path.basename(key, '.ts')
   return name !== 'index'

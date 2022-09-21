@@ -1,6 +1,5 @@
 <template>
   <el-form-item
-    v-if="ifShow('10027')"
     label="视野遮挡阈值"
     prop="algorithmMetadata.areaThreshold"
   >

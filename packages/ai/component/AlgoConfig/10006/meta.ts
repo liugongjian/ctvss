@@ -17,5 +17,10 @@ export const getData = (metaData) => {
     }
   }
   locations = getDangerZone(metaData, locations)
+  // @ts-ignore
+  locations.info = {
+    PersonNum: metaData.Data.PersonNum ? '人群聚集:' + metaData.Data.PersonNum : null,
+    Duty: metaData.Data.IsOffDuty || metaData.Data.IsSleepOnDuty ? `${metaData.Data?.IsOffDuty ? '脱岗' : ''}${metaData.Data.IsSleepOnDuty ? '睡岗' : ''}告警` : null
+  }
   return locations
 }

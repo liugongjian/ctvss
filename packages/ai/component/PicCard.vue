@@ -37,8 +37,9 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
 import Locations from '@/views/Dashboard/AI/components/Locations.vue'
 import Attributes from '@/views/Dashboard/AI/components/Attributes.vue'
-import { parseMetaData, transformLocationAi } from '@/utils/ai'
+import { transformLocationAi } from '@/utils/ai'
 import AlgoConfigs from './AlgoConfig'
+import { MetaRef, EventTypeToCode } from '../dics/index'
 
 @Component({
   name: 'PicCard',
@@ -61,8 +62,17 @@ export default class extends Vue {
 
     const metaData = JSON.parse(this.pic.metadata)
     // const locations = parseMetaData(this.type, metaData)
-    console.log('AlgoConfigs:', AlgoConfigs)
-    const locations = AlgoConfigs.algos[this.type].getData(metaData)
+    let locations = []
+    if (this.type.length < 5) {
+      // 老算法code，则转为新算法的code
+      this.type = EventTypeToCode[this.type]
+    }
+    if (AlgoConfigs.algos[this.type]?.getData) {
+      locations = AlgoConfigs.algos[this.type].getData(metaData)
+    } else {
+      locations = AlgoConfigs.algos[MetaRef[this.type]].getData(metaData)
+    }
+
     console.log(locations)
     const img = this.$refs.img
     this.picInfo = {

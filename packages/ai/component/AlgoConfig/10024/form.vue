@@ -43,6 +43,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
+import { formTips } from '@vss/ai/util/form-helper'
 
 @Component({
   name: 'form',
@@ -52,6 +53,7 @@ import { Fragment } from 'vue-fragment'
 })
 export default class extends Vue {
   @Prop() private form!: any
+  private tips = formTips
 }
 </script>
 <style lang="scss" scoped>

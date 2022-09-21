@@ -1,6 +1,5 @@
 <template>
   <el-form-item
-    v-if="ifShow('10005')"
     prop="algorithmMetadata.pedThreshold"
     label="人员数量阈值"
   >

@@ -1,9 +1,8 @@
 export const getData = (metaData) => {
   let locations = []
-  if (metaData.Data && metaData.Data.BeeDensity) {
-    locations.push({
-      beeDensity: Math.round(metaData.Data.BeeDensity)
-    })
+  // @ts-ignore
+  locations.info = {
+    BeeDensity: metaData.Data.BeeDensity ? `蜜蜂密度: ${metaData.Data.BeeDensity}` : null
   }
   return locations
 }

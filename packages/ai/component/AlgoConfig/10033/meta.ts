@@ -1,21 +1,33 @@
 import { getDangerZone } from '@vss/ai/util/dangerzone'
+import { AnimalType } from '@/dics'
 
 export const getData = (metaData) => {
   let locations = []
-  if (metaData.Data && metaData.Data.DetectBoxes) {
-    const boxes = metaData.Data.DetectBoxes
-    for (let i = 0; i < boxes.length; i += 4) {
-      locations.push(
-        {
-          top: boxes[i + 1],
-          left: boxes[i],
-          width: boxes[i + 2],
-          height: boxes[i + 3],
-          isWarning: metaData.Data.DetectClses ? metaData.Data.DetectClses[i / 4] : false
-        }
-      )
+  let counts = {}
+  AnimalType.forEach(item => { counts[item.label] = 0 })
+  locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+    try {
+      if (box.Label && typeof counts[box.Label] !== 'undefined') {
+        counts[box.Label] += 1
+      }
+      return {
+        top: box.TopLeftY,
+        left: box.TopLeftX,
+        width: box.BottomRightX - box.TopLeftX,
+        height: box.BottomRightY - box.TopLeftY,
+        isWarning: box.Score.length > 0 && box.Score > 60,
+        label: box.Label
+      }
+    } catch (error) {
+      console.log(error)
     }
-  }
+  })
   locations = getDangerZone(metaData, locations)
+  AnimalType.forEach(type => {
+    if (counts[type.label]) {
+      // @ts-ignore
+      locations.info[type.label] = `${type.cname}数量：${counts[type.label]}只`
+    }
+  })
   return locations
 }
