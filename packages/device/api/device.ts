@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 import { toLowerCase, toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
-import { DeviceEnum, DeviceInTypeEnum, StatusEnum } from '../enums/index'
+import { DeviceEnum, DeviceInTypeEnum, DeviceTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
 
 /**
@@ -161,168 +161,218 @@ export const getDeviceTree = (params: any): Promise<any> => {
   })
 }
 
+// export const getDevices = (params: any): Promise<any> => {
+//   let res: any = {
+//     Devices: [
+//       {
+//         Device: { DeviceId: '12345678900987654321', DeviceName: 'a1', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+//         Videos: [{
+//           InVideoProtocol: 'gb28181',
+//           Gb28181Device: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             },
+//             DeviceStreamPullIndex: 2,
+//             Streams: [
+//               {
+//                 StreamNum: 1,
+//                 StreamStatus: 'on',
+//                 RecordStatus: 'on'
+//               },
+//               {
+//                 StreamNum: 2,
+//                 StreamStatus: 'on',
+//                 RecordStatus: 'on'
+//               },
+//               {
+//                 StreamNum: 3,
+//                 StreamStatus: 'on',
+//                 RecordStatus: 'on'
+//               }
+//             ]
+//           }
+//         }],
+//         Viids: [{
+//           InViidProtocol: 'ga1400',
+//           Ga1400Device: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             }
+//           }
+//         }]
+//       },
+//       {
+//         Device: { DeviceId: '12345678900987654322', DeviceName: 'a2', DeviceType: 'nvr', DeviceVendor: '海康', DeviceChannelSize: '4' },
+//         Videos: [{
+//           InVideoProtocol: 'ehome',
+//           EhomeDevice: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             }
+//           }
+//         }],
+//         Viids: [{
+//           InViidProtocol: 'ga1400',
+//           Ga1400Device: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             }
+//           }
+//         }]
+//       },
+//       {
+//         Device: { DeviceId: '12345678900987654323', DeviceName: 'a3', DeviceType: 'ipc', DeviceVendor: '大华', DeviceChannelSize: '' },
+//         Videos: [{
+//           InVideoProtocol: 'rtsp',
+//           RtspDevice: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             },
+//             Streams: [
+//               {
+//                 StreamNum: 1,
+//                 StreamStatus: 'on',
+//                 RecordStatus: 'failed'
+//               }
+//             ]
+//           }
+//         }],
+//         Viids: [{
+//           InViidProtocol: 'ga1400',
+//           Ga1400Device: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             }
+//           }
+//         }]
+//       },
+//       {
+//         Device: { DeviceId: '12345678900987654324', DeviceName: 'a4', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
+//         Videos: [{
+//           InVideoProtocol: 'rtmp',
+//           RtmpDevice: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             },
+//             Streams: [
+//               {
+//                 StreamNum: 1,
+//                 StreamStatus: 'on',
+//                 RecordStatus: 'error'
+//               }
+//             ]
+//           }
+//         }]
+//       },
+//       {
+//         Device: { DeviceId: '12345678900987654325', DeviceName: 'a5', DeviceType: 'platform', DeviceVendor: '海康', DeviceChannelSize: '' },
+//         Viids: [{
+//           InViidProtocol: 'ga1400',
+//           Ga1400Device: {
+//             DeviceStatus: {
+//               IsOnline: 'on'
+//             }
+//           }
+//         }]
+//       }
+//     ],
+//     PageNum: 1,
+//     PageSize: 10,
+//     TotalNum: 10
+//   }
+//   // TODO: 后端转换
+//   res = toLowerCase(res)
+//   res.devices = res.devices.map(item => {
+//     const data = {
+//       [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
+//       [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
+//       [DeviceEnum.DeviceInType]: [],
+//       [DeviceEnum.InProtocol]: [],
+//       [DeviceEnum.DeviceType]: item.device[DeviceEnum.DeviceType],
+//       [DeviceEnum.VideoStatus]: '',
+//       [DeviceEnum.StreamStatus]: '',
+//       [DeviceEnum.RecordStatus]: '',
+//       [DeviceEnum.ViidStatus]: '',
+//       [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
+//       [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+//     }
+//     const inVideoProtocol = item.videos && item.videos[0][DeviceEnum.InVideoProtocol]
+//     const inViidProtocol = item.viids && item.viids[0][DeviceEnum.InViidProtocol]
+
+//     if (inVideoProtocol) {
+//       const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+//       const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
+//       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
+//       data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
+//       data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+//       data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].some(
+//         stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
+//       ) ? StatusEnum.On : StatusEnum.Off) : null
+//       data[DeviceEnum.RecordStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams][deviceStreamPullIndex - 1][DeviceEnum.RecordStatus]) : null
+//     }
+
+//     if (inViidProtocol) {
+//       const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
+//       data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
+//       data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
+//       data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+//     }
+//     return data
+//   })
+//   return new Promise(resolve => {
+//     setTimeout(() => {
+//       resolve(res)
+//     }, 1000)
+//   })
+// }
+
 export const getDevices = (params: any): Promise<any> => {
-  let res: any = {
-    Devices: [
-      {
-        Device: { DeviceId: '12345678900987654321', DeviceName: 'a1', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
-        Videos: [{
-          InVideoProtocol: 'gb28181',
-          Gb28181Device: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            },
-            DeviceStreamPullIndex: 2,
-            Streams: [
-              {
-                StreamNum: 1,
-                StreamStatus: 'on',
-                RecordStatus: 'on'
-              },
-              {
-                StreamNum: 2,
-                StreamStatus: 'on',
-                RecordStatus: 'on'
-              },
-              {
-                StreamNum: 3,
-                StreamStatus: 'on',
-                RecordStatus: 'on'
-              }
-            ]
-          }
-        }],
-        Viids: [{
-          InViidProtocol: 'ga1400',
-          Ga1400Device: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            }
-          }
-        }]
-      },
-      {
-        Device: { DeviceId: '12345678900987654322', DeviceName: 'a2', DeviceType: 'nvr', DeviceVendor: '海康', DeviceChannelSize: '4' },
-        Videos: [{
-          InVideoProtocol: 'ehome',
-          EhomeDevice: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            }
-          }
-        }],
-        Viids: [{
-          InViidProtocol: 'ga1400',
-          Ga1400Device: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            }
-          }
-        }]
-      },
-      {
-        Device: { DeviceId: '12345678900987654323', DeviceName: 'a3', DeviceType: 'ipc', DeviceVendor: '大华', DeviceChannelSize: '' },
-        Videos: [{
-          InVideoProtocol: 'rtsp',
-          RtspDevice: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            },
-            Streams: [
-              {
-                StreamNum: 1,
-                StreamStatus: 'on',
-                RecordStatus: 'failed'
-              }
-            ]
-          }
-        }],
-        Viids: [{
-          InViidProtocol: 'ga1400',
-          Ga1400Device: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            }
-          }
-        }]
-      },
-      {
-        Device: { DeviceId: '12345678900987654324', DeviceName: 'a4', DeviceType: 'ipc', DeviceVendor: '海康', DeviceChannelSize: '' },
-        Videos: [{
-          InVideoProtocol: 'rtmp',
-          RtmpDevice: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            },
-            Streams: [
-              {
-                StreamNum: 1,
-                StreamStatus: 'on',
-                RecordStatus: 'error'
-              }
-            ]
-          }
-        }]
-      },
-      {
-        Device: { DeviceId: '12345678900987654325', DeviceName: 'a5', DeviceType: 'platform', DeviceVendor: '海康', DeviceChannelSize: '' },
-        Viids: [{
-          InViidProtocol: 'ga1400',
-          Ga1400Device: {
-            DeviceStatus: {
-              IsOnline: 'on'
-            }
-          }
-        }]
-      }
-    ],
-    PageNum: 1,
-    PageSize: 10,
-    TotalNum: 10
-  }
-  // TODO: 后端转换
-  res = toLowerCase(res)
-  res.devices = res.devices.map(item => {
-    const data = {
-      [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
-      [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
-      [DeviceEnum.DeviceInType]: [],
-      [DeviceEnum.InProtocol]: [],
-      [DeviceEnum.DeviceType]: item.device[DeviceEnum.DeviceType],
-      [DeviceEnum.VideoStatus]: '',
-      [DeviceEnum.StreamStatus]: '',
-      [DeviceEnum.RecordStatus]: '',
-      [DeviceEnum.ViidStatus]: '',
-      [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
-      [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
-    }
-    const inVideoProtocol = item.videos && item.videos[0][DeviceEnum.InVideoProtocol]
-    const inViidProtocol = item.viids && item.viids[0][DeviceEnum.InViidProtocol]
-
-    if (inVideoProtocol) {
-      const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
-      const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
-      data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
-      data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
-      data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
-      data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].some(
-        stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
-      ) ? StatusEnum.On : StatusEnum.Off) : null
-      data[DeviceEnum.RecordStatus] = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams][deviceStreamPullIndex - 1][DeviceEnum.RecordStatus]) : null
-    }
-
-    if (inViidProtocol) {
-      const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
-      data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
-      data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
-      data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
-    }
-    return data
-  })
   return new Promise(resolve => {
-    setTimeout(() => {
+    request({
+      url: '/new/devicelist',
+      method: 'get',
+      params: toUpperCase(params)
+    }).then((res: any) => {
+      console.log(res)
+      res.devices = res.devices.map(item => {
+        const data = {
+          [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
+          [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
+          [DeviceEnum.DeviceInType]: [],
+          [DeviceEnum.InProtocol]: [],
+          [DeviceEnum.DeviceType]: item.device[DeviceEnum.DeviceType],
+          [DeviceEnum.VideoStatus]: '',
+          [DeviceEnum.StreamStatus]: '',
+          [DeviceEnum.RecordStatus]: '',
+          [DeviceEnum.ViidStatus]: '',
+          [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceType] === DeviceTypeEnum.Nvr ? item.device[DeviceEnum.DeviceChannelSize] : '',
+          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+        }
+        const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
+        const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
+
+        if (inVideoProtocol) {
+          const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+          const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
+          data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
+          data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
+          data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+          data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].some(
+            stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
+          ) ? StatusEnum.On : StatusEnum.Off) : null
+          data[DeviceEnum.RecordStatus] = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams][deviceStreamPullIndex - 1][DeviceEnum.RecordStatus]) : null
+        }
+
+        if (inViidProtocol) {
+          const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
+          data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
+          data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
+          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+        }
+        return data
+      })
       resolve(res)
-    }, 1000)
+    })
   })
 }
 

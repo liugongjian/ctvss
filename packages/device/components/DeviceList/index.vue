@@ -260,7 +260,7 @@
         <el-pagination
           :current-page="pager.pageNum"
           :page-size="pager.pageSize"
-          :total="pager.total"
+          :total="pager.totalNum"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -288,6 +288,7 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
 import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
+import { DeviceTypeEnum } from 'packages/device/enums'
 
 @Component({
   name: 'DeviceList',
@@ -332,7 +333,7 @@ export default class extends Mixins(deviceMixin) {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 5
+    totalNum: 5
   }
 
   private loading = {
@@ -430,6 +431,7 @@ export default class extends Mixins(deviceMixin) {
 
   @Watch('filterForm', { deep: true })
   private onFilterChange() {
+    this.pager.pageNum = 1
     this.initTable()
   }
 
@@ -459,16 +461,23 @@ export default class extends Mixins(deviceMixin) {
   private async initTable() {
     this.loading.table = true
     let params = {
-      parentDeviceId: this.deviceId,
-      dirId: this.currentDirId,
-      type: this.currentDirType,
-      pageSize: this.pager.pageSize,
-      pageNum: this.pager.pageNum,
-      filterForm: this.filterForm
+      [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
+      [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
+      [DeviceEnum.StreamStatus]: this.filterForm[DeviceEnum.StreamStatus],
+      // [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      // [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      [DeviceEnum.PageNum]: this.pager.pageNum,
+      [DeviceEnum.PageSize]: this.pager.pageSize
+    }
+    if (this.currentDirType === DirectoryTypeEnum.Nvr) {
+      params[DeviceEnum.ParentDeviceId] = 3
+    } else {
+      params[DeviceEnum.DirId] = 3
     }
     let res: any = await this.getDevicesApi(params)
-    console.log('getList', res.devices)
+    console.log(params)
     this.deviceList = res.devices
+    this.pager.totalNum = +res.totalNum
     this.loading.table = false
   }
 

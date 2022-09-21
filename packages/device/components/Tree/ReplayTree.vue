@@ -7,9 +7,9 @@
     :empty-text="emptyText"
     :lazy="lazy"
     :get-node-info="getNodeInfo"
-    :item-directive="dropScreen"
     :load="load"
     :tree-loading="treeLoading"
+    :is-draggable="checkIsDraggable"
     @handle-node="handleNode"
   >
     <template slot="itemLabelPrefix" slot-scope="{data}">

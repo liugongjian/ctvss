@@ -1,16 +1,12 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getNodeInfo } from '../../api/device'
-import { dropScreen } from './dropScreen'
 import { checkTreeToolsVisible } from '../../utils/param'
-import { ToolsEnum } from '../../enums/index'
+import { DeviceTypeEnum, ToolsEnum } from '../../enums/index'
 import StreamSelector from '../StreamSelector.vue'
 
 @Component({
   components: {
     StreamSelector
-  },
-  directives: {
-    'drop-screen': dropScreen
   }
 })
 export default class DetailMixin extends Vue {
@@ -23,7 +19,6 @@ export default class DetailMixin extends Vue {
   @Prop({ default: () => {} })
   public load
 
-  public dropScreen = dropScreen
   public toolsEnum = ToolsEnum
   public getNodeInfo = getNodeInfo
   public defaultKey = ''
@@ -67,6 +62,7 @@ export default class DetailMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
+    console.log('getCheckedNodes', this.commonTree.getCheckedNodes())
     this.$emit('handle-node', data)
   }
 
@@ -84,5 +80,13 @@ export default class DetailMixin extends Vue {
    */
   public handleTools(type: any, ...payload) {
     this.$emit('handle-tools', type, ...payload)
+  }
+
+  /**
+   * 判断item是否可拖拽
+   */
+  public checkIsDraggable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc
+    // if (isLive && node.data.deviceStatus !== 'on') return
   }
 }
