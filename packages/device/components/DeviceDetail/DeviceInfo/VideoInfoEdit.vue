@@ -1,6 +1,6 @@
 <template>
   <div class="detail-wrap__edit">
-    <video-create-form ref="form" :device-form="basicInfo" :device="device" />
+    <video-create-form ref="form" :is-ibox="isIbox" :device-form="basicInfo" :device="device" />
     <div class="detail-wrap__edit__footer">
       <el-button size="medium" type="primary" @click="submit">确 定</el-button>
       <el-button size="medium" @click="cancel">取 消</el-button>
@@ -20,6 +20,7 @@ import VideoCreateForm from '../../Form/VideoCreateForm.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  @Prop({ default: false }) public isIbox: boolean
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {

@@ -278,6 +278,7 @@ export const iboxRouter = {
               component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceInfo/index.vue'),
               name: 'IboxDeviceDetailInfo',
               props: {
+                isIbox: true,
                 getDeviceApi: getDeviceIbox
               },
               meta: {

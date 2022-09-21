@@ -36,12 +36,11 @@ export class Device extends VuexModule implements IDeviceState {
     if (!this.device || this.device.deviceId !== payload.deviceId) {
       let device
       if (payload.fetch) {
+        console.log(fetch, payload.deviceId)
         const res = await payload.fetch({
           deviceId: payload.deviceId
         })
         device = res
-      } else {
-        device = toLowerCase(deviceMock)
       }
       this.SET_DEVICE(device)
     }

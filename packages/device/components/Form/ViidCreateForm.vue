@@ -5,7 +5,7 @@
       :rules="rules"
       :model="viidForm"
       label-position="right"
-      label-width="135px"
+      label-width="165px"
     >
       <el-form-item label="接入协议:" :prop="deviceEnum.InViidProtocol">
         <el-radio

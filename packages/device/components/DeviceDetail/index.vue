@@ -23,12 +23,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
+import { ToolsEnum } from '../../enums/index'
 
 @Component({
   name: 'DeviceDetail'
 })
 export default class extends Vue {
+  @Inject('handleTools')
+  private handleTools!: Function
   private activeRouteName: string = 'DeviceInfo'
 
   private get deviceId() {
@@ -45,7 +48,7 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push({ name: 'DeviceList' })
+    this.handleTools([ToolsEnum.GoToDeviceList])
   }
 }
 </script>

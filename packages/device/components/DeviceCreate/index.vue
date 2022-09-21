@@ -17,7 +17,7 @@
           :rules="rules"
           :model="deviceForm"
           label-position="right"
-          label-width="135px"
+          label-width="165px"
         >
           <div v-show="activeStep === 0">
             <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName" class="form-with-tip">
@@ -115,7 +115,7 @@
                 @inVideoProtocolChange="inVideoProtocolChange"
               />
             </div>
-            <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Viid)">
+            <div v-if="checkVisible(deviceEnum.Viids)" v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Viid)">
               <div class="form-title">视图接入信息</div>
               <viid-create-form
                 ref="viidForm"
@@ -138,7 +138,7 @@
                 />
               </el-select>
             </el-form-item>
-            <!-- <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
+            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -160,7 +160,7 @@
                 :level="deviceForm.inOrgRegionLevel"
                 @change="onDeviceAddressChange"
               />
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
               <el-select
                 v-model="deviceForm.industryCode"
@@ -236,12 +236,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
 import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
-import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
+import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
 import { createDevice } from '../../api/device'
@@ -257,6 +257,8 @@ import deviceFormMixin from '../../mixin/deviceFormMixin'
   }
 })
 export default class extends Mixins(deviceFormMixin) {
+  @Inject('handleTools')
+  private handleTools!: Function
   @Prop({ default: () => createDevice }) private createDeviceApi: Function
   @Prop({ default: false }) private isIbox: boolean
   private tips = DeviceTips
@@ -413,6 +415,9 @@ export default class extends Mixins(deviceFormMixin) {
       DeviceEnum.DevicePoleId,
       DeviceEnum.DeviceMac
     ]
+    this.deviceForm.region = '0431001'
+    this.deviceForm.inOrgRegion = '11011100'
+    this.deviceForm.inOrgRegionLevel = 3
     form.validateField(validArr, (err) => {
       if (err !== '') {
         validFlag = false
@@ -449,6 +454,8 @@ export default class extends Mixins(deviceFormMixin) {
         },
         industry: {
           ...pick(this.deviceForm, [
+            DeviceEnum.InOrgRegion,
+            DeviceEnum.InOrgRegionLevel,
             DeviceEnum.IndustryCode,
             DeviceEnum.NetworkCode
           ])
@@ -481,12 +488,17 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [ viidDevice ]
       }
-      this.createDeviceApi(params)
+
+      // 提交创建表单
+      this.createDeviceApi(params).then(() => {
+        this.handleTools([ToolsEnum.RefreshDirectory])
+        this.handleTools([ToolsEnum.GoToDeviceList])
+      })
     }
   }
 
   private back() {
-    this.$router.push({ name: 'DeviceList' })
+    this.handleTools([ToolsEnum.GoToDeviceList])
   }
 }
 </script>

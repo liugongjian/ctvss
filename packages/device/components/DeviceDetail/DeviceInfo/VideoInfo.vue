@@ -26,7 +26,8 @@
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats.onlineChannels }}</el-descriptions-item>
       <el-descriptions-item label="当前码率">{{ streamInfo.bitrate ? (streamInfo.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
-      <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg }}</el-descriptions-item>
+      <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg || '-' }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 接入信息 -->
@@ -36,8 +37,8 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址">{{ videoInfo.deviceMac }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号">{{ videoInfo.devicePoleId }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址">{{ basicInfo.deviceMac || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号">{{ basicInfo.devicePoleId || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamAutoPull)" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo.deviceStreamAutoPull] }}</el-descriptions-item>
@@ -90,6 +91,7 @@ import { Device, VideoDevice } from '@vss/device/type/Device'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  @Prop({ default: false }) private isIbox: boolean
   private dicts = dicts
   private deviceEnum = DeviceEnum
 
@@ -131,7 +133,7 @@ export default class extends Vue {
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, this.isIbox, prop)
   }
 
   // 进入编辑模式
