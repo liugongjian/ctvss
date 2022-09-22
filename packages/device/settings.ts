@@ -14,6 +14,10 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.InUserName,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.StreamTransProtocol,
+    DeviceEnum.DeviceModel,
+    DeviceEnum.DeviceSerialNumber,
+    DeviceEnum.DeviceMac,
+    DeviceEnum.DevicePoleId,
     DeviceEnum.OutId
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
@@ -60,10 +64,6 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Resources,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
-    DeviceEnum.DeviceModel,
-    DeviceEnum.DeviceSerialNumber,
-    DeviceEnum.DeviceMac,
-    DeviceEnum.DevicePoleId,
     DeviceEnum.SipTransType,
     DeviceEnum.StreamTransType,
     DeviceEnum.DeviceIp,
@@ -171,11 +171,11 @@ export const InViidProtocolCreateParams = {
  */
 export const InViidProtocolAllowParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
-    DeviceEnum.LowerApsId,
-    DeviceEnum.ProtocolDeviceType,
-    DeviceEnum.InUserName,
-    DeviceEnum.Ip,
-    DeviceEnum.Port
+    ...InViidProtocolCreateParams[InViidProtocolEnum.Ga1400],
+    DeviceEnum.DeviceInType,
+    DeviceEnum.Viids,
+    DeviceEnum.DeviceIp,
+    DeviceEnum.DevicePort
   ])
 }
 

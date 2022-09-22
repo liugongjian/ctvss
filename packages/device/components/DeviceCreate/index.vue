@@ -131,7 +131,7 @@
             <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
               <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol || viidForm.inVideoProtocol]"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -239,9 +239,9 @@
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
-import { checkVideoVisible } from '../../utils/param'
+import { checkVideoVisible, checkViidVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
-import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
+import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
 import { createDevice } from '../../api/device'
@@ -278,6 +278,7 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkType = OutNetworkType
   private breadCrumbContent = '添加设备'
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
+  private inViidProtocol = InViidProtocolEnum.Ga1400
   private activeStep: number = 0
   private showMore: boolean = false
   private showMoreVisable: boolean = false
@@ -300,7 +301,7 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.NetworkCode]: '7',
     [DeviceEnum.Description]: '',
     [DeviceEnum.DeviceIp]: '',
-    [DeviceEnum.DevicePort]: '',
+    [DeviceEnum.DevicePort]: null,
     [DeviceEnum.DevicePoleId]: '',
     [DeviceEnum.DeviceMac]: '',
     [DeviceEnum.DeviceSerialNumber]: '',
@@ -335,7 +336,11 @@ export default class extends Mixins(deviceFormMixin) {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
+    if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
+    } else {
+      return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
+    }
   }
 
   /**
