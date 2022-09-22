@@ -1,7 +1,11 @@
 import request from '@/utils/request'
 
-/* gb28181 */
-export const getGb28181List = (params: any): Promise<any> =>
+/**
+ * =============================
+ * Video
+ * =============================
+ */
+export const getGb28181CertificateList = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/list',
     method: 'get',
@@ -29,45 +33,49 @@ export const updateGb28181Certificate = (params: any): Promise<any> =>
     data: params
   })
 
-export const queryGb28181Certificate = (params: any): Promise<any> =>
+export const getGb28181Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181',
     method: 'get',
     params
   })
 
-/* viid */
-export const getList = (params: any): Promise<any> =>
+/**
+ * =============================
+ * VIID
+ * =============================
+ */
+export const getGa1400CertificateList = (params: any): Promise<any> =>
   request({
-    url: '/viid/certificates/ga1400',
+    url: '/viid/new/certificates/ga1400',
     method: 'get',
     params
   })
 
-export const createCertificate = (params: any): Promise<any> =>
+export const createGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/certificates/ga1400',
+    url: '/viid/new/certificates/ga1400',
     method: 'post',
     data: params
   })
 
-export const deleteCertificate = (params: any): Promise<any> =>
+export const deleteGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/certificates/ga1400/' + params.id,
+    url: '/viid/new/certificates/ga1400/' + params.id,
     method: 'delete',
     data: params
   })
 
-export const updateCertificate = (params: any, id: string): Promise<any> =>
+export const updateGa1400Certificate = (params: any, id: string): Promise<any> =>
   request({
-    url: '/viid/certificates/ga1400/' + id,
+    url: '/viid/new/certificates/ga1400/' + id,
     method: 'put',
     data: params
   })
 
-export const queryCertificate = (params: any): Promise<any> =>
+export const getGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/certificates/ga1400',
+    url: '/viid/new/certificates/ga1400',
     method: 'get',
     params
   })

@@ -516,7 +516,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'gb28181',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/index.vue'),
         name: 'gb28181',
         meta: {
           name: 'certificate',
@@ -528,7 +528,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
@@ -539,7 +539,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
@@ -550,7 +550,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/index.vue'),
         name: 'ga1400',
         meta: {
           id: '20210424150201007004',
@@ -564,7 +564,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
         name: 'ga1400-create',
         meta: {
           id: '20210424150201007005',
@@ -577,7 +577,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
         name: 'ga1400-update',
         meta: {
           id: '20210424150201007006',
