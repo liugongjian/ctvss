@@ -359,9 +359,15 @@ export default class extends Mixins(deviceFormMixin) {
 
   /**
    * 设备类型变化
+   * 设备分类为NVR，接入方式仅能选视频（默认选中视频）
+   * 设备分类为Platform，接入方式默认取数组第一个元素
    */
   private deviceTypeChange() {
-    this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr) {
+      this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    } else if (this.deviceForm.deviceType === DeviceTypeEnum.Platform) {
+      this.deviceForm.deviceInType = this.deviceForm.deviceInType.slice(0, 1)
+    }
   }
 
   /**

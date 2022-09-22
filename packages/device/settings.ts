@@ -173,6 +173,7 @@ export const InViidProtocolAllowParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
     ...InViidProtocolCreateParams[InViidProtocolEnum.Ga1400],
     DeviceEnum.DeviceInType,
+    DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.Viids,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort
@@ -185,16 +186,19 @@ export const InViidProtocolAllowParams = {
  */
 export const DeviceTypeDenyParamsForViid = {
   [DeviceTypeEnum.Ipc]: new Set([
+    DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.LowerApsId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ]),
   [DeviceTypeEnum.Nvr]: new Set([
+    DeviceEnum.DeviceInType,
     DeviceEnum.LowerApsId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ]),
   [DeviceTypeEnum.Platform]: new Set([
+    DeviceEnum.DeviceInType
   ])
 }
 
