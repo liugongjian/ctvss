@@ -54,12 +54,12 @@ service.interceptors.response.use(
 )
 
 function responseHandler(response: AxiosResponse) {
-  if (response && (response.status === 200) && response.data && !response.data.code) {
+  if (response && (response.status === 200) && response.data && !response.data.Code) {
     // TODO: 后端处理大小写
     const resData = response.data.Data ? toLowerCase(response.data.Data) : toLowerCase(response.data)
     return resData as AxiosResponse
   } else {
-    if (!timeoutPromise && response && response.data && response.data.code === 16) {
+    if (!timeoutPromise && response && response.data && response.data.Code === 16) {
       timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',
         '确定登出',
@@ -82,9 +82,10 @@ function responseHandler(response: AxiosResponse) {
         }
       })
     }
-    const data = response && response.data
+    // TODO: 后端处理大小写
+    const data = toLowerCase(response && response.data)
     const requestId = data && data.requestId
-    const code = data && data.code ? data.code : '-1'
+    const code = data && data.Code ? data.Code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'
     console.log('code: ', code, ' message: ', message)
     return Promise.reject(new VSSError(code, message, requestId))
