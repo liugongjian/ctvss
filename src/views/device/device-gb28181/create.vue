@@ -534,8 +534,8 @@ import {
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import CreateGb28181Certificate from '@/views/Certificate/Gb28181/components/CreateDialog.vue'
-import CreateGa1400Certificate from '@/views/Certificate/Ga1400/components/CreateDialog.vue'
+import CreateGb28181Certificate from '@vss/device/components/Certificate/Gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from '@vss/device/components/Certificate/Ga1400/components/CreateDialog.vue'
 import { ViewLib2Device } from '../viewLibParamsTransform'
 
 @Component({
