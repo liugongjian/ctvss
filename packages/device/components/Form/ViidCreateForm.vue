@@ -113,8 +113,7 @@ export default class extends Vue {
       [DeviceEnum.InViidProtocol]: this.inProtocol || InViidProtocolEnum.Ga1400,
       [DeviceEnum.LowerApsId]: this.viidInfo.lowerApsId,
       [DeviceEnum.ProtocolDeviceType]: this.viidInfo.protocolDeviceType,
-      // [DeviceEnum.InUserName]: this.viidInfo.inUserName,
-      [DeviceEnum.InUserName]: 123,
+      [DeviceEnum.InUserName]: this.viidInfo.inUserName,
       [DeviceEnum.Ip]: this.viidInfo.ip,
       [DeviceEnum.Port]: this.viidInfo.port
     }

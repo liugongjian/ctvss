@@ -131,7 +131,7 @@
             <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
               <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol || viidForm.inVideoProtocol]"
+                  v-for="(value, key) in deviceVendorList"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -271,7 +271,6 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
-  private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap
   private inNetworkType = InNetworkType
@@ -315,6 +314,13 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private get parentDeviceId() {
     return this.$route.query.parentDeviceId && this.$route.query.parentDeviceId.toString()
+  }
+
+  /**
+   * 根据接入方式和接入协议返回厂商列表
+   */
+  private get deviceVendorList() {
+    return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
   }
 
   @Watch('videoForm.videoVendor')
