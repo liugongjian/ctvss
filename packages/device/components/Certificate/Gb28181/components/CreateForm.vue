@@ -64,7 +64,6 @@ export default class extends Vue {
     password: [{ validator: this.validateOldPass, trigger: 'blur' }]
   }
   private form: GB28181 = {
-    userType: 'normal',
     userName: '',
     password: '',
     newPassword: '',
@@ -97,12 +96,6 @@ export default class extends Vue {
   private validateUserName(rule: any, value: string, callback: any) {
     if (!value) {
       callback(new Error('请输入用户名'))
-    } else if (this.form.userType === 'normal') {
-      if (!/^[0-9a-z]+$/.test(value)) {
-        callback(new Error('用户名仅支持小写字母和数字'))
-      } else {
-        callback()
-      }
     } else {
       callback()
     }
@@ -126,7 +119,6 @@ export default class extends Vue {
           if (this.disabled) {
             data = {
               userName: encrypt(this.form.userName),
-              userType: this.form.userType,
               description: this.form.description,
               password: encrypt(this.form.password),
               newPassword: encrypt(this.form.newPassword),
@@ -137,7 +129,6 @@ export default class extends Vue {
             this.form.password = this.form.newPassword
             data = {
               userName: encrypt(this.form.userName),
-              userType: this.form.userType,
               description: this.form.description,
               password: encrypt(this.form.password),
               version: '2.0'
@@ -171,7 +162,6 @@ export default class extends Vue {
       this.$set(this.form, 'userName', params.userName)
       try {
         const res = await queryCertificate({ userName: this.form.userName })
-        this.$set(this.form, 'userType', res.userType)
         this.$set(this.form, 'description', res.description)
       } catch (e) {
         this.$message.error(e && e.message)
