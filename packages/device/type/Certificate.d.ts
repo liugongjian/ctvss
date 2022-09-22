@@ -1,4 +1,5 @@
 export interface Certificate {
+  username: string;
   userName: string;
   userType?: string;
   description?: string;

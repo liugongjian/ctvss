@@ -7,8 +7,8 @@
     label-position="right"
     label-width="140px"
   >
-    <el-form-item label="用户名" prop="userName" class="form-with-tip">
-      <el-input v-model="form.userName" :disabled="disabled" />
+    <el-form-item label="用户名" prop="username" class="form-with-tip">
+      <el-input v-model="form.username" :disabled="disabled" />
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password auto-complete="new-password" />
@@ -40,7 +40,7 @@ export default class extends Vue {
   private loading = false
   private disabled = false
   private rules = {
-    userName: [
+    username: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
@@ -57,7 +57,7 @@ export default class extends Vue {
     ]
   }
   private form: any = {
-    userName: '',
+    username: '',
     password: '',
     newPassword: '',
     confirmPassword: '',
@@ -115,7 +115,7 @@ export default class extends Vue {
         try {
           if (this.disabled) {
             data = {
-              username: encrypt(this.form.userName),
+              username: encrypt(this.form.username),
               description: this.form.description,
               password: encrypt(this.form.password),
               newPassword: encrypt(this.form.newPassword),
@@ -125,7 +125,7 @@ export default class extends Vue {
           } else {
             this.form.password = this.form.newPassword
             data = {
-              username: encrypt(this.form.userName),
+              username: encrypt(this.form.username),
               description: this.form.description,
               password: encrypt(this.form.password),
               version: '2.0'
@@ -152,11 +152,11 @@ export default class extends Vue {
 
   private async mounted() {
     let params: any = this.$route.params
-    if (params.userName) {
+    if (params.username) {
       this.disabled = true
-      this.$set(this.form, 'userName', params.userName)
+      this.$set(this.form, 'username', params.username)
       try {
-        const res = await getGa1400Certificate({ userName: this.form.userName })
+        const res = await getGa1400Certificate({ username: this.form.username })
         this.$set(this.form, 'description', res.data[0].description)
         this.$set(this.form, 'id', res.data[0].id)
       } catch (e) {
