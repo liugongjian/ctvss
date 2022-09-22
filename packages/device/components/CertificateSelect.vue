@@ -32,8 +32,8 @@ import { getList as getGb28181List } from '@/api/certificate/gb28181'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { InVideoProtocolEnum, InViidProtocolEnum } from '@vss/device/enums'
 import { InVideoProtocol, InViidProtocol } from '@vss/device/dicts'
-import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import CreateGb28181Certificate from './Certificate/Gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from './Certificate/Ga1400/components/CreateDialog.vue'
 
 @Component({
   name: 'CertificateSelect',
