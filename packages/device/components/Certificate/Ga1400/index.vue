@@ -4,7 +4,7 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">新建GA1400凭证</el-button>
         <div class="filter-container__right">
-          <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入凭证用户名" @keyup.enter.native="handleFilter">
+          <el-input v-model="username" class="filter-container__search-group" placeholder="请输入凭证用户名" @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -13,7 +13,7 @@
       <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column label="凭证用户名" min-width="100">
           <template slot-scope="{row}">
-            {{ row.userName || '-' }}
+            {{ row.username || '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
@@ -46,7 +46,7 @@ import { GA1400 } from '@vss/device/type/Certificate'
   name: 'CertificateGb28181List'
 })
 export default class extends Vue {
-  private userName = ''
+  private username = ''
   private loading = false
   private dataList: Array<GA1400> = []
   private pager = {
@@ -71,7 +71,7 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     let params = {
-      userName: this.userName,
+      username: this.username,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
@@ -110,7 +110,7 @@ export default class extends Vue {
     this.$router.push({
       name: 'ga1400-update',
       params: {
-        userName: row.userName
+        username: row.username
       }
     })
   }
@@ -118,9 +118,9 @@ export default class extends Vue {
   private async deleteCertificate(row: any) {
     this.$alertDelete({
       type: 'GA1400凭证',
-      msg: `是否确认删除GA1400凭证"${row.userName}"`,
+      msg: `是否确认删除GA1400凭证"${row.username}"`,
       method: deleteGa1400Certificate,
-      payload: { userName: row.userName, id: row.id },
+      payload: { username: row.username, id: row.id },
       onSuccess: this.getList
     })
   }
