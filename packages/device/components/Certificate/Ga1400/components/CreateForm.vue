@@ -7,7 +7,7 @@
     label-position="right"
     label-width="140px"
   >
-    <el-form-item label="用户名" prop="username" class="form-with-tip">
+    <el-form-item label="注册用户名" prop="username" class="form-with-tip">
       <el-input v-model="form.username" :disabled="disabled" />
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">

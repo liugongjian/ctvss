@@ -11,7 +11,7 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column label="凭证用户名" min-width="100">
+        <el-table-column label="注册用户名" min-width="100">
           <template slot-scope="{row}">
             {{ row.username || '-' }}
           </template>

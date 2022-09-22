@@ -131,7 +131,7 @@
             <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
               <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol || viidForm.inVideoProtocol]"
+                  v-for="(value, key) in deviceVendorList"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -271,7 +271,6 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
-  private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap
   private inNetworkType = InNetworkType
@@ -317,6 +316,13 @@ export default class extends Mixins(deviceFormMixin) {
     return this.$route.query.parentDeviceId && this.$route.query.parentDeviceId.toString()
   }
 
+  /**
+   * 根据接入方式和接入协议返回厂商列表
+   */
+  private get deviceVendorList() {
+    return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
+  }
+
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
@@ -353,9 +359,15 @@ export default class extends Mixins(deviceFormMixin) {
 
   /**
    * 设备类型变化
+   * 设备分类为NVR，接入方式仅能选视频（默认选中视频）
+   * 设备分类为Platform，接入方式默认取数组第一个元素
    */
   private deviceTypeChange() {
-    this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr) {
+      this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    } else if (this.deviceForm.deviceType === DeviceTypeEnum.Platform) {
+      this.deviceForm.deviceInType = this.deviceForm.deviceInType.slice(0, 1)
+    }
   }
 
   /**
