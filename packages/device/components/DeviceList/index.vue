@@ -276,7 +276,7 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '../../type/Device'
-import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '../../enums/index'
+import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum, DeviceTypeEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '../../dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
@@ -288,7 +288,6 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
 import UploadExcel from '../UploadExcel.vue'
 import Resource from '../Resource.vue'
-import { DeviceTypeEnum } from 'packages/device/enums'
 
 @Component({
   name: 'DeviceList',
@@ -450,7 +449,7 @@ export default class extends Mixins(deviceMixin) {
   private async initList() {
     this.initTable()
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
-      await this.getDevice(this.currentId)
+      await this.getDevice(this.currentDirId)
       console.log('deviceInfo', this.device)
     }
   }
@@ -536,7 +535,25 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      this.$router.push({ name: 'DeviceInfo', query: { deviceId: '29941916753760267' } })
+      console.log(row)
+      if ([DeviceTypeEnum.Ipc].includes(row[DeviceEnum.DeviceType])) {
+        this.$router.push({
+          name: 'DeviceInfo',
+          query: {
+            ...this.$route.query,
+            [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+          }
+        })
+      } else if ([DeviceTypeEnum.Platform, DeviceTypeEnum.Nvr].includes(row[DeviceEnum.DeviceType])) {
+        this.$router.push({
+          query: {
+            ...this.$route.query,
+            [DeviceEnum.DirId]: row[DeviceEnum.DeviceId],
+            type: row[DeviceEnum.DeviceType]
+          }
+        })
+        this.handleTools(ToolsEnum.RefreshDeviceList)
+      }
     }
   }
 
