@@ -356,7 +356,7 @@ export const getDevices = (params: any): Promise<any> => {
           const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
           data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
-          data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+          data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus] && videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
           data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].some(
             stream => stream[DeviceEnum.DeviceStatus] === StatusEnum.On
           ) ? StatusEnum.On : StatusEnum.Off) : null

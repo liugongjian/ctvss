@@ -3,16 +3,16 @@
     <div class="list-wrap">
       <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
         <info-list label-width="80">
-          <info-list-item label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
-          <info-list-item label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
-          <info-list-item label="设备状态:">
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceStatus)" label="设备状态:">
             <status-badge :status="basicInfo.deviceStatus" />
             {{ videoStatus[basicInfo.deviceStatus] }}
           </info-list-item>
           <info-list-item label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
           <info-list-item v-if="basicInfo.createSubDevice === 2" label="可支持通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
           <info-list-item v-else label="通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>
       <div class="list-wrap__tools">
@@ -280,7 +280,7 @@ import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum, DeviceTypeEnum } 
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '../../dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
-import { checkDeviceListVisible, checkDeviceColumnsVisible } from '../../utils/param'
+import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '../../utils/param'
 import { getDevices } from '../../api/device'
 import deviceMixin from '../../mixin/deviceMixin'
 import DeviceManager from '../../services/Device/DeviceManager'
@@ -506,6 +506,19 @@ export default class extends Mixins(deviceMixin) {
   private handleListTools(type: string, ...payload: any) {
     console.log(type, ...payload)
     this.handleListToolsMap[type](...payload)
+  }
+
+  /**
+   * 判断是否显示设备信息字段
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  private checkInfoVisible(prop) {
+    console.log(this.basicInfo, this.basicInfo.deviceType, this.protocol, prop)
+    return this.hasVideo
+      ? checkVideoVisible.call(this.basicInfo, this.basicInfo.deviceType, this.protocol, false, prop)
+      : checkViidVisible.call(this.basicInfo, this.basicInfo.deviceType, this.protocol, false, prop)
   }
 
   /**
