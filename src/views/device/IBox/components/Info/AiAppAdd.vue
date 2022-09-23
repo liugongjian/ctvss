@@ -8,7 +8,12 @@
       </el-steps>
     </div>
     <div v-if="!step">
-      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList" />
+      <AlgoOption
+        :step.sync="step"
+        :prod.sync="prod"
+        direction="next"
+        @back="backToList"
+      />
     </div>
     <div v-if="step === 1">
       <AlgoDetail
@@ -21,17 +26,23 @@
       />
     </div>
     <div v-if="step === 2">
-      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList" @submit="onSubmit" />
+      <AlgoDevice
+        :step.sync="step"
+        :prod.sync="prod"
+        @back="backToList"
+        @submit="onSubmit"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Inject } from 'vue-property-decorator'
 import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
 import AlgoDetail from '@/views/AI/AppList/component/AlgoDetail.vue'
 import AlgoDevice from './AlgoDevice.vue'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
+import { createIboxApp } from '@/api/ibox'
 
 @Component({
   name: 'AiAppAdd',
@@ -42,8 +53,9 @@ import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
   }
 })
 export default class extends Mixins(AppMixin) {
+  @Inject('eventBus') public eventBus!: any
   private step: number = 0
-  public prod: any = {}// 新建时传入组件的参数
+  public prod: any = {} // 新建时传入组件的参数
   private isLoading: boolean = false
   private algoParam: any = null
   private algoParamSubmit: any = null
@@ -51,8 +63,20 @@ export default class extends Mixins(AppMixin) {
     return this.$route.query.id ? '编辑' : '创建'
   }
 
-  private onSubmit(treeData) {
-    // algoParamSubmit、prod
+  private async onSubmit(treeParam) {
+    try {
+      const param = {
+        ...treeParam,
+        ...this.algoParamSubmit,
+        iboxId: this.$route.query.deviceId
+      }
+      await createIboxApp(param)
+      window.location.reload()
+      setTimeout(() => this.eventBus.$emit('update:submit', 'appList'), 0)
+      this.$message.success('添加成功')
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   private backToList() {

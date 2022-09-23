@@ -363,6 +363,7 @@ export default class IBox extends Vue {
       const data: any = await getDeviceList(param)
 
       this.iboxDevice = data.devices
+      console.log(this.iboxDevice)
     } catch (error) {
       console.log(error)
     } finally {

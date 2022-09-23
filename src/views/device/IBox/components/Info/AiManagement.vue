@@ -1,9 +1,9 @@
 <template>
   <div class="algo-container">
     <div v-if="step === -1" class="tab-container">
-      <div class="filter-container">
+      <!-- <div class="filter-container">
         <el-button type="primary" @click="addAlgo">添加算法</el-button>
-      </div>
+      </div> -->
       <el-table :data="tableData">
         <el-table-column prop="name" label="算法类型" />
         <el-table-column label="描述" />
@@ -13,20 +13,28 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="upgrade(scope.row)">升级</el-button>
-            <el-button type="text" @click="uninstall(scope.row)">卸载</el-button>
+            <el-button type="text" @click="uninstall(scope.row)">
+              卸载
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div v-else>
       <el-page-header content="返回算法列表" @back="backToList" />
-      <algo-option :step.sync="step" :prod.sync="prod" direction="prev" @back="backToList" />
+      <algo-option
+        :step.sync="step"
+        :prod.sync="prod"
+        direction="prev"
+        @back="backToList"
+      />
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
+import { describeAlgorithmList } from '@/api/ibox'
 
 @Component({
   name: 'AiManage',
@@ -34,13 +42,21 @@ import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
     AlgoOption
   }
 })
-
 export default class IBoxList extends Vue {
   public tableData = [{ name: 'test' }]
   private step: number = -1
-  private prod: any = {}// 新建时传入组件的参数
-  async mounted() {
+  private prod: any = {} // 新建时传入组件的参数
+  private mounted() {
+    this.getAiList()
+  }
 
+  private async getAiList() {
+    const iboxId: any = +this.$route.query.deviceId
+    const { IboxApps }: any = await describeAlgorithmList({
+      ...this.pager,
+      iboxId
+    })
+    this.tableData = IboxApps
   }
 
   @Watch('prod', {
@@ -67,17 +83,8 @@ export default class IBoxList extends Vue {
       handleName: '升级',
       type: '应用',
       msg: h('div', undefined, [
-        h(
-          'span',
-          undefined,
-          '确定要升级选中的设备吗？'
-        ),
-        h(
-          'div',
-          [h('p', undefined, [
-            h('span', undefined, algo.name)
-          ])]
-        )
+        h('span', undefined, '确定要升级选中的设备吗？'),
+        h('div', [h('p', undefined, [h('span', undefined, algo.name)])])
       ]),
       method: () => {}, // 网络请求方法
       payload: {
@@ -97,17 +104,8 @@ export default class IBoxList extends Vue {
       handleName: '卸载',
       type: '应用',
       msg: h('div', undefined, [
-        h(
-          'span',
-          undefined,
-          '确定要卸载选中的设备吗？'
-        ),
-        h(
-          'div',
-          [h('p', undefined, [
-            h('span', undefined, algo.name)
-          ])]
-        )
+        h('span', undefined, '确定要卸载选中的设备吗？'),
+        h('div', [h('p', undefined, [h('span', undefined, algo.name)])])
       ]),
       method: () => {}, // 网络请求方法
       payload: {

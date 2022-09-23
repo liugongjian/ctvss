@@ -13,19 +13,20 @@
       :data="iboxDevice"
       :props="treeProp"
       @check-change="checkCallback"
+      @node-click="handleNodeClick"
     >
-      <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+      <span
+        slot-scope="{node, data}"
+        class="custom-tree-node"
+        :class="{online: data.deviceStatus === 'on'}"
+      >
         <span class="node-name">
           <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
           <svg-icon :name="data.deviceType || 'ipc'" width="15" height="15" />
           {{ node.data.deviceName }}
         </span>
         <span v-if="!!data.meta && node.checked" style="margin-left: 12px;">
-          <el-button
-            type="text"
-            size="mini"
-            @click="() => editMeta(data)"
-          >
+          <el-button type="text" size="mini" @click="() => editMeta(data)">
             <svg-icon name="clipboard" width="15" height="15" />
           </el-button>
         </span>
@@ -52,6 +53,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
+import { getDeviceList } from '@/api/ibox'
 
 // @ts-ignore
 @Component({
@@ -74,9 +76,7 @@ export default class extends Mixins(AppMixin) {
 
   private nodeChecked: boolean = false
 
-  private deviceId = '1'
-  private configAlgoInfo =
-  {
+  private configAlgoInfo = {
     name: 'test',
     effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
     algorithm: { code: '10031' },
@@ -90,142 +90,24 @@ export default class extends Mixins(AppMixin) {
   }
 
   public async loadIboxDevice() {
-    const data = {
-      'pageNum': 1,
-      'pageSize': 20,
-      'totalPage': 1,
-      'totalNum': 3,
-      'devices': [
-        {
-          'deviceId': '29942077814997590',
-          'groupId': '883904285310976',
-          'parentDeviceId': '29942103584801365',
-          'dirId': '-1',
-          'deviceType': 'ipc',
-          'deviceVendor': '',
-          'deviceName': 'test-ipc',
-          'description': '',
-          'deviceIp': '',
-          'devicePort': 0,
-          'inProtocol': '',
-          'userName': 'user',
-          'userPassword': 'user',
-          'gbId': '34082400011328566275',
-          'pullType': 2,
-          'transPriority': 'tcp',
-          'deviceEnabled': 1,
-          'deviceStatus': 'new',
-          'streamStatus': '',
-          'sipTransType': '',
-          'streamTransType': '',
-          'createSubDevice': 1,
-          'gbVersion': '2011',
-          'deviceStats': {
-            'channelSize': 1,
-            'onlineChannels': 0,
-            'offlineChannels': 0,
-            'onlineStreams': 0,
-            'offlineStreams': 0,
-            'failedStreams': 0
-          },
-          'deviceDir': {
-            'dirId': '0',
-            'dirName': '',
-            'description': '',
-            'groupId': '0',
-            'parentDirId': '0',
-            'createdTime': '0001-01-01 00:00:00',
-            'updatedTime': '0001-01-01 00:00:00'
-          },
-          'createdTime': '2020-09-02 17:44:12',
-          'updatedTime': '2020-09-02 18:14:21',
-          'requestId': '3247575e6e1044668962f5a464fa3885'
-        },
-        {
-          'deviceId': '29942071372546647',
-          'groupId': '883904285310976',
-          'parentDeviceId': '29942103584801365',
-          'dirId': '-1',
-          'deviceType': 'nvr',
-          'deviceChannels': [
-            {
-              'deviceId': '123',
-              'outId': '1111111',
-              'deviceChannelNum': '333',
-              'deviceName': 'nvr-设备1',
-              'deviceStatus': 'on',
-              'streams': []
-            }, {
-              'deviceId': '223',
-              'outId': '2222',
-              'deviceChannelNum': '332',
-              'deviceName': 'nvr-设备2',
-              'deviceStatus': 'off',
-              'streams': []
-            }, {
-              'deviceId': '323',
-              'outId': '3333333',
-              'deviceChannelNum': '323333',
-              'deviceName': 'nvr-设备3',
-              'deviceStatus': 'on',
-              'streams': []
-            }, {
-              'deviceId': '423',
-              'outId': '44444',
-              'deviceChannelNum': '423333',
-              'deviceName': 'nvr-设备4',
-              'deviceStatus': 'new',
-              'streams': []
-            }
-          ],
-          'deviceVendor': '',
-          'deviceName': 'test-nvr',
-          'description': '',
-          'deviceIp': '',
-          'devicePort': 0,
-          'inProtocol': '',
-          'userName': 'user',
-          'userPassword': 'user',
-          'gbId': '34082400011328199910',
-          'pullType': 2,
-          'transPriority': 'tcp',
-          'deviceEnabled': 1,
-          'deviceStatus': 'new',
-          'streamStatus': '',
-          'sipTransType': '',
-          'streamTransType': '',
-          'createSubDevice': 1,
-          'gbVersion': '2011',
-          'deviceStats': {
-            'channelSize': 1,
-            'onlineChannels': 0,
-            'offlineChannels': 0,
-            'onlineStreams': 0,
-            'offlineStreams': 0,
-            'failedStreams': 0
-          },
-          'deviceDir': {
-            'uirId': '0',
-            'uirName': '',
-            'uescription': '',
-            'uroupId': '0',
-            'uarentDirId': '0',
-            'ureatedTime': '0001-01-01 00:00:00',
-            'updatedTime': '0001-01-01 00:00:00'
-          },
-          'createdTime': '2020-09-02 17:44:12',
-          'updatedTime': '2020-09-02 18:14:21',
-          'requestId': '3247575e6e1044668962f5a464fa3885'
-        }
-      ]
-
+    const param = {
+      ParentDeviceId: this.$route.query.deviceId,
+      pageNum: 1,
+      pageSize: 9999
     }
-    this.iboxDevice = data.devices.map(device => {
-      if (device.deviceType === 'nvr') {
-        return { ...device, disabled: true, meta: null }
-      }
-      return { ...device, meta: null }
-    })
+
+    try {
+      const data: any = await getDeviceList(param)
+      this.iboxDevice = data.devices.map((device) => {
+        if (device.device.deviceType === 'nvr') {
+          return { ...device.device, disabled: true, meta: null }
+        }
+        return { ...device.device, meta: null }
+      })
+      console.log('this.iboxDevice:', this.iboxDevice)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   private changeStepPrev() {
@@ -242,7 +124,23 @@ export default class extends Mixins(AppMixin) {
   }
 
   private onSubmit() {
-    this.$emit('submit', 'tree-data')
+    const deviceTree: any = this.$refs.deviceTree
+    const nodes = deviceTree.getCheckedNodes(true, false)
+    let param: any = {
+      deviceIds: [],
+      detectZones: []
+    }
+    nodes.forEach((node) => {
+      const algorithmMetadata = JSON.parse(node.meta.algorithmMetadata)
+      const dangerZone = algorithmMetadata.DangerZone.map((zone) => +zone)
+      param.deviceIds.push(node.meta.deviceId)
+      param.detectZones.push(dangerZone)
+    })
+    param = {
+      deviceIds: JSON.stringify(param.deviceIds),
+      detectZones: JSON.stringify(param.detectZones)
+    }
+    this.$emit('submit', param)
   }
 
   private addMeta(meta) {
@@ -256,6 +154,11 @@ export default class extends Mixins(AppMixin) {
       this.$set(node.data, 'meta', null)
       deviceTree.setChecked(node.data, false)
     }
+  }
+
+  private handleNodeClick(data, node) {
+    console.log('data:', data)
+    console.log('node:', node)
   }
 
   private editMeta(data) {

@@ -56,3 +56,33 @@ export const getIBoxCertificates = () =>
     method: 'post'
     // data: toUpperCase(data)
   })
+
+// 获取IBox AI应用列表
+export const describeIboxApps = (data) =>
+  request({
+    url: '/ibox/ai/describeIboxApps',
+    method: 'post',
+    data
+  })
+
+// 获取算法列表
+export const describeAlgorithmList = (data) =>
+  request({
+    url: '/ibox/ai/describeIboxApps',
+    method: 'post',
+    data
+  })
+
+export const describeIboxAlgorithms = (data) =>
+  request({
+    url: '/ibox/ai/describeIboxAlgorithms',
+    method: 'post',
+    data
+  })
+
+export const createIboxApp = (data) =>
+  request({
+    url: '/ibox/ai/createIboxApp',
+    method: 'post',
+    data
+  })

@@ -2,7 +2,8 @@
   <div class="canvasBox">
     <el-dialog
       :visible.sync="canvasIf"
-      title="算法配置" width="800px"
+      title="算法配置"
+      width="800px"
       :destroy-on-close="true"
       :modal-append-to-body="false"
       top="7vh"
@@ -16,7 +17,11 @@
         <div class="configureDetail">
           <span class="configureName">生效时段：</span>
           <span class="configureValue">
-            {{ configAlgoInfo.effectiveTime ? `${configAlgoInfo.effectiveTime[0].start_time} ~ ${configAlgoInfo.effectiveTime[0].end_time}` : '' }}
+            {{
+              configAlgoInfo.effectiveTime
+                ? `${configAlgoInfo.effectiveTime[0].start_time} ~ ${configAlgoInfo.effectiveTime[0].end_time}`
+                : ''
+            }}
           </span>
         </div>
         <div class="configureDetail">
@@ -30,7 +35,11 @@
           </span>
         </div>
         <div id="canvasDraw" class="canvasDraw">
-          <canvas id="canvasWrapper" class="canvasConfig canvasWrapper" width="700">
+          <canvas
+            id="canvasWrapper"
+            class="canvasConfig canvasWrapper"
+            width="700"
+          >
             您的浏览器不支持canvas
           </canvas>
           <canvas
@@ -55,12 +64,15 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import math from './utils/math'
-import { getRectPropFromPoints,
-  getVerticalLinePoints, drawArrow
+import {
+  getRectPropFromPoints,
+  getVerticalLinePoints,
+  drawArrow
 } from './utils/index'
 import plate from './plate4.jpg'
-import { DRAW_MODES
-//   DRAW_MODES_TEXT
+import {
+  DRAW_MODES
+  //   DRAW_MODES_TEXT
 } from './contants'
 
 interface ValueObject<> {
@@ -71,10 +83,8 @@ interface ValueObject<> {
 
 @Component({
   name: 'AlgoConfig',
-  components: {
-  }
+  components: {}
 })
-
 export default class extends Vue {
   @Prop() private deviceId?: string
   @Prop() private canvasIf?: boolean
@@ -120,7 +130,9 @@ export default class extends Vue {
 
     if (this.meta) {
       const { algorithmMetadata } = this.meta
-      const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
+      const algorithmMetadataParse = algorithmMetadata
+        ? JSON.parse(algorithmMetadata)
+        : {}
       const { DangerZone } = algorithmMetadataParse
       // const DangerZoneParse = JSON.parse(DangerZone)
       if (DangerZone) {
@@ -142,7 +154,10 @@ export default class extends Vue {
           }
           const perDangerZoneParse = DangerZoneParse.map((item: any) => {
             const [x, y] = item
-            return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
+            return [
+              Math.floor(((x / this.ratio) * this.imageWidth) / 100),
+              Math.floor(((y / this.ratio) * this.imageHeight) / 100)
+            ]
           })
 
           this.areas = [
@@ -170,7 +185,9 @@ export default class extends Vue {
     // let img = new Image()
     img.src = that.dataURL
 
-    const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
+    const backgroundLayer = document.querySelector(
+      '#canvasWrapper'
+    ) as HTMLCanvasElement
     const backgroundCtx = backgroundLayer.getContext('2d')!
 
     const canvasDom = document.querySelector('#drawLine') as HTMLCanvasElement
@@ -191,12 +208,23 @@ export default class extends Vue {
       that.imageHeight = img.height
       that.imageWidth = img.width
 
-      const canvasDraw = document.querySelector('#canvasDraw') as HTMLCanvasElement
+      const canvasDraw = document.querySelector(
+        '#canvasDraw'
+      ) as HTMLCanvasElement
       const canvasHeight = math.divide!(img.height, ratio)
       backgroundLayer.height = canvasHeight
       canvasDom.height = canvasHeight
-      canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
-      backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
+      canvasDraw.setAttribute(
+        'style',
+        `width:${backgroundLayer.width}px;height:${canvasHeight}px`
+      )
+      backgroundCtx.drawImage(
+        img,
+        0,
+        0,
+        backgroundLayer.width,
+        backgroundLayer.height
+      )
       // that.imageHeight = backgroundLayer.height * this.ratio
       // that.imageWidth = backgroundLayer.width * this.ratio
       that.getHasLine()
@@ -244,7 +272,7 @@ export default class extends Vue {
 
   private cancel() {
     this.closeThis()
-    this.$parent.setNodeOppositeChecked(this.deviceId)
+    this.$parent.setNodeOppositeChecked(this.$route.query.deviceId)
   }
 
   private sureThis() {
@@ -252,11 +280,17 @@ export default class extends Vue {
     if (this.areas && this.areas[0] && Object.keys(this.areas[0]).length > 0) {
       // 过滤 rect 矩形数据
       if (this.mode === 'rect') {
-        const { points: [x, y] } = this.areas[0]
+        const {
+          points: [x, y]
+        } = this.areas[0]
         pointsInfo = this.getRectPoints(x, y)
       } else if (this.configAlgoInfo.algorithm.code === '10032') {
-        const directorP = this.areas.find((item: any) => { return item.shape === 'director' })
-        const { points: [x, y] } = directorP
+        const directorP = this.areas.find((item: any) => {
+          return item.shape === 'director'
+        })
+        const {
+          points: [x, y]
+        } = directorP
         if (this.direction) {
           pointsInfo = this.getLinePoints(y, x)
         } else {
@@ -271,7 +305,10 @@ export default class extends Vue {
     console.log('pointsInfo==>', pointsInfo)
     const perPoints = pointsInfo.map((item: any) => {
       const [x, y] = item
-      return [Math.floor(x * this.ratio / this.imageWidth * 100), Math.floor(y * this.ratio / this.imageHeight * 100)]
+      return [
+        Math.floor(((x * this.ratio) / this.imageWidth) * 100),
+        Math.floor(((y * this.ratio) / this.imageHeight) * 100)
+      ]
     })
 
     const metaData = () => {
@@ -281,7 +318,9 @@ export default class extends Vue {
       //   return JSON.stringify({ DangerZone: [] })
       // }
       if (perPoints.length > 0) {
-        return JSON.stringify({ DangerZone: perPoints.flat().map(item => item.toString()) })
+        return JSON.stringify({
+          DangerZone: perPoints.flat().map((item) => item.toString())
+        })
       } else {
         return JSON.stringify({ DangerZone: [] })
       }
@@ -289,8 +328,7 @@ export default class extends Vue {
 
     const param = {
       algorithmMetadata: metaData(),
-      deviceId: this.deviceId,
-      appId: this.configAlgoInfo.id
+      deviceId: this.deviceId
     }
 
     console.log('param:', param)
@@ -322,8 +360,12 @@ export default class extends Vue {
   }
 
   private getLinePoints(startP: Array<number>, endP: Array<number>) {
-    const lineP = this.areas.find((item: any) => { return item.shape === 'line' })
-    const { points: [x, y] } = lineP
+    const lineP = this.areas.find((item: any) => {
+      return item.shape === 'line'
+    })
+    const {
+      points: [x, y]
+    } = lineP
     return [x, y, startP, endP]
   }
 
@@ -375,15 +417,32 @@ export default class extends Vue {
               this.canvas.beginPath()
               this.canvas.setLineDash([3, 1])
               if (this.direction) {
-                drawArrow(this.canvas, endP[0], endP[1], startP[0], endP[1], 30, 10)
+                drawArrow(
+                  this.canvas,
+                  endP[0],
+                  endP[1],
+                  startP[0],
+                  endP[1],
+                  30,
+                  10
+                )
               } else {
-                drawArrow(this.canvas, startP[0], startP[1], endP[0], endP[1], 30, 10)
+                drawArrow(
+                  this.canvas,
+                  startP[0],
+                  startP[1],
+                  endP[0],
+                  endP[1],
+                  30,
+                  10
+                )
               }
               this.canvas.closePath()
             }
             break
           }
-          default: break
+          default:
+            break
         }
       }
     }
@@ -391,7 +450,10 @@ export default class extends Vue {
 
   private getLocation(x: number, y: number) {
     const {
-      x: canvasClientX, y: canvasClientY, width, height
+      x: canvasClientX,
+      y: canvasClientY,
+      width,
+      height
     } = this.canvasDom?.getBoundingClientRect()
     const pointX = Number(math.subtract!(x, canvasClientX))
     const pointY = Number(math.subtract!(y, canvasClientY))
@@ -414,13 +476,18 @@ export default class extends Vue {
     canvas.lineWidth = this.lineWidth
     canvas.fillStyle = 'white'
     canvas.strokeStyle = this.strokeStyle
-    canvas.stroke()// 画空心圆
+    canvas.stroke() // 画空心圆
     // canvas.moveTo(x, y);
     canvas.closePath()
     // this.clearPointInner(canvas, x, y);
   }
 
-  private drawPolygon(canvas: CanvasRenderingContext2D, area: ValueObject, points: Array<Array<number>>, ratio: number) {
+  private drawPolygon(
+    canvas: CanvasRenderingContext2D,
+    area: ValueObject,
+    points: Array<Array<number>>,
+    ratio: number
+  ) {
     const curRatio = area.origin ? ratio : 1
     const toRatio = (x: number) => math.divide!(x, curRatio)
     const startPoint = [toRatio(points[0][0]), toRatio(points[0][1])]
@@ -495,9 +562,10 @@ export default class extends Vue {
     }
     switch (this.mode) {
       case DRAW_MODES.RECT: {
-        const {
-          left, top, width, height
-        } = getRectPropFromPoints(this.points[0], curPoint)
+        const { left, top, width, height } = getRectPropFromPoints(
+          this.points[0],
+          curPoint
+        )
         this.canvas.beginPath()
         this.canvas.lineWidth = this.lineWidth
         this.canvas.strokeStyle = this.strokeStyle
@@ -546,7 +614,6 @@ export default class extends Vue {
         break
       }
       default:
-
         break
     }
   }
@@ -587,7 +654,11 @@ export default class extends Vue {
           name: `area-${this.areas.length}` // 父级传入 初始area信息
         }
         // TODO 绘制方向 中垂线求法
-        const [startPoint, endPoint] = getVerticalLinePoints(this.points[0], curPoint, 140)
+        const [startPoint, endPoint] = getVerticalLinePoints(
+          this.points[0],
+          curPoint,
+          140
+        )
         const director = {
           shape: DRAW_MODES.DIRECTION,
           points: [startPoint, endPoint],
@@ -600,9 +671,25 @@ export default class extends Vue {
         this.canvas.beginPath()
         this.canvas.setLineDash([3, 1])
         if (this.direction) {
-          drawArrow(this.canvas, endPoint[0], endPoint[1], startPoint[0], startPoint[1], 30, 10)
+          drawArrow(
+            this.canvas,
+            endPoint[0],
+            endPoint[1],
+            startPoint[0],
+            startPoint[1],
+            30,
+            10
+          )
         } else {
-          drawArrow(this.canvas, startPoint[0], startPoint[1], endPoint[0], endPoint[1], 30, 10)
+          drawArrow(
+            this.canvas,
+            startPoint[0],
+            startPoint[1],
+            endPoint[0],
+            endPoint[1],
+            30,
+            10
+          )
         }
         this.canvas.closePath()
 
@@ -620,7 +707,7 @@ export default class extends Vue {
 }
 </script>
 
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 /* stylelint-disable selector-class-pattern */
 .canvasBox {
   ::v-deep.el-dialog {

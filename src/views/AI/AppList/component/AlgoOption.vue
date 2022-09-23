@@ -1,9 +1,21 @@
 <template>
   <div class="algo">
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleTabType">
-      <el-tab-pane v-for="tab in abilityList" :key="tab.id" :label="tab.name" :name="tab.id">
+      <el-tab-pane
+        v-for="tab in abilityList"
+        :key="tab.id"
+        :label="tab.name"
+        :name="tab.id"
+      >
         <div v-loading="loading.algoList" class="algo__container">
-          <ProdCard v-for="prod in algoList" :key="prod.id" :prod="prod" :step="step" :direction="direction" @changeStep="changeStep" />
+          <ProdCard
+            v-for="prod in algoList"
+            :key="prod.id"
+            :prod="prod"
+            :step="step"
+            :direction="direction"
+            @changeStep="changeStep"
+          />
         </div>
         <div class="algo__return">
           <el-button size="large" @click="cancel">取消</el-button>
@@ -18,12 +30,15 @@
       @keyup.enter.native="handleSearch"
       @clear="handleSearch"
     >
-      <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="search" /></el-button>
+      <el-button slot="append" class="el-button-rect" @click="handleSearch">
+        <svg-icon name="search" />
+      </el-button>
     </el-input>
   </div>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { getAbilityList, getAlgorithmList } from '@/api/ai-app'
+import { describeIboxAlgorithms } from '@/api/ibox'
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
 import AppMixin from '../../mixin/app-mixin'
@@ -60,7 +75,7 @@ export default class extends Mixins(AppMixin) {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
-      this.abilityList = [ { id: '0', name: '全部' }, ...aiAbilityList ]
+      this.abilityList = [{ id: '0', name: '全部' }, ...aiAbilityList]
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
@@ -74,8 +89,27 @@ export default class extends Mixins(AppMixin) {
   private async getAlgorithmList() {
     try {
       this.loading.algoList = true
-      const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.algoList = aiAbilityAlgorithms.filter(algo => this.isHasIcon(algo))
+      const isIbox = this.$route.path.endsWith('ibox/')
+      const { aiAbilityAlgorithms } = await getAlgorithmList({
+        name: this.searchApp,
+        abilityId: this.activeName,
+        type: isIbox ? '2' : '1'
+      })
+      let tagdalgoList = []
+      if (isIbox) {
+        const iboxId: any = this.$route.query.deviceId
+        const { iboxAIAlgorithms }: any = await describeIboxAlgorithms({
+          iboxId
+        })
+        tagdalgoList = aiAbilityAlgorithms.map((algo) => {
+          const res = iboxAIAlgorithms.find((item) => item.id === algo.id)
+          return { ...algo, isLoaded: !!res, isIbox }
+        })
+      } else {
+        tagdalgoList = aiAbilityAlgorithms.map((item) => ({ ...item, isIbox }))
+      }
+      // 过滤掉没有icon的算法
+      this.algoList = tagdalgoList.filter((algo) => this.isHasIcon(algo))
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
@@ -85,7 +119,7 @@ export default class extends Mixins(AppMixin) {
 
   /**
    * 未配置图片的算法过滤掉，以免告警
-  */
+   */
   private isHasIcon(algo) {
     try {
       require(`../../assets/icon/${algo.code}.svg`)
