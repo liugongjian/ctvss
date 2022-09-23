@@ -1,9 +1,9 @@
-
 import { PlayerConfig } from '../types/Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
 import { RtcPlayer } from './RtcPlayer'
+import { TypeEnum, CodecEnum } from '../enums'
 
 export const createPlayer = (config: PlayerConfig) => {
   const wrapElement: HTMLDivElement = config.container
@@ -12,6 +12,9 @@ export const createPlayer = (config: PlayerConfig) => {
   }
   if (!config.type) {
     throw new Error('不支持当前视频类型')
+  }
+  if (!config.codec) {
+    throw new Error('不支持当前视频编码')
   }
   if (!config.url) {
     throw new Error('未传入视频URL')
@@ -27,14 +30,16 @@ export const createPlayer = (config: PlayerConfig) => {
  * 初始化播放器
  */
 const initPlayer = (config: PlayerConfig) => {
-  switch (config.type) {
-    case 'flv':
-      return new FlvPlayer(config)
-    case 'hls':
-      return new HlsPlayer(config)
-    case 'h265':
-      return new H265Player(config)
-    case 'rtc':
-      return new RtcPlayer(config)
+  if (config.codec === CodecEnum.H264) {
+    switch (config.type) {
+      case TypeEnum.FLV:
+        return new FlvPlayer(config)
+      case TypeEnum.HLS:
+        return new HlsPlayer(config)
+      case TypeEnum.RTC:
+        return new RtcPlayer(config)
+    }
+  } else {
+    return new H265Player(config)
   }
 }

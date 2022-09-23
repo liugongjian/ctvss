@@ -43,7 +43,7 @@
       <el-button @click="playrate">设置倍速</el-button>
     </div>
     <div class="player__body">
-      <!-- <VssPlayer
+      <VssPlayer
         v-if="url"
         ref="player"
         :url="url"
@@ -56,14 +56,14 @@
         :is-live="form.isLive"
         :is-ws="form.isWs"
         @dispatch="onPlayerDispatch"
-      /> -->
-      <Player
+      />
+      <!-- <Player
         ref="player"
         :url="url"
         :type="form.type"
         :codec="form.codec"
         :is-live="form.isLive"
-      />
+      /> -->
     </div>
   </div>
 </template>
@@ -90,7 +90,7 @@ export default class extends Vue {
     deviceInfo: {
       deviceName: 'TestVideo',
       deviceId: '123',
-      inProtocol: 'gb281812'
+      inProtocol: 'gb28181'
     },
     url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/29942017685507582.flv'
     // url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/395591776819757060.flv'

@@ -1,4 +1,3 @@
-
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
 import FlvJS from 'flv.js/src/flv.js'

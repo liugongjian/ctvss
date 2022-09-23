@@ -1,4 +1,4 @@
-export type PlayerType = 'flv' | 'hls' | 'rtc' | 'h265'
+export type PlayerType = 'flv' | 'hls' | 'rtc'
 
 export type OnRetryParams = {
   immediate: boolean;
@@ -13,6 +13,7 @@ export interface EnhanceHTMLVideoElement extends HTMLVideoElement {
 export interface PlayerConfig {
   container: HTMLDivElement;
   type: PlayerType;
+  codec: string;
   url: string;
   isLive: boolean;
   isDebug: boolean;

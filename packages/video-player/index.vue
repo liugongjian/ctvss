@@ -26,7 +26,7 @@
       </div>
       <div class="control__right">
         <Volume v-if="player" />
-        <PlaybackRate v-if="player && !isLive && codec !== 'h265'" />
+        <PlaybackRate v-if="player && !isLive && codec !== CodecEnum.H265" />
         <Fullscreen v-if="hasFullscreen" />
         <slot name="controlRight" />
       </div>
@@ -38,6 +38,7 @@ import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import { createPlayer } from './services/PlayerFactory'
 import { PlayerType } from './types/Player'
 import { Player } from './services/Player'
+import { TypeEnum, CodecEnum } from './enums'
 import './styles/index.scss'
 /**
  * 子组件库
@@ -66,14 +67,20 @@ export default class extends Vue {
   private type!: PlayerType
 
   /* 播放流地址 */
+  @Prop({
+    default: CodecEnum.H264
+  })
+  private codec: string
+
+  /* 播放流地址 */
   @Prop()
   private url!: string
 
-  /* 播放流地址 */
+  /* 音量 */
   @Prop({
-    default: 'h264'
+    default: 0.3
   })
-  private codec: string
+  private volume: number
 
   /* 是否启用Debug模式 */
   @Prop({
@@ -99,12 +106,6 @@ export default class extends Vue {
   })
   private playbackRate: number
 
-  /* 音量 */
-  @Prop({
-    default: 0.3
-  })
-  private volume: number
-
   /* 是否静音 */
   @Prop()
   private isMuted: boolean
@@ -129,10 +130,11 @@ export default class extends Vue {
 
   /* 播放器实例 */
   private player: Player = null
+  private CodecEnum = CodecEnum
 
   /* 是否为直播264 */
   private get isLiveH264() {
-    return this.isLive && this.type === 'flv' && this.codec === 'h264'
+    return this.isLive && this.type === TypeEnum.FLV && this.codec === CodecEnum.H264
   }
 
   /* 获取播放器实例Provide */
@@ -169,6 +171,7 @@ export default class extends Vue {
     try {
       this.player = createPlayer({
         type: this.type,
+        codec: this.codec,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
         isLive: this.isLive,
