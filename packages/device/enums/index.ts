@@ -15,6 +15,7 @@ export enum DeviceEnum {
   DeviceVendor = 'deviceVendor',
   DeviceId = 'deviceId',
   DeviceName = 'deviceName',
+  PlatformName = 'platformName',
   DeviceLocalName = 'deviceLocalName',
   DeviceIp = 'deviceIp',
   DeviceIpv6 = 'deviceIpv6',
@@ -123,10 +124,12 @@ export enum DeviceEnum {
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',
+  ViidId = 'viidId',
   InProtocol = 'inProtocol',
   PageNum = 'pageNum',
   PageSize = 'pageSize',
   TotalNum = 'totalNum',
+  DeviceTotalSize = 'deviceTotalSize'
 }
 
 /**

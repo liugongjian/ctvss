@@ -4,15 +4,21 @@
       <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
         <info-list label-width="80">
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.PlatformName)" label="平台名称:">{{ basicInfo.deviceName }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceStatus)" label="设备状态:">
+          <info-list-item v-if="checkInfoVisible(deviceEnum.ViidId)" label="视图ID:">{{ basicInfo.gbId }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.VideoStatus)" label="视频接入:">
             <status-badge :status="basicInfo.deviceStatus" />
             {{ videoStatus[basicInfo.deviceStatus] }}
           </info-list-item>
-          <info-list-item label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
-          <info-list-item v-if="basicInfo.createSubDevice === 2" label="可支持通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item v-else label="通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.ViidStatus)" label="视图接入:">
+            <status-badge :status="basicInfo.deviceStatus" />
+            {{ videoStatus[basicInfo.deviceStatus] }}
+          </info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceChannelSize)" label="通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>
       <div class="list-wrap__tools">
@@ -275,13 +281,14 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
-import { Device, DeviceBasic } from '../../type/Device'
+import { Device, DeviceBasic, VideoDevice, ViidDevice } from '../../type/Device'
 import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum, DeviceTypeEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '../../dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '../../utils/param'
 import { getDevices } from '../../api/device'
+import * as dicts from '@vss/device/dicts'
 import deviceMixin from '../../mixin/deviceMixin'
 import DeviceManager from '../../services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -395,6 +402,21 @@ export default class extends Mixins(deviceMixin) {
     return this.device.device || {}
   }
 
+  // 视图库/视频接入协议
+  private get inProtocol() {
+    return (this.device.videos && this.device.videos.length && this.device.videos[0]!.inVideoProtocol) || (this.device.viids && this.device.viids.length && this.device.viids[0]!.inViidProtocol)
+  }
+
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return (this.inProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inProtocol]]) || {}
+  }
+
+  // 视图库接入信息
+  private get viidInfo(): ViidDevice {
+    return (this.inProtocol && this.device.viids[0]![dicts.InViidProtocolModelMapping[this.inProtocol]]) || {}
+  }
+
   private get filterButtons() {
     const buttons = []
     for (let key in this.filterForm) {
@@ -447,11 +469,11 @@ export default class extends Mixins(deviceMixin) {
    * 设备列表初始化
    */
   private async initList() {
-    this.initTable()
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
       await this.getDevice(this.currentDirId)
       console.log('deviceInfo', this.device)
     }
+    this.initTable()
   }
 
   /**
@@ -515,10 +537,9 @@ export default class extends Mixins(deviceMixin) {
    * @param row 具体信息
    */
   private checkInfoVisible(prop) {
-    console.log(this.basicInfo, this.basicInfo.deviceType, this.protocol, prop)
-    return this.hasVideo
-      ? checkVideoVisible.call(this.basicInfo, this.basicInfo.deviceType, this.protocol, false, prop)
-      : checkViidVisible.call(this.basicInfo, this.basicInfo.deviceType, this.protocol, false, prop)
+    // return checkVideoVisible.call(this.basicInfo, DeviceTypeEnum.Nvr, 'ehome', false, prop)
+    // return checkViidVisible.call(this.basicInfo, DeviceTypeEnum.Platform, 'ga1400', prop)
+    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, false, prop)
   }
 
   /**

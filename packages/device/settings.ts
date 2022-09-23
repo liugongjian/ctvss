@@ -69,18 +69,26 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.Gb28181SipInfo,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.DeviceName,
+    DeviceEnum.PlatformName,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.CreatedTime
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Ehome],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
+    DeviceEnum.OnlineChannels,
     DeviceEnum.Resources,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.EhomeSipInfo,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.DeviceName,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.CreatedTime
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtsp],
@@ -112,17 +120,21 @@ export const InVideoProtocolAllowParams = {
  */
 export const DeviceTypeDenyParamsForVideo = {
   [DeviceTypeEnum.Ipc]: new Set([
+    DeviceEnum.PlatformName,
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.OnlineChannels
+    DeviceEnum.OnlineChannels,
+    DeviceEnum.CreatedTime
   ]),
   [DeviceTypeEnum.Nvr]: new Set([
+    DeviceEnum.PlatformName,
     DeviceEnum.DeviceInType,
     DeviceEnum.DevicePoleId,
     DeviceEnum.DeviceSerialNumber,
     DeviceEnum.DeviceModel
   ]),
   [DeviceTypeEnum.Platform]: new Set([
+    DeviceEnum.DeviceName,
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
@@ -176,7 +188,12 @@ export const InViidProtocolAllowParams = {
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.Viids,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort
+    DeviceEnum.DevicePort,
+    DeviceEnum.PlatformName,
+    DeviceEnum.ViidId,
+    DeviceEnum.ViidStatus,
+    DeviceEnum.CreatedTime,
+    DeviceEnum.DeviceTotalSize
   ])
 }
 

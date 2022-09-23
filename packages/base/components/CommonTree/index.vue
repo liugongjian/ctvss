@@ -23,41 +23,44 @@
         <slot name="rootTools" />
       </div>
     </div>
-    <el-tree
-      :key="treeKey"
-      ref="Tree"
-      class="common-tree__body"
-      node-key="id"
-      :data="data"
-      :empty-text="emptyText"
-      :props="props"
-      :lazy="lazy"
-      :load="loadChildren"
-      :default-expand-all="!lazy"
-      :expand-on-click-node="false"
-      :show-checkbox="hasCheckbox"
-      highlight-current
-      @node-click="handleNode"
-    >
-      <div
-        slot-scope="{node, data}"
-        v-draggable="{node, isDraggable}"
-        class="common-tree__item"
-      >
-        <div class="common-tree__item__label-prefix">
-          <slot name="itemLabelPrefix" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__label">
-          <slot name="itemLabel" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__label-suffix">
-          <slot name="itemLabelSuffix" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__tools">
-          <slot name="itemTools" :node="node" :data="data" />
-        </div>
+    <div class="common-tree__content">
+      <div class="common-tree__content__container">
+        <el-tree
+          :key="treeKey"
+          ref="Tree"
+          node-key="id"
+          :data="data"
+          :empty-text="emptyText"
+          :props="props"
+          :lazy="lazy"
+          :load="loadChildren"
+          :default-expand-all="!lazy"
+          :expand-on-click-node="false"
+          :show-checkbox="hasCheckbox"
+          highlight-current
+          @node-click="handleNode"
+        >
+          <div
+            slot-scope="{node, data}"
+            v-draggable="{node, isDraggable}"
+            class="common-tree__item"
+          >
+            <div class="common-tree__item__label-prefix">
+              <slot name="itemLabelPrefix" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__label">
+              <slot name="itemLabel" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__label-suffix">
+              <slot name="itemLabelSuffix" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__tools">
+              <slot name="itemTools" :node="node" :data="data" />
+            </div>
+          </div>
+        </el-tree>
       </div>
-    </el-tree>
+    </div>
   </div>
 </template>
 
