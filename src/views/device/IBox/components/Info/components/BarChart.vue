@@ -135,7 +135,7 @@ export default class extends Vue {
     if (this.type === 'ram' || this.type === 'storage') {
       chartData.total = +(chartData.total).toFixed(2)
       chartData.usage = +(chartData.usage).toFixed(2)
-      const unuse = chartData.total - chartData.usage
+      const unuse = +(chartData.total - chartData.usage).toFixed(2)
       this.title = chartData.total
       this.subtitle = this.type === 'ram' ? 'RAM总量' : '存储空间总量'
       this.unit = chartData.unit
