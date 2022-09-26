@@ -1,4 +1,4 @@
-export type PlayerType = 'flv' | 'hls' | 'rtc'
+import { TypeEnum, CodecEnum } from '../enums'
 
 export type OnRetryParams = {
   immediate: boolean;
@@ -12,8 +12,8 @@ export interface EnhanceHTMLVideoElement extends HTMLVideoElement {
 
 export interface PlayerConfig {
   container: HTMLDivElement;
-  type: PlayerType;
-  codec: string;
+  type: TypeEnum;
+  codec: CodecEnum;
   url: string;
   isLive: boolean;
   isDebug: boolean;
@@ -23,11 +23,13 @@ export interface PlayerConfig {
   isMuted: boolean;
   onPlay?: () => void;
   onPause?: () => void;
-  onRetry?: (immediate: OnRetryParams) => void;
-  // onTimeUpdate?: (currentTime: number) => void;
-  // onDurationChange?: (duration: number) => void;
   onEnded?: () => void;
-  // onSeeked?: (currentTime) => void;
+  onRetry?: (immediate: OnRetryParams) => void;
+  onTimeUpdate?: (currentTime: number) => void;
+  onDurationChange?: (duration: number) => void;
+  onVolumeChange?: (volume: number) => void;
+  onRateChange?: (playbackRate: number) => void;
+  onSeeked?: (currentTime) => void;
   onBuffered?: (buffered: number) => void;
   onLoadStart?: () => void;
   onCanplay?: () => void;

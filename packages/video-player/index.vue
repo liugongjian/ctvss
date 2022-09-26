@@ -36,7 +36,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import { createPlayer } from './services/PlayerFactory'
-import { PlayerType } from './types/Player'
 import { Player } from './services/Player'
 import { TypeEnum, CodecEnum } from './enums'
 import './styles/index.scss'
@@ -64,13 +63,13 @@ import Progress from './compontents/Progress.vue'
 export default class extends Vue {
   /* 播放器类型 */
   @Prop()
-  private type!: PlayerType
+  private type!: TypeEnum
 
   /* 播放流地址 */
   @Prop({
     default: CodecEnum.H264
   })
-  private codec: string
+  private codec: CodecEnum
 
   /* 播放流地址 */
   @Prop()
@@ -129,12 +128,29 @@ export default class extends Vue {
   private hasFullscreen: boolean
 
   /* 播放器实例 */
-  private player: Player = null
+  public player: Player = null
   private CodecEnum = CodecEnum
+
+  /* 如果未传type，则根据url后缀自动识别 */
+  private get videoType(): TypeEnum {
+    if (this.type) {
+      return this.type
+    } else {
+      const ext = this.url.substring(this.url.lastIndexOf('.') + 1)
+      switch (ext) {
+        case 'flv':
+          return TypeEnum.FLV
+        case 'm3u8':
+          return TypeEnum.HLS
+        default:
+          return TypeEnum.FLV
+      }
+    }
+  }
 
   /* 是否为直播264 */
   private get isLiveH264() {
-    return this.isLive && this.type === TypeEnum.FLV && this.codec === CodecEnum.H264
+    return this.isLive && this.videoType === TypeEnum.FLV && this.codec === CodecEnum.H264
   }
 
   /* 获取播放器实例Provide */
@@ -170,7 +186,7 @@ export default class extends Vue {
   private createPlayer() {
     try {
       this.player = createPlayer({
-        type: this.type,
+        type: this.videoType,
         codec: this.codec,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
@@ -182,7 +198,14 @@ export default class extends Vue {
         isMuted: this.isMuted,
         onPlay: this.onPlay,
         onPause: this.onPause,
+        onEnded: this.onEnded,
         onRetry: this.onRetry,
+        onTimeUpdate: this.onTimeUpdate,
+        onDurationChange: this.onDurationChange,
+        onVolumeChange: this.onVolumeChange,
+        onRateChange: this.onRateChange,
+        onSeeked: this.onSeeked,
+        onBuffered: this.onBuffered,
         onLoadStart: this.onLoadStart,
         onCanplay: this.onCanplay
       })
@@ -289,10 +312,59 @@ export default class extends Vue {
   }
 
   /**
+   * 向上抛出播放完成事件
+   */
+  private onEnded() {
+    this.$emit('onEnded')
+  }
+
+  /**
    * 向上抛出重试事件
    */
   private onRetry(payload) {
     this.$emit('onRetry', payload)
+  }
+
+  /**
+   * 向上抛出时间变化事件
+   */
+  private onTimeUpdate(currentTime) {
+    this.$emit('onTimeUpdate', currentTime)
+  }
+
+  /**
+   * 向上抛出视频时长变化事件
+   */
+  private onDurationChange(duration) {
+    this.$emit('onDurationChange', duration)
+  }
+
+  /**
+   * 向上抛出音量变化事件
+   */
+  private onVolumeChange(volume) {
+    this.$emit('onVolumeChange', volume)
+  }
+
+  /**
+   * 向上抛出播放倍速变化事件
+   */
+  private onRateChange(playbackRate) {
+    this.$emit('onRateChange', playbackRate)
+  }
+
+  /**
+   * 向上抛出跳跃事件
+   */
+  private onSeeked(currentTime) {
+    this.$emit('onSeeked', currentTime)
+  }
+
+  /**
+   * 向上抛出预加载完成事件
+   */
+  private onBuffered(bufferedTime) {
+    this.$emit('onBuffered', bufferedTime)
   }
 
   /**

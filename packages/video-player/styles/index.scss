@@ -1,3 +1,5 @@
+$color-master-1: #fa8334;
+
 .player__wrap {
   position: relative;
   height: 100%;
@@ -146,6 +148,12 @@
       font-size: 12px;
       cursor: pointer;
 
+      &__span {
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+
       svg,
       .icon {
         width: 16px !important;
@@ -157,7 +165,7 @@
       }
 
       &.selected {
-        color: $primary;
+        color: $color-master-1;
       }
     }
   }
@@ -205,7 +213,7 @@
       }
 
       &.selected {
-        color: $primary;
+        color: $color-master-1;
       }
     }
   }

@@ -1,4 +1,5 @@
-import { PlayerType, EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
+import { EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
+import { TypeEnum, CodecEnum } from '../enums'
 
 /**
  * 播放器基类
@@ -13,7 +14,9 @@ export class Player {
   /* H265播放器画布 */
   public canvas: HTMLCanvasElement
   /* 播放器类型 */
-  public type: PlayerType
+  public type: TypeEnum
+  /* 播放器类型 */
+  public codec: CodecEnum
   /* 播放流地址 */
   public url: string
   /* 是否为直播模式 */
@@ -47,6 +50,7 @@ export class Player {
     this.config = config
     this.container = config.container
     this.type = config.type
+    this.codec = config.codec
     this.url = config.url
     this.isLive = config.isLive
     this.isDebug = config.isDebug
@@ -54,16 +58,15 @@ export class Player {
     this.playbackRate = config.playbackRate
     this.volume = config.volume
     this.isMuted = config.isMuted
-    this.hasAudio = null
-    this.isPaused = null
-    this.currentTime = null
-    this.duration = null
-    this.bufferedTime = null
+    this.hasAudio = false
+    this.isPaused = false
+    this.currentTime = 0
+    this.duration = 0
+    this.bufferedTime = 0
     this.isLoading = true
-    this.scale = null
-    this.init()
-    this.bindEvent()
-    this.setDefault()
+    this.scale = ''
+    this.onPlay = config.onPlay
+    this.onPause = config.onPause
   }
 
   /**
@@ -231,6 +234,7 @@ export class Player {
    */
   protected onTimeUpdate() {
     this.currentTime = this.video.currentTime
+    this.config.onTimeUpdate && this.config.onTimeUpdate(this.currentTime)
   }
 
   /**
@@ -240,6 +244,7 @@ export class Player {
   protected onDurationChange() {
     this.isDebug && console.log('onDurationChange', this.video.duration)
     this.duration = this.video.duration
+    this.config.onDurationChange && this.config.onDurationChange(this.duration)
   }
 
   /**
@@ -249,6 +254,7 @@ export class Player {
   protected onVolumeChange() {
     this.volume = this.video.volume
     this.isMuted = this.video.muted
+    this.config.onVolumeChange && this.config.onVolumeChange(this.volume)
   }
 
   /**
@@ -257,6 +263,7 @@ export class Player {
    */
   protected onRateChange() {
     this.playbackRate = this.video.playbackRate
+    this.config.onRateChange && this.config.onRateChange(this.playbackRate)
   }
 
   /**
@@ -273,7 +280,7 @@ export class Player {
    */
   protected onSeeked() {
     this.currentTime = this.video.currentTime
-    // this.config.onSeeked && this.config.onSeeked(this.video.currentTime)
+    this.config.onSeeked && this.config.onSeeked(this.currentTime)
   }
 
   /**
@@ -283,7 +290,7 @@ export class Player {
   protected onBuffered() {
     if (this.video.buffered.length) {
       this.bufferedTime = this.video.buffered.end(this.video.buffered.length - 1)
-      // this.config.onBuffered && this.config.onBuffered(this.video.buffered.end(this.video.buffered.length - 1))
+      this.config.onBuffered && this.config.onBuffered(this.bufferedTime)
     }
   }
 

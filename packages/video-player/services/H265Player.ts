@@ -6,6 +6,7 @@
  */
 
 import { Player } from './Player'
+import { PlayerConfig } from '../types/Player'
 
 export class H265Player extends Player {
   private wasmPlayer?: any
@@ -14,6 +15,13 @@ export class H265Player extends Player {
   private muteTimeout: any = null
   private isStartPlay: boolean
   private isFlv = this.url.endsWith('flv')
+
+  constructor(config: PlayerConfig) {
+    super(config)
+    this.init()
+    this.bindEvent()
+    this.setDefault()
+  }
 
   /**
    * 初始化

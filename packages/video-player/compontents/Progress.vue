@@ -105,6 +105,8 @@ export default class extends ComponentMixin {
 }
 </script>
 <style lang="scss" scoped>
+  $color-grey-12: #eee;
+
   .control__progress {
     position: absolute;
     width: 100%;
@@ -130,14 +132,14 @@ export default class extends ComponentMixin {
     &__played {
       position: absolute;
       height: 4px;
-      background: $lightGray;
+      background: $color-grey-12;
 
       &:after {
         content: ' ';
         position: absolute;
         width: 12px;
         height: 12px;
-        background: $lightGray;
+        background: $color-grey-12;
         border-radius: 100%;
         right: -5px;
         top: -4px;
