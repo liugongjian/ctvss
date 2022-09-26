@@ -65,8 +65,6 @@ export class Player {
     this.bufferedTime = 0
     this.isLoading = true
     this.scale = ''
-    this.onPlay = config.onPlay
-    this.onPause = config.onPause
   }
 
   /**

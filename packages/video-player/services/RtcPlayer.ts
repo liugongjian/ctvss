@@ -1,4 +1,3 @@
-// @ts-ignore
 import { prepareUrl, srsRtcPlayerAsync } from '../libs/webrtc'
 import { PlayerConfig } from '../types/Player'
 import { Player } from './Player'

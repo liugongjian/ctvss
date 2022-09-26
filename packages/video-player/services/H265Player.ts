@@ -22,7 +22,6 @@ export class H265Player extends Player {
     this.bindEvent()
     this.setDefault()
   }
-
   /**
    * 初始化
    */
