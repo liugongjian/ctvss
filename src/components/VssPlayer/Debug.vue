@@ -38,9 +38,6 @@
         </el-form-item>
         <el-button type="primary" @click="generate">生成</el-button>
       </el-form>
-      <el-button @click="pause">暂停</el-button>
-      <el-button @click="play">播放</el-button>
-      <el-button @click="playrate">设置倍速</el-button>
     </div>
     <div class="player__body">
       <VssPlayer
@@ -105,29 +102,6 @@ export default class extends Vue {
     this.$nextTick(() => {
       this.url = this.form.url
     })
-  }
-
-  private pause() {
-    this.$refs.player.pause()
-  }
-
-  private play() {
-    this.$refs.player.play()
-  }
-
-  private playrate() {
-    this.$refs.player.setPlaybackRate(0.5)
-  }
-
-  private onPlayerDispatch(event: PlayerEvent) {
-    console.log(event)
-    // if (type === 'rtc') {
-    //   this.url = ''
-
-    //   this.$nextTick(() => {
-    //     this.url = this.form.rtcUrl
-    //   })
-    // }
   }
 }
 </script>

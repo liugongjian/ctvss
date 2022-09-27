@@ -4,10 +4,14 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)"><svg-icon name="auto-play" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)"
+            ><svg-icon name="auto-play"
+          /></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"><svg-icon name="refresh" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"
+            ><svg-icon name="refresh"
+          /></el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
@@ -32,11 +36,7 @@
       <template slot="rightHeader">
         <!-- TODO -->
         <span @click="1">根目录</span>
-        <span
-          v-for="item in ['目录1', '目录2', '目录3']"
-          :key="item"
-          @click="1"
-        >
+        <span v-for="item in ['目录1', '目录2', '目录3']" :key="item" @click="1">
           {{ item }}
         </span>
       </template>
