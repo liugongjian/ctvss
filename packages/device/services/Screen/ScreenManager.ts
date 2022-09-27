@@ -8,11 +8,11 @@ import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
-  inProtocol: string;
-  size: number;
-  isLive: boolean;
-  layout: string;
-  isSingle: boolean;
+  inProtocol: string
+  size: number
+  isLive: boolean
+  layout: string
+  isSingle: boolean
 }
 
 const SCREEN_CACHE_KEY = {
@@ -20,10 +20,26 @@ const SCREEN_CACHE_KEY = {
   replay: 'replayScreenCache'
 }
 const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
-const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale', 'recordType']
+const SCREEN_CACHE_PARAMS = [
+  'isLive',
+  'inProtocol',
+  'deviceId',
+  'deviceName',
+  'roleId',
+  'realGroupId',
+  'streamSize',
+  'streams',
+  'streamNum',
+  'currentRecordDatetime',
+  'volume',
+  'isMuted',
+  'playbackRate',
+  'scale',
+  'recordType'
+]
 export interface ExecuteQueueConfig {
-  policy: 'autoPlay' | 'polling';
-  interval: number;
+  policy: 'autoPlay' | 'polling'
+  interval: number
   status: 'pause' | 'working' | 'free'
 }
 
@@ -70,7 +86,7 @@ export class ScreenManager {
 
   /**
    * 获取分屏数量
-  */
+   */
   public get size(): number {
     return this._size
   }
@@ -110,7 +126,7 @@ export class ScreenManager {
 
   /**
    * 初始化屏幕列表
-  */
+   */
   public initScreenList() {
     this.screenList = []
     this.currentIndex = 0
@@ -207,8 +223,10 @@ export class ScreenManager {
   public saveCache() {
     try {
       /* 判断用户是否开启缓存功能 */
-      if ((this.isLive && UserModule.settings.screenCache.screen === 'true') ||
-        (!this.isLive && UserModule.settings.screenCache.replay === 'true')) {
+      if (
+        (this.isLive && UserModule.settings.screenCache.screen === 'true') ||
+        (!this.isLive && UserModule.settings.screenCache.replay === 'true')
+      ) {
         const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,

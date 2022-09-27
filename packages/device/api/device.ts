@@ -220,7 +220,7 @@ export const getDevicesIbox = (params: any): Promise<any> => {
     }).then((res: any) => {
       console.log(res)
       res.devices = res.devices.map(item => {
-        const data = {
+        const data: any = {
           [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
           [DeviceEnum.DeviceId]: item.device[DeviceEnum.DeviceId],
           [DeviceEnum.DeviceInType]: [],

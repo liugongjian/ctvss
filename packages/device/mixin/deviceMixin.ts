@@ -6,7 +6,7 @@ import { DeviceEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
-  @Prop({ default: () => getDevice }) public getDeviceApi: Function
+  @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
   // 设备详情

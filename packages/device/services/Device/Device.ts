@@ -13,15 +13,15 @@ import {
 } from '../../api/device'
 
 /**
-* ===============================================================================================
-* 操作设备
-*/
+ * ===============================================================================================
+ * 操作设备
+ */
 /**
-* 创建设备
-* @param state.$router 路由
-* @param dirId 目录id
-*/
-const addDevice = function(state, dirId) {
+ * 创建设备
+ * @param state.$router 路由
+ * @param dirId 目录id
+ */
+const addDevice = function (state, dirId) {
   state.$router.push({
     name: 'DeviceCreate',
     query: {
@@ -32,11 +32,11 @@ const addDevice = function(state, dirId) {
 }
 
 /**
-* 查看设备详情
-* @param state.$router 路由
-* @param id 设备id
-*/
-const viewDevice = function(state, id) {
+ * 查看设备详情
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const viewDevice = function (state, id) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
@@ -48,11 +48,11 @@ const viewDevice = function(state, id) {
 }
 
 /**
-* 编辑设备
-* @param state.$router 路由
-* @param id 设备id
-*/
-const editDevice = function(state, id) {
+ * 编辑设备
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const editDevice = function (state, id) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
@@ -64,12 +64,12 @@ const editDevice = function(state, id) {
 }
 
 /**
-* 删除设备
-* @param state.$alertDelete 提示框工具函数
-* @param state.handleTools layout工能回调函数
-* @param row 设备信息
-*/
-const deleteDevice = function(state, row?) {
+ * 删除设备
+ * @param state.$alertDelete 提示框工具函数
+ * @param state.handleTools layout工能回调函数
+ * @param row 设备信息
+ */
+const deleteDevice = function (state, row?) {
   if (row) {
     // 单个操作
     state.$alertDelete({
@@ -91,18 +91,12 @@ const deleteDevice = function(state, row?) {
     state.$alertDelete({
       type: '设备',
       msg: h('div', undefined, [
-        h(
-          'span',
-          undefined,
-          '删除操作不能恢复，确定要删除选中的设备吗？'
-        ),
+        h('span', undefined, '删除操作不能恢复，确定要删除选中的设备吗？'),
         h(
           'div',
           { class: 'batch-list' },
           state.selectedDeviceList.map(device => {
-            return h('p', undefined, [
-              h('span', { class: 'device-name' }, device[DeviceEnum.DeviceName])
-            ])
+            return h('p', undefined, [h('span', { class: 'device-name' }, device[DeviceEnum.DeviceName])])
           })
         )
       ]),
@@ -126,12 +120,12 @@ const deleteDevice = function(state, row?) {
 }
 
 /**
-* 刷新设备列表
-* @param state.$router 页面路由实例
-* @param state.$route 页面路由对象
-* @param flag 刷新标志
-*/
-const refreshDeviceList = function(state, flag = 'true') {
+ * 刷新设备列表
+ * @param state.$router 页面路由实例
+ * @param state.$route 页面路由对象
+ * @param flag 刷新标志
+ */
+const refreshDeviceList = function (state, flag = 'true') {
   console.log(state.$route.query)
   state.$router.replace({
     query: {
@@ -143,62 +137,67 @@ const refreshDeviceList = function(state, flag = 'true') {
 /**
  * 跳转设备列表
  */
-const goToDeviceList = function(state) {
+const goToDeviceList = function (state) {
   state.$router.push({
     name: 'DeviceList'
   })
 }
 
 /**
-* 同步设备
-* @param state.loading 加载中状态
-* @param state.handleTools layout工能回调函数
-* @param state.pollingTimes 轮询次数
-* @param state.$message 信息提示工具函数
-*/
-const syncDevice = function(state, id) {
+ * 同步设备
+ * @param state.loading 加载中状态
+ * @param state.handleTools layout工能回调函数
+ * @param state.pollingTimes 轮询次数
+ * @param state.$message 信息提示工具函数
+ */
+const syncDevice = function (state, id) {
   state.loading.syncDevice = true
   const param = {
     [DeviceEnum.DeviceId]: id
   }
-  this.statusPolling(state, param).then(() => {
-    state.handleTools(ToolsEnum.RefreshDirectory)
-    state.pollingTimes = 1
-  }).catch(e => {
-    state.pollingTimes = 1
-    state.$message.error(e && e.message)
-  }).finally(() => {
-    state.loading.syncDevice = false
-  })
+  this.statusPolling(state, param)
+    .then(() => {
+      state.handleTools(ToolsEnum.RefreshDirectory)
+      state.pollingTimes = 1
+    })
+    .catch(e => {
+      state.pollingTimes = 1
+      state.$message.error(e && e.message)
+    })
+    .finally(() => {
+      state.loading.syncDevice = false
+    })
 }
 
 /**
-* 轮询同步设备状态
-* @param param 请求体 Object
-*/
-const statusPolling = function(state, param: any) {
+ * 轮询同步设备状态
+ * @param param 请求体 Object
+ */
+const statusPolling = function (state, param: any) {
   if (state.pollingTimes < 8) {
     state.pollingTimes += 1
   } else {
     state.pollingTimes = 8
   }
   return new Promise((resolve, reject) => {
-    syncStatusPolling(param).then(res => {
-      if (res.syncStatus === true) {
-        setTimeout(() => {
-          resolve(this.statusPolling(param))
-        }, state.pollingTimes * 1000)
-      } else {
-        resolve(res)
-      }
-    }).catch(err => reject(err))
+    syncStatusPolling(param)
+      .then(res => {
+        if (res.syncStatus === true) {
+          setTimeout(() => {
+            resolve(this.statusPolling(param))
+          }, state.pollingTimes * 1000)
+        } else {
+          resolve(res)
+        }
+      })
+      .catch(err => reject(err))
   })
 }
 
 /**
-* 同步设备状态
-*/
-const syncDeviceStatus = async function(state, id, type) {
+ * 同步设备状态
+ */
+const syncDeviceStatus = async function (state, id, type) {
   let deviceIdAndTypes = []
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -236,16 +235,14 @@ const syncDeviceStatus = async function(state, id, type) {
 /**
  * 查看通道
  */
-const viewChannels = function(state, row) {
+const viewChannels = function (state, row) {
   console.log('ViewChannels', row[DeviceEnum.DeviceId])
 }
 
-const exportDeviceExcel = async function(state, policy) {
+const exportDeviceExcel = async function (state, policy) {
   state.loading.export = true
   try {
-    let params: any = {
-
-    }
+    const params: any = {}
     if (policy === ToolsEnum.ExportAll) {
       params.command = 'all'
     } else {
@@ -270,7 +267,7 @@ const exportDeviceExcel = async function(state, policy) {
 
 // 导出设备表格
 async function exportDevicesExcel(data: any) {
-  let params: any = {
+  const params: any = {
     groupId: data.groupId,
     inProtocol: data.inProtocol,
     dirId: data.dirId.toString(),
@@ -299,9 +296,9 @@ async function exportDevicesExcel(data: any) {
 }
 
 /**
-   * 导入设备表
-   */
-const uploadExcel = function(state, data: any) {
+ * 导入设备表
+ */
+const uploadExcel = function (state, data: any) {
   console.log(data)
   // if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
   // state.dialog.uploadExcel = true
@@ -322,9 +319,9 @@ const uploadExcel = function(state, data: any) {
 }
 
 /**
-   * 导出模板
-   */
-const exportTemplate = function(state) {
+ * 导出模板
+ */
+const exportTemplate = function (state) {
   console.log('exportTemplate')
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
@@ -344,7 +341,7 @@ const exportTemplate = function(state) {
 /**
  * 启用/停用设备
  */
-const startOrStopDevice = async function(state, type, row?) {
+const startOrStopDevice = async function (state, type, row?) {
   const method = type === ToolsEnum.StartDevice ? startDevice : stopDevice
   const methodStr = type === ToolsEnum.StartDevice ? '启用' : '停用'
   if (row) {
@@ -365,57 +362,60 @@ const startOrStopDevice = async function(state, type, row?) {
       return device[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc
     })
     const h: Function = state.$createElement
-    state.$msgbox({
-      title: `确认${methodStr}选中的设备吗？`,
-      message: h('div', undefined, [
-        h(
-          'div',
-          { class: 'batch-list' },
-          deviceList.map(device => {
-            return h('p', undefined, [
-              h('span', { class: 'device-name' }, device.deviceName)
-            ])
-          })
-        )
-      ]),
-      showCancelButton: true,
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      beforeClose: async(action: any, instance: any, done: Function) => {
-        if (action === 'confirm') {
-          instance.confirmButtonLoading = true
-          instance.confirmButtonText = '...'
-          try {
-            await Promise.all(deviceList.map(device => {
-              return method({
-                [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
-              })
-            }))
+    state
+      .$msgbox({
+        title: `确认${methodStr}选中的设备吗？`,
+        message: h('div', undefined, [
+          h(
+            'div',
+            { class: 'batch-list' },
+            deviceList.map(device => {
+              return h('p', undefined, [h('span', { class: 'device-name' }, device.deviceName)])
+            })
+          )
+        ]),
+        showCancelButton: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        beforeClose: async (action: any, instance: any, done: Function) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true
+            instance.confirmButtonText = '...'
+            try {
+              await Promise.all(
+                deviceList.map(device => {
+                  return method({
+                    [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+                  })
+                })
+              )
+              done()
+            } catch (e) {
+              state.$message.error(e && e.message)
+            } finally {
+              instance.confirmButtonLoading = false
+              instance.confirmButtonText = '确定'
+            }
+          } else {
             done()
-          } catch (e) {
-            state.$message.error(e && e.message)
-          } finally {
-            instance.confirmButtonLoading = false
-            instance.confirmButtonText = '确定'
           }
-        } else {
-          done()
         }
-      }
-    }).then(() => {
-      state.$message.success(`已通知${methodStr}设备`)
-      state.handleTools(ToolsEnum.RefreshDirectory)
-    }).catch((e) => {
-      if (e === 'cancel' || e === 'close') return
-      state.$message.error(e && e.message)
-    })
+      })
+      .then(() => {
+        state.$message.success(`已通知${methodStr}设备`)
+        state.handleTools(ToolsEnum.RefreshDirectory)
+      })
+      .catch(e => {
+        if (e === 'cancel' || e === 'close') return
+        state.$message.error(e && e.message)
+      })
   }
 }
 
 /**
  * 开始/停止录像
  */
-const startOrStopRecord = async function(state, type, row) {
+const startOrStopRecord = async function (state, type, row) {
   const method = type === ToolsEnum.StartRecord ? startRecord : stopRecord
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
@@ -432,14 +432,14 @@ const startOrStopRecord = async function(state, type, row) {
 }
 
 /**
-* 打开目录对话框
-* @param state.dialog 弹窗状态
-* @param state.currentDevice 当前设备
-* @param state.isBatchMoveDir 是否为批量操作
-* @param type 触发打开窗口的事件类型
-* @param payload 操作目录信息
-*/
-const openListDialog = function(state, type: string, row?: any) {
+ * 打开目录对话框
+ * @param state.dialog 弹窗状态
+ * @param state.currentDevice 当前设备
+ * @param state.isBatchMoveDir 是否为批量操作
+ * @param type 触发打开窗口的事件类型
+ * @param payload 操作目录信息
+ */
+const openListDialog = function (state, type: string, row?: any) {
   switch (type) {
     case ToolsEnum.MoveDevice:
       state.currentDevice = row
@@ -454,14 +454,14 @@ const openListDialog = function(state, type: string, row?: any) {
 }
 
 /**
-* 关闭目录对话框
-* @param state.dialog 弹窗状态
-* @param state.currentDevice 当前设备
-* @param state.isBatchMoveDir 是否为批量操作
-* @param type 触发关闭窗口的事件类型
-* @param isRefresh 是否更新列表
-*/
-const closeListDialog = function(state, type: string, isfresh: any) {
+ * 关闭目录对话框
+ * @param state.dialog 弹窗状态
+ * @param state.currentDevice 当前设备
+ * @param state.isBatchMoveDir 是否为批量操作
+ * @param type 触发关闭窗口的事件类型
+ * @param isRefresh 是否更新列表
+ */
+const closeListDialog = function (state, type: string, isfresh: any) {
   state.dialog[type] = false
   switch (type) {
     case ToolsEnum.MoveDevice:
@@ -475,10 +475,10 @@ const closeListDialog = function(state, type: string, isfresh: any) {
 
 /**
  * 查看设备事件
-* @param state.$router 路由
-* @param id 设备id
-*/
-const previewEvents = function(state, id) {
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const previewEvents = function (state, id) {
   state.$router.push({
     name: 'DeviceEvents',
     query: {
@@ -491,10 +491,10 @@ const previewEvents = function(state, id) {
 
 /**
  * 实时预览
-* @param state.$router 路由
-* @param id 设备id
-*/
-const previewVideo = function(state, id) {
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const previewVideo = function (state, id) {
   state.$router.push({
     name: 'DevicePreview',
     query: {
@@ -507,10 +507,10 @@ const previewVideo = function(state, id) {
 
 /**
  * 录像回放
-* @param state.$router 路由
-* @param id 设备id
-*/
-const replayVideo = function(state, id) {
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const replayVideo = function (state, id) {
   state.$router.push({
     name: 'DeviceReplay',
     query: {
@@ -523,10 +523,10 @@ const replayVideo = function(state, id) {
 
 /**
  * 视图查看
-* @param state.$router 路由
-* @param id 设备id
-*/
-const previewViid = function(state, id) {
+ * @param state.$router 路由
+ * @param id 设备id
+ */
+const previewViid = function (state, id) {
   state.$router.push({
     name: 'DeviceViid',
     query: {

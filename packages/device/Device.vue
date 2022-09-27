@@ -4,13 +4,19 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="子目录排序" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.SortDirectory)"><svg-icon name="sort" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.SortDirectory)">
+            <svg-icon name="sort" />
+          </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="添加目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)"><svg-icon name="plus" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)">
+            <svg-icon name="plus" />
+          </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"><svg-icon name="refresh" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)">
+            <svg-icon name="refresh" />
+          </el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
@@ -35,11 +41,7 @@
       <template slot="rightHeader">
         <!-- TODO -->
         <span @click="1">根目录</span>
-        <span
-          v-for="item in ['目录1', '目录2', '目录3']"
-          :key="item"
-          @click="1"
-        >
+        <span v-for="item in ['目录1', '目录2', '目录3']" :key="item" @click="1">
           {{ item }}
         </span>
       </template>
@@ -48,8 +50,16 @@
         <router-view />
       </template>
     </common-layout>
-    <create-dir v-if="dialog[toolsEnum.EditDirectory]" :parent-dir="parentDir" :current-dir="currentDir" @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.EditDirectory, $event)" />
-    <sort-dir v-if="dialog[toolsEnum.SortDirectory]" @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.SortDirectory, $event)" />
+    <create-dir
+      v-if="dialog[toolsEnum.EditDirectory]"
+      :parent-dir="parentDir"
+      :current-dir="currentDir"
+      @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.EditDirectory, $event)"
+    />
+    <sort-dir
+      v-if="dialog[toolsEnum.SortDirectory]"
+      @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.SortDirectory, $event)"
+    />
   </div>
 </template>
 
