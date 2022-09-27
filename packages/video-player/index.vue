@@ -153,17 +153,15 @@ export default class extends Vue {
     return this.isLive && this.videoType === TypeEnum.FLV && this.codec === CodecEnum.H264
   }
 
+  /* 是否加载中 */
+  private get isLoading() {
+    return this.player && this.player.isLoading
+  }
+
   /* 获取播放器实例Provide */
   @Provide('getPlayer')
   private getPlayer() {
     return this.player
-  }
-
-  /* 当URL变化后重新创建播放器 */
-  @Watch('url')
-  private onUrlChange() {
-    this.player && this.player.disposePlayer()
-    this.url && this.createPlayer()
   }
 
   private mounted() {
@@ -224,6 +222,30 @@ export default class extends Vue {
     if (this.isLiveH264 && document.visibilityState === 'visible') {
       this.player && this.player.reloadPlayer()
     }
+  }
+
+  /**
+   * =======================================================
+   * 属性监听
+   * =======================================================
+   */
+  /* 当URL变化后重新创建播放器 */
+  @Watch('url')
+  private watchUrlChange() {
+    this.player && this.player.disposePlayer()
+    this.url && this.createPlayer()
+  }
+
+  /* 监听音量变化 */
+  @Watch('volume')
+  private watchVolumeChange(volume) {
+    this.player && this.player.setVolume(volume)
+  }
+
+  /* 监听倍速变化 */
+  @Watch('playbackRate')
+  private watchPlaybackRateChange(playbackRate) {
+    this.player && this.player.setPlaybackRate(playbackRate)
   }
 
   /**
