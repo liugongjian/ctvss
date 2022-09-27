@@ -15,10 +15,10 @@
       <el-descriptions-item label="接入网络">{{ dicts.InNetworkType[device.inNetworkType] }}</el-descriptions-item>
       <el-descriptions-item label="播放网络">{{ dicts.OutNetworkType[device.outNetworkType] }}</el-descriptions-item>
       <el-descriptions-item label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
-      <el-descriptions-item label="接入区域">{{ device.region }} :: {{ regionTxt }}</el-descriptions-item>
-      <el-descriptions-item label="所属行业">{{ dicts.IndustryMap[industry.industryCode] }} :: {{ industryTxt }}</el-descriptions-item>
-      <el-descriptions-item label="网络标识">{{ dicts.NetworkMap[industry.networkCode] }} :: {{ networkTxt }}</el-descriptions-item>
-      <el-descriptions-item label="设备地址">{{ industry.inOrgRegion }},{{ industry.inOrgRegionLevel }} :: {{ orgRegionTxt }}</el-descriptions-item>
+      <el-descriptions-item label="接入区域">{{ regionTxt }}</el-descriptions-item>
+      <el-descriptions-item label="所属行业">{{ industryTxt }}</el-descriptions-item>
+      <el-descriptions-item label="网络标识">{{ networkTxt }}</el-descriptions-item>
+      <el-descriptions-item label="设备地址">{{ orgRegionTxt }}</el-descriptions-item>
       <el-descriptions-item label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
@@ -111,7 +111,8 @@ export default class extends Vue {
 
   private async getRegionTxt() {
     try {
-      this.regionTxt = await translateResourceRegion({ code: this.device.region }).name
+      const res = await translateResourceRegion({ code: this.device.region })
+      this.regionTxt = res.name
     } catch (e) {
       this.regionTxt = '-'
     }
@@ -119,7 +120,8 @@ export default class extends Vue {
 
   private async getNetworkTxt() {
     try {
-      this.networkTxt = await translateNetwork({ code: this.device.industry.networkCode }).name
+      const res = await translateNetwork({ code: this.device.industry.networkCode })
+      this.networkTxt = res.name
     } catch (e) {
       this.networkTxt = '-'
     }
@@ -127,7 +129,8 @@ export default class extends Vue {
 
   private async getIndustryTxt() {
     try {
-      this.industryTxt = await translateIndustry({ code: this.device.industry.industryCode }).name
+      const res = await translateIndustry({ code: this.device.industry.industryCode })
+      this.industryTxt = res.name
     } catch (e) {
       this.industryTxt = '-'
     }
@@ -135,7 +138,8 @@ export default class extends Vue {
 
   private async getOrgRegionTxt() {
     try {
-      this.orgRegionTxt = await translateOrgRegion({ gbRegion: this.device.industry.inOrgRegion, gbRegionLevel: this.device.industry.inOrgRegionLevel }).name
+      const res = await translateOrgRegion({ gbRegion: this.device.industry.inOrgRegion, gbRegionLevel: this.device.industry.inOrgRegionLevel })
+      this.orgRegionTxt = res.name
     } catch (e) {
       this.orgRegionTxt = '-'
     }
