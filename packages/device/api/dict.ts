@@ -4,15 +4,13 @@ import { toUpperCase } from '@vss/base/utils/param'
 export const getIndustryList = (): Promise<any> =>
   request({
     url: '/gbcode/industry/list',
-    method: 'get',
-    params
+    method: 'get'
   })
 
 export const getNetworkList = (): Promise<any> =>
   request({
     url: '/gbcode/network/list',
-    method: 'get',
-    params
+    method: 'get'
   })
 
 export const translateIndustry = (params: any): Promise<any> =>
