@@ -1,4 +1,3 @@
-import 'babel-polyfill'
 import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
 import { isIE } from '@/utils/browser'
