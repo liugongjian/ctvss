@@ -42,7 +42,7 @@
             </span>
           </div>
           <div class="ibox-container__list" :style="{height: `${height - 40}px`}">
-            <router-view :key="$route.fullPath" />
+            <router-view />
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default class IBox extends Vue {
   }
 
   @Provide('handleNodeClick')
-  public handleNodeClick(item: any, node?: any) {
+  public async handleNodeClick(item: any, node?: any) {
     // TODO 面包屑及刷新后选中逻辑
     const dirTree: any = this.$refs.dirTree
 
@@ -145,32 +145,41 @@ export default class IBox extends Vue {
 
     if (_node) {
       IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
-    }
 
-    const { deviceId } = _node.data
-    this.treeIboxId = deviceId
-    console.log('_node.level---->', _node.level)
-    switch (_node.level) {
-      case 1:
-        this.setListInfo('device', this.iboxDevice, deviceId)
-        break
-      case 2:
-        if (_node.data.deviceType === 'nvr') {
-          const iboxNvr = this.getIboxNvr(_node)
-          this.setListInfo('nvrlist', iboxNvr, deviceId)
-        } else if (_node.data.deviceType === 'ipc') {
+      const { deviceId } = _node?.data
+      this.treeIboxId = deviceId
+
+      switch (_node.level) {
+        case 1:
+          this.setListInfo('device', this.iboxDevice, deviceId)
+          break
+        case 2:
+          if (_node.data.deviceType === 'nvr') {
+            const iboxNvr = this.getIboxNvr(_node)
+            this.setListInfo('nvrlist', iboxNvr, deviceId)
+          } else if (_node.data.deviceType === 'ipc') {
+            this.toDetail(_node.data)
+          } else {
+            this.toDetail(_node.data)
+          }
+          break
+        case 3:
           this.toDetail(_node.data)
-        } else {
-          this.toDetail(_node.data)
+          break
+        default:
+          this.setListInfo('rootlist', this.iboxes, '')
+      }
+    } else {
+      console.log('ayi yayi ya')
+      IBoxModule.SetList({ type: 'rootlist', data: this.iboxList })
+      const param = {
+        name: 'IBox',
+        query: {
+          type: 'rootlist'
         }
-        break
-      case 3:
-        this.toDetail(_node.data)
-        break
-      default:
-        this.setListInfo('rootlist', this.iboxes, null)
+      }
+      this.$router.push(param)
     }
-    // }
   }
 
   // 获取ibox目录
@@ -346,7 +355,6 @@ export default class IBox extends Vue {
   }
 
   public get breadcrumb() {
-    // 当为查询设备时，面包屑重置为根目录
     return IBoxModule.breadcrumb ? IBoxModule.breadcrumb : []
   }
 
@@ -427,7 +435,6 @@ export default class IBox extends Vue {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(null)
     await IBoxModule.ResetBreadcrumb()
-    this.$router.push({ name: 'IBox', query: { type: 'rootlist' } })
     this.handleNodeClick({ deviceId: '0', type: 'rootlist' })
   }
 
@@ -474,7 +481,6 @@ export default class IBox extends Vue {
     let path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node ? node.data : ''
-      console.log('getDirPath-Data--->', data)
       if (data && data.deviceId) {
         path.push({
           deviceId: data.deviceId,

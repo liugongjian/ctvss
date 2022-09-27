@@ -41,8 +41,8 @@
           label="流状态"
           width="120"
         >
-          <template slot-scope="scope">
-            {{ statusMap[scope.row.deviceStatus] }}
+          <template slot-scope="{row}">
+            {{ row.streams.length ? statusMap[row.streams[0].streamStatus] : '-' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -50,18 +50,26 @@
           label="录制状态"
           width="120"
         >
-          <template slot-scope="scope">
-            {{ statusMap[scope.row.deviceStatus] }}
+          <template slot-scope="{row}">
+            {{ row.streams.length ? statusMap[row.streams[0].recordStatus] : '-' }}
           </template>
         </el-table-column>
         <el-table-column
           prop="ip"
           label="当前码率"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ row.streams.length ? row.streams[0].birate : '-' }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="errorMsg"
           label="异常提示"
-        />
+        >
+          <template slot-scope="scope">
+            {{ scope.row.errorMsg }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="deviceVendor"
           label="厂商"
@@ -108,7 +116,22 @@
         </el-table-column>
         <el-table-column
           label="操作"
-        />
+        >
+          <template slot-scope="{row}">
+            <div class="ibox-list-table--detail">
+              实时预览
+            </div>
+            <div class="ibox-list-table--detail">
+              实时预览
+            </div>
+            <div class="ibox-list-table--detail" @click="startDevice(row)">
+              启用流
+            </div>
+            <div class="ibox-list-table--detail" @click="stopDevice(row)">
+              停用流
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         v-if="tableData.length"
@@ -246,10 +269,13 @@ export default class IBoxList extends Vue {
       this.handleNodeClick(router)
     } else {
       router = {
+        deviceId: row.deviceId,
         name: 'IBoxDeviceInfo',
+        type: 'device',
         query
       }
       this.$router.push(router)
+      this.handleNodeClick(router)
     }
   }
 }

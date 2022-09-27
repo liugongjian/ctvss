@@ -6,7 +6,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 
-import { toUpperCase, toLowerCase } from '@/utils/param'
+import { toLowerCase } from '@/utils/param'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
