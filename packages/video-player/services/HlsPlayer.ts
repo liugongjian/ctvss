@@ -1,9 +1,16 @@
 import { Player } from './Player'
-import { EnhanceHTMLVideoElement } from '../types/Player'
+import { EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
 import HlsJS from 'hls.js'
 
 export class HlsPlayer extends Player {
   private hls?: any
+
+  constructor(config: PlayerConfig) {
+    super(config)
+    this.init()
+    this.bindEvent()
+    this.setDefault()
+  }
 
   /**
    * 初始化

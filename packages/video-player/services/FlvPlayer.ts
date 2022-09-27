@@ -1,5 +1,5 @@
 import { Player } from './Player'
-import { EnhanceHTMLVideoElement } from '../types/Player'
+import { EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
 import FlvJS from 'flv.js/src/flv.js'
 
 /**
@@ -10,6 +10,13 @@ export class FlvPlayer extends Player {
   private flv?: any
   private mseError = false
   private mseErrorCount = 0
+
+  constructor(config: PlayerConfig) {
+    super(config)
+    this.init()
+    this.bindEvent()
+    this.setDefault()
+  }
 
   /**
    * 初始化
@@ -90,9 +97,8 @@ export class FlvPlayer extends Player {
    * 重新加载视频
    */
   public reloadPlayer() {
-    this.flv.unload()
-    this.flv.load()
-    this.flv.play()
+    this.disposePlayer()
+    this.init()
   }
 
   /**

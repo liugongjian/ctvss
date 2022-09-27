@@ -1,10 +1,17 @@
-// @ts-ignore
 import { prepareUrl, srsRtcPlayerAsync } from '../libs/webrtc'
+import { PlayerConfig } from '../types/Player'
 import { Player } from './Player'
 
 export class RtcPlayer extends Player {
   private rtc?: any
   private rtcConf: any
+
+  constructor(config: PlayerConfig) {
+    super(config)
+    this.init()
+    this.bindEvent()
+    this.setDefault()
+  }
 
   protected init() {
     if (!window.RTCPeerConnection) {

@@ -22,7 +22,7 @@
     </div>
     <template slot="reference">
       <div v-if="hasAudio" class="control__btn control__volume">
-        <span @click="toggleMuteStatus">
+        <span class="control__btn__span" @click="toggleMuteStatus">
           <img v-if="isMuted || volume === 0" class="icon" :src="require('../assets/svg/mute.svg')">
           <img v-else class="icon" :src="require('../assets/svg/volume.svg')">
         </span>
@@ -36,6 +36,7 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
+import { CodecEnum } from '../enums'
 
 @Component({
   name: 'Volume'
@@ -54,7 +55,7 @@ export default class extends ComponentMixin {
   }
 
   private get isH265() {
-    return this.player && this.player.type === 'h265'
+    return this.player && this.player.codec === CodecEnum.H265
   }
 
   /**
