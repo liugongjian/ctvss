@@ -74,6 +74,8 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '34':
     case '10034':
+    case '19':// 入侵检测
+    case '10016':// 入侵检测
       locations = metaData && metaData.map((person: any) => {
         try {
           const rect = JSON.parse(person.FaceRectangles)
@@ -361,20 +363,19 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
 
-      // 入侵检测
-    case '19':
-    case '10016':// 入侵检测
-      locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
-        return {
-          top: person.Location.Y,
-          left: person.Location.X,
-          width: person.Location.Width,
-          height: person.Location.Height,
-          isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
-          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
-        }
-      })
-      break
+      // case '19':// 入侵检测
+      // case '10016':// 入侵检测
+      //   locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
+      //     return {
+      //       top: person.Location.Y,
+      //       left: person.Location.X,
+      //       width: person.Location.Width,
+      //       height: person.Location.Height,
+      //       isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
+      //       score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+      //     }
+      //   })
+      //   break
 
     case '20':// 在场人员+口罩检测
     case '10017':// 在场人员+口罩检测

@@ -246,7 +246,7 @@
           inactive-color="#C0C4CC"
         />
       </el-form-item>
-      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertPeriod" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034', '10016')" prop="alertPeriod" class="inline-form-item">
         <template slot="label">
           告警周期:
           <el-popover
@@ -262,13 +262,13 @@
         </template>
         <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
-      <el-select v-if="alertDisabled && !ifShow('10001', '10034')" v-model="interval.alertPeriod" class="interval-unit">
+      <el-select v-if="alertDisabled && !ifShow('10001', '10034', '10016')" v-model="interval.alertPeriod" class="interval-unit">
         <el-option key="second" label="秒" value="s" />
         <el-option key="minute" label="分" value="m" />
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <br>
-      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034')" prop="alertTriggerThreshold" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001', '10034', '10016')" prop="alertTriggerThreshold" class="inline-form-item">
         <template slot="label">
           告警数量阈值:
           <el-popover
@@ -284,7 +284,7 @@
         </template>
         <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
-      <span v-if="alertDisabled && !ifShow('10001', '10034')" style="margin-left: 16px;">个</span>
+      <span v-if="alertDisabled && !ifShow('10001', '10034', '10016')" style="margin-left: 16px;">个</span>
       <br>
       <el-form-item v-if="alertDisabled" prop="alertSilencePeriod" class="inline-form-item">
         <template slot="label">
@@ -693,9 +693,11 @@ export default class extends Mixins(AppMixin) {
   .interval-unit {
     width: 65px;
   }
-  .city-gov-type{
+
+  .city-gov-type {
     width: 500px;
-    ::v-deep .el-tag{
+
+    ::v-deep .el-tag {
       margin-right: 8px;
     }
   }

@@ -67,7 +67,6 @@ function responseHandler(response: any) {
           type: 'warning'
         }
       )
-      debugger
       timeoutPromise.then(() => {
         const loginType = loginService.getLoginType()
         UserModule.ResetToken()

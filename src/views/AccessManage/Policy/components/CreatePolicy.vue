@@ -237,23 +237,25 @@ export default class extends Vue {
 
   private handleSelectionChange(actions: any) {
     const actionTable: any = this.$refs.actionTable
-    actions.forEach((action: any) => {
-      if (action.actionValue === 'AdminGroup') {
-        actionTable.toggleRowSelection(this.systemActionList[0], true)
-      }
-      if (action.actionValue === 'AdminDevice') {
-        actionTable.toggleRowSelection(this.systemActionList[2], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
-      if (action.actionValue === 'AdminAi') {
-        actionTable.toggleRowSelection(this.systemActionList[7], true)
-      }
-    })
+    this.$nextTick(() => {
+      actions.forEach((action: any) => {
+        if (action.actionValue === 'AdminGroup') {
+          actionTable.toggleRowSelection(this.systemActionList[0], true)
+        }
+        if (action.actionValue === 'AdminDevice') {
+          actionTable.toggleRowSelection(this.systemActionList[2], true)
+        }
+        if (action.actionValue === 'AdminRecord') {
+          actionTable.toggleRowSelection(this.systemActionList[5], true)
+        }
+        if (action.actionValue === 'AdminRecord') {
+          actionTable.toggleRowSelection(this.systemActionList[5], true)
+        }
+        if (action.actionValue === 'AdminAi') {
+          actionTable.toggleRowSelection(this.systemActionList[7], true)
+        }
+      })
+    }) 
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
