@@ -106,7 +106,7 @@ export default class AppMixin extends Vue {
    * 返回应用列表
    */
   public cancel() {
-    if (this.$route.path.endsWith('ibox')) {
+    if (this.$route.path.endsWith('ibox/')) {
       this.$emit('back')
     } else {
       this.backToAppList()
@@ -141,7 +141,9 @@ export default class AppMixin extends Vue {
   public generateAlgoParam() {
     this.generateEffectiveTime()
     let algorithmMetadata = this.form.algorithmMetadata
-    Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
+    if (algorithmMetadata) {
+      Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
+    }
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'
     }
@@ -149,7 +151,7 @@ export default class AppMixin extends Vue {
       ...this.form,
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
-      algorithmMetadata: JSON.stringify(algorithmMetadata),
+      algorithmMetadata: algorithmMetadata ? JSON.stringify(algorithmMetadata) : '',
       confidence: this.form.confidence / 100,
       alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '0',
       alertPeriod: this.alertDisabled ? (this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? +this.form.alertPeriod * 60 : +this.form.alertPeriod * 60 * 60).toString() : '0',

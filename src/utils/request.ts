@@ -83,7 +83,10 @@ function responseHandler(response: any) {
         }
       })
     }
-    const data = response && response.data
+    let data = response && response.data
+    Object.keys(data).forEach(key => {
+      data[key.toLowerCase()] = data[key]
+    })
     const requestId = data && data.requestId
     const code = data && data.code ? data.code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'

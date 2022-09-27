@@ -7,10 +7,14 @@
       <el-table :data="tableData">
         <el-table-column prop="name" label="算法名" />
         <el-table-column prop="description" label="描述" />
-        <el-table-column prop="analyseType" label="分析类型" />
+        <el-table-column prop="analyseType" label="分析类型">
+          <template slot-scope="scope">
+            <span>{{ ResourceAiType[scope.row.analyseType] }}</span>
+          </template>
+        </el-table-column>
         <!-- <el-table-column label="当前算法版本" /> -->
         <!-- <el-table-column label="告警次数" /> -->
-        <el-table-column prop="deviceIds" label="关联设备" />
+        <!-- <el-table-column prop="deviceIds" label="关联设备" /> -->
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="appDetail(scope.row)">
@@ -19,11 +23,11 @@
             <el-dropdown trigger="hover" @command="handleMore">
               <el-button type="text">更多</el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item :command="1">
-                  <span>操作1</span>
+                <el-dropdown-item :command="{type: 1, app: scope.row}">
+                  <span>编辑</span>
                 </el-dropdown-item>
-                <el-dropdown-item :command="2">
-                  <span>操作2</span>
+                <el-dropdown-item :command="{type: 2, app: scope.row}">
+                  <span>删除</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -40,15 +44,20 @@
       />
     </div>
 
-    <ai-app-detail v-if="isAppDetail" @back="backToList" />
-    <ai-app-add v-if="step > -1" @back="backToList" />
+    <ai-app-detail
+      v-if="isAppDetail"
+      :app-detail-id="appDetailId"
+      @back="backToList"
+    />
+    <ai-app-add v-if="step > -1" :initial-step="step" @back="backToList" />
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Provide } from 'vue-property-decorator'
 import AiAppAdd from './AiAppAdd.vue'
 import AiAppDetail from './AiAppDetail.vue'
-import { describeIboxApps } from '@/api/ibox'
+import { describeIboxApps, deleteIboxApps } from '@/api/ibox'
+import { ResourceAiType } from '@/dics'
 
 @Component({
   name: 'AiAppList',
@@ -66,21 +75,50 @@ export default class AiAppList extends Vue {
     pageSize: 20,
     pageNum: 1
   }
+  private appDetailId = ''
+  private ResourceAiType = ResourceAiType
+
+  private app: any
+
+  @Provide('appInfo')
+  public getAppInfo() {
+    return this.app
+  }
+
   private mounted() {
     this.getAppList()
   }
 
   private async getAppList() {
     const iboxId: any = this.$route.query.deviceId
-    const { IboxApps }: any = await describeIboxApps({ ...this.pager, iboxId })
-    this.tableData = IboxApps
+    const { iboxApps }: any = await describeIboxApps({ ...this.pager, iboxId })
+    this.tableData = iboxApps
   }
 
   private handleMore(command) {
-    console.log(command)
+    switch (command.type) {
+      case 1:
+        this.step = 1
+        this.app = command.app
+        break
+      case 2:
+        this.deleteApp(command.app)
+        break
+    }
+  }
+
+  private async deleteApp(row: any) {
+    this.$alertDelete({
+      type: '应用',
+      msg: `是否确认删除应用："${row.name}"`,
+      method: deleteIboxApps,
+      payload: { appIds: [row.appId], iboxId: row.iboxId },
+      onSuccess: this.getAppList
+    })
   }
 
   private appDetail(appInfo) {
+    this.appDetailId = appInfo.appId
     this.isAppDetail = true
   }
 
@@ -97,6 +135,7 @@ export default class AiAppList extends Vue {
   private backToList() {
     this.step = -1
     this.isAppDetail = false
+    this.getAppList()
   }
 
   private addApp() {
