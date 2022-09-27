@@ -165,7 +165,7 @@ export const getDevices = (params: any): Promise<any> => {
   return new Promise(resolve => {
     request({
       url: '/new/devicelist',
-      method: 'post',
+      method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
       console.log(res)
