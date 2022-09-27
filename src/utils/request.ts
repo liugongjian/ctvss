@@ -83,7 +83,7 @@ function responseHandler(response: AxiosResponse) {
       })
     }
     // TODO: 后端处理大小写
-    const data = toLowerCase(response && response.data)
+    const data: any = toLowerCase(response && response.data)
     const requestId = data && data.requestId
     const code = data && data.Code ? data.Code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'

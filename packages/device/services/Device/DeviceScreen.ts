@@ -85,10 +85,10 @@ const executeQueue = async function (
  */
 const deepDispatchTree = async function (
   state: {
-    screenManager: ScreenManager
-    advancedSearchForm: AdvancedSearch
-    setDirsStreamStatus: Function
-    maxSize: number
+    screenManager?: ScreenManager
+    advancedSearchForm?: AdvancedSearch
+    setDirsStreamStatus?: Function
+    maxSize?: number
   },
   deviceTree: any,
   node: any,

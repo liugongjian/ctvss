@@ -210,8 +210,8 @@ const closeDirectoryDialog = function (
         } else {
           state.loadDirChildren(state.sortDir.id, this.sortNode)
         }
-        ;(state.sortDir.id === this.$route.query.dirId || state.sortDir.id === this.$route.query.deviceId) &&
-          DeviceModule.SetIsSorted(true)
+        // ;(state.sortDir.id === this.$route.query.dirId || state.sortDir.id === this.$route.query.deviceId) &&
+        //   DeviceModule.SetIsSorted(true)
       }
       break
     case ToolsEnum.AddDirectory:
