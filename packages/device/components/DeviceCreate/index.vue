@@ -167,10 +167,10 @@
                 placeholder="请选择所属行业"
               >
                 <el-option
-                  v-for="(value, key) in industryMap"
+                  v-for="(value, key) in industryList"
                   :key="key"
-                  :label="value"
-                  :value="key"
+                  :label="value.name"
+                  :value="value.code"
                 />
               </el-select>
             </el-form-item>
@@ -180,10 +180,10 @@
                 placeholder="请选择网络标识"
               >
                 <el-option
-                  v-for="(value, key) in networkMap"
+                  v-for="(value, key) in networkList"
                   :key="key"
-                  :label="value"
-                  :value="key"
+                  :label="value.name"
+                  :value="value.code"
                 />
               </el-select>
             </el-form-item>
@@ -240,6 +240,7 @@ import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
 import { DeviceModule } from '../../store/modules/device'
+import { getIndustryList, getNetworkList } from '../../api/dict'
 import { checkVideoVisible, checkViidVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
 import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
@@ -272,8 +273,8 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
-  private industryMap = IndustryMap
-  private networkMap = NetworkMap
+  private industryList = []
+  private networkList = []
   private inNetworkType = InNetworkType
   private outNetworkType = OutNetworkType
   private breadCrumbContent = '添加设备'
@@ -325,7 +326,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   // private get industryMap() {
-  //   return DeviceModule.getIndutryList()
+  //   return DeviceModule.getIndutryList(getIndustryList)
   // }
 
   // private get networkMap() {
@@ -337,10 +338,12 @@ export default class extends Mixins(deviceFormMixin) {
     this.deviceForm.deviceVendor = val
   }
 
-  private mounted() {
+  private async mounted() {
     if (this.isIbox) {
       this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
     }
+    this.industryList = await DeviceModule.getIndutryList(getIndustryList)
+    this.networkList = await DeviceModule.getNetworkList(getNetworkList)
   }
 
   private updated() {

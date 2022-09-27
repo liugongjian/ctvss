@@ -77,15 +77,11 @@ export class Device extends VuexModule implements IDeviceState {
    * @returns industryList
    */
   @Action
-  public async getIndutryList() {
+  public async getIndutryList(method) {
     try {
       if (!this.industryList) {
-        const res = await getIndustryList()
-        const list = {}
-        res.forEach(item => {
-          list[item.code] = item.name
-        })
-        this.SET_INDUSTRY_LIST(list)
+        const res = await method()
+        this.SET_INDUSTRY_LIST(res.data)
       }
       return this.industryList
     } catch (e) {
@@ -98,15 +94,11 @@ export class Device extends VuexModule implements IDeviceState {
    * @returns networkList
    */
   @Action
-  public async getNetworkList() {
+  public async getNetworkList(method) {
     try {
       if (!this.networkList) {
-        const res = await getNetworkList()
-        const list = {}
-        res.forEach(item => {
-          list[item.code] = item.name
-        })
-        this.SET_NETWORK_LIST(list)
+        const res = await method()
+        this.SET_NETWORK_LIST(res.data)
       }
       return this.networkList
     } catch (e) {
