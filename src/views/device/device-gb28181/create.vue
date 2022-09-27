@@ -193,7 +193,7 @@
             />
           </el-form-item>
         </div>
-        <div v-show="activeStep === 1" class="step-container">
+        <div v-if="activeStep === 1" class="step-container">
           <el-tabs
             v-model="activeTabPane"
             type="card"
@@ -1015,7 +1015,7 @@ export default class extends Mixins(createMixin) {
    * 获取视图库信息
    */
   private async getViewLibInfo() {
-    console.log(this.hasViewLib)
+    // console.log(this.hasViewLib)
     const { data } = await getViewLibInfo({ deviceId: this.deviceId })
     this.tabPaneList.push({ label: '视图接入', name: 'view' })
     this.ga1400Form.apeType = data.apeType
