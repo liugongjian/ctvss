@@ -37,12 +37,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 import AlgoOption from '@/views/AI/AppList/component/AlgoOption.vue'
 import AlgoDetail from '@/views/AI/AppList/component/AlgoDetail.vue'
 import AlgoDevice from './AlgoDevice.vue'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
-import { createIboxApp } from '@/api/ibox'
+import { createIboxApp, updateIboxApp } from '@/api/ibox'
 
 @Component({
   name: 'AiAppAdd',
@@ -53,7 +53,9 @@ import { createIboxApp } from '@/api/ibox'
   }
 })
 export default class extends Mixins(AppMixin) {
-  @Inject('eventBus') public eventBus!: any
+  @Inject('appInfo')
+  public appInfo!: any
+  @Prop({}) initialStep!: any
   private step: number = 0
   public prod: any = {} // 新建时传入组件的参数
   private isLoading: boolean = false
@@ -63,16 +65,26 @@ export default class extends Mixins(AppMixin) {
     return this.$route.query.id ? '编辑' : '创建'
   }
 
+  private mounted() {
+    if (this.initialStep) {
+      this.step = this.initialStep
+    }
+  }
+
   private async onSubmit(treeParam) {
     try {
       const param = {
-        ...treeParam,
         ...this.algoParamSubmit,
+        ...treeParam,
         iboxId: this.$route.query.deviceId
       }
-      await createIboxApp(param)
-      window.location.reload()
-      setTimeout(() => this.eventBus.$emit('update:submit', 'appList'), 0)
+      const submitFunc = this.appInfo() ? updateIboxApp : createIboxApp
+      await submitFunc({
+        ...param,
+        algoConf: param.algorithmMetadata,
+        algorithmId: param.algorithmsId
+      })
+      this.backToList()
       this.$message.success('添加成功')
     } catch (e) {
       this.$message.error(e)

@@ -3,26 +3,43 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs v-model="tabNum" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" :name="'0'">
-        <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
+        <BasicAppInfo
+          v-if="appInfo.name"
+          :app-info="appInfo"
+          :face-lib="faceLib"
+        />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice />
+        <AtachedDevice v-if="tabNum==='1'" :app-info="appInfo" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
           <div class="app-container__result__device">
             <span>设备:</span>
-            <el-select v-model="device" placeholder="请选择" value-key="deviceId">
+            <el-select
+              v-model="device"
+              placeholder="请选择"
+              value-key="deviceId"
+            >
               <el-option
                 v-for="value in deviceList"
                 :key="value.deviceId"
-                :label="value.deviceType === 'nvr' ? `NVR / ${value.deviceName}` : value.deviceName"
+                :label="
+                  value.deviceType === 'nvr'
+                    ? `NVR / ${value.deviceName}`
+                    : value.deviceName
+                "
                 :value="value"
               />
             </el-select>
           </div>
           <div class="right">
-            <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+            <AppSubDetail
+              v-if="appInfo.name"
+              :device="device"
+              :app-info="appInfo"
+              :face-lib="faceLib"
+            />
           </div>
         </div>
       </el-tab-pane>
@@ -30,11 +47,13 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BasicAppInfo from '@/views/AI/AppList/component/BasicAppInfo.vue'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
-import AtachedDevice from '@/views/AI/AppList/component/AtachedDevice.vue'
-import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
+import AtachedDevice from './AtachedDevice.vue'
+import { getAttachedDevice } from '@/api/ai-app'
+
+import { describeIboxApp } from '@/api/ibox'
 // import { getDeviceTree } from '@/api/device'
 // import { getGroups } from '@/api/group'
 import AppMixin from '@/views/AI/mixin/app-mixin'
@@ -48,6 +67,7 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
   }
 })
 export default class extends Mixins(AppMixin, IndexMixin) {
+  @Prop({}) public appDetailId!: any
   private breadCrumbContent: String = '应用详情'
   private appInfo: any = {}
   private device: any = {
@@ -59,12 +79,15 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private deviceList: any = []
 
   private async mounted() {
-    this.appInfo = await getAppInfo({ id: this.$route.query.appid })
-    // this.initDirs()
-    // const { groups }: any = await getAIConfigGroupData({})
-    // this.initFaceLib(groups)
+    const appId = this.$route.query.appid || this.appDetailId
+
+    const { iboxApp }: any = await describeIboxApp({
+      appId,
+      iboxId: this.$route.query.deviceId
+    })
+    this.appInfo = iboxApp
     const { deviceList } = await getAttachedDevice({
-      appId: this.$route.query.appid,
+      appId,
       pageSize: 3000
     })
     this.deviceList = deviceList
@@ -80,8 +103,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-     * 初始化设备列表
-     */
+   * 初始化设备列表
+   */
   // public async initDirs() {
   //   try {
   //     this.loading.dir = true
@@ -115,8 +138,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   // }
 
   /**
-     * 展开设备列表时Load子树
-     */
+   * 展开设备列表时Load子树
+   */
   // public async loadDirs(node: any, resolve: Function) {
   //   if (node.level === 0) return resolve([])
   //   const dirs = await this.getTree(node)
@@ -124,8 +147,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   // }
 
   /**
-     * 获取设备列表时Load子树数据
-     */
+   * 获取设备列表时Load子树数据
+   */
   // private async getTree(node: any) {
   //   try {
   //     if (node.data.type === 'role') {
@@ -172,8 +195,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   // }
 
   /**
-     * 获取设备列表时Load子树数据
-     */
+   * 获取设备列表时Load子树数据
+   */
   // private selectDevice(data: any) {
   //   data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
   //   const dirTree: any = this.$refs.dirTree
@@ -193,7 +216,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .el-tab-pane {
   display: flex;
 }

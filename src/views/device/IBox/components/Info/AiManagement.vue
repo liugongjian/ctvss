@@ -10,15 +10,23 @@
         <el-table-column label="当前算法版本" />
         <el-table-column label="告警次数" />
         <el-table-column label="关联设备" />
-        <el-table-column label="操作">
+        <!-- <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="upgrade(scope.row)">升级</el-button>
             <el-button type="text" @click="uninstall(scope.row)">
               卸载
             </el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
+      <el-pagination
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.totalNum"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <div v-else>
       <el-page-header content="返回算法列表" @back="backToList" />
@@ -46,12 +54,16 @@ export default class IBoxList extends Vue {
   public tableData = [{ name: 'test' }]
   private step: number = -1
   private prod: any = {} // 新建时传入组件的参数
+  private pager = {
+    pageSize: 20,
+    pageNum: 1
+  }
   private mounted() {
     this.getAiList()
   }
 
   private async getAiList() {
-    const iboxId: any = +this.$route.query.deviceId
+    const iboxId: any = this.$route.query.deviceId
     const { IboxApps }: any = await describeAlgorithmList({
       ...this.pager,
       iboxId

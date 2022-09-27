@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 import { getDeviceList } from '@/api/ibox'
@@ -63,6 +63,8 @@ import { getDeviceList } from '@/api/ibox'
   }
 })
 export default class extends Mixins(AppMixin) {
+  @Inject('appInfo')
+  public appInfo!: any
   @Prop() private step!: number
   @Prop() private prod!: any
   private iboxDevice = []
@@ -76,6 +78,8 @@ export default class extends Mixins(AppMixin) {
 
   private nodeChecked: boolean = false
 
+  private initialCheckedNodes = []
+
   private configAlgoInfo = {
     name: 'test',
     effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
@@ -85,8 +89,33 @@ export default class extends Mixins(AppMixin) {
   private dangerZone = null
   private frameImage = require('./AlgoConfig/plate4.jpg')
 
-  private mounted() {
-    this.loadIboxDevice()
+  private async mounted() {
+    await this.loadIboxDevice()
+    if (this.appInfo) {
+      this.getinitialCheckedNodes()
+    }
+    this.initialCheckedNodes.forEach((node) => {
+      const deviceTree: any = this.$refs.deviceTree
+      this.addMeta(node)
+      deviceTree.setChecked(node.deviceId, true)
+    })
+  }
+
+  private getinitialCheckedNodes() {
+    const app = this.appInfo()
+    const deviceIds = JSON.parse(app.deviceIds)
+    const detectZones = JSON.parse(app.detectZones)
+    const nodes = []
+    for (let i = 0; i < deviceIds.length; i++) {
+      const detectZone = JSON.parse(detectZones[i])
+      nodes.push({
+        deviceId: deviceIds[i] + '',
+        algorithmMetadata: JSON.stringify({
+          DangerZone: detectZone.map((zone) => zone + '')
+        })
+      })
+    }
+    this.initialCheckedNodes = nodes
   }
 
   public async loadIboxDevice() {
@@ -100,15 +129,27 @@ export default class extends Mixins(AppMixin) {
       const data: any = await getDeviceList(param)
       this.iboxDevice = data.devices.map((device) => {
         if (device.device.deviceType === 'nvr') {
-          return { ...device.device, disabled: true, meta: null }
+          return {
+            ...device.device,
+            disabled: true,
+            meta: null,
+            deviceStatus:
+              device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off'
+          }
         }
-        return { ...device.device, meta: null }
+        return {
+          ...device.device,
+          meta: null,
+          deviceStatus:
+            device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off'
+        }
       })
-      console.log('this.iboxDevice:', this.iboxDevice)
     } catch (error) {
       console.log(error)
     }
   }
+
+  private checkTreeNodes() {}
 
   private changeStepPrev() {
     this.$emit('update:step', this.step - 1)
@@ -124,18 +165,21 @@ export default class extends Mixins(AppMixin) {
   }
 
   private onSubmit() {
-    const deviceTree: any = this.$refs.deviceTree
-    const nodes = deviceTree.getCheckedNodes(true, false)
     let param: any = {
       deviceIds: [],
       detectZones: []
     }
-    nodes.forEach((node) => {
-      const algorithmMetadata = JSON.parse(node.meta.algorithmMetadata)
-      const dangerZone = algorithmMetadata.DangerZone.map((zone) => +zone)
-      param.deviceIds.push(node.meta.deviceId)
-      param.detectZones.push(dangerZone)
-    })
+    if (this.isDevice) {
+      const deviceTree: any = this.$refs.deviceTree
+      const nodes = deviceTree.getCheckedNodes(true, false)
+
+      nodes.forEach((node) => {
+        const algorithmMetadata = JSON.parse(node.meta.algorithmMetadata)
+        const dangerZone = algorithmMetadata.DangerZone.map((zone) => +zone)
+        param.deviceIds.push(node.meta.deviceId)
+        param.detectZones.push(dangerZone)
+      })
+    }
     param = {
       deviceIds: JSON.stringify(param.deviceIds),
       detectZones: JSON.stringify(param.detectZones)
@@ -196,6 +240,12 @@ export default class extends Mixins(AppMixin) {
   padding: 10px 0;
   width: 40%;
   min-height: 550px;
+
+  .online .node-name {
+    .svg-icon {
+      color: #65c465;
+    }
+  }
 
   ::v-deep .is-disabled {
     visibility: hidden;

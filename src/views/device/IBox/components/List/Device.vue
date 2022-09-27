@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 import deviceList from '../Info/DeviceList.vue'
 import aiManage from '../Info/AiManagement.vue'
@@ -45,23 +45,25 @@ export default class IBoxList extends Vue {
 
   public eventBus = new Vue()
 
-  public activeName = 'device-list'
+  public activeName: any = 'device-list'
 
-  public mounted() {
-    this.eventBus.$on('update:submit', tabName => {
-      this.activeName = tabName
-    })
+  @Watch('$route.query', {
+    deep: true
+  })
+  private onRouterChange() {
+    if (this.$route.query.tab) {
+      debugger
+      this.activeName = this.$route.query.tab
+      const { tab, ...query } = this.$route.query
+      this.$router.push({
+        path: this.$route.path,
+        query
+      })
+    }
   }
 
   public handleClick(tab: any) {
     this.activeName = tab.name
-  }
-
-  @Provide('eventBust')
-  public eventBust() {
-    return {
-      eventBus: this.eventBus
-    }
   }
 }
 </script>

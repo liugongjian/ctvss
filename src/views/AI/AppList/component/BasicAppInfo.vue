@@ -1,8 +1,10 @@
 <template>
   <div class="detail-wrap">
-    <div v-if="checkPermission(['AdminAi'])" class="detail__buttons">
+    <div v-if="!isIbox && checkPermission(['AdminAi'])" class="detail__buttons">
       <el-button @click="editApp(app)"><svg-icon name="edit" /> 编辑</el-button>
-      <el-button @click="deleteApp(app)"><svg-icon name="trash" /> 删除</el-button>
+      <el-button @click="deleteApp(app)">
+        <svg-icon name="trash" /> 删除
+      </el-button>
     </div>
     <!-- <el-descriptions title="应用状态" :column="2">
       <el-descriptions-item label="应用状态">
@@ -23,7 +25,10 @@
         {{ resourceAiType[app.analyseType] }}
       </el-descriptions-item>
       <el-descriptions-item label="生效时段">
-        <span v-for="(item, index) in JSON.parse(app.effectiveTime)" :key="index">{{ `${item.start_time}-${item.end_time}` }}&nbsp;&nbsp;</span>
+        <span
+          v-for="(item, index) in JSON.parse(app.effectiveTime)"
+          :key="index"
+        >{{ `${item.start_time}-${item.end_time}` }}&nbsp;&nbsp;</span>
       </el-descriptions-item>
       <el-descriptions-item v-if="isFaceAlgoCode" label="人脸库">
         {{ faceLib.name || '' }}
@@ -57,6 +62,10 @@ export default class extends Mixins(AppMixin) {
     return ['10001', '10034'].includes(this.app.algorithm.code)
   }
 
+  private get isIbox() {
+    return this.$route.path.endsWith('ibox/')
+  }
+
   public created() {
     this.app = this.appInfo
   }
@@ -81,49 +90,49 @@ export default class extends Mixins(AppMixin) {
 }
 </script>
 
-<style lang='scss' scoped>
-  .detail-wrap {
-    padding: 5px;
+<style lang="scss" scoped>
+.detail-wrap {
+  padding: 5px;
 
-    .detail__buttons {
-      border-bottom: 1px solid $borderGrey;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
+  .detail__buttons {
+    border-bottom: 1px solid $borderGrey;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+
+  ::v-deep .el-descriptions {
+    &__header {
+      margin: 10px 0;
     }
 
-    ::v-deep .el-descriptions {
-      &__header {
-        margin: 10px 0;
-      }
+    &__title {
+      position: relative;
+      padding-left: 15px;
+      margin: 10px 0;
+      font-size: 16px;
+      font-weight: bold;
 
-      &__title {
-        position: relative;
-        padding-left: 15px;
-        margin: 10px 0;
-        font-size: 16px;
-        font-weight: bold;
-
-        &:before {
-          content: ' ';
-          display: block;
-          position: absolute;
-          left: 0;
-          top: 0;
-          background: $primary;
-          width: 6px;
-          height: 18px;
-        }
+      &:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: $primary;
+        width: 6px;
+        height: 18px;
       }
+    }
 
-      &-item__label {
-        min-width: 100px;
-        text-align: right;
-        color: $textGrey;
-      }
+    &-item__label {
+      min-width: 100px;
+      text-align: right;
+      color: $textGrey;
+    }
 
-      .el-link {
-        margin-left: 10px;
-      }
+    .el-link {
+      margin-left: 10px;
     }
   }
+}
 </style>

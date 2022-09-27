@@ -68,7 +68,7 @@ export const describeIboxApps = (data) =>
 // 获取算法列表
 export const describeAlgorithmList = (data) =>
   request({
-    url: '/ibox/ai/describeIboxApps',
+    url: '/ibox/ai/describeIboxAlgorithms',
     method: 'post',
     data
   })
@@ -86,3 +86,21 @@ export const createIboxApp = (data) =>
     method: 'post',
     data
   })
+
+export const describeIboxApp = (data) => request({
+  url: '/ibox/ai/describeIboxApp',
+  method: 'post',
+  data
+})
+
+export const updateIboxApp = (data) => request({
+  url: '/ibox/ai/updateIboxApp',
+  method: 'post',
+  data
+})
+
+export const deleteIboxApps = (data) => request({
+  url: '/ibox/ai/deleteIboxApps',
+  method: 'post',
+  data
+})

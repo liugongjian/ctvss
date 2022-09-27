@@ -447,10 +447,11 @@
   </el-card>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
 import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
+import { describeIboxApp } from '@/api/ibox'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
@@ -464,6 +465,9 @@ export default class extends Mixins(AppMixin) {
   @Prop({ default: false }) public isSelectDevice!: boolean
   @Prop() public algoParam!: any
   @Prop() public algoParamSubmit!: any
+
+  @Inject('appInfo')
+  public appInfo!: any
 
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
@@ -494,11 +498,25 @@ export default class extends Mixins(AppMixin) {
     return res.length > 0
   }
   private async mounted() {
-    if (this.$route.query.id) {
+    if (this.$route.query.id || this.appInfo()) {
       // 编辑
-      const id = this.$route.query.id
-      this.form = await getAppInfo({ id })
-      this.$set(this.form, 'algoName', this.form.algorithm.name)
+      debugger
+      if (this.$route.query.id) {
+        const id = this.$route.query.id
+        this.form = await getAppInfo({ id })
+        this.$set(this.form, 'algoName', this.form.algorithm.name)
+      } else {
+        const appInfo = this.appInfo()
+        const { iboxApp }: any = await describeIboxApp({
+          appId: appInfo.appId,
+          iboxId: appInfo.iboxId
+        })
+        this.form = iboxApp
+        this.$set(this.form, 'algoName', this.form.algorithmName)
+        this.$set(this.form, 'algorithmMetadata', this.form.algoConf)
+        console.log('this.form:', this.form)
+      }
+
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
       } else {
@@ -560,6 +578,7 @@ export default class extends Mixins(AppMixin) {
       }
       if (this.algoParam) {
         this.form = this.algoParam
+        this.alertDisabled = this.algoParam.alertDisabled
       }
     }
     try {
@@ -657,10 +676,17 @@ export default class extends Mixins(AppMixin) {
     form.validate(async(valid: any) => {
       if (valid) {
         let param: any = this.generateAlgoParam()
-        param = { ...param, algorithmsId: this.prod.id }
+        const appInfo = this.appInfo()
+        param = {
+          ...param,
+          algorithmsId: this.prod.id || appInfo.algorithmId
+        }
         this.$emit('update:step', this.step + 1)
         this.$emit('update:prod', this.prod)
-        this.$emit('update:algo-param', this.form)
+        this.$emit('update:algo-param', {
+          ...this.form,
+          alertDisabled: this.alertDisabled
+        })
         this.$emit('update:algo-param-submit', param)
       }
     })
