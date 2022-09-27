@@ -239,6 +239,7 @@
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
+import { DeviceModule } from '../../store/modules/device'
 import { checkVideoVisible, checkViidVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
 import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
@@ -322,6 +323,14 @@ export default class extends Mixins(deviceFormMixin) {
   private get deviceVendorList() {
     return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
   }
+
+  // private get industryMap() {
+  //   return DeviceModule.getIndutryList()
+  // }
+
+  // private get networkMap() {
+  //   return DeviceModule.getNetworkList()
+  // }
 
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {

@@ -1,17 +1,15 @@
 import request from '@/utils/request'
 
-export const getIndustryList = (params: any): Promise<any> =>
+export const getIndustryList = (): Promise<any> =>
   request({
     url: '/gbcode/industry/list',
-    method: 'get',
-    params
+    method: 'get'
   })
 
-export const getNetworkList = (params: any): Promise<any> =>
+export const getNetworkList = (): Promise<any> =>
   request({
     url: '/gbcode/network/list',
-    method: 'get',
-    params
+    method: 'get'
   })
 
 export const translateIndustry = (params: any): Promise<any> =>
