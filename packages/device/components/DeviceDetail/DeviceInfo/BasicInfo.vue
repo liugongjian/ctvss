@@ -101,7 +101,7 @@ export default class extends Vue {
     return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, this.isIbox, prop)
   }
 
-  @Watch('device')
+  @Watch('device', { immediate: true })
   private onDeviceChange() {
     this.getRegionTxt()
     this.getNetworkTxt()
