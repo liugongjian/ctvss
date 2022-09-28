@@ -65,10 +65,10 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import layoutMxin from './mixin/layoutMixin'
-import DeviceTree from './components/Tree/DeviceTree.vue'
-import SortDir from './components/SortDir.vue'
-import CreateDir from './components/CreateDir.vue'
+import layoutMxin from '@vss/device/mixin/layoutMixin'
+import DeviceTree from '@vss/device/components/Tree/DeviceTree.vue'
+import SortDir from '@vss/device/components/SortDir.vue'
+import CreateDir from '@vss/device/components/CreateDir.vue'
 
 @Component({
   name: 'Device',

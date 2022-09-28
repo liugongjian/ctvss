@@ -12,17 +12,17 @@
     :is-draggable="checkIsDraggable"
     @handle-node="handleNode"
   >
-    <template slot="itemLabelPrefix" slot-scope="{data}">
+    <template slot="itemLabelPrefix" slot-scope="{ data }">
       <svg-icon :name="data.type" />
       <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data.streamStatus" />
     </template>
-    <template slot="itemLabel" slot-scope="{node}">
+    <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix">
       <span>{{ `(1/11)` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{node, data}">
+    <template slot="itemTools" slot-scope="{ node, data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SetStreamNum)" effect="dark" content="切换主子码流" placement="top" :open-delay="500">
         <stream-selector :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="handleTools(toolsEnum.SetStreamNum, data, $event)" />
       </el-tooltip>
@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import treeMixin from './treeMixin'
+import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'PreviewTree'

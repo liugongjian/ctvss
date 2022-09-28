@@ -48,11 +48,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '../../dicts/index'
-import { DeviceEnum, InViidProtocolEnum } from '../../enums/index'
+import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '@vss/device/dicts/index'
+import { DeviceEnum, InViidProtocolEnum } from '@vss/device/enums/index'
 import { Device, ViidDevice, DeviceBasicForm, ViidDeviceForm } from '@vss/device/type/Device'
-import { checkViidVisible } from '../../utils/param'
-import CertificateSelect from '../../components/CertificateSelect.vue'
+import { checkViidVisible } from '@vss/device/utils/param'
+import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 
 @Component({
   name: 'ViidCreateForm',
@@ -62,7 +62,7 @@ import CertificateSelect from '../../components/CertificateSelect.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private deviceForm: DeviceBasicForm
 
   private deviceEnum = DeviceEnum
@@ -97,12 +97,12 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inProtocol() {
-    return this.device && this.device.viids && this.device.viids[0]!.inViidProtocol
+    return this.device && this.device.viids && this.device.viids[0].inViidProtocol
   }
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    return (this.inProtocol && this.device.viids[0]![InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    return (this.inProtocol && this.device.viids[0][InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
   }
 
   @Watch('device', {

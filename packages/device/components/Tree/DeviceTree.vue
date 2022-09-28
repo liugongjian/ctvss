@@ -20,22 +20,22 @@
     <template slot="rootLabelSuffix">
       <span>{{ `(${rootSums.online}/${rootSums.total})` }}</span>
     </template>
-    <template slot="rootTools" slot-scope="{data}">
+    <template slot="rootTools" slot-scope="{ data }">
       <el-tooltip effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.ExportSearchResult, data)"><svg-icon name="export" /></el-button>
       </el-tooltip>
     </template>
-    <template slot="itemLabelPrefix" slot-scope="{data}">
+    <template slot="itemLabelPrefix" slot-scope="{ data }">
       <svg-icon :name="data.type" />
       <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" status="on" />
     </template>
-    <template slot="itemLabel" slot-scope="{node}">
+    <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
-    <template slot="itemLabelSuffix" slot-scope="{data}">
+    <template slot="itemLabelSuffix">
       <span>{{ `(${11}/${11})` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{data}">
+    <template slot="itemTools" slot-scope="{ data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SortDirectory)" effect="dark" content="子目录排序" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.SortDirectory, data)"><svg-icon name="sort" /></el-button>
       </el-tooltip>
@@ -54,7 +54,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import treeMixin from './treeMixin'
+import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'DeviceTree'

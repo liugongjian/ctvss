@@ -7,8 +7,8 @@ import {
   DeviceListToolsAllowParams,
   DeviceTableColumnAllowParams,
   DeviceTypeDenyParamsForIbox
-} from '../settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '../enums/index'
+} from '@vss/device/settings'
+import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '@vss/device/enums/index'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -63,7 +63,7 @@ export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, p
 
   // 是否启用域名
   if (this.enableDomain === 1) {
-    if ([DeviceEnum.DeviceIp as string].includes(prop)) return false
+    if ([DeviceEnum.Ip as string].includes(prop)) return false
   } else {
     if ([DeviceEnum.DeviceDomain as string].includes(prop)) return false
   }
