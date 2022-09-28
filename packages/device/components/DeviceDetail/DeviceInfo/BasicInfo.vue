@@ -73,12 +73,12 @@ export default class extends Vue {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device.videos && this.device.videos.length && this.device.videos[0]!.inVideoProtocol
+    return this.device.videos && this.device.videos.length && this.device.videos[0]?.inVideoProtocol
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return (this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]) || {}
+    return (this.inVideoProtocol && this.device.videos[0][dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]) || {}
   }
 
   // 设备行业信息
@@ -111,6 +111,9 @@ export default class extends Vue {
 
   private async getRegionTxt() {
     try {
+      if (!this.device.region) {
+        throw null
+      }
       const res = await translateResourceRegion({ code: this.device.region })
       this.regionTxt = res.name
     } catch (e) {
@@ -120,6 +123,9 @@ export default class extends Vue {
 
   private async getNetworkTxt() {
     try {
+      if (!this.device.industry.networkCode) {
+        throw null
+      }
       const res = await translateNetwork({ code: this.device.industry.networkCode })
       this.networkTxt = res.name
     } catch (e) {
@@ -129,6 +135,9 @@ export default class extends Vue {
 
   private async getIndustryTxt() {
     try {
+      if (!this.device.industry.industryCode) {
+        throw null
+      }
       const res = await translateIndustry({ code: this.device.industry.industryCode })
       this.industryTxt = res.name
     } catch (e) {
@@ -138,6 +147,9 @@ export default class extends Vue {
 
   private async getOrgRegionTxt() {
     try {
+      if (!this.device.industry.inOrgRegion) {
+        throw null
+      }
       const res = await translateOrgRegion({ gbRegion: this.device.industry.inOrgRegion, gbRegionLevel: this.device.industry.inOrgRegionLevel })
       this.orgRegionTxt = res.name
     } catch (e) {

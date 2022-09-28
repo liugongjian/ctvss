@@ -94,7 +94,7 @@ export const constantRoutes: RouteConfig[] = [
 /**
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user perms
-*/
+ */
 export const asyncRoutes: RouteConfig[] = [
   {
     path: '/dashboard',
@@ -406,7 +406,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['DescribeMap']
         }
-      }]
+      }
+    ]
   },
   {
     path: '/up-platform',
@@ -1226,25 +1227,26 @@ export const asyncRoutes: RouteConfig[] = [
   }
 ]
 
-const createRouter = () => new Router({
-  mode: 'history', // Disabled due to Github Pages doesn't support this, enable this if you need.
-  scrollBehavior: (to, from, savedPosition) => {
-    if (savedPosition) {
-      return savedPosition
-    } else {
-      return { x: 0, y: 0 }
-    }
-  },
-  base: settings.projectPrefix,
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    mode: 'history', // Disabled due to Github Pages doesn't support this, enable this if you need.
+    scrollBehavior: (to, from, savedPosition) => {
+      if (savedPosition) {
+        return savedPosition
+      } else {
+        return { x: 0, y: 0 }
+      }
+    },
+    base: settings.projectPrefix,
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
-  const newRouter = createRouter();
-  (router as any).matcher = (newRouter as any).matcher // reset router
+  const newRouter = createRouter()
+  ;(router as any).matcher = (newRouter as any).matcher // reset router
 }
 
 export default router
