@@ -8,9 +8,9 @@ module.exports = {
   },
   extends: [
     'plugin:vue/recommended',
-    '@vue/typescript/recommended',
-    '@vue/prettier',
-    '@vue/prettier/@typescript-eslint'
+    '@vue/typescript/recommended'
+    // '@vue/prettier',
+    // '@vue/prettier/@typescript-eslint'
   ],
   parserOptions: {
     ecmaVersion: '2021'
@@ -55,7 +55,10 @@ module.exports = {
     'space-infix-ops': 'off',
     '@typescript-eslint/space-infix-ops': ['error', { int32Hint: false }],
     'comma-spacing': 'off',
-    '@typescript-eslint/comma-spacing': ['error', { before: false, after: true }],
+    '@typescript-eslint/comma-spacing': [
+      'error',
+      { before: false, after: true }
+    ],
     'object-curly-spacing': ['error', 'always'],
     '@typescript-eslint/object-curly-spacing': ['error', 'always'],
     semi: 'off',
@@ -63,6 +66,7 @@ module.exports = {
     'no-undef': 'off',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
-    'prettier/prettier': ['error', { endOfLine: 'auto' }]
+    // 'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'max-len': ['error', { code: 200 }]
   }
 }
