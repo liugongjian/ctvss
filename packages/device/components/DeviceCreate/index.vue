@@ -187,7 +187,7 @@
                 />
               </el-select>
             </el-form-item>
-            <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
+            <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
@@ -238,18 +238,18 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
-import { DeviceModule } from '../../store/modules/device'
-import { getIndustryList, getNetworkList } from '../../api/dict'
-import { checkVideoVisible, checkViidVisible } from '../../utils/param'
-import { DeviceTips } from '../../dicts/tips'
-import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
-import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
-import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
-import { createDevice } from '../../api/device'
-import VideoCreateForm from '../Form/VideoCreateForm.vue'
-import ViidCreateForm from '../Form/ViidCreateForm.vue'
-import deviceFormMixin from '../../mixin/deviceFormMixin'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
+import { DeviceModule } from '@vss/device/store/modules/device'
+import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
+import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
+import { DeviceTips } from '@vss/device/dicts/tips'
+import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums/index'
+import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '@vss/device/settings'
+import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
+import { createDevice } from '@vss/device/api/device'
+import VideoCreateForm from '@vss/device/components/Form/VideoCreateForm.vue'
+import ViidCreateForm from '@vss/device/components/Form/ViidCreateForm.vue'
+import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
   name: 'DeviceCreate',
@@ -273,16 +273,16 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
-  private industryList = []
-  private networkList = []
+  private industryList = null
+  private networkList = null
   private inNetworkType = InNetworkType
   private outNetworkType = OutNetworkType
   private breadCrumbContent = '添加设备'
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
   private inViidProtocol = InViidProtocolEnum.Ga1400
-  private activeStep: number = 0
-  private showMore: boolean = false
-  private showMoreVisable: boolean = false
+  private activeStep = 0
+  private showMore = false
+  private showMoreVisable = false
   public deviceForm: DeviceBasicForm = {
     // step0
     [DeviceEnum.DeviceName]: '',
@@ -396,10 +396,10 @@ export default class extends Mixins(deviceFormMixin) {
     if (val === 0) {
       this.activeStep = val
     } else {
-      let validFlag: boolean = true
+      let validFlag = true
       // 校验step1中deviceForm
       const deviceForm: any = this.$refs.deviceForm
-      let validArr = [
+      const validArr = [
         DeviceEnum.DeviceName,
         DeviceEnum.DeviceType
       ]
@@ -429,10 +429,10 @@ export default class extends Mixins(deviceFormMixin) {
    * 提交
    */
   private submit() {
-    let validFlag: boolean = true
+    let validFlag = true
     // 校验step1中deviceForm
     const form: any = this.$refs.deviceForm
-    let validArr = [
+    const validArr = [
       DeviceEnum.Longlat,
       DeviceEnum.DeviceVendor,
       DeviceEnum.Region,
@@ -444,9 +444,6 @@ export default class extends Mixins(deviceFormMixin) {
       DeviceEnum.DevicePoleId,
       DeviceEnum.DeviceMac
     ]
-    this.deviceForm.region = '0431001'
-    this.deviceForm.inOrgRegion = '11011100'
-    this.deviceForm.inOrgRegionLevel = 3
     form.validateField(validArr, (err) => {
       if (err !== '') {
         validFlag = false

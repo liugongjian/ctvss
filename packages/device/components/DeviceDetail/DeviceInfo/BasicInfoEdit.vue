@@ -49,10 +49,10 @@
           placeholder="请选择所属行业"
         >
           <el-option
-            v-for="(value, key) in industryMap"
+            v-for="(value, key) in industryList"
             :key="key"
-            :label="value"
-            :value="key"
+            :label="value.name"
+            :value="value.code"
           />
         </el-select>
       </el-form-item>
@@ -63,10 +63,10 @@
           placeholder="请选择网络标识"
         >
           <el-option
-            v-for="(value, key) in networkMap"
+            v-for="(value, key) in networkList"
             :key="key"
-            :label="value"
-            :value="key"
+            :label="value.name"
+            :value="value.code"
           />
         </el-select>
       </el-form-item>
@@ -105,6 +105,8 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice, DeviceBasicForm } from '@vss/device/type/Device'
+import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
+import { DeviceModule } from '@vss/device/store/modules/device'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
@@ -119,8 +121,8 @@ export default class extends Mixins(deviceFormMixin) {
   private inNetworkTypeEnum = InNetworkTypeEnum
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceVendor = dicts.DeviceVendor
-  private industryMap = dicts.IndustryMap
-  private networkMap = dicts.NetworkMap
+  private industryList = null
+  private networkList = null
   public deviceForm: DeviceBasicForm = {}
 
   @Watch('device', {
@@ -165,12 +167,12 @@ export default class extends Mixins(deviceFormMixin) {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device.videos && this.device.videos[0]!.inVideoProtocol
+    return this.device.videos && this.device.videos[0].inVideoProtocol
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
+    return this.inVideoProtocol && this.device.videos[0][dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // 是否含视频
@@ -186,6 +188,11 @@ export default class extends Mixins(deviceFormMixin) {
   // 是否含国标ID
   private get hasOutId() {
     return this.videoInfo && !!this.videoInfo.outId
+  }
+
+  private async mounted() {
+    this.industryList = await DeviceModule.getIndutryList(getIndustryList)
+    this.networkList = await DeviceModule.getNetworkList(getNetworkList)
   }
 
   private submit() {

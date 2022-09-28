@@ -3,9 +3,6 @@
  */
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
 import store from '@vss/device/store'
-import { toLowerCase } from '@vss/base/utils/param'
-import { deviceMock } from '@vss/device/mock/device'
-import { getIndustryList, getNetworkList } from '../../api/dict'
 
 export interface IDeviceState {
   device?: any
@@ -19,7 +16,7 @@ export interface IDeviceState {
 export class Device extends VuexModule implements IDeviceState {
   public device: any = null
   public breadcrumb: any = null
-  public isSorted: boolean = false
+  public isSorted = false
   public industryList: Array<any> = null
   public networkList: Array<any> = null
 
