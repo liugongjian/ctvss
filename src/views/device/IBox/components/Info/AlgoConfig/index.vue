@@ -10,7 +10,7 @@
       @close="cancel"
     >
       <div class="configureInfo">
-        <div class="configureDetail">
+        <!-- <div class="configureDetail">
           <span class="configureName">应用名称：</span>
           <span class="configureValue">{{ configAlgoInfo.name }}</span>
         </div>
@@ -23,14 +23,14 @@
                 : ''
             }}
           </span>
-        </div>
+        </div> -->
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
             <!--  v-if="configAlgoInfo.algorithm.code === '10032'" -->
-            <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
-            <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
-            <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
+            <el-button v-if="configAlgoInfo.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button v-if="configAlgoInfo.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button v-if="configAlgoInfo.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -127,7 +127,6 @@ export default class extends Vue {
       }
       return res
     }
-
     if (this.meta) {
       const { algorithmMetadata } = this.meta
       const algorithmMetadataParse = algorithmMetadata
@@ -140,7 +139,7 @@ export default class extends Vue {
         if (DangerZoneParse.length) {
           this.cannotDraw = true
           const shape = () => {
-            if (this.configAlgoInfo.algorithm.code === '10032') {
+            if (this.configAlgoInfo.code === '10032') {
               return 'line'
             } else {
               if (DangerZoneParse.length === 2) {
@@ -272,7 +271,7 @@ export default class extends Vue {
 
   private cancel() {
     this.closeThis()
-    this.$parent.setNodeOppositeChecked(this.$route.query.deviceId)
+    this.$parent.setNodeOppositeChecked(this.deviceId)
   }
 
   private sureThis() {
@@ -284,7 +283,7 @@ export default class extends Vue {
           points: [x, y]
         } = this.areas[0]
         pointsInfo = this.getRectPoints(x, y)
-      } else if (this.configAlgoInfo.algorithm.code === '10032') {
+      } else if (this.configAlgoInfo.code === '10032') {
         const directorP = this.areas.find((item: any) => {
           return item.shape === 'director'
         })
@@ -410,7 +409,7 @@ export default class extends Vue {
             // 绘制方向
             this.canvas.stroke()
             this.canvas.closePath()
-            if (this.configAlgoInfo.algorithm.code === '10032') {
+            if (this.configAlgoInfo.code === '10032') {
               const [, , x, y] = points
               const startP = [toRatio(x[0]), toRatio(x[1])]
               const endP = [toRatio(y[0]), toRatio(y[1])]

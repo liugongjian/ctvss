@@ -13,7 +13,6 @@
       :data="iboxDevice"
       :props="treeProp"
       @check-change="checkCallback"
-      @node-click="handleNodeClick"
     >
       <span
         slot-scope="{node, data}"
@@ -22,7 +21,12 @@
       >
         <span class="node-name">
           <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-          <svg-icon :name="data.deviceType || 'ipc'" width="15" height="15" />
+          <svg-icon
+            :name="data.deviceType || 'ipc'"
+            width="15"
+            height="15"
+            :class="data.deviceStatus + 'line'"
+          />
           {{ node.data.deviceName }}
         </span>
         <span v-if="!!data.meta && node.checked" style="margin-left: 12px;">
@@ -80,12 +84,7 @@ export default class extends Mixins(AppMixin) {
 
   private initialCheckedNodes = []
 
-  private configAlgoInfo = {
-    name: 'test',
-    effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
-    algorithm: { code: '10031' },
-    id: '1'
-  }
+  private configAlgoInfo = {}
   private dangerZone = null
   private frameImage = require('./AlgoConfig/plate4.jpg')
 
@@ -99,6 +98,7 @@ export default class extends Mixins(AppMixin) {
       this.addMeta(node)
       deviceTree.setChecked(node.deviceId, true)
     })
+    this.configAlgoInfo = this.prod
   }
 
   private getinitialCheckedNodes() {
@@ -200,11 +200,6 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  private handleNodeClick(data, node) {
-    console.log('data:', data)
-    console.log('node:', node)
-  }
-
   private editMeta(data) {
     this.meta = data.meta
     this.canvasDialog = true
@@ -250,6 +245,14 @@ export default class extends Mixins(AppMixin) {
   ::v-deep .is-disabled {
     visibility: hidden;
   }
+}
+
+.online {
+  color: #65c465;
+}
+
+.offline {
+  color: #6e7c89;
 }
 
 .btns {

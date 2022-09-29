@@ -4,12 +4,10 @@
       <!-- <div class="filter-container">
         <el-button type="primary" @click="addAlgo">添加算法</el-button>
       </div> -->
-      <el-table :data="tableData">
+      <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="算法类型" />
-        <el-table-column label="描述" />
-        <el-table-column label="当前算法版本" />
-        <el-table-column label="告警次数" />
-        <el-table-column label="关联设备" />
+        <el-table-column prop="summary" label="描述" />
+        <el-table-column prop="version" label="当前算法版本" />
         <!-- <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="upgrade(scope.row)">升级</el-button>
@@ -51,24 +49,32 @@ import { describeAlgorithmList } from '@/api/ibox'
   }
 })
 export default class IBoxList extends Vue {
-  public tableData = [{ name: 'test' }]
+  public tableData = []
   private step: number = -1
   private prod: any = {} // 新建时传入组件的参数
   private pager = {
     pageSize: 20,
     pageNum: 1
   }
+  private loading = {
+    table: false
+  }
   private mounted() {
     this.getAiList()
   }
 
   private async getAiList() {
+    this.loading.table = true
     const iboxId: any = this.$route.query.deviceId
-    const { IboxApps }: any = await describeAlgorithmList({
+    const { iboxAIAlgorithms }: any = await describeAlgorithmList({
       ...this.pager,
       iboxId
     })
-    this.tableData = IboxApps
+    this.tableData = iboxAIAlgorithms.map((algo) => ({
+      ...algo,
+      version: '1.0.0'
+    }))
+    this.loading.table = false
   }
 
   @Watch('prod', {
@@ -76,7 +82,6 @@ export default class IBoxList extends Vue {
     deep: true
   })
   private onProdChanged() {
-    console.log('this.prod:', this.prod)
     // 这里发送请求
   }
 
@@ -89,7 +94,6 @@ export default class IBoxList extends Vue {
   }
 
   private upgrade(algo) {
-    console.log(algo)
     const h: Function = this.$createElement
     this.$alertHandle({
       handleName: '升级',
