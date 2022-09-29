@@ -130,8 +130,7 @@ export default class extends Mixins(AppMixin) {
 
 .process {
   margin-bottom: 20px;
-  padding: 20px 0 5px;
-  border-top: 1px solid $borderGrey2;
+  padding: 5px 0;
 
   .el-steps--simple {
     width: 575px;

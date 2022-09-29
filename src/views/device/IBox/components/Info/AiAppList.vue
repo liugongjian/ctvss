@@ -78,7 +78,8 @@ export default class AiAppList extends Vue {
   private isAppDetail: boolean = false
   private pager = {
     pageSize: 20,
-    pageNum: 1
+    pageNum: 1,
+    totalNum: 0
   }
 
   private loading = {
@@ -103,7 +104,12 @@ export default class AiAppList extends Vue {
   private async getAppList() {
     this.loading.table = true
     const iboxId: any = this.$route.query.deviceId
-    const { iboxApps }: any = await describeIboxApps({ ...this.pager, iboxId })
+    const { iboxApps, pageNum, pageSize, totalNum }: any =
+      await describeIboxApps({
+        ...this.pager,
+        iboxId
+      })
+    this.pager = { pageSize, pageNum, totalNum }
     this.tableData = iboxApps
     this.loading.table = false
   }
