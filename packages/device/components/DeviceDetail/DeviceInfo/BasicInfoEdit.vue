@@ -102,9 +102,11 @@
 </template>
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import { updateDevice } from '@vss/device/api/device'
+import { pick } from 'lodash'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
-import { Device, DeviceBasic, Industry, VideoDevice, DeviceBasicForm } from '@vss/device/type/Device'
+import { Device, DeviceBasic, Industry, VideoDevice, DeviceBasicForm, DeviceForm } from '@vss/device/type/Device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
@@ -132,6 +134,7 @@ export default class extends Mixins(deviceFormMixin) {
     const basicInfo: DeviceBasic = this.device.device
     const industry: Industry = this.device.industry
     this.deviceForm = {
+      deviceId: basicInfo.deviceId,
       deviceName: basicInfo.deviceName,
       deviceType: basicInfo.deviceType,
       inNetworkType: this.device.inNetworkType,
@@ -196,7 +199,56 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private submit() {
-    this.$emit('cancel')
+    const form: any = this.$refs.deviceForm
+    form.validate( async(valid) => {
+      if (valid) {
+        const params: DeviceForm = {
+          ...pick(this.deviceForm, [
+            DeviceEnum.Region,
+            DeviceEnum.InNetworkType,
+            DeviceEnum.OutNetworkType
+          ]),
+          device: {
+            ...pick(this.deviceForm, [
+              DeviceEnum.DeviceId,
+              DeviceEnum.DeviceType,
+              DeviceEnum.DeviceVendor,
+              DeviceEnum.DeviceName,
+              DeviceEnum.DeviceLongitude,
+              DeviceEnum.DeviceLatitude,
+              DeviceEnum.DeviceIp,
+              DeviceEnum.DevicePort,
+              DeviceEnum.DeviceMac,
+              DeviceEnum.DevicePoleId,
+              DeviceEnum.DeviceSerialNumber,
+              DeviceEnum.DeviceModel,
+              DeviceEnum.Description
+            ]),
+            ...pick(this.videoForm, [
+              DeviceEnum.DeviceChannelSize
+            ]),
+            // 父级设备ID
+            parentDeviceId: this.parentDeviceId
+          },
+          industry: {
+            ...pick(this.deviceForm, [
+              DeviceEnum.InOrgRegion,
+              DeviceEnum.InOrgRegionLevel,
+              DeviceEnum.IndustryCode,
+              DeviceEnum.NetworkCode
+            ])
+          },
+        }
+        try {
+          await updateDevice(params)
+          this.$alertSuccess('更新成功!')
+          this.$emit('cancel')
+          this.$emit('updateDevice')
+        } catch (e) {
+          this.$alertError(e.message)
+        }
+      }
+    })
   }
 
   private cancel() {

@@ -92,7 +92,6 @@ export default class extends Vue {
       const res = await this.apiMapping[this.type].api({
         pageSize: 1000
       })
-      console.log(2121312, res)
       this.accountList = res[this.apiMapping[this.type].body]
     } catch (e) {
       console.error(e)

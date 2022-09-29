@@ -72,7 +72,7 @@ export default class DeviceFormMixin extends Vue {
    * 校验经纬度
    */
   public validateLonglat(rule: any, value: string, callback: Function) {
-    if (!this.deviceForm.deviceLongitude || !this.deviceForm.deviceLatitude) {
+    if (this.deviceForm.deviceLongitude === '' || this.deviceForm.deviceLatitude === '') {
       callback(new Error('请填写经度及纬度坐标'))
     } else if (
       !/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(

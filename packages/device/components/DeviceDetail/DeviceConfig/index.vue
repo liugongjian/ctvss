@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--资源包-->
-    <div class="detail__section">
+    <div v-if="!isIbox" class="detail__section">
       <div class="detail__title">
         资源包
         <div class="detail__buttons">
@@ -98,7 +98,7 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="!isIbox" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
         <div class="detail__buttons">
@@ -155,7 +155,7 @@
       </div>
     </div>
     <!-- 告警模板信息 -->
-    <div v-if="inProtocol === 'gb28181'" class="detail__section">
+    <div v-if="!isIbox && inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
         <div class="detail__buttons">
@@ -247,7 +247,7 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
 export default class extends Mixins(detailMixin) {
   // @Prop() private deviceId?: String
   // @Prop() private inProtocol?: String
-  private inProtocol = 'gb28181'
+  private inProtocol = ''
 
   private checkPermission = checkPermission
 

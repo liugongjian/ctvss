@@ -32,6 +32,7 @@ export default class extends Vue {
     if (form.validateVideoForm()) {
       console.log(form.viidForm)
       this.$emit('cancel')
+      this.$emit('updateDevice')
     }
   }
 

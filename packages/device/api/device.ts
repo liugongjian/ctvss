@@ -91,7 +91,7 @@ export const getNodeInfo = (params: any): Promise<any> => {
 }
 
 export const getDeviceTree = (params: any): Promise<any> => {
-  let res = [{
+  const res = [{
     id: 1,
     type: 'platform',
     label: '一级 1',
@@ -335,9 +335,9 @@ export const createDeviceIbox = (params: any): Promise<any> =>
  */
 export const updateDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/update',
-    method: 'post',
-    data: params
+    url: '/new/device',
+    method: 'put',
+    data: toUpperCase(params)
   })
 
 /**
@@ -661,11 +661,11 @@ export const getAddressArea = (params: any, cancelToken: any): Promise<any> =>
  * 获取子地址列表, 返回地址列表
  */
 export const getChildAddress = async(id: any, level: number, cancelToken: any) => {
-  let params: any = {
+  const params: any = {
     pid: id,
     level
   }
-  let res = await getAddressArea(params, cancelToken)
+  const res = await getAddressArea(params, cancelToken)
   let list = []
   if (res.areas.length) {
     list = res.areas.map((item: any) => {
