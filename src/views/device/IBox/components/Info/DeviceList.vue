@@ -118,16 +118,13 @@
           label="操作"
         >
           <template slot-scope="{row}">
-            <div class="ibox-list-table--detail">
+            <div class="ibox-list-table--btn">
               实时预览
             </div>
-            <div class="ibox-list-table--detail">
-              实时预览
-            </div>
-            <div class="ibox-list-table--detail" @click="startDevice(row)">
+            <div class="ibox-list-table--btn" @click="startDevice(row)">
               启用流
             </div>
-            <div class="ibox-list-table--detail" @click="stopDevice(row)">
+            <div class="ibox-list-table--btn" @click="stopDevice(row)">
               停用流
             </div>
           </template>
@@ -251,6 +248,19 @@ export default class IBoxList extends Vue {
   //   this.$router.push(path)
   // }
 
+  public startDevice(row: any) {
+    console.log(row)
+    const { deviceId, videos } = row
+    const param = {
+      deviceId,
+      inProtocol: videos[0].inVideoProtocol
+    }
+  }
+
+  public stopDevice(row: any) {
+
+  }
+
   public toDetail(row: any) {
     let query: any = {
       deviceId: row.deviceId,
@@ -293,6 +303,11 @@ export default class IBoxList extends Vue {
       }
 
       &--id {
+        color: #fa8334;
+      }
+
+      &--btn {
+        cursor: pointer;
         color: #fa8334;
       }
     }

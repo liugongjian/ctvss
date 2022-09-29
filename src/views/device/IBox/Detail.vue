@@ -35,7 +35,7 @@ export default class extends Vue {
   }
 
   public handleClick(tab) {
-    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
+    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId, path: this.$route.query.path } })
   }
 
   @Watch('$route.name', { immediate: true })

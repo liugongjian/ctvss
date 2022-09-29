@@ -104,3 +104,19 @@ export const deleteIboxApps = (data) => request({
   method: 'post',
   data
 })
+
+// 启动设备拉流
+export const startDevice = (data: any) =>
+  request({
+    url: '/ibox/startdevice',
+    method: 'post',
+    data
+  })
+
+// 停止设备拉流
+export const stopDevice = (data: any) =>
+  request({
+    url: '/ibox/startdevice',
+    method: 'post',
+    data
+  })
