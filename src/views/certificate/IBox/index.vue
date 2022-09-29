@@ -22,20 +22,32 @@
       </div>
       <div class="certificate-ibox__step">
         <div class="certificate-ibox__step-content">
-          <h3>第一步：告知安装员</h3>
+          <h3>
+            <svg-icon name="step1" />
+            第一步：告知安装员
+          </h3>
           <p>管理员将显示的接入凭证码告知安装员</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第二步：填写平台地址</h3>
+          <h3>
+            <svg-icon name="step2" />
+            第二步：填写平台地址
+          </h3>
           <p>共有云地址：http://vcn.ctyun.cn</p>
           <p>私有云地址：服务器[IP]:端口号[Port]</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第三步：填写接入凭证码</h3>
+          <h3>
+            <svg-icon name="step3" />
+            第三步：填写接入凭证码
+          </h3>
           <p>安装员在设备端填写接入凭证码（一码可填多台设备）</p>
         </div>
         <div class="certificate-ibox__step-content">
-          <h3>第四步：绑定设备</h3>
+          <h3>
+            <svg-icon name="step4" />
+            第四步：绑定设备
+          </h3>
           <p>设备连接平台，并完成用户绑定</p>
         </div>
       </div>
@@ -94,11 +106,12 @@ export default class IBoxCertificate extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .app-container{
-    ::v-deep .el-card{
-      overflow: auto;
-    }
+.app-container {
+  ::v-deep .el-card {
+    overflow: auto;
   }
+}
+
 .certificate-ibox {
   &__info-text {
     font-size: 20px;
@@ -123,11 +136,11 @@ export default class IBoxCertificate extends Vue {
         text-align: center;
       }
 
-      p{
+      p {
         font-size: 16px;
       }
 
-      h2{
+      h2 {
         font-size: 80px;
         margin-top: 0;
         margin-bottom: 10px;
@@ -145,8 +158,13 @@ export default class IBoxCertificate extends Vue {
     &-content {
       width: 260px;
       padding: 20px 10px;
-      border: 1px solid #d3d3d3;
+      // border: 1px solid #d3d3d3;
       flex-shrink: 0;
+
+      p {
+        font-size: 12px;
+        color: #777;
+      }
 
       &:not(:last-child) {
         position: relative;
@@ -155,12 +173,12 @@ export default class IBoxCertificate extends Vue {
           content: '';
           width: 0;
           height: 0;
-          border-top: 16px solid transparent;
-          border-bottom: 16px solid transparent;
-          border-left: 16px solid #777;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+          border-left: 6px solid #000;
           position: absolute;
-          top: 66px;
-          right: min(-19px, calc(-1*(100vw - 1040px)/8 + 26px));
+          top: 76px;
+          right: min(-13px, calc(-1*(100vw - 1040px)/8 + 26px));
         }
       }
     }

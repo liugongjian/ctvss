@@ -9,6 +9,7 @@
           <el-tab-pane label="设备事件" name="IBoxDeviceEvents" />
           <el-tab-pane label="实时预览" name="IBoxDevicePreview" />
           <el-tab-pane label="AI分析" name="IBoxDeviceAi" />
+          <el-tab-pane label="AI配置" name="IBoxDeviceAiConfig" />
         </el-tabs>
       </div>
       <div class="detail-wrap__body">

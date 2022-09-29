@@ -432,6 +432,18 @@ export const asyncRoutes: RouteConfig[] = [
                   activeMenu: '/device/ibox',
                   groupSelector: true
                 }
+              },
+              {
+                path: 'ai-config',
+                component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/components/Detail/AiConfig.vue'),
+                name: 'IBoxDeviceAiConfig',
+                meta: {
+                  title: 'AI配置',
+                  breadcrumb: false,
+                  perms: ['DescribeDevice'],
+                  activeMenu: '/device/ibox',
+                  groupSelector: true
+                }
               }
             ]
           }
