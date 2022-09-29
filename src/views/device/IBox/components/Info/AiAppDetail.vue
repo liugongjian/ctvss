@@ -10,7 +10,11 @@
         />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice v-if="tabNum==='1'" :app-info="appInfo" />
+        <AtachedDevice
+          v-if="tabNum === '1'"
+          :app-info="appInfo"
+          :devices="deviceList"
+        />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
@@ -35,7 +39,7 @@
           </div>
           <div class="right">
             <AppSubDetail
-              v-if="appInfo.name"
+              v-if="tabNum === '2'"
               :device="device"
               :app-info="appInfo"
               :face-lib="faceLib"
@@ -51,9 +55,8 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BasicAppInfo from '@/views/AI/AppList/component/BasicAppInfo.vue'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
 import AtachedDevice from './AtachedDevice.vue'
-import { getAttachedDevice } from '@/api/ai-app'
 
-import { describeIboxApp } from '@/api/ibox'
+import { describeIboxApp, getDeviceList } from '@/api/ibox'
 // import { getDeviceTree } from '@/api/device'
 // import { getGroups } from '@/api/group'
 import AppMixin from '@/views/AI/mixin/app-mixin'
@@ -80,18 +83,13 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 
   private async mounted() {
     const appId = this.$route.query.appid || this.appDetailId
-
     const { iboxApp }: any = await describeIboxApp({
       appId,
       iboxId: this.$route.query.deviceId
     })
     this.appInfo = iboxApp
-    const { deviceList } = await getAttachedDevice({
-      appId,
-      pageSize: 3000
-    })
-    this.deviceList = deviceList
-    deviceList.length > 0 && (this.device = deviceList[0])
+    await this.getAttachedDevice()
+    this.deviceList.length > 0 && (this.device = this.deviceList[0])
   }
 
   public changeWidthStartAndResize(ev) {
@@ -102,106 +100,54 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     window.dispatchEvent(e)
   }
 
-  /**
-   * 初始化设备列表
-   */
-  // public async initDirs() {
-  //   try {
-  //     this.loading.dir = true
-  //     const res = await getGroups({
-  //       pageSize: 1000
-  //     })
-  //     this.dirList = []
-  //     res.groups.forEach((group: any) => {
-  //       (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-  //         this.dirList.push({
-  //           id: group.groupId,
-  //           groupId: group.groupId,
-  //           label: group.groupName,
-  //           inProtocol: group.inProtocol,
-  //           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-  //           disabled: true,
-  //           path: [{
-  //             id: group.groupId,
-  //             label: group.groupName,
-  //             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-  //           }],
-  //           deviceStatus: group.deviceStatus
-  //         })
-  //       )
-  //     })
-  //   } catch (e) {
-  //     this.dirList = []
-  //   } finally {
-  //     this.loading.dir = false
-  //   }
-  // }
+  private async getAttachedDevice() {
+    const deviceIds = JSON.parse(this.appInfo.deviceIds)
+    const param = {
+      ParentDeviceId: this.$route.query.deviceId,
+      pageNum: 1,
+      pageSize: 9999
+    }
 
-  /**
-   * 展开设备列表时Load子树
-   */
-  // public async loadDirs(node: any, resolve: Function) {
-  //   if (node.level === 0) return resolve([])
-  //   const dirs = await this.getTree(node)
-  //   resolve(dirs)
-  // }
+    try {
+      let channels = []
+      const iboxId = this.$route.query.deviceId
+      const { devices }: any = await getDeviceList(param)
+      const _devices = devices.map((device) => {
+        if (device.device.deviceType === 'nvr') {
+          const deviceChannels = device.device.deviceChannels.map(
+            (channel) => ({
+              ...channel,
+              deviceDir:
+                iboxId + ',' + device.device.deviceId + ',' + channel.deviceId,
+              path: [device.device, channel]
+            })
+          )
+          channels.push(...deviceChannels)
 
-  /**
-   * 获取设备列表时Load子树数据
-   */
-  // private async getTree(node: any) {
-  //   try {
-  //     if (node.data.type === 'role') {
-  //       node.data.roleId = node.data.id
-  //     } else if (node.data.type === 'group') {
-  //       node.data.realGroupId = node.data.id
-  //       node.data.realGroupInProtocol = node.data.inProtocol
-  //     }
-  //     const devices: any = await getDeviceTree({
-  //       groupId: node.data.groupId,
-  //       id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
-  //       inProtocol: node.data.inProtocol,
-  //       type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
-  //       'self-defined-headers': {
-  //         'role-id': node.data.roleId,
-  //         'real-group-id': node.data.realGroupId
-  //       }
-  //     })
-  //     if (node.data.type === 'role') {
-  //       devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
-  //     }
-  //     let dirs: any = devices.dirs.map((dir: any) => {
-  //       let sharedFlag = false
-  //       return {
-  //         id: dir.id,
-  //         groupId: node.data.groupId,
-  //         label: dir.label,
-  //         inProtocol: dir.inProtocol || node.data.inProtocol,
-  //         isLeaf: dir.isLeaf,
-  //         type: dir.type,
-  //         disabled: dir.type !== 'ipc' || sharedFlag,
-  //         path: node.data.path.concat([dir]),
-  //         sharedFlag: sharedFlag,
-  //         roleId: node.data.roleId || '',
-  //         realGroupId: node.data.realGroupId || '',
-  //         realGroupInProtocol: node.data.realGroupInProtocol || '',
-  //         deviceStatus: dir.deviceStatus || ''
-  //       }
-  //     })
-  //     return dirs
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
-
-  /**
-   * 获取设备列表时Load子树数据
-   */
-  // private selectDevice(data: any) {
-  //   data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
-  //   const dirTree: any = this.$refs.dirTree
-  //   dirTree.setCurrentKey(data.id)
-  // }
+          return {
+            ...device.device,
+            deviceStatus:
+              device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
+            deviceDir: iboxId + ',' + device.device.deviceId,
+            path: [device.device]
+          }
+        }
+        return {
+          ...device.device,
+          deviceStatus:
+            device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
+          deviceDir: iboxId + ',' + device.device.deviceId,
+          path: [device.device]
+        }
+      })
+      _devices.push(...channels)
+      this.deviceList = _devices.filter((device) =>
+        deviceIds.find((id) => id === device.deviceId)
+      )
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   private handleTabClick() {
     // resize 为了让图表触发刷新从而自适应尺寸

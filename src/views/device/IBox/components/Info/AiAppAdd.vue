@@ -1,13 +1,19 @@
 <template>
   <div class="app-container">
-    <div class="process">
+    <div v-if="!isIboxEdit" class="process">
       <el-steps :active="step" simple>
-        <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
-        <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
-        <el-step title="选择分析设备"><span slot="icon">3</span></el-step>
+        <el-step title="选择AI算法">
+          <span slot="icon">1</span>
+        </el-step>
+        <el-step title="创建AI应用">
+          <span slot="icon">2</span>
+        </el-step>
+        <el-step title="选择分析设备">
+          <span slot="icon">3</span>
+        </el-step>
       </el-steps>
     </div>
-    <div v-if="!step">
+    <div v-if="step === 0" :key="0">
       <AlgoOption
         :step.sync="step"
         :prod.sync="prod"
@@ -15,17 +21,19 @@
         @back="backToList"
       />
     </div>
-    <div v-if="step === 1">
+    <div v-else-if="step === 1" :key="1">
       <AlgoDetail
         :step.sync="step"
         :prod.sync="prod"
         :is-select-device="true"
         :algo-param.sync="algoParam"
         :algo-param-submit.sync="algoParamSubmit"
+        :is-ibox-edit="isIboxEdit"
+        @submit="onSubmit"
         @back="backToList"
       />
     </div>
-    <div v-if="step === 2">
+    <div v-else-if="step === 2" :key="2">
       <AlgoDevice
         :step.sync="step"
         :prod.sync="prod"
@@ -55,7 +63,8 @@ import { createIboxApp, updateIboxApp } from '@/api/ibox'
 export default class extends Mixins(AppMixin) {
   @Inject('appInfo')
   public appInfo!: any
-  @Prop({}) initialStep!: any
+  @Prop({}) initialStep!: number
+  @Prop({}) isIboxEdit!: boolean
   private step: number = 0
   public prod: any = {} // 新建时传入组件的参数
   private isLoading: boolean = false
@@ -66,9 +75,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private mounted() {
-    if (this.initialStep) {
-      this.step = this.initialStep
-    }
+    this.step = this.initialStep
   }
 
   private async onSubmit(treeParam) {
@@ -123,8 +130,7 @@ export default class extends Mixins(AppMixin) {
 
 .process {
   margin-bottom: 20px;
-  padding: 20px 0 5px;
-  border-top: 1px solid $borderGrey2;
+  padding: 5px 0;
 
   .el-steps--simple {
     width: 575px;

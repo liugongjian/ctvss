@@ -1,14 +1,22 @@
 <template>
   <div class="ibox-container">
     <el-card calss="ibox-container__wrap">
-      <div ref="deviceRef" :style="`height:${height}px`" class="ibox-container__tree-box">
+      <div
+        ref="deviceRef"
+        :style="`height:${height}px`"
+        class="ibox-container__tree-box"
+      >
         <div class="ibox-container__left" :style="`width: ${dirDrag.width}px`">
           <div>
             <el-button class="ibox-container__expand" @click="toggledirList">
               <svg-icon name="hamburger" />
             </el-button>
           </div>
-          <div ref="dirList" class="ibox-container__tree-content" :style="`width: ${dirDrag.width}px`">
+          <div
+            ref="dirList"
+            class="ibox-container__tree-content"
+            :style="`width: ${dirDrag.width}px`"
+          >
             <el-tree
               ref="dirTree"
               :data="dirList"
@@ -22,13 +30,17 @@
               highlight-current
               @node-click="handleNodeClick"
             >
-              <span slot-scope="{node,data}">
-                <span>{{ getSum(node,data) }}</span>
+              <span slot-scope="{node, data}">
+                <span>{{ getSum(node, data) }}</span>
               </span>
             </el-tree>
           </div>
         </div>
-        <div class="ibox-container__handle" :style="`left: ${dirDrag.width}px`" @mousedown="changeWidthStart($event)" />
+        <div
+          class="ibox-container__handle"
+          :style="`left: ${dirDrag.width}px`"
+          @mousedown="changeWidthStart($event)"
+        />
         <div class="ibox-container__right">
           <div class="breadcrumb">
             <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
@@ -41,8 +53,11 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="ibox-container__list" :style="{height: `${height - 40}px`}">
-            <router-view />
+          <div
+            class="ibox-container__list"
+            :style="{height: `${height - 40}px`}"
+          >
+            <router-view :key="$route.fullPath" />
           </div>
         </div>
       </div>
@@ -57,13 +72,11 @@ import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
   name: 'IBox',
-  components: {
-  }
+  components: {}
 })
-
 export default class IBox extends Vue {
   public loading = {
-    'dirTree': false,
+    dirTree: false,
     iboxTable: false
   }
   public isExpanded = true
@@ -184,14 +197,17 @@ export default class IBox extends Vue {
 
   // 获取ibox目录
   public async getDirList() {
-    const { query } = (this.$route) as any
-    const { deviceId = '', type = 'rootlist' }: { deviceId: string, type: string } = query
+    const { query } = this.$route as any
+    const {
+      deviceId = '',
+      type = 'rootlist'
+    }: { deviceId: string; type: string } = query
 
     await IBoxModule.ResetBreadcrumb()
 
     const param = {
       pageNum: 1,
-      pageSize: 9999// 第一次请求，为了获取目录，传入9999
+      pageSize: 9999 // 第一次请求，为了获取目录，传入9999
     }
     try {
       this.loading.dirTree = true
@@ -270,29 +286,31 @@ export default class IBox extends Vue {
 
   // 组合数据
   public iboxDeviceData(data: any) {
-    return data && data.length ? data.map((item: any) => {
-      if (item.device.deviceType === 'nvr') {
-        return {
-          isLeaf: false,
-          deviceType: 'nvr',
-          label: item.device.deviceName,
-          id: item.device.deviceId,
-          ...item.device,
-          ...item.industry,
-          ...item
+    return data && data.length
+      ? data.map((item: any) => {
+        if (item.device.deviceType === 'nvr') {
+          return {
+            isLeaf: false,
+            deviceType: 'nvr',
+            label: item.device.deviceName,
+            id: item.device.deviceId,
+            ...item.device,
+            ...item.industry,
+            ...item
+          }
+        } else if (item.device.deviceType === 'ipc') {
+          return {
+            isLeaf: true,
+            deviceType: 'ipc',
+            label: item.device.deviceName,
+            id: item.device.deviceId,
+            ...item.device,
+            ...item.industry,
+            ...item
+          }
         }
-      } else if (item.device.deviceType === 'ipc') {
-        return {
-          isLeaf: true,
-          deviceType: 'ipc',
-          label: item.device.deviceName,
-          id: item.device.deviceId,
-          ...item.device,
-          ...item.industry,
-          ...item
-        }
-      }
-    }) : []
+      })
+      : []
   }
 
   // 加载子目录
@@ -302,7 +320,7 @@ export default class IBox extends Vue {
       const param = {
         ParentDeviceId: key,
         pageNum: 1,
-        pageSize: 9999// 第一次请求，为了获取目录，传入9999
+        pageSize: 9999 // 第一次请求，为了获取目录，传入9999
       }
       const res = await getDeviceList(param)
       // if (data.dirs) {
@@ -331,7 +349,11 @@ export default class IBox extends Vue {
 
   public setDirsStreamStatus(dirs: any) {
     return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
+      if (
+        !dir.streamStatus &&
+        dir.deviceStreams &&
+        dir.deviceStreams.length > 0
+      ) {
         const hasOnline = dir.deviceStreams.some((stream: any) => {
           return stream.streamStatus === 'on'
         })
@@ -349,8 +371,8 @@ export default class IBox extends Vue {
       isLeaf: true,
       label: item.deviceName,
       id: item.deviceId,
-      ...item })
-    )
+      ...item
+    }))
     return iboxNvr
   }
 
@@ -379,7 +401,11 @@ export default class IBox extends Vue {
     }
   }
 
-  public setListInfo(type: string = 'rootlist', data: any = [], deviceId: string) {
+  public setListInfo(
+    type: string = 'rootlist',
+    data: any = [],
+    deviceId: string
+  ) {
     const listInfo = {
       type,
       data
@@ -397,7 +423,9 @@ export default class IBox extends Vue {
       query = { type }
     }
 
-    const path = this.breadcrumb.map((item: any) => item.deviceId).join(',') || this.$route.query.path
+    const path =
+      this.breadcrumb.map((item: any) => item.deviceId).join(',') ||
+      this.$route.query.path
 
     if (path) {
       router = {
@@ -415,7 +443,9 @@ export default class IBox extends Vue {
       }
     }
 
-    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) {
+      return
+    }
     this.$router.push(router)
   }
 
@@ -478,6 +508,7 @@ export default class IBox extends Vue {
   }
 
   // 获取目录菜单路径
+  @Provide('getDirPath')
   public getDirPath(node: any) {
     let path: any = []
     const _getPath = (node: any, path: any) => {

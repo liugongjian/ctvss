@@ -432,13 +432,24 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStepPrev">
+        <el-button
+          v-if="!$route.query.id && !isIboxEdit"
+          @click="changeStepPrev"
+        >
           上一步
         </el-button>
-        <el-button v-if="!isSelectDevice" type="primary" @click="onSubmit">
+        <el-button
+          v-if="!isSelectDevice || isIboxEdit"
+          type="primary"
+          @click="onSubmit"
+        >
           确定
         </el-button>
-        <el-button v-if="isSelectDevice" type="primary" @click="changeStepNext">
+        <el-button
+          v-if="isSelectDevice && !isIboxEdit"
+          type="primary"
+          @click="changeStepNext"
+        >
           下一步
         </el-button>
         <el-button @click="cancel">取消</el-button>
@@ -465,6 +476,7 @@ export default class extends Mixins(AppMixin) {
   @Prop({ default: false }) public isSelectDevice!: boolean
   @Prop() public algoParam!: any
   @Prop() public algoParamSubmit!: any
+  @Prop({ default: false }) public isIboxEdit!: boolean
 
   @Inject('appInfo')
   public appInfo!: any
@@ -500,7 +512,6 @@ export default class extends Mixins(AppMixin) {
   private async mounted() {
     if (this.$route.query.id || this.appInfo()) {
       // 编辑
-      debugger
       if (this.$route.query.id) {
         const id = this.$route.query.id
         this.form = await getAppInfo({ id })
@@ -514,7 +525,6 @@ export default class extends Mixins(AppMixin) {
         this.form = iboxApp
         this.$set(this.form, 'algoName', this.form.algorithmName)
         this.$set(this.form, 'algorithmMetadata', this.form.algoConf)
-        console.log('this.form:', this.form)
       }
 
       if (this.form.callbackKey.length === 0) {
@@ -582,11 +592,13 @@ export default class extends Mixins(AppMixin) {
       }
     }
     try {
-      const { data } = await listGroup({
-        pageNum: 0,
-        pageSize: 3000
-      })
-      this.faceLibs = data
+      if (this.ifShow('10001', '10034')) {
+        const { data } = await listGroup({
+          pageNum: 0,
+          pageSize: 3000
+        })
+        this.faceLibs = data
+      }
     } catch (e) {
       this.$alertError(e && e.message)
     }
@@ -699,11 +711,21 @@ export default class extends Mixins(AppMixin) {
     const form: any = this.$refs.appForm
     form.validate(async(valid: any) => {
       if (valid) {
-        this.submitValidAppInfo()
+        this.isIboxEdit ? this.editIboxApp() : this.submitValidAppInfo()
       }
     })
   }
 
+  private editIboxApp() {
+    let param: any = this.generateAlgoParam()
+    const appInfo = this.appInfo()
+    param = {
+      ...param,
+      algorithmsId: this.prod.id || appInfo.algorithmId
+    }
+    this.$emit('update:algo-param-submit', param)
+    this.$emit('submit', {})
+  }
   /**
    * 提交
    */

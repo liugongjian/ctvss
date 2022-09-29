@@ -4,7 +4,7 @@
       <div class="filter-container">
         <el-button type="primary" @click="addApp">添加AI应用</el-button>
       </div>
-      <el-table :data="tableData">
+      <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="算法名" />
         <el-table-column prop="description" label="描述" />
         <el-table-column prop="analyseType" label="分析类型">
@@ -49,7 +49,12 @@
       :app-detail-id="appDetailId"
       @back="backToList"
     />
-    <ai-app-add v-if="step > -1" :initial-step="step" @back="backToList" />
+    <ai-app-add
+      v-if="step > -1"
+      :initial-step="step"
+      :is-ibox-edit="isIboxEdit"
+      @back="backToList"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -73,8 +78,15 @@ export default class AiAppList extends Vue {
   private isAppDetail: boolean = false
   private pager = {
     pageSize: 20,
-    pageNum: 1
+    pageNum: 1,
+    totalNum: 0
   }
+
+  private loading = {
+    table: false
+  }
+
+  private isIboxEdit = false
   private appDetailId = ''
   private ResourceAiType = ResourceAiType
 
@@ -90,14 +102,22 @@ export default class AiAppList extends Vue {
   }
 
   private async getAppList() {
+    this.loading.table = true
     const iboxId: any = this.$route.query.deviceId
-    const { iboxApps }: any = await describeIboxApps({ ...this.pager, iboxId })
+    const { iboxApps, pageNum, pageSize, totalNum }: any =
+      await describeIboxApps({
+        ...this.pager,
+        iboxId
+      })
+    this.pager = { pageSize, pageNum, totalNum }
     this.tableData = iboxApps
+    this.loading.table = false
   }
 
   private handleMore(command) {
     switch (command.type) {
       case 1:
+        this.isIboxEdit = true
         this.step = 1
         this.app = command.app
         break
@@ -133,9 +153,15 @@ export default class AiAppList extends Vue {
   }
 
   private backToList() {
+    this.getAppList()
+    this.resetStatus()
+  }
+
+  private resetStatus() {
     this.step = -1
     this.isAppDetail = false
-    this.getAppList()
+    this.isIboxEdit = false
+    this.app = undefined
   }
 
   private addApp() {

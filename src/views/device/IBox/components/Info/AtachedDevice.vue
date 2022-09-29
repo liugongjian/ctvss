@@ -84,8 +84,8 @@
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getAiAlarm } from '@/api/ai-app'
-import { getDeviceList } from '@/api/ibox'
 import AppMixin from '@/views/AI/mixin/app-mixin'
+import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
   name: 'AtachedDevice',
@@ -93,14 +93,15 @@ import AppMixin from '@/views/AI/mixin/app-mixin'
 })
 export default class extends Mixins(AppMixin) {
   @Prop({}) public appInfo!: any
-  @Inject('handleNodeClick') public handleNodeClick!: any
+  @Prop({ default: [] }) private devices!: any
+  @Inject('getDirPath') public getDirPath!: any
   private pager = {
     pageNum: 1,
     pageSize: 10,
     totalNum: 0
   }
   private loading = false
-  private devices: any = []
+
   private totalAlarm = 0
   private groups = []
 
@@ -129,66 +130,21 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
-    // this.loading = true
-    await this.getAttachedDevice()
-    // this.getAlarms()
-    // this.loading = false
-  }
-
-  private async getAttachedDevice() {
-    const deviceIds = JSON.parse(this.appInfo.deviceIds)
-    const param = {
-      ParentDeviceId: this.$route.query.deviceId,
-      pageNum: 1,
-      pageSize: 9999
-    }
-
+    this.loading = true
     try {
-      let channels = []
-      const iboxId = this.$route.query.deviceId
-      const { devices }: any = await getDeviceList(param)
-      debugger
-      const _devices = devices.map((device) => {
-        if (device.device.deviceType === 'nvr') {
-          const deviceChannels = device.device.deviceChannels.map(
-            (channel) => ({
-              ...channel,
-              deviceDir:
-                iboxId + ',' + device.device.deviceId + ',' + channel.deviceId
-            })
-          )
-          channels.push(...deviceChannels)
-
-          return {
-            ...device.device,
-            deviceStatus:
-              device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
-            deviceDir: iboxId + ',' + device.device.deviceId
-          }
-        }
-        return {
-          ...device.device,
-          deviceStatus:
-            device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
-          deviceDir: iboxId + ',' + device.device.deviceId
-        }
-      })
-      _devices.push(...channels)
-      this.devices = _devices.filter((device) =>
-        deviceIds.find((id) => id === device.deviceId)
-      )
+      await this.getAlarms()
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading = false
     }
-    // this.devices = deviceList
-    // this.pager.pageNum = pageNum
-    // this.pager.pageSize = pageSize
-    // this.pager.totalNum = totalNum
   }
 
   private rowClick(row: any) {
-    console.log()
-    this.$router.replace({
+    IBoxModule.SetBreadcrumb([
+      { deviceId: row.deviceId, label: '设备1', type: undefined }
+    ])
+    this.$router.push({
       name: 'IBoxDeviceDetail',
       query: {
         path: row.deviceDir,
@@ -196,27 +152,25 @@ export default class extends Mixins(AppMixin) {
         type: 'ipc'
       }
     })
+
     // this.handleNodeClick({ device: row.deviceId })
   }
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getAttachedDevice()
-    this.getAlarms()
+    await this.getAlarms()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getAttachedDevice()
     this.getAlarms()
   }
 
   public async getAlarms() {
-    this.loading = true
     this.alarms = []
-    this.getAlarm(this.$route.query.appid, null, this.period.period)
+    this.getAlarm(this.appInfo.appId, null, this.period.period)
     const promiseArray = this.devices.map((item) =>
-      this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period)
+      this.getAlarm(this.appInfo.appId, item.deviceId, this.period.period)
     )
     await Promise.all(promiseArray)
     this.devices = this.devices.map((device) => {
@@ -225,7 +179,6 @@ export default class extends Mixins(AppMixin) {
       )
       return { ...device, count: result[0].count }
     })
-    this.loading = false
   }
 
   public async getAlarm(appId, deviceId, period) {

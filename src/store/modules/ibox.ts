@@ -23,9 +23,19 @@ class IBox extends VuexModule implements IIBoxState {
     this.breadcrumb = payload
   }
 
+  @Mutation
+  public GET_BREADCRUMB() {
+    return this.breadcrumb
+  }
+
   @Action
   public SetBreadcrumb(payload: any) {
     this.SET_BREADCRUMB(payload)
+  }
+
+  @Action
+  public GetBreadcrumb() {
+    return this.GET_BREADCRUMB()
   }
 
   @Action

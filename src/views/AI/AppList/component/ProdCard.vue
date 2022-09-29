@@ -7,23 +7,37 @@
       <div class="prod__name">{{ prod.name }}</div>
       <div class="prod__desc">{{ prod.summary }}</div>
       <div class="prod__buttons">
-        <el-button v-if="!isIbox || prod.isLoaded" type="primary" class="prod__buttons--select" @click="onChooseProd">选择</el-button>
-        <el-button v-if="isIbox && !prod.isLoaded" type="primary" class="prod__buttons--select" :disabled="true" @click="onChooseProd">下发</el-button>
+        <el-button
+          v-if="!prod.isIbox || prod.isLoaded"
+          type="primary"
+          class="prod__buttons--select"
+          @click="onChooseProd"
+        >
+          选择
+        </el-button>
+        <el-button
+          v-if="prod.isIbox && !prod.isLoaded"
+          type="primary"
+          class="prod__buttons--select"
+          :disabled="true"
+          @click="onChooseProd"
+        >
+          下发
+        </el-button>
         <!-- <el-button type="text" class="ml10">查看算法介绍</el-button> -->
       </div>
     </div>
-    <div v-if="isIbox && !prod.isLoaded" class="badge-wrapper">
+    <div v-if="prod.isIbox && !prod.isLoaded" class="badge-wrapper">
       <el-image :src="require(`../../assets/icon/badge.png`)" />
     </div>
   </el-card>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 
 @Component({
   name: 'ProdCard',
-  components: {
-  }
+  components: {}
 })
 export default class extends Vue {
   @Prop() private prod!: any
@@ -32,11 +46,14 @@ export default class extends Vue {
 
   private onChooseProd() {
     console.log('prod:', this.prod)
-    this.$emit('changeStep', { step: this.step + (this.direction === 'next' ? 1 : -1), prod: this.prod })
+    this.$emit('changeStep', {
+      step: this.step + (this.direction === 'next' ? 1 : -1),
+      prod: this.prod
+    })
   }
 }
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .el-card {
   position: relative;
 

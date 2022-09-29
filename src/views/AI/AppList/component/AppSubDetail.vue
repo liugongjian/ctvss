@@ -25,7 +25,11 @@
 
       <div class="query-wrapper">
         <span>截图时间：
-          <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
+          <el-radio-group
+            v-model="queryParam.periodType"
+            size="medium"
+            @change="handleChange"
+          >
             <el-radio-button label="今天" />
             <el-radio-button label="近3天" />
             <el-radio-button label="自定义时间" />
@@ -53,9 +57,13 @@
         </span>
         <span>间隔频率：
           <div class="time-interval">
-            <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
+            <el-select
+              v-model="queryParam.resultTimeInterval"
+              placeholder="请选择"
+              @change="handleChange"
+            >
               <el-option
-                v-for="(value,key) in timeInterval"
+                v-for="(value, key) in timeInterval"
                 :key="value"
                 :label="key"
                 :value="value"
@@ -64,10 +72,17 @@
           </div>
         </span>
         <span>
-          <el-button class="el-button-rect" :disabled="dataLoading" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <el-button
+            class="el-button-rect"
+            :disabled="dataLoading"
+            @click="refresh"
+          ><svg-icon name="refresh" /></el-button>
         </span>
       </div>
-      <div v-if="isGatheringCode && !queryLoading.peopleChart" class="chart-wrapper">
+      <div
+        v-if="isGatheringCode && !queryLoading.peopleChart"
+        class="chart-wrapper"
+      >
         <div class="title">
           <div class="title-block" />
           <span>人员聚集趋势</span>
@@ -81,7 +96,10 @@
         />
       </div>
 
-      <div v-if="!queryLoading.carChart && isCarFlowCode" class="chart-wrapper car-spec">
+      <div
+        v-if="!queryLoading.carChart && isCarFlowCode"
+        class="chart-wrapper car-spec"
+      >
         <div class="title">
           <div class="title-block" />
           <span>车流量统计结果</span>
@@ -94,7 +112,10 @@
           :app-info="appInfo"
         />
       </div>
-      <div v-if="!queryLoading.carAlarmTable && isCarFlowCode" class="table-wrapper">
+      <div
+        v-if="!queryLoading.carAlarmTable && isCarFlowCode"
+        class="table-wrapper"
+      >
         <div class="title">
           <div class="title-block" />
           <span>告警列表</span>
@@ -112,7 +133,7 @@
           <el-table-column prop="AlarmTime" label="时间" align="center" />
         </el-table>
         <div v-else class="no-data">暂无数据</div>
-      <!-- <el-pagination
+        <!-- <el-pagination
           :current-page="chartPager.pageNum"
           :page-size="chartPager.pageSize"
           :total="chartPager.totalNum"
@@ -126,7 +147,14 @@
           <div class="title-block" />
           <span>视频截图</span>
         </div>
-        <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
+        <div
+          v-if="
+            device.deviceId.length > 0 &&
+              picInfos.length > 0 &&
+              !queryLoading.pic
+          "
+          class="card-wrapper"
+        >
           <PicCard
             v-for="(pic, index) in picInfos"
             :key="index"
@@ -135,11 +163,13 @@
             @showDialogue="showDialogue"
           />
         </div>
-        <div v-else class="no-data">{{ device ? '暂无数据' : '请选择设备' }}</div>
+        <div v-else class="no-data">
+          {{ device ? '暂无数据' : '请选择设备' }}
+        </div>
         <el-pagination
           :current-page="pager.pageNum"
           :page-size="pager.pageSize"
-          :page-sizes="[12,24,36,48,60]"
+          :page-sizes="[12, 24, 36, 48, 60]"
           :total="pager.totalNum"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
@@ -153,13 +183,36 @@
         :custom-class="`light-ai-image-fullscreen`"
         @close="dialogueOprate"
       >
-        <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
-        <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
-          <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
-            <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
-            <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+        <div slot="title">
+          {{ dialoguePic && dialoguePic.deviceName }} |
+          {{ dialoguePic && dialoguePic.time }}
+        </div>
+        <div
+          class="ai-recognation__images__item__wrap ai-image-fullscreen__img"
+        >
+          <div
+            class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap"
+          >
+            <img
+              v-if="dialoguePic"
+              ref="dialogue"
+              :src="dialoguePic.image"
+              @load="onload"
+            >
+            <Locations
+              :type="appInfo.algorithm.code"
+              :img="dialoguePic"
+              :clickable="true"
+              @click-location="onLocationChanged"
+            />
           </div>
-          <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+          <Attributes
+            v-if="appInfo.algorithm.code === '10009'"
+            class="ai-image-fullscreen__img--attributes"
+            :type="appInfo.algorithm.code"
+            :img="dialoguePic"
+            :attributes-index="currentLocationIndex"
+          />
         </div>
       </el-dialog>
     </div>
@@ -217,7 +270,10 @@ export default class extends Vue {
   private breadCrumbContent: String = '应用详情'
   private queryParam: any = {
     periodType: '今天',
-    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+    period: [
+      new Date().setHours(0, 0, 0, 0),
+      new Date().setHours(23, 59, 59, 999)
+    ],
     confidence: [0, 100],
     faceSelected: [],
     resultTimeInterval: 1
@@ -227,15 +283,19 @@ export default class extends Vue {
   private alarms: any = []
   // 防抖
   private debounceHandle = debounce(() => {
-    Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
+    Object.keys(this.queryLoading).forEach((key) => {
+      this.queryLoading[key] = true
+    })
     this.getScreenShot()
     this.isCarFlowCode && this.getAlarmsList()
-    Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
+    Object.keys(this.queryLoading).forEach((key) => {
+      this.queryLoading[key] = false
+    })
   }, 500)
 
   get dataLoading() {
     let loading = false
-    Object.keys(this.queryLoading).forEach(key => {
+    Object.keys(this.queryLoading).forEach((key) => {
       if (this.queryLoading[key]) {
         loading = true
       }
@@ -247,13 +307,22 @@ export default class extends Vue {
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [
+          new Date().setHours(0, 0, 0, 0),
+          new Date().setHours(23, 59, 59, 999)
+        ])
         break
       case '近3天':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [
+          this.getDateBefore(2),
+          new Date().setHours(23, 59, 59, 999)
+        ])
         break
       case '自定义时间':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [
+          this.getDateBefore(6),
+          new Date().setHours(23, 59, 59, 999)
+        ])
         break
     }
   }
@@ -286,8 +355,8 @@ export default class extends Vue {
   }
 
   /**
-     * 得到N天前的时间戳
-     */
+   * 得到N天前的时间戳
+   */
   private getDateBefore(dayCount) {
     let dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
@@ -296,8 +365,8 @@ export default class extends Vue {
   }
 
   /**
-     * 请求截屏数据
-     */
+   * 请求截屏数据
+   */
   private async getScreenShot() {
     this.picInfos = []
     const [startTime, endTime] = this.queryParam.period
@@ -316,7 +385,8 @@ export default class extends Vue {
       deviceId,
       inProtocol,
       pageNum,
-      pageSize }
+      pageSize
+    }
     try {
       this.queryLoading.pic = true
       const res = await getAppScreenShot(query)
@@ -344,47 +414,51 @@ export default class extends Vue {
   }
 
   /**
-     * 初始化人脸选项图片
-     */
+   * 初始化人脸选项图片
+   */
   private async initFaceInfos() {
     if (this.appInfo.algorithmMetadata.length > 0) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
       if (algorithmMetadata.FaceDbName) {
-        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
-        this.faceInfos = faces.map(face => {
+        const { faces }: any = await getGroupPersonAlready({
+          id: algorithmMetadata.FaceDbName
+        })
+        this.faceInfos = faces.map((face) => {
           return { ...face, labels: JSON.parse(face.labels) }
         })
       }
     }
   }
   /**
-     * 拦截所有操作，并防抖发起查询请求
-     */
+   * 拦截所有操作，并防抖发起查询请求
+   */
   private handleChange() {
     if (this.device.deviceId.length > 0) {
-      (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
+      (this.queryParam.periodType !== '自定义时间' ||
+        this.queryParam.period.length !== 0) &&
+        this.debounceHandle()
     } else {
       this.$message.error('请先选择设备')
     }
   }
   /**
-     * 分页操作
-     */
+   * 分页操作
+   */
   private handleSizeChange(val: number) {
     this.pager.pageSize = val
     this.getScreenShot()
   }
   /**
-     * 分页操作
-     */
+   * 分页操作
+   */
   private handleCurrentChange(val: number) {
     this.pager.pageNum = val
     this.getScreenShot()
   }
 
   /**
-     * 分页操作
-     */
+   * 分页操作
+   */
   private handleChartTableCurrentChange(val: number) {
     this.chartPager.pageNum = val
   }
@@ -400,7 +474,10 @@ export default class extends Vue {
     const metaData = JSON.parse(this.dialoguePic.metadata)
     const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
     const img = this.$refs.dialogue
-    this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
+    this.dialoguePic = {
+      ...this.dialoguePic,
+      locations: transformLocationAi(locations, img)
+    }
   }
   private onLocationChanged(index: number) {
     this.currentLocationIndex = index
@@ -411,7 +488,7 @@ export default class extends Vue {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .face-filter {
   margin-bottom: 20px;
 
@@ -522,6 +599,7 @@ export default class extends Vue {
 .title {
   height: 50px;
   vertical-align: middle;
+  border-left: none !important;
 
   & > div {
     // display: inline-block;
