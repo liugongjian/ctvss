@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="certificate-ibox__info">
-        <span class="certificate-ibox__info-text">自动拉流</span>
+        <span class="certificate-ibox__info-text">接入凭证</span>
         <el-popover
           placement="top-start"
           width="400"
@@ -10,7 +10,10 @@
           :open-delay="300"
           content="请在iBox的接入配置里填写接入凭证码，盒子将自动接入当前登录账号下"
         >
-          <svg-icon slot="reference" class="form-question" name="help" />
+          <!-- <svg-icon
+            slot="reference" class="form-question" name="warning"
+          /> -->
+          <i slot="reference" class="el-icon-warning form-question" />
         </el-popover>
       </div>
       <div class="certificate-ibox__number">

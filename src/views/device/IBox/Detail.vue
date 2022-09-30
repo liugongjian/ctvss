@@ -5,11 +5,11 @@
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
           <el-tab-pane label="基本信息" name="IBoxDeviceInfo" />
-          <el-tab-pane label="配置信息" name="IBoxDeviceConfig" />
-          <el-tab-pane label="设备事件" name="IBoxDeviceEvents" />
           <el-tab-pane label="实时预览" name="IBoxDevicePreview" />
-          <el-tab-pane label="AI分析" name="IBoxDeviceAi" />
+          <!-- <el-tab-pane label="设备事件" name="IBoxDeviceEvents" /> -->
           <el-tab-pane label="AI配置" name="IBoxDeviceAiConfig" />
+          <el-tab-pane label="AI分析" name="IBoxDeviceAi" />
+          <el-tab-pane label="其他配置" name="IBoxDeviceConfig" />
         </el-tabs>
       </div>
       <div class="detail-wrap__body">

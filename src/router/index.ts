@@ -235,7 +235,7 @@ export const asyncRoutes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
             name: 'device-list',
             meta: {
-              title: '设备列表',
+              title: '通用设备列表',
               icon: 'dot',
               breadcrumb: false,
               perms: ['DescribeDevice'],
@@ -393,7 +393,8 @@ export const asyncRoutes: RouteConfig[] = [
                 component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceConfig/index.vue'),
                 name: 'IBoxDeviceConfig',
                 props: {
-                  getDeviceApi: getDeviceDetail
+                  getDeviceApi: getDeviceDetail,
+                  isIbox: true
                 },
                 meta: {
                   title: '配置信息',
