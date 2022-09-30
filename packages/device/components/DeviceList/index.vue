@@ -2,7 +2,7 @@
   <div class="device-container">
     <div class="list-wrap">
       <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
-        <info-list label-width="80">
+        <info-list v-loading="loading.info" label-width="80">
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.PlatformName)" label="平台名称:">{{ basicInfo.deviceName }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
@@ -328,6 +328,7 @@ export default class extends Mixins(deviceMixin) {
   private streamStatus = StreamStatus
   private recordStatus = RecordStatus
   private viidStatus = ViidStatus
+  private dicts = dicts
 
   private deviceList: Array<Device> = []
   private selectedDeviceList: Array<Device> = []
@@ -349,6 +350,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private loading = {
+    info: false,
     export: false,
     table: false,
     syncDevice: false,
@@ -441,6 +443,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get currentDirId() {
+    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
     return this.$route.query.dirId as string
   }
 
@@ -476,7 +479,9 @@ export default class extends Mixins(deviceMixin) {
    */
   private async initList() {
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
+      this.loading.info = true
       await this.getDevice(this.currentDirId)
+      this.loading.info = false
       console.log('deviceInfo', this.device)
     }
     this.initTable()
@@ -497,9 +502,9 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.PageSize]: this.pager.pageSize
     }
     if (this.currentDirType === DirectoryTypeEnum.Nvr) {
-      params[DeviceEnum.ParentDeviceId] = 3
+      params[DeviceEnum.ParentDeviceId] = this.currentDirId
     } else {
-      params[DeviceEnum.DirId] = 3
+      params[DeviceEnum.DirId] = this.currentDirId
     }
     const res: any = await this.getDevicesApi(params)
     console.log(params)

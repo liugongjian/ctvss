@@ -177,6 +177,7 @@ type Device = {
 type DeviceBasicForm = DeviceBasic &
   Industry & {
     [DeviceEnum.ParentDeviceId]?: string
+    [DeviceEnum.DirId]?: string
     [DeviceEnum.InNetworkType]?: string
     [DeviceEnum.OutNetworkType]?: string
     [DeviceEnum.Region]?: string

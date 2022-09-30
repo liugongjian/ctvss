@@ -325,13 +325,10 @@ export default class extends Mixins(deviceFormMixin) {
     return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
   }
 
-  // private get industryMap() {
-  //   return DeviceModule.getIndutryList(getIndustryList)
-  // }
-
-  // private get networkMap() {
-  //   return DeviceModule.getNetworkList()
-  // }
+  private get currentDirId() {
+    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
+    return this.$route.query.dirId as string
+  }
 
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
@@ -475,8 +472,10 @@ export default class extends Mixins(deviceFormMixin) {
           ...pick(this.videoForm, [
             DeviceEnum.DeviceChannelSize
           ]),
+          // 父级dirId
+          [DeviceEnum.DirId]: this.currentDirId,
           // 父级设备ID
-          parentDeviceId: this.parentDeviceId
+          [DeviceEnum.ParentDeviceId]: this.parentDeviceId
         },
         industry: {
           ...pick(this.deviceForm, [
