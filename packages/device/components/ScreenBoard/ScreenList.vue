@@ -11,7 +11,7 @@
           empty-text="所选日期暂无录像"
         >
           <el-table-column label="录像名称" prop="templateName" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
@@ -41,7 +41,7 @@
             </template>
           </el-table-column>
           <el-table-column label="录像截图" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-image
                 style="width: 150px; height: 100px;"
                 :src="row.cover"
@@ -61,7 +61,7 @@
             :formatter="durationFormatInTable"
           />
           <el-table-column prop="action" label="操作" width="200" fixed="right">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-button
                 v-if="!isVGroup && checkPermission(['AdminRecord'])"
                 :disabled="row.loading"
@@ -111,7 +111,7 @@ import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import DeviceDir from '../DeviceDir.vue'
-import VssPlayer from '@/components/VssPlayer/index.vue'
+import VssPlayer from '@vss/vss-video-player/index.vue'
 
 @Component({
   name: 'ScreenList',

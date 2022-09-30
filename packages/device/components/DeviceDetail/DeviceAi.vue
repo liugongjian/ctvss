@@ -43,9 +43,9 @@ export default class extends Mixins(detailMixin) {
   private app: any = ''
   private faceLib: any = {}
   private appselected: String = ''
-  private get device() {
-    return { deviceId: this.deviceId, inProtocol: this.inProtocol }
-  }
+  // private get device() {
+  //   return { deviceId: this.deviceId, inProtocol: this.inProtocol }
+  // }
   private get noapp() {
     return this.apps.length === 0
   }

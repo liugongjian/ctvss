@@ -1,8 +1,8 @@
 import axios from 'axios'
 import screenLogManager from './ScreenLogManager'
-import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/types/VssPlayer'
+import { DeviceInfo, StreamInfo, Stream } from '@vss/vss-video-player/types/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
-import { Player } from '@/components/Player/services/Player'
+import { Player } from '@vss/video-player/services/Player'
 import { getDevicePreview } from '@/api/device'
 
 export class Screen {
@@ -136,7 +136,7 @@ export class Screen {
 
   public get deviceInfo(): DeviceInfo {
     return {
-      deviceId: this.deviceId,
+      deviceId: this.deviceId?.toString(),
       inProtocol: this.inProtocol,
       deviceName: this.deviceName,
       roleId: this.roleId,

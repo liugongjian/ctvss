@@ -323,7 +323,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
   {
     path: '/player-debug',
-    component: () => import(/* webpackChunkName: "debug" */ '@/components/VssPlayer/Debug.vue'),
+    component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
     name: 'device-debug',
     meta: {
       title: '播放器调试',

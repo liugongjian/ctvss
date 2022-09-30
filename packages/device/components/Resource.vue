@@ -42,7 +42,7 @@ import { Device } from '../type/Device'
 })
 export default class extends Vue {
   @Prop()
-  private device!: Device
+  private device!: any
   @Prop() private algoTabTypeDefault?: String
   private dialogVisible = true
   public form: any = {
@@ -93,7 +93,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

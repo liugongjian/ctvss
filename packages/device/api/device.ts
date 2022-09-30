@@ -261,8 +261,12 @@ export const getDevicesIbox = (params: any): Promise<any> => {
   })
 }
 
-export const exportDevicesExcel = (params: any): Promise<any> => {
-}
+export const exportDevicesExcel = (params: any): Promise<any> => 
+  request({
+    url: '/new/device',
+    method: 'get',
+    params: toUpperCase(params)
+  })
 
 /* ----------------------------------------------- */
 /**

@@ -2,7 +2,7 @@
   <VssPlayer
     ref="player"
     class="replay-player"
-    :class="{'has-axis': hasAxis}"
+    :class="{ 'has-axis': hasAxis }"
     :url="url"
     :type="type"
     :codec="codec"
@@ -55,10 +55,10 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
-import { ScreenModule } from '@/store/modules/screen'
-import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
-import { Screen } from '@/views/device/services/Screen/Screen'
-import VssPlayer from '@/components/VssPlayer/index.vue'
+import { ScreenModule } from '@vss/device/store/modules/screen'
+import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
+import { Screen } from '@vss/device/services/Screen/Screen'
+import VssPlayer from '@vss/vss-video-player/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'

@@ -1,5 +1,5 @@
 <template>
-  <div class="screen-tools" :class="{'hidden-axis': !showAxis}">
+  <div class="screen-tools" :class="{ 'hidden-axis': !showAxis }">
     <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
@@ -22,7 +22,7 @@
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
-import { ScreenModule } from '@/store/modules/screen'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
 import DatePicker from './components/DatePicker.vue'
