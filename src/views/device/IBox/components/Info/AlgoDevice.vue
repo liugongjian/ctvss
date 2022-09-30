@@ -84,7 +84,7 @@ export default class extends Mixins(AppMixin) {
 
   private initialCheckedNodes = []
 
-  private configAlgoInfo = {}
+  private configAlgoInfo = { code: '10001' }
   private dangerZone = null
   private frameImage = require('./AlgoConfig/plate4.jpg')
 

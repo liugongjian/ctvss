@@ -17,14 +17,6 @@
           </template>
         </el-table-column> -->
       </el-table>
-      <el-pagination
-        :current-page="pager.pageNum"
-        :page-size="pager.pageSize"
-        :total="pager.totalNum"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
     </div>
     <div v-else>
       <el-page-header content="返回算法列表" @back="backToList" />
@@ -52,10 +44,6 @@ export default class IBoxList extends Vue {
   public tableData = []
   private step: number = -1
   private prod: any = {} // 新建时传入组件的参数
-  private pager = {
-    pageSize: 20,
-    pageNum: 1
-  }
   private loading = {
     table: false
   }
@@ -66,10 +54,11 @@ export default class IBoxList extends Vue {
   private async getAiList() {
     this.loading.table = true
     const iboxId: any = this.$route.query.deviceId
-    const { iboxAIAlgorithms }: any = await describeAlgorithmList({
-      ...this.pager,
-      iboxId
-    })
+    const { iboxAIAlgorithms }: any =
+      await describeAlgorithmList({
+        ...this.pager,
+        iboxId
+      })
     this.tableData = iboxAIAlgorithms.map((algo) => ({
       ...algo,
       version: '1.0.0'

@@ -103,8 +103,8 @@ export default class extends Mixins(AppMixin) {
         })
         tagdalgoList = aiAbilityAlgorithms.map((algo) => {
           const res = iboxAIAlgorithms.find((item) => item.code === algo.code)
-          // return { ...algo, isLoaded: !!res, isIbox }
-          return { ...algo, isLoaded: true, isIbox }
+          return { ...algo, isLoaded: !!res, isIbox }
+          // return { ...algo, isLoaded: true, isIbox }
         })
       } else {
         tagdalgoList = aiAbilityAlgorithms.map((item) => ({ ...item, isIbox }))
