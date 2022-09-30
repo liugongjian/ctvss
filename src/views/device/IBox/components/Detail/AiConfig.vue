@@ -17,11 +17,9 @@
             <el-button type="text" @click="algoConfig(scope.row)">
               算法配置
             </el-button>
-            <el-button type="text" @click="bindOrUnbind(scope.row)">
-              解绑
-            </el-button>
+            <el-button type="text" @click="unbind(scope.row)"> 解绑 </el-button>
             <el-button type="text" @click="startOrStop(scope.row)">
-              启用
+              {{ scope.row.status ? '停用' : '启用' }}
             </el-button>
           </template>
         </el-table-column>
@@ -35,7 +33,11 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <app-config v-if="dialogVisible.app" @close="closeDialogue" />
+    <app-config
+      v-if="dialogVisible.app"
+      @bind="bindApps"
+      @close="closeDialogue"
+    />
     <algo-config
       v-if="dialogVisible.algo"
       :device-id="deviceId"
@@ -48,8 +50,14 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Provide } from 'vue-property-decorator'
-import { describeIboxApps, deleteIboxApps, updateIboxApp } from '@/api/ibox'
+import { Component, Vue } from 'vue-property-decorator'
+import {
+  describeIboxApps,
+  startIboxApps,
+  stopIboxApps,
+  unBindIboxApps,
+  bindIboxApps
+} from '@/api/ibox'
 import AppConfig from './component/AppConfig.vue'
 import AlgoConfig from '../Info/AlgoConfig/index.vue'
 import { ResourceAiType } from '@/dics'
@@ -129,22 +137,29 @@ export default class AiAppList extends Vue {
     }
   }
 
-  private bindOrUnbind(row) {
+  private unbind(row) {
+    const path: any = this.$route.query.path
+    const iboxId: any = path.split(',')[0]
+    const deviceId: any = path.split(',').pop()
     this.$alertDelete({
       type: '应用',
       msg: `是否确认解绑应用："${row.name}"`,
-      method: deleteIboxApps,
-      payload: { appIds: [row.appId], iboxId: row.iboxId },
+      method: unBindIboxApps,
+      payload: { appIds: [row.appId], iboxId, deviceId },
       onSuccess: this.getAppList
     })
   }
 
   private startOrStop(row) {
+    const func = row.status ? stopIboxApps : startIboxApps
+    const path: any = this.$route.query.path
+    const iboxId: any = path.split(',')[0]
+    const deviceId: any = path.split(',').pop()
     this.$alertDelete({
       type: '应用',
-      msg: `是否确认停用应用："${row.name}"`,
-      method: deleteIboxApps,
-      payload: { appIds: [row.appId], iboxId: row.iboxId },
+      msg: `是否确认${row.status ? '停用' : '启用'}应用："${row.name}"`,
+      method: func,
+      payload: { appIds: [row.appId], iboxId, deviceId },
       onSuccess: this.getAppList
     })
   }
@@ -160,6 +175,19 @@ export default class AiAppList extends Vue {
     console.log('DangerZone:', DangerZone)
     const submitDetectzone = [DangerZone.map((zone) => +zone)]
     console.log('submitDetectzone:', submitDetectzone)
+  }
+
+  private async bindApps(apps) {
+    const path: any = this.$route.query.path
+    const iboxId: any = path.split(',')[0]
+    const deviceId: any = path.split(',').pop()
+    const appIds = apps.map((app) => app.appId)
+    try {
+      await bindIboxApps({ appIds, iboxId, deviceId })
+      this.$message.success('绑定成功')
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   private closeDialogue() {

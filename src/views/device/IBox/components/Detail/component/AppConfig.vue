@@ -28,7 +28,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { getAbilityList } from '@/api/ai-app'
 import { describeIboxApps } from '@/api/ibox'
 import { ResourceAiType } from '@/dics'
@@ -49,12 +49,7 @@ export default class AiAppList extends Vue {
   private appDetailId = ''
   private ResourceAiType = ResourceAiType
 
-  private app: any
-
-  @Provide('appInfo')
-  public getAppInfo() {
-    return this.app
-  }
+  private selectedApps = []
 
   private async mounted() {
     await this.getAbilityList()
@@ -79,16 +74,27 @@ export default class AiAppList extends Vue {
       await describeIboxApps({
         ...this.pager,
         iboxId,
-        deviceId
+        deviceId,
+        abilityId: this.activeName
       })
     this.pager = { pageSize, pageNum, totalNum }
     this.tableData = iboxApps
     this.loading.table = false
   }
+
+  private handleTabType() {
+    this.getAppList()
+  }
+
+  private handleSelectionChange(val) {
+    this.selectedApps = val
+  }
+
   private cancel() {
     this.$emit('close')
   }
   private submit() {
+    this.$emit('bind', this.selectedApps)
     this.$emit('close')
   }
 }
