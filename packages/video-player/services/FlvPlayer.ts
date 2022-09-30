@@ -34,7 +34,8 @@ export class FlvPlayer extends Player {
     const flvPlayer = FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
-      url: this.url
+      url: this.url,
+      stashInitialSize: this.isLive ? 128 : 384 // 减少首帧显示等待时长
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
@@ -94,14 +95,6 @@ export class FlvPlayer extends Player {
   }
 
   /**
-   * 重新加载视频
-   */
-  public reloadPlayer() {
-    this.disposePlayer()
-    this.init()
-  }
-
-  /**
    * 销毁播放器
    */
   public disposePlayer() {
@@ -118,5 +111,45 @@ export class FlvPlayer extends Player {
     this.flv && this.flv.destroy()
     this.flv = null
     this.isLoading = false
+  }
+
+  /**
+   * 重新加载视频
+   */
+  public reloadPlayer() {
+    this.disposePlayer()
+    this.init()
+  }
+
+  /**
+   * 回调事件
+   * 当进行预加载
+   */
+  protected onBuffered() {
+    if (this.video.buffered.length) {
+      this.bufferedTime = this.video.buffered.end(this.video.buffered.length - 1)
+      this.config.onBuffered && this.config.onBuffered(this.bufferedTime)
+      this.isLive && this.catchTime()
+    }
+  }
+
+  /**
+   * 解决直播延时累加，进行追帧设置
+   */
+  private catchTime() {
+    const delta = this.bufferedTime - this.currentTime
+
+    // 延迟过大，通过跳帧的方式更新视频
+    if (delta > 10 || delta < 0) {
+      this.seek(this.bufferedTime)
+      return
+    }
+
+    // 追帧
+    if (delta > 1) {
+      this.setPlaybackRate(1.2)
+    } else {
+      this.setPlaybackRate(1)
+    }
   }
 }
