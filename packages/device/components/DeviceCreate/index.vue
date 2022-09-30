@@ -347,7 +347,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private updated() {
-    this.checkIsShwoMore()
+    this.checkIsShowMore()
   }
 
   /**
@@ -364,7 +364,7 @@ export default class extends Mixins(deviceFormMixin) {
   /**
    * 判断是否显示更多下拉框
    */
-  private checkIsShwoMore() {
+  private checkIsShowMore() {
     const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
     this.showMoreVisable = showMoreForm.children.length !== 0
   }
