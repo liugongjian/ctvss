@@ -151,7 +151,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    let params: any = this.$route.params
+    const params: any = this.$route.params
     if (params.username) {
       this.disabled = true
       this.$set(this.form, 'username', params.username)

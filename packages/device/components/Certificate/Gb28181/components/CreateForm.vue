@@ -154,7 +154,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    let params: any = this.$route.params
+    const params: any = this.$route.params
     if (params.userName) {
       this.editDisable = !/^[0-9a-z]+$/.test(params.userName)
       this.$emit('editDisabled', this.editDisable)

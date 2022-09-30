@@ -25,14 +25,14 @@
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column label="注册用户名" min-width="100">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.userName || '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="150" fixed="right">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <el-button type="text" @click="edit(row)">编辑</el-button>
             <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
           </template>
@@ -88,7 +88,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       userName: this.userName,
       userType: this.userType,
       pageNum: this.pager.pageNum,

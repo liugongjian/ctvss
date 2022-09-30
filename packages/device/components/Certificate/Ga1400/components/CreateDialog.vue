@@ -28,7 +28,7 @@ import CreateForm from './CreateForm.vue'
 })
 export default class extends Vue {
   private dialogVisible = true
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
