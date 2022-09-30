@@ -102,16 +102,6 @@ export default class AiAppList extends Vue {
     this.loading.table = false
   }
 
-  private async deleteApp(row: any) {
-    this.$alertDelete({
-      type: '应用',
-      msg: `是否确认删除应用："${row.name}"`,
-      method: deleteIboxApps,
-      payload: { appIds: [row.appId], iboxId: row.iboxId },
-      onSuccess: this.getAppList
-    })
-  }
-
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
     this.getAppList()
@@ -139,9 +129,25 @@ export default class AiAppList extends Vue {
     }
   }
 
-  private bindOrUnbind(row) {}
+  private bindOrUnbind(row) {
+    this.$alertDelete({
+      type: '应用',
+      msg: `是否确认解绑应用："${row.name}"`,
+      method: deleteIboxApps,
+      payload: { appIds: [row.appId], iboxId: row.iboxId },
+      onSuccess: this.getAppList
+    })
+  }
 
-  private startOrStop(row) {}
+  private startOrStop(row) {
+    this.$alertDelete({
+      type: '应用',
+      msg: `是否确认停用应用："${row.name}"`,
+      method: deleteIboxApps,
+      payload: { appIds: [row.appId], iboxId: row.iboxId },
+      onSuccess: this.getAppList
+    })
+  }
 
   private editApp() {
     this.dialogVisible.app = true
