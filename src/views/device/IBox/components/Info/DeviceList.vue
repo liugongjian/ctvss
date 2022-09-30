@@ -144,7 +144,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { getDeviceList } from '@/api/ibox'
+import { getDeviceList, startDevice, stopDevice } from '@/api/ibox'
 // import { IBoxModule } from '@/store/modules/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { dateFormat } from '@/utils/date'
@@ -248,17 +248,30 @@ export default class IBoxList extends Vue {
   //   this.$router.push(path)
   // }
 
-  public startDevice(row: any) {
-    console.log(row)
+  public async startDevice(row: any) {
     const { deviceId, videos } = row
     const param = {
       deviceId,
       inProtocol: videos[0].inVideoProtocol
     }
+    try {
+      await startDevice(param)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  public stopDevice(row: any) {
-
+  public async stopDevice(row: any) {
+    const { deviceId, videos } = row
+    const param = {
+      deviceId,
+      inProtocol: videos[0].inVideoProtocol
+    }
+    try {
+      await stopDevice(param)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   public toDetail(row: any) {
