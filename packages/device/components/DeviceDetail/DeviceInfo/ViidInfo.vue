@@ -5,7 +5,7 @@
       <el-dropdown>
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="{type: 'delete'}">删除</el-dropdown-item>
+          <el-dropdown-item :command="{ type: 'delete' }">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -22,8 +22,8 @@
       <el-descriptions-item label="协议类型">{{ dicts.inViidProtocol }}</el-descriptions-item>
       <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
-      <el-descriptions-item label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
-      <el-descriptions-item label="端口">{{ viidInfo.port }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.Port)" label="端口">{{ viidInfo.port }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 视图库信息 -->
@@ -39,6 +39,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, ViidDevice } from '@vss/device/type/Device'
+import { checkViidVisible } from '@vss/device/utils/param'
 
 @Component({
   name: 'ViidInfo',
@@ -58,17 +59,21 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inViidProtocol() {
-    return this.device.viids && this.device.viids.length && this.device.viids[0]!.inViidProtocol
+    return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
   }
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    return this.inViidProtocol && this.device.viids[0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
+    return this.inViidProtocol && this.device.viids[0][dicts.InViidProtocolModelMapping[this.inViidProtocol]]
   }
 
   // 进入编辑模式
   private edit() {
     this.$emit('edit')
+  }
+
+  private checkVisible(prop) {
+    return checkViidVisible.call(this.viidInfo, this.basicInfo.deviceType, this.inViidProtocol, prop)
   }
 }
 </script>

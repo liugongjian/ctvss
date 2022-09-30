@@ -89,7 +89,7 @@ export default class extends Vue {
       deviceId: '123',
       inProtocol: 'gb28181'
     },
-    url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/29942017685507582.flv'
+    url: 'https://liveplay.lanzhou.vcn.ctyun.cn/live/29942067077591243_101.flv'
     // url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/395591776819757060.flv'
     // url: 'https://changchun.vcn.ctyun.cn/vss-work_order_10-1/29941957555937375/record/1644292818_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=M5NB4DWSTUYHO2W5V3XZ%2F20220305%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220305T015112Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a2ae9b8d55952be9dd767a01bfab753f85f6b6b15102611564b57e8db9d84f7b'
     // url: 'https://guangzhou.vcn.ctyun.cn/vss-work_order_10-2/29941953260967657/record/1646668800_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GAA6CGT2MMHD06Z2KWQX%2F20220308%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220308T061504Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=620384a6b4d5cb0544ea7c64db307aecc18b20b3ddbd3d5745b1f6e87fd5aa33'

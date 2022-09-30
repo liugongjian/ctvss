@@ -97,12 +97,16 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inProtocol() {
-    return this.device && this.device.viids && this.device.viids[0].inViidProtocol
+    return (this.device && this.device.viids && this.device.viids.length && this.device.viids[0].inViidProtocol) || null
   }
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    return (this.inProtocol && this.device.viids[0][InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    if (this.device.viids) {
+      return (this.inProtocol && this.device.viids[0][InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    } else {
+      return {}
+    }
   }
 
   @Watch('device', {

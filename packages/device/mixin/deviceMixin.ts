@@ -49,11 +49,12 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId) {
+  public async getDevice(deviceId: string = this.deviceId, isForce = false) {
     try {
       this.deviceLoading = true
       this.device = await DeviceModule.getDevice({
         deviceId,
+        isForce,
         fetch: this.getDeviceApi
       })
     } catch (e) {

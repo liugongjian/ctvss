@@ -1,18 +1,19 @@
 <template>
   <div class="config-container">
-    <resource-template-info />
-    <record-template-info />
+    <resource-template-info v-if="!isIbox" />
+    <record-template-info v-if="!isIbox" />
     <callback-template-info />
-    <alert-template-info />
+    <alert-template-info v-if="!isIbox" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import ResourceTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/RecordTemplateInfo.vue' 
+import { Component, Mixins } from 'vue-property-decorator'
+import ResourceTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/ResourceTemplateInfo.vue' 
 import RecordTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/RecordTemplateInfo.vue' 
 import CallbackTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/CallbackTemplateInfo.vue' 
-import AlertTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/AlertTemplateInfo.vue' 
+import AlertTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/AlertTemplateInfo.vue'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceConfig',
@@ -23,7 +24,7 @@ import AlertTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/
     AlertTemplateInfo
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>

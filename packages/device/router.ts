@@ -295,6 +295,10 @@ export const iboxRouter = {
               path: 'config',
               component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceConfig/index.vue'),
               name: 'DeviceConfig',
+              props: {
+                isIbox: true,
+                getDeviceApi: getDeviceIbox
+              },
               meta: {
                 title: '配置信息',
                 breadcrumb: false,

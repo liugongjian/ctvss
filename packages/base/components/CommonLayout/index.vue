@@ -1,5 +1,5 @@
 <template>
-  <el-card class="common-layout" :class="{'common-layout--collapsed': !isExpanded, 'common-layout--dragging': dragBarConfig.isDragging}">
+  <el-card class="common-layout" :class="{ 'common-layout--collapsed': !isExpanded, 'common-layout--dragging': dragBarConfig.isDragging }">
     <el-button class="common-layout__hamburger" @click="toggleHamburger">
       <svg-icon name="hamburger" />
     </el-button>
@@ -37,7 +37,7 @@ import { Component, Vue } from 'vue-property-decorator'
   name: 'CommonLayout'
 })
 export default class extends Vue {
-  private isExpanded: boolean = true
+  private isExpanded = true
   private dragBarConfig = {
     isDragging: false,
     start: 0,
@@ -87,7 +87,7 @@ $bar-height: 40px;
 }
 
 .common-layout {
-  min-width: 1380px;
+  min-width: 1080px;
   // margin-bottom: -$margin-medium;
 
   ::v-deep {

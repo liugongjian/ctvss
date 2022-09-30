@@ -191,7 +191,7 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
       <el-input v-model="videoForm.outId" />
-      <div class="form-tip">
+      <div v-if="!isEdit" class="form-tip">
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
@@ -242,6 +242,7 @@ export default class extends Vue {
   @Prop() private device: Device
   @Prop({ default: {} }) private deviceForm: DeviceBasicForm
   @Prop({ default: false }) private isIbox: boolean
+  @Prop({ default: false }) private isEdit: boolean
   public videoForm: VideoDeviceForm = {}
   private orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
@@ -513,9 +514,11 @@ export default class extends Vue {
         validInfo = await validGbId({
           [DeviceEnum.DeviceId]: this.deviceId,
           [DeviceEnum.InVideoProtocol]: this.videoForm.inVideoProtocol,
-          [DeviceEnum.OutId]: this.videoForm.outId
+          // [DeviceEnum.OutId]: this.videoForm.outId
+          gbId: this.videoForm.outId
         })
-        if (validInfo && !validInfo.IsValidGbId) {
+        console.log(validInfo)
+        if (validInfo && !validInfo.isValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {
           callback()

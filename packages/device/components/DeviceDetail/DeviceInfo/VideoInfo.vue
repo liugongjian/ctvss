@@ -2,11 +2,11 @@
   <div>
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
-      <el-button type="text">配置资源包</el-button>
+      <el-button v-if="checkVisible(deviceEnum.Resources)" type="text">配置资源包</el-button>
       <el-dropdown>
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="{type: 'delete'}">删除</el-dropdown-item>
+          <el-dropdown-item :command="{ type: 'delete' }">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -100,12 +100,12 @@ export default class extends Vue {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device.videos && this.device.videos.length && this.device.videos[0]!.inVideoProtocol
+    return this.device.videos && this.device.videos.length && this.device.videos[0]?.inVideoProtocol
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
+    return this.inVideoProtocol && this.device.videos[0][dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // SIP服务器域

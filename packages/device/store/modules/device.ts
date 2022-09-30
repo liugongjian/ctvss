@@ -50,12 +50,12 @@ export class Device extends VuexModule implements IDeviceState {
    * @returns device
    */
   @Action
-  public async getDevice(payload: { deviceId: string, fetch: Function }) {
+  public async getDevice(payload: { deviceId: string, isForce: boolean, fetch: Function }) {
     try {
-      if (!this.device || this.device.deviceId !== payload.deviceId) {
+      // 如果isForce = true，强制刷新设备详情
+      if (payload.isForce || !this.device || this.device.deviceId !== payload.deviceId) {
         let device
         if (payload.fetch) {
-          console.log(fetch, payload.deviceId)
           const res = await payload.fetch({
             deviceId: payload.deviceId
           })
