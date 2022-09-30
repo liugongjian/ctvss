@@ -120,3 +120,35 @@ export const stopDevice = (data: any) =>
     method: 'post',
     data
   })
+
+// 解绑应用
+export const unBindIboxApps = (data: any) =>
+  request({
+    url: '/ibox/ai/unBindIboxApps',
+    method: 'post',
+    data
+  })
+
+// 绑应用
+export const bindIboxApps = (data: any) =>
+  request({
+    url: '/ibox/ai/bindIboxApps',
+    method: 'post',
+    data
+  })
+
+// 启动应用
+export const startIboxApps = (data: any) =>
+  request({
+    url: '/ibox/ai/startIboxApps',
+    method: 'post',
+    data
+  })
+
+// 停止应用
+export const stopIboxApps = (data: any) =>
+  request({
+    url: '/ibox/ai/stopIboxApps',
+    method: 'post',
+    data
+  })
