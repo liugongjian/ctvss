@@ -4,7 +4,7 @@ export interface PlayerEvent {
 }
 
 export interface DeviceInfo {
-  deviceId: number;
+  deviceId: string;
   inProtocol: string;
   deviceName: string;
   roleId?: string;

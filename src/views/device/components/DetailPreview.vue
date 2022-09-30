@@ -23,7 +23,7 @@ import { ScreenManager } from '../services/Screen/ScreenManager'
   }
 })
 export default class extends Vue {
-  @Prop() private deviceId?: number
+  @Prop() private deviceId?: string
   @Prop() private inProtocol?: string
   @Prop() private deviceName?: string
   @Prop() private streams?: Stream[]

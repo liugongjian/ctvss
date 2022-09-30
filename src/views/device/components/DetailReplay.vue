@@ -21,7 +21,7 @@ import { ScreenManager } from '../services/Screen/ScreenManager'
   }
 })
 export default class extends Vue {
-  @Prop({ required: true }) private readonly deviceId: number
+  @Prop({ required: true }) private readonly deviceId: string
   @Prop({ required: true }) private readonly inProtocol: string
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
