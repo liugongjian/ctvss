@@ -5,7 +5,7 @@
         <info-list v-loading="loading.info" label-width="80">
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.PlatformName)" label="平台名称:">{{ basicInfo.deviceName }}</info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ videoInfo.outId }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.ViidId)" label="视图ID:">{{ viidInfo.outId }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.VideoStatus)" label="视频接入:">
             <status-badge :status="videoInfo.deviceStatus.isOnline" />
@@ -15,7 +15,7 @@
             <status-badge :status="viidInfo.deviceStatus.isOnline" />
             {{ dicts.DeviceStatus[viidInfo.deviceStatus.isOnline] || '-' }}
           </info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ device.createdTime }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceChannelSize)" label="通道数量:">{{ basicInfo.deviceChannelSize }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
