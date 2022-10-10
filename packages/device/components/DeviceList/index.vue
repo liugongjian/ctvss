@@ -465,6 +465,12 @@ export default class extends Mixins(deviceMixin) {
     this.initTable()
   }
 
+  @Watch('$route.query.dirId')
+  private async dirIdChange() {
+    this.pager.pageNum = 1
+    this.initTable()
+  }
+  
   private mounted() {
     this.handleTools(ToolsEnum.RefreshDeviceList)
     this.initTableSize()
