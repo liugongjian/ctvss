@@ -18,7 +18,7 @@
         </el-radio>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码:" :prop="deviceEnum.LowerApsId">
-        <el-input v-model="viidForm.apsId" />
+        <el-input v-model="viidForm.lowerApsId" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型:" :prop="deviceEnum.ProtocolDeviceType">
         <el-select
@@ -102,7 +102,7 @@ export default class extends Vue {
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    if (this.device.viids) {
+    if (this.device && this.device.viids) {
       return (this.inProtocol && this.device.viids[0][InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
     } else {
       return {}
@@ -150,6 +150,29 @@ export default class extends Vue {
   private validateApsId(rule: any, value: string, callback: Function) {
     if (!/^[0-9]{20}$/.test(value)) {
       callback(new Error('视图标编码为20位数字'))
+    } else {
+      callback()
+    }
+  }
+
+
+  /**
+   * 校验设备IP格式
+   */
+  private validateDeviceIp(rule: any, value: string, callback: Function) {
+    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+      callback(new Error('设备IP格式不正确'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验端口号
+   */
+  private validateDevicePort(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value)) {
+      callback(new Error('设备端口仅支持数字'))
     } else {
       callback()
     }

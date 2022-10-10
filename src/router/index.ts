@@ -213,7 +213,8 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeDevice'],
       alwaysShow: false,
       only: true,
-      groupSelector: true
+      groupSelector: true,
+      // version: 1,
     },
     children: [
       {

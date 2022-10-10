@@ -23,6 +23,13 @@ const hasTags: IMatchFn = (tags, route) => {
   return true
 }
 
+const hasVersion: IMatchFn = (version, route) => {
+  if (route.meta && route.meta.version) {
+    return route.meta.version === version
+  }
+  return true
+}
+
 const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
@@ -39,6 +46,7 @@ const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: stri
 
 export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
 export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
+export const filterAsyncRoutesByVersion = filterAsyncRoutes.bind(null, hasVersion)
 
 export interface IPermissionState {
   routes: RouteConfig[]
@@ -57,7 +65,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string, version: number }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
@@ -66,6 +74,9 @@ class Permission extends VuexModule implements IPermissionState {
 
     // 根据route.meta.tags及用户tags过滤路由
     filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tags)
+
+    // 根据route.meta.version及用户version过滤路由
+    filteredRoutes = filterAsyncRoutesByVersion(filteredRoutes, params.version)
 
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes

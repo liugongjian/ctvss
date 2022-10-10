@@ -10,7 +10,8 @@ export const deviceRouter = {
     perms: ['DescribeDevice'],
     alwaysShow: false,
     only: true,
-    groupSelector: false
+    groupSelector: false,
+    version: 2
   },
   children: [
     {
