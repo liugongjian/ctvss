@@ -1,0 +1,213 @@
+// @import './variables.scss'; // Already imported in style-resources-loader
+// @import './mixins.scss'; // Already imported in style-resources-loader
+@import './transition.scss';
+@import './svgicon.scss';
+@import './element-override.scss';
+@import './margin.scss';
+@import './animation.scss';
+@import './device.scss';
+@import './screen.scss';
+@import './dashboard.scss';
+@import './ctcloud.scss';
+@import './cdncloud.scss';
+@import './map.scss';
+@import './tree.scss';
+
+/* Global scss */
+
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-family: "Microsoft YaHei",'PingFang SC', "Helvetica Neue", Helvetica, arial, STHeiTi, sans-serif;
+  font-size: 14px;
+  background: #f9f9f9;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+.app-wrap {
+  overflow-y: auto;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+  overflow: auto;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+a,
+a:focus,
+a:hover {
+  outline: none;
+  text-decoration: none;
+}
+
+a {
+  color: $primary;
+}
+
+a:focus,
+a:hover {
+  color: #fb9c5d;
+}
+
+div:focus {
+  outline: none;
+}
+
+.clearfix {
+  @include clearfix;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  overflow: auto;
+  padding: $padding-medium;
+  flex: 1;
+}
+
+.pull-right {
+  float: right;
+}
+
+.filter-container {
+  margin-bottom: 10px;
+  overflow: hidden;
+  &__left {
+    float: left;
+  }
+  &__right {
+    float: right;
+  }
+  &__search-group {
+    width: 300px;
+  }
+  &__help {
+    margin-left: 10px;
+    color: #777;
+  }
+}
+
+.form-with-tip {
+  margin-bottom: 35px;
+}
+
+.form-tip {
+  color: $textGrey;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 6px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.form-question {
+  font-size: 16px;
+  cursor: help;
+}
+
+.el-form-item.is-error {
+  .form-tip {
+    display: none;
+  }
+}
+
+.info-list__edit {
+  display: flex;
+  &--value {
+    min-width: 100px;
+  }
+  .el-button--text {
+    padding: 0;
+    vertical-align: middle;
+
+    &::after {
+      content: '|';
+      margin-left: 10px;
+      color: #ccc;
+    }
+    &:last-child::after {
+      display: none;
+    }
+  }
+}
+
+.device-list .el-page-header {
+  border-bottom: 1px solid $borderGrey;
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+}
+
+.device-list .el-tabs {
+  margin-top: -15px;
+}
+
+.empty-text {
+  color: $textGrey;
+  text-align: center;
+}
+
+.el-tab-pane .info-list {
+  margin: 0 5px;
+}
+
+.vue__time-picker input.display-time {
+  border-radius: 4px;
+  border: 1px solid #DCDFE6;
+  color: $text;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 10px;
+}
+.vue__time-picker input.display-time:focus {
+  outline: none;
+  border-color: $primary;
+}
+.vue__time-picker-dropdown, .vue__time-picker .dropdown {
+  top: 38px;
+}
+.vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker .dropdown ul li:not([disabled]).active:hover {
+  background: $primary;
+}
+
+.alert-message-list {
+  margin-top: 0;
+  li {
+    margin: 7px 0;
+  }
+}
+
+// 针对弹框内容过长不换行
+.el-message-box__content {
+  word-break: break-all;
+}
+
+.el-dropdown-menu--medium .el-dropdown-menu__item {
+  position: relative;
+}
+.el-dropdown-menu__item .el-icon-check.search-check {
+  position: absolute;
+  left: 0;
+  top: 8px;
+}

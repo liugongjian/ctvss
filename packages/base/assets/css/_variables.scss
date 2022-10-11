@@ -1,0 +1,280 @@
+/* stylelint-disable property-case */
+
+/* Color
+-------------------------- */
+
+/* 主题色 */
+$color-master-1: #fa8334;
+$color-master-2: #ff934c;
+$color-master-3: #ed7c31;
+$color-master-4: #ffe1c6;
+$color-master-5: #ffe6d2;
+$color-master-6: #ffefe3;
+$color-master-7: #fef5ee;
+
+/* 特殊色 */
+$color-sp-1: #df0428;
+$color-sp-2: #e32948;
+$color-sp-3: #bd0322;
+
+/* 状态色 */
+$color-status-master-1: $color-master-1;
+$color-status-master: $color-status-master-1;
+$color-status-danger-1: #f5212d;
+$color-status-danger-2: #ffeeef;
+$color-status-danger-3: #ae050f;
+$color-status-danger: $color-status-danger-1;
+$color-status-info-1: #1890ff;
+$color-status-info: $color-status-info-1;
+$color-status-success-1: #52c41a;
+$color-status-success: $color-status-success-1;
+$color-status-warning-1: #faad15;
+$color-status-warning: #faad15;
+
+/* 表格状态色 */
+$color-table-status-success: #6bdd6b;
+$color-table-status-warning: #faad15;
+$color-table-status-info: #b4b4b4;
+$color-table-status-danger: #f96965;
+
+/* 标签色 */
+$color-tag-master-1: #fcc199;
+$color-tag-master-2: #fef2ea;
+$color-tag-master-3: $color-master-6;
+$color-tag-danger-1: #ffa4a3;
+$color-tag-danger-2: #ffecec;
+$color-tag-info-1: #bddbff;
+$color-tag-info-2: #f3f9ff;
+$color-tag-success-1: #a8e18c;
+$color-tag-success-2: #edf9e8;
+$color-tag-warning-1: #fcd68a;
+$color-tag-warning-2: #fef6e7;
+
+/* 灰色 */
+$color-grey-0: #000;
+$color-grey-1: #333;
+$color-grey-2: #666;
+$color-grey-3: #777;
+$color-grey-4: #999;
+$color-grey-5: #aaa;
+$color-grey-6: #ddd;
+$color-grey-7: #f2f2f2;
+$color-grey-8: #f3f3f3;
+$color-grey-9: #f5f5f5;
+$color-grey-10: #f8f8f8;
+$color-grey-11: #fafafa;
+$color-grey-12: #eee;
+$color-grey-13: #3e3e3e;
+$color-grey-14: #606266;
+$color-grey-15: #6e7c89;
+
+/* 白色 */
+$color-white: #fff;
+
+/* 其他 */
+$color-other-1: #3b3e4b;
+$color-other-2: #f0f2f5;
+$color-other-3: #8bb2f9;
+
+/* Background
+-------------------------- */
+$body-fill: $color-grey-7;
+
+/* Disable
+-------------------------- */
+$disabled-fill: $color-grey-10;
+$disabled-color: $color-grey-4;
+$disabled-border: $color-grey-6;
+$disabled-icon-color: $color-grey-5;
+$disabled-danger-fill: $color-white;
+/* stylelint-disable-next-line function-no-unknown */
+$disabled-danger-color: mix($color-white, $color-status-danger-1, 50%);
+$disabled-danger-border: $disabled-danger-color;
+
+/* LoadingButton
+-------------------------- */
+$loading-primary-color: mix($color-white, $color-master-1, 50%);
+$loading-primary-border: $loading-primary-color;
+$loading-default-color: $color-grey-10;
+$loading-default-border: $color-grey-6;
+
+/* Typography
+-------------------------- */
+$text-size-small: 12px;
+$text-size-medium: 14px;
+$text-size-large: 16px;
+$text-size-x-large: 18px;
+$text-size-primary: $text-size-small;
+
+$text-color-primary: $color-grey-1; /* 正文颜色 */
+$text-color-light-1: $color-grey-2; /* 提示文字 */
+$text-color-light-2: $color-grey-4; /* 次要文本、表单占位文本 */
+
+/* Border
+-------------------------- */
+$border-color-primary: $color-grey-6;
+$border-color-light-1: $color-grey-12;
+$border-color-dark-1: $color-grey-4; /* 悬浮状态 */
+$border-radius: 2px;
+
+/* Padding & Margin
+-------------------------- */
+$padding-primary: 20px;
+$padding-medium: 16px;
+$padding-small: 8px;
+$padding-tiny: 4px;
+$margin-medium: 16px;
+$margin-small: 8px;
+$margin-tiny: 4px;
+$margin-primary: $margin-small;
+
+/* Shadow
+-------------------------- */
+$shadow-input: 0 0 4px 0 rgba(250, 131, 52, 20%);
+$shadow-card: 0 2px 8px 0 rgba(200, 201, 204, 50%);
+$shadow-dialog: 0 6px 16px -8px rgba(0, 0, 0, 8%), 0 9px 28px 0 rgba(0, 0, 0, 5%),
+  0 12px 48px 16px rgba(0, 0, 0, 3%);
+$shadow-table-card: rgba(200, 201, 204, 50%);
+
+/* Button
+-------------------------- */
+$button-icon-color: $color-grey-3;
+
+/* Input
+-------------------------- */
+$input-fill: $color-white;
+
+/* Table
+-------------------------- */
+$table-header-fill: $color-grey-8;
+$table-cell-fill: $color-grey-8;
+$table-sort-caret-fill: $color-grey-4;
+
+/* Table
+-------------------------- */
+$pagination-fill: $color-white;
+
+/* Tooltip
+-------------------------- */
+$tooltip-fill: $color-other-1;
+
+/* Upload
+-------------------------- */
+$upload-fill: $color-grey-11;
+
+/* Collapse
+-------------------------- */
+$collapse-header-fill: $color-grey-11;
+
+/* Icon
+-------------------------- */
+$icon-color: $color-grey-3;
+
+/* Layout
+-------------------------- */
+
+/* Header */
+$header-height: 50px;
+$header-fill: #424550;
+
+/* Sidebar */
+$sidebar-width: 190px;
+$sidebar-fill: $color-white;
+$sidebar-sub-fill: $color-white;
+$sidebar-sub-hover: $color-master-7;
+
+/* Animation
+-------------------------- */
+$transition-time: 200ms;
+
+/* The :export directive is the magic sauce for webpack
+ * https://mattferderer.com/use-sass-variables-in-typescript-and-javascript
+  */
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+:export {
+  colorMaster: $color-master-1;
+  colorSuccess: $color-status-success;
+  colorWarning: $color-status-warning;
+  colorDanger: $color-status-danger;
+  colorDanger2: $color-status-danger-2;
+  colorDanger3: $color-status-danger-3;
+  colorInfo: $color-status-info;
+  colorDisabled: $disabled-fill;
+  colorWhite: $color-white;
+  colorGrey0: $color-grey-0;
+  colorGrey1: $color-grey-1;
+  colorGrey6: $color-grey-6;
+  // 图表颜色
+  chartColor1: #8ecdfb;
+  chartColor2: #94e794;
+  chartColor3: #faad15;
+  chartColor4: #f96965;
+  chartColor5: #b4b4b4;
+  chartColor6: #f7c99c;
+  chartColor7: #fdf5ed;
+  chartColor8: #fdf5ed;
+  chartColor9: #f3ad68;
+  chartColor10: $color-other-3;
+  chartColor11: $color-grey-1;
+  chartColor12: #aad85f;
+  chartColor13: $color-grey-0;
+  chartColor14: $color-grey-4;
+}
+
+/* Others from VSS */
+// Base color
+$primary: #fa8334;
+$primaryHover: #fb9c5d;
+$success: #52c41a;
+$warning: #ff9d3b;
+$danger: #f5212d;
+$info: #4a89dc;
+
+$blue:#324157;
+$light-blue:#3A71A8;
+$red:#C03639;
+$white: #FFFFFF;
+$pink: #E65D6E;
+$green: #30B08F;
+$tiffany: #4AB7BD;
+$yellow:#FEC171;
+$panGreen: #30B08F;
+$textGrey: #888888;
+$textLightGrey: #ccc;
+$textYellow: #aa4a0b;
+$text: #333333;
+
+// Sidebar
+$sideBarWidth: 210px;
+$subMenuBg:#1f2d3d;
+$subMenuHover:#001528;
+$subMenuActiveText:#f4f4f5;
+$menuBg:#304156;
+$menuText:#bfcbd9;
+$menuActiveText:#409EFF; // Also see settings.sidebarTextTheme
+
+// Login page
+$lightGray: #eee;
+$darkGray:#889aa4;
+$loginBg: #fff;
+$loginCursorColor: #ccc;
+
+$--color-info-lighter: #eee;
+
+$borderGrey: #eee;
+$borderGrey2: #ddd;
+
+// The :export directive is the magic sauce for webpack
+// https://mattferderer.com/use-sass-variables-in-typescript-and-javascript
+:export {
+  menuBg: $menuBg;
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+}
+
+
+$dashboardGreen: #7CC96F;
+$dashboardRed: #E56161;
+
+// Tree
+$treeHover: #f5f7fa;

@@ -170,5 +170,12 @@
     "type": "git",
     "url": "git+https://gitlab.ctyuncdn.cn/vcs/vss-user-web.git"
   },
-  "__npminstall_done": false
+  "__npminstall_done": false,
+  "workspaces": [
+    "packages/base",
+    "packages/device",
+    "packages/ai",
+    "packages/video-player",
+    "packages/vss-video-player"
+  ]
 }

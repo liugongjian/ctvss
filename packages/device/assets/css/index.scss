@@ -1,0 +1,529 @@
+/* Mixin */
+@mixin show-more {
+  &--btn {
+    margin-left: -70px;
+  }
+
+  &--form {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.5s;
+  }
+
+  &--expanded {
+    .show-more--btn {
+      i {
+        transform: rotate(180deg);
+      }
+    }
+
+    .show-more--form {
+      max-height: 1000px;
+    }
+  }
+}
+
+/* Global */
+.device-container {
+  flex: 1;
+  display: flex;
+
+  /* device-list */
+  .list-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    &__header {
+      background: $color-grey-10;
+      border-radius: $border-radius;
+      margin-bottom: $margin-medium;
+      padding: $padding-tiny $padding-medium;
+
+      .info-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+
+        .info-item {
+          width: 33%;
+          padding: $padding-small 0;
+        }
+      }
+    }
+
+    &__tools {
+      display: flex;
+      margin-bottom: $margin-medium;
+
+      &__left {
+        white-space: nowrap;
+
+        .import-button {
+          display: inline-block;
+          margin-right: $margin-medium;
+        }
+
+        .el-button + .import-button {
+          margin-left: $margin-medium;
+        }
+
+        .el-dropdown + .import-button {
+          margin-left: $margin-medium;
+        }
+
+        .el-dropdown + .el-dropdown {
+          margin-left: $margin-medium;
+        }
+
+        .el-dropdown + .el-button {
+          margin-left: $margin-medium;
+        }
+      }
+
+      &__right {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+
+        .sync-button {
+          svg {
+            margin-right: $margin-medium;
+          }
+
+          &.loading {
+            .svg-icon {
+              animation: rotating 1s linear infinite;
+            }
+          }
+        }
+
+        .search-group {
+          margin-right: $margin-medium;
+        }
+      }
+    }
+
+    &__filter {
+      margin-bottom: $margin-medium;
+    }
+
+    &__body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+
+      &__table {
+        flex: 1;
+        position: relative;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        overflow: auto;
+        min-height: 0;
+
+        .el-table {
+          position: absolute;
+        }
+
+        .el-table__fixed-right-patch {
+          background: $color-grey-8;
+        }
+
+        .el-table__body {
+          td {
+            cursor: pointer;
+          }
+
+          .col-action,
+          .col-selection {
+            cursor: default;
+          }
+        }
+
+        .el-table__column-filter-trigger {
+          visibility: hidden;
+        }
+
+        .filter {
+          cursor: pointer;
+        }
+
+        .el-popover__reference-wrapper {
+          .el-button {
+            margin: 0 $margin-medium;
+          }
+        }
+
+        .device-id {
+          color: $primary;
+        }
+      }
+
+      &__empty-text {
+        flex: 1;
+        text-align: center;
+        color: $textGrey;
+        border-top: 1px solid $borderGrey;
+        padding-top: $padding-primary;
+      }
+    }
+  }
+
+  /* device-detail */
+  .detail-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+      .el-page-header {
+        margin: 0;
+        padding-bottom: $padding-small;
+      }
+
+      .el-tabs {
+        margin-top: 0;
+
+        &__item {
+          height: 38px;
+          line-height: 38px;
+        }
+
+        &__content {
+          padding: 0 $padding-medium;
+        }
+      }
+    }
+
+    &__body {
+      flex: 1;
+      position: relative;
+
+      &__content {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        overflow: auto;
+
+        .detail__buttons {
+          text-align: right;
+        }
+
+        .detail__title {
+          position: relative;
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: $margin-small;
+
+          .detail__buttons {
+            position: absolute;
+            top: -10px;
+            right: 0;
+          }
+        }
+
+        .el-descriptions {
+          &__header {
+            margin: $margin-small 0;
+          }
+
+          &-item {
+            vertical-align: top;
+
+            &__content {
+              word-break: break-all;
+            }
+
+            &__label {
+              min-width: 120px;
+              text-align: right;
+              color: $textGrey;
+            }
+          }
+
+          td {
+            padding: 10px 0;
+          }
+
+          .el-link {
+            margin-left: 10px;
+          }
+        }
+
+        .el-card {
+          margin: 15px 0;
+
+          .el-card__header {
+            font-weight: bold;
+            padding: 15px 20px;
+
+            .el-link--inner {
+              margin-left: 10px;
+            }
+          }
+
+          .el-card__body {
+            padding: 10px;
+          }
+        }
+
+        .detail__empty-card {
+          padding: 5px 15px;
+          color: $textGrey;
+        }
+
+        /* 设备基本信息 */
+        .detail__basic-info {
+          border: 1px solid $border-color-light-1;
+          padding: $padding-medium;
+        }
+
+        /* 设备详情Tabs */
+        .detail__tabs {
+          margin-top: $margin-medium;
+
+          .el-tabs__header {
+            margin-bottom: 0;
+          }
+
+          .el-tabs__item {
+            font-size: 16px;
+          }
+
+          .el-tabs__content {
+            border: 1px solid $border-color-light-1;
+            border-top: none;
+            padding: $padding-medium;
+          }
+
+          .resource-tabs .el-tabs__content {
+            border: none;
+            padding: 0;
+          }
+        }
+      }
+
+      /* 接入方式 */
+      .device-in-type + .device-in-type {
+        &:before {
+          content: ',';
+          margin-right: $margin-small;
+        }
+      }
+    }
+
+    /* 设备详情编辑 */
+    &__edit {
+      &__footer {
+        margin-left: 165px;
+      }
+
+      .two-column-wrap {
+        display: flex;
+        flex-wrap: wrap;
+
+        .el-form-item {
+          flex: 1 0 50%;
+          padding-right: $padding-medium;
+          max-width: 50%;
+
+          &.full-row {
+            flex: 1 0 100%;
+            width: 0;
+            max-width: 100%;
+          }
+        }
+
+        .el-input:not(.el-input-number > .el-input, .longlat-input),
+        .el-select,
+        .el-textarea,
+        .el-cascader,
+        .tags {
+          width: 100%;
+          max-width: 420px;
+        }
+
+        .longlat-input {
+          width: 48%;
+          max-width: 203px;
+        }
+
+        .certificate-select {
+          width: 60%;
+        }
+
+        .resource-tabs .el-tabs__item {
+          font-size: $text-size-medium;
+        }
+      }
+
+      .show-more {
+        @include show-more();
+      }
+    }
+  }
+
+  /* device-create */
+  .create-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+      border-bottom: 1px solid $border-color-primary;
+
+      .breadcrumb {
+        &__item:after {
+          content: '/';
+          color: $textGrey;
+        }
+
+        &__item:last-child:after {
+          content: '';
+        }
+      }
+
+      .process {
+        padding: 16px 20px;
+
+        .el-steps--simple {
+          width: 300px;
+          background: none;
+          padding: 0;
+
+          .el-step.is-simple .el-step__head {
+            padding-right: 8px;
+          }
+
+          .el-step.is-simple .el-step__arrow {
+            margin-right: 8px;
+            align-self: center;
+            height: 0;
+            border-bottom: 2px solid $primary;
+
+            &:before,
+            &:after {
+              content: none;
+            }
+          }
+
+          .el-step__title {
+            flex: 0 0 70px;
+            font-size: 14px;
+            color: #000;
+          }
+
+          .el-step__icon {
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+
+          .is-success {
+            .el-step__icon {
+              color: $primary;
+              border-color: $primary;
+            }
+          }
+
+          .is-process {
+            .el-step__icon {
+              background: $primary;
+              color: #fff;
+              border-color: $primary;
+            }
+          }
+
+          .is-wait,
+          .is-finish {
+            color: $textGrey;
+
+            .el-step__icon {
+              border-color: $textGrey;
+            }
+          }
+
+          .is-finish {
+            .el-step__icon {
+              background: #bbb;
+              color: #fff;
+              border-color: #bbb;
+            }
+          }
+        }
+      }
+    }
+
+    &__body {
+      flex: 1;
+      position: relative;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      overflow: auto;
+      padding: $padding-medium;
+
+      &__form {
+        width: calc(100% - $padding-medium);
+        position: absolute;
+      }
+
+      .form-title {
+        position: relative;
+        padding-left: $padding-medium;
+        margin-left: $margin-small;
+        font-size: 14px;
+        font-weight: bold;
+
+        &:before {
+          content: ' ';
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: $primary;
+          width: 4px;
+          height: 16px;
+        }
+      }
+
+      .el-input:not(.el-input-number > .el-input, .longlat-input),
+      .el-select,
+      .el-textarea,
+      .el-cascader,
+      .tags {
+        width: 420px;
+      }
+
+      .in-protocol {
+        color: $textGrey;
+      }
+
+      .longlat-input {
+        width: 205px;
+      }
+
+      .show-more {
+        @include show-more();
+      }
+    }
+
+    &__footer {
+      border-top: 1px solid $border-color-primary;
+
+      &__tools {
+        padding: 16px 20px;
+      }
+    }
+  }
+
+  @include filter-buttons;
+}
