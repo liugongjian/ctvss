@@ -60,6 +60,11 @@ export default class extends Mixins(detailMixin) {
 
   public async mounted() {
     await this.getDevice()
+
+    // 只有viid设备时tab默认选中viid
+    if (this.hasViid && !this.hasVideo) {
+      this.activeTab = DeviceInTypeEnum.Viid
+    }
   }
 
   public updateDevice() {
