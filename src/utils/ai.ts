@@ -180,6 +180,7 @@ export const parseMetaData = (type: string, metaData: any) => {
       // @ts-ignore
       locations.counts = counts // 动物数量对象
       break
+
     case '6': // 研发二部未带口罩
     case '10003': // 研发二部未带口罩
       if (metaData.Data && metaData.Data.FaceRectangles) {

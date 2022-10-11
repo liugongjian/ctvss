@@ -646,7 +646,7 @@ export default class extends Vue {
     font-size: 14px;
 
     .configureName {
-      color:#878887;
+      color: #878887;
     }
   }
 

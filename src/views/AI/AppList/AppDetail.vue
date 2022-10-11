@@ -10,7 +10,11 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs v-model="tabNum" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" :name="'0'">
-        <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
+        <BasicAppInfo
+          v-if="appInfo.name"
+          :app-info="appInfo"
+          :face-lib="faceLib"
+        />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
         <AtachedDevice v-if="tabNum === '1'" />
@@ -43,18 +47,31 @@
           </div> -->
           <div class="app-container__result__device">
             <span>设备:</span>
-            <el-select v-model="device" placeholder="请选择" value-key="deviceId">
+            <el-select
+              v-model="device"
+              placeholder="请选择"
+              value-key="deviceId"
+            >
               <el-option
                 v-for="value in deviceList"
                 :key="value.deviceId"
-                :label="value.deviceType === 'nvr' ? `NVR / ${value.deviceName}` : value.deviceName"
+                :label="
+                  value.deviceType === 'nvr'
+                    ? `NVR / ${value.deviceName}`
+                    : value.deviceName
+                "
                 :value="value"
               />
             </el-select>
           </div>
           <!-- <div class="right" :style="`width: calc(100% - ${dirDrag.width}px)`"> -->
           <div class="right">
-            <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+            <AppSubDetail
+              v-if="appInfo.name"
+              :device="device"
+              :app-info="appInfo"
+              :face-lib="faceLib"
+            />
           </div>
         </div>
       </el-tab-pane>
@@ -71,7 +88,8 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
 import { Component, Mixins } from 'vue-property-decorator'
 import AppMixin from '../mixin/app-mixin'
 import AppSubDetail from './component/AppSubDetail.vue'
-import AtachedDevice from './component/AtachedDevice.vue'
+// import AtachedDevice from './component/AtachedDevice.vue'
+import AtachedDevice from '@vss/ai/component/AtachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 @Component({
   name: 'AppDetail',
@@ -118,7 +136,9 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private initFaceLib(groups) {
     const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
     if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(item => (item.id + '') === algorithmMetadata.FaceDbName)[0]
+      this.faceLib = groups.filter(
+        (item) => item.id + '' === algorithmMetadata.FaceDbName
+      )[0]
     }
   }
 
@@ -131,8 +151,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-     * 初始化设备列表
-     */
+   * 初始化设备列表
+   */
   public async initDirs() {
     try {
       this.loading.dir = true
@@ -141,7 +161,9 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+        (group.inProtocol === 'gb28181' ||
+          group.inProtocol === 'ehome' ||
+          group.inProtocol === 'vgroup') &&
           this.dirList.push({
             id: group.groupId,
             groupId: group.groupId,
@@ -149,14 +171,15 @@ export default class extends Mixins(AppMixin, IndexMixin) {
             inProtocol: group.inProtocol,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             disabled: true,
-            path: [{
-              id: group.groupId,
-              label: group.groupName,
-              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-            }],
+            path: [
+              {
+                id: group.groupId,
+                label: group.groupName,
+                type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+              }
+            ],
             deviceStatus: group.deviceStatus
           })
-        )
       })
     } catch (e) {
       this.dirList = []
@@ -166,8 +189,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-     * 展开设备列表时Load子树
-     */
+   * 展开设备列表时Load子树
+   */
   public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
@@ -175,8 +198,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-     * 获取设备列表时Load子树数据
-     */
+   * 获取设备列表时Load子树数据
+   */
   private async getTree(node: any) {
     try {
       if (node.data.type === 'role') {
@@ -187,16 +210,25 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       }
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
-        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+        id:
+          node.data.type === 'top-group' || node.data.type === 'vgroup'
+            ? 0
+            : node.data.id,
         inProtocol: node.data.inProtocol,
-        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+        type:
+          node.data.type === 'top-group' || node.data.type === 'vgroup'
+            ? undefined
+            : node.data.type,
         'self-defined-headers': {
           'role-id': node.data.roleId,
           'real-group-id': node.data.realGroupId
         }
       })
       if (node.data.type === 'role') {
-        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
+        devices.dirs = devices.dirs.filter(
+          (dir: any) =>
+            dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome'
+        )
       }
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
@@ -223,10 +255,11 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-     * 获取设备列表时Load子树数据
-     */
+   * 获取设备列表时Load子树数据
+   */
   private selectDevice(data: any) {
-    data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
+    data.isLeaf &&
+      (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(data.id)
   }
@@ -244,7 +277,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .el-tab-pane {
   display: flex;
 }
