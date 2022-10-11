@@ -31,10 +31,10 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
-import { ScreenModule } from '@/store/modules/screen'
-import { Screen } from '@/views/device/services/Screen/Screen'
-import VssPlayer from '@/components/VssPlayer/index.vue'
+import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
+import { ScreenModule } from '@vss/device/store/modules/screen'
+import { Screen } from '@vss/device/services/Screen/Screen'
+import VssPlayer from '@vss/vss-video-player/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 
 @Component({

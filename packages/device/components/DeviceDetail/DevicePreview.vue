@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
-import { Stream } from '@/components/VssPlayer/types/VssPlayer'
+import { Stream } from '@vss/vss-video-player/types/VssPlayer'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import detailMixin from '@vss/device/mixin/deviceMixin'
@@ -36,7 +36,7 @@ export default class extends Mixins(detailMixin) {
     await this.getDevice()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
-    this.screenManager = screenBoard!.screenManager
+    this.screenManager = screenBoard?.screenManager
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol

@@ -32,7 +32,7 @@ import { ToolsEnum } from '../../enums/index'
 export default class extends Vue {
   @Inject('handleTools')
   private handleTools!: Function
-  private activeRouteName: string = 'DeviceInfo'
+  private activeRouteName = 'DeviceInfo'
 
   private get deviceId() {
     return this.$route.query.deviceId.toString()

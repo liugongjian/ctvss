@@ -4,13 +4,19 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.Polling)"><svg-icon name="polling-play" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.Polling)">
+            <svg-icon name="polling-play" />
+          </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)"><svg-icon name="auto-play" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)">
+            <svg-icon name="auto-play" />
+          </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)"><svg-icon name="refresh" /></el-button>
+          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)">
+            <svg-icon name="refresh" />
+          </el-button>
         </el-tooltip>
       </template>
       <template slot="leftBody">
@@ -24,11 +30,7 @@
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
-        <polling-mask
-          v-if="false"
-          polling-status="free"
-          @polling-handle="handleTools"
-        />
+        <polling-mask v-if="false" polling-status="free" @polling-handle="handleTools" />
       </template>
       <template slot="leftBottom">
         <!-- TODO -->
@@ -40,11 +42,7 @@
       <template slot="rightHeader">
         <!-- TODO -->
         <span @click="1">根目录</span>
-        <span
-          v-for="item in ['目录1', '目录2', '目录3']"
-          :key="item"
-          @click="1"
-        >
+        <span v-for="item in ['目录1', '目录2', '目录3']" :key="item" @click="1">
           {{ item }}
         </span>
       </template>
@@ -63,10 +61,10 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import layoutMxin from './mixin/layoutMixin'
-import ScreenBoard from './components/ScreenBoard/index.vue'
-import PreviewTree from './components/Tree/PreviewTree.vue'
-import PollingMask from './components/PollingMask.vue'
+import layoutMxin from '@vss/device/mixin/layoutMixin'
+import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
+import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
+import PollingMask from '@vss/device/components/PollingMask.vue'
 
 @Component({
   name: 'Preview',

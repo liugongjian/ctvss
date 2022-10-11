@@ -18,40 +18,20 @@ export default class DeviceFormMixin extends Vue {
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
     ],
-    [DeviceEnum.DeviceType]: [
-      { required: true, message: '请选择设备类型', trigger: 'change' }
-    ],
+    [DeviceEnum.DeviceType]: [{ required: true, message: '请选择设备类型', trigger: 'change' }],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
     ],
-    [DeviceEnum.DeviceVendor]: [
-      { required: true, message: '请选择厂商', trigger: 'change' }
-    ],
-    [DeviceEnum.Region]: [
-      { required: true, message: '请选择区域', trigger: 'change' }
-    ],
-    [DeviceEnum.InOrgRegion]: [
-      { required: true, message: '请选择设备地址', trigger: 'change' }
-    ],
-    [DeviceEnum.IndustryCode]: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
-    ],
-    [DeviceEnum.NetworkCode]: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceIp]: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    [DeviceEnum.DevicePort]: [
-      { validator: this.validateDevicePort, trigger: 'change' }
-    ],
-    [DeviceEnum.DevicePoleId]: [
-      { validator: this.validatePoleId, trigger: 'blur' }
-    ],
-    [DeviceEnum.DeviceMac]: [
-      { validator: this.validateMacAddr, trigger: 'blur' }
-    ]
+    [DeviceEnum.DeviceVendor]: [{ required: true, message: '请选择厂商', trigger: 'change' }],
+    [DeviceEnum.Region]: [{ required: true, message: '请选择区域', trigger: 'change' }],
+    [DeviceEnum.InOrgRegion]: [{ required: true, message: '请选择设备地址', trigger: 'change' }],
+    [DeviceEnum.IndustryCode]: [{ required: true, message: '请选择所属行业', trigger: 'blur' }],
+    [DeviceEnum.NetworkCode]: [{ required: true, message: '请选择网络标识', trigger: 'blur' }],
+    [DeviceEnum.DeviceIp]: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
+    [DeviceEnum.DevicePort]: [{ validator: this.validateDevicePort, trigger: 'change' }],
+    [DeviceEnum.DevicePoleId]: [{ validator: this.validatePoleId, trigger: 'blur' }],
+    [DeviceEnum.DeviceMac]: [{ validator: this.validateMacAddr, trigger: 'blur' }]
   }
 
   public loading = {
@@ -76,7 +56,11 @@ export default class DeviceFormMixin extends Vue {
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{2,64}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'))
+      callback(
+        new Error(
+          '设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'
+        )
+      )
     } else if (/^[\s]|[\s]$/.test(value)) {
       callback(new Error('不能以空格作为名称的首尾。'))
     } else {
@@ -88,9 +72,13 @@ export default class DeviceFormMixin extends Vue {
    * 校验经纬度
    */
   public validateLonglat(rule: any, value: string, callback: Function) {
-    if (!this.deviceForm.deviceLongitude || !this.deviceForm.deviceLatitude) {
+    if (this.deviceForm.deviceLongitude === '' || this.deviceForm.deviceLatitude === '') {
       callback(new Error('请填写经度及纬度坐标'))
-    } else if (!/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(this.deviceForm.deviceLongitude)) {
+    } else if (
+      !/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(
+        this.deviceForm.deviceLongitude
+      )
+    ) {
       callback(new Error('经度坐标格式错误'))
     } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(this.deviceForm.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
@@ -158,8 +146,8 @@ export default class DeviceFormMixin extends Vue {
    * 校验MAC地址
    */
   public async validateMacAddr(rule: any, value: string, callback: Function) {
-    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
-    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    const reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    const reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
     if (value && !reg1.test(value) && !reg2.test(value)) {
       callback(new Error('请输入规范MAC地址'))
     } else {

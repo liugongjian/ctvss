@@ -51,19 +51,19 @@ export default class DetailMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
-    [ToolsEnum.AddDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
-    [ToolsEnum.EditDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
-    [ToolsEnum.SortDirectory]: (data) => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
+    [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
+    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this, type, isfresh),
-    [ToolsEnum.DeleteDirectory]: (data) => DeviceManager.deleteDir(this, data),
+    [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
-    [ToolsEnum.Polling]: (node) => DeviceManager.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: (node) => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
-    [ToolsEnum.IntervalChange]: (interval) => DeviceManager.intervalChange(this, interval),
+    [ToolsEnum.Polling]: node => DeviceManager.executeQueue(this, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: node => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: interval => DeviceManager.intervalChange(this, interval),
     [ToolsEnum.StopPolling]: () => DeviceManager.stopPolling(this),
     [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
     [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
-    [ToolsEnum.AdvanceSearch]: (filterData) => DeviceManager.advanceSearch(this, filterData),
+    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
     [ToolsEnum.GoToDeviceList]: () => DeviceManager.goToDeviceList(this)
   }
@@ -74,12 +74,14 @@ export default class DetailMixin extends Vue {
 
   /* 设备目录树是否懒加载依据 */
   public get lazy(): boolean {
-    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(param => !this.$route.query[param])
+    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
+      param => !this.$route.query[param]
+    )
   }
 
   /* 播放器管理实例 */
   public get screenManager() {
-    return (this.$refs.screenBoard as any)!.screenManager
+    return (this.$refs.screenBoard as any)?.screenManager
   }
 
   /* 视频队列执行器 */
@@ -95,7 +97,7 @@ export default class DetailMixin extends Vue {
    * 懒加载时加载节点方法
    * @param node 节点信息
    */
-  public treeLoad = async function(node) {
+  public treeLoad = async function (node) {
     let children
     if (node.level === 0) {
       this.loading.tree = true

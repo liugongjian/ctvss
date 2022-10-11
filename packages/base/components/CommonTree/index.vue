@@ -7,8 +7,8 @@
       v-show="hasRoot"
       ref="root"
       class="common-tree__root"
-      :class="{'common-tree__root--active': currentNodeKey === null}"
-      @click="handleNode(null)"
+      :class="{'common-tree__root--active': currentNodeKey === '-1'}"
+      @click="handleNode({id: '-1'})"
     >
       <div class="common-tree__root__label-prefix">
         <slot name="rootLabelPrefix" />
@@ -23,53 +23,62 @@
         <slot name="rootTools" />
       </div>
     </div>
-    <el-tree
-      :key="treeKey"
-      ref="Tree"
-      class="common-tree__body"
-      node-key="id"
-      :data="data"
-      :empty-text="emptyText"
-      :props="props"
-      :lazy="lazy"
-      :load="loadChildren"
-      :default-expand-all="!lazy"
-      :expand-on-click-node="false"
-      highlight-current
-      @node-click="handleNode"
-    >
-      <div
-        slot-scope="{node, data}"
-        v-item-directive="{node}"
-        class="common-tree__item"
-      >
-        <div class="common-tree__item__label-prefix">
-          <slot name="itemLabelPrefix" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__label">
-          <slot name="itemLabel" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__label-suffix">
-          <slot name="itemLabelSuffix" :node="node" :data="data" />
-        </div>
-        <div class="common-tree__item__tools">
-          <slot name="itemTools" :node="node" :data="data" />
-        </div>
+    <div class="common-tree__content">
+      <div class="common-tree__content__container">
+        <el-tree
+          :key="treeKey"
+          ref="Tree"
+          node-key="id"
+          :data="data"
+          :empty-text="emptyText"
+          :props="props"
+          :lazy="lazy"
+          :load="loadChildren"
+          :default-expand-all="!lazy"
+          :expand-on-click-node="false"
+          :show-checkbox="hasCheckbox"
+          highlight-current
+          @node-click="handleNode"
+        >
+          <div
+            slot-scope="{node, data}"
+            v-draggable="{node, isDraggable}"
+            class="common-tree__item"
+          >
+            <div class="common-tree__item__label-prefix">
+              <slot name="itemLabelPrefix" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__label">
+              <slot name="itemLabel" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__label-suffix">
+              <slot name="itemLabelSuffix" :node="node" :data="data" />
+            </div>
+            <div class="common-tree__item__tools">
+              <slot name="itemTools" :node="node" :data="data" />
+            </div>
+          </div>
+        </el-tree>
       </div>
-    </el-tree>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { draggable } from './draggable'
+
 @Component({
-  name: 'CommonTree'
+  name: 'CommonTree',
+  directives: {
+    'draggable': draggable
+  }
 })
 export default class extends Vue {
   @Prop({ default: () => [] })
   private data
 
-  @Prop({ default: '' })
+  @Prop({ default: '-1' })
   private defaultKey
 
   @Prop({ default: '' })
@@ -87,13 +96,14 @@ export default class extends Vue {
   @Prop({ default: null })
   private getNodeInfo
 
-  @Prop({ default: () => {
-    return { bind: () => {} }
-  } })
-  private itemDirective
-
   @Prop({ default: false })
   private treeLoading: boolean
+
+  @Prop({ default: () => false })
+  private isDraggable: Function | boolean
+
+  @Prop({ default: false })
+  private hasCheckbox: boolean
 
   private hasRoot: boolean = false
   private treeKey: string = 'ct' + new Date().getTime()
@@ -106,7 +116,6 @@ export default class extends Vue {
   }
 
   private created() {
-    Vue.directive('item-directive', this.itemDirective)
   }
 
   private mounted() {
@@ -173,6 +182,22 @@ export default class extends Vue {
     this.currentNodeKey = node ? node.key : null
     this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('handle-node', data)
+  }
+
+  private getCheckedNodes(leafOnly: boolean = false, includeHalfChecked: boolean = false) {
+    return this.tree.getCheckedNodes(leafOnly, includeHalfChecked)
+  }
+
+  private setCheckedNodes(nodes) {
+    return this.tree.setCheckedNodes(nodes)
+  }
+
+  private getCheckedKeys(leafOnly: boolean = false) {
+    return this.tree.getCheckedNodes(leafOnly)
+  }
+
+  private setCheckedKeys(keys, leafOnly: boolean = false) {
+    return this.tree.setCheckedKeys(keys, leafOnly)
   }
 }
 </script>

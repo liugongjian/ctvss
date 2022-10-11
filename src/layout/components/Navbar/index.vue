@@ -121,7 +121,6 @@ import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
 import HeaderSearch from '@/components/HeaderSearch/index.vue'
-import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import { AlertType } from '@/dics'
 import * as loginService from '@/services/loginService'
@@ -142,7 +141,6 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
     ErrorLog,
     Hamburger,
     HeaderSearch,
-    Screenfull,
     SizeSelect,
     TemplateBind
   },

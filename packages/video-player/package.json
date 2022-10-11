@@ -1,0 +1,18 @@
+{
+  "name": "@vss/video-player",
+  "version": "0.0.4",
+  "description": "",
+  "dependencies": {
+    "flv.js": "^1.6.2",
+    "hls.js": "^1.1.5"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.ctyuncdn.cn/vss-web/vss-user-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

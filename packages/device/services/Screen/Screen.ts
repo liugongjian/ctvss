@@ -1,8 +1,8 @@
 import axios from 'axios'
 import screenLogManager from './ScreenLogManager'
-import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/types/VssPlayer'
+import { DeviceInfo, StreamInfo, Stream } from '@vss/vss-video-player/types/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
-import { Player } from '@/components/Player/services/Player'
+import { Player } from '@vss/video-player/services/Player'
 import { getDevicePreview } from '@/api/device'
 
 export class Screen {
@@ -17,7 +17,7 @@ export class Screen {
   public errorMsg?: string
   public lastIsMuted?: boolean
   public log?: {
-    previewRequestId: string,
+    previewRequestId: string
     previewStartTimestamp?: number
     previewEndTimestamp?: number
     previewError: string
@@ -65,7 +65,7 @@ export class Screen {
   /* 当前时间（时间戳/秒），用于缓存恢复和同步向相邻录像时间 */
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
-  public datetimeRange?: { startTime: number; endTime: number; }
+  public datetimeRange?: { startTime: number; endTime: number }
 
   /**
    * ----------------
@@ -136,7 +136,7 @@ export class Screen {
 
   public get deviceInfo(): DeviceInfo {
     return {
-      deviceId: this.deviceId,
+      deviceId: this.deviceId?.toString(),
       inProtocol: this.inProtocol,
       deviceName: this.deviceName,
       roleId: this.roleId,
@@ -255,15 +255,18 @@ export class Screen {
       this.axiosSource = axios.CancelToken.source()
       this.url = ''
       this.log.previewStartTimestamp = new Date().getTime()
-      const res: any = await getDevicePreview({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol,
-        streamNum: this.streamNum,
-        'self-defined-headers': {
-          'role-id': this.roleId || '',
-          'real-group-id': this.realGroupId || ''
-        }
-      }, this.axiosSource.token)
+      const res: any = await getDevicePreview(
+        {
+          deviceId: this.deviceId,
+          inProtocol: this.inProtocol,
+          streamNum: this.streamNum,
+          'self-defined-headers': {
+            'role-id': this.roleId || '',
+            'real-group-id': this.realGroupId || ''
+          }
+        },
+        this.axiosSource.token
+      )
       this.log.previewEndTimestamp = new Date().getTime()
       this.log.previewRequestId = res.requestId
       if (res.playUrl) {
@@ -331,11 +334,11 @@ export class Screen {
    * ================================
    */
   /**
-     * 初始化录像
-     * 1) 初始化RecordManager录像管理器
-     * 2) 获取当前所选日期一整天的录像列表
-     * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
-     */
+   * 初始化录像
+   * 1) 初始化RecordManager录像管理器
+   * 2) 获取当前所选日期一整天的录像列表
+   * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
+   */
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()

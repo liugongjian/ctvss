@@ -1,4 +1,3 @@
-import 'babel-polyfill'
 import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
 import { isIE } from '@/utils/browser'
@@ -44,12 +43,12 @@ Vue.use(ShowAlert)
 
 // Register global directives
 Object.keys(directives).forEach(key => {
-  Vue.directive(key, (directives as { [key: string ]: DirectiveOptions })[key])
+  Vue.directive(key, (directives as { [key: string]: DirectiveOptions })[key])
 })
 
 // Register global filter functions
 Object.keys(filters).forEach(key => {
-  Vue.filter(key, (filters as { [key: string ]: Function })[key])
+  Vue.filter(key, (filters as { [key: string]: Function })[key])
 })
 
 Vue.config.productionTip = false

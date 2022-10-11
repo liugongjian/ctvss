@@ -18,7 +18,7 @@
         </el-radio>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码:" :prop="deviceEnum.LowerApsId">
-        <el-input v-model="viidForm.apsId" />
+        <el-input v-model="viidForm.lowerApsId" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型:" :prop="deviceEnum.ProtocolDeviceType">
         <el-select
@@ -48,11 +48,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '../../dicts/index'
-import { DeviceEnum, InViidProtocolEnum } from '../../enums/index'
+import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '@vss/device/dicts/index'
+import { DeviceEnum, InViidProtocolEnum } from '@vss/device/enums/index'
 import { Device, ViidDevice, DeviceBasicForm, ViidDeviceForm } from '@vss/device/type/Device'
-import { checkViidVisible } from '../../utils/param'
-import CertificateSelect from '../../components/CertificateSelect.vue'
+import { checkViidVisible } from '@vss/device/utils/param'
+import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 
 @Component({
   name: 'ViidCreateForm',
@@ -62,7 +62,7 @@ import CertificateSelect from '../../components/CertificateSelect.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private deviceForm: DeviceBasicForm
 
   private deviceEnum = DeviceEnum
@@ -97,12 +97,16 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inProtocol() {
-    return this.device && this.device.viids && this.device.viids[0]!.inViidProtocol
+    return (this.device && this.device.viids && this.device.viids.length && this.device.viids[0].inViidProtocol) || null
   }
 
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
-    return (this.inProtocol && this.device.viids[0]![InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    if (this.device && this.device.viids) {
+      return (this.inProtocol && this.device.viids[0][InViidProtocolModelMapping[this.inProtocol]]) || {} as ViidDevice
+    } else {
+      return {}
+    }
   }
 
   @Watch('device', {
@@ -146,6 +150,29 @@ export default class extends Vue {
   private validateApsId(rule: any, value: string, callback: Function) {
     if (!/^[0-9]{20}$/.test(value)) {
       callback(new Error('视图标编码为20位数字'))
+    } else {
+      callback()
+    }
+  }
+
+
+  /**
+   * 校验设备IP格式
+   */
+  private validateDeviceIp(rule: any, value: string, callback: Function) {
+    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+      callback(new Error('设备IP格式不正确'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验端口号
+   */
+  private validateDevicePort(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value)) {
+      callback(new Error('设备端口仅支持数字'))
     } else {
       callback()
     }

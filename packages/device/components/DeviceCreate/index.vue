@@ -131,7 +131,7 @@
             <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
               <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+                  v-for="(value, key) in deviceVendorList"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -167,10 +167,10 @@
                 placeholder="请选择所属行业"
               >
                 <el-option
-                  v-for="(value, key) in industryMap"
+                  v-for="(value, key) in industryList"
                   :key="key"
-                  :label="value"
-                  :value="key"
+                  :label="value.name"
+                  :value="value.code"
                 />
               </el-select>
             </el-form-item>
@@ -180,14 +180,14 @@
                 placeholder="请选择网络标识"
               >
                 <el-option
-                  v-for="(value, key) in networkMap"
+                  v-for="(value, key) in networkList"
                   :key="key"
-                  :label="value"
-                  :value="key"
+                  :label="value.name"
+                  :value="value.code"
                 />
               </el-select>
             </el-form-item>
-            <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
+            <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
@@ -238,16 +238,18 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '../../dicts/index'
-import { checkVideoVisible } from '../../utils/param'
-import { DeviceTips } from '../../dicts/tips'
-import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
-import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
-import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '../../type/Device'
-import { createDevice } from '../../api/device'
-import VideoCreateForm from '../Form/VideoCreateForm.vue'
-import ViidCreateForm from '../Form/ViidCreateForm.vue'
-import deviceFormMixin from '../../mixin/deviceFormMixin'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
+import { DeviceModule } from '@vss/device/store/modules/device'
+import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
+import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
+import { DeviceTips } from '@vss/device/dicts/tips'
+import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums/index'
+import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '@vss/device/settings'
+import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
+import { createDevice } from '@vss/device/api/device'
+import VideoCreateForm from '@vss/device/components/Form/VideoCreateForm.vue'
+import ViidCreateForm from '@vss/device/components/Form/ViidCreateForm.vue'
+import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 
 @Component({
   name: 'DeviceCreate',
@@ -271,16 +273,16 @@ export default class extends Mixins(deviceFormMixin) {
   private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
-  private deviceVendor = DeviceVendor
-  private industryMap = IndustryMap
-  private networkMap = NetworkMap
+  private industryList = null
+  private networkList = null
   private inNetworkType = InNetworkType
   private outNetworkType = OutNetworkType
   private breadCrumbContent = '添加设备'
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
-  private activeStep: number = 0
-  private showMore: boolean = false
-  private showMoreVisable: boolean = false
+  private inViidProtocol = InViidProtocolEnum.Ga1400
+  private activeStep = 0
+  private showMore = false
+  private showMoreVisable = false
   public deviceForm: DeviceBasicForm = {
     // step0
     [DeviceEnum.DeviceName]: '',
@@ -300,7 +302,7 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.NetworkCode]: '7',
     [DeviceEnum.Description]: '',
     [DeviceEnum.DeviceIp]: '',
-    [DeviceEnum.DevicePort]: '',
+    [DeviceEnum.DevicePort]: null,
     [DeviceEnum.DevicePoleId]: '',
     [DeviceEnum.DeviceMac]: '',
     [DeviceEnum.DeviceSerialNumber]: '',
@@ -316,41 +318,65 @@ export default class extends Mixins(deviceFormMixin) {
     return this.$route.query.parentDeviceId && this.$route.query.parentDeviceId.toString()
   }
 
+  /**
+   * 根据接入方式和接入协议返回厂商列表
+   */
+  private get deviceVendorList() {
+    return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
+  }
+
+  private get currentDirId() {
+    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
+    return this.$route.query.dirId as string
+  }
+
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
   }
 
-  private mounted() {
+  private async mounted() {
     if (this.isIbox) {
       this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
     }
+    this.industryList = await DeviceModule.getIndutryList(getIndustryList)
+    this.networkList = await DeviceModule.getNetworkList(getNetworkList)
   }
 
   private updated() {
-    this.checkIsShwoMore()
+    this.checkIsShowMore()
   }
 
   /**
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
+    if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
+    } else {
+      return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
+    }
   }
 
   /**
    * 判断是否显示更多下拉框
    */
-  private checkIsShwoMore() {
+  private checkIsShowMore() {
     const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
     this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**
    * 设备类型变化
+   * 设备分类为NVR，接入方式仅能选视频（默认选中视频）
+   * 设备分类为Platform，接入方式默认取数组第一个元素
    */
   private deviceTypeChange() {
-    this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr) {
+      this.deviceForm.deviceInType = [DeviceInTypeEnum.Video]
+    } else if (this.deviceForm.deviceType === DeviceTypeEnum.Platform) {
+      this.deviceForm.deviceInType = this.deviceForm.deviceInType.slice(0, 1)
+    }
   }
 
   /**
@@ -367,10 +393,10 @@ export default class extends Mixins(deviceFormMixin) {
     if (val === 0) {
       this.activeStep = val
     } else {
-      let validFlag: boolean = true
+      let validFlag = true
       // 校验step1中deviceForm
       const deviceForm: any = this.$refs.deviceForm
-      let validArr = [
+      const validArr = [
         DeviceEnum.DeviceName,
         DeviceEnum.DeviceType
       ]
@@ -400,10 +426,10 @@ export default class extends Mixins(deviceFormMixin) {
    * 提交
    */
   private submit() {
-    let validFlag: boolean = true
+    let validFlag = true
     // 校验step1中deviceForm
     const form: any = this.$refs.deviceForm
-    let validArr = [
+    const validArr = [
       DeviceEnum.Longlat,
       DeviceEnum.DeviceVendor,
       DeviceEnum.Region,
@@ -415,9 +441,6 @@ export default class extends Mixins(deviceFormMixin) {
       DeviceEnum.DevicePoleId,
       DeviceEnum.DeviceMac
     ]
-    this.deviceForm.region = '0431001'
-    this.deviceForm.inOrgRegion = '11011100'
-    this.deviceForm.inOrgRegionLevel = 3
     form.validateField(validArr, (err) => {
       if (err !== '') {
         validFlag = false
@@ -449,8 +472,10 @@ export default class extends Mixins(deviceFormMixin) {
           ...pick(this.videoForm, [
             DeviceEnum.DeviceChannelSize
           ]),
+          // 父级dirId
+          [DeviceEnum.DirId]: this.currentDirId,
           // 父级设备ID
-          parentDeviceId: this.parentDeviceId
+          [DeviceEnum.ParentDeviceId]: this.parentDeviceId
         },
         industry: {
           ...pick(this.deviceForm, [

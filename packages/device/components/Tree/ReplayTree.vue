@@ -7,22 +7,22 @@
     :empty-text="emptyText"
     :lazy="lazy"
     :get-node-info="getNodeInfo"
-    :item-directive="dropScreen"
     :load="load"
     :tree-loading="treeLoading"
+    :is-draggable="checkIsDraggable"
     @handle-node="handleNode"
   >
-    <template slot="itemLabelPrefix" slot-scope="{data}">
+    <template slot="itemLabelPrefix" slot-scope="{ data }">
       <svg-icon :name="data.type" />
       <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" status="on" />
     </template>
-    <template slot="itemLabel" slot-scope="{node}">
+    <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix">
       <span>{{ `(1/11)` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{node, data}">
+    <template slot="itemTools" slot-scope="{ node, data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
           <template slot="tooltipBase">
@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import treeMixin from './treeMixin'
+import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'ReplayTree'

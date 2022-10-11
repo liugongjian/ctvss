@@ -191,7 +191,7 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
       <el-input v-model="videoForm.outId" />
-      <div class="form-tip">
+      <div v-if="!isEdit" class="form-tip">
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
@@ -205,7 +205,7 @@
         @changevssaiapps="changeVSSAIApps"
       />
     </el-form-item> -->
-    <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
+    <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
         <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
       </el-form-item>
@@ -220,15 +220,15 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum, InNetworkTypeEnum } from '../../enums/index'
+import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum, InNetworkTypeEnum } from '@vss/device/enums/index'
 import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '@vss/device/dicts'
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
-import { DeviceTips } from '../../dicts/tips'
-import { validGbId } from '../../api/device'
-import { checkVideoVisible } from '../../utils/param'
-import CertificateSelect from '../CertificateSelect.vue'
-import Tags from '../Tags.vue'
-import ResourceTabs from '../ResourceTabs.vue'
+import { DeviceTips } from '@vss/device/dicts/tips'
+import { validGbId } from '@vss/device/api/device'
+import { checkVideoVisible } from '@vss/device/utils/param'
+import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
+import Tags from '@vss/device/components/Tags.vue'
+import ResourceTabs from '@vss/device/components/ResourceTabs.vue'
 
 @Component({
   name: 'VideoCreateForm',
@@ -240,8 +240,9 @@ import ResourceTabs from '../ResourceTabs.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
-  @Prop({ default: () => {} }) private deviceForm: DeviceBasicForm
+  @Prop({ default: {} }) private deviceForm: DeviceBasicForm
   @Prop({ default: false }) private isIbox: boolean
+  @Prop({ default: false }) private isEdit: boolean
   public videoForm: VideoDeviceForm = {}
   private orginalResourceIdList: Array<string> = []
   private isPrivateInNetwork = false
@@ -308,12 +309,12 @@ export default class extends Vue {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device && this.device.videos && this.device.videos[0]!.inVideoProtocol
+    return this.device && this.device.videos && this.device.videos[0].inVideoProtocol
   }
 
   // 视频接入信息
   private get videoInfo(): VideoDevice {
-    return (this.inVideoProtocol && this.device.videos[0]![InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
+    return (this.inVideoProtocol && this.device.videos[0][InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
   }
 
   @Watch('device', {
@@ -513,9 +514,11 @@ export default class extends Vue {
         validInfo = await validGbId({
           [DeviceEnum.DeviceId]: this.deviceId,
           [DeviceEnum.InVideoProtocol]: this.videoForm.inVideoProtocol,
-          [DeviceEnum.OutId]: this.videoForm.outId
+          // [DeviceEnum.OutId]: this.videoForm.outId
+          gbId: this.videoForm.outId
         })
-        if (validInfo && !validInfo.IsValidGbId) {
+        console.log(validInfo)
+        if (validInfo && !validInfo.isValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {
           callback()

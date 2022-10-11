@@ -10,7 +10,8 @@ export const deviceRouter = {
     perms: ['DescribeDevice'],
     alwaysShow: false,
     only: true,
-    groupSelector: true
+    groupSelector: false,
+    version: 2
   },
   children: [
     {
@@ -22,7 +23,7 @@ export const deviceRouter = {
         icon: 'menu-device',
         breadcrumb: false,
         perms: ['DescribeDevice'],
-        groupSelector: true
+        groupSelector: false
       },
       children: [
         {
@@ -32,8 +33,7 @@ export const deviceRouter = {
           meta: {
             title: '设备列表',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor',
-            groupSelector: true
+            activeMenu: '/device-refactor'
           }
         },
         {
@@ -43,8 +43,7 @@ export const deviceRouter = {
           meta: {
             title: '设备详情',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor',
-            groupSelector: true
+            activeMenu: '/device-refactor'
           },
           children: [
             {
@@ -55,8 +54,7 @@ export const deviceRouter = {
                 title: '基本信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -67,8 +65,7 @@ export const deviceRouter = {
                 title: '设备/流信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -79,8 +76,7 @@ export const deviceRouter = {
                 title: '配置信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -91,8 +87,7 @@ export const deviceRouter = {
                 title: '实时预览',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -103,8 +98,7 @@ export const deviceRouter = {
                 title: '录像回放',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -115,8 +109,7 @@ export const deviceRouter = {
                 title: 'AI分析',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             },
             {
@@ -127,8 +120,7 @@ export const deviceRouter = {
                 title: '视图库',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail',
-                groupSelector: true
+                activeMenu: '/device-detail'
               }
             }
           ]
@@ -140,8 +132,7 @@ export const deviceRouter = {
           meta: {
             title: '创建设备',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor',
-            groupSelector: true
+            activeMenu: '/device-refactor'
           }
         }
       ]
@@ -305,6 +296,10 @@ export const iboxRouter = {
               path: 'config',
               component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceConfig/index.vue'),
               name: 'DeviceConfig',
+              props: {
+                isIbox: true,
+                getDeviceApi: getDeviceIbox
+              },
               meta: {
                 title: '配置信息',
                 breadcrumb: false,

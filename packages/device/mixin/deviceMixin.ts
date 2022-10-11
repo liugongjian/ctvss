@@ -2,10 +2,11 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
+import { DeviceEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
-  @Prop({ default: () => getDevice }) public getDeviceApi: Function
+  @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
   // 设备详情
@@ -21,13 +22,23 @@ export default class DeviceMixin extends Vue {
   }
 
   // 是否含视频
-  private get hasVideo() {
+  public get hasVideo() {
     return this.device.videos && this.device.videos.length
   }
 
   // 是否含视图库
-  private get hasViid() {
+  public get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 协议类型
+  public get protocol() {
+    if (this.hasVideo) {
+      return this.device.videos[0][DeviceEnum.InVideoProtocol]
+    } else if (this.hasViid) {
+      return this.device.viids[0][DeviceEnum.InViidProtocol]
+    }
+    return null
   }
 
   @Watch('$route.query.deviceId')
@@ -38,11 +49,12 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId) {
+  public async getDevice(deviceId: string = this.deviceId, isForce = false) {
     try {
       this.deviceLoading = true
       this.device = await DeviceModule.getDevice({
         deviceId,
+        isForce,
         fetch: this.getDeviceApi
       })
     } catch (e) {

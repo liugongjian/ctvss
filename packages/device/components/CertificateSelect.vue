@@ -3,9 +3,9 @@
     <el-select v-model="inUserName" class="certificate-select" :loading="loading">
       <el-option
         v-for="item in accountList"
-        :key="item.userName"
-        :label="item.userName"
-        :value="item.userName"
+        :key="item[apiMapping[type].label]"
+        :label="item[apiMapping[type].label]"
+        :value="item[apiMapping[type].value]"
       />
     </el-select>
     <el-button
@@ -28,12 +28,11 @@
 
 <script lang='ts'>
 import { Component, Prop, VModel, Vue } from 'vue-property-decorator'
-import { getList as getGb28181List } from '@/api/certificate/gb28181'
-import { getList as getGa1400List } from '@/api/certificate/ga1400'
+import { getGb28181CertificateList, getGa1400CertificateList } from '@vss/device/api/certificate'
 import { InVideoProtocolEnum, InViidProtocolEnum } from '@vss/device/enums'
 import { InVideoProtocol, InViidProtocol } from '@vss/device/dicts'
-import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import CreateGb28181Certificate from './Certificate/Gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from './Certificate/Ga1400/components/CreateDialog.vue'
 
 @Component({
   name: 'CertificateSelect',
@@ -63,12 +62,16 @@ export default class extends Vue {
 
   private apiMapping = {
     [InVideoProtocolEnum.Gb28181]: {
-      api: getGb28181List,
-      body: 'gbCerts'
+      api: getGb28181CertificateList,
+      body: 'gbCerts',
+      label: 'userName',
+      value: 'userName'
     },
     [InViidProtocolEnum.Ga1400]: {
-      api: getGa1400List,
-      body: 'data'
+      api: getGa1400CertificateList,
+      body: 'data',
+      label: 'username',
+      value: 'id'
     }
   }
 

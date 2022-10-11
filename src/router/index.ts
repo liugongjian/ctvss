@@ -94,7 +94,7 @@ export const constantRoutes: RouteConfig[] = [
 /**
  * asyncRoutes
  * the routes that need to be dynamically loaded based on user perms
-*/
+ */
 export const asyncRoutes: RouteConfig[] = [
   {
     path: '/dashboard',
@@ -213,7 +213,8 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeDevice'],
       alwaysShow: false,
       only: true,
-      groupSelector: true
+      groupSelector: true,
+      // version: 1,
     },
     children: [
       {
@@ -323,7 +324,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
   {
     path: '/player-debug',
-    component: () => import(/* webpackChunkName: "debug" */ '@/components/VssPlayer/Debug.vue'),
+    component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
     name: 'device-debug',
     meta: {
       title: '播放器调试',
@@ -406,7 +407,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['DescribeMap']
         }
-      }]
+      }
+    ]
   },
   {
     path: '/up-platform',
@@ -516,7 +518,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'gb28181',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/index.vue'),
         name: 'gb28181',
         meta: {
           name: 'certificate',
@@ -528,7 +530,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
@@ -539,7 +541,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
@@ -550,7 +552,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/index.vue'),
         name: 'ga1400',
         meta: {
           id: '20210424150201007004',
@@ -564,7 +566,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
         name: 'ga1400-create',
         meta: {
           id: '20210424150201007005',
@@ -577,7 +579,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
         name: 'ga1400-update',
         meta: {
           id: '20210424150201007006',
@@ -1226,25 +1228,26 @@ export const asyncRoutes: RouteConfig[] = [
   }
 ]
 
-const createRouter = () => new Router({
-  mode: 'history', // Disabled due to Github Pages doesn't support this, enable this if you need.
-  scrollBehavior: (to, from, savedPosition) => {
-    if (savedPosition) {
-      return savedPosition
-    } else {
-      return { x: 0, y: 0 }
-    }
-  },
-  base: settings.projectPrefix,
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    mode: 'history', // Disabled due to Github Pages doesn't support this, enable this if you need.
+    scrollBehavior: (to, from, savedPosition) => {
+      if (savedPosition) {
+        return savedPosition
+      } else {
+        return { x: 0, y: 0 }
+      }
+    },
+    base: settings.projectPrefix,
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
-  const newRouter = createRouter();
-  (router as any).matcher = (newRouter as any).matcher // reset router
+  const newRouter = createRouter()
+  ;(router as any).matcher = (newRouter as any).matcher // reset router
 }
 
 export default router

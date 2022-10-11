@@ -1,5 +1,7 @@
 .common-tree {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
 
   .svg-icon {
@@ -47,6 +49,25 @@
 
       .el-button {
         padding: 0;
+      }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+
+    &__container {
+      flex: 1;
+      position: relative;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      overflow: auto;
+
+      .el-tree {
+        position: absolute;
       }
     }
   }

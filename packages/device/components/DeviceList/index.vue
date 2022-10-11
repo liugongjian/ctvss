@@ -2,17 +2,23 @@
   <div class="device-container">
     <div class="list-wrap">
       <div v-if="checkToolsVisible(toolsEnum.ShowDeviceInfo)" class="list-wrap__header">
-        <info-list label-width="80">
-          <info-list-item label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
-          <info-list-item label="国标ID:">{{ basicInfo.gbId }}</info-list-item>
-          <info-list-item label="设备状态:">
-            <status-badge :status="basicInfo.deviceStatus" />
-            {{ videoStatus[basicInfo.deviceStatus] }}
+        <info-list v-loading="loading.info" label-width="80">
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceName)" label="设备名称:">{{ basicInfo.deviceName }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.PlatformName)" label="平台名称:">{{ basicInfo.deviceName }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OutId)" label="国标ID:">{{ videoInfo.outId }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.ViidId)" label="视图ID:">{{ viidInfo.outId }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.VideoStatus)" label="视频接入:">
+            <status-badge :status="videoInfo.deviceStatus.isOnline" />
+            {{ dicts.DeviceStatus[videoInfo.deviceStatus.isOnline] || '-' }}
           </info-list-item>
-          <info-list-item label="创建时间:">{{ basicInfo.createdTime }}</info-list-item>
-          <info-list-item v-if="basicInfo.createSubDevice === 2" label="可支持通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item v-else label="通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
-          <info-list-item label="在线流数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.ViidStatus)" label="视图接入:">
+            <status-badge :status="viidInfo.deviceStatus.isOnline" />
+            {{ dicts.DeviceStatus[viidInfo.deviceStatus.isOnline] || '-' }}
+          </info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ device.createdTime }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceChannelSize)" label="通道数量:">{{ basicInfo.deviceChannelSize }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>
       <div class="list-wrap__tools">
@@ -55,7 +61,7 @@
             v-if="checkToolsVisible(toolsEnum.SyncDeviceStatus)"
             class="el-button-rect filter-container__sync-button"
             :disabled="loading.syncDeviceStatus"
-            :class="{'loading': loading.syncDeviceStatus}"
+            :class="{ 'loading': loading.syncDeviceStatus }"
             @click="handleListTools(toolsEnum.syncDeviceStatus)"
           >
             <svg-icon name="refresh" /> 同步设备状态
@@ -63,7 +69,7 @@
         </div>
       </div>
       <div v-if="filterButtons.length" class="filter-buttons list-wrap__filter">
-        <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
+        <div v-for="{ key, value } in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
           <label>{{ deviceFiltersLabel[key] }}</label>
           <span v-if="key === deviceEnum.DeviceType">{{ deviceType[value] }}</span>
           <span v-if="key === deviceEnum.VideoStatus">{{ videoStatus[value] }}</span>
@@ -87,7 +93,7 @@
           >
             <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
             <el-table-column label="设备ID/名称" min-width="200">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <div class="device-name">
                   <div class="device-id">{{ row[deviceEnum.DeviceId] }}</div>
                   <div>{{ row[deviceEnum.DeviceName] }}</div>
@@ -95,17 +101,17 @@
               </template>
             </el-table-column>
             <el-table-column v-if="checkColumnsVisible(deviceEnum.DeviceChannelNum)" label="通道号" min-width="100">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ 'D' + row[deviceEnum.DeviceChannelNum] }}
               </template>
             </el-table-column>
             <el-table-column v-if="checkColumnsVisible(deviceEnum.DeviceInType)" label="接入类型" min-width="110">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ row[deviceEnum.DeviceInType] && row[deviceEnum.DeviceInType].join('、') }}
               </template>
             </el-table-column>
             <el-table-column v-if="checkColumnsVisible(deviceEnum.InProtocol)" label="接入协议" min-width="110">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <div v-for="(item, key) in row[deviceEnum.InProtocol]" :key="key">
                   {{ item }}
                 </div>
@@ -125,7 +131,7 @@
                 <span class="filtersArrayDeviceStatus&quot;filter&quot;">设备类型</span>
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ deviceType[row[deviceEnum.DeviceType]] }}
               </template>
             </el-table-column>
@@ -141,7 +147,7 @@
                 <span class="filter">视频接入</span>
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <status-badge :status="row[deviceEnum.VideoStatus]" />
                 {{ videoStatus[row[deviceEnum.VideoStatus]] || '-' }}
               </template>
@@ -159,7 +165,7 @@
                 <span class="filter">视频流</span>
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <status-badge :status="row[deviceEnum.StreamStatus]" />
                 {{ streamStatus[row[deviceEnum.StreamStatus]] || '-' }}
               </template>
@@ -177,7 +183,7 @@
                 <span class="filter">视频录制</span>
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span><status-badge :status="row[deviceEnum.RecordStatus]" />{{ recordStatus[row[deviceEnum.RecordStatus]] || '-' }}</span>
               </template>
             </el-table-column>
@@ -194,22 +200,22 @@
                 <span class="filter">视图接入</span>
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span><status-badge :status="row[deviceEnum.ViidStatus]" />{{ viidStatus[row[deviceEnum.ViidStatus]] || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="checkColumnsVisible(deviceEnum.DeviceChannelSize)" :key="deviceEnum.DeviceChannelSize" :prop="deviceEnum.DeviceChannelSize" label="通道数">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ row[deviceEnum.DeviceChannelSize] || '-' }}
               </template>
             </el-table-column>
             <el-table-column v-if="checkColumnsVisible(deviceEnum.DeviceVendor)" :key="deviceEnum.DeviceVendor" :prop="deviceEnum.DeviceVendor" label="厂商">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ row[deviceEnum.DeviceVendor] || '-' }}
               </template>
             </el-table-column>
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-button type="text" :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, policyEnum.ScreenPreview, row)" @click="handleListTools(toolsEnum.PreviewVideo, row)">实时预览</el-button>
                 <el-button type="text" :disabled="!checkToolsVisible(toolsEnum.ReplayVideo, policyEnum.ReplayRecord, row)" @click="handleListTools(toolsEnum.ReplayVideo, row)">录像回放</el-button>
                 <el-button type="text" :disabled="!checkToolsVisible(toolsEnum.PreviewViid, null, row)" @click="handleListTools(toolsEnum.PreviewViid, row)">视图查看</el-button>
@@ -260,14 +266,20 @@
         <el-pagination
           :current-page="pager.pageNum"
           :page-size="pager.pageSize"
-          :total="pager.total"
+          :total="pager.totalNum"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
       </div>
     </div>
-    <move-dir v-if="dialog[toolsEnum.MoveDevice]" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog(toolsEnum.MoveDevice, $event)" />
+    <move-dir
+      v-if="dialog[toolsEnum.MoveDevice]"
+      :in-protocol="inProtocol" :device="currentDevice"
+      :devices="selectedDeviceList"
+      :is-batch="isBatchMoveDir"
+      @on-close="closeDialog(toolsEnum.MoveDevice, $event)"
+    />
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="closeDialog(toolsEnum.Import, $event)" />
     <resource v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
   </div>
@@ -275,19 +287,20 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
-import { Device, DeviceBasic } from '../../type/Device'
-import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '../../enums/index'
+import { Device, DeviceBasic, VideoDevice, ViidDevice } from '@vss/device/type/Device'
+import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum, DeviceTypeEnum } from '@vss/device/enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
-import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '../../dicts/index'
+import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
-import { checkDeviceListVisible, checkDeviceColumnsVisible } from '../../utils/param'
-import { getDevices } from '../../api/device'
-import deviceMixin from '../../mixin/deviceMixin'
-import DeviceManager from '../../services/Device/DeviceManager'
+import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
+import { getDevices } from '@vss/device/api/device'
+import * as dicts from '@vss/device/dicts'
+import deviceMixin from '@vss/device/mixin/deviceMixin'
+import DeviceManager from '@vss/device/services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
-import MoveDir from '../MoveDir.vue'
-import UploadExcel from '../UploadExcel.vue'
-import Resource from '../Resource.vue'
+import MoveDir from '@vss/device/components/MoveDir.vue'
+import UploadExcel from '@vss/device/components/UploadExcel.vue'
+import Resource from '@vss/device/components/Resource.vue'
 
 @Component({
   name: 'DeviceList',
@@ -315,12 +328,13 @@ export default class extends Mixins(deviceMixin) {
   private streamStatus = StreamStatus
   private recordStatus = RecordStatus
   private viidStatus = ViidStatus
+  private dicts = dicts
 
   private deviceList: Array<Device> = []
   private selectedDeviceList: Array<Device> = []
   private tableMaxHeight: any = null
   private observer: any = null
-  private pollingTimes: number = 1
+  private pollingTimes = 1
   private filterForm: any = {
     [DeviceEnum.DeviceType]: undefined,
     [DeviceEnum.VideoStatus]: undefined,
@@ -332,10 +346,11 @@ export default class extends Mixins(deviceMixin) {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 5
+    totalNum: 5
   }
 
   private loading = {
+    info: false,
     export: false,
     table: false,
     syncDevice: false,
@@ -395,9 +410,24 @@ export default class extends Mixins(deviceMixin) {
     return this.device.device || {}
   }
 
+  // 视图库/视频接入协议
+  private get inProtocol() {
+    return (this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol) || (this.device.viids && this.device.viids.length && this.device.viids[0].inViidProtocol)
+  }
+
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return (this.inProtocol && this.device.videos[0][dicts.InVideoProtocolModelMapping[this.inProtocol]]) || {}
+  }
+
+  // 视图库接入信息
+  private get viidInfo(): ViidDevice {
+    return (this.inProtocol && this.device.viids[0][dicts.InViidProtocolModelMapping[this.inProtocol]]) || {}
+  }
+
   private get filterButtons() {
     const buttons = []
-    for (let key in this.filterForm) {
+    for (const key in this.filterForm) {
       const value = this.filterForm[key]
       value && (buttons.push({ key, value }))
     }
@@ -413,6 +443,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get currentDirId() {
+    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
     return this.$route.query.dirId as string
   }
 
@@ -430,9 +461,16 @@ export default class extends Mixins(deviceMixin) {
 
   @Watch('filterForm', { deep: true })
   private onFilterChange() {
+    this.pager.pageNum = 1
     this.initTable()
   }
 
+  @Watch('$route.query.dirId')
+  private async dirIdChange() {
+    this.pager.pageNum = 1
+    this.initTable()
+  }
+  
   private mounted() {
     this.handleTools(ToolsEnum.RefreshDeviceList)
     this.initTableSize()
@@ -446,11 +484,13 @@ export default class extends Mixins(deviceMixin) {
    * 设备列表初始化
    */
   private async initList() {
-    this.initTable()
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
-      await this.getDevice(this.currentId)
+      this.loading.info = true
+      await this.getDevice(this.currentDirId)
+      this.loading.info = false
       console.log('deviceInfo', this.device)
     }
+    this.initTable()
   }
 
   /**
@@ -458,17 +498,24 @@ export default class extends Mixins(deviceMixin) {
    */
   private async initTable() {
     this.loading.table = true
-    let params = {
-      parentDeviceId: this.deviceId,
-      dirId: this.currentDirId,
-      type: this.currentDirType,
-      pageSize: this.pager.pageSize,
-      pageNum: this.pager.pageNum,
-      filterForm: this.filterForm
+    const params = {
+      [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
+      [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
+      [DeviceEnum.StreamStatus]: this.filterForm[DeviceEnum.StreamStatus],
+      // [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      // [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      [DeviceEnum.PageNum]: this.pager.pageNum,
+      [DeviceEnum.PageSize]: this.pager.pageSize
     }
-    let res: any = await this.getDevicesApi(params)
-    console.log('getList', res.devices)
+    if (this.currentDirType === DirectoryTypeEnum.Nvr) {
+      params[DeviceEnum.ParentDeviceId] = this.currentDirId
+    } else {
+      params[DeviceEnum.DirId] = this.currentDirId
+    }
+    const res: any = await this.getDevicesApi(params)
+    console.log(params)
     this.deviceList = res.devices
+    this.pager.totalNum = +res.totalNum
     this.loading.table = false
   }
 
@@ -501,6 +548,18 @@ export default class extends Mixins(deviceMixin) {
   }
 
   /**
+   * 判断是否显示设备信息字段
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  private checkInfoVisible(prop) {
+    // return checkVideoVisible.call(this.basicInfo, DeviceTypeEnum.Nvr, 'ehome', false, prop)
+    // return checkViidVisible.call(this.basicInfo, DeviceTypeEnum.Platform, 'ga1400', prop)
+    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, false, prop)
+  }
+
+  /**
    * 判断是否显示tools
    * @param prop 字段名
    * @param permissions 策略名
@@ -527,7 +586,25 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      this.$router.push({ name: 'DeviceInfo', query: { deviceId: '29941916753760267' } })
+      console.log(row)
+      if ([DeviceTypeEnum.Ipc].includes(row[DeviceEnum.DeviceType])) {
+        this.$router.push({
+          name: 'DeviceInfo',
+          query: {
+            ...this.$route.query,
+            [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+          }
+        })
+      } else if ([DeviceTypeEnum.Platform, DeviceTypeEnum.Nvr].includes(row[DeviceEnum.DeviceType])) {
+        this.$router.push({
+          query: {
+            ...this.$route.query,
+            [DeviceEnum.DirId]: row[DeviceEnum.DeviceId],
+            type: row[DeviceEnum.DeviceType]
+          }
+        })
+        this.handleTools(ToolsEnum.RefreshDeviceList)
+      }
     }
   }
 
@@ -542,7 +619,7 @@ export default class extends Mixins(deviceMixin) {
    * 当表格的筛选条件发生变化
    */
   private filterChange(filters: any) {
-    for (let key in filters) {
+    for (const key in filters) {
       this.filterForm[key] = filters[key][0]
     }
   }
@@ -560,7 +637,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private dictToFilterArray(dict: any) {
     const filterArray = []
-    for (let key in dict) {
+    for (const key in dict) {
       filterArray.push({
         text: dict[key],
         value: key

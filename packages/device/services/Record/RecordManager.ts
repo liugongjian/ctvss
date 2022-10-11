@@ -5,7 +5,14 @@ import axios, { CancelTokenSource } from 'axios'
 import { Record } from './Record'
 import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
+import {
+  getDeviceRecords,
+  getDeviceRecordStatistic,
+  getDeviceRecordRule,
+  describeHeatMap,
+  getDevicePreview,
+  setRecordScale
+} from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { VSSError } from '@/utils/error'
 
@@ -139,7 +146,8 @@ export class RecordManager {
       // 约束录像起始时间和结束时间范围
       if (
         this.screen.datetimeRange &&
-        (date < getDateByTime(this.screen.datetimeRange.startTime, 's') || date > this.screen.datetimeRange.endTime)
+        (date < getDateByTime(this.screen.datetimeRange.startTime, 's') ||
+          date > this.screen.datetimeRange.endTime)
       ) {
         if (this.recordList.length === 0) {
           throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
@@ -168,9 +176,9 @@ export class RecordManager {
         // 如果不是seek操作，默认播放第一段录像
         if (!isConcat && !isSeek) {
           /**
-         * 0云端：获取第一段录像
-         * 1本地：获取URL
-         */
+           * 0云端：获取第一段录像
+           * 1本地：获取URL
+           */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
@@ -234,7 +242,10 @@ export class RecordManager {
       }
       this.screen.errorMsg = null
       // 约束录像起始时间和结束时间范围
-      if (this.screen.datetimeRange && (time < this.screen.datetimeRange.startTime || time > this.screen.datetimeRange.endTime)) {
+      if (
+        this.screen.datetimeRange &&
+        (time < this.screen.datetimeRange.startTime || time > this.screen.datetimeRange.endTime)
+      ) {
         if (this.recordList.length === 0) {
           throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
         } else {
@@ -253,7 +264,8 @@ export class RecordManager {
       }
 
       if (record) {
-        if (this.screen.recordType === 0) { // 云端录像
+        if (this.screen.recordType === 0) {
+          // 云端录像
           if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
             this.currentRecord = record
             this.currentRecord.offsetTime = time - record.startTime
@@ -261,7 +273,8 @@ export class RecordManager {
             this.currentRecord.offsetTime = null
             this.screen.player.seek(time - this.currentRecord.startTime)
           }
-        } else { // 本地录像
+        } else {
+          // 本地录像
           try {
             this.screen.isLoading = true
             const res = await this.getLocalUrl(time)
@@ -326,7 +339,7 @@ export class RecordManager {
     try {
       const interval = await this.getRecordInterval()
       if (interval) {
-        this.recordInterval = setInterval(async() => {
+        this.recordInterval = setInterval(async () => {
           console.log('定时轮询新录像', this.screen.deviceId)
           if (this.currentDate < getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
@@ -354,14 +367,17 @@ export class RecordManager {
     this.axiosSourceList.push(axiosSource)
     startTime = parseInt(startTime + '')
     endTime = parseInt(endTime + '')
-    const res = await getDeviceRecords({
-      deviceId: this.screen.deviceId,
-      inProtocol: this.screen.inProtocol,
-      recordType: this.screen.recordType,
-      startTime,
-      endTime,
-      pageSize: 9999
-    }, axiosSource.token)
+    const res = await getDeviceRecords(
+      {
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
+        startTime,
+        endTime,
+        pageSize: 9999
+      },
+      axiosSource.token
+    )
     return res.records.map((record: any, index: number) => {
       /**
        * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
@@ -405,7 +421,10 @@ export class RecordManager {
         endTime = Math.floor(new Date().getTime() / 1000)
       }
       // 约束录像起始时间和结束时间范围
-      if (this.screen.datetimeRange && (endTime < this.screen.datetimeRange.startTime || startTime > this.screen.datetimeRange.endTime)) {
+      if (
+        this.screen.datetimeRange &&
+        (endTime < this.screen.datetimeRange.startTime || startTime > this.screen.datetimeRange.endTime)
+      ) {
         throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
       }
       if (this.screen.datetimeRange) {
@@ -417,13 +436,16 @@ export class RecordManager {
       this.axiosSourceList.push(axiosSource)
       startTime = parseInt(startTime + '')
       endTime = parseInt(endTime + '')
-      const res = await getDeviceRecordStatistic({
-        type: type[this.screen.recordType],
-        deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
-        startTime: startTime,
-        endTime: endTime
-      }, axiosSource.token)
+      const res = await getDeviceRecordStatistic(
+        {
+          type: type[this.screen.recordType],
+          deviceId: this.screen.deviceId,
+          inProtocol: this.screen.inProtocol,
+          startTime: startTime,
+          endTime: endTime
+        },
+        axiosSource.token
+      )
       if (res.records) {
         const recordStatistic: Set<string> = new Set()
         res.records.forEach((statistic: any) => {
@@ -447,7 +469,7 @@ export class RecordManager {
       if (time === record.startTime && record.startTime === record.endTime) {
         time++
       }
-      return (time! >= record.startTime) && (time! < record.endTime)
+      return time >= record.startTime && time < record.endTime
     })
   }
 
@@ -458,15 +480,18 @@ export class RecordManager {
   private async getHeatmapList(startTime: number, endTime: number) {
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)
-    const res = await describeHeatMap({
-      deviceId: this.screen.deviceId,
-      inProtocol: this.screen.inProtocol,
-      recordType: this.screen.recordType,
-      startTime,
-      endTime,
-      pageSize: 9999,
-      aiCode: '10006'
-    }, axiosSource.token)
+    const res = await describeHeatMap(
+      {
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
+        startTime,
+        endTime,
+        pageSize: 9999,
+        aiCode: '10006'
+      },
+      axiosSource.token
+    )
     return res.heatMap.map((heatMap: any) => {
       return new Record({
         startTime: getTimestamp(heatMap.startTime) / 1000,
@@ -494,15 +519,19 @@ export class RecordManager {
   public getRecordListByPage(pager: any, currentDate?: number) {
     currentDate = new Date(new Date(new Date(currentDate * 1000)).toLocaleDateString()).getTime() / 1000
     if (currentDate) {
-      const recordList = this.recordList && this.recordList.filter(record => {
-        return (getDateByTime(record.startTime, 's') === currentDate)
-      })
+      const recordList =
+        this.recordList &&
+        this.recordList.filter(record => {
+          return getDateByTime(record.startTime, 's') === currentDate
+        })
       return {
-        recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
-          ...record,
-          edit: false,
-          loading: false
-        })),
+        recordList: recordList
+          .slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize)
+          .map(record => ({
+            ...record,
+            edit: false,
+            loading: false
+          })),
         length: recordList.length
       }
     }
@@ -536,17 +565,20 @@ export class RecordManager {
       const endTime = startTime + 24 * 60 * 60 - 1
       let url
       let codec
-      const res: any = await getDevicePreview({
-        deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
-        type: 'vod',
-        startTime,
-        endTime,
-        'self-defined-headers': {
-          'role-id': this.screen.roleId || '',
-          'real-group-id': this.screen.realGroupId || ''
-        }
-      }, axiosSource.token)
+      const res: any = await getDevicePreview(
+        {
+          deviceId: this.screen.deviceId,
+          inProtocol: this.screen.inProtocol,
+          type: 'vod',
+          startTime,
+          endTime,
+          'self-defined-headers': {
+            'role-id': this.screen.roleId || '',
+            'real-group-id': this.screen.realGroupId || ''
+          }
+        },
+        axiosSource.token
+      )
       if (res.playUrl) {
         url = res.playUrl.flvUrl
         codec = res.video.codec
