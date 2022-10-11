@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { toUpperCase } from '@vss/base/utils/param'
 
 /**
  * =============================
@@ -56,7 +57,7 @@ export const createGa1400Certificate = (params: any): Promise<any> =>
   request({
     url: '/viid/new/certificates/ga1400',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 export const deleteGa1400Certificate = (params: any): Promise<any> =>

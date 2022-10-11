@@ -119,7 +119,7 @@ export default class extends Vue {
               description: this.form.description,
               password: encrypt(this.form.password),
               newPassword: encrypt(this.form.newPassword),
-              version: '2.0'
+              // version: '2.0'
             }
             await updateGa1400Certificate(data, this.form.id)
           } else {
@@ -128,7 +128,7 @@ export default class extends Vue {
               username: encrypt(this.form.username),
               description: this.form.description,
               password: encrypt(this.form.password),
-              version: '2.0'
+              // version: '2.0'
             }
             await createGa1400Certificate(data)
           }
