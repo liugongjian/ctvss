@@ -3,20 +3,38 @@
     <div class="detail__title">
       资源包
       <div class="detail__buttons">
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog">配置</el-button>
+        <el-button
+          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          type="text"
+          @click="changeResourceDialog"
+          >配置</el-button
+        >
       </div>
     </div>
     <el-card v-if="resources.VSS_VIDEO">
       <template slot="header">
         视频包
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog">配置视频包</el-button>
+        <el-button
+          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          type="text"
+          @click="changeResourceDialog"
+          >配置视频包</el-button
+        >
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="码率">
-          {{ resources.VSS_VIDEO.codeRate ? `${resources.VSS_VIDEO.codeRate}Mbps` : '' }}
+          {{
+            resources.VSS_VIDEO.codeRate
+              ? `${resources.VSS_VIDEO.codeRate}Mbps`
+              : ''
+          }}
         </el-descriptions-item>
         <el-descriptions-item label="存储周期">
-          {{ resources.VSS_VIDEO.storageTime ? `${resources.VSS_VIDEO.storageTime}天` : '' }}
+          {{
+            resources.VSS_VIDEO.storageTime
+              ? `${resources.VSS_VIDEO.storageTime}天`
+              : ''
+          }}
         </el-descriptions-item>
         <el-descriptions-item label="到期时间">
           {{ resources.VSS_VIDEO.expTime }}
@@ -26,7 +44,12 @@
     <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
       <template slot="header">
         AI包
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog('AI')">配置AI包</el-button>
+        <el-button
+          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          type="text"
+          @click="changeResourceDialog('AI')"
+          >配置AI包</el-button
+        >
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="分析类型">
@@ -35,40 +58,93 @@
         <el-descriptions-item label="到期时间">
           {{ resources.VSS_AI.expTime }}
         </el-descriptions-item>
-        <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
+        <el-descriptions-item
+          content-class-name="detail__table-row"
+          label="AI应用"
+        >
           <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
             <el-table-column label="应用名称" min-width="100" prop="name" />
             <el-table-column label="算法类型" min-width="100">
-              <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
+              <template slot-scope="scope">{{
+                scope.row.algorithm.name
+              }}</template>
             </el-table-column>
             <el-table-column v-if="!isNvr" prop="appEnabled" label="状态">
               <template slot-scope="scope">
-                <status-badge :status="parseInt(scope.row.status) ? 'on' : 'off'" />
+                <status-badge
+                  :status="parseInt(scope.row.status) ? 'on' : 'off'"
+                />
                 <span>
                   {{ parseInt(scope.row.status) ? '启用' : '停用' }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+            <el-table-column
+              v-if="!isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              label="操作"
+              min-width="200"
+            >
               <template slot-scope="scope">
-                <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
+                <el-tooltip
+                  v-if="ifShowAlgoBtn(scope.row.algorithm.code)"
+                  class="item"
+                  effect="dark"
+                  content="设备离线时不可配置算法"
+                  placement="top-start"
+                  :disabled="deviceInfo.deviceStatus === 'on'"
+                >
                   <div class="disable-btn-box">
-                    <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
+                    <el-button
+                      type="text"
+                      :disabled="deviceInfo.deviceStatus !== 'on'"
+                      @click="openCanvasDialog(scope.row)"
+                      >算法配置</el-button
+                    >
                   </div>
                 </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="应用启用时不可解绑"
+                  placement="top-start"
+                  :disabled="scope.row.status === '0'"
+                >
                   <div class="disable-btn-box">
-                    <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
+                    <el-button
+                      type="text"
+                      :disabled="scope.row.status === '1'"
+                      @click="changeBindStatus(scope.row)"
+                      >解除绑定</el-button
+                    >
                   </div>
                 </el-tooltip>
-                <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
+                <el-button
+                  type="text"
+                  @click="changeRunningStatus(scope.row)"
+                  >{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button
+                >
               </template>
             </el-table-column>
-            <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+            <el-table-column
+              v-if="isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              label="操作"
+              min-width="200"
+            >
               <template slot-scope="scope">
-                <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  content="应用启用时不可解绑"
+                  placement="top-start"
+                  :disabled="scope.row.status === '0'"
+                >
                   <div class="disable-btn-box">
-                    <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
+                    <el-button
+                      type="text"
+                      :disabled="scope.row.status === '1'"
+                      @click="changeBindStatus(scope.row)"
+                      >解除绑定</el-button
+                    >
                   </div>
                 </el-tooltip>
               </template>
@@ -80,11 +156,21 @@
     <el-card v-if="resources.VSS_UPLOAD_BW">
       <template slot="header">
         带宽包
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="changeResourceDialog">配置带宽包</el-button>
+        <el-button
+          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-permission="['*']"
+          type="text"
+          @click="changeResourceDialog"
+          >配置带宽包</el-button
+        >
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="码率">
-          {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
+          {{
+            resources.VSS_UPLOAD_BW.codeRate
+              ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps`
+              : ''
+          }}
         </el-descriptions-item>
         <el-descriptions-item label="上行带宽总量">
           {{ resources.VSS_UPLOAD_BW.bwDeviceCountRate }}
@@ -97,27 +183,40 @@
 
     <!-- canvas画线 -->
     <algo-config
-      v-if="canvasDialog" :device-id="deviceId"
-      :in-protocol="inProtocol" :canvas-if="canvasDialog"
+      v-if="canvasDialog"
+      :device-id="deviceId"
+      :in-protocol="inProtocol"
+      :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :device-info="deviceInfo"
       :frame-image="frameImage"
     />
 
-    <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="deviceInfo"
+      :algo-tab-type-default="algoTabTypeDefault"
+      @on-close="closeResourceDialog"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { ResourceAiType } from '@vss/device/dicts/index'
-import { getDevice, unBindAppResource, startAppResource, stopAppResource } from '@vss/device/api/device'
+import {
+  getDevice,
+  unBindAppResource,
+  startAppResource,
+  stopAppResource
+} from '@vss/device/api/device'
 import { getAppList, getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { getDeviceResources } from '@vss/device/api/billing'
 import Resource from '@vss/device/components/Resource.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { ResourceTemplateInfoCodes } from '@vss/ai/dics'
 
 @Component({
   name: 'ResourceTemplateInfo',
@@ -127,7 +226,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-
   private inProtocol = 'gb28181'
 
   private checkPermission = checkPermission
@@ -160,26 +258,30 @@ export default class extends Mixins(detailMixin) {
 
   private openCanvasDialog(rowInfo: any) {
     const param = {
-      frames: [{
-        stream: this.deviceId,
-        inProtocol: this.inProtocol
-      }]
-    }
-    getAlgoStreamFrameShot(param).then(res => {
-      if (res) {
-        const { frames = [] } = res
-        const { frame = '' } = frames[0] || []
-        if (!frame) {
-          this.$message.warning('暂时获取不到截图，请稍后再试')
-        } else {
-          this.canvasDialog = true
-          this.configAlgoInfo = rowInfo
-          this.frameImage = frame
+      frames: [
+        {
+          stream: this.deviceId,
+          inProtocol: this.inProtocol
         }
-      }
-    }).catch(e => {
-      this.$message.error(e && e.message)
-    })
+      ]
+    }
+    getAlgoStreamFrameShot(param)
+      .then((res) => {
+        if (res) {
+          const { frames = [] } = res
+          const { frame = '' } = frames[0] || []
+          if (!frame) {
+            this.$message.warning('暂时获取不到截图，请稍后再试')
+          } else {
+            this.canvasDialog = true
+            this.configAlgoInfo = rowInfo
+            this.frameImage = frame
+          }
+        }
+      })
+      .catch((e) => {
+        this.$message.error(e && e.message)
+      })
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
@@ -254,7 +356,8 @@ export default class extends Mixins(detailMixin) {
         const obj = result['VSS_UPLOAD_BW']
         const codeRate = parseInt(obj.codeRate, 10)
         const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
-        obj.bwDeviceCountRate = codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
+        obj.bwDeviceCountRate =
+          codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
       }
       this.resources = result
     } catch (e) {
@@ -275,23 +378,31 @@ export default class extends Mixins(detailMixin) {
     }
     // startAppResource
     if (status) {
-      stopAppResource(param).then(() => {
-        this.loading.AITable = false
-        this.$message.success(`停用 ${rowInfo.name} 成功！`)
-        this.getAlgoList()
-      }).catch(e => {
-        this.loading.AITable = false
-        this.$message.error(`停用 ${rowInfo.name} 失败，原因：${e && e.message}`)
-      })
+      stopAppResource(param)
+        .then(() => {
+          this.loading.AITable = false
+          this.$message.success(`停用 ${rowInfo.name} 成功！`)
+          this.getAlgoList()
+        })
+        .catch((e) => {
+          this.loading.AITable = false
+          this.$message.error(
+            `停用 ${rowInfo.name} 失败，原因：${e && e.message}`
+          )
+        })
     } else {
-      startAppResource(param).then(() => {
-        this.loading.AITable = false
-        this.$message.success(`启用 ${rowInfo.name} 成功！`)
-        this.getAlgoList()
-      }).catch(e => {
-        this.loading.AITable = false
-        this.$message.error(`启用 ${rowInfo.name} 失败，原因：${e && e.message}`)
-      })
+      startAppResource(param)
+        .then(() => {
+          this.loading.AITable = false
+          this.$message.success(`启用 ${rowInfo.name} 成功！`)
+          this.getAlgoList()
+        })
+        .catch((e) => {
+          this.loading.AITable = false
+          this.$message.error(
+            `启用 ${rowInfo.name} 失败，原因：${e && e.message}`
+          )
+        })
     }
   }
 
@@ -305,14 +416,18 @@ export default class extends Mixins(detailMixin) {
       inProtocol: this.inProtocol
     }
 
-    unBindAppResource(param).then(() => {
-      this.loading.AITable = false
-      this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
-      this.getAlgoList()
-    }).catch(e => {
-      this.loading.AITable = false
-      this.$message.error(`解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`)
-    })
+    unBindAppResource(param)
+      .then(() => {
+        this.loading.AITable = false
+        this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
+        this.getAlgoList()
+      })
+      .catch((e) => {
+        this.loading.AITable = false
+        this.$message.error(
+          `解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`
+        )
+      })
   }
 
   private ifShowAlgoBtn(rowCode: any) {
@@ -327,25 +442,7 @@ export default class extends Mixins(detailMixin) {
      * 人员跌倒  code 10028
      *  动物检测 code 10033
      */
-    switch (rowCode) {
-      case '10006':
-      case '10001':
-      case '10014':
-      case '10015':
-      case '10020':
-      case '10024':
-      case '10023':
-      case '10022':
-      case '10021':
-      case '10019':
-      case '10032':
-      case '10026':
-      case '10028':
-      case '10033':
-        return true
-      default:
-        return false
-    }
+    ResourceTemplateInfoCodes.includes(rowCode)
   }
 }
 </script>
