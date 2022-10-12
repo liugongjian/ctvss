@@ -1,0 +1,103 @@
+#iam-console-container {
+  .sidebar-container {
+    position: fixed !important;
+    top: 50px !important;
+    left: 50px !important;
+    width: 180px !important;
+    background-color: #42454f !important;
+    z-index: 1;
+
+    .el-menu {
+      background-color: #42454f !important;
+
+      .el-menu-item {
+        background-color: #42454f !important;
+        color: #a8adaf !important;
+        height: 50px !important;
+        line-height: 50px !important;
+        padding-left: 31.15px !important;
+
+        &:hover {
+          background-color: #8a8b92 !important;
+          color: #c0c5c7 !important;
+        }
+
+        .svg-icon {
+          margin-right: 8px;
+        }
+      }
+
+      .el-menu-item.is-active {
+        background-color: #000 !important;
+        color: #fff !important;
+        min-width: 0 !important;
+        border-right: 3px solid #fa8334 !important;
+      }
+
+      .el-submenu {
+        &__title {
+          background-color: #42454f !important;
+          color: #a8adaf !important;
+          height: 50px !important;
+          line-height: 50px !important;
+          padding-left: 31.15px !important;
+
+          &:hover {
+            background-color: #8a8b92 !important;
+            color: #c0c5c7 !important;
+
+            .el-submenu__icon-arrow {
+              color: #c0c5c7 !important;
+            }
+          }
+
+          .svg-icon {
+            margin-right: 8px !important;
+          }
+        }
+
+        .el-menu {
+          .nest-menu {
+            .el-menu-item {
+              .svg-icon {
+                color: rgba(168, 173, 175, 0%) !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .main-container {
+    margin-left: 180px !important;
+  }
+
+  .avatar-div.__layout-avatar-with-dropdown .avatar-dropdown {
+    z-index: 2001;
+  }
+
+  .navbar {
+    padding-left: 20px;
+
+    .el-breadcrumb {
+      margin-left: 0;
+    }
+
+    .filter-group {
+      margin-right: 18px;
+    }
+  }
+
+  .__layout-console-sidebar-domain ul.domain-list li.active:before {
+    display: none !important;
+  }
+
+  .__layout-console-sidebar-domain ul.domain-list li:hover span {
+    color: #a8adaf !important;
+  }
+
+  .__layout-console-sidebar-domain .domain-list {
+    border-top: 1px solid #565a62;
+  }
+}

@@ -35,6 +35,29 @@
               </span>
             </el-tree>
           </div>
+          <!-- <common-tree
+            ref="commonTree"
+            :default-key="defaultKey"
+            :data="dirList"
+            :props="treeProp"
+            :empty-text="emptyText"
+            :lazy="lazy"
+            :get-node-info="getNodeInfo"
+            :load="loadDirs"
+            :tree-loading="treeLoading"
+            @handle-node="handleNodeClick"
+          >
+            <template slot="itemLabelPrefix" slot-scope="{data}">
+              <svg-icon :name="data.type" />
+              <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data.streamStatus" />
+            </template>
+            <template slot="itemLabel" slot-scope="{node}">
+              {{ node.label }}
+            </template>
+            <span slot-scope="{node, data}">
+              <span>{{ getSum(node, data) }}</span>
+            </span>
+          </common-tree> -->
         </div>
         <div
           class="ibox-container__handle"
@@ -65,14 +88,19 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Provide } from 'vue-property-decorator'
-
+import { Component, Provide, Vue
+  // Mixins
+} from 'vue-property-decorator'
+// import treeMixin from '@vss/device/components/Tree/treeMixin'
+import CommonTree from '@vss/base/components/CommonTree/index.vue'
 import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
   name: 'IBox',
-  components: {}
+  components: {
+    CommonTree
+  }
 })
 export default class IBox extends Vue {
   public loading = {
