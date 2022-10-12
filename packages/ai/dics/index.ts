@@ -6,6 +6,7 @@ export const FormRef = {
 }
 
 // 划线数据需要复用时的对应关系
+// 源算法 : 复用目标算法
 export const MetaRef = {
   '10035': '10026',
   '10002': '10005',
@@ -23,7 +24,7 @@ export const MetaRef = {
   '10020': '10006',
   '10032': '10006',
   '10027': '10006',
-  '10016': '10034'
+  '10016': '10034',
 }
 
 // 老算法code转新算法code
@@ -58,9 +59,11 @@ export const EventTypeToCode = {
   '32': '10032',
   '33': '10033',
   '34': '10034',
-  '35': '10035'
+  '35': '10035',
+  '37': '10037',
 }
 
+// 是否划线config1
 export const DetailConfigCodes =
 [
   '10006',
@@ -81,7 +84,7 @@ export const DetailConfigCodes =
   '10035',
   '10036'
 ]
-
+// 是否划线config2
 export const ResourceTemplateInfoCodes =
 [
   '10006',

@@ -10,7 +10,7 @@
  * }
  */
 
-import { AnimalType } from '@/dics'
+import { AnimalType, CityGovType } from '@/dics'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -74,6 +74,8 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '34':
     case '10034':
+    case '19':// 入侵检测
+    case '10016':// 入侵检测
       locations = metaData && metaData.map((person: any) => {
         try {
           const rect = JSON.parse(person.FaceRectangles)
@@ -147,6 +149,37 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
 
+    case '37':// 城市治理检测
+    case '10037':// 城市治理检测
+      locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+        try {
+          let label
+          const temp = CityGovType.filter(type => type.label === box.Label)
+          if (temp.length > 0) {
+            label = temp[0].cname
+          }
+          return {
+            top: box.TopLeftY,
+            left: box.TopLeftX,
+            width: box.BottomRightX - box.TopLeftX,
+            height: box.BottomRightY - box.TopLeftY,
+            isWarning: (box.Score.length > 0 && box.Score > 60),
+            label,
+            label_en: box.Label
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
+
     case '33':// 动物检测
     case '10033':// 动物检测
       // eslint-disable-next-line no-case-declarations
@@ -169,7 +202,6 @@ export const parseMetaData = (type: string, metaData: any) => {
           console.log(error)
         }
       })
-      console.log('counts 2:', counts)
       if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
         locations.push(
           {
@@ -180,7 +212,6 @@ export const parseMetaData = (type: string, metaData: any) => {
       // @ts-ignore
       locations.counts = counts // 动物数量对象
       break
-
     case '6': // 研发二部未带口罩
     case '10003': // 研发二部未带口罩
       if (metaData.Data && metaData.Data.FaceRectangles) {
@@ -332,22 +363,21 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
 
-      // 入侵检测
-    case '19':
-    case '10016':// 入侵检测
-      locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
-        return {
-          top: person.Location.Y,
-          left: person.Location.X,
-          width: person.Location.Width,
-          height: person.Location.Height,
-          isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
-          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
-        }
-      })
-      break
-    // 在场人员+口罩检测
-    case '20':
+      // case '19':// 入侵检测
+      // case '10016':// 入侵检测
+      //   locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
+      //     return {
+      //       top: person.Location.Y,
+      //       left: person.Location.X,
+      //       width: person.Location.Width,
+      //       height: person.Location.Height,
+      //       isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
+      //       score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+      //     }
+      //   })
+      //   break
+
+    case '20':// 在场人员+口罩检测
     case '10017':// 在场人员+口罩检测
       if (metaData.Data && metaData.Data.FaceRectangles) {
         const boxes = metaData.Data.FaceRectangles
