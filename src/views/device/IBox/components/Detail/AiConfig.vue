@@ -56,7 +56,8 @@ import {
   startIboxApps,
   stopIboxApps,
   unBindIboxApps,
-  bindIboxApps
+  bindIboxApps,
+  configureIboxAlgorithm
 } from '@/api/ibox'
 import AppConfig from './component/AppConfig.vue'
 import AlgoConfig from '../Info/AlgoConfig/index.vue'
@@ -89,6 +90,7 @@ export default class AiAppList extends Vue {
   private isIboxEdit = false
   private appDetailId = ''
   private ResourceAiType = ResourceAiType
+  private app = null
 
   private mounted() {
     this.getAppList()
@@ -141,9 +143,11 @@ export default class AiAppList extends Vue {
     const path: any = this.$route.query.path
     const iboxId: any = path.split(',')[0]
     const deviceId: any = path.split(',').pop()
-    this.$alertDelete({
-      type: '应用',
-      msg: `是否确认解绑应用："${row.name}"`,
+    this.$alertHandle({
+      titleConfirmHide: true,
+      handleName: '解除绑定',
+      type: '车辆录像',
+      msg: `是否解绑应用："${row.name}"`,
       method: unBindIboxApps,
       payload: { appIds: [row.appId], iboxId, deviceId },
       onSuccess: this.getAppList
@@ -155,8 +159,10 @@ export default class AiAppList extends Vue {
     const path: any = this.$route.query.path
     const iboxId: any = path.split(',')[0]
     const deviceId: any = path.split(',').pop()
-    this.$alertDelete({
-      type: '应用',
+    this.$alertHandle({
+      titleConfirmHide: true,
+      handleName: `${row.status ? '停用' : '启用'}应用`,
+      type: '',
       msg: `是否确认${row.status ? '停用' : '启用'}应用："${row.name}"`,
       method: func,
       payload: { appIds: [row.appId], iboxId, deviceId },
@@ -168,20 +174,33 @@ export default class AiAppList extends Vue {
     this.dialogVisible.app = true
   }
 
-  private addMeta(meta) {
-    console.log('meta:', meta)
-    // 转化meta为detectZone
-    const { DangerZone } = JSON.parse(meta.algorithmMetadata)
-    console.log('DangerZone:', DangerZone)
-    const submitDetectzone = [DangerZone.map((zone) => +zone)]
-    console.log('submitDetectzone:', submitDetectzone)
+  private async addMeta(meta) {
+    try {
+      // 转化meta为detectZone
+      const { DangerZone } = JSON.parse(meta.algorithmMetadata)
+      const submitDetectzone = DangerZone.map((zone) => +zone)
+      const { appId, iboxId, algorithmsId } = this.app
+      const { deviceId } = this.$route.query
+      await configureIboxAlgorithm({
+        appId,
+        iboxId,
+        deviceId,
+        algorithmsId,
+        detectZone: JSON.stringify(submitDetectzone)
+      })
+      this.$message.success('提交成功')
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.getAppList()
+    }
   }
 
   private async bindApps(apps) {
     const path: any = this.$route.query.path
     const iboxId: any = path.split(',')[0]
     const deviceId: any = path.split(',').pop()
-    const appIds = apps.map((app) => app.appId)
+    const appIds = apps.map((app) => +app.appId)
     try {
       await bindIboxApps({ appIds, iboxId, deviceId })
       this.$message.success('绑定成功')

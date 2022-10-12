@@ -152,3 +152,11 @@ export const stopIboxApps = (data: any) =>
     method: 'post',
     data
   })
+
+// 配置应用划线
+export const configureIboxAlgorithm = (data: any) =>
+  request({
+    url: '/ibox/ai/configureIboxAlgorithm',
+    method: 'post',
+    data
+  })
