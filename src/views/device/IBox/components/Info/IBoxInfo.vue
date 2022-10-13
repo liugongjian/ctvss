@@ -78,36 +78,36 @@ import { getIBoxDetail, updateIBox } from '@/api/ibox'
 })
 export default class extends Vue {
   private basic = {
-    deviceStatus: 'on',
-    deviceName: '天翼云边缘盒子',
-    deviceId: '8992ASDAAAAAA',
-    ip: '192.9.2.3',
-    sn: 'XXXXXXXXXXX',
-    description: 'XXXXXXXXXXX',
+    deviceStatus: '',
+    deviceName: '',
+    deviceId: '',
+    ip: '',
+    sn: '',
+    description: '',
   }
   private sip = {
-    sipId: '31011500012008469596',
-    sipRegion: '3101150001',
-    sipIp: '113.250.16.3',
-    sipTcpPort: '15060',
-    sipUdpPort: '15060',
+    sipId: '',
+    sipRegion: '',
+    sipIp: '',
+    sipTcpPort: '',
+    sipUdpPort: '',
   }
   private app = {
     "stream": {
-      "total": 16,
-      "usage": 2,
+      "total": 0,
+      "usage": 0,
     },
     "aiAlgo": {
-      "total": 8,
+      "total": 0,
       "usage": 0,
     },
     "aiApp": {
-      "total": 3,
-      "usage": 1,
+      "total": 0,
+      "usage": 0,
     },
     "aiAlarm": {
-      "total": 8000,
-      "usage": 4000,
+      "total": 0,
+      "usage": 0,
     }
   }
 
@@ -116,22 +116,22 @@ export default class extends Vue {
   private chartData: any
     private hardware = {
     "ram": {
-                "total": 6.4,
-                "usage": 0.7784326,
-                "unit": "G",
+                "total": 0,
+                "usage": 0,
+                "unit": "",
                 "usageRate": 0
             },
             "storage": {
-                "total": 70.227966,
-                "usage": 40.027058,
-                "unit": "G",
+                "total": 0,
+                "usage": 0,
+                "unit": "",
                 "usageRate": 0
             },
             "cpu": {
-                "total": 10,
-                "usage": 5,
+                "total": 0,
+                "usage": 0,
                 "unit": "",
-                "usageRate": 0.176471
+                "usageRate": 0
             },
             "gpu": {
                 "total": 0,
@@ -179,7 +179,7 @@ export default class extends Vue {
       this.checkedFalse = false
       this.checkedFalseDes = false
       let params = {
-        DeviceId: '29941991915651403' || this.$route.query.deviceId
+        DeviceId: this.$route.query.deviceId
       }
       let res = await getIBoxDetail(params)
       // res = this.jsonKeysCaseTrans(res.Data)
