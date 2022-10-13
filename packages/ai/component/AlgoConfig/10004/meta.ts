@@ -1,13 +1,14 @@
 import { getDangerZone } from '@vss/ai/util/dangerzone'
 
 export const getData = (metaData) => {
-  let locations = []
+  let locations: Location[] = []
   if (metaData.Data && metaData.Data.DetectBoxes) {
     const boxes = metaData.Data.DetectBoxes
     // const label = metaData.Data.Label
     for (let i = 0; i < boxes.length; i += 4) {
       locations.push(
         {
+          // @ts-ignore
           top: boxes[i + 1],
           left: boxes[i],
           width: boxes[i + 2],

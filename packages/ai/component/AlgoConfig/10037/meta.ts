@@ -1,9 +1,8 @@
 import { getDangerZone } from '@vss/ai/util/dangerzone'
-import { CityGovType } from '@/dics'
-
+import { CityGovType } from '@vss/ai/dics/contants'
 
 export const getData = (metaData) => {
-  let locations = []
+  let locations: Location[] = []
   locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
     try {
       let label

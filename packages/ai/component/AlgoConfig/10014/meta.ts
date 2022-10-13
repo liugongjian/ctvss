@@ -1,7 +1,8 @@
+/* eslint-disable prefer-spread */
 import { getDangerZone } from '@vss/ai/util/dangerzone'
 
 export const getData = (metaData) => {
-  let locations = []
+  let locations: Location[] = []
   if (metaData.Data && metaData.Data.Boxes) {
     locations = metaData.Data.Boxes.map((box: any, index: number) => {
       const xArray = box.map((point: any) => point[0])
