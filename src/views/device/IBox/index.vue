@@ -37,8 +37,12 @@
                   :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus.isOnline === 'off' ? 'off' : 'on'} `"
                 />
                 <svg-icon
-                  v-else-if="data.deviceStatus"
-                  name="ibox"
+                  v-else-if="data.deviceType === 'ibox'" name="ibox"
+                  width="14" height="14"
+                  :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus === 'off' ? 'off' : 'on'} `"
+                />
+                <svg-icon
+                  v-else-if="data.deviceType === 'ipc' " name="ipc"
                   width="14" height="14"
                   :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus.isOnline === 'off' ? 'off' : 'on'} `"
                 />
@@ -200,7 +204,6 @@ export default class IBox extends Vue {
           this.setListInfo('rootlist', this.iboxes, '')
       }
     } else {
-      console.log('ayi yayi ya')
       IBoxModule.SetList({ type: 'rootlist', data: this.iboxList })
       const param = {
         name: 'IBox',
@@ -232,10 +235,10 @@ export default class IBox extends Vue {
 
       const { dirs = [], iboxes } = data
 
-      this.dirList = dirs.map((item: any) => {
+      this.dirList = iboxes.map((item: any) => {
         return {
-          label: item.name,
-          deviceId: item.id,
+          label: item.deviceName,
+          deviceType: 'ibox',
           ...item
         }
       })
