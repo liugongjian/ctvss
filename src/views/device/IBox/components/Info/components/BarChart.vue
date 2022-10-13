@@ -2,7 +2,7 @@
   <div :id="barChartId" class="bar-chart"></div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import * as echarts from 'echarts'
 
 @Component({
@@ -27,7 +27,29 @@ export default class extends Vue {
 
   private chartObj: any
 
+  @Watch('chartData', {immediate: true})
+  private onDataChange() {
+    if (!this.chartObj) return
+    this.chartObj.clear()
+    this.initData()
+    this.chartObj.setOption(this.options)
+  }
+
   private created() {
+    this.initData()
+  }
+
+  private mounted() {
+    this.$nextTick(() => {
+      const chartDom: any = document.getElementById('' + this.barChartId)
+      this.chartObj = echarts.init(chartDom)
+      this.options && this.chartObj.setOption(this.options)
+      window.addEventListener('resize',this.resizeCharts)
+      this.resizeCharts()
+    })
+  }
+
+  private initData() {
     this.transData(this.chartData)
     this.options = {
       title: {
@@ -107,16 +129,6 @@ export default class extends Vue {
         data: this.seriesData
       }]
     }
-  }
-
-  private mounted() {
-    this.$nextTick(() => {
-      const chartDom: any = document.getElementById('' + this.barChartId)
-      this.chartObj = echarts.init(chartDom)
-      this.options && this.chartObj.setOption(this.options)
-      window.addEventListener('resize',this.resizeCharts)
-      this.resizeCharts()
-    })
   }
 
   private beforeDestroy() {

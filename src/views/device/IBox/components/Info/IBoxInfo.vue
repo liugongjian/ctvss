@@ -114,7 +114,7 @@ export default class extends Vue {
   private isOnline: string
   // private isRegistered: boolean
   private chartData: any
-    private hardware = {
+  private hardware = {
     "ram": {
                 "total": 0,
                 "usage": 0,
@@ -185,7 +185,7 @@ export default class extends Vue {
       // res = this.jsonKeysCaseTrans(res.Data)
       this.renderInfo(res)
     } catch (e) {
-
+      this.$message.error(e)
     } finally {
       this.loading = false
     }
@@ -308,7 +308,7 @@ export default class extends Vue {
     this.isEditDes = false
   }
 
-  // 临时用于变量大小写转换
+  // 用于变量大小写转换
   private jsonKeysCaseTrans(json: any, type?: number) {
     if (typeof json === 'object') {
       let tmpJson = JSON.parse(JSON.stringify(json))
