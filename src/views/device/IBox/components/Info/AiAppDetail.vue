@@ -129,7 +129,9 @@ export default class extends Mixins(AppMixin, IndexMixin) {
             deviceStatus:
               device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
             deviceDir: iboxId + ',' + device.device.deviceId,
-            path: [device.device]
+            path: [device.device],
+            streamStatus: device.videos[0].gb28181Device?.streams[0].streamStatus || 'off',
+            inProtocol: device.videos[0].inVideoProtocol
           }
         }
         return {
@@ -137,7 +139,9 @@ export default class extends Mixins(AppMixin, IndexMixin) {
           deviceStatus:
             device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
           deviceDir: iboxId + ',' + device.device.deviceId,
-          path: [device.device]
+          path: [device.device],
+          streamStatus: device.videos[0].gb28181Device?.streams[0].streamStatus || 'off',
+          inProtocol: device.videos[0].inVideoProtocol
         }
       })
       _devices.push(...channels)

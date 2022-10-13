@@ -42,7 +42,7 @@
           <div class="device-list__device-type">
             <status-badge
               v-if="scope.row.deviceType === 'ipc'"
-              :status="scope.row.deviceStatus"
+              :status="scope.row.streamStatus"
             />
             <svg-icon
               :name="scope.row.deviceType"
