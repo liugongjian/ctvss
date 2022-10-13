@@ -253,7 +253,8 @@ export const DeviceInTypeByDeviceType = {
   },
   [enums.DeviceTypeEnum.Platform]: {
     [enums.DeviceInTypeEnum.Video]: '视频',
-    [enums.DeviceInTypeEnum.Viid]: '视图'
+    // 暂时去除viid
+    // [enums.DeviceInTypeEnum.Viid]: '视图'
   }
 }
 
