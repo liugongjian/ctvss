@@ -32,10 +32,15 @@
             >
               <span slot-scope="{node, data}">
                 <svg-icon
-                  v-if="data.deviceStatus"
-                  :name="`${data.deviceStatus.isOnline === 'off' ? 'ibox-online' : 'ibox-online'}`"
+                  v-if="data.deviceType === 'nvr'" name="nvr"
                   width="14" height="14"
-                  :class="`${data.deviceStatus.isOnline === 'off' ? 'ibox-online' : 'ibox-online'} ibox-container__tree-status`"
+                  :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus.isOnline === 'off' ? 'off' : 'on'} `"
+                />
+                <svg-icon
+                  v-else-if="data.deviceStatus"
+                  name="ibox"
+                  width="14" height="14"
+                  :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus.isOnline === 'off' ? 'off' : 'on'} `"
                 />
                 <span>{{ getSum(node, data) }}</span>
               </span>
@@ -634,6 +639,14 @@ export default class IBox extends Vue {
 
   &__tree-status {
     margin-right: 5px;
+
+    &__off {
+      color: #6e7c89;
+    }
+
+    &__on {
+      color: #65c465;
+    }
   }
 
   &__expand {
