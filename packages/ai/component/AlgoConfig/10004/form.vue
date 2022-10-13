@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
+import { HelmetClothType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'form',
@@ -26,6 +27,7 @@ import { Fragment } from 'vue-fragment'
 })
 export default class extends Vue {
   @Prop() private form!: any
+  private HelmetClothType = HelmetClothType
 }
 </script>
 <style lang="scss" scoped>

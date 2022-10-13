@@ -17,7 +17,7 @@
         />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice v-if="tabNum === '1'" />
+        <AttachedDevice v-if="tabNum === '1'" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
@@ -80,7 +80,7 @@
 </template>
 <script lang="ts">
 import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
-import { getAIConfigGroupData } from '@/api/aiConfig'
+// import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { listGroup } from '@/api/face'
@@ -88,15 +88,14 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
 import { Component, Mixins } from 'vue-property-decorator'
 import AppMixin from '../mixin/app-mixin'
 import AppSubDetail from './component/AppSubDetail.vue'
-// import AtachedDevice from './component/AtachedDevice.vue'
-import AtachedDevice from '@vss/ai/component/AtachedDevice.vue'
+import AttachedDevice from '@vss/ai/component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 @Component({
   name: 'AppDetail',
   components: {
     BasicAppInfo,
     AppSubDetail,
-    AtachedDevice
+    AttachedDevice
   }
 })
 export default class extends Mixins(AppMixin, IndexMixin) {
@@ -230,8 +229,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
             dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome'
         )
       }
-      let dirs: any = devices.dirs.map((dir: any) => {
-        let sharedFlag = false
+      const dirs: any = devices.dirs.map((dir: any) => {
+        const sharedFlag = false
         return {
           id: dir.id,
           groupId: node.data.groupId,

@@ -206,7 +206,7 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">
+        <el-button v-if="!$route.query.id" @click="changeStep({ step: 0 })">
           上一步
         </el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -257,7 +257,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   get analyseAiType() {
-    let res = Object.assign({}, ResourceAiType)
+    const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
       delete res['AI-100']
     } else if (this.ifShow('10025', '10032')) {
@@ -268,7 +268,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private ifShow(...codes) {
-    let res = codes.filter(
+    const res = codes.filter(
       (code) =>
         this.prod?.code === code ||
         (this.form.algorithm && this.form.algorithm.code === code)
@@ -451,7 +451,7 @@ export default class extends Mixins(AppMixin) {
    */
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
-    let algorithmMetadata = this.form.algorithmMetadata
+    const algorithmMetadata = this.form.algorithmMetadata
     Object.keys(algorithmMetadata).forEach(
       (key) => algorithmMetadata[key] === '' && delete algorithmMetadata[key]
     )

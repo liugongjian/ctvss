@@ -21,3 +21,25 @@ export const CityGovType = [
   { label: 'banner', cname: '横幅识别' },
   { label: 'cover', cname: '井盖异常' }
 ]
+/**
+ * 垃圾类别
+ */
+export const TrashType = [
+  { label: 'cask_yes', cname: '垃圾桶已盖' },
+  { label: 'cask_no', cname: '垃圾桶未盖' },
+  { label: 'cask_overflows', cname: '垃圾桶溢满' },
+  { label: 'trash', cname: '地面垃圾' }
+]
+
+export const ViewTypes = [
+  { value: '0', cname: '全部' },
+  { value: '1', cname: '人员' },
+  { value: '2', cname: '人脸' },
+  { value: '3', cname: '机动车' },
+  { value: '4', cname: '非机动车' }
+]
+
+export const HelmetClothType = [
+  { label: 'helmet', cname: '未带安全帽告警' },
+  { label: 'reflective', cname: '未穿反光服告警' }
+]
