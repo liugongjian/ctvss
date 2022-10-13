@@ -30,7 +30,7 @@
               highlight-current
               @node-click="handleNodeClick"
             >
-              <span slot-scope="{node, data}">
+              <span slot-scope="{node, data}" class="ibox-container__tree-text">
                 <svg-icon
                   v-if="data.deviceType === 'nvr'" name="nvr"
                   width="14" height="14"
@@ -46,6 +46,8 @@
                   width="14" height="14"
                   :class="`ibox-container__tree-status ibox-container__tree-status__${data.deviceStatus.isOnline === 'off' ? 'off' : 'on'} `"
                 />
+                <status-badge v-if="data.deviceType === 'ipc' && data.streams && data.streams.length" :status="data.streams[0].streamStatus" class="ibox-container__tree-status__stream" />
+                <span v-if="data.deviceType ==='ipc' && data.streams.lentgth">{{ data.streams[0].streamStatus }}</span>
                 <span>{{ getSum(node, data) }}</span>
               </span>
             </el-tree>
@@ -84,15 +86,16 @@ import { Component, Provide, Vue
   // Mixins
 } from 'vue-property-decorator'
 // import treeMixin from '@vss/device/components/Tree/treeMixin'
-import CommonTree from '@vss/base/components/CommonTree/index.vue'
+// import CommonTree from '@vss/base/components/CommonTree/index.vue'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'IBox',
   components: {
-    CommonTree
+    StatusBadge
   }
 })
 export default class IBox extends Vue {
@@ -233,7 +236,7 @@ export default class IBox extends Vue {
       this.loading.dirTree = true
       const data = await getIBoxList(param)
 
-      const { dirs = [], iboxes } = data
+      const { iboxes } = data
 
       this.dirList = iboxes.map((item: any) => {
         return {
@@ -650,6 +653,19 @@ export default class IBox extends Vue {
     &__on {
       color: #65c465;
     }
+
+    &__stream {
+      position: absolute;
+      top: -1px;
+      left: -3px;
+      width: 6px;
+      height: 6px;
+      opacity: 0.7;
+    }
+  }
+
+  &__tree-text {
+    position: relative;
   }
 
   &__expand {
