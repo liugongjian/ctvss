@@ -42,7 +42,7 @@
           <div class="device-list__device-type">
             <status-badge
               v-if="scope.row.deviceType === 'ipc'"
-              :status="scope.row.deviceStatus"
+              :status="scope.row.streamStatus"
             />
             <svg-icon
               :name="scope.row.deviceType"
@@ -141,9 +141,9 @@ export default class extends Mixins(AppMixin) {
   }
 
   private rowClick(row: any) {
-    IBoxModule.SetBreadcrumb([
-      { deviceId: row.deviceId, label: '设备1', type: undefined }
-    ])
+    // IBoxModule.SetBreadcrumb([
+    //   { deviceId: row.deviceId, label: '设备1', type: undefined }
+    // ])
     this.$router.push({
       name: 'IBoxDeviceDetail',
       query: {
