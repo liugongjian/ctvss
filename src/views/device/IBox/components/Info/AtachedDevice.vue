@@ -141,9 +141,9 @@ export default class extends Mixins(AppMixin) {
   }
 
   private rowClick(row: any) {
-    IBoxModule.SetBreadcrumb([
-      { deviceId: row.deviceId, label: '设备1', type: undefined }
-    ])
+    // IBoxModule.SetBreadcrumb([
+    //   { deviceId: row.deviceId, label: '设备1', type: undefined }
+    // ])
     this.$router.push({
       name: 'IBoxDeviceDetail',
       query: {
