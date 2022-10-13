@@ -31,33 +31,16 @@
               @node-click="handleNodeClick"
             >
               <span slot-scope="{node, data}">
+                <svg-icon
+                  v-if="data.deviceStatus"
+                  :name="`${data.deviceStatus.isOnline === 'off' ? 'ibox-online' : 'ibox-online'}`"
+                  width="14" height="14"
+                  :class="`${data.deviceStatus.isOnline === 'off' ? 'ibox-online' : 'ibox-online'} ibox-container__tree-status`"
+                />
                 <span>{{ getSum(node, data) }}</span>
               </span>
             </el-tree>
           </div>
-          <!-- <common-tree
-            ref="commonTree"
-            :default-key="defaultKey"
-            :data="dirList"
-            :props="treeProp"
-            :empty-text="emptyText"
-            :lazy="lazy"
-            :get-node-info="getNodeInfo"
-            :load="loadDirs"
-            :tree-loading="treeLoading"
-            @handle-node="handleNodeClick"
-          >
-            <template slot="itemLabelPrefix" slot-scope="{data}">
-              <svg-icon :name="data.type" />
-              <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data.streamStatus" />
-            </template>
-            <template slot="itemLabel" slot-scope="{node}">
-              {{ node.label }}
-            </template>
-            <span slot-scope="{node, data}">
-              <span>{{ getSum(node, data) }}</span>
-            </span>
-          </common-tree> -->
         </div>
         <div
           class="ibox-container__handle"
@@ -93,6 +76,7 @@ import { Component, Provide, Vue
 } from 'vue-property-decorator'
 // import treeMixin from '@vss/device/components/Tree/treeMixin'
 import CommonTree from '@vss/base/components/CommonTree/index.vue'
+import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
 
@@ -305,7 +289,7 @@ export default class IBox extends Vue {
       if (data.deviceType === 'nvr') {
         const iboxNvr = this.getIboxNvr(node)
         this.setListInfo('nvrlist', iboxNvr, data.deviceId)
-        return resolve(iboxNvr)
+        return resolve(iboxList)
       }
       return resolve([])
     }
@@ -317,6 +301,9 @@ export default class IBox extends Vue {
     return data && data.length
       ? data.map((item: any) => {
         if (item.device.deviceType === 'nvr') {
+          let videosInfo = item.videos[0]
+          videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
+
           return {
             isLeaf: false,
             deviceType: 'nvr',
@@ -324,9 +311,13 @@ export default class IBox extends Vue {
             id: item.device.deviceId,
             ...item.device,
             ...item.industry,
+            ...videosInfo,
             ...item
           }
         } else if (item.device.deviceType === 'ipc') {
+          let videosInfo = item.videos[0]
+          videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
+
           return {
             isLeaf: true,
             deviceType: 'ipc',
@@ -334,6 +325,7 @@ export default class IBox extends Vue {
             id: item.device.deviceId,
             ...item.device,
             ...item.industry,
+            ...videosInfo,
             ...item
           }
         }
@@ -363,8 +355,7 @@ export default class IBox extends Vue {
       } else if (node.level === 2) {
         const { data } = node
         if (data.deviceType === 'nvr') {
-          const iboxNvr = this.getIboxNvr(node)
-          dirTree.updateKeyChildren(key, iboxNvr)
+          dirTree.updateKeyChildren(key, iboxList)
         }
       }
 
@@ -421,7 +412,6 @@ export default class IBox extends Vue {
       const data: any = await getDeviceList(param)
 
       this.iboxDevice = data.devices
-      console.log(this.iboxDevice)
     } catch (error) {
       console.log(error)
     } finally {
@@ -640,6 +630,10 @@ export default class IBox extends Vue {
     flex: 1;
     padding: 10px;
     overflow: auto;
+  }
+
+  &__tree-status {
+    margin-right: 5px;
   }
 
   &__expand {
