@@ -7,6 +7,7 @@ const serverAddressMapping = {
   local: 'http://192.168.245.1:8081', // 本地环境
   dev: 'http://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9067', // 开发环境dev-1
+  devrefactor: 'http://182.43.127.35:9062', // 开发环境dev-refactor
   test: 'http://182.43.127.35:9080', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9061', // 测试环境test-2
@@ -19,6 +20,7 @@ const portMapping = {
   local: 8081,
   dev: 9190,
   dev1: 9067,
+  devrefactor: 9062,
   test: 9080,
   test1: 9060,
   test2: 9061,
