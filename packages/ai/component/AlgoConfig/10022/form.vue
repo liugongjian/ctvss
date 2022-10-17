@@ -18,13 +18,11 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Fragment } from 'vue-fragment'
 import { formTips } from '@vss/ai/util/form-helper'
 
 @Component({
   name: 'form',
   components: {
-    Fragment
   }
 })
 export default class extends Vue {

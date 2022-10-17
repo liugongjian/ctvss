@@ -18,12 +18,10 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { AnimalType } from '@vss/ai/dics/contants'
-import { Fragment } from 'vue-fragment'
 
 @Component({
   name: 'form',
   components: {
-    Fragment
   }
 })
 export default class extends Vue {

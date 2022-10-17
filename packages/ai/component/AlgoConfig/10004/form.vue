@@ -16,13 +16,11 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Fragment } from 'vue-fragment'
 import { HelmetClothType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'form',
   components: {
-    Fragment
   }
 })
 export default class extends Vue {
