@@ -672,28 +672,6 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'ai/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/AI/CreateOrUpdate.vue'),
-        name: 'AICreate',
-        meta: {
-          title: '新建AI模板',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/template/ai'
-        }
-      },
-      {
-        path: 'ai/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/AI/CreateOrUpdate.vue'),
-        name: 'aiUpdate',
-        meta: {
-          title: '编辑AI模板',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/template/ai'
-        }
-      },
-      {
         path: 'alert',
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/index.vue'),
         name: 'Alert',
