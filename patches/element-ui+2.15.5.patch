@@ -1,5 +1,5 @@
 diff --git a/node_modules/element-ui/lib/element-ui.common.js b/node_modules/element-ui/lib/element-ui.common.js
-index 6534063..a5c0102 100644
+index 6534063..974ab36 100644
 --- a/node_modules/element-ui/lib/element-ui.common.js
 +++ b/node_modules/element-ui/lib/element-ui.common.js
 @@ -1156,7 +1156,9 @@ var util_ = __webpack_require__(2);
@@ -45,7 +45,7 @@ index 6534063..a5c0102 100644
    return _c(
      "div",
      {
-+      attrs: { name: _vm.prop },
++      attrs: process.env.NODE_ENV !== 'production' && { name: _vm.prop },
        staticClass: "el-form-item",
        class: [
          {
