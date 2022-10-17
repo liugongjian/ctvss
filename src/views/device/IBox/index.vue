@@ -160,7 +160,7 @@ export default class IBox extends Vue {
   }
 
   @Provide('handleNodeClick')
-  public handleNodeClick(item: any, node?: any) {
+  public async handleNodeClick(item: any, node?: any) {
     // TODO 面包屑及刷新后选中逻辑
     const dirTree: any = this.$refs.dirTree
 
@@ -181,8 +181,7 @@ export default class IBox extends Vue {
     }
 
     if (_node) {
-      IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
-
+      await IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
       const { deviceId } = _node?.data
       this.treeIboxId = deviceId
 
@@ -398,7 +397,6 @@ export default class IBox extends Vue {
 
   public getIboxNvr(node: any) {
     const { data } = node
-    console.log('data--->', data)
     const iboxNvr = data.deviceChannels.map((item: any) => ({
       isLeaf: true,
       deviceType: 'ipc',
