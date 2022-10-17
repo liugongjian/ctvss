@@ -24,7 +24,7 @@
     "serve:prod-https": "vue-cli-service serve --env prod --https",
     "serve:pre-https": "vue-cli-service serve --env pre --https",
     "build:prod": "vue-cli-service build",
-    "build:stage": "NODE_ENV=development vue-cli-service build",
+    "build:stage": "NODE_ENV=pre vue-cli-service build",
     "lint": "vue-cli-service lint",
     "mock": "cd mock && ts-node-dev mock-server.ts",
     "svg": "vsvg -s ./src/icons/svg -t ./src/icons/components --ext ts --es6",

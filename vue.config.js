@@ -34,7 +34,7 @@ console.info(`启动${environment}环境:`, serverAddress)
 console.info('是否开启https:', isHttps)
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/vss/' : '/',
+  publicPath: (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'pre') ? '/vss/' : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
@@ -144,7 +144,7 @@ module.exports = {
 
     // https://webpack.js.org/configuration/devtool/#development
     config
-      .when(process.env.NODE_ENV === 'development',
+      .when(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'pre',
         config => config.devtool('cheap-eval-source-map')
       )
 
