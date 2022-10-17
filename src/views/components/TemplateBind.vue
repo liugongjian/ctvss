@@ -81,14 +81,6 @@
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />
-    <!-- <SetAITemplate
-      v-if="setAITemplateDialog"
-      :in-protocol="inProtocol"
-      :group-id="groupId"
-      :device-id="deviceId"
-      :template-id="aiTemplateId"
-      @on-close="closeSetAITemplateDialog"
-    /> -->
     <SetAlertTemplate
       v-if="setAlertTemplateDialog"
       :in-protocol="inProtocol"
@@ -102,19 +94,17 @@
 <script lang="ts">
 import SetRecordTemplate from './dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from './dialogs/SetCallBackTemplate.vue'
-import SetAITemplate from './dialogs/SetAITemplate.vue'
 import SetAlertTemplate from './dialogs/SetAlertTemplate.vue'
 import { RecordTemplate } from '@/type/Template'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
-import { getAIBind, getAlertBind } from '@/api/template'
+import { getAlertBind } from '@/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
   name: 'TemplateBind',
   components: {
     SetRecordTemplate,
     SetCallBackTemplate,
-    SetAITemplate,
     SetAlertTemplate
   },
   filters: {
@@ -153,7 +143,6 @@ export default class extends Vue {
   private async mounted() {
     this.getStreamTemplate()
     this.getRecordTemplate()
-    // this.getAITemplate()
     this.inProtocol === 'gb28181' && this.getAlertTemplate()
   }
 
@@ -163,15 +152,6 @@ export default class extends Vue {
       this.recordTemplateId = ''
     } else {
       this.recordTemplateId = this.template.recordTemplate[0].templateId!
-    }
-  }
-
-  private setAITemplate() {
-    this.setAITemplateDialog = true
-    if (!this.template.aiTemplate.length) {
-      this.aiTemplateId = ''
-    } else {
-      this.aiTemplateId = this.template.aiTemplate[0].templateId!
     }
   }
 
@@ -195,34 +175,9 @@ export default class extends Vue {
     }
   }
 
-  private async getAITemplate() {
-    try {
-      this.loading.ai = true
-      this.template.aiTemplate = []
-      if (this.groupId) {
-        const res = await getAIBind({ groupId: this.groupId })
-        this.template.aiTemplate.push(res)
-      } else {
-        const res = await getAIBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-        this.template.aiTemplate.push(res)
-      }
-    } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
-    } finally {
-      this.loading.ai = false
-    }
-  }
-
   private async closeSetRecordTemplateDialog() {
     this.setRecordTemplateDialog = false
     this.getRecordTemplate()
-  }
-
-  private async closeSetAITemplateDialog() {
-    this.setAITemplateDialog = false
-    this.getAITemplate()
   }
 
   private setCallbackTemplate() {

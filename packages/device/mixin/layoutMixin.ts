@@ -1,6 +1,6 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, ToolsEnum } from '../enums/index'
-import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
+import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
