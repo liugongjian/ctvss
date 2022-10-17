@@ -144,7 +144,7 @@ module.exports = {
 
     // https://webpack.js.org/configuration/devtool/#development
     config
-      .when(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'pre',
+      .when(process.env.NODE_ENV === 'development',
         config => config.devtool('cheap-eval-source-map')
       )
 
