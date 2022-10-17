@@ -17,6 +17,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { AnimalType } from '@vss/ai/dics/contants'
 import { Fragment } from 'vue-fragment'
 
 @Component({
@@ -27,6 +28,7 @@ import { Fragment } from 'vue-fragment'
 })
 export default class extends Vue {
   @Prop() private form!: any
+  private AnimalType = AnimalType
 }
 </script>
 <style lang="scss" scoped>

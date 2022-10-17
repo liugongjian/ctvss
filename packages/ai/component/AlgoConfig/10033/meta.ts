@@ -1,9 +1,9 @@
 import { getDangerZone } from '@vss/ai/util/dangerzone'
-import { AnimalType } from '@/dics'
+import { AnimalType } from '@vss/ai/dics/contants'
 
 export const getData = (metaData) => {
-  let locations = []
-  let counts = {}
+  let locations: Location[] = []
+  const counts = {}
   AnimalType.forEach(item => { counts[item.label] = 0 })
   locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
     try {

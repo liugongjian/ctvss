@@ -1,7 +1,7 @@
 import { getDangerZone } from '@vss/ai/util/dangerzone'
 
 export const getData = (metaData) => {
-  let locations = []
+  let locations: Location[] = []
   locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
     try {
       const name = (person.FaceItems.length > 0 && person.FaceItems[0].Labels.length > 0) ? JSON.parse(person.FaceItems[0].Labels).name : '-'

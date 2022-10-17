@@ -1,5 +1,7 @@
+import { Location } from '@vss/ai/type/Meta'
+
 export const getData = (metaData) => {
-  let locations = []
+  const locations: Location[] = []
   if (metaData.Data && metaData.Data.FaceRectangles) {
     const boxes = metaData.Data.FaceRectangles
     for (let i = 0; i < boxes.length; i += 4) {

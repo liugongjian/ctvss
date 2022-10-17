@@ -16,6 +16,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { CityGovType } from '@vss/ai/dics/contants'
 import { Fragment } from 'vue-fragment'
 
 @Component({
@@ -26,6 +27,7 @@ import { Fragment } from 'vue-fragment'
 })
 export default class extends Vue {
   @Prop() private form!: any
+  private CityGovType = CityGovType
 }
 </script>
 <style lang="scss" scoped>

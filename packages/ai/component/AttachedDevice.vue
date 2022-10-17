@@ -94,12 +94,12 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
-import AppMixin from '../../mixin/app-mixin'
+import AppMixin from '@/views/AI/mixin/app-mixin'
 import { GroupModule } from '@/store/modules/group'
 import { getGroups } from '@/api/group'
 
 @Component({
-  name: 'AtachedDevice',
+  name: 'AttachedDevice',
   components: { StatusBadge }
 })
 export default class extends Mixins(AppMixin) {
