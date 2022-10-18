@@ -121,7 +121,7 @@ module.exports = {
         secure: false
       },
       '/v2': {
-        target: 'http://127.0.0.1:3000',
+        target: serverAddress,
         changeOrigin: true,
         secure: false
       }

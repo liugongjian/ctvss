@@ -9,7 +9,7 @@ import { toLowerCase } from '@vss/base/utils/param'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1', // url = base url + request url
+  baseURL: '/v2', // url = base url + request url
   timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
@@ -17,7 +17,6 @@ const service = axios.create({
 // Request interceptors
 service.interceptors.request.use(
   (config) => {
-    console.log(config, '-----')
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {

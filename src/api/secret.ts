@@ -1,8 +1,9 @@
-import request from '@/utils/request'
+import request from '@/utils/request2'
 
 export const getSecretList = (params: any = {}): Promise<any> =>
   request({
-    url: '/openapi/list',
+    // url: '/openapi/list',
+    url: '/aksk/list',
     method: 'get',
     params
   })
