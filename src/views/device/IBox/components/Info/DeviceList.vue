@@ -121,12 +121,14 @@
             <div class="ibox-list-table--btn">
               实时预览
             </div>
-            <div class="ibox-list-table--btn" @click="startDevice(row)">
-              启用流
-            </div>
-            <div class="ibox-list-table--btn" @click="stopDevice(row)">
-              停用流
-            </div>
+            <el-dropdown @command="handleMore">
+              <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="{type: 'start', device: row}">启用流</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'stop', device: row}">停用流</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'delete', device: row}">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -143,10 +145,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { getDeviceList, startDevice, stopDevice } from '@/api/ibox'
-// import { IBoxModule } from '@/store/modules/ibox'
-import { InVideoProtocolModelMapping } from '@vss/device/dicts'
+import { Component, Watch, Inject, Mixins } from 'vue-property-decorator'
+import ListMixins from '../../mixin/listMixin'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -155,23 +155,17 @@ import { dateFormat } from '@/utils/date'
   }
 })
 
-export default class IBoxList extends Vue {
+export default class IBoxList extends Mixins(ListMixins) {
   @Inject('handleNodeClick')
   public handleNodeClick!: Function
 
-  public tableData = []
+  // public tableData = []
   public dateFormat = dateFormat
 
   public statusMap = {
     on: '在线',
     off: '离线',
     new: '未注册'
-  }
-
-  public pager = {
-    pageNum: 1,
-    pageSize: 10,
-    total: 0
   }
 
   public async mounted() {
@@ -183,96 +177,12 @@ export default class IBoxList extends Vue {
     this.getDeviceList()
   }
 
-  public async getDeviceList() {
-    const { query } = (this.$route) as any
-    const { deviceId = '' } = query
-    const param = {
-      pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize,
-      ParentDeviceId: deviceId
-    }
-    try {
-      await getDeviceList(param).then(res => {
-        this.tableData = res?.devices.map((item: any) => {
-          let videosInfo = item.videos[0]
-
-          videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
-
-          return {
-            ...item.device,
-            ...item.industry,
-            ...videosInfo,
-            ...item
-          }
-        })
-        this.pager = {
-          total: Number(res.totalNum),
-          pageNum: Number(res.pageNum),
-          pageSize: Number(res.pageSize)
-        }
-      })
-    } catch (error) {
-      console.log(error)
-    }
-    // this.tableData = IBoxModule.iboxList.data
-  }
-
-  public async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    await this.getDeviceList()
-  }
-
-  public async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    await this.getDeviceList()
-  }
-
-  public addIBox() {
-    let query: any = {
-      deviceId: this.$route.query.deviceId,
-      parentDeviceId: this.$route.query.deviceId,
-      type: this.$route.query.type
-    }
-    // IBoxDeviceCreate
-    const router: any = {
-      name: 'IBoxDeviceCreate',
-      query
-    }
-    this.$router.push(router)
-  }
-
   // public cb() {
   //   this.addIBox()
   //   this.getDeviceList()
   //   const path = this.$route.path
   //   this.$router.push(path)
   // }
-
-  public async startDevice(row: any) {
-    const { deviceId, videos } = row
-    const param = {
-      deviceId,
-      inProtocol: videos[0].inVideoProtocol
-    }
-    try {
-      await startDevice(param)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  public async stopDevice(row: any) {
-    const { deviceId, videos } = row
-    const param = {
-      deviceId,
-      inProtocol: videos[0].inVideoProtocol
-    }
-    try {
-      await stopDevice(param)
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   public toDetail(row: any) {
     let query: any = {

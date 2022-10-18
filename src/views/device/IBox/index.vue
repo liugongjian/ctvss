@@ -218,6 +218,7 @@ export default class IBox extends Vue {
   }
 
   // 获取ibox目录
+  @Provide('getDirList')
   public async getDirList() {
     const { query } = this.$route as any
     const {

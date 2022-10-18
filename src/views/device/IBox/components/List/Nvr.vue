@@ -49,7 +49,21 @@
         />
         <el-table-column
           label="操作"
-        />
+        >
+          <template slot-scope="{row}">
+            <div class="ibox-list-table--btn">
+              实时预览
+            </div>
+            <el-dropdown @command="handleMore">
+              <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="{type: 'start', device: row}">启用流</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'stop', device: row}">停用流</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'delete', device: row}">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         v-if="tableData.length"
@@ -64,10 +78,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Inject } from 'vue-property-decorator'
-import { getDeviceList } from '@/api/ibox'
-// import { IBoxModule } from '@/store/modules/ibox'
-import { InVideoProtocolModelMapping } from '@vss/device/dicts'
+import { Component, Inject, Mixins } from 'vue-property-decorator'
+import ListMixins from '../../mixin/listMixin'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -76,7 +88,7 @@ import { dateFormat } from '@/utils/date'
   }
 })
 
-export default class IBoxList extends Vue {
+export default class IBoxList extends Mixins(ListMixins) {
   @Inject('handleNodeClick')
   public handleNodeClick!: Function
 
@@ -89,69 +101,8 @@ export default class IBoxList extends Vue {
     new: '未注册'
   }
 
-  public pager = {
-    pageNum: 1,
-    pageSize: 10,
-    total: 0
-  }
-
   public async mounted() {
     await this.getDeviceList()
-  }
-
-  public async getDeviceList() {
-    const { query } = (this.$route) as any
-    const { deviceId = '' } = query
-    const param = {
-      pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize,
-      ParentDeviceId: deviceId
-    }
-    try {
-      const res = await getDeviceList(param)
-      this.tableData = res?.devices.map((item: any) => {
-        let videosInfo = item.videos[0]
-
-        videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
-        return {
-          ...item.device,
-          ...item.industry,
-          ...videosInfo,
-          ...item
-        }
-      })
-      this.pager = {
-        total: Number(res.totalNum),
-        pageNum: Number(res.pageNum),
-        pageSize: Number(res.pageSize)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  public async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    await this.getDeviceList()
-  }
-
-  public async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    await this.getDeviceList()
-  }
-
-  public addIBox() {
-    let query: any = {
-      deviceId: this.$route.query.deviceId,
-      parentDeviceId: this.$route.query.deviceId,
-      type: this.$route.query.type
-    }
-    // IBoxDeviceCreate
-    const router: any = {
-      name: 'IBoxDeviceCreate',
-      query
-    }
-    this.$router.push(router)
   }
 
   public toDetail(row: any) {
@@ -188,6 +139,11 @@ export default class IBoxList extends Vue {
     }
 
     &--id {
+      color: #fa8334;
+    }
+
+    &--btn {
+      cursor: pointer;
       color: #fa8334;
     }
   }
