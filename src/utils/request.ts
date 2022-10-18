@@ -55,9 +55,9 @@ service.interceptors.response.use(
 )
 
 function responseHandler(response: AxiosResponse) {
-  if (response && (response.status === 200) && response.data && !response.data.Code) {
+  if (response && (response.status === 200) && response.data && !response.data.code) {
     // TODO: 后端处理大小写
-    const resData = response.data.Data ? toLowerCase(response.data.Data) : toLowerCase(response.data)
+    const resData = response.data.data ? toLowerCase(response.data.data) : toLowerCase(response.data)
     return resData as AxiosResponse
   } else {
     if (!timeoutPromise && response && response.data && response.data.Code === 16) {
