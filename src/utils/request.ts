@@ -6,10 +6,11 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 import { toLowerCase } from '@vss/base/utils/param'
+import { ApiMapping } from '@/api/apiMapping'
+import { whiteList } from '@/api/v1WhiteList'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1', // url = base url + request url
   timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
@@ -17,12 +18,13 @@ const service = axios.create({
 // Request interceptors
 service.interceptors.request.use(
   (config) => {
-    console.log(config, '-----')
+    config.url = urlTransform(config.url)
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
         const pathname = window.location.pathname
         // 防止虚拟业务组页面加载groupList时带role-id与real-group-id
+        // eslint-disable-next-line max-len
         if (config.url !== '/group/list' && (pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
           config.headers['role-id'] = VGroupModule.roleId
           config.headers['real-group-id'] = VGroupModule.realGroupId
@@ -53,6 +55,18 @@ service.interceptors.response.use(
     return responseHandler(error.response)
   }
 )
+
+// 根据用户tag转换请求url
+function urlTransform(url: string) {
+  const apiList = Object.keys(ApiMapping)
+  console.log(url, )
+  if (UserModule.version === 2 && !whiteList.includes(url)) {
+    url = '/v2' + (apiList.includes(url) ? ApiMapping[url] : url)
+  } else {
+    url = '/v1' + url
+  }
+  return url
+}
 
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {

@@ -164,7 +164,7 @@ export const getDeviceTree = (params: any): Promise<any> => {
 export const getDevices = (params: any): Promise<any> => {
   return new Promise(resolve => {
     request({
-      url: '/new/devicelist',
+      url: '/device/list',
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
@@ -274,7 +274,7 @@ export const exportDevicesExcel = (params: any): Promise<any> =>
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/new/device',
+    url: '/device',
     method: 'get',
     params: toUpperCase(params),
     cancelToken
@@ -322,7 +322,7 @@ export const getChannels = (params: any): Promise<any> =>
  */
 export const createDevice = (params: any): Promise<any> =>
   request({
-    url: '/new/device',
+    url: '/device',
     method: 'post',
     data: toUpperCase(params)
   })
@@ -339,8 +339,8 @@ export const createDeviceIbox = (params: any): Promise<any> =>
  */
 export const updateDevice = (params: any): Promise<any> =>
   request({
-    url: '/new/device',
-    method: 'put',
+    url: '/device/update',
+    method: 'post',
     data: toUpperCase(params)
   })
 
