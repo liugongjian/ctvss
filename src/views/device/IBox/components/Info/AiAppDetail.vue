@@ -77,6 +77,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     deviceId: '',
     inProtocol: ''
   }
+
   private faceLib: any = {}
   private tabNum: string | string[] = '0'
   private deviceList: any = []
@@ -109,7 +110,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     }
 
     try {
-      let channels = []
+      const channels = []
       const iboxId = this.$route.query.deviceId
       const { devices }: any = await getDeviceList(param)
       const _devices = devices.map((device) => {

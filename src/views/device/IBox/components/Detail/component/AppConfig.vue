@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="配置AI应用" :visible="true" width="80%">
+  <el-dialog title="配置AI应用" :visible="true" width="80%" center @close="cancel">
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleTabType">
       <el-tab-pane
         v-for="tab in abilityList"
@@ -93,6 +93,7 @@ export default class AiAppList extends Vue {
   private cancel() {
     this.$emit('close')
   }
+
   private submit() {
     this.$emit('bind', this.selectedApps)
     this.$emit('close')
