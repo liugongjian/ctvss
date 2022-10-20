@@ -7,7 +7,7 @@ import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, 
 /**
  * 获取设备目录树
  */
-export const getNodeInfo = (params: any): Promise<any> => {
+export const getNodeInfo = (params: any): Promise<any> =>
   // mock
   // let res: any
   // if (params === 'root') {
@@ -93,7 +93,6 @@ export const getNodeInfo = (params: any): Promise<any> => {
     method: 'get',
     params: toUpperCase(params)
   })
-}
 
 export const getDeviceTree = (params: any): Promise<any> => {
   const res = [{

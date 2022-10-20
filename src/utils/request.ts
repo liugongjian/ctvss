@@ -59,7 +59,6 @@ service.interceptors.response.use(
 // 根据用户tag转换请求url
 function urlTransform(url: string) {
   const apiList = Object.keys(ApiMapping)
-  console.log(url, )
   if (UserModule.version === 2 && !whiteList.includes(url)) {
     url = '/v2' + (apiList.includes(url) ? ApiMapping[url] : url)
   } else {
