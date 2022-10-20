@@ -63,6 +63,7 @@ import { createIboxApp, updateIboxApp } from '@/api/ibox'
 export default class extends Mixins(AppMixin) {
   @Inject('appInfo')
   public appInfo!: any
+
   @Prop({}) initialStep!: number
   @Prop({}) isIboxEdit!: boolean
   private step: number = 0
@@ -92,7 +93,7 @@ export default class extends Mixins(AppMixin) {
         algorithmId: param.algorithmsId
       })
       this.backToList()
-      this.$message.success('添加成功')
+      this.$message.success('操作成功')
     } catch (e) {
       this.$message.error(e)
     }
