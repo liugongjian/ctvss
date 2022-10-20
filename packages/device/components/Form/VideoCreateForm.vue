@@ -12,6 +12,7 @@
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
+        :disabled="checkEditable(deviceEnum.InVideoProtocol)"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -34,6 +35,7 @@
           :key="key"
           :label="value"
           :value="key"
+          :disabled="checkEditable(deviceEnum.InVersion)"
         />
       </el-radio-group>
     </el-form-item>
@@ -45,7 +47,7 @@
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm.inUserName" :disabled="checkEditable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
@@ -132,6 +134,7 @@
         v-model="videoForm.deviceStreamAutoPull"
         :active-value="1"
         :inactive-value="2"
+        :disabled="checkEditable(deviceEnum.DeviceStreamAutoPull)"
       />
     </el-form-item>
     <el-form-item
@@ -187,6 +190,7 @@
         v-model="videoForm.streamTransProtocol"
         active-value="tcp"
         inactive-value="udp"
+        :disabled="checkEditable(deviceEnum.StreamTransProtocol)"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
@@ -225,7 +229,7 @@ import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor,
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '@vss/device/dicts/tips'
 import { validGbId } from '@vss/device/api/device'
-import { checkVideoVisible } from '@vss/device/utils/param'
+import { checkVideoVisible, checkFormEditable } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import ResourceTabs from '@vss/device/components/ResourceTabs.vue'
@@ -425,6 +429,13 @@ export default class extends Vue {
    */
   private checkVisible(prop) {
     return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, this.isIbox, prop)
+  }
+
+  /**
+   * 判断表单项是否可以编辑
+   */
+  private checkEditable(prop) {
+    return this.basicInfo && checkFormEditable.call(this.basicInfo, prop)
   }
 
   /*

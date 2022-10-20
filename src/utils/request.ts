@@ -6,8 +6,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 import { toLowerCase } from '@vss/base/utils/param'
-import { ApiMapping } from '@/api/apiMapping'
-import { whiteList } from '@/api/v1WhiteList'
+import { ApiMapping } from '@/api/api-mapping'
+import { whiteList } from '@/api/v1-whitelist'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({

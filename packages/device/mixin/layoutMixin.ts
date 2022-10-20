@@ -1,5 +1,5 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, ToolsEnum } from '../enums/index'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
@@ -98,20 +98,17 @@ export default class DetailMixin extends Vue {
    * @param node 节点信息
    */
   public treeLoad = async function (node) {
-    let children
+    let res
     if (node.level === 0) {
       this.loading.tree = true
-      children = await getNodeInfo('root')
-      this.deviceTree.loadChildren('01')
-    } else if (node.level < 4) {
-      children = await getNodeInfo('node')
-    } else if (node.level === 4) {
-      children = await getNodeInfo('leaf')
+      res = await getNodeInfo({ id: '-1', type: DirectoryTypeEnum.Dir })
+      console.log(res)
+      // this.deviceTree.loadChildren('01')
+      this.loading.tree = false
     } else {
-      children = []
+      res = await getNodeInfo({ id: node.data.id, type: node.data.type })
     }
-    this.loading.tree = false
-    return children
+    return res.data.dirs
   }.bind(this)
 
   /**

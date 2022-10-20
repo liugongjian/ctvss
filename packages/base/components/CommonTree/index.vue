@@ -7,8 +7,8 @@
       v-show="hasRoot"
       ref="root"
       class="common-tree__root"
-      :class="{'common-tree__root--active': currentNodeKey === '-1'}"
-      @click="handleNode({id: '-1'})"
+      :class="{ 'common-tree__root--active': currentNodeKey === '-1' }"
+      @click="handleNode({ id: '-1' })"
     >
       <div class="common-tree__root__label-prefix">
         <slot name="rootLabelPrefix" />
@@ -41,8 +41,8 @@
           @node-click="handleNode"
         >
           <div
-            slot-scope="{node, data}"
-            v-draggable="{node, isDraggable}"
+            slot-scope="{ node, data }"
+            v-draggable="{ node, isDraggable }"
             class="common-tree__item"
           >
             <div class="common-tree__item__label-prefix">
@@ -105,7 +105,7 @@ export default class extends Vue {
   @Prop({ default: false })
   private hasCheckbox: boolean
 
-  private hasRoot: boolean = false
+  private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   private currentNodeKey = null
 
@@ -184,7 +184,7 @@ export default class extends Vue {
     this.$emit('handle-node', data)
   }
 
-  private getCheckedNodes(leafOnly: boolean = false, includeHalfChecked: boolean = false) {
+  private getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
     return this.tree.getCheckedNodes(leafOnly, includeHalfChecked)
   }
 
@@ -192,11 +192,11 @@ export default class extends Vue {
     return this.tree.setCheckedNodes(nodes)
   }
 
-  private getCheckedKeys(leafOnly: boolean = false) {
+  private getCheckedKeys(leafOnly = false) {
     return this.tree.getCheckedNodes(leafOnly)
   }
 
-  private setCheckedKeys(keys, leafOnly: boolean = false) {
+  private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
 }

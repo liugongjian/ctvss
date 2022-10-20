@@ -9,21 +9,21 @@ import StreamSelector from '../StreamSelector.vue'
     StreamSelector
   }
 })
-export default class DetailMixin extends Vue {
+export default class TreeMixin extends Vue {
   @Prop({ default: true })
   public lazy: boolean
 
   @Prop({ default: () => [] })
   public data
 
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   public load
 
   public toolsEnum = ToolsEnum
   public getNodeInfo = getNodeInfo
   public defaultKey = ''
-  public rootLabel: string = '根目录'
-  public emptyText: string = '暂无目录或设备'
+  public rootLabel = '根目录'
+  public emptyText = '暂无目录或设备'
   public defaultProps = {
     children: 'children',
     label: 'label',
@@ -33,7 +33,7 @@ export default class DetailMixin extends Vue {
     online: 0,
     total: 0
   }
-  public treeLoading: boolean = false
+  public treeLoading = false
 
   public get commonTree() {
     return this.$refs.commonTree as any

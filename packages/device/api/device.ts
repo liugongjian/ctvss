@@ -9,84 +9,89 @@ import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, 
  */
 export const getNodeInfo = (params: any): Promise<any> => {
   // mock
-  let res: any
-  if (params === 'root') {
-    res = [
-      {
-        id: '00',
-        type: 'platform',
-        label: 'root1',
-        children: []
-      },
-      {
-        id: '01',
-        type: 'platform',
-        label: 'root2',
-        children: []
-      },
-      {
-        id: '02',
-        type: 'ipc',
-        label: 'device',
-        multiStreamSize: 3,
-        autoStreamNum: 1,
-        streamStatus: 'on',
-        deviceStreams: [
-          {
-            streamNum: 1,
-            streamStatus: 'on'
-          }
-        ],
-        isLeaf: true
-      }
-    ]
-  } else if (params === 'node') {
-    res = [
-      {
-        id: '03',
-        type: 'dir',
-        label: 'node1',
-        children: []
-      },
-      {
-        id: '04',
-        type: 'dir',
-        label: 'node2',
-        children: []
-      },
-      {
-        id: '05',
-        type: 'dir',
-        label: 'node3',
-        children: []
-      }
-    ]
-  } else {
-    res = [
-      {
-        id: '06',
-        type: 'ipc',
-        label: 'leaf1',
-        isLeaf: true
-      },
-      {
-        id: '07',
-        type: 'ipc',
-        label: 'leaf2',
-        isLeaf: true
-      },
-      {
-        id: '08',
-        type: 'nvr',
-        label: 'leaf3',
-        isLeaf: true
-      }
-    ]
-  }
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(res)
-    }, 1000)
+  // let res: any
+  // if (params === 'root') {
+  //   res = [
+  //     {
+  //       id: '00',
+  //       type: 'platform',
+  //       label: 'root1',
+  //       children: []
+  //     },
+  //     {
+  //       id: '01',
+  //       type: 'platform',
+  //       label: 'root2',
+  //       children: []
+  //     },
+  //     {
+  //       id: '02',
+  //       type: 'ipc',
+  //       label: 'device',
+  //       multiStreamSize: 3,
+  //       autoStreamNum: 1,
+  //       streamStatus: 'on',
+  //       deviceStreams: [
+  //         {
+  //           streamNum: 1,
+  //           streamStatus: 'on'
+  //         }
+  //       ],
+  //       isLeaf: true
+  //     }
+  //   ]
+  // } else if (params === 'node') {
+  //   res = [
+  //     {
+  //       id: '03',
+  //       type: 'dir',
+  //       label: 'node1',
+  //       children: []
+  //     },
+  //     {
+  //       id: '04',
+  //       type: 'dir',
+  //       label: 'node2',
+  //       children: []
+  //     },
+  //     {
+  //       id: '05',
+  //       type: 'dir',
+  //       label: 'node3',
+  //       children: []
+  //     }
+  //   ]
+  // } else {
+  //   res = [
+  //     {
+  //       id: '06',
+  //       type: 'ipc',
+  //       label: 'leaf1',
+  //       isLeaf: true
+  //     },
+  //     {
+  //       id: '07',
+  //       type: 'ipc',
+  //       label: 'leaf2',
+  //       isLeaf: true
+  //     },
+  //     {
+  //       id: '08',
+  //       type: 'nvr',
+  //       label: 'leaf3',
+  //       isLeaf: true
+  //     }
+  //   ]
+  // }
+  // return new Promise(resolve => {
+  //   setTimeout(() => {
+  //     resolve(res)
+  //   }, 1000)
+  // })
+  request({
+    url: '/dir/list/status',
+    method: 'get',
+    params: toUpperCase(params)
   })
 }
 
@@ -274,7 +279,7 @@ export const exportDevicesExcel = (params: any): Promise<any> =>
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/device',
+    url: '/device/describe',
     method: 'get',
     params: toUpperCase(params),
     cancelToken
@@ -322,7 +327,7 @@ export const getChannels = (params: any): Promise<any> =>
  */
 export const createDevice = (params: any): Promise<any> =>
   request({
-    url: '/device',
+    url: '/device/create',
     method: 'post',
     data: toUpperCase(params)
   })

@@ -6,7 +6,8 @@ import {
   DirectoryTypeAllowParams,
   DeviceListToolsAllowParams,
   DeviceTableColumnAllowParams,
-  DeviceTypeDenyParamsForIbox
+  DeviceTypeDenyParamsForIbox,
+  ChannelDenyEditableParams
 } from '@vss/device/settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '@vss/device/enums/index'
 
@@ -76,6 +77,20 @@ export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, p
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
+
+/**
+ * 视频接入form-item可编辑判断
+ * @param prop 参数名
+ * @return 判断结果
+ */
+ export function checkFormEditable(prop): boolean {
+  console.log(prop, this, this[DeviceEnum.DeviceChannelNum])
+    if (this[DeviceEnum.DeviceChannelNum] > 0) {
+      return ChannelDenyEditableParams.has(prop)
+    } else {
+      return false
+    }
+ }
 
 /**
  * 视图接入form-item显示判断
