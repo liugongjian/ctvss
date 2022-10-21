@@ -411,6 +411,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/mapv2',
+    component: Layout,
+    meta: {
+      title: '电子地图',
+      icon: 'menu-map',
+      perms: ['DescribeMap'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: false,
+      version: 2
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV2/index.vue'),
+        name: 'map',
+        meta: {
+          title: '电子地图V2',
+          icon: 'menu-map',
+          breadcrumb: false,
+          perms: ['DescribeMap']
+        }
+      }
+    ]
+  },
+  {
     path: '/up-platform',
     component: Layout,
     redirect: 'noredirect',
