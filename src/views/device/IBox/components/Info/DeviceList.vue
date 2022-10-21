@@ -118,7 +118,7 @@
           label="操作"
         >
           <template slot-scope="{row}">
-            <div class="ibox-list-table--btn">
+            <div v-if="row.deviceType !== 'nvr'" class="ibox-list-table--btn">
               实时预览
             </div>
             <el-dropdown @command="handleMore">
