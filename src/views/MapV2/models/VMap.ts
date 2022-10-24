@@ -393,7 +393,7 @@ export default class VMap {
       this.indexCluster.setMap(null)
     }
     const clusterIndexSet = {
-      groupName: {
+      dirName: {
         minZoom: 3,
         maxZoom: 15
       }
