@@ -48,35 +48,35 @@ export const getGb28181Certificate = (params: any): Promise<any> =>
  */
 export const getGa1400CertificateList = (params: any): Promise<any> =>
   request({
-    url: '/viid/new/certificates/ga1400',
+    url: '/certificate/ga1400/list',
     method: 'get',
-    params
+    params: toUpperCase(params)
   })
 
 export const createGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/new/certificates/ga1400',
+    url: '/certificate/ga1400/create',
     method: 'post',
     data: toUpperCase(params)
   })
 
 export const deleteGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/new/certificates/ga1400/' + params.id,
-    method: 'delete',
-    data: params
+    url: '/certificate/ga1400/delete',
+    method: 'post',
+    data: toUpperCase(params)
   })
 
-export const updateGa1400Certificate = (params: any, id: string): Promise<any> =>
+export const updateGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/new/certificates/ga1400/' + id,
-    method: 'put',
-    data: params
+    url: '/certificate/ga1400/update',
+    method: 'post',
+    data: toUpperCase(params)
   })
 
 export const getGa1400Certificate = (params: any): Promise<any> =>
   request({
-    url: '/viid/new/certificates/ga1400',
+    url: '/certificate/ga1400/describe',
     method: 'get',
-    params
+    params: toUpperCase(params)
   })

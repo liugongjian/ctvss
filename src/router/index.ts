@@ -411,6 +411,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/mapv2',
+    component: Layout,
+    meta: {
+      title: '电子地图',
+      icon: 'menu-map',
+      perms: ['DescribeMap'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: false,
+      version: 2
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV2/index.vue'),
+        name: 'map',
+        meta: {
+          title: '电子地图V2',
+          icon: 'menu-map',
+          breadcrumb: false,
+          perms: ['DescribeMap']
+        }
+      }
+    ]
+  },
+  {
     path: '/up-platform',
     component: Layout,
     redirect: 'noredirect',
@@ -457,8 +483,9 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
+  
   {
-    path: '/view-service',
+    path: '/viid',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -471,35 +498,68 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'up-platform',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/index.vue'),
-        name: 'ViewUpPlatform',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
+        name: 'ViidUpPlatform',
         meta: {
           title: '向上级联',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/view-service/up-platform'
+          activeMenu: '/viid/up-platform'
         }
       },
       {
         path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/Create.vue'),
-        name: 'viewUpPlatformCreate',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformCreate',
         meta: {
           title: '新建平台',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/view-service/up-platform'
+          activeMenu: '/viid/up-platform'
         }
       },
       {
         path: 'up-platform/update/:id?',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/Create.vue'),
-        name: 'viewUpPlatformUpdate',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformUpdate',
         meta: {
           title: '编辑平台',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/view-service/up-platform'
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'subscribe',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+        name: 'ViidSubscribe',
+        meta: {
+          title: '订阅通知',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
+      {
+        path: 'subscribe/create',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
+        name: 'ViidSubscribeCreate',
+        meta: {
+          title: '添加订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
+      {
+        path: 'subscribe/cancel',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'),
+        name: 'ViidSubscribeCancel',
+        meta: {
+          title: '取消订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
         }
       }
     ]

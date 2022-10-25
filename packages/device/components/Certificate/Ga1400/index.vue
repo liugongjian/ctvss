@@ -110,7 +110,7 @@ export default class extends Vue {
     this.$router.push({
       name: 'ga1400-update',
       params: {
-        username: row.username
+        id: row.id
       }
     })
   }

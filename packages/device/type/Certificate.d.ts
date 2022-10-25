@@ -1,4 +1,5 @@
 export interface Certificate {
+  id?: string
   username: string
   userName: string
   userType?: string
