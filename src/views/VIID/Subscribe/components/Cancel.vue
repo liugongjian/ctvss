@@ -162,14 +162,16 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    await this.getDetail(this.$route.params.detail.subscribeID)
+    const detail: any = this.$route.params.detail
+    await this.getDetail(detail.subscribeID)
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .app-container {
-  .el-textarea, .el-input {
+  .el-textarea,
+  .el-input {
     width: 400px;
   }
 }

@@ -286,6 +286,12 @@ export const scaleKind = [
   { label: '原始比例', kind: 'normal', num: '2' },
   { label: '拉伸', kind: 'fit', num: '1' }
 ]
+
+export const Network = {
+  'internal': '互联网',
+  'private': '专线网络'
+}
+
 /**
  * 垃圾类别
  */

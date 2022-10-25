@@ -65,7 +65,7 @@ export default class extends Vue {
     }
     try {
       this.loading = true
-      const res = await getSubscribesStat(param)
+      const res: any = await getSubscribesStat(param)
       this.data = res.data.map(item => {
         return {
           time: this.formatTime(item.time),

@@ -131,7 +131,7 @@ export default class extends Vue {
   }
 
   private get isUpdate() {
-    return this.$route.name === 'view-up-platform-update'
+    return this.$route.name === 'ViidUpPlatformUpdate'
   }
 
   private async mounted() {
@@ -145,7 +145,7 @@ export default class extends Vue {
   private async getPlatformInfo() {
     this.loading = true
     const platformDetails: any = this.$route.params.platformDetails
-    Object.assign(this.form, pick(platformDetails, ['name', 'apsId', 'network', 'username', 'password', 'ipAddr', 'port']))
+    Object.assign(this.form, pick(platformDetails, ['name', 'apsId', 'network', 'username', 'password', 'ipAddr', 'port', 'keepaliveInterval', 'description']))
     this.cascadeViidId = platformDetails.cascadeViidId
     this.form.regionCode = this.getRegionPath(this.regionList, platformDetails.regionCode)
     this.loading = false
