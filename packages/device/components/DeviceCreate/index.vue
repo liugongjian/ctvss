@@ -425,7 +425,7 @@ export default class extends Mixins(deviceFormMixin) {
   /**
    * 提交
    */
-  private submit() {
+  private async submit() {
     let validFlag = true
     // 校验step1中deviceForm
     const form: any = this.$refs.deviceForm
@@ -514,11 +514,14 @@ export default class extends Mixins(deviceFormMixin) {
         params.viids = [ viidDevice ]
       }
 
-      // 提交创建表单
-      this.createDeviceApi(params).then(() => {
+      try {
+        // 提交创建表单
+        await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
         this.handleTools([ToolsEnum.GoToDeviceList])
-      })
+      } catch(e) {
+        this.$alertError(e.message)
+      }
     }
   }
 

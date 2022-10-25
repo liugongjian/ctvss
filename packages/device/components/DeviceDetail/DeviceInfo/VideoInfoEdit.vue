@@ -25,6 +25,7 @@ import VideoCreateForm from '../../Form/VideoCreateForm.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
+  @Prop({ default: () => updateDevice }) private updateDeviceApi: Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
   // 设备基本信息
@@ -52,7 +53,7 @@ export default class extends Vue {
       }
       params.videos = [ videoDevice ]
       try {
-        await updateDevice(params)
+        await this.updateDeviceApi(params)
         this.$alertSuccess('更新成功!')
         this.$emit('cancel')
           this.$emit('updateDevice')

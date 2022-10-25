@@ -154,6 +154,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 })
 export default class extends Mixins(deviceFormMixin) {
   @Prop() private device: Device
+  @Prop({ default: () => updateDevice }) private updateDeviceApi: Promise<any>
 
   private dicts = dicts
   private deviceEnum = DeviceEnum
@@ -316,7 +317,7 @@ export default class extends Mixins(deviceFormMixin) {
           },
         }
         try {
-          await updateDevice(params)
+          await this.updateDeviceApi(params)
           this.$alertSuccess('更新成功!')
           this.$emit('cancel')
           this.$emit('updateDevice')
