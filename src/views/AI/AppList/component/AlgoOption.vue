@@ -57,6 +57,7 @@ export default class extends Mixins(AppMixin) {
     algoList: false,
     abilityList: false
   }
+
   private activeName: String = '0'
   private searchApp: String = ''
   private abilityList: any = []

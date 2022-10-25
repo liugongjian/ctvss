@@ -1,9 +1,9 @@
 <template>
   <div class="algo-container">
     <div v-if="step === -1" class="tab-container">
-      <!-- <div class="filter-container">
-        <el-button type="primary" @click="addAlgo">添加算法</el-button>
-      </div> -->
+      <div class="filter-container">
+        <el-button type="primary" :disabled="true" @click="addAlgo">添加算法</el-button>
+      </div>
       <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="算法类型" />
         <el-table-column prop="summary" label="描述" />
@@ -47,6 +47,7 @@ export default class IBoxList extends Vue {
   private loading = {
     table: false
   }
+
   private mounted() {
     this.getAiList()
   }

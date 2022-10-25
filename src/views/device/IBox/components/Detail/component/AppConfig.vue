@@ -8,7 +8,8 @@
         :name="tab.id"
       >
         <el-table
-          ref="multipleTable"
+          v-if="activeName===tab.id"
+          ref="appTable"
           :data="tableData"
           style="width: 100%;"
           @selection-change="handleSelectionChange"
@@ -53,7 +54,8 @@ export default class AiAppList extends Vue {
 
   private async mounted() {
     await this.getAbilityList()
-    this.getAppList()
+    await this.getAppList()
+    await this.getLoadedAppList()
   }
 
   public async getAbilityList() {
@@ -65,16 +67,37 @@ export default class AiAppList extends Vue {
     }
   }
 
+  private async getLoadedAppList() {
+    const path: any = this.$route.query.path
+    const iboxId: any = path.split(',')[0]
+    const deviceId: any = path.split(',').pop()
+    const { iboxApps }: any = await describeIboxApps({
+      ...this.pager,
+      iboxId,
+      deviceId,
+      abilityId: this.activeName
+    })
+    console.log('iboxApps:', iboxApps)
+    console.log('this.$refs:', this.$refs.appTable)
+    const tableRef: any = this.$refs.appTable[0]
+    if (iboxApps.length > 0) {
+      const selectedIds = iboxApps.map(app => app.appId)
+      const selectedRows = this.tableData.filter(item => selectedIds.includes(item.appId))
+      selectedRows.forEach(row => {
+        tableRef.toggleRowSelection(row, true)
+      })
+    }
+  }
+
   private async getAppList() {
     this.loading.table = true
     const path: any = this.$route.query.path
     const iboxId: any = path.split(',')[0]
-    const deviceId: any = path.split(',').pop()
     const { iboxApps, pageNum, pageSize, totalNum }: any =
       await describeIboxApps({
         ...this.pager,
         iboxId,
-        deviceId,
+        // deviceId,
         abilityId: this.activeName
       })
     this.pager = { pageSize, pageNum, totalNum }

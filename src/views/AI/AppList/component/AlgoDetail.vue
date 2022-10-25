@@ -491,24 +491,29 @@ export default class extends Mixins(AppMixin) {
   private AnimalType = AnimalType
   private HelmetClothType: any = HelmetClothType
   get analyseAiType() {
-    let res = Object.assign({}, ResourceAiType)
+    const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
       delete res['AI-100']
     } else if (this.ifShow('10025', '10032')) {
       delete res['AI-100']
       delete res['AI-200']
     }
+    // ibox
+    if (this.isSelectDevice) {
+      delete res['AI-300']
+    }
     return res
   }
 
   private ifShow(...codes) {
-    let res = codes.filter(
+    const res = codes.filter(
       (code) =>
         this.prod?.code === code ||
         (this.form.algorithm && this.form.algorithm.code === code)
     )
     return res.length > 0
   }
+
   private async mounted() {
     if (this.$route.query.id || this.appInfo()) {
       // 编辑
@@ -726,6 +731,7 @@ export default class extends Mixins(AppMixin) {
     this.$emit('update:algo-param-submit', param)
     this.$emit('submit', {})
   }
+
   /**
    * 提交
    */
@@ -750,6 +756,7 @@ export default class extends Mixins(AppMixin) {
       this.$alertError(e && e.message)
     }
   }
+
   /**
    * 增加生效时间段选项
    */
@@ -767,6 +774,7 @@ export default class extends Mixins(AppMixin) {
   private deletePeriod(index) {
     this.form.availableperiod.splice(index, 1)
   }
+
   /**
    * 刷新获取最新的人脸库
    */
