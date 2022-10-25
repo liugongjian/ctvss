@@ -151,16 +151,19 @@ const exportSearchResult = async function (state: { advancedSearchForm: Advanced
  * @param node 操作目录树节点
  */
 const openDirectoryDialog = function (
-  state: { dialog: any; parentDir: any; currentDir: any; sortDir: any; sortNode: any },
+  getVueComponent: any,
   type: string,
   payload: any,
   node?: any
 ) {
+  const state: { dialog: any; parentDir: any; currentDir: any; sortDir: any; sortNode: any } = getVueComponent()
   switch (type) {
     case ToolsEnum.AddDirectory:
       if (payload) {
         state.parentDir = payload
       }
+      
+      console.log(state)
       state.dialog[ToolsEnum.EditDirectory] = true
       break
     case ToolsEnum.EditDirectory:
@@ -189,24 +192,25 @@ const openDirectoryDialog = function (
  * @param isRefresh 是否更新树
  */
 const closeDirectoryDialog = function (
-  state: {
+  getVueComponent: any,
+  type: string,
+  isRefresh: any
+) {
+  const state: {
     dialog?: any
     parentDir?: any
     currentDir?: any
     sortDir?: any
     deviceTree?: any
-    loadDirChildren?: Function
-  },
-  type: string,
-  isRefresh: any
-) {
+    loadDirChildren?: any
+  } = getVueComponent()
   // @ts-ignore
   state.dialog[type] = false
   switch (type) {
     case ToolsEnum.SortDirectory:
       if (isRefresh === true) {
         if (state.sortDir.id === '0') {
-          ;(state.deviceTree as any).initCommonTree()
+          (state.deviceTree as any).initCommonTree()
         } else {
           state.loadDirChildren(state.sortDir.id, this.sortNode)
         }
@@ -219,7 +223,7 @@ const closeDirectoryDialog = function (
       state.currentDir = null
       state.parentDir = null
       if (isRefresh === true) {
-        ;(state.deviceTree as any).initCommonTree()
+        (state.deviceTree as any).initCommonTree()
       }
       break
   }
@@ -231,15 +235,16 @@ const closeDirectoryDialog = function (
  * @param state.gotoRoot 跳转到根
  * @param dir 目录信息
  */
-const deleteDir = function (state: { deviceTree: any; gotoRoot?: Function }, dir: any) {
-  this.$alertDelete({
+const deleteDir = function (getVueComponent: any, dir: any) {
+  const state: { $alertDelete: any, $route: any, deviceTree: any; gotoRoot?: any } = getVueComponent()
+  state.$alertDelete({
     type: '目录',
-    msg: `是否确认删除目录"${dir.label}"`,
+    msg: `是否确认删除目录"${dir.name}"`,
     method: deleteDirApi,
     payload: { dirId: dir.id },
     onSuccess: () => {
       state.deviceTree.initCommonTree()
-      if (dir.id === this.$route.query.dirId) {
+      if (dir.id === state.$route.query.dirId) {
         state.gotoRoot()
       }
     }

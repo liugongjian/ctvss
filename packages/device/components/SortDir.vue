@@ -19,7 +19,7 @@
         :allow-drag="allowDrag"
         :allow-drop="allowDrop"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node">
+        <span slot-scope="{ node, data }" class="custom-tree-node">
           <span class="node-name">
             <svg-icon :name="data.type" color="#6e7c89" />
             {{ node.label }}
@@ -78,7 +78,7 @@ export default class extends Vue {
   private async initTreeStatus(currentDir: any) {
     try {
       this.loading.dialog = true
-      let res = await getDeviceTree({
+      const res = await getDeviceTree({
         groupId: this.groupId,
         id: currentDir.id,
         type: currentDir.type
@@ -102,7 +102,7 @@ export default class extends Vue {
   private async submit() {
     try {
       this.loading.submitting = true
-      let sortArr = this.dirData.map((item: any, index: any) => {
+      const sortArr = this.dirData.map((item: any, index: any) => {
         return {
           id: item.id,
           type: item.type,
@@ -115,7 +115,7 @@ export default class extends Vue {
         this.closeDialog()
         return
       }
-      let params = { orderDevices: sortArr }
+      const params = { orderDevices: sortArr }
       await sortDeviceTree(params)
       this.$message.success('排序保存成功！')
       this.closeDialog(true)
@@ -126,7 +126,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

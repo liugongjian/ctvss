@@ -11,7 +11,7 @@ import { getNodeInfo } from '../api/device'
     AdvancedSearch
   }
 })
-export default class DetailMixin extends Vue {
+export default class LayoutMixin extends Vue {
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
   public deviceTypeEnum = DeviceTypeEnum
@@ -46,16 +46,19 @@ export default class DetailMixin extends Vue {
   public loading = {
     tree: false
   }
+  public getVueComponent() {
+    return this
+  }
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
-    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
-    [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
-    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
-    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this, type, isfresh),
-    [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this, data),
+    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data),
+    [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.EditDirectory, data),
+    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
+    [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
     [ToolsEnum.Polling]: node => DeviceManager.executeQueue(this, node, !node, 'polling'),
     [ToolsEnum.AutoPlay]: node => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
@@ -101,14 +104,13 @@ export default class DetailMixin extends Vue {
     let res
     if (node.level === 0) {
       this.loading.tree = true
-      res = await getNodeInfo({ id: '-1', type: DirectoryTypeEnum.Dir })
-      console.log(res)
+      res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
       // this.deviceTree.loadChildren('01')
       this.loading.tree = false
     } else {
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
     }
-    return res.data.dirs
+    return res.dirs
   }.bind(this)
 
   /**

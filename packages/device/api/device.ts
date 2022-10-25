@@ -94,6 +94,13 @@ export const getNodeInfo = (params: any): Promise<any> =>
     params: toUpperCase(params)
   })
 
+export const getDirPath = (params: any): Promise<any> => 
+  request({
+    url: '/dir/path',
+    method: 'get',
+    params: toUpperCase(params)
+  })
+
 export const getDeviceTree = (params: any): Promise<any> => {
   const res = [{
     id: 1,
