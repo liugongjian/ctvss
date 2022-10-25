@@ -50,7 +50,7 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  @Prop() private updateDeviceApi: () => Promise<any>
+  @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
   private deviceInTypeEnum = DeviceInTypeEnum
   private activeTab = DeviceInTypeEnum.Video

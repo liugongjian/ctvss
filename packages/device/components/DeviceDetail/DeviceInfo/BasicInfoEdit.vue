@@ -154,7 +154,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 })
 export default class extends Mixins(deviceFormMixin) {
   @Prop() private device: Device
-  @Prop({ default: () => updateDevice }) private updateDeviceApi: Promise<any>
+  @Prop({ default: () => updateDevice }) private updateDeviceApi: (params: any) => Promise<any>
 
   private dicts = dicts
   private deviceEnum = DeviceEnum

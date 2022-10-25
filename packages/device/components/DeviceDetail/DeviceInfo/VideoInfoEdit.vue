@@ -25,7 +25,7 @@ import VideoCreateForm from '../../Form/VideoCreateForm.vue'
 })
 export default class extends Vue {
   @Prop() private device: Device
-  @Prop({ default: () => updateDevice }) private updateDeviceApi: Promise<any>
+  @Prop({ default: () => updateDevice }) private updateDeviceApi: (params: any) => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
   // 设备基本信息
