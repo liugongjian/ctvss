@@ -1,5 +1,4 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getNodeInfo } from '../../api/device'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum } from '../../enums/index'
 import StreamSelector from '../StreamSelector.vue'
@@ -20,27 +19,23 @@ export default class TreeMixin extends Vue {
   public load
 
   public toolsEnum = ToolsEnum
-  public getNodeInfo = getNodeInfo
-  public defaultKey = ''
+  public deviceTypeEnum = DeviceTypeEnum
+  public rootKey = ''
+  public nodeKey = 'id'
   public rootLabel = '根目录'
   public emptyText = '暂无目录或设备'
   public defaultProps = {
     children: 'children',
-    label: 'label',
+    label: 'name',
     isLeaf: 'isLeaf'
   }
   public rootSums = {
     online: 0,
     total: 0
   }
-  public treeLoading = false
 
   public get commonTree() {
     return this.$refs.commonTree as any
-  }
-
-  public mounted() {
-    console.log(this)
   }
 
   public initCommonTree() {

@@ -39,12 +39,9 @@ export default class extends Vue {
   private currentDir?: any
   @Prop()
   private parentDir?: any
-  @Prop()
-  private groupId!: number
   private dialogVisible = true
   private submitting = false
   private form: Dir = {
-    groupId: this.groupId,
     dirName: ''
   }
   private rules = {
@@ -59,14 +56,15 @@ export default class extends Vue {
   }
 
   private mounted() {
+    console.log(this.currentDir, this.parentDir)
     if (this.currentDir) {
       this.form.dirId = this.currentDir.id
-      this.form.dirName = this.currentDir.label
+      this.form.dirName = this.currentDir.name
     }
     if (this.parentDir) {
       this.form.parentDirId = this.parentDir.id
     } else {
-      this.form.parentDirId = '0'
+      this.form.parentDirId = '-1'
     }
   }
 
@@ -87,10 +85,16 @@ export default class extends Vue {
         try {
           this.submitting = true
           if (this.isEdit) {
-            await updateDir(this.form)
+            await updateDir({
+              dirId: this.form.dirId,
+              dirName: this.form.dirName
+            })
             this.$message.success('修改目录成功！')
           } else {
-            await createDir(this.form)
+            await createDir({
+              parentDirId: this.form.parentDirId,
+              dirName: this.form.dirName
+            })
             this.$message.success('创建目录成功！')
           }
         } catch (e) {
@@ -103,7 +107,7 @@ export default class extends Vue {
     })
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

@@ -9,7 +9,7 @@ import { Component, Watch, Prop } from 'vue-property-decorator'
 import ResizeObserver from 'resize-observer-polyfill'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
-import { removeClass, addClass } from '@/utils'
+import { removeClass, addClass } from '@vss/base/utils'
 
 @Component({
   name: 'More'

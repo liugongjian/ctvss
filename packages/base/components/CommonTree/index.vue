@@ -7,8 +7,8 @@
       v-show="hasRoot"
       ref="root"
       class="common-tree__root"
-      :class="{ 'common-tree__root--active': currentNodeKey === '-1' }"
-      @click="handleNode({ id: '-1' })"
+      :class="{ 'common-tree__root--active': currentNodeKey === rootKey }"
+      @click="handleNode({ id: rootKey })"
     >
       <div class="common-tree__root__label-prefix">
         <slot name="rootLabelPrefix" />
@@ -28,12 +28,12 @@
         <el-tree
           :key="treeKey"
           ref="Tree"
-          node-key="id"
+          :node-key="nodeKey"
           :data="data"
-          :empty-text="emptyText"
-          :props="props"
           :lazy="lazy"
           :load="loadChildren"
+          :props="props"
+          :empty-text="emptyText"
           :default-expand-all="!lazy"
           :expand-on-click-node="false"
           :show-checkbox="hasCheckbox"
@@ -78,19 +78,22 @@ export default class extends Vue {
   @Prop({ default: () => [] })
   private data
 
-  @Prop({ default: '-1' })
-  private defaultKey
+  @Prop({ default: '' })
+  private nodeKey
+
+  @Prop({ default: '' })
+  private rootKey
 
   @Prop({ default: '' })
   private emptyText
 
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private props
 
   @Prop({ default: true })
   private lazy: boolean
 
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private load
 
   @Prop({ default: null })
@@ -115,11 +118,7 @@ export default class extends Vue {
     return this.$refs.Tree as any
   }
 
-  private created() {
-  }
-
   private mounted() {
-    this.initTree()
     this.checkRootVisable()
   }
 
@@ -132,6 +131,7 @@ export default class extends Vue {
     this.hasRoot = rootChildren.reduce((pre, cur) => {
       return pre || cur.children.length !== 0
     }, false)
+    this.currentNodeKey = this.rootKey
   }
 
   /**
@@ -139,7 +139,7 @@ export default class extends Vue {
    */
   private initTree() {
     console.log('init')
-    this.currentNodeKey = this.defaultKey
+    this.currentNodeKey = this.rootKey
     // const node = this.tree.getNode(this.currentNodeKey)
     // const data = node && node.data
     // this.handleNode(data, node)
