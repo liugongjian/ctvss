@@ -9,7 +9,7 @@
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
 import { dragCanvasZoom } from '@/api/device'
-import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
+import { StreamInfo, DeviceInfo } from '../types/VssPlayer'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill'
