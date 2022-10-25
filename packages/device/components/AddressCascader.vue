@@ -13,7 +13,7 @@
 
 <script lang='ts'>
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { getChildAddress, getAddressAreaDir } from '../api/device'
+import { getChildAddress, getAddressAreaDir } from '../api/region'
 import { suffixZero } from '@/utils/number'
 import axios from 'axios'
 
