@@ -161,6 +161,7 @@ export default class extends Mixins(Validate) {
     halfChecked: []
   }
   private confirmed = false
+
   private innerDialogType = ''
 
   private innerVisible = false
@@ -174,6 +175,7 @@ export default class extends Mixins(Validate) {
   private currentPlatform = {}
 
   private confirmList = []
+
   private dirTypeMap: any = {
     '0': 'dir',
     '1': 'nvr',
@@ -193,6 +195,7 @@ export default class extends Mixins(Validate) {
   private get isDraggable() {
     return this.step === 0
   }
+
   private typeMapping: any = {
     dir: 0,
     nvr: 1,
@@ -217,9 +220,11 @@ export default class extends Mixins(Validate) {
     })
     this.mode = res.platform?.cascadeType === 1 ? 'district' : 'vgroup'
   }
+
   /**
    * 目录初始化
    */
+
   public async initDirs() {
     try {
       this.loading.dir = true
@@ -342,7 +347,8 @@ export default class extends Mixins(Validate) {
       const res = await describeShareDirs({
         platformId: this.platformId,
         dirId: '-1',
-        pageSize: 1000
+        pageSize: 1000,
+        cascadeType: this.mode === 'district' ? 1 : 2
       })
       if (res.dirs.length) {
         res.dirs.forEach((group: any) => {
@@ -1061,7 +1067,8 @@ export default class extends Mixins(Validate) {
       const res = await describeShareDirs({
         platformId: this.platformId,
         dirId: '-1',
-        pageSize: 1000
+        pageSize: 1000,
+
       })
       const newSharedDirs = []
       if (res.dirs.length > 0) {

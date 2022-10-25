@@ -35,7 +35,8 @@ export const updatePlatform = (params: any): Promise<any> =>
  */
 export const getPlatforms = (params: any): Promise<any> =>
   request({
-    url: '/platform/platforms/describe',
+    // url: '/platform/platforms/describe',
+    url: '/platform/describeList',
     method: 'get',
     params
   })
@@ -75,7 +76,8 @@ export const describeShareGroups = (params: any): Promise<any> =>
  */
 export const describeShareDirs = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/describeShareDirs',
+    // url: '/device/platform/describeShareDirs',
+    url: '/shareDir/describeList',
     method: 'get',
     params
   })
