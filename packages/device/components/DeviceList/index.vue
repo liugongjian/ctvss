@@ -443,7 +443,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get currentDirId() {
-    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
+    // if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
     return this.$route.query.dirId as string
   }
 
@@ -507,10 +507,10 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.PageNum]: this.pager.pageNum,
       [DeviceEnum.PageSize]: this.pager.pageSize
     }
-    if (this.currentDirType === DirectoryTypeEnum.Nvr) {
-      params[DeviceEnum.ParentDeviceId] = this.currentDirId
-    } else {
+    if (this.currentDirType === DirectoryTypeEnum.Dir) {
       params[DeviceEnum.DirId] = this.currentDirId
+    } else {
+      params[DeviceEnum.ParentDeviceId] = this.currentDirId
     }
     const res: any = await this.getDevicesApi(params)
     console.log(params)

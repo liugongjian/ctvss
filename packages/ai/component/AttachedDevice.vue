@@ -99,7 +99,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getGroups } from '@/api/group'
 
 @Component({
-  name: 'AtachedDevice',
+  name: 'AttachedDevice',
   components: { StatusBadge }
 })
 export default class extends Mixins(AppMixin) {

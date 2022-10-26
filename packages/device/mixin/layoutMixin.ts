@@ -1,6 +1,6 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, ToolsEnum } from '../enums/index'
-import { AdvancedSearch as AdvancedSearchType } from '../type/advancedSearch'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
+import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import AdvancedSearch from '../components/AdvancedSearch.vue'
 import { deleteDir } from '../api/dir'
@@ -11,7 +11,7 @@ import { getNodeInfo } from '../api/device'
     AdvancedSearch
   }
 })
-export default class DetailMixin extends Vue {
+export default class LayoutMixin extends Vue {
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
   public deviceTypeEnum = DeviceTypeEnum
@@ -46,16 +46,19 @@ export default class DetailMixin extends Vue {
   public loading = {
     tree: false
   }
+  public getVueComponent() {
+    return this
+  }
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
-    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.AddDirectory, data),
-    [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.EditDirectory, data),
-    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this, ToolsEnum.SortDirectory, data),
-    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this, type, isfresh),
-    [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this, data),
+    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data),
+    [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.EditDirectory, data),
+    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
+    [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
     [ToolsEnum.Polling]: node => DeviceManager.executeQueue(this, node, !node, 'polling'),
     [ToolsEnum.AutoPlay]: node => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
@@ -98,20 +101,16 @@ export default class DetailMixin extends Vue {
    * @param node 节点信息
    */
   public treeLoad = async function (node) {
-    let children
+    let res
     if (node.level === 0) {
       this.loading.tree = true
-      children = await getNodeInfo('root')
-      this.deviceTree.loadChildren('01')
-    } else if (node.level < 4) {
-      children = await getNodeInfo('node')
-    } else if (node.level === 4) {
-      children = await getNodeInfo('leaf')
+      res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+      // this.deviceTree.loadChildren('01')
+      this.loading.tree = false
     } else {
-      children = []
+      res = await getNodeInfo({ id: node.data.id, type: node.data.type })
     }
-    this.loading.tree = false
-    return children
+    return res.dirs
   }.bind(this)
 
   /**

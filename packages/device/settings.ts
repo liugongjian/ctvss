@@ -186,14 +186,10 @@ export const InViidProtocolAllowParams = {
     ...InViidProtocolCreateParams[InViidProtocolEnum.Ga1400],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.Viids,
-    DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort,
-    DeviceEnum.PlatformName,
-    DeviceEnum.ViidId,
-    DeviceEnum.ViidStatus,
-    DeviceEnum.CreatedTime,
-    DeviceEnum.DeviceTotalSize
+    DeviceEnum.InVersion,
+    DeviceEnum.InUserName,
+    DeviceEnum.DeviceStreamAutoPull,
+    DeviceEnum.StreamTransProtocol,
   ])
 }
 
@@ -218,6 +214,18 @@ export const DeviceTypeDenyParamsForViid = {
     DeviceEnum.DeviceInType
   ])
 }
+
+
+/**
+ * 子通道不能编辑的字段
+ */
+export const ChannelDenyEditableParams = new Set([
+  DeviceEnum.InVideoProtocol,
+  DeviceEnum.InVersion,
+  DeviceEnum.InUserName,
+  DeviceEnum.DeviceStreamAutoPull,
+  DeviceEnum.StreamTransProtocol
+])
 
 /**
  * ==============================================================================================================================

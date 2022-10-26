@@ -16,16 +16,16 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Fragment } from 'vue-fragment'
+import { TrashType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'form',
   components: {
-    Fragment
   }
 })
 export default class extends Vue {
   @Prop() private form!: any
+  private TrashType = TrashType
 }
 </script>
 <style lang="scss" scoped>

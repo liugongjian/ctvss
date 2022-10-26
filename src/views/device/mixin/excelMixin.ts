@@ -46,26 +46,26 @@ export default class ExcelMixin extends Vue {
   private get excelTemplate() {
     return {
       gb28181: [
-        {
-          title: { header: '*设备类型', key: 'deviceType', width: 16 },
-          validation: this.validation.deviceType
-        },
-        {
-          title: { header: '*国标版本', key: 'gbVersion', width: 16 },
-          validation: {
-            type: 'list',
-            allowBlank: true,
-            showInputMessage: true,
-            showErrorMessage: true,
-            formulae: ['"2011,2016"'],
-            prompt: '当选择 “IPC” 或 “NVR” 设备类型时为必选',
-            error: '请从选项中选择国标版本'
-          }
-        },
-        {
-          title: { header: '*设备厂商', key: 'deviceVendor', width: 16 },
-          validation: this.validation.deviceVendor
-        },
+        // {
+        //   title: { header: '*设备类型', key: 'deviceType', width: 16 },
+        //   validation: this.validation.deviceType
+        // },
+        // {
+        //   title: { header: '*国标版本', key: 'gbVersion', width: 16 },
+        //   validation: {
+        //     type: 'list',
+        //     allowBlank: true,
+        //     showInputMessage: true,
+        //     showErrorMessage: true,
+        //     formulae: ['"2011,2016"'],
+        //     prompt: '当选择 “IPC” 或 “NVR” 设备类型时为必选',
+        //     error: '请从选项中选择国标版本'
+        //   }
+        // },
+        // {
+        //   title: { header: '*设备厂商', key: 'deviceVendor', width: 16 },
+        //   validation: this.validation.deviceVendor
+        // },
         {
           title: { header: '*设备名称', key: 'deviceName', width: 24 },
           validation: this.validation.deviceName
@@ -82,17 +82,17 @@ export default class ExcelMixin extends Vue {
           title: { header: '设备端口', key: 'devicePort', width: 16 },
           validation: null
         },
-        {
-          title: { header: '国标ID', key: 'gbId', width: 24, style: { numFmt: '@' } },
-          validation: {
-            type: 'textLength',
-            allowBlank: false,
-            operator: 'equal',
-            showErrorMessage: true,
-            formulae: [20],
-            error: '请输入规范国标ID。'
-          }
-        },
+        // {
+        //   title: { header: '国标ID', key: 'gbId', width: 24, style: { numFmt: '@' } },
+        //   validation: {
+        //     type: 'textLength',
+        //     allowBlank: false,
+        //     operator: 'equal',
+        //     showErrorMessage: true,
+        //     formulae: [20],
+        //     error: '请输入规范国标ID。'
+        //   }
+        // },
         {
           title: { header: '*国标用户名', key: 'userName', width: 16 },
           validation: this.getGbAccountValidation()
@@ -140,10 +140,10 @@ export default class ExcelMixin extends Vue {
           title: { header: 'AI包', key: 'AIPackage', width: 40 },
           validation: this.getAIPackageValidation()
         },
-        {
-          title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          validation: this.getBWPackageValidation()
-        }
+        // {
+        //   title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
+        //   validation: this.getBWPackageValidation()
+        // }
       ],
       ehome: [
         {
@@ -264,6 +264,10 @@ export default class ExcelMixin extends Vue {
           validation: this.validation.deviceName
         },
         {
+          title: { header: 'MAC地址', key: 'mac', width: 24 },
+          validation: null
+        },
+        {
           title: { header: '经度', key: 'deviceLongitude', width: 16 },
           validation: null
         },
@@ -340,6 +344,10 @@ export default class ExcelMixin extends Vue {
           validation: null
         },
         {
+          title: { header: 'MAC地址', key: 'mac', width: 24 },
+          validation: null
+        },
+        {
           title: { header: '经度', key: 'deviceLongitude', width: 16 },
           validation: null
         },
@@ -357,7 +365,11 @@ export default class ExcelMixin extends Vue {
             error: '请选择是否启动域名'
           }
         },
-        // { header: '*自定义拉流地址（设备厂商选择其他时，该项必填）', key: 'deviceIp', width: 24 },
+        {
+          title:{ header: '*自定义拉流地址（设备厂商选择其他时，该项必填）', key: 'deviceIp', width: 24 },
+          validation: null
+        },
+        
         {
           title: { header: '*设备IP（未启动域名必填）', key: 'deviceIp', width: 24 },
           validation: null
@@ -379,6 +391,10 @@ export default class ExcelMixin extends Vue {
           validation: this.validation.multiStreamSize
         },
         {
+          title: { header: '是否启用自动拉流', key: 'pullType', width: 24 },
+          validation: this.validation.pullType
+        },
+        {
           title: { header: '*自动拉取第几个码流（开启自动拉流时，该项必填）', key: 'AutoStreamNum', width: 24 },
           validation: {
             type: 'list',
@@ -390,16 +406,20 @@ export default class ExcelMixin extends Vue {
           }
         },
         {
-          title: { header: '是否启用自动拉流', key: 'pullType', width: 24 },
-          validation: this.validation.pullType
-        },
-        {
           title: { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
           validation: this.validation.pushType
         },
         {
           title: { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
           validation: this.validation.transPriority
+        },
+        {
+          title: { header: '拉流地址', key: 'pullAddress', width: 30 },
+          validation: null
+        },
+        {
+          title: { header: '视频流标签', key: 'tags', width: 24 },
+          validation: this.validation.tags
         },
         {
           title: { header: '*视频包', key: 'videoPackage', width: 40 },

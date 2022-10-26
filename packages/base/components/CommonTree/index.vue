@@ -7,8 +7,8 @@
       v-show="hasRoot"
       ref="root"
       class="common-tree__root"
-      :class="{'common-tree__root--active': currentNodeKey === '-1'}"
-      @click="handleNode({id: '-1'})"
+      :class="{ 'common-tree__root--active': currentNodeKey === rootKey }"
+      @click="handleNode({ id: rootKey })"
     >
       <div class="common-tree__root__label-prefix">
         <slot name="rootLabelPrefix" />
@@ -28,12 +28,12 @@
         <el-tree
           :key="treeKey"
           ref="Tree"
-          node-key="id"
+          :node-key="nodeKey"
           :data="data"
-          :empty-text="emptyText"
-          :props="props"
           :lazy="lazy"
           :load="loadChildren"
+          :props="props"
+          :empty-text="emptyText"
           :default-expand-all="!lazy"
           :expand-on-click-node="false"
           :show-checkbox="hasCheckbox"
@@ -41,8 +41,8 @@
           @node-click="handleNode"
         >
           <div
-            slot-scope="{node, data}"
-            v-draggable="{node, isDraggable}"
+            slot-scope="{ node, data }"
+            v-draggable="{ node, isDraggable }"
             class="common-tree__item"
           >
             <div class="common-tree__item__label-prefix">
@@ -78,19 +78,22 @@ export default class extends Vue {
   @Prop({ default: () => [] })
   private data
 
-  @Prop({ default: '-1' })
-  private defaultKey
+  @Prop({ default: '' })
+  private nodeKey
+
+  @Prop({ default: '' })
+  private rootKey
 
   @Prop({ default: '' })
   private emptyText
 
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private props
 
   @Prop({ default: true })
   private lazy: boolean
 
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private load
 
   @Prop({ default: null })
@@ -105,7 +108,7 @@ export default class extends Vue {
   @Prop({ default: false })
   private hasCheckbox: boolean
 
-  private hasRoot: boolean = false
+  private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   private currentNodeKey = null
 
@@ -115,11 +118,7 @@ export default class extends Vue {
     return this.$refs.Tree as any
   }
 
-  private created() {
-  }
-
   private mounted() {
-    this.initTree()
     this.checkRootVisable()
   }
 
@@ -132,6 +131,7 @@ export default class extends Vue {
     this.hasRoot = rootChildren.reduce((pre, cur) => {
       return pre || cur.children.length !== 0
     }, false)
+    this.currentNodeKey = this.rootKey
   }
 
   /**
@@ -139,7 +139,7 @@ export default class extends Vue {
    */
   private initTree() {
     console.log('init')
-    this.currentNodeKey = this.defaultKey
+    this.currentNodeKey = this.rootKey
     // const node = this.tree.getNode(this.currentNodeKey)
     // const data = node && node.data
     // this.handleNode(data, node)
@@ -184,7 +184,7 @@ export default class extends Vue {
     this.$emit('handle-node', data)
   }
 
-  private getCheckedNodes(leafOnly: boolean = false, includeHalfChecked: boolean = false) {
+  private getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
     return this.tree.getCheckedNodes(leafOnly, includeHalfChecked)
   }
 
@@ -192,11 +192,11 @@ export default class extends Vue {
     return this.tree.setCheckedNodes(nodes)
   }
 
-  private getCheckedKeys(leafOnly: boolean = false) {
+  private getCheckedKeys(leafOnly = false) {
     return this.tree.getCheckedNodes(leafOnly)
   }
 
-  private setCheckedKeys(keys, leafOnly: boolean = false) {
+  private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
 }

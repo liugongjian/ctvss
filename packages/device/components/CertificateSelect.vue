@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-select v-model="inUserName" class="certificate-select" :loading="loading">
+    <el-select v-model="inUserName" class="certificate-select" :loading="loading" :disabled="disabled">
       <el-option
         v-for="item in accountList"
         :key="item[apiMapping[type].label]"
@@ -9,6 +9,7 @@
       />
     </el-select>
     <el-button
+      v-if="!disabled"
       type="text"
       class="ml10"
       @click="openDialog(type)"
@@ -42,11 +43,14 @@ import CreateGa1400Certificate from './Certificate/Ga1400/components/CreateDialo
   }
 })
 export default class extends Vue {
+  @Prop({ default: false })
+  private disabled: boolean
+
   @Prop()
   private type
 
   @VModel()
-  private inUserName?: string
+  private inUserName?: string 
 
   private inVideoProtocolEnum = InVideoProtocolEnum
   private inViidProtocolEnum = InViidProtocolEnum

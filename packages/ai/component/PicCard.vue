@@ -52,7 +52,7 @@ export default class extends Vue {
   @Prop() private pic!: any
   @Prop() private type!: any
   private picInfo = null
-  private isPicLoaded: boolean = true
+  private isPicLoaded = true
   private decodeBase64: Function = decodeBase64
 
   private onload() {
@@ -73,7 +73,6 @@ export default class extends Vue {
       locations = AlgoConfigs.algos[MetaRef[this.type]].getData(metaData)
     }
 
-    console.log(locations)
     const img = this.$refs.img
     this.picInfo = {
       ...this.pic,

@@ -8,9 +8,9 @@
     label-width="140px"
   >
     <el-form-item label="注册用户名" prop="username" class="form-with-tip">
-      <el-input v-model="form.username" :disabled="disabled" />
+      <el-input v-model="form.username" :disabled="isUpdate" />
     </el-form-item>
-    <el-form-item v-if="disabled" label="旧密码:" prop="password">
+    <el-form-item v-if="isUpdate" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password auto-complete="new-password" />
     </el-form-item>
     <el-form-item label="密码:" prop="newPassword">
@@ -34,11 +34,11 @@ import { encrypt } from '@vss/base/utils/encrypt'
 import { createGa1400Certificate, getGa1400Certificate, updateGa1400Certificate } from '@vss/device/api/certificate'
 
 @Component({
-  name: 'CreateGb28181CertificateForm'
+  name: 'CreateGa1400CertificateForm'
 })
 export default class extends Vue {
   private loading = false
-  private disabled = false
+  private isUpdate = false
   private rules = {
     username: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -57,6 +57,7 @@ export default class extends Vue {
     ]
   }
   private form: any = {
+    id: null,
     username: '',
     password: '',
     newPassword: '',
@@ -77,7 +78,7 @@ export default class extends Vue {
   }
 
   private validatePass(rule: any, value: string, callback: any) {
-    if (!value && !this.disabled) {
+    if (!value && !this.isUpdate) {
       callback(new Error('请输入密码'))
     } else {
       // if (this.form.newPassword !== '') {
@@ -89,7 +90,7 @@ export default class extends Vue {
   }
 
   private validatePass2(rule: any, value: string, callback: any) {
-    if (!value && !this.disabled) {
+    if (!value && !this.isUpdate) {
       callback(new Error('请再次输入密码'))
     } else if (value !== this.form.newPassword) {
       callback(new Error('两次输入密码不一致'))
@@ -113,27 +114,26 @@ export default class extends Vue {
       if (valid) {
         this.loading = true
         try {
-          if (this.disabled) {
+          if (this.isUpdate) {
             data = {
+              id: this.form.id,
               username: encrypt(this.form.username),
               description: this.form.description,
               password: encrypt(this.form.password),
-              newPassword: encrypt(this.form.newPassword),
-              version: '2.0'
+              newPassword: encrypt(this.form.newPassword)
             }
-            await updateGa1400Certificate(data, this.form.id)
+            await updateGa1400Certificate(data)
           } else {
             this.form.password = this.form.newPassword
             data = {
               username: encrypt(this.form.username),
               description: this.form.description,
-              password: encrypt(this.form.password),
-              version: '2.0'
+              password: encrypt(this.form.password)
             }
             await createGa1400Certificate(data)
           }
           onSuccess()
-          if (this.disabled) {
+          if (this.isUpdate) {
             this.$message.success('修改GA1400凭证成功！')
           } else {
             this.$message.success('新建GA1400凭证成功！')
@@ -152,13 +152,15 @@ export default class extends Vue {
 
   private async mounted() {
     const params: any = this.$route.params
-    if (params.username) {
-      this.disabled = true
-      this.$set(this.form, 'username', params.username)
+    this.form.id = params.id
+    if (this.form.id) {
+      this.isUpdate = true
       try {
-        const res = await getGa1400Certificate({ username: this.form.username })
-        this.$set(this.form, 'description', res.data[0].description)
-        this.$set(this.form, 'id', res.data[0].id)
+        const res = await getGa1400Certificate({ id: this.form.id })
+        this.form = {
+          ...this.form,
+          ...res
+        }
       } catch (e) {
         this.$message.error(e && e.message)
       }

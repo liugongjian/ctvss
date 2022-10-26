@@ -7,88 +7,99 @@ import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, 
 /**
  * 获取设备目录树
  */
-export const getNodeInfo = (params: any): Promise<any> => {
+export const getNodeInfo = (params: any): Promise<any> =>
   // mock
-  let res: any
-  if (params === 'root') {
-    res = [
-      {
-        id: '00',
-        type: 'platform',
-        label: 'root1',
-        children: []
-      },
-      {
-        id: '01',
-        type: 'platform',
-        label: 'root2',
-        children: []
-      },
-      {
-        id: '02',
-        type: 'ipc',
-        label: 'device',
-        multiStreamSize: 3,
-        autoStreamNum: 1,
-        streamStatus: 'on',
-        deviceStreams: [
-          {
-            streamNum: 1,
-            streamStatus: 'on'
-          }
-        ],
-        isLeaf: true
-      }
-    ]
-  } else if (params === 'node') {
-    res = [
-      {
-        id: '03',
-        type: 'dir',
-        label: 'node1',
-        children: []
-      },
-      {
-        id: '04',
-        type: 'dir',
-        label: 'node2',
-        children: []
-      },
-      {
-        id: '05',
-        type: 'dir',
-        label: 'node3',
-        children: []
-      }
-    ]
-  } else {
-    res = [
-      {
-        id: '06',
-        type: 'ipc',
-        label: 'leaf1',
-        isLeaf: true
-      },
-      {
-        id: '07',
-        type: 'ipc',
-        label: 'leaf2',
-        isLeaf: true
-      },
-      {
-        id: '08',
-        type: 'nvr',
-        label: 'leaf3',
-        isLeaf: true
-      }
-    ]
-  }
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(res)
-    }, 1000)
+  // let res: any
+  // if (params === 'root') {
+  //   res = [
+  //     {
+  //       id: '00',
+  //       type: 'platform',
+  //       label: 'root1',
+  //       children: []
+  //     },
+  //     {
+  //       id: '01',
+  //       type: 'platform',
+  //       label: 'root2',
+  //       children: []
+  //     },
+  //     {
+  //       id: '02',
+  //       type: 'ipc',
+  //       label: 'device',
+  //       multiStreamSize: 3,
+  //       autoStreamNum: 1,
+  //       streamStatus: 'on',
+  //       deviceStreams: [
+  //         {
+  //           streamNum: 1,
+  //           streamStatus: 'on'
+  //         }
+  //       ],
+  //       isLeaf: true
+  //     }
+  //   ]
+  // } else if (params === 'node') {
+  //   res = [
+  //     {
+  //       id: '03',
+  //       type: 'dir',
+  //       label: 'node1',
+  //       children: []
+  //     },
+  //     {
+  //       id: '04',
+  //       type: 'dir',
+  //       label: 'node2',
+  //       children: []
+  //     },
+  //     {
+  //       id: '05',
+  //       type: 'dir',
+  //       label: 'node3',
+  //       children: []
+  //     }
+  //   ]
+  // } else {
+  //   res = [
+  //     {
+  //       id: '06',
+  //       type: 'ipc',
+  //       label: 'leaf1',
+  //       isLeaf: true
+  //     },
+  //     {
+  //       id: '07',
+  //       type: 'ipc',
+  //       label: 'leaf2',
+  //       isLeaf: true
+  //     },
+  //     {
+  //       id: '08',
+  //       type: 'nvr',
+  //       label: 'leaf3',
+  //       isLeaf: true
+  //     }
+  //   ]
+  // }
+  // return new Promise(resolve => {
+  //   setTimeout(() => {
+  //     resolve(res)
+  //   }, 1000)
+  // })
+  request({
+    url: '/dir/list/status',
+    method: 'get',
+    params: toUpperCase(params)
   })
-}
+
+export const getDirPath = (params: any): Promise<any> => 
+  request({
+    url: '/dir/path',
+    method: 'get',
+    params: toUpperCase(params)
+  })
 
 export const getDeviceTree = (params: any): Promise<any> => {
   const res = [{
@@ -164,7 +175,7 @@ export const getDeviceTree = (params: any): Promise<any> => {
 export const getDevices = (params: any): Promise<any> => {
   return new Promise(resolve => {
     request({
-      url: '/new/devicelist',
+      url: '/device/list',
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
@@ -274,7 +285,7 @@ export const exportDevicesExcel = (params: any): Promise<any> =>
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/new/device',
+    url: '/device/describe',
     method: 'get',
     params: toUpperCase(params),
     cancelToken
@@ -322,7 +333,7 @@ export const getChannels = (params: any): Promise<any> =>
  */
 export const createDevice = (params: any): Promise<any> =>
   request({
-    url: '/new/device',
+    url: '/device/create',
     method: 'post',
     data: toUpperCase(params)
   })
@@ -339,8 +350,8 @@ export const createDeviceIbox = (params: any): Promise<any> =>
  */
 export const updateDevice = (params: any): Promise<any> =>
   request({
-    url: '/new/device',
-    method: 'put',
+    url: '/device/update',
+    method: 'post',
     data: toUpperCase(params)
   })
 

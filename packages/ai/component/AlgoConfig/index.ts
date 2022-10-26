@@ -1,9 +1,9 @@
 // for组件命名：form10001
 // meta命名：10001
-const path = require('path')
+import path from 'path'
 const metas = require.context('.', true, /\.ts$/)
 const forms = require.context('.', true, /\.vue$/)
-let AlgoConfigs = {
+const AlgoConfigs = {
   algos: {},
   components: {}
 }

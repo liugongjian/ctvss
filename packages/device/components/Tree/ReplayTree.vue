@@ -1,14 +1,13 @@
 <template>
   <common-tree
     ref="commonTree"
-    :default-key="defaultKey"
+    :node-key="nodeKey"
+    :root-key="rootKey"
     :data="data"
+    :lazy="lazy"
+    :load="load"
     :props="defaultProps"
     :empty-text="emptyText"
-    :lazy="lazy"
-    :get-node-info="getNodeInfo"
-    :load="load"
-    :tree-loading="treeLoading"
     :is-draggable="checkIsDraggable"
     @handle-node="handleNode"
   >
@@ -19,8 +18,8 @@
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
-    <template slot="itemLabelSuffix">
-      <span>{{ `(1/11)` }}</span>
+    <template slot="itemLabelSuffix" slot-scope="{ data }">
+      <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.online}/${data.total})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{ node, data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
