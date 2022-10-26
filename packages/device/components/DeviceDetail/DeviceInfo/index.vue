@@ -9,16 +9,16 @@
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" />
-        <basic-info-edit v-else :device="device" @cancel="isEdit.basicInfo = false" @updateDevice="updateDevice()" />
+        <basic-info-edit v-else :device="device" :updateDeviceApi="updateDeviceApi" @cancel="isEdit.basicInfo = false" @updateDevice="updateDevice()" />
       </div>
       <div class="detail__section">
         <el-tabs v-model="activeTab" type="card" class="detail__tabs">
           <el-tab-pane v-if="hasVideo" label="视频接入" :name="deviceInTypeEnum.Video">
             <video-info v-if="!isEdit.videoInfo" :is-ibox="isIbox" :device="device" @edit="isEdit.videoInfo = true" />
-            <video-info-edit v-else :device="device" :is-ibox="isIbox" :device-form="device.Device" @cancel="isEdit.videoInfo = false" @updateDevice="updateDevice()" />
+            <video-info-edit v-else :device="device" :is-ibox="isIbox" :device-form="device.Device" :updateDeviceApi="updateDeviceApi" @cancel="isEdit.videoInfo = false" @updateDevice="updateDevice()" />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
-            <viid-info v-if="!isEdit.viidInfo" :device="device" @edit="isEdit.viidInfo = true" />
+            <viid-info v-if="!isEdit.viidInfo" :device="device" :updateDeviceApi="updateDeviceApi" @edit="isEdit.viidInfo = true" />
             <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="updateDevice()" />
           </el-tab-pane>
         </el-tabs>
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
@@ -50,6 +50,8 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Prop() private updateDeviceApi: (params: any) => Promise<any>
+
   private deviceInTypeEnum = DeviceInTypeEnum
   private activeTab = DeviceInTypeEnum.Video
   private isEdit = {
