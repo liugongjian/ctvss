@@ -200,14 +200,15 @@
       </div>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
-      <resource-tabs
+      <!-- <resource-tabs
         v-model="videoForm.resources"
         :is-private-in-network="deviceForm.inNetworkType === inNetworkTypeEnum.Private"
         :form-info="videoForm"
         :vss-ai-apps="videoForm.vssAIApps"
         @on-change="onResourceChange"
         @changevssaiapps="changeVSSAIApps"
-      />
+      /> -->
+      <resource v-model="videoForm.resource" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -233,13 +234,15 @@ import { checkVideoVisible, checkFormEditable } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import ResourceTabs from '@vss/device/components/ResourceTabs.vue'
+import Resource from '@vss/device/components/Resource/index.vue'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
     CertificateSelect,
     Tags,
-    ResourceTabs
+    ResourceTabs,
+    Resource
   }
 })
 export default class extends Vue {
@@ -298,9 +301,9 @@ export default class extends Vue {
       { required: true, message: '请输入设备端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
     ],
-    [DeviceEnum.Resources]: [
-      { required: true, validator: this.validateResources, trigger: 'blur' }
-    ],
+    // [DeviceEnum.Resources]: [
+    //   { required: true, validator: this.validateResources, trigger: 'blur' }
+    // ],
     [DeviceEnum.OutId]: [
       { validator: this.validateGbId, trigger: 'blur' }
     ]
@@ -346,7 +349,7 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      [DeviceEnum.Resources]: [],
+      [DeviceEnum.Resource]: [],
       vssAIApps: [],
       aIApps: []
     }
@@ -456,7 +459,7 @@ export default class extends Vue {
     let hasVideo = false
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const remainError: any = []
-    this.videoForm.resources.forEach((resource: any) => {
+    this.videoForm.resource.forEach((resource: any) => {
       // 剩余可接入设备数
       const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
       const devicesCount = this.deviceForm.deviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.deviceChannelSize

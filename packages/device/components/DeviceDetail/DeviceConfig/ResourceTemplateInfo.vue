@@ -192,7 +192,7 @@
       :frame-image="frameImage"
     />
 
-    <resource
+    <resource-edit
       v-if="showResourceDialog"
       :device="deviceInfo"
       :algo-tab-type-default="algoTabTypeDefault"
@@ -211,8 +211,8 @@ import {
   stopAppResource
 } from '@vss/device/api/device'
 import { getAppList, getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
-import { getDeviceResources } from '@vss/device/api/billing'
-import Resource from '@vss/device/components/Resource.vue'
+import { getDeviceResource } from '@vss/device/api/billing'
+import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
 import detailMixin from '@vss/device/mixin/deviceMixin'
@@ -222,7 +222,7 @@ import { ResourceTemplateInfoCodes } from '@vss/ai/dics'
   name: 'ResourceTemplateInfo',
   components: {
     AlgoConfig,
-    Resource
+    ResourceEdit
   }
 })
 export default class extends Mixins(detailMixin) {
@@ -342,7 +342,7 @@ export default class extends Mixins(detailMixin) {
   private async getDeviceResource() {
     this.loading.AITable = true
     try {
-      const resourcesRes = await getDeviceResources({
+      const resourcesRes = await getDeviceResource({
         deviceId: this.deviceId,
         deviceType: this.deviceInfo.deviceType,
         inProtocol: this.inProtocol

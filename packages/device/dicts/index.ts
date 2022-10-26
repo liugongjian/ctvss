@@ -303,6 +303,15 @@ export const InType = {
 }
 
 /**
+ * 资源包AI类型
+ */
+export const ResourceAiType = {
+  'AI-100': '分钟级',
+  'AI-200': '秒级',
+  'AI-300': '高算力型'
+}
+
+/**
  * ==================
  * 旧，待整理删除
  */
@@ -479,11 +488,11 @@ export const ResourceType = {
   'VSS_AI': 'AI包'
 }
 
-export const ResourceAiType = {
-  'AI-100': '分钟级',
-  'AI-200': '秒级',
-  'AI-300': '高算力型'
-}
+// export const ResourceAiType = {
+//   'AI-100': '分钟级',
+//   'AI-200': '秒级',
+//   'AI-300': '高算力型'
+// }
 
 // AI分析频率
 export const ResultTimeInterval = {

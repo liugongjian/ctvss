@@ -454,7 +454,7 @@ export default class extends Mixins(deviceFormMixin) {
           DeviceEnum.InNetworkType,
           DeviceEnum.OutNetworkType
         ]),
-        device: {
+        [DeviceEnum.Device]: {
           ...pick(this.deviceForm, [
             DeviceEnum.DeviceType,
             DeviceEnum.DeviceVendor,
@@ -477,7 +477,7 @@ export default class extends Mixins(deviceFormMixin) {
           // 父级设备ID
           [DeviceEnum.ParentDeviceId]: this.parentDeviceId
         },
-        industry: {
+        [DeviceEnum.Industry]: {
           ...pick(this.deviceForm, [
             DeviceEnum.InOrgRegion,
             DeviceEnum.InOrgRegionLevel,
@@ -485,7 +485,7 @@ export default class extends Mixins(deviceFormMixin) {
             DeviceEnum.NetworkCode
           ])
         },
-        resources: this.videoForm.resources
+        [DeviceEnum.Resource]: this.videoForm.resource
       }
       // 补充视频接入信息
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
