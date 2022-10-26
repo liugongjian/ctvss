@@ -27,7 +27,7 @@
             @node-drag-end="handleDragend"
             @check="checkCallback"
           >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+            <span slot-scope="{ node, data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }">
               <span class="node-name">
                 <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -55,7 +55,7 @@
             @node-click="selectSharedDevice"
           >
             <span
-              slot-scope="{node, data}"
+              slot-scope="{ node, data }"
               class="custom-tree-node"
               :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']"
             >
@@ -122,6 +122,7 @@
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
+import { getNodeInfo } from '@vss/device/api/device'
 import { getGroups } from '@/api/group'
 import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice, validateShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
@@ -228,23 +229,25 @@ export default class extends Mixins(Validate) {
   public async initDirs() {
     try {
       this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
+      // const res = await getGroups({
+      //   pageSize: 1000
+      // })
+      const res = await getNodeInfo({ type: 'dir' })
       this.dirList = []
-      res.groups.forEach((group: any) => {
+      res.dirs.forEach((group: any) => {
         // 放开rtsp rtmp
         // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
         this.dirList.push({
-          id: group.groupId,
+          ...group,
+          id: group.id,
           groupId: group.groupId,
-          label: group.groupName,
+          label: group.name,
           inProtocol: group.inProtocol,
-          gbId: group.gbId,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+          gbId: group.gbId || '',
+          type: group.type,
           disabled: false,
           path: [{
-            id: group.groupId,
+            id: group.id,
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || '',
@@ -258,8 +261,8 @@ export default class extends Mixins(Validate) {
 
       const { groups } = await validateShareDirs({
         platformId: this.platformId,
-        groups: res.groups.map(group => ({
-          groupId: group.groupId,
+        groups: res.dirs.map(group => ({
+          groupId: group.id,
           inprotocol: group.inProtocol,
           dirs: []
         }))
@@ -324,19 +327,25 @@ export default class extends Mixins(Validate) {
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
       .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
-    const { groups } = await validateShareDirs({
-      platformId: this.platformId,
-      groups: [{
-        groupId: node.data.groupId,
-        inprotocol: node.data.inprotocol,
-        dirs: dirParam
-      }]
-    })
-    resolve(dirs)
-    this.setDirChecked(groups, 'dir')
+    debugger
+    try {
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: [{
+          groupId: node.data.groupId,
+          inprotocol: node.data.inprotocol,
+          dirs: dirParam
+        }]
+      })
+      resolve(dirs)
+      this.setDirChecked(groups, 'dir')
 
-    // this.tagNvrUnchecked(node, dirs)
-    this.resetNvrStatus(node)
+      // this.tagNvrUnchecked(node, dirs)
+      this.resetNvrStatus(node)
+    } catch (e){
+      resolve([])
+      console.log(e)
+    }
     this.loading.dir = false
   }
 
@@ -347,8 +356,7 @@ export default class extends Mixins(Validate) {
       const res = await describeShareDirs({
         platformId: this.platformId,
         dirId: '-1',
-        pageSize: 1000,
-        cascadeType: this.mode === 'district' ? 1 : 2
+        pageSize: 1000
       })
       if (res.dirs.length) {
         res.dirs.forEach((group: any) => {
@@ -388,7 +396,7 @@ export default class extends Mixins(Validate) {
   public async loadSharedDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     try {
-      let temp = await this.loadAll(node)
+      const temp = await this.loadAll(node)
       resolve(temp)
     } catch (e) {
       resolve([])
@@ -444,7 +452,8 @@ export default class extends Mixins(Validate) {
       } else {
         // 目录
         const dirs = await this.getSharedDirs(node)
-        const devices = await this.getSharedTree(node)
+        // const devices = await this.getSharedTree(node)
+        const devices = []
         res = [...dirs, ...devices]
       }
     }
@@ -488,7 +497,7 @@ export default class extends Mixins(Validate) {
         node.data.realGroupId = node.data.id
         node.data.realGroupInProtocol = node.data.inProtocol
       }
-      let params: any = {
+      const params: any = {
         platformId: this.platformId,
         dirId: node.data.dirId,
         dirType: node.data.dirType,
@@ -545,18 +554,19 @@ export default class extends Mixins(Validate) {
         return
       }
 
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
-        'self-defined-headers': {
-          'role-id': node.data.roleId,
-          'real-group-id': node.data.realGroupId
-        }
-      })
+      // const devices: any = await getDeviceTree({
+      //   groupId: node.data.groupId,
+      //   id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+      //   inProtocol: node.data.inProtocol,
+      //   type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+      //   'self-defined-headers': {
+      //     'role-id': node.data.roleId,
+      //     'real-group-id': node.data.realGroupId
+      //   }
+      // })
+      const devices = await getNodeInfo({ type: 'dir', id: node.data.id })
       let shareDeviceIds: any = []
-      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
+      const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
         platformId: this.platformId,
         devices: paramNoNvrDevice.map(device => ({
@@ -571,9 +581,8 @@ export default class extends Mixins(Validate) {
       } catch (e) {
         console.log(e)
       }
-
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      const checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         let isDeleteFlag = false
@@ -593,7 +602,7 @@ export default class extends Mixins(Validate) {
           id: dir.id,
           groupId: node.data.groupId,
           groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
-          label: dir.label,
+          label: dir.name,
           inProtocol: dir.inProtocol || node.data.inProtocol,
           channelNum: dir.channelNum + '' || '0',
           isLeaf: dir.isLeaf,
@@ -645,7 +654,7 @@ export default class extends Mixins(Validate) {
     }
   }
 
-  private async expandNodes(dirTree: any, node: any, singleNode: boolean = false) {
+  private async expandNodes(dirTree: any, node: any, singleNode = false) {
     let dirs = []
     try {
       if (node.data.dragInFlag) {
@@ -705,7 +714,7 @@ export default class extends Mixins(Validate) {
     this.selectedNode = node
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
@@ -719,6 +728,7 @@ export default class extends Mixins(Validate) {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
+    debugger
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
         const draggingData = _.cloneDeep(draggingNode.data)
@@ -753,7 +763,7 @@ export default class extends Mixins(Validate) {
             dirNode.checked = true
             // 如果上级目录/nvr设备为选中状态，则把上级节点disabled
             const parentNode = dirTree.getNode(dirNode.parent.data)
-            if (parentNode.checked) {
+            if (parentNode && parentNode.checked) {
               parentNode.data.disabled = true
             }
           })
@@ -768,7 +778,7 @@ export default class extends Mixins(Validate) {
     const vgroupTree: any = this.$refs.vgroupTree
 
     // // // 插入一个空节点用于占位
-    let emptyData = { id: draggingNode.id, children: [] }
+    const emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
     vgroupTree.$emit('tree-node-drag-end', event)
@@ -778,7 +788,7 @@ export default class extends Mixins(Validate) {
         dirTree.remove(emptyData)
       } else {
         // 如果移动到了别的树上，需要恢复该节点，并清掉空节点
-        let data = _.cloneDeep(draggingNode.data)
+        const data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
       }
@@ -935,7 +945,7 @@ export default class extends Mixins(Validate) {
         type: 'warning'
       })
     }
-    let param = []
+    const param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
     try {
       await shareDevice({
@@ -1096,7 +1106,7 @@ export default class extends Mixins(Validate) {
           })
         })
       }
-      let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
+      const difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
 
       this.sharedDirList.push(difference[0])
     }
