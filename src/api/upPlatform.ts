@@ -87,7 +87,8 @@ export const describeShareDirs = (params: any): Promise<any> =>
  */
 export const describeShareDevices = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/describeShareDevices',
+    // url: '/device/platform/describeShareDevices',
+    url: '/shareDevice/describeList',
     method: 'get',
     params
   })
@@ -97,7 +98,8 @@ export const describeShareDevices = (params: any): Promise<any> =>
  */
 export const shareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/shareDevice',
+    // url: '/device/platform/shareDevice',
+    url: '/platform/shareDevice',
     method: 'post',
     data: params
   })
@@ -107,7 +109,8 @@ export const shareDevice = (params: any): Promise<any> =>
  */
 export const cancleShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/cancleShareDevice',
+    // url: '/device/platform/cancleShareDevice',
+    url: '/shareDevice/cancel',
     method: 'post',
     data: params
   })
@@ -117,7 +120,8 @@ export const cancleShareDevice = (params: any): Promise<any> =>
  */
 export const cancleShareDir = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/cancleShareDir',
+    // url: '/device/platform/cancleShareDir',
+    url: '/shareDir/cancel',
     method: 'post',
     data: params
   })
@@ -127,7 +131,7 @@ export const cancleShareDir = (params: any): Promise<any> =>
  */
 export const startShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/startShareDevice',
+    url: '/shareDevice/start',
     method: 'get',
     params
   })
@@ -137,7 +141,7 @@ export const startShareDevice = (params: any): Promise<any> =>
  */
 export const stopShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/stopShareDevice',
+    url: '/shareDevice/stop',
     method: 'get',
     params
   })
@@ -153,8 +157,8 @@ export const createCascadeDir = (params: any): Promise<any> =>
 export const deleteCascadeDir = (params: any): Promise<any> =>
   request({
     url: '/cascadeDir/delete',
-    method: 'get',
-    params
+    method: 'post',
+    data: params
   })
 
 export const modifyCascadeDir = (params: any): Promise<any> =>
@@ -180,14 +184,16 @@ export const describeCascadeDirs = (params: any): Promise<any> =>
 
 export const validateShareDevices = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/validateShareDevices',
+    // url: '/device/platform/validateShareDevices',
+    url: '/shareDevice/validate',
     method: 'post',
     data: params
   })
 
 export const validateShareDirs = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/validateShareDirs',
+    // url: '/device/platform/validateShareDirs',
+    url: '/shareDir/validate',
     method: 'post',
     data: params
   })

@@ -218,7 +218,8 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
+import {  TrashType, HelmetClothType, AnimalType } from '@vss/ai/dics/contants'
+import { ResourceAiType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { FormRef } from '@vss/ai/dics'
 import AlgoConfigs from '@vss/ai/component/AlgoConfig'

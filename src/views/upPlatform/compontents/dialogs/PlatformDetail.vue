@@ -27,6 +27,7 @@
         <info-list-item label="信令传输:">{{ platform.transType }}</info-list-item>
         <info-list-item label="字符集:">{{ platform.characterType }}</info-list-item>
         <info-list-item label="权限集合:">{{ platform.permissionSet }}</info-list-item>
+        <info-list-item label="级联类型:">{{ platform.cascadeType === 1 ? '行政区划' : '虚拟业务组' }}</info-list-item>
         <info-list-item label="描述:">{{ platform.description }}</info-list-item>
       </info-list>
     </div>
@@ -75,7 +76,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
