@@ -57,6 +57,14 @@ export const deleteDevice = (params: any) =>
     params: toUpperCase(params)
   })
 
+// 修改设备
+export const editDeviceInfo = (params: any) =>
+  request({
+    url: '/ibox/device',
+    method: 'put',
+    data: toUpperCase(params)
+  })
+
 // ibox凭证 /v1/ibox/certificates
 export const getIBoxCertificates = () =>
   request({

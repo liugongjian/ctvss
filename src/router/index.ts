@@ -1,7 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import { getDeviceDetail, createDevice } from '@/api/ibox'
+import { getDeviceDetail, createDevice, editDeviceInfo } from '@/api/ibox'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -363,7 +363,8 @@ export const asyncRoutes: RouteConfig[] = [
                 name: 'IBoxDeviceInfo',
                 props: {
                   isIbox: true,
-                  getDeviceApi: getDeviceDetail
+                  getDeviceApi: getDeviceDetail,
+                  updateDeviceApi: editDeviceInfo
                 },
                 meta: {
                   title: '基本信息',

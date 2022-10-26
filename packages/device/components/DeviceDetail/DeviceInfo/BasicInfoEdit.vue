@@ -94,7 +94,7 @@
           </el-radio-group>
         </el-form-item>
       </div>
-      <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+      <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
@@ -154,6 +154,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 })
 export default class extends Mixins(deviceFormMixin) {
   @Prop() private device: Device
+  @Prop({ default: () => updateDevice }) private updateDeviceApi: (params: any) => Promise<any>
 
   private dicts = dicts
   private deviceEnum = DeviceEnum
@@ -275,8 +276,9 @@ export default class extends Mixins(deviceFormMixin) {
    * 保存表单
    */
   private submit() {
+    console.log('updateDeviceApi---->', this.updateDeviceApi)
     const form: any = this.$refs.deviceForm
-    form.validate( async(valid) => {
+    form.validate(async(valid) => {
       if (valid) {
         const params: DeviceForm = {
           ...pick(this.deviceForm, [
@@ -313,10 +315,10 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.IndustryCode,
               DeviceEnum.NetworkCode
             ])
-          },
+          }
         }
         try {
-          await updateDevice(params)
+          await this.updateDeviceApi(params)
           this.$alertSuccess('更新成功!')
           this.$emit('cancel')
           this.$emit('updateDevice')
