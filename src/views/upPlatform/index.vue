@@ -470,7 +470,6 @@ export default class extends Vue {
           this.$message.error(e && e.message)
         }
       }
-      console.log('this.dataList:', this.dataList)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

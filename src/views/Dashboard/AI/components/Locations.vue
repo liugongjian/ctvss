@@ -7,18 +7,18 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective}, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{ 'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective }, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="['4', '10001', '34', '10034','19','10016'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['4', '10001', '34', '10034','19','10016'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }">
           置信度:{{ location.score }}%<br>
           <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
         </div>
-        <div v-if="['29', '10026', '35', '10035'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['29', '10026', '35', '10035'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }">
           {{ location.label }}
         </div>
-        <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
+        <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80 }">
           {{ location.text }}
         </div>
       </div>
@@ -37,7 +37,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { AiMaskType, AnimalType } from '@/dics'
+import { AiMaskType } from '@/dics'
+import { AnimalType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'DashboardAILocation'
@@ -51,7 +52,7 @@ export default class extends Vue {
   private clickable?: boolean
   private aiMaskType = AiMaskType
   private animalType = AnimalType
-  private currentIndex: number = -1
+  private currentIndex = -1
 
   @Watch('img', {
     immediate: true

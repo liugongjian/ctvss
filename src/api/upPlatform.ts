@@ -98,7 +98,8 @@ export const describeShareDevices = (params: any): Promise<any> =>
  */
 export const shareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/shareDevice',
+    // url: '/device/platform/shareDevice',
+    url: '/platform/shareDevice',
     method: 'post',
     data: params
   })
@@ -108,7 +109,8 @@ export const shareDevice = (params: any): Promise<any> =>
  */
 export const cancleShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/cancleShareDevice',
+    // url: '/device/platform/cancleShareDevice',
+    url: '/shareDevice/cancel',
     method: 'post',
     data: params
   })
@@ -118,7 +120,8 @@ export const cancleShareDevice = (params: any): Promise<any> =>
  */
 export const cancleShareDir = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/cancleShareDir',
+    // url: '/device/platform/cancleShareDir',
+    url: '/shareDir/cancel',
     method: 'post',
     data: params
   })
@@ -128,7 +131,7 @@ export const cancleShareDir = (params: any): Promise<any> =>
  */
 export const startShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/startShareDevice',
+    url: '/shareDevice/start',
     method: 'get',
     params
   })
@@ -138,7 +141,7 @@ export const startShareDevice = (params: any): Promise<any> =>
  */
 export const stopShareDevice = (params: any): Promise<any> =>
   request({
-    url: '/device/platform/stopShareDevice',
+    url: '/shareDevice/stop',
     method: 'get',
     params
   })

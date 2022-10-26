@@ -121,9 +121,9 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
-import { getDeviceTree } from '@/api/device'
+// import { getDeviceTree } from '@/api/device'
 import { getNodeInfo } from '@vss/device/api/device'
-import { getGroups } from '@/api/group'
+// import { getGroups } from '@/api/group'
 import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice, validateShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -259,15 +259,34 @@ export default class extends Mixins(Validate) {
         })
       })
 
+      const allNode = res.dirs
+      const dirNode = allNode.filter(node => node.type === 'dir' || node.type === 'platform')
+      const deviceNode = allNode.filter(node => node.type === 'ipc' || node.type === 'nvr')
+
       const { groups } = await validateShareDirs({
         platformId: this.platformId,
-        groups: res.dirs.map(group => ({
+        groups: dirNode.map(group => ({
           groupId: group.id,
           inprotocol: group.inProtocol,
           dirs: []
         }))
       })
+
+
+      let deviceChekced = []
+      const { isUsed } = await validateShareDevices({
+          platformId: this.platformId,
+          devices: deviceNode.map(device => ({
+            deviceId: device.id
+          }))
+      })
+      if (isUsed) {
+        deviceChekced = isUsed.map(item => item.deviceId)
+        this.dirNodeStatus.checked.push(...deviceChekced)
+      }
+
       this.setDirChecked(groups, 'group')
+
     } catch (e) {
       this.dirList = []
     } finally {
@@ -275,7 +294,7 @@ export default class extends Mixins(Validate) {
     }
   }
 
-  private async setDirChecked(groups, type) {
+  private setDirChecked(groups, type) {
     const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
     const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
     const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
@@ -327,7 +346,6 @@ export default class extends Mixins(Validate) {
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
       .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
-    debugger
     try {
       const { groups } = await validateShareDirs({
         platformId: this.platformId,
@@ -343,7 +361,7 @@ export default class extends Mixins(Validate) {
       // this.tagNvrUnchecked(node, dirs)
       this.resetNvrStatus(node)
     } catch (e){
-      resolve([])
+      resolve(dirs)
       console.log(e)
     }
     this.loading.dir = false
@@ -452,8 +470,8 @@ export default class extends Mixins(Validate) {
       } else {
         // 目录
         const dirs = await this.getSharedDirs(node)
-        // const devices = await this.getSharedTree(node)
-        const devices = []
+        const devices = await this.getSharedTree(node)
+        // const devices = []
         res = [...dirs, ...devices]
       }
     }
@@ -564,7 +582,7 @@ export default class extends Mixins(Validate) {
       //     'real-group-id': node.data.realGroupId
       //   }
       // })
-      const devices = await getNodeInfo({ type: 'dir', id: node.data.id })
+      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -776,7 +794,6 @@ export default class extends Mixins(Validate) {
   private handleDragend(draggingNode, endNode, position, event) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-
     // // // 插入一个空节点用于占位
     const emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
@@ -980,7 +997,7 @@ export default class extends Mixins(Validate) {
           const nvrUnchangedFlag = this.filterNVRChannels(dir, item)
           nvrUnchangedFlag && devices.push({ ...item,
             channels: item.channels.map(channel => ({
-              channelNum: channel.channelNum,
+              // channelNum: channel.channelNum || '',
               channelName: channel.label,
               gbId: channel.gbId,
               deviceId: channel.id,
