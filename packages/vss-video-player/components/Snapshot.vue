@@ -10,6 +10,7 @@
 import { Component, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@vss/base/utils/date'
 import { isIE } from '@vss/base/utils/browser'
+import { CodecEnum } from '@vss/video-player/enums'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -52,7 +53,7 @@ export default class extends ComponentMixin {
 
   private getCanvas(): HTMLCanvasElement {
     let canvas: HTMLCanvasElement
-    if (this.player.type === 'h265') {
+    if (this.player.codec === CodecEnum.H265) {
       /**
        * 需要修改EasyWasmPlayer.js
        * 在getContext webgl 增加 preserveDrawingBuffer: true

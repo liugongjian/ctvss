@@ -24,7 +24,7 @@
         <status-badge :status="recordStatus" />
         {{ dicts.RecordStatus[recordStatus] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats.onlineChannels }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats && basicInfo.deviceStats.onlineChannels || '-' }}</el-descriptions-item>
       <el-descriptions-item label="当前码率">{{ streamInfo.bitrate ? (streamInfo.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
       <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg || '-' }}</el-descriptions-item>
     </el-descriptions>

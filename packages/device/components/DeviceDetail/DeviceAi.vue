@@ -35,9 +35,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-//   @Prop() private deviceId!: any
-//   @Prop() private inProtocol!: any
-  private inProtocol = 'gb28181'
   private appInfo: any = {}
   private apps: any = []
   private app: any = ''
