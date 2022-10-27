@@ -12,6 +12,8 @@ import {
   stopRecord
 } from '../../api/device'
 
+import ExportExcelTemplate from './DeviceExportTemplate'
+
 /**
  * ===============================================================================================
  * 操作设备
@@ -273,7 +275,7 @@ async function exportDevicesExcel(data: any) {
     parentDeviceId: data.parentDeviceId
   }
   // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
- 
+   
   try {
     if (data.command === 'all') {
       const query = this.$route.query
@@ -323,6 +325,7 @@ const uploadExcel = function (state, data: any) {
  */
 const exportTemplate = function (state) {
   console.log('exportTemplate--->', state)
+  ExportExcelTemplate.exportTemplate()
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal
