@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getAlertTemplateDetails } from '@/api/template'
+import { getAlertTemplateDetails } from '@vss/device/api/template'
 
 @Component({
   name: 'alert-details'

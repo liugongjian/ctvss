@@ -109,7 +109,7 @@
 </template>
 
 <script lang='ts'>
-import { deleteAlertTemplate, getAlertTemplates } from '@/api/template'
+import { deleteAlertTemplate, getAlertTemplates } from '@vss/device/api/template'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import viewBind from './Dialogs/ViewBind.vue'
 

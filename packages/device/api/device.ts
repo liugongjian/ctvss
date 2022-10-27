@@ -492,66 +492,6 @@ export const setRecordScale = (params: any): Promise<any> =>
   })
 
 /**
- * 获取设备录制模板
- */
-export const getDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record',
-    method: 'get',
-    params
-  })
-
-/**
- * 获取设备回调模板
- */
-export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback',
-    method: 'get',
-    params
-  })
-
-/**
- * 设置设备录制模板
- */
-export const setDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/bind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 设置设备回调模板
- */
-export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback/bind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 解绑设备录制模板
- */
-export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/unbind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 解绑设备回调模板
- */
-export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback/unbind',
-    method: 'post',
-    data: params
-  })
-
-/**
  * 启用设备
  */
 export const startDevice = (params: any): Promise<any> =>

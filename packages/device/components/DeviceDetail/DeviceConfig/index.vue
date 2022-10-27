@@ -1,9 +1,9 @@
 <template>
   <div class="config-container">
-    <resource-template-info v-if="!isIbox" />
-    <record-template-info v-if="!isIbox" />
-    <callback-template-info />
-    <alert-template-info v-if="!isIbox" />
+    <resource-template-info v-if="!isIbox" :device-id="deviceId" />
+    <record-template-info v-if="!isIbox" :device-id="deviceId" />
+    <callback-template-info :device-id="deviceId" />
+    <alert-template-info v-if="!isIbox" :device-id="deviceId" />
   </div>
 </template>
 
