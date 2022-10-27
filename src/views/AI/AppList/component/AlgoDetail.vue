@@ -494,13 +494,9 @@ export default class extends Mixins(AppMixin) {
     const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
       delete res['AI-100']
-    } else if (this.ifShow('10025', '10032')) {
+    } else if (this.ifShow('10025', '10032') || this.isSelectDevice) { // ibox
       delete res['AI-100']
       delete res['AI-200']
-    }
-    // ibox
-    if (this.isSelectDevice) {
-      delete res['AI-300']
     }
     return res
   }
