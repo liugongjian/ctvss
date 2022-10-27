@@ -23,9 +23,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  // @Prop() private deviceId?: number
-  // @Prop() private inProtocol?: string
-  private inProtocol = 'gb28181'
   @Prop() private deviceName?: string
   @Prop() private streams?: Stream[]
   @Prop() private streamSize?: number

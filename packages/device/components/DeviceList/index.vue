@@ -281,7 +281,7 @@
       @on-close="closeDialog(toolsEnum.MoveDevice, $event)"
     />
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="closeDialog(toolsEnum.Import, $event)" />
-    <resource v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
+    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
   </div>
 </template>
 
@@ -300,14 +300,14 @@ import DeviceManager from '@vss/device/services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '@vss/device/components/MoveDir.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
-import Resource from '@vss/device/components/Resource.vue'
+import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
     MoveDir,
     UploadExcel,
-    Resource
+    ResourceEdit
   }
 })
 export default class extends Mixins(deviceMixin) {
@@ -413,7 +413,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   // 视图库/视频接入协议
-  private get inProtocol() {
+  public get inProtocol() {
     return (this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol) || (this.device.viids && this.device.viids.length && this.device.viids[0].inViidProtocol)
   }
 
@@ -566,7 +566,7 @@ export default class extends Mixins(deviceMixin) {
   private checkInfoVisible(prop) {
     // return checkVideoVisible.call(this.basicInfo, DeviceTypeEnum.Nvr, 'ehome', false, prop)
     // return checkViidVisible.call(this.basicInfo, DeviceTypeEnum.Platform, 'ga1400', prop)
-    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, false, prop)
+    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, prop)
   }
 
   /**

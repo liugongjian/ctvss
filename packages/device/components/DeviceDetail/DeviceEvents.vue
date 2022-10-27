@@ -59,10 +59,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   name: 'DeviceEvents'
 })
 export default class extends Mixins(detailMixin) {
-  // @Prop() private deviceId?: String
-  // @Prop() private inProtocol?: String
-  private inProtocol = 'gb28181'
-
   private loading = false
   private search = {
     timeRange: [],

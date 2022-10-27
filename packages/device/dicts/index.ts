@@ -221,7 +221,7 @@ export const VideoParamLabel = {
 /**
  * 设备类型对应的视图接入类型
  */
-export const ProtocolDeviceTypeByDeviceType = {
+export const ViidDeviceTypeByDeviceType = {
   [enums.DeviceTypeEnum.Ipc]: {
     'ape': '视图采集设备'
   },
@@ -234,7 +234,7 @@ export const ProtocolDeviceTypeByDeviceType = {
 /**
  * 视图接入类型
  */
-export const ProtocolDeviceType = {
+export const ViidDeviceType = {
   'ape': '视图采集设备',
   'aps': '视图采集系统',
   'viid': '视图库'
