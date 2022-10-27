@@ -40,83 +40,33 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@vss/device/api/group'
-import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@vss/device/api/device'
+import { getRecordTemplates, setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@vss/device/api/template'
 import { formatSeconds } from '@vss/base/utils/interval'
 
 @Component({
   name: 'SetRecordTemplate'
 })
 export default class extends Vue {
-  @Prop() private groupId?: string
   @Prop() private deviceId?: String
   @Prop() private templateId?: string
-  @Prop() private inProtocol?: string
   private dialogVisible = true
   private loading = false
-  private list = [
-    {
-      templateId: '0001',
-      templateName: '30分钟录制',
-      flvParam: { enable: 0 },
-      hlsParam: { enable: 0 },
-      mpParam: { enable: 0 }
-    }
-  ]
+  private list = []
   private formatSeconds = formatSeconds
   private bindTemplateId = ''
 
-  private closeDialog() {
-    this.dialogVisible = false
-    this.$emit('on-close')
-  }
-
-  private async bind(row: any) {
-    const params = {
-      groupId: this.groupId,
-      deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
-    }
-    try {
-      this.loading = true
-      if (this.groupId) {
-        await setGroupRecordTemplates(params)
-      } else if (this.deviceId) {
-        await setDeviceRecordTemplate(params)
-      }
-      this.bindTemplateId = row.templateId
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading = false
-    }
-  }
-
-  private async unbind(row: any) {
-    const params = {
-      groupId: this.groupId,
-      deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
-    }
-    try {
-      this.loading = true
-      if (this.groupId) {
-        await unbindGroupRecordTemplates(params)
-      } else if (this.deviceId) {
-        await unbindDeviceRecordTemplate(params)
-      }
-      this.bindTemplateId = ''
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading = false
-    }
-  }
-
+  /**
+   * 初始化
+   */
   private async mounted() {
     this.bindTemplateId = this.templateId
+    this.getRecordTemplates()
+  }
+
+  /**
+   * 获取录像模板列表
+   */
+  private async getRecordTemplates() {
     try {
       this.loading = true
       const res = await getRecordTemplates({
@@ -129,6 +79,54 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 绑定录像模板
+   */
+  private async bind(row: any) {
+    const params = {
+      deviceId: this.deviceId,
+      templateId: row.templateId
+    }
+    try {
+      this.loading = true
+      await setDeviceRecordTemplate(params)
+      this.bindTemplateId = row.templateId
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
+   * 解绑录像模板
+   */
+  private async unbind(row: any) {
+    const params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId,
+      inProtocol: this.inProtocol
+    }
+    try {
+      this.loading = true
+      await unbindDeviceRecordTemplate(params)
+      this.bindTemplateId = ''
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
+   * 关闭窗口
+   */
+  private closeDialog() {
+    this.dialogVisible = false
+    this.$emit('on-close')
   }
 }
 </script>

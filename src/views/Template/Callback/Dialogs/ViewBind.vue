@@ -46,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getCallbackBind } from '@/api/template'
+import { getCallbackBind } from '@vss/device/api/template'
 
 @Component({
   name: 'ViewBind'
@@ -113,6 +113,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .bind-table {
   position: relative;
+
   ::v-deep {
     span.el-table__column-filter-trigger {
       visibility: hidden;

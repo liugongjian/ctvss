@@ -71,7 +71,8 @@ export default class extends Vue {
   }
 
   private submit() {
-    this.beforeSubmit(this.doSubmit)
+    // this.beforeSubmit(this.doSubmit)
+    this.doSubmit()
   }
 
   private async doSubmit() {

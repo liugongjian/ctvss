@@ -114,7 +114,7 @@ export const deviceRouter = {
             },
             {
               path: 'viid',
-              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceViid.vue'),
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceViid/index.vue'),
               name: 'DeviceViid',
               meta: {
                 title: '视图库',

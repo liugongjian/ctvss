@@ -36,9 +36,9 @@
 </template>
 
 <script lang='ts'>
-import { deleteCallbackTemplate, getCallbackTemplates } from '@/api/template'
+import { deleteCallbackTemplate, getCallbackTemplates } from '@vss/device/api/template'
 import { CallbackTemplate } from '@/type/Template'
-import { dateFormatInTable } from '@/utils/date'
+import { dateFormatInTable } from '@vss/base/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'
 

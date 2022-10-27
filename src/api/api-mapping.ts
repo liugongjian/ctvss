@@ -15,5 +15,11 @@ export const ApiMapping = {
   '/map/DescribeMapMarkers': '/map/describeMarkers',
   '/map/MarkOnMap': '/map/mark',
   '/map/ReMarkOnMap': '/map/reMark',
-  '/map/UnMarkOnMap': '/map/unMark'
+  '/map/UnMarkOnMap': '/map/unMark',
+  // 告警模板
+  '/alarmtemplate/create': '/alarm/template/create',
+  '/alarmtemplate/delete': '/alarm/template/delete',
+  '/alarmtemplate/describe': '/alarm/template/describe',
+  '/alarmtemplates/describe': '/alarm/template/list',
+  '/alarmtemplate/modify': '/alarm/template/update',
 }

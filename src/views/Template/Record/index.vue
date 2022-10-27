@@ -59,9 +59,9 @@
 </template>
 
 <script lang='ts'>
-import { deleteRecordTemplate, getRecordTemplates } from '@/api/template'
+import { deleteRecordTemplate, getRecordTemplates } from '@vss/device/api/template'
 import { RecordTemplate } from '@/type/Template'
-import { dateFormatInTable } from '@/utils/date'
+import { dateFormatInTable } from '@vss/base/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'
 

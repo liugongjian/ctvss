@@ -1,13 +1,13 @@
 import request from '@/utils/request'
 
-// 录制模板相关接口
-export const getRecordBind = (params: any): Promise<any> =>
-  request({
-    url: '/template/record/bind',
-    method: 'get',
-    params
-  })
-
+/**
+ * =======================================================
+ * 录制模板相关接口
+ * =======================================================
+ */
+/**
+ * 查询录制模板列表
+ */
 export const getRecordTemplates = (params: any): Promise<any> =>
   request({
     url: '/template/record/list',
@@ -15,6 +15,9 @@ export const getRecordTemplates = (params: any): Promise<any> =>
     params
   })
 
+/**
+ * 查询录制模板
+ */
 export const queryRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record',
@@ -22,6 +25,9 @@ export const queryRecordTemplate = (params: any): Promise<any> =>
     params
   })
 
+/**
+ * 创建录制模板
+ */
 export const createRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/create',
@@ -29,6 +35,9 @@ export const createRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+ * 更新录制模板
+ */
 export const updateRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/update',
@@ -36,6 +45,9 @@ export const updateRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+ * 删除录制模板
+ */
 export const deleteRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/delete',
@@ -43,14 +55,54 @@ export const deleteRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
-// 回调模板相关接口
-export const getCallbackBind = (params: any): Promise<any> =>
+/**
+ * 获取设备录制模板
+ */
+export const getDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
-    url: '/template/callback/bind',
+    url: '/device/record',
     method: 'get',
     params
   })
 
+/**
+* 设置设备录制模板
+*/
+export const setDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+* 解绑设备录制模板
+*/
+export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/unbind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 查询绑定关系
+ */
+export const getRecordBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/record/bind',
+    method: 'get',
+    params
+  })
+
+/**
+ * =======================================================
+ * 回调模板相关接口
+ * =======================================================
+ */
+/**
+* 查询回调模板列表
+*/
 export const getCallbackTemplates = (params: any): Promise<any> =>
   request({
     url: '/template/callback/list',
@@ -58,6 +110,9 @@ export const getCallbackTemplates = (params: any): Promise<any> =>
     params
   })
 
+/**
+* 查询回调模板
+*/
 export const queryCallbackTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/callback',
@@ -65,6 +120,9 @@ export const queryCallbackTemplate = (params: any): Promise<any> =>
     params
   })
 
+/**
+* 创建回调模板
+*/
 export const createCallbackTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/callback/create',
@@ -72,6 +130,9 @@ export const createCallbackTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+* 更新回调模板
+*/
 export const updateCallbackTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/callback/update',
@@ -79,6 +140,9 @@ export const updateCallbackTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+* 删除回调模板
+*/
 export const deleteCallbackTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/callback/delete',
@@ -86,122 +150,51 @@ export const deleteCallbackTemplate = (params: any): Promise<any> =>
     data: params
   })
 
-// 截图模板相关接口
-export const getSnapshotTemplates = (params: any): Promise<any> =>
+/**
+* 获取设备回调模板
+*/
+export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
   request({
-    url: '/template/snapshot/list',
+    url: '/device/callback',
     method: 'get',
     params
   })
 
-export const querySnapshotTemplate = (params: any): Promise<any> =>
+/**
+* 设置设备回调模板
+*/
+export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
   request({
-    url: '/template/snapshot',
+    url: '/device/callback/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+* 解绑设备回调模板
+*/
+export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback/unbind',
+    method: 'post',
+    data: params
+  })
+
+/**
+* 查询回调模板绑定关系
+*/
+export const getCallbackBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/bind',
     method: 'get',
     params
   })
 
-export const createSnapshotTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/template/snapshot/create',
-    method: 'post',
-    data: params
-  })
-
-export const updateSnapshotTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/template/snapshot/update',
-    method: 'post',
-    data: params
-  })
-
-export const deleteSnapshotTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/template/snapshot/delete',
-    method: 'post',
-    data: params
-  })
-
-// AI模板相关接口
-export const getAIBind = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/airule',
-    method: 'get',
-    params
-  })
-
-export const getAIBindList = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/airule/list',
-    method: 'get',
-    params
-  })
-
-export const bindAITemplates = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/airule/create',
-    method: 'post',
-    data: params
-  })
-
-export const unbindAITemplates = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/airule/delete',
-    method: 'post',
-    data: params
-  })
-
-export const getAITemplates = (params: any): Promise<any> =>
-  request({
-    url: '/aitemplate/list',
-    method: 'get',
-    params
-  })
-
-export const queryAITemplate = (params: any): Promise<any> =>
-  request({
-    url: '/aitemplate',
-    method: 'get',
-    params
-  })
-
-export const createAITemplate = (params: any): Promise<any> =>
-  request({
-    url: '/aitemplate/create',
-    method: 'post',
-    data: params
-  })
-
-export const updateAITemplate = (params: any): Promise<any> =>
-  request({
-    url: '/aitemplate/modify',
-    method: 'post',
-    data: params
-  })
-
-export const deleteAITemplate = (params: any): Promise<any> =>
-  request({
-    url: '/aitemplate/delete',
-    method: 'post',
-    data: params
-  })
-
-// AI能力相关接口
-export const getAIAbilityList = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/aiabilitys/list',
-    method: 'get',
-    params
-  })
-
-export const getAbilityAlgorithmList = (params: any): Promise<any> =>
-  request({
-    url: '/aimanage/aiability',
-    method: 'get',
-    params
-  })
-
-// 告警模板相关接口
+/**
+ * =======================================================
+ * 告警模板相关接口
+ * =======================================================
+ */
 export const getAlertTemplates = (params: any): Promise<any> =>
   request({
     url: '/alarmtemplates/describe',
@@ -264,10 +257,3 @@ export const getAlertBindList = (params: any): Promise<any> =>
     method: 'get',
     params
   })
-
-// export const getAlertBind = (params: any): Promise<any> =>
-//   request({
-//     url: '/alarm/alarmrule/describeAlarmRules',
-//     method: 'get',
-//     params
-//   })

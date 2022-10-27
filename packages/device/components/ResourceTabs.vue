@@ -509,6 +509,7 @@ export default class extends Vue {
 
   // 能力checkbox改变逻辑
   private selectAlgoChange(val: any) {
+    console.log(val)
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
     if (this.resourceHasAppIds && this.resourceHasAppIds.length) {

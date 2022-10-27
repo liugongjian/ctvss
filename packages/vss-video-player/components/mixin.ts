@@ -1,6 +1,6 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { Player } from '@/components/Player/services/Player'
-import { removeClass, addClass } from '@/utils/dom'
+import { Player } from '@vss/video-player/services/Player'
+import { removeClass, addClass } from '@vss/base/utils/dom'
 
 @Component
 export default class ComponentMixin extends Vue {

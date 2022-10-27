@@ -8,8 +8,8 @@
 </template>
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
-import { dateFormat } from '@/utils/date'
-import { isIE } from '@/utils/browser'
+import { dateFormat } from '@vss/base/utils/date'
+import { isIE } from '@vss/base/utils/browser'
 import ComponentMixin from './mixin'
 
 @Component({

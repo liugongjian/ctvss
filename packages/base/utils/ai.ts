@@ -10,7 +10,7 @@
  * }
  */
 
-import { AnimalType } from '@/dics'
+import { AnimalType } from '@vss/ai/dics/contants'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -118,7 +118,7 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '33':// 动物检测
     case '10033':// 动物检测
       // eslint-disable-next-line no-case-declarations
-      let counts = {}
+      const counts = {}
       AnimalType.forEach(item => { counts[item.label] = 0 })
       console.log('counts 1:', counts)
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
@@ -876,7 +876,7 @@ export const transformLocationAi = (locations: any, img: any) => {
 
 const parseBodyAttributes = (attributes: any) => {
   const attributesArray = []
-  for (let key in attributes) {
+  for (const key in attributes) {
     attributesArray.push({
       key: key.toLocaleLowerCase(),
       value: attributes[key].Name

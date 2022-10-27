@@ -168,7 +168,7 @@ type Device = {
   [DeviceEnum.Videos]: Video[]
   [DeviceEnum.Viids]: Viid[]
   [DeviceEnum.Industry]: Industry
-  [DeviceEnum.Resources]: Resource[]
+  [DeviceEnum.Resource]: Resource[]
 }
 
 /**
@@ -189,7 +189,7 @@ type DeviceBasicForm = DeviceBasic &
  * 设备基本信息表单
  */
 type VideoDeviceForm = VideoDevice & {
-  [DeviceEnum.Resources]?: Resource[]
+  [DeviceEnum.Resource]?: Resource[]
   [DeviceEnum.InVideoProtocol]?: string
   [DeviceEnum.VideoVendor]?: string
   [DeviceEnum.AIApps]?: any
@@ -216,7 +216,7 @@ type DeviceForm = {
   [DeviceEnum.Videos]?: VideoDeviceForm[]
   [DeviceEnum.Viids]?: ViidDeviceForm[]
   [DeviceEnum.Industry]?: Industry
-  [DeviceEnum.Resources]?: Resource[]
+  [DeviceEnum.Resource]?: Resource[]
 }
 
 export {

@@ -63,7 +63,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/Template'
 import { UserModule } from '@/store/modules/user'
 import { RecordStorageType } from '@/dics'
-import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@/api/template'
+import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@vss/device/api/template'
 
 @Component({
   name: 'create-or-update-record-template'

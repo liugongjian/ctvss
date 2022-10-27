@@ -25,7 +25,7 @@
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
-import { scaleKind } from '@/dics/index'
+import { ScaleKind } from '../dics/index'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -42,7 +42,7 @@ export default class extends ComponentMixin {
 
   private scale: string = null
 
-  private scaleKind = scaleKind
+  private scaleKind = ScaleKind
 
   private resizeObserver: ResizeObserver
 
