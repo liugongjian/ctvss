@@ -51,14 +51,19 @@ export default class TreeMixin extends Vue {
    * @param payload node/key
    */
   public loadChildren(payload) {
-    window.setImmediate(() => {
-      const key = Array.isArray(payload) ? payload.shift() : payload
-      this.commonTree.loadChildren(key)
-      if (payload.length) {
-        this.$nextTick(() => {
-          
-        this.loadChildren(payload)
-        })
+    window.setImmediate(async() => {
+      if (Array.isArray(payload)) {
+        // 展开路径列表
+        const key = Array.isArray(payload) ? payload.shift() : payload
+        if (payload.length) {
+          await this.commonTree.loadChildren(key)
+          this.loadChildren(payload)
+        } else {
+          this.setCurrentKey(key)
+        }
+      } else {
+        // 展开目录
+        this.commonTree.loadChildren(payload)
       }
     })
   }

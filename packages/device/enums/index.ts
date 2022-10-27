@@ -259,7 +259,7 @@ export enum ToolsEnum {
   PreviewVideo = 'previewVideo',
   ReplayVideo = 'replayVideo',
   PreviewViid = 'previewViid',
-  GoToDeviceList = 'goToDeviceList'
+  GoBack = 'goBack'
 }
 
 /**

@@ -162,8 +162,6 @@ const openDirectoryDialog = function (
       if (payload) {
         state.parentDir = payload
       }
-      
-      console.log(state)
       state.dialog[ToolsEnum.EditDirectory] = true
       break
     case ToolsEnum.EditDirectory:
@@ -220,11 +218,20 @@ const closeDirectoryDialog = function (
       break
     case ToolsEnum.AddDirectory:
     case ToolsEnum.EditDirectory:
+      try {
+        if (isRefresh === true) {
+          const key = state.currentDir ? state.currentDir.parentDirId : state.parentDir.id
+          if (key === '') {
+            state.deviceTree.initCommonTree()
+          } else {
+            state.deviceTree.loadChildren(key)
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
       state.currentDir = null
       state.parentDir = null
-      if (isRefresh === true) {
-        (state.deviceTree as any).initCommonTree()
-      }
       break
   }
 }
@@ -243,9 +250,10 @@ const deleteDir = function (getVueComponent: any, dir: any) {
     method: deleteDirApi,
     payload: { dirId: dir.id },
     onSuccess: () => {
-      state.deviceTree.initCommonTree()
-      if (dir.id === state.$route.query.dirId) {
-        state.gotoRoot()
+      if (dir.parentDirId === '') {
+        state.deviceTree.initCommonTree()
+      } else {
+        state.deviceTree.loadChildren(dir.parentDirId)
       }
     }
   })

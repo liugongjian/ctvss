@@ -35,7 +35,10 @@
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
-        <breadcrumb />
+        <breadcrumb
+          ref="breadcrumb"
+          @node-change="1"
+        />
       </template>
       <template slot="rightBody">
         <!-- TODO -->

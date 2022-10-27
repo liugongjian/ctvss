@@ -517,7 +517,7 @@ export default class extends Mixins(deviceFormMixin) {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
-        this.handleTools([ToolsEnum.GoToDeviceList])
+        this.handleTools([ToolsEnum.GoBack], 0)
       } catch (e) {
         this.$alertError(e.message)
       }
@@ -525,7 +525,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoToDeviceList])
+    this.handleTools([ToolsEnum.GoBack], 0)
   }
 }
 </script>

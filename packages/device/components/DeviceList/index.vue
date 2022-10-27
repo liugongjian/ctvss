@@ -313,6 +313,8 @@ import Resource from '@vss/device/components/Resource.vue'
 export default class extends Mixins(deviceMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+  @Inject('handleTreeNode')
+  private handleTreeNode!: Function
   @Prop({
     default: () => getDevices
   })
@@ -380,7 +382,7 @@ export default class extends Mixins(deviceMixin) {
   // 功能回调字典
   private handleListToolsMap = {
     [ToolsEnum.AddDevice]: () => DeviceManager.addDevice(this, this.currentDirId),
-    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
+    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
     [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
     [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row),
     [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
@@ -465,12 +467,20 @@ export default class extends Mixins(deviceMixin) {
     this.initTable()
   }
 
-  // @Watch('$route.query.dirId')
-  // private async dirIdChange() {
-  //   this.pager.pageNum = 1
-  //   this.initTable()
-  //   console.log('dirIdChange', '----------------')
-  // }
+  @Watch('$route.query.dirId')
+  private async dirIdChange() {
+    // 重置列表筛选条件
+    this.filterForm = {
+      [DeviceEnum.DeviceType]: undefined,
+      [DeviceEnum.VideoStatus]: undefined,
+      [DeviceEnum.StreamStatus]: undefined,
+      [DeviceEnum.RecordStatus]: undefined,
+      [DeviceEnum.ViidStatus]: undefined
+    }
+    // this.pager.pageNum = 1
+    // this.initTable()
+    // console.log('dirIdChange', '----------------')
+  }
   
   private mounted() {
     this.handleTools(ToolsEnum.RefreshDeviceList)
@@ -586,24 +596,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      if ([DeviceTypeEnum.Ipc].includes(row[DeviceEnum.DeviceType])) {
-        this.$router.push({
-          name: 'DeviceInfo',
-          query: {
-            ...this.$route.query,
-            [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
-          }
-        })
-      } else if ([DeviceTypeEnum.Platform, DeviceTypeEnum.Nvr].includes(row[DeviceEnum.DeviceType])) {
-        this.$router.push({
-          query: {
-            ...this.$route.query,
-            [DeviceEnum.DirId]: row[DeviceEnum.DeviceId],
-            type: row[DeviceEnum.DeviceType]
-          }
-        })
-        this.handleTools(ToolsEnum.RefreshDeviceList)
-      }
+      this.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
     }
   }
 

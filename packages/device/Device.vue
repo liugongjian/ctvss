@@ -40,7 +40,10 @@
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
-        <breadcrumb @node-change="handleTreeNode" />
+        <breadcrumb
+          ref="breadcrumb"
+          @node-change="handleTreeNode"
+        />
       </template>
       <template slot="rightBody">
         <!-- TODO -->
@@ -61,7 +64,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Provide } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import DeviceTree from '@vss/device/components/Tree/DeviceTree.vue'
 import SortDir from '@vss/device/components/SortDir.vue'
@@ -82,6 +85,7 @@ export default class extends Mixins(layoutMxin) {
    * 树节点点击事件
    * @param data node信息
    */
+  @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     console.log(data)
     const { id, type } = data || {}
@@ -104,7 +108,7 @@ export default class extends Mixins(layoutMxin) {
           ...this.$route.query,
           type: type,
           dirId: id,
-          deviceId: ''
+          deviceId: id
         }
       })
       refreshFlag && this.handleTools(this.toolsEnum.RefreshDeviceList)
