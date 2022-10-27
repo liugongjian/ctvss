@@ -61,7 +61,7 @@ export const InVideoProtocolAllowParams = {
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Gb28181],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
     DeviceEnum.SipTransType,
@@ -81,7 +81,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.EhomeSipInfo,
@@ -95,7 +95,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
@@ -106,7 +106,7 @@ export const InVideoProtocolAllowParams = {
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
@@ -154,7 +154,7 @@ export const DeviceTypeDenyParamsForVideo = {
 export const DeviceTypeDenyParamsForIbox = new Set([
   DeviceEnum.DeviceInType,
   DeviceEnum.DeviceInTypeRadio,
-  DeviceEnum.Resources,
+  DeviceEnum.Resource,
   DeviceEnum.Viids
 ])
 
