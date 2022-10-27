@@ -9,7 +9,9 @@ import {
   DeviceTypeDenyParamsForIbox,
   ChannelDenyEditableParams
 } from '@vss/device/settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum } from '@vss/device/enums/index'
+import { VisibleOptions } from '../type/Param'
+import { DeviceType } from '@/store/modules/app'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -19,7 +21,7 @@ import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '@vss/device/enums/inde
  * @param prop 参数名
  * @returns 判断结果
  */
-const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
+const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum, inProtocol: InVideoProtocolEnum | InViidProtocolEnum, prop: DeviceEnum): boolean => {
   if (deviceInType === DeviceInTypeEnum.Video) {
     return (InVideoProtocolAllowParams[inProtocol] && InVideoProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
       (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
@@ -37,11 +39,11 @@ const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
  * 视频接入form-item显示判断
  * @param deviceType 设备类型
  * @param inVideoProtocol 视频接入协议
- * @param isIbox 是否为IBOX类型
  * @param prop 参数名
+ * @param options 扩展参数 {isIbox, isEdit}
  * @return 判断结果
  */
-export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, prop: string): boolean {
+export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: InVideoProtocolEnum, prop: DeviceEnum, options: VisibleOptions = { isIbox: false, isEdit: false}): boolean {
   if (!this) {
     throw new Error('请使用call()将this指向video info')
   }
@@ -72,24 +74,31 @@ export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, p
   }
 
   // 过滤IBOX的字段
-  if (isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
+  if (options.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
+
+  // 编辑模式下不显示资源包
+  if (prop === DeviceEnum.Resource && options.isEdit) return false
 
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
 
 /**
- * 视频接入form-item可编辑判断
+ * 视频接入form-item是否禁用状态
  * @param prop 参数名
+ * @param options 扩展参数 {isIbox, isEdit}
  * @return 判断结果
  */
- export function checkFormEditable(prop): boolean {
-  console.log(prop, this, this[DeviceEnum.DeviceChannelNum])
-    if (this[DeviceEnum.DeviceChannelNum] > 0) {
+ export function checkFormDisable(prop, options: VisibleOptions = { isEdit: false }): boolean {
+    // 通道编辑页面部分组件不可编辑
+    if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
       return ChannelDenyEditableParams.has(prop)
-    } else {
-      return false
     }
+    // 编辑状态下禁用视频接入协议的修改
+    if (prop === DeviceEnum.InVideoProtocol && options.isEdit) {
+      return true
+    }
+    return false
  }
 
 /**
@@ -99,7 +108,7 @@ export function checkVideoVisible(deviceType, inVideoProtocol, isIbox = false, p
  * @param prop 参数名
  * @return 判断结果
  */
-export function checkViidVisible(deviceType, inViidProtocol, prop: string): boolean {
+export function checkViidVisible(deviceType: DeviceTypeEnum, inViidProtocol: InViidProtocolEnum, prop: DeviceEnum): boolean {
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Viid, deviceType, inViidProtocol, prop)
 }
@@ -110,7 +119,7 @@ export function checkViidVisible(deviceType, inViidProtocol, prop: string): bool
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkTreeToolsVisible(type: string, prop: string): boolean {
+export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
   return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop)
 }
 
@@ -120,7 +129,7 @@ export function checkTreeToolsVisible(type: string, prop: string): boolean {
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkDeviceListVisible(type: string, prop: string): boolean {
+export function checkDeviceListVisible(type: string, prop: DeviceEnum): boolean {
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop)
 }
 
@@ -130,6 +139,6 @@ export function checkDeviceListVisible(type: string, prop: string): boolean {
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkDeviceColumnsVisible(type: string, prop: string): boolean {
+export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum): boolean {
   return DeviceTableColumnAllowParams[type] && DeviceTableColumnAllowParams[type].has(prop)
 }

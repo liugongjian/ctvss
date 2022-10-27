@@ -351,7 +351,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
-      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, this.isIbox, prop)
+      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
     } else {
       return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
     }
@@ -517,7 +517,7 @@ export default class extends Mixins(deviceFormMixin) {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
-        this.handleTools([ToolsEnum.GoToDeviceList])
+        this.handleTools([ToolsEnum.GoBack], 0)
       } catch (e) {
         this.$alertError(e.message)
       }
@@ -525,7 +525,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoToDeviceList])
+    this.handleTools([ToolsEnum.GoBack], 0)
   }
 }
 </script>

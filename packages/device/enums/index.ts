@@ -102,7 +102,6 @@ export enum DeviceEnum {
   IncludeDeviceStats = 'includeDeviceStats',
   IncludeDeviceDir = 'includeDeviceDir',
   LowerApsId = 'lowerApsId',
-  ProtocolDeviceType = 'protocolDeviceType',
   Ip = 'ip',
   Port = 'port',
   DeviceStats = 'deviceStats',
@@ -259,7 +258,7 @@ export enum ToolsEnum {
   PreviewVideo = 'previewVideo',
   ReplayVideo = 'replayVideo',
   PreviewViid = 'previewViid',
-  GoToDeviceList = 'goToDeviceList'
+  GoBack = 'goBack'
 }
 
 /**

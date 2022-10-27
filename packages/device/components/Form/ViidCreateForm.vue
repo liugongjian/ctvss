@@ -17,16 +17,16 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码:" :prop="deviceEnum.LowerApsId">
-        <el-input v-model="viidForm.lowerApsId" />
+      <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="视图编码:" :prop="deviceEnum.OutId">
+        <el-input v-model="viidForm.OutId" />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型:" :prop="deviceEnum.ProtocolDeviceType">
+      <el-form-item v-if="checkVisible(deviceEnum.DeviceType)" label="接入类型:" :prop="deviceEnum.DeviceType">
         <el-select
-          v-model="viidForm.protocolDeviceType"
+          v-model="viidForm.deviceType"
           placeholder="请选择"
         >
           <el-option
-            v-for="(value, key) in protocolDeviceTypeByDeviceType[deviceForm.deviceType]"
+            v-for="(value, key) in viidDeviceTypeByDeviceType[deviceForm.deviceType]"
             :key="key"
             :label="value"
             :value="key"
@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InViidProtocol, ProtocolDeviceTypeByDeviceType, InViidProtocolModelMapping } from '@vss/device/dicts/index'
+import { InViidProtocol, ViidDeviceTypeByDeviceType, InViidProtocolModelMapping } from '@vss/device/dicts/index'
 import { DeviceEnum, InViidProtocolEnum } from '@vss/device/enums/index'
 import { Device, ViidDevice, DeviceBasicForm, ViidDeviceForm } from '@vss/device/type/Device'
 import { checkViidVisible } from '@vss/device/utils/param'
@@ -68,18 +68,18 @@ export default class extends Vue {
   private deviceEnum = DeviceEnum
   private inViidProtocolEnum = InViidProtocolEnum
   private inViidProtocol = InViidProtocol
-  private protocolDeviceTypeByDeviceType = ProtocolDeviceTypeByDeviceType
+  private viidDeviceTypeByDeviceType = ViidDeviceTypeByDeviceType
   private ga1400AccountList = []
   public viidForm: ViidDeviceForm = {}
   private rules = {
     [DeviceEnum.InViidProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
     ],
-    [DeviceEnum.LowerApsId]: [
+    [DeviceEnum.OutId]: [
       { required: true, message: '请输入视图编码', trigger: 'blur' },
       { validator: this.validateApsId, trigger: 'blur' }
     ],
-    [DeviceEnum.ProtocolDeviceType]: [
+    [DeviceEnum.DeviceType]: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
     [DeviceEnum.InUserName]: [
@@ -115,8 +115,8 @@ export default class extends Vue {
   private onDeviceChange() {
     this.viidForm = {
       [DeviceEnum.InViidProtocol]: this.inProtocol || InViidProtocolEnum.Ga1400,
-      [DeviceEnum.LowerApsId]: this.viidInfo.lowerApsId,
-      [DeviceEnum.ProtocolDeviceType]: this.viidInfo.protocolDeviceType,
+      [DeviceEnum.OutId]: this.viidInfo.outId,
+      [DeviceEnum.DeviceType]: this.viidInfo.deviceType,
       [DeviceEnum.InUserName]: this.viidInfo.inUserName,
       [DeviceEnum.Ip]: this.viidInfo.ip,
       [DeviceEnum.Port]: this.viidInfo.port
@@ -125,7 +125,7 @@ export default class extends Vue {
 
   @Watch('videoForm.deviceType')
   private deviceTypeChange() {
-    this.viidForm.protocolDeviceType = ''
+    this.viidForm.deviceType = ''
   }
 
   private checkVisible(prop) {

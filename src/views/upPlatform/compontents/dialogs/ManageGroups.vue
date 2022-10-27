@@ -468,11 +468,16 @@ export default class extends Mixins(Validate) {
           res = node.data.channels
         }
       } else {
-        // 目录
-        const dirs = await this.getSharedDirs(node)
-        const devices = await this.getSharedTree(node)
-        // const devices = []
-        res = [...dirs, ...devices]
+        try {
+          // 目录
+          const dirs = await this.getSharedDirs(node)
+          const devices = await this.getSharedTree(node)
+          // const devices = []
+          res = [...dirs, ...devices]
+        } catch (e){
+          console.log(e)
+        }
+
       }
     }
     this.step === 1 ? this.debounceLoading() : (this.loading.sharedDir = false)

@@ -108,7 +108,7 @@ type ViidDevice = {
   [DeviceEnum.HttpsEndpoint]?: string
   [DeviceEnum.OutId]?: string
   [DeviceEnum.LowerApsId]?: string
-  [DeviceEnum.ProtocolDeviceType]?: string
+  [DeviceEnum.DeviceType]?: string
   [DeviceEnum.InUserName]?: string
   [DeviceEnum.Ip]?: string
   [DeviceEnum.Port]?: string

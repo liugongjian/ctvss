@@ -11,6 +11,7 @@ import {
   startRecord,
   stopRecord
 } from '../../api/device'
+import { type } from 'os'
 
 import ExportExcelTemplate from './DeviceExportTemplate'
 
@@ -37,14 +38,16 @@ const addDevice = function (state, dirId) {
  * 查看设备详情
  * @param state.$router 路由
  * @param id 设备id
+ * @param type 设备类型
  */
-const viewDevice = function (state, id) {
+const viewDevice = function (state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id,
+      [DeviceEnum.DirId]: id,
+      type
     }
   })
 }
@@ -133,14 +136,6 @@ const refreshDeviceList = function (state, flag = 'true') {
       ...state.$route.query,
       deviceListRefreshFlag: flag
     }
-  })
-}
-/**
- * 跳转设备列表
- */
-const goToDeviceList = function (state) {
-  state.$router.push({
-    name: 'DeviceList'
   })
 }
 
@@ -237,7 +232,7 @@ const syncDeviceStatus = async function (state, id, type) {
  * 查看通道
  */
 const viewChannels = function (state, row) {
-  console.log('ViewChannels', row[DeviceEnum.DeviceId])
+  state.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
 }
 
 const exportDeviceExcel = async function (state, policy) {
@@ -477,6 +472,22 @@ const closeListDialog = function (state, type: string, isfresh: any) {
 }
 
 /**
+ * 跳转面包屑层级
+ * @param getVueComponent 获取Vue实例函数
+ * @param level 返回层级数（0/1/2...）
+ */
+const goBack = function (
+  getVueComponent: any,
+  level: number
+) {
+  const state: { breadcrumb: any; handleTreeNode: any } = getVueComponent()
+  const pathList = state.breadcrumb.pathList || []
+  // 取当前path的向上level级/根目录
+  const target = pathList[pathList.length - 1 - level] || { id: '' }
+  state.handleTreeNode(target)
+}
+
+/**
  * 查看设备事件
  * @param state.$router 路由
  * @param id 设备id
@@ -562,5 +573,5 @@ export default {
   previewVideo,
   replayVideo,
   previewViid,
-  goToDeviceList
+  goBack
 }

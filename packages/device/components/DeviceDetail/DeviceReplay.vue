@@ -22,9 +22,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  // @Prop({ required: true }) private readonly deviceId: number
-  // @Prop({ required: true }) private readonly inProtocol: string
-  private inProtocol = 'gb28181'
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
 

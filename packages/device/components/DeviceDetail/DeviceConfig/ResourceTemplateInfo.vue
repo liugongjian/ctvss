@@ -226,7 +226,6 @@ import { ResourceTemplateInfoCodes } from '@vss/ai/dics'
   }
 })
 export default class extends Mixins(detailMixin) {
-  private inProtocol = 'gb28181'
 
   private checkPermission = checkPermission
 
