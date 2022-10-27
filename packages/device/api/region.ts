@@ -57,3 +57,13 @@ export const getChildAddress = async(id: any, level: number, cancelToken: any) =
  }
  return list
 }
+
+/**
+ * 获取设备地址父级树结构，用户修改时回显
+ */
+ export const getAddressAreaDir = (params: any): Promise<any> =>
+  request({
+    url: '/area/dir',
+    method: 'get',
+    params
+  })

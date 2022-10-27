@@ -12,7 +12,7 @@
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
-        :disabled="checkEditable(deviceEnum.InVideoProtocol)"
+        :disabled="checkEditable(deviceEnum.InVideoProtocol) || isEdit"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -199,15 +199,7 @@
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
-    <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
-      <!-- <resource-tabs
-        v-model="videoForm.resources"
-        :is-private-in-network="deviceForm.inNetworkType === inNetworkTypeEnum.Private"
-        :form-info="videoForm"
-        :vss-ai-apps="videoForm.vssAIApps"
-        @on-change="onResourceChange"
-        @changevssaiapps="changeVSSAIApps"
-      /> -->
+    <el-form-item v-if="checkVisible(deviceEnum.Resources) && !isEdit" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
       <resource v-model="videoForm.resource" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
@@ -233,7 +225,6 @@ import { validGbId } from '@vss/device/api/device'
 import { checkVideoVisible, checkFormEditable } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
-import ResourceTabs from '@vss/device/components/ResourceTabs.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
 
 @Component({
@@ -241,7 +232,6 @@ import Resource from '@vss/device/components/Resource/index.vue'
   components: {
     CertificateSelect,
     Tags,
-    ResourceTabs,
     Resource
   }
 })

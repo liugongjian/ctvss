@@ -101,7 +101,8 @@ export const getDirPath = (params: any): Promise<any> =>
     params: toUpperCase(params)
   })
 
-export const getDeviceTree = (): Promise<any> => {
+export const getDeviceTree = (params): Promise<any> => {
+  console.log(params)
   const res = [{
     id: 1,
     type: 'platform',
