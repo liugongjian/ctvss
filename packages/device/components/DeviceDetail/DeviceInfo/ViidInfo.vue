@@ -61,8 +61,7 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inViidProtocol() {
-    // return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
-    return InViidProtocolEnum.Ga1400
+    return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
   }
 
   // 视图库接入信息

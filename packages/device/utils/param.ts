@@ -76,9 +76,6 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
   // 过滤IBOX的字段
   if (options.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
-  // 编辑模式下不显示资源包
-  if (prop === DeviceEnum.Resource && options.isEdit) return false
-
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
