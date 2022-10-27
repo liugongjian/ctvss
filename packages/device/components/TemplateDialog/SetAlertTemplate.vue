@@ -53,9 +53,7 @@ import { getAlertTemplates, bindAlertTemplates, unbindAlertTemplates } from '@vs
   }
 })
 export default class extends Vue {
-  @Prop() private groupId?: string
   @Prop() private deviceId?: String
-  @Prop() private inProtocol?: String
   @Prop() private templateId?: string
   private dialogVisible = true
   private loading = false
@@ -156,18 +154,12 @@ export default class extends Vue {
 
   private async bind(row: any) {
     const params = {
-      groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
+      templateId: row.templateId
     }
     try {
       this.loading = true
-      if (this.groupId) {
-        await bindAlertTemplates(params)
-      } else if (this.deviceId) {
-        await bindAlertTemplates(params)
-      }
+      await bindAlertTemplates(params)
       this.bindTemplateId = row.templateId
     } catch (e) {
       this.$message.error(e && e.message)
@@ -185,11 +177,7 @@ export default class extends Vue {
     }
     try {
       this.loading = true
-      if (this.groupId) {
-        await unbindAlertTemplates(params)
-      } else if (this.deviceId) {
-        await unbindAlertTemplates(params)
-      }
+      await unbindAlertTemplates(params)
       this.bindTemplateId = ''
     } catch (e) {
       this.$message.error(e && e.message)
