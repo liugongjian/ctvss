@@ -273,6 +273,7 @@ async function exportDevicesExcel(data: any) {
     parentDeviceId: data.parentDeviceId
   }
   // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
+ 
   try {
     if (data.command === 'all') {
       const query = this.$route.query
@@ -321,11 +322,11 @@ const uploadExcel = function (state, data: any) {
  * 导出模板
  */
 const exportTemplate = function (state) {
-  console.log('exportTemplate')
+  console.log('exportTemplate--->', state)
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal
-  // this.exelName = `${currentInProtocal}导入模板`
+  // this.exelName = `${currentInProtocal}导入模板` 
   // this.regionName = this.groupData?.regionName || ''
   // this.excelGroupDate = this.groupData
   // if (this.isNVR) {
