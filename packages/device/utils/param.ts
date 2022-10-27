@@ -43,7 +43,7 @@ const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum
  * @param options 扩展参数 {isIbox, isEdit}
  * @return 判断结果
  */
-export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: InVideoProtocolEnum, prop: DeviceEnum, options: VisibleOptions): boolean {
+export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: InVideoProtocolEnum, prop: DeviceEnum, options: VisibleOptions = { isIbox: false, isEdit: false}): boolean {
   if (!this) {
     throw new Error('请使用call()将this指向video info')
   }
@@ -89,7 +89,7 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
  * @param options 扩展参数 {isIbox, isEdit}
  * @return 判断结果
  */
- export function checkFormDisable(prop, options: VisibleOptions): boolean {
+ export function checkFormDisable(prop, options: VisibleOptions = { isEdit: false }): boolean {
     // 通道编辑页面部分组件不可编辑
     if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
       return ChannelDenyEditableParams.has(prop)
