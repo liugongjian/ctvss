@@ -326,7 +326,6 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private get currentDirId() {
-    if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
     return this.$route.query.dirId as string
   }
 
@@ -519,7 +518,7 @@ export default class extends Mixins(deviceFormMixin) {
         await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
         this.handleTools([ToolsEnum.GoToDeviceList])
-      } catch(e) {
+      } catch (e) {
         this.$alertError(e.message)
       }
     }

@@ -47,7 +47,6 @@ export default class extends Vue {
           path: this.pathList.map(path => path.id).join(',')
         }
       })
-      console.log(res, '11111111111111111')
     } else {
       this.pathList = []
       this.$router.push({
