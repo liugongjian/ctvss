@@ -22,4 +22,8 @@ export const ApiMapping = {
   '/alarmtemplate/describe': '/alarm/template/describe',
   '/alarmtemplates/describe': '/alarm/template/list',
   '/alarmtemplate/modify': '/alarm/template/update',
+  '/alarm/alarmrule/create': '/alarm/rule/create',
+  '/alarm/alarmrule/delete': '/alarm/rule/delete',
+  '/alarm/alarmrule/describeAlarmRule': '/alarm/rule/describe',
+  '/alarm/alarmrule/describeAlarmRules': '/alarm/rule/list',
 }

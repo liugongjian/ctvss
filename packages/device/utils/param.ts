@@ -91,7 +91,7 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
  */
  export function checkFormDisable(prop, options: VisibleOptions): boolean {
     // 通道编辑页面部分组件不可编辑
-    if (this[DeviceEnum.DeviceChannelNum] > 0) {
+    if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
       return ChannelDenyEditableParams.has(prop)
     }
     // 编辑状态下禁用视频接入协议的修改

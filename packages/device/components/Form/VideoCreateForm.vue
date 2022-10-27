@@ -306,7 +306,7 @@ export default class extends Vue {
 
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device && this.device.videos && this.device.videos[0].inVideoProtocol
+    return this.device && this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol
   }
 
   // 视频接入信息

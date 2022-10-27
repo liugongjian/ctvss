@@ -22,7 +22,7 @@
       <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
       <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码">{{ viidInfo.lowerApsId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型">{{ dicts.ProtocolDeviceType[viidInfo.protocolDeviceType] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="接入类型">{{ dicts.ViidDeviceType[viidInfo.deviceType] }}</el-descriptions-item>
       <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Port)" label="端口">{{ viidInfo.port }}</el-descriptions-item>
@@ -39,7 +39,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum } from '@vss/device/enums'
+import { DeviceEnum, InViidProtocolEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, ViidDevice } from '@vss/device/type/Device'
 import { checkViidVisible } from '@vss/device/utils/param'
 
@@ -61,7 +61,8 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inViidProtocol() {
-    return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
+    // return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
+    return InViidProtocolEnum.Ga1400
   }
 
   // 视图库接入信息

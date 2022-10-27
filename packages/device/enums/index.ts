@@ -102,7 +102,6 @@ export enum DeviceEnum {
   IncludeDeviceStats = 'includeDeviceStats',
   IncludeDeviceDir = 'includeDeviceDir',
   LowerApsId = 'lowerApsId',
-  ProtocolDeviceType = 'protocolDeviceType',
   Ip = 'ip',
   Port = 'port',
   DeviceStats = 'deviceStats',
