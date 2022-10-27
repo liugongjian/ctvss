@@ -41,10 +41,7 @@
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
-        <span @click="1">根目录</span>
-        <span v-for="item in ['目录1', '目录2', '目录3']" :key="item" @click="1">
-          {{ item }}
-        </span>
+        <breadcrumb />
       </template>
       <template slot="rightBody">
         <!-- TODO -->
@@ -65,13 +62,15 @@ import layoutMxin from '@vss/device/mixin/layoutMixin'
 import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import PollingMask from '@vss/device/components/PollingMask.vue'
+import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 
 @Component({
   name: 'Preview',
   components: {
     PreviewTree,
     PollingMask,
-    ScreenBoard
+    ScreenBoard,
+    Breadcrumb
   }
 })
 export default class extends Mixins(layoutMxin) {

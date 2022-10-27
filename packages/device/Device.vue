@@ -40,10 +40,7 @@
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
-        <span @click="1">根目录</span>
-        <span v-for="item in ['目录1', '目录2', '目录3']" :key="item" @click="1">
-          {{ item }}
-        </span>
+        <breadcrumb @node-change="handleTreeNode" />
       </template>
       <template slot="rightBody">
         <!-- TODO -->
@@ -69,13 +66,15 @@ import layoutMxin from '@vss/device/mixin/layoutMixin'
 import DeviceTree from '@vss/device/components/Tree/DeviceTree.vue'
 import SortDir from '@vss/device/components/SortDir.vue'
 import CreateDir from '@vss/device/components/CreateDir.vue'
+import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 
 @Component({
   name: 'Device',
   components: {
     DeviceTree,
     SortDir,
-    CreateDir
+    CreateDir,
+    Breadcrumb
   }
 })
 export default class extends Mixins(layoutMxin) {
@@ -83,14 +82,19 @@ export default class extends Mixins(layoutMxin) {
    * 树节点点击事件
    * @param data node信息
    */
-  private handleTreeNode(data: any) {
+  private async handleTreeNode(data: any) {
     console.log(data)
     const { id, type } = data || {}
+    // 若路由跳转则不需要主动触发列表刷新
+    const refreshFlag = this.$route.name === 'DeviceList'
+    this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {
-          deviceId: '29941916753760267'
+          type: type,
+          deviceId: id,
+          dirId: ''
         }
       })
     } else {
@@ -99,10 +103,11 @@ export default class extends Mixins(layoutMxin) {
         query: {
           ...this.$route.query,
           type: type,
-          dirId: id
+          dirId: id,
+          deviceId: ''
         }
       })
-      this.handleTools(this.toolsEnum.RefreshDeviceList)
+      refreshFlag && this.handleTools(this.toolsEnum.RefreshDeviceList)
     }
   }
 }

@@ -126,7 +126,6 @@ const deleteDevice = function (state, row?) {
  * @param flag 刷新标志
  */
 const refreshDeviceList = function (state, flag = 'true') {
-  console.log(state.$route.query)
   state.$router.replace({
     query: {
       ...state.$route.query,

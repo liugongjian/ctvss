@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { toLowerCase, toUpperCase } from '@vss/base/utils/param'
+import { toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, DeviceTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -101,7 +101,7 @@ export const getDirPath = (params: any): Promise<any> =>
     params: toUpperCase(params)
   })
 
-export const getDeviceTree = (params: any): Promise<any> => {
+export const getDeviceTree = (): Promise<any> => {
   const res = [{
     id: 1,
     type: 'platform',
@@ -179,7 +179,6 @@ export const getDevices = (params: any): Promise<any> => {
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
-      console.log(res)
       res.devices = res.devices.map(item => {
         const data = {
           [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
@@ -229,7 +228,6 @@ export const getDevicesIbox = (params: any): Promise<any> => {
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
-      console.log(res)
       res.devices = res.devices.map(item => {
         const data: any = {
           [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],

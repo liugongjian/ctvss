@@ -35,7 +35,6 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree, sortDeviceTree } from '../api/device'
 
 @Component({
@@ -46,8 +45,6 @@ import { getDeviceTree, sortDeviceTree } from '../api/device'
 export default class extends Vue {
   @Prop()
   private currentDir!: any
-  @Prop()
-  private inProtocol!: any
 
   private dialogVisible = true
   private loading: any = {
@@ -64,12 +61,6 @@ export default class extends Vue {
 
   private mounted() {
     this.initTreeStatus(this.currentDir)
-  }
-  /**
-   * 当前业务组ID
-   */
-  private get groupId() {
-    return GroupModule.group!.groupId
   }
 
   /**
@@ -106,8 +97,6 @@ export default class extends Vue {
         return {
           id: item.id,
           type: item.type,
-          inProtocol: this.inProtocol,
-          parentDeviceId: this.currentDir.type === 'nvr' ? this.currentDir.id : '',
           orderSequence: index
         }
       })

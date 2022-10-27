@@ -3,6 +3,7 @@
     ref="commonTree"
     :node-key="nodeKey"
     :root-key="rootKey"
+    :default-key="defaultKey"
     :data="data"
     :lazy="lazy"
     :load="load"
@@ -17,7 +18,7 @@
       {{ rootLabel }}
     </template>
     <template slot="rootLabelSuffix">
-      <span>{{ `(${rootSums.online}/${rootSums.total})` }}</span>
+      <span>{{ `(${rootSums.onlineSize}/${rootSums.totalSize})` }}</span>
     </template>
     <template slot="rootTools" slot-scope="{ data }">
       <el-tooltip effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
@@ -32,7 +33,7 @@
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix" slot-scope="{ data }">
-      <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.online}/${data.total})` }}</span>
+      <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{ data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SortDirectory)" effect="dark" content="子目录排序" placement="top" :open-delay="300">

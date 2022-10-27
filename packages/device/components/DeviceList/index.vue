@@ -465,11 +465,12 @@ export default class extends Mixins(deviceMixin) {
     this.initTable()
   }
 
-  @Watch('$route.query.dirId')
-  private async dirIdChange() {
-    this.pager.pageNum = 1
-    this.initTable()
-  }
+  // @Watch('$route.query.dirId')
+  // private async dirIdChange() {
+  //   this.pager.pageNum = 1
+  //   this.initTable()
+  //   console.log('dirIdChange', '----------------')
+  // }
   
   private mounted() {
     this.handleTools(ToolsEnum.RefreshDeviceList)
@@ -486,6 +487,7 @@ export default class extends Mixins(deviceMixin) {
   private async initList() {
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
       this.loading.info = true
+      this.loading.table = true
       await this.getDevice(this.currentDirId)
       this.loading.info = false
       console.log('deviceInfo', this.device)
@@ -497,7 +499,6 @@ export default class extends Mixins(deviceMixin) {
    * 设备table初始化
    */
   private async initTable() {
-    this.loading.table = true
     const params = {
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
@@ -513,7 +514,6 @@ export default class extends Mixins(deviceMixin) {
       params[DeviceEnum.ParentDeviceId] = this.currentDirId
     }
     const res: any = await this.getDevicesApi(params)
-    console.log(params)
     this.deviceList = res.devices
     this.pager.totalNum = +res.totalNum
     this.loading.table = false
@@ -586,7 +586,6 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      console.log(row)
       if ([DeviceTypeEnum.Ipc].includes(row[DeviceEnum.DeviceType])) {
         this.$router.push({
           name: 'DeviceInfo',

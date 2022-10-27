@@ -104,8 +104,16 @@ export default class LayoutMixin extends Vue {
     let res
     if (node.level === 0) {
       this.loading.tree = true
-      res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-      // this.deviceTree.loadChildren('01')
+      try {
+        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+        // this.deviceTree.loadChildren('01')
+        const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
+        this.deviceTree.loadChildren(pathList)
+        this.deviceTree.rootSums.onlineSize = res.onlineSize
+        this.deviceTree.rootSums.totalSize = res.totalSize
+      } catch (e) {
+        console.log(e)
+      }
       this.loading.tree = false
     } else {
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })

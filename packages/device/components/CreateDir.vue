@@ -64,7 +64,7 @@ export default class extends Vue {
     if (this.parentDir) {
       this.form.parentDirId = this.parentDir.id
     } else {
-      this.form.parentDirId = '-1'
+      this.form.parentDirId = ''
     }
   }
 

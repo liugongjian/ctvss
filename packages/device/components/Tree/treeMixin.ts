@@ -30,12 +30,16 @@ export default class TreeMixin extends Vue {
     isLeaf: 'isLeaf'
   }
   public rootSums = {
-    online: 0,
-    total: 0
+    onlineSize: 0,
+    totalSize: 0
   }
 
   public get commonTree() {
     return this.$refs.commonTree as any
+  }
+
+  public get defaultKey() {
+    return this.$route.query.dirId
   }
 
   public initCommonTree() {
@@ -48,8 +52,19 @@ export default class TreeMixin extends Vue {
    */
   public loadChildren(payload) {
     window.setImmediate(() => {
-      this.commonTree.loadChildren(payload)
+      const key = Array.isArray(payload) ? payload.shift() : payload
+      this.commonTree.loadChildren(key)
+      if (payload.length) {
+        this.$nextTick(() => {
+          
+        this.loadChildren(payload)
+        })
+      }
     })
+  }
+
+  private setCurrentKey(payload) {
+    this.commonTree.setCurrentKey(payload)
   }
 
   /**
