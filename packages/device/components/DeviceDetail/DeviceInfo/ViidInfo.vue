@@ -30,8 +30,8 @@
 
     <!-- 视图库信息 -->
     <el-descriptions title="视图库信息" :column="2">
-      <el-descriptions-item label="视图库IP">{{ viidInfo.viidServerIp }}</el-descriptions-item>
-      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidServerPort }}</el-descriptions-item>
+      <el-descriptions-item label="视图库IP">{{ viidInfo.viidIp }}</el-descriptions-item>
+      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidPort }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
