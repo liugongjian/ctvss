@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { ToolsEnum } from '../../enums/index'
+import { ToolsEnum, DeviceTypeEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceDetail'
@@ -38,6 +38,10 @@ export default class extends Vue {
     return this.$route.query.deviceId.toString()
   }
 
+  private get type() {
+    return this.$route.query.type
+  }
+
   private handleClick(tab) {
     this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }
@@ -48,7 +52,11 @@ export default class extends Vue {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoToDeviceList])
+    if (this.type === DeviceTypeEnum.Ipc) {
+      this.handleTools([ToolsEnum.GoBack], 1)
+    } else {
+      this.handleTools([ToolsEnum.GoBack], 0)
+    }
   }
 }
 </script>

@@ -32,7 +32,7 @@ export default class DeviceMixin extends Vue {
   }
 
   // 协议类型
-  public get protocol() {
+  public get inProtocol() {
     if (this.hasVideo) {
       return this.device.videos[0][DeviceEnum.InVideoProtocol]
     } else if (this.hasViid) {
@@ -41,7 +41,9 @@ export default class DeviceMixin extends Vue {
     return null
   }
 
-  @Watch('$route.query.deviceId')
+  @Watch('$route.query.deviceId', {
+    immediate: true
+  })
   private async deviceIdChange(deviceId) {
     this.getDevice(deviceId)
   }
@@ -56,7 +58,7 @@ export default class DeviceMixin extends Vue {
         deviceId,
         isForce,
         fetch: this.getDeviceApi
-      })
+      }) || {}
     } catch (e) {
       this.$alertError(e)
     } finally {

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { toLowerCase, toUpperCase } from '@vss/base/utils/param'
+import { toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, DeviceTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -101,7 +101,8 @@ export const getDirPath = (params: any): Promise<any> =>
     params: toUpperCase(params)
   })
 
-export const getDeviceTree = (params: any): Promise<any> => {
+export const getDeviceTree = (params): Promise<any> => {
+  console.log(params)
   const res = [{
     id: 1,
     type: 'platform',
@@ -179,7 +180,6 @@ export const getDevices = (params: any): Promise<any> => {
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
-      console.log(res)
       res.devices = res.devices.map(item => {
         const data = {
           [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
@@ -229,7 +229,6 @@ export const getDevicesIbox = (params: any): Promise<any> => {
       method: 'get',
       params: toUpperCase(params)
     }).then((res: any) => {
-      console.log(res)
       res.devices = res.devices.map(item => {
         const data: any = {
           [DeviceEnum.DeviceName]: item.device[DeviceEnum.DeviceName],
@@ -487,66 +486,6 @@ export const editRecordName = (data: any): Promise<any> =>
 export const setRecordScale = (params: any): Promise<any> =>
   request({
     url: '/record/scale',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 获取设备录制模板
- */
-export const getDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record',
-    method: 'get',
-    params
-  })
-
-/**
- * 获取设备回调模板
- */
-export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback',
-    method: 'get',
-    params
-  })
-
-/**
- * 设置设备录制模板
- */
-export const setDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/bind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 设置设备回调模板
- */
-export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback/bind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 解绑设备录制模板
- */
-export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/unbind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 解绑设备回调模板
- */
-export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
-  request({
-    url: '/device/callback/unbind',
     method: 'post',
     data: params
   })

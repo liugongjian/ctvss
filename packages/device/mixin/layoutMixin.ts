@@ -54,9 +54,9 @@ export default class LayoutMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
-    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data),
+    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir}),
     [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.EditDirectory, data),
-    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data),
+    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data || { id: '', type: DirectoryTypeEnum.Dir}),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
@@ -68,11 +68,16 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
-    [ToolsEnum.GoToDeviceList]: () => DeviceManager.goToDeviceList(this)
+    [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level)
   }
   /* 设备目录树 */
   public get deviceTree() {
     return this.$refs.deviceTree as any
+  }
+
+  /* 面包屑 */
+  public get breadcrumb() {
+    return this.$refs.breadcrumb as any
   }
 
   /* 设备目录树是否懒加载依据 */
@@ -104,8 +109,16 @@ export default class LayoutMixin extends Vue {
     let res
     if (node.level === 0) {
       this.loading.tree = true
-      res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-      // this.deviceTree.loadChildren('01')
+      try {
+        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+        // this.deviceTree.loadChildren('01')
+        const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
+        this.deviceTree.loadChildren(pathList)
+        this.deviceTree.rootSums.onlineSize = res.onlineSize
+        this.deviceTree.rootSums.totalSize = res.totalSize
+      } catch (e) {
+        console.log(e)
+      }
       this.loading.tree = false
     } else {
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })

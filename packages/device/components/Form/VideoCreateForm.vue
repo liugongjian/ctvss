@@ -12,7 +12,7 @@
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
-        :disabled="checkEditable(deviceEnum.InVideoProtocol)"
+        :disabled="checkDisable(deviceEnum.InVideoProtocol)"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -35,7 +35,7 @@
           :key="key"
           :label="value"
           :value="key"
-          :disabled="checkEditable(deviceEnum.InVersion)"
+          :disabled="checkDisable(deviceEnum.InVersion)"
         />
       </el-radio-group>
     </el-form-item>
@@ -47,7 +47,7 @@
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm.inUserName" :disabled="checkEditable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm.inUserName" :disabled="checkDisable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <el-radio
@@ -134,7 +134,7 @@
         v-model="videoForm.deviceStreamAutoPull"
         :active-value="1"
         :inactive-value="2"
-        :disabled="checkEditable(deviceEnum.DeviceStreamAutoPull)"
+        :disabled="checkDisable(deviceEnum.DeviceStreamAutoPull)"
       />
     </el-form-item>
     <el-form-item
@@ -190,7 +190,7 @@
         v-model="videoForm.streamTransProtocol"
         active-value="tcp"
         inactive-value="udp"
-        :disabled="checkEditable(deviceEnum.StreamTransProtocol)"
+        :disabled="checkDisable(deviceEnum.StreamTransProtocol)"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
@@ -199,15 +199,8 @@
         用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
       </div>
     </el-form-item>
-    <el-form-item v-if="checkVisible(deviceEnum.Resources)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resources">
-      <resource-tabs
-        v-model="videoForm.resources"
-        :is-private-in-network="deviceForm.inNetworkType === inNetworkTypeEnum.Private"
-        :form-info="videoForm"
-        :vss-ai-apps="videoForm.vssAIApps"
-        @on-change="onResourceChange"
-        @changevssaiapps="changeVSSAIApps"
-      />
+    <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
+      <resource ref="resource" v-model="videoForm.resource" :device-id="deviceId" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -229,17 +222,17 @@ import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor,
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '@vss/device/dicts/tips'
 import { validGbId } from '@vss/device/api/device'
-import { checkVideoVisible, checkFormEditable } from '@vss/device/utils/param'
+import { checkVideoVisible, checkFormDisable } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
-import ResourceTabs from '@vss/device/components/ResourceTabs.vue'
+import Resource from '@vss/device/components/Resource/index.vue'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
     CertificateSelect,
     Tags,
-    ResourceTabs
+    Resource
   }
 })
 export default class extends Vue {
@@ -298,8 +291,8 @@ export default class extends Vue {
       { required: true, message: '请输入设备端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
     ],
-    [DeviceEnum.Resources]: [
-      { required: true, validator: this.validateResources, trigger: 'blur' }
+    [DeviceEnum.Resource]: [
+      { required: true, validator: this.validateResource, trigger: 'change' }
     ],
     [DeviceEnum.OutId]: [
       { validator: this.validateGbId, trigger: 'blur' }
@@ -311,9 +304,14 @@ export default class extends Vue {
     return (this.device && this.device.device) || {} as DeviceBasic
   }
 
+  // 设备ID
+  private get deviceId() {
+    return this.basicInfo && this.basicInfo.deviceId
+  }
+
   // 视频接入协议
   private get inVideoProtocol() {
-    return this.device && this.device.videos && this.device.videos[0].inVideoProtocol
+    return this.device && this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol
   }
 
   // 视频接入信息
@@ -346,7 +344,7 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      [DeviceEnum.Resources]: [],
+      [DeviceEnum.Resource]: [],
       vssAIApps: [],
       aIApps: []
     }
@@ -428,14 +426,14 @@ export default class extends Vue {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, this.isIbox, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop, { isIbox: this.isIbox, isEdit: this.isEdit })
   }
 
   /**
    * 判断表单项是否可以编辑
    */
-  private checkEditable(prop) {
-    return this.basicInfo && checkFormEditable.call(this.basicInfo, prop)
+  private checkDisable(prop) {
+    return this.basicInfo && checkFormDisable.call(this.basicInfo, prop, { isEdit: this.isEdit })
   }
 
   /*
@@ -452,40 +450,11 @@ export default class extends Vue {
   /**
    * 校验资源包
    */
-  public validateResources(rule: any, value: string, callback: Function) {
-    let hasVideo = false
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const remainError: any = []
-    this.videoForm.resources.forEach((resource: any) => {
-      // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
-      const devicesCount = this.deviceForm.deviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.deviceChannelSize
-      // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
-      switch (resource.resourceType) {
-        case 'VSS_VIDEO':
-          hasVideo = true
-          if (isChanged && devicesCount > remainDeviceCount) {
-            remainError.push('视频包')
-          }
-          break
-        case 'VSS_AI':
-          if (isChanged && devicesCount > remainDeviceCount) {
-            remainError.push('AI包')
-          }
-          break
-        case 'VSS_UPLOAD_BW':
-          break
-      }
-    })
-    if (remainError.length) {
-      callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('资源包必须配置视频包与上行带宽包'))
-    } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
-      callback(new Error('必须配置视频包'))
-    // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('必须配置上行带宽包'))
+  public validateResource(rule: any, value: string, callback: Function) {
+    const resource = this.$refs.resource as Resource
+    const res = resource.validate(this.videoForm.deviceChannelSize)
+    if (!res.result) {
+      callback(new Error(res.message))
     } else {
       callback()
     }

@@ -35,9 +35,6 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-//   @Prop() private deviceId!: any
-//   @Prop() private inProtocol!: any
-  private inProtocol = 'gb28181'
   private appInfo: any = {}
   private apps: any = []
   private app: any = ''
@@ -61,7 +58,7 @@ export default class extends Mixins(detailMixin) {
   }
 
   private async initDeviceApp() {
-    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId || this.deviceId, pageSize: 1000 })
+    const { aiApps } = await getAppList({ deviceId: this.deviceId })
     if (aiApps.length > 0) {
       this.appInfo = aiApps[0]
       this.apps = aiApps

@@ -21,7 +21,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
+import { InVideoProtocolModelMapping } from '@vss/device/dicts/index'
+import { InVideoProtocolAllowParams } from '@vss/device/settings'
 import { DeviceEnum } from '@vss/device/enums'
+import { DeviceForm, VideoDeviceForm } from '@vss/device/type/Device'
+import { createDevice } from '@vss/device/api/device'
+import { pick } from 'lodash'
 import VideoCreateForm from '../../Form/VideoCreateForm.vue'
 
 @Component({
@@ -31,6 +36,7 @@ import VideoCreateForm from '../../Form/VideoCreateForm.vue'
   }
 })
 export default class extends Vue {
+  @Prop({ default: () => createDevice }) private createDeviceApi: Function
   @Prop() private device: Device
   private dialogVisible = true
   private submitting = false
@@ -40,11 +46,38 @@ export default class extends Vue {
     return this.device[DeviceEnum.Device]
   }
 
-  private submit() {
+  /**
+   * 提交
+   */
+  private async submit() {
     const form = this.$refs.form as VideoCreateForm
+    const videoForm = form.videoForm
     if (form.validateVideoForm()) {
-      console.log(form.videoForm)
-      this.closeDialog(true)
+      const videoDevice: VideoDeviceForm = {
+        ...pick(videoForm, [
+          DeviceEnum.InVideoProtocol
+        ])
+      }
+      const params: DeviceForm = {
+        [DeviceEnum.Device]: {
+          deviceId: this.device.device.deviceId
+        },
+        [DeviceEnum.Resource]: videoForm.resource,
+      }
+      // 补充视频协议信息
+      videoDevice[InVideoProtocolModelMapping[videoForm.inVideoProtocol]] = {
+        ...pick(videoForm, [...InVideoProtocolAllowParams[videoForm.inVideoProtocol]])
+      }
+      // 删除视频中的Resource
+      delete videoDevice[InVideoProtocolModelMapping[videoForm.inVideoProtocol]].resource
+      params[DeviceEnum.Videos] = [ videoDevice ]
+      try {
+        // 提交创建表单
+        await this.createDeviceApi(params)
+        this.closeDialog(true)
+      } catch (e) {
+        this.$alertError(e.message)
+      }
     }
   }
 

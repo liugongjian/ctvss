@@ -94,7 +94,7 @@
           </el-radio-group>
         </el-form-item>
       </div>
-      <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
+      <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
@@ -266,7 +266,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.hasVideo) {
-      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, this.isIbox, prop)
+      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
     } else {
       return checkViidVisible.call(this.viidInfo, this.basicInfo.deviceType, this.inViidProtocol, prop)
     }
@@ -276,9 +276,8 @@ export default class extends Mixins(deviceFormMixin) {
    * 保存表单
    */
   private submit() {
-    console.log('updateDeviceApi---->', this.updateDeviceApi)
     const form: any = this.$refs.deviceForm
-    form.validate(async(valid) => {
+    form.validate( async(valid) => {
       if (valid) {
         const params: DeviceForm = {
           ...pick(this.deviceForm, [
@@ -315,7 +314,7 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.IndustryCode,
               DeviceEnum.NetworkCode
             ])
-          }
+          },
         }
         try {
           await this.updateDeviceApi(params)

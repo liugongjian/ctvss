@@ -7,7 +7,7 @@
       v-show="hasRoot"
       ref="root"
       class="common-tree__root"
-      :class="{ 'common-tree__root--active': currentNodeKey === rootKey }"
+      :class="{ 'common-tree__root--active': currentKey === rootKey }"
       @click="handleNode({ id: rootKey })"
     >
       <div class="common-tree__root__label-prefix">
@@ -29,6 +29,7 @@
           :key="treeKey"
           ref="Tree"
           :node-key="nodeKey"
+          :current-node-key="currentNodeKey"
           :data="data"
           :lazy="lazy"
           :load="loadChildren"
@@ -81,8 +82,11 @@ export default class extends Vue {
   @Prop({ default: '' })
   private nodeKey
 
-  @Prop({ default: '' })
+  @Prop({ default: null })
   private rootKey
+
+  @Prop({ default: null })
+  private defaultKey
 
   @Prop({ default: '' })
   private emptyText
@@ -110,7 +114,7 @@ export default class extends Vue {
 
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
-  private currentNodeKey = null
+  public currentKey = null
 
   private get tree() {
     // 利用log使得tree与treeKey实现数据响应关联
@@ -118,7 +122,19 @@ export default class extends Vue {
     return this.$refs.Tree as any
   }
 
+  private get currentNodeKey() {
+    return this.currentKey === this.rootKey ? null : this.currentKey
+  }
+
   private mounted() {
+    // this.$nextTick(() => {
+      
+    //   console.log('defaultKey==============', this.defaultKey)
+    //   this.currentKey = this.defaultKey
+    //   this.tree.setCurrentKey(this.currentKey)
+      
+    //   console.log('getCurrentKey==============', this.tree.getCurrentKey())
+    // })
     this.checkRootVisable()
   }
 
@@ -131,7 +147,7 @@ export default class extends Vue {
     this.hasRoot = rootChildren.reduce((pre, cur) => {
       return pre || cur.children.length !== 0
     }, false)
-    this.currentNodeKey = this.rootKey
+    this.currentKey = this.rootKey
   }
 
   /**
@@ -139,8 +155,8 @@ export default class extends Vue {
    */
   private initTree() {
     console.log('init')
-    this.currentNodeKey = this.rootKey
-    // const node = this.tree.getNode(this.currentNodeKey)
+    this.currentKey = this.rootKey
+    // const node = this.tree.getNode(this.currentKey)
     // const data = node && node.data
     // this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
@@ -168,6 +184,12 @@ export default class extends Vue {
     }
   }
 
+  private setCurrentKey(val) {
+    console.log('setCurrentKey', val)
+    this.currentKey = val
+    this.tree.setCurrentKey(this.currentNodeKey)
+  }
+
   private resolveChildren = function(node, data) {
     if (!node) return
     this.tree.updateKeyChildren(node.data.id, data)
@@ -178,8 +200,8 @@ export default class extends Vue {
   /**
    * node点击事件
    */
-  private handleNode(data: any, node: any) {
-    this.currentNodeKey = node ? node.key : null
+  private handleNode(data: any) {
+    this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('handle-node', data)
   }

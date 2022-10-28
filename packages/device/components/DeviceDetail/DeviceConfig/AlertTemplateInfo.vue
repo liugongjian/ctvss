@@ -1,28 +1,27 @@
 <template>
-  <div v-if="inProtocol === 'gb28181'" class="detail__section">
+  <div class="detail__section">
     <div class="detail__title">
       告警模板信息
       <div class="detail__buttons">
         <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="setAlertTemplate">配置</el-button>
       </div>
     </div>
-    <el-descriptions v-if="template.alertTemplate" :column="2">
+    <el-descriptions v-if="template" :column="2">
       <el-descriptions-item label="模板名称">
-        {{ template.alertTemplate.templateName }}
+        {{ template.templateName }}
       </el-descriptions-item>
       <el-descriptions-item label="模板概要">
-        {{ template.alertTemplate.recordNotifyUrl }}
+        {{ template.recordNotifyUrl }}
       </el-descriptions-item>
       <el-descriptions-item label="启动方式">
-        {{ template.alertTemplate.enableType === 1 ? '自动开启' : '手动开启' }}
+        {{ template.enableType === 1 ? '自动开启' : '手动开启' }}
       </el-descriptions-item>
     </el-descriptions>
-    <div v-else-if="!loading.alertTemplate" class="detail__empty-card">
+    <div v-else-if="!loading" class="detail__empty-card">
       暂未绑定告警模板
     </div>
     <set-alert-template
       v-if="setAlertTemplateDialog"
-      :in-protocol="inProtocol"
       :device-id="deviceId"
       :template-id="alertTemplateId"
       @on-close="closeAlertTemplateDialog"
@@ -31,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getAlertBind } from '@/api/template'
 import SetAlertTemplate from '@vss/device/components/TemplateDialog/SetAlertTemplate.vue'
 import { checkPermission } from '@/utils/permission'
@@ -43,27 +42,22 @@ import { checkPermission } from '@/utils/permission'
   }
 })
 export default class extends Vue {
-  private inProtocol = 'gb28181'
-
+  @Prop() private deviceId: string
   private checkPermission = checkPermission
-
-  private loading = {
-    alertTemplate: false
-  }
-
-  private template: any = {
-    alertTemplate: {}
-  }
-
+  private loading = false
+  private template: any = null
   private setAlertTemplateDialog = false
   private alertTemplateId = ''
 
-  private async mounted() {
-    this.getAlertTemplate()
-  }
-
   public get isVGroup() {
     return this.$route.query.inProtocol === 'vgroup'
+  }
+
+  /**
+   * 初始化
+   */
+  private async mounted() {
+    this.getAlertTemplate()
   }
 
   /**
@@ -71,23 +65,16 @@ export default class extends Vue {
    */
   private async getAlertTemplate() {
     try {
-      this.loading.alertTemplate = true
-      this.template.alertTemplate = null
-      // if (this.groupId) {
-      //   const res = await getAlertBind({ groupId: this.groupId })
-      //   this.template.alertTemplate.push(res)
-      // } else {
-      //   const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-      //   this.template.alertTemplate.push(res)
-      // }
-      const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-      this.template.alertTemplate = res
+      this.loading = true
+      this.template = null
+      const res = await getAlertBind({ deviceId: this.deviceId })
+      this.template = res
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.alertTemplate = false
+      this.loading = false
     }
   }
 
@@ -96,7 +83,7 @@ export default class extends Vue {
    */
   private setAlertTemplate() {
     this.setAlertTemplateDialog = true
-    this.alertTemplateId = this.template.alertTemplate ? this.template.alertTemplate.templateId : null
+    this.alertTemplateId = this.template ? this.template.templateId : null
   }
 
   /**

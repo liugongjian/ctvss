@@ -23,12 +23,10 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  // @Prop() private deviceId?: number
-  // @Prop() private inProtocol?: string
-  private inProtocol = 'gb28181'
   @Prop() private deviceName?: string
   @Prop() private streams?: Stream[]
   @Prop() private streamSize?: number
+  @Prop() private getDevicePreviewApi: Function
 
   public screenManager: ScreenManager = null
 
@@ -45,6 +43,10 @@ export default class extends Mixins(detailMixin) {
     screen.streamNum = 1
     screen.isLive = true
     screen.streams = this.screenManager.fillStreams(screen)
+    // IBox替换默认获取流地址接口
+    if (this.getDevicePreviewApi) {
+      screen.getDevicePreviewApi = this.getDevicePreviewApi
+    }
     screen.init()
   }
 }

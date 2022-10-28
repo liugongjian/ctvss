@@ -37,23 +37,18 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@vss/device/api/group'
-import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@vss/device/api/device'
-import { getCallBackTemplates } from '@vss/device/api/stream'
+import { getCallbackTemplates, setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@vss/device/api/template'
 import { formatSeconds } from '@vss/base/utils/interval'
 
 @Component({
   name: 'SetCallBackTemplate'
 })
 export default class extends Vue {
-  @Prop() private groupId?: string
   @Prop() private deviceId?: string
   @Prop() private templateId?: string
-  @Prop() private inProtocol?: string
   private dialogVisible = true
   private loading = false
-  private list = [
-  ]
+  private list = []
   private formatSeconds = formatSeconds
   private bindTemplateId = ''
 
@@ -62,20 +57,43 @@ export default class extends Vue {
     this.$emit('on-close')
   }
 
+  /**
+   * 初始化
+   */
+  private async mounted() {
+    this.bindTemplateId = this.templateId
+    this.getCallbackTemplates()
+  }
+
+  /**
+   * 获取回调模板列表
+   */
+  private async getCallbackTemplates() {
+    try {
+      this.loading = true
+      const res = await getCallbackTemplates({
+        pageNum: 1,
+        pageSize: 999
+      })
+      this.list = res.templates
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
+   * 绑定回调模板
+   */
   private async bind(row: any) {
     const params = {
-      groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
+      templateId: row.templateId
     }
     try {
       this.loading = true
-      if (this.groupId) {
-        await setGroupCallBackTemplate(params)
-      } else if (this.deviceId) {
-        await setDeviceCallbackTemplate(params)
-      }
+      await setDeviceCallbackTemplate(params)
       this.bindTemplateId = row.templateId
     } catch (e) {
       this.$message.error(e && e.message)
@@ -84,37 +102,18 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 解绑回调模板
+   */
   private async unbind(row: any) {
     const params = {
-      groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
+      templateId: row.templateId
     }
     try {
       this.loading = true
-      if (this.groupId) {
-        await unbindGroupCallBackTemplate(params)
-      } else if (this.deviceId) {
-        await unbindDeviceCallbackTemplate(params)
-      }
+      await unbindDeviceCallbackTemplate(params)
       this.bindTemplateId = ''
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading = false
-    }
-  }
-
-  private async mounted() {
-    this.bindTemplateId = this.templateId
-    try {
-      this.loading = true
-      const res = await getCallBackTemplates({
-        pageNum: 1,
-        pageSize: 999
-      })
-      this.list = res.templates
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

@@ -61,7 +61,7 @@ export const InVideoProtocolAllowParams = {
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Gb28181],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
     DeviceEnum.SipTransType,
@@ -81,7 +81,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.EhomeSipInfo,
@@ -95,7 +95,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
@@ -106,7 +106,7 @@ export const InVideoProtocolAllowParams = {
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.Resources,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
@@ -154,7 +154,7 @@ export const DeviceTypeDenyParamsForVideo = {
 export const DeviceTypeDenyParamsForIbox = new Set([
   DeviceEnum.DeviceInType,
   DeviceEnum.DeviceInTypeRadio,
-  DeviceEnum.Resources,
+  DeviceEnum.Resource,
   DeviceEnum.Viids
 ])
 
@@ -169,8 +169,9 @@ export const DeviceTypeDenyParamsForIbox = new Set([
  */
 export const InViidProtocolCreateParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
-    DeviceEnum.LowerApsId,
-    DeviceEnum.ProtocolDeviceType,
+    DeviceEnum.Viids,
+    DeviceEnum.OutId,
+    DeviceEnum.DeviceType,
     DeviceEnum.InUserName,
     DeviceEnum.Ip,
     DeviceEnum.Port
@@ -178,7 +179,7 @@ export const InViidProtocolCreateParams = {
 }
 
 /**
- * 根据视频接入协议需要显示的字段
+ * 根据视图接入协议需要显示的字段
  * 注意下面是显示的字段(ALLOW)
  */
 export const InViidProtocolAllowParams = {
@@ -200,13 +201,13 @@ export const InViidProtocolAllowParams = {
 export const DeviceTypeDenyParamsForViid = {
   [DeviceTypeEnum.Ipc]: new Set([
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.LowerApsId,
+    DeviceEnum.OutId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ]),
   [DeviceTypeEnum.Nvr]: new Set([
     DeviceEnum.DeviceInType,
-    DeviceEnum.LowerApsId,
+    DeviceEnum.OutId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ]),

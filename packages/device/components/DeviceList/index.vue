@@ -45,7 +45,7 @@
           >
             <el-button>导入</el-button>
           </el-upload>
-          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate)" @click="handleListTools($event)">下载模板</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate)" @click="handleListTools(toolsEnum.ExportTemplate)">下载模板</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.OperateDevices)" key="dropdown" placement="bottom" @command="handleListTools($event, selectedDeviceList)">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
@@ -281,7 +281,7 @@
       @on-close="closeDialog(toolsEnum.MoveDevice, $event)"
     />
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="closeDialog(toolsEnum.Import, $event)" />
-    <resource v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
+    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
   </div>
 </template>
 
@@ -300,19 +300,21 @@ import DeviceManager from '@vss/device/services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '@vss/device/components/MoveDir.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
-import Resource from '@vss/device/components/Resource.vue'
+import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
     MoveDir,
     UploadExcel,
-    Resource
+    ResourceEdit
   }
 })
 export default class extends Mixins(deviceMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+  @Inject('handleTreeNode')
+  private handleTreeNode!: Function
   @Prop({
     default: () => getDevices
   })
@@ -380,7 +382,7 @@ export default class extends Mixins(deviceMixin) {
   // 功能回调字典
   private handleListToolsMap = {
     [ToolsEnum.AddDevice]: () => DeviceManager.addDevice(this, this.currentDirId),
-    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
+    [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
     [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId),
     [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row),
     [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
@@ -411,7 +413,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   // 视图库/视频接入协议
-  private get inProtocol() {
+  public get inProtocol() {
     return (this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol) || (this.device.viids && this.device.viids.length && this.device.viids[0].inViidProtocol)
   }
 
@@ -467,8 +469,17 @@ export default class extends Mixins(deviceMixin) {
 
   @Watch('$route.query.dirId')
   private async dirIdChange() {
-    this.pager.pageNum = 1
-    this.initTable()
+    // 重置列表筛选条件
+    this.filterForm = {
+      [DeviceEnum.DeviceType]: undefined,
+      [DeviceEnum.VideoStatus]: undefined,
+      [DeviceEnum.StreamStatus]: undefined,
+      [DeviceEnum.RecordStatus]: undefined,
+      [DeviceEnum.ViidStatus]: undefined
+    }
+    // this.pager.pageNum = 1
+    // this.initTable()
+    // console.log('dirIdChange', '----------------')
   }
   
   private mounted() {
@@ -486,6 +497,7 @@ export default class extends Mixins(deviceMixin) {
   private async initList() {
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
       this.loading.info = true
+      this.loading.table = true
       await this.getDevice(this.currentDirId)
       this.loading.info = false
       console.log('deviceInfo', this.device)
@@ -497,7 +509,6 @@ export default class extends Mixins(deviceMixin) {
    * 设备table初始化
    */
   private async initTable() {
-    this.loading.table = true
     const params = {
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
@@ -513,7 +524,6 @@ export default class extends Mixins(deviceMixin) {
       params[DeviceEnum.ParentDeviceId] = this.currentDirId
     }
     const res: any = await this.getDevicesApi(params)
-    console.log(params)
     this.deviceList = res.devices
     this.pager.totalNum = +res.totalNum
     this.loading.table = false
@@ -556,7 +566,7 @@ export default class extends Mixins(deviceMixin) {
   private checkInfoVisible(prop) {
     // return checkVideoVisible.call(this.basicInfo, DeviceTypeEnum.Nvr, 'ehome', false, prop)
     // return checkViidVisible.call(this.basicInfo, DeviceTypeEnum.Platform, 'ga1400', prop)
-    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, false, prop)
+    return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, prop)
   }
 
   /**
@@ -586,25 +596,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private rowClick(row: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      console.log(row)
-      if ([DeviceTypeEnum.Ipc].includes(row[DeviceEnum.DeviceType])) {
-        this.$router.push({
-          name: 'DeviceInfo',
-          query: {
-            ...this.$route.query,
-            [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
-          }
-        })
-      } else if ([DeviceTypeEnum.Platform, DeviceTypeEnum.Nvr].includes(row[DeviceEnum.DeviceType])) {
-        this.$router.push({
-          query: {
-            ...this.$route.query,
-            [DeviceEnum.DirId]: row[DeviceEnum.DeviceId],
-            type: row[DeviceEnum.DeviceType]
-          }
-        })
-        this.handleTools(ToolsEnum.RefreshDeviceList)
-      }
+      this.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
     }
   }
 

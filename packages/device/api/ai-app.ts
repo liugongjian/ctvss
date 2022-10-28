@@ -1,11 +1,10 @@
 import request from '@/utils/request'
 import { UserModule } from '@/store/modules/user'
 
-export const getAbilityList = (params: any): Promise<any> =>
+export const getAbilityList = (): Promise<any> =>
   request({
     url: '/ai/aiAbility/describelist',
-    method: 'get',
-    params
+    method: 'get'
   })
 
 export const getAppList = (params: any): Promise<any> =>
@@ -14,8 +13,7 @@ export const getAppList = (params: any): Promise<any> =>
     method: 'get',
     params
   })
-
-export const getAlgorithmList = (params: any): Promise<any> =>
+  export const getAlgorithmList = (params: any): Promise<any> =>
   request({
     url: '/ai/algorithms/describelist',
     method: 'get',

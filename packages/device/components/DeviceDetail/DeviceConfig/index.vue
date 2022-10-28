@@ -1,9 +1,9 @@
 <template>
   <div class="config-container">
-    <resource-template-info v-if="!isIbox" />
-    <record-template-info v-if="!isIbox" />
-    <callback-template-info />
-    <alert-template-info v-if="!isIbox" />
+    <resource-template-info v-if="!isIbox" :device-id="deviceId" />
+    <record-template-info v-if="!isIbox" :device-id="deviceId" />
+    <callback-template-info :device-id="deviceId" />
+    <alert-template-info v-if="!isIbox && inProtocol === InVideoProtocolEnum.Gb28181" :device-id="deviceId" />
   </div>
 </template>
 
@@ -14,6 +14,7 @@ import RecordTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig
 import CallbackTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/CallbackTemplateInfo.vue' 
 import AlertTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/AlertTemplateInfo.vue'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { InVideoProtocolEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceConfig',
@@ -25,6 +26,7 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  private InVideoProtocolEnum = InVideoProtocolEnum
 }
 </script>
 <style lang="scss" scoped>
