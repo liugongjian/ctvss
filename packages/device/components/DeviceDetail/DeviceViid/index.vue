@@ -263,7 +263,7 @@ export default class extends Vue {
       type: this.queryParam.viewType,
       ...this.pager
     })
-      this.picInfos = res.map(x => ({
+      this.picInfos = res.list.map(x => ({
         ...x,
         recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
       }))
@@ -330,7 +330,7 @@ export default class extends Vue {
         type: pic.type,
         id: pic.id
       })
-      this.detailPic = res.data
+      this.detailPic = res
       this.$nextTick(() => {
       // TODO   这里得问下雪萍两个图片得关联ID如何做
         this.detailPic.subImageList.length > 0 && this.detailPic.subImageList.forEach((item, index) => {
