@@ -61,7 +61,7 @@ export default class extends Mixins(detailMixin) {
   }
 
   private async initDeviceApp() {
-    const { aiApps } = await getAppList({ deviceId: this.deviceId })
+    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId || this.deviceId, pageSize: 1000 })
     if (aiApps.length > 0) {
       this.appInfo = aiApps[0]
       this.apps = aiApps

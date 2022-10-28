@@ -76,6 +76,7 @@ export default class AiAppList extends Vue {
     app: false,
     algo: false
   }
+
   private configAlgoInfo = {}
   private pager = {
     pageSize: 20,
@@ -203,6 +204,7 @@ export default class AiAppList extends Vue {
     const appIds = apps.map((app) => +app.appId)
     try {
       await bindIboxApps({ appIds, iboxId, deviceId })
+      this.getAppList()
       this.$message.success('绑定成功')
     } catch (e) {
       this.$message.error(e)
