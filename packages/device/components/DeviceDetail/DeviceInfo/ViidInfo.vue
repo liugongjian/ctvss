@@ -21,7 +21,7 @@
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
       <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码">{{ viidInfo.lowerApsId || '-' }}</el-descriptions-item>
+      <!-- <el-descriptions-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码">{{ viidInfo.lowerApsId || '-' }}</el-descriptions-item> -->
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="接入类型">{{ dicts.ViidDeviceType[viidInfo.deviceType] }}</el-descriptions-item>
       <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>

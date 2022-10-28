@@ -200,7 +200,7 @@
       </div>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
-      <resource v-model="videoForm.resource" />
+      <resource ref="resource" v-model="videoForm.resource" :device-id="deviceId" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -291,9 +291,9 @@ export default class extends Vue {
       { required: true, message: '请输入设备端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
     ],
-    // [DeviceEnum.Resources]: [
-    //   { required: true, validator: this.validateResources, trigger: 'blur' }
-    // ],
+    [DeviceEnum.Resource]: [
+      { required: true, validator: this.validateResource, trigger: 'change' }
+    ],
     [DeviceEnum.OutId]: [
       { validator: this.validateGbId, trigger: 'blur' }
     ]
@@ -302,6 +302,11 @@ export default class extends Vue {
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
     return (this.device && this.device.device) || {} as DeviceBasic
+  }
+
+  // 设备ID
+  private get deviceId() {
+    return this.basicInfo && this.basicInfo.deviceId
   }
 
   // 视频接入协议
@@ -445,40 +450,11 @@ export default class extends Vue {
   /**
    * 校验资源包
    */
-  public validateResources(rule: any, value: string, callback: Function) {
-    let hasVideo = false
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const remainError: any = []
-    this.videoForm.resource.forEach((resource: any) => {
-      // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
-      const devicesCount = this.deviceForm.deviceType === DeviceTypeEnum.Ipc ? 1 : this.deviceForm.deviceChannelSize
-      // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
-      switch (resource.resourceType) {
-        case 'VSS_VIDEO':
-          hasVideo = true
-          if (isChanged && devicesCount > remainDeviceCount) {
-            remainError.push('视频包')
-          }
-          break
-        case 'VSS_AI':
-          if (isChanged && devicesCount > remainDeviceCount) {
-            remainError.push('AI包')
-          }
-          break
-        case 'VSS_UPLOAD_BW':
-          break
-      }
-    })
-    if (remainError.length) {
-      callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('资源包必须配置视频包与上行带宽包'))
-    } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
-      callback(new Error('必须配置视频包'))
-    // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('必须配置上行带宽包'))
+  public validateResource(rule: any, value: string, callback: Function) {
+    const resource = this.$refs.resource as Resource
+    const res = resource.validate(this.videoForm.deviceChannelSize)
+    if (!res.result) {
+      callback(new Error(res.message))
     } else {
       callback()
     }

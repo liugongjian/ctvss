@@ -1,6 +1,6 @@
 <template>
   <el-checkbox-group v-model="checkboxList">
-    <el-tabs v-model="currentAbilityId" type="card" @tab-click="changeAbility">
+    <el-tabs v-loading="loading" class="resource-app-list" v-model="currentAbilityId" type="card" @tab-click="changeAbility">
       <el-tab-pane v-for="ability in abilityList" :key="ability.id" :label="`${ability.name}(${ability.aiApps})`" :name="ability.id">
         <el-table
           v-loading="loading"
@@ -29,7 +29,7 @@
 <script lang='ts'>
 import { Component, Prop, Watch, VModel, Vue } from 'vue-property-decorator'
 import { AIApp } from '@vss/device/type/Resource'
-import { ResourceAiType } from '@vss/device/dicts'
+import { ResourceAiType } from '@vss/device/dicts/resource'
 import { getAbilityList, getAppList } from '@vss/device/api/ai-app'
 
 @Component({
@@ -83,6 +83,7 @@ export default class extends Vue {
    */
   private async getAbilityList() {
     try {
+      this.loading = true
       const { aiAbilityList } = await getAbilityList()
       if (aiAbilityList.length) {
         this.abilityList = aiAbilityList
@@ -90,6 +91,8 @@ export default class extends Vue {
       }
     } catch(e) {
       this.$alertError(e.message)
+    } finally {
+      this.loading = false
     }
   }
 
@@ -135,3 +138,8 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .resource-app-list {
+    min-height: 30px;
+  }
+</style>
