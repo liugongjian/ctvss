@@ -58,7 +58,7 @@ export default class DeviceMixin extends Vue {
         deviceId,
         isForce,
         fetch: this.getDeviceApi
-      })
+      }) || {}
     } catch (e) {
       this.$alertError(e)
     } finally {

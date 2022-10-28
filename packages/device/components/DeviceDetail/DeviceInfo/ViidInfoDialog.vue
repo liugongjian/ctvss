@@ -21,7 +21,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
+import { InViidProtocolModelMapping } from '@vss/device/dicts/index'
+import { InViidProtocolAllowParams } from '@vss/device/settings'
 import { DeviceEnum } from '@vss/device/enums'
+import { DeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
+import { createDevice } from '@vss/device/api/device'
+import { pick } from 'lodash'
 import ViidCreateForm from '../../Form/ViidCreateForm.vue'
 
 @Component({
@@ -41,11 +46,32 @@ export default class extends Vue {
     return this.device[DeviceEnum.Device]
   }
 
-  private submit() {
+  private async submit() {
     const form = this.$refs.form as ViidCreateForm
     if (form.validateViidForm()) {
-      console.log(form.viidForm)
-      this.closeDialog(true)
+      const params: DeviceForm = {
+        device: {
+          deviceId: this.basicInfo.deviceId
+        }
+      }
+      // 补充视图接入信息
+      const viidDevice: ViidDeviceForm = {
+        ...pick(form.viidForm, [
+          DeviceEnum.InViidProtocol
+        ])
+      }
+      // 补充协议信息
+      viidDevice[InViidProtocolModelMapping[form.viidForm.inViidProtocol]] = {
+        ...pick(form.viidForm, [...InViidProtocolAllowParams[form.viidForm.inViidProtocol]])
+      }
+      params.viids = [ viidDevice ]
+      try {
+        // 提交创建表单
+        await createDevice(params)
+        this.closeDialog(true)
+      } catch (e) {
+        this.$alertError(e.message)
+      }
     }
   }
 

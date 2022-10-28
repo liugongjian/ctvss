@@ -113,7 +113,7 @@ export const deviceMock = {
         Ip: '1.1.1.1',
         Port: '1322',
         LowerApsId: '123',
-        ProtocolDeviceType: 'aps',
+        DeviceType: 'aps',
         DeviceStatus: {
           IsOnline: 'on'
         }

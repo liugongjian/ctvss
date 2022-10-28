@@ -170,7 +170,7 @@ export default class extends Vue {
   private closeDialog(type: string, isRefresh: boolean) {
     this.dialog[type] = false
     if (type && isRefresh === true) {
-      this.$emit('update')
+      this.$emit('updateDevice')
     }
   }
 }

@@ -31,8 +31,9 @@ import { Component, Prop, Watch, VModel, Vue } from 'vue-property-decorator'
 import { AIApp } from '@vss/device/type/Resource'
 import { ResourceAiType } from '@vss/device/dicts'
 import { getAbilityList, getAppList } from '@vss/device/api/ai-app'
+
 @Component({
-  name: 'ResourceAiApps'
+  name: 'ResourceApps'
 })
 export default class extends Vue {
   // 所选AI应用
@@ -115,7 +116,7 @@ export default class extends Vue {
   }
 
   /**
-   * 根据App Id列表生成{aIAppId, aiType}
+   * 根据App Id列表生成{aIAppId, aIType}
    */
   private generateSelectedAppCollection() {
     const allAppList: any = Object.values(this.appCollection).reduce((all: any[], appList: any[]) => {

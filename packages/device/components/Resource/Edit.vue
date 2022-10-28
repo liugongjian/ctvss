@@ -64,12 +64,7 @@ export default class extends Vue {
       const params = {
         deviceId: this.deviceId,
         resourceIds: this.resource.resourceIds,
-        aiApps: this.resource.aIApps.map(app => {
-          return {
-            aiAppId: app.aIAppId,
-            aiType: app.aIType
-          }
-        })
+        aIApps: this.resource.aIApps
       }
       await updateDeviceResource(params)
       this.closeDialog(true)

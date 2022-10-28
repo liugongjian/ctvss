@@ -117,7 +117,7 @@ import { ResourceAiType } from '@vss/device/dicts'
 import { getResources, getDeviceResource } from '@vss/device/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { ResourceTypeEnum } from '@vss/device/enums/resource'
-import AiApps from './AiApps.vue'
+import AiApps from './Apps.vue'
 
 @Component({
   name: 'Resource',
@@ -240,13 +240,13 @@ export default class extends Vue {
       res.resources && res.resources.forEach(resource => {
         this.form.resource[resource.resourceType] = resource.resourceId
       })
-      const aIAppInfos = res.aIAppInfos.map(app => {
+      const aIApps = res.aIApps.map(app => {
         return {
-          aIAppId: app.appId
+          aIAppId: app.aIAppId,
+          aIType: app.aIType
         }
       })
-      // 数据结构为aIAppsCollection.AI资源包ID = 所选的AI应用列表
-      this.$set(this.form.aIAppsCollection, this.form.resource[ResourceTypeEnum.AI], aIAppInfos)
+      this.$set(this.form.aIAppsCollection, this.form.resource[ResourceTypeEnum.AI], aIApps)
     } catch(e) {
       this.$message.error(e.message)
     } finally {

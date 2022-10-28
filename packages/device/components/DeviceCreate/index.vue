@@ -497,6 +497,8 @@ export default class extends Mixins(deviceFormMixin) {
         videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
           ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm.inVideoProtocol]])
         }
+        // 删除视频中的Resource
+        delete videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]].resource
         params.videos = [ videoDevice ]
       }
       // 补充视图接入信息
@@ -517,7 +519,7 @@ export default class extends Mixins(deviceFormMixin) {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
-        this.handleTools([ToolsEnum.GoToDeviceList])
+        this.handleTools([ToolsEnum.GoBack], 0)
       } catch (e) {
         this.$alertError(e.message)
       }
@@ -525,7 +527,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoToDeviceList])
+    this.handleTools([ToolsEnum.GoBack], 0)
   }
 }
 </script>
