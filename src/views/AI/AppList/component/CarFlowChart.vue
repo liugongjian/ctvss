@@ -33,6 +33,7 @@ export default class extends Mixins(DashboardMixin) {
   private queryLoading: any = {
     chart: false
   }
+
   private chartInfo: any = { vehiclesThreshold: '', timeSlide: '' }
   private debounceHandle = debounce(this.getData, 500)
   private chart: any = null
@@ -45,6 +46,7 @@ export default class extends Mixins(DashboardMixin) {
   private async paramUpdated() {
     this.conditionalDebounce()
   }
+
   @Watch('appInfo', { deep: true, immediate: true })
   private appInfoUpdated() {
     this.conditionalDebounce()
@@ -70,11 +72,12 @@ export default class extends Mixins(DashboardMixin) {
   private async getData() {
     try {
       const [startTime, endTime] = this.param.period
+      const { deviceId } = this.device
       const query = {
         appId: this.appInfo.id,
         startTime: Math.floor(startTime / 1000),
         endTime: Math.floor(endTime / 1000),
-        deviceId: this.device.deviceId
+        deviceId: deviceId === 'all' ? undefined : deviceId
       }
       this.queryLoading.chart = true
       const res = await getVehiclesAlarmStatic(query)
@@ -115,6 +118,7 @@ export default class extends Mixins(DashboardMixin) {
     this.unvisibleChartData = normalEqualAlarm
     this.chartData = [...alarms, ...alarmsLessOrigin, ...normals]
   }
+
   /**
    * 更新图表
    */
@@ -248,6 +252,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.interaction('active-region')
     this.chart.interaction('view-zoom-x')
   }
+
   /**
    * 更新图表,由于changeData不能改变原有图表的度量值，会出现有数据但无图的情况，因此，每次更新图表都需要重绘
    */

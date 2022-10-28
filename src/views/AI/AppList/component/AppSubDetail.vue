@@ -253,6 +253,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
+
   private currentLocationIndex: number = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
@@ -262,11 +263,13 @@ export default class extends Vue {
     pageSize: 12,
     totalNum: 0
   }
+
   private chartPager = {
     pageNum: 1,
     pageSize: 5,
     totalNum: 300
   }
+
   private breadCrumbContent: String = '应用详情'
   private queryParam: any = {
     periodType: '今天',
@@ -278,6 +281,7 @@ export default class extends Vue {
     faceSelected: [],
     resultTimeInterval: 1
   }
+
   private faceInfos: any = []
   private picInfos: any = []
   private alarms: any = []
@@ -331,6 +335,7 @@ export default class extends Vue {
   private deviceIdUpdate() {
     this.debounceHandle()
   }
+
   @Watch('appInfo', { deep: true })
   private appInfoUpdate() {
     this.device.deviceId.length > 0 && this.debounceHandle()
@@ -339,6 +344,7 @@ export default class extends Vue {
   private get isFaceAlgoCode() {
     return this.appInfo.algorithm.code === '10001'
   }
+
   private get isGatheringCode() {
     return this.appInfo.algorithm.code === '10005'
   }
@@ -346,6 +352,7 @@ export default class extends Vue {
   private get isCarFlowCode() {
     return this.appInfo.algorithm.code === '10019'
   }
+
   private async mounted() {
     // this.initFaceInfos()
     if (this.device.deviceId.length > 0) {
@@ -358,9 +365,9 @@ export default class extends Vue {
    * 得到N天前的时间戳
    */
   private getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 
@@ -381,8 +388,8 @@ export default class extends Vue {
       faceDb: this.faceLib.id,
       faceIdList: this.queryParam.faceSelected,
       resultTimeInterval: this.queryParam.resultTimeInterval,
-      appId: this.appInfo.id,
-      deviceId,
+      appId: this.appInfo.id || this.appInfo.appId,
+      deviceId: deviceId === 'all' ? undefined : deviceId,
       inProtocol,
       pageNum,
       pageSize
@@ -403,11 +410,12 @@ export default class extends Vue {
   private async getAlarmsList() {
     this.alarms = []
     const [startTime, endTime] = this.queryParam.period
+    const { deviceId } = this.device
     const query = {
-      appId: this.appInfo.id,
+      appId: this.appInfo.id || this.appInfo.appId,
       startTime: Math.floor(startTime / 1000),
       endTime: Math.floor(endTime / 1000),
-      deviceId: this.device.deviceId
+      deviceId: deviceId === 'all' ? undefined : deviceId
     }
     const res = await getVehiclesAlarmStatic(query)
     this.alarms = res.vehiclesAlarmList
@@ -429,6 +437,7 @@ export default class extends Vue {
       }
     }
   }
+
   /**
    * 拦截所有操作，并防抖发起查询请求
    */
@@ -441,6 +450,7 @@ export default class extends Vue {
       this.$message.error('请先选择设备')
     }
   }
+
   /**
    * 分页操作
    */
@@ -448,6 +458,7 @@ export default class extends Vue {
     this.pager.pageSize = val
     this.getScreenShot()
   }
+
   /**
    * 分页操作
    */
@@ -466,10 +477,12 @@ export default class extends Vue {
   private dialogueOprate() {
     this.visibile = !this.visibile
   }
+
   private showDialogue(val) {
     this.visibile = true
     this.dialoguePic = val
   }
+
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
     const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
@@ -479,9 +492,11 @@ export default class extends Vue {
       locations: transformLocationAi(locations, img)
     }
   }
+
   private onLocationChanged(index: number) {
     this.currentLocationIndex = index
   }
+
   private async refresh() {
     this.debounceHandle()
   }

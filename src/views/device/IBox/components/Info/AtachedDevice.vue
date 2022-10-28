@@ -62,12 +62,25 @@
       <el-table-column label="AI启用状态">
         <template slot-scope="scope">
           <status-badge
-            :status="scope.row.deviceStatus === 'on' ? 'on' : 'failed'"
+            :status="parseInt(scope.row.status) ? 'failed' : 'om'"
           />
           <span>{{ parseInt(scope.row.status) ? '启用' : '停用' }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="count" label="告警次数" />
+      <el-table-column label="操作" prop="action" class-name="col-action">
+        <template slot-scope="scope">
+          <el-button type="text" @click="rowClick(scope.row)">
+            设备详情
+          </el-button>
+          <el-button type="text" @click.stop="startOrStop(scope.row)">
+            {{ parseInt(scope.row.status) ? '停用' : '启用' }}
+          </el-button>
+          <el-button type="text" :disabled="scope.row.status === '1' ? true : false" @click.stop="detach(scope.row)">
+            解绑
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <!-- <el-pagination
       :current-page="pager.pageNum"
@@ -84,8 +97,8 @@
 import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getAiAlarm } from '@/api/ai-app'
+import { unBindIboxApps, startIboxApps, stopIboxApps } from '@/api/ibox'
 import AppMixin from '@/views/AI/mixin/app-mixin'
-import { IBoxModule } from '@/store/modules/ibox'
 
 @Component({
   name: 'AtachedDevice',
@@ -95,11 +108,13 @@ export default class extends Mixins(AppMixin) {
   @Prop({}) public appInfo!: any
   @Prop({ default: [] }) private devices!: any
   @Inject('getDirPath') public getDirPath!: any
+  @Inject('handleNodeClick') public handleNodeClick!: any
   private pager = {
     pageNum: 1,
     pageSize: 10,
     totalNum: 0
   }
+
   private loading = false
 
   private totalAlarm = 0
@@ -141,9 +156,6 @@ export default class extends Mixins(AppMixin) {
   }
 
   private rowClick(row: any) {
-    // IBoxModule.SetBreadcrumb([
-    //   { deviceId: row.deviceId, label: '设备1', type: undefined }
-    // ])
     this.$router.push({
       name: 'IBoxDeviceDetail',
       query: {
@@ -152,8 +164,7 @@ export default class extends Mixins(AppMixin) {
         type: 'ipc'
       }
     })
-
-    // this.handleNodeClick({ device: row.deviceId })
+    this.handleNodeClick({ deviceId: row.deviceId })
   }
 
   private async handleSizeChange(val: number) {
@@ -204,6 +215,76 @@ export default class extends Mixins(AppMixin) {
       })
       this.totalAlarm = count
     }
+  }
+
+  /**
+   * 启停用应用
+   */
+  public startOrStop(device) {
+    const method = parseInt(device.status) ? '停用' : '启用'
+    const m = parseInt(device.status) ? stopIboxApps : startIboxApps
+    const h: Function = this.$createElement
+    this.$alertHandle({
+      handleName: method,
+      type: '应用',
+      msg: h('div', undefined, [
+        h(
+          'span',
+          undefined,
+          `确定要${method}选中的设备吗？`
+        ),
+        h(
+          'div',
+          { class: 'batch-list' },
+          [h('p', undefined, [
+            h('span', undefined, device.deviceName)
+          ])]
+        )
+      ]),
+      method: m,
+      payload: {
+        iboxId: this.$route.query.deviceId,
+        deviceId: device.deviceId,
+        appIds: [this.appInfo.appId]
+      },
+      onSuccess: async() => {
+        this.$message.success(`已通知${method}AI应用`)
+        this.$emit('refresh')
+      }
+    })
+  }
+
+  /**
+   * 解绑应用
+   */
+  public detach(device) {
+    const h: Function = this.$createElement
+    console.log(device)
+    this.$alertHandle({
+      handleName: '解绑',
+      type: '应用',
+      msg: h('div', undefined, [
+        h(
+          'span',
+          undefined,
+          '确定要在该设备上解绑当前AI应用吗？'
+        )
+        // h(
+        //   'div',
+        //   { class: 'batch-list' },
+        //   [h('p', undefined, [h('span', undefined, device.name)])]
+        // )
+      ]),
+      method: unBindIboxApps,
+      payload: {
+        iboxId: this.$route.query.deviceId,
+        deviceId: device.deviceId,
+        appIds: [this.appInfo.appId]
+      },
+      onSuccess: () => {
+        this.$emit('refresh')
+      }
+    })
   }
 }
 </script>
