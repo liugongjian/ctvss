@@ -3,7 +3,7 @@ import { getGb28181CertificateList } from '../api/certificate'
 import { exportDeviceAll, exportDeviceOption, getDevice } from '../api/device'
 // import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import { getResources } from '../api/billing'
-import { ResourceAiType } from '../dicts/index'
+import { ResourceAiType } from '../dicts/resource'
 import { downloadFileUrl } from '@vss/base/utils/excel'
 // import ExcelJS from 'exceljs'
 
