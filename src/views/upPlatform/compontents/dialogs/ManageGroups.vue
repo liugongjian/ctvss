@@ -122,7 +122,7 @@
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 // import { getDeviceTree } from '@/api/device'
-import { getNodeInfo } from '@vss/device/api/device'
+import { getNodeInfo } from '@vss/device/api/dir'
 // import { getGroups } from '@/api/group'
 import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice, validateShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'

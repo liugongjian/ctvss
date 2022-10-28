@@ -430,14 +430,17 @@ const startOrStopRecord = async function (state, type, row) {
 }
 
 /**
- * 打开目录对话框
+ * 打开设备列表对话框
+ * @param getVueComponent 获取Vue实例函数
  * @param state.dialog 弹窗状态
  * @param state.currentDevice 当前设备
  * @param state.isBatchMoveDir 是否为批量操作
  * @param type 触发打开窗口的事件类型
- * @param payload 操作目录信息
+ * @param row 设备信息
  */
-const openListDialog = function (state, type: string, row?: any) {
+const openListDialog = function (getVueComponent, type: string, row?: any) {
+  const state = getVueComponent()
+  console.log(row, 22222222, state)
   switch (type) {
     case ToolsEnum.MoveDevice:
       state.currentDevice = row
@@ -468,6 +471,7 @@ const closeListDialog = function (state, type: string, isfresh: any) {
   }
   if (isfresh === true) {
     state.handleTools(ToolsEnum.RefreshDirectory)
+    state.handleTools(ToolsEnum.RefreshDeviceList)
   }
 }
 

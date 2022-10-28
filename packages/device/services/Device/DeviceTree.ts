@@ -1,7 +1,8 @@
 import { ToolsEnum } from '../../enums/index'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { deleteDir as deleteDirApi } from '../../api/dir'
-import { exportSearchResult as exportSearchResultApi, getDeviceTree } from '../../api/device'
+import { deleteDir as deleteDirApi, sortDir } from '../../api/dir'
+import { exportSearchResult as exportSearchResultApi } from '../../api/device'
+import { getDeviceTree } from '../../api/dir'
 import { downloadFileUrl } from '@vss/base/utils/excel'
 
 /**
@@ -200,21 +201,23 @@ const closeDirectoryDialog = function (
     currentDir?: any
     sortDir?: any
     deviceTree?: any
-    loadDirChildren?: any
+    loadDirChildren?: any,
+    handleTreeNode: any
   } = getVueComponent()
   // @ts-ignore
   state.dialog[type] = false
   switch (type) {
     case ToolsEnum.SortDirectory:
       if (isRefresh === true) {
-        if (state.sortDir.id === '0') {
-          (state.deviceTree as any).initCommonTree()
+        const key = state.sortDir.id
+        if (key === '') {
+          state.deviceTree.initCommonTree()
         } else {
-          state.loadDirChildren(state.sortDir.id, this.sortNode)
+          state.deviceTree.loadChildren(key)
         }
-        // ;(state.sortDir.id === this.$route.query.dirId || state.sortDir.id === this.$route.query.deviceId) &&
-        //   DeviceModule.SetIsSorted(true)
       }
+      state.handleTreeNode({ id: state.sortDir.id, type: state.sortDir.type })
+      state.sortDir = null
       break
     case ToolsEnum.AddDirectory:
     case ToolsEnum.EditDirectory:
