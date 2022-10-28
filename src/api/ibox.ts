@@ -126,15 +126,15 @@ export const startDevice = (data: any) =>
   request({
     url: '/ibox/startdevice',
     method: 'post',
-    data
+    data: toUpperCase(data)
   })
 
 // 停止设备拉流
 export const stopDevice = (data: any) =>
   request({
-    url: '/ibox/startdevice',
+    url: '/ibox/stopdevice',
     method: 'post',
-    data
+    data: toUpperCase(data)
   })
 
 // 解绑应用
