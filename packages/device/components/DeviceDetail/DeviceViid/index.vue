@@ -263,7 +263,7 @@ export default class extends Vue {
       type: this.queryParam.viewType,
       ...this.pager
     })
-      this.picInfos = res.data.map(x => ({
+      this.picInfos = res.map(x => ({
         ...x,
         recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
       }))
