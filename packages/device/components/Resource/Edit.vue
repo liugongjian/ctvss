@@ -16,11 +16,12 @@
         <resource
           v-model="resource"
           :device-id="deviceId"
+          @loaded="loading = false"
         />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
+      <el-button type="primary" :loading="loading || submitting" @click="submit">确 定</el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
     </div>
   </el-dialog>
@@ -45,6 +46,7 @@ export default class extends Vue {
   public resource: ResourceType = null
   private dialogVisible = true
   private submitting = false
+  private loading = true
 
   private get deviceId() {
     return this.device && this.device.device.deviceId
@@ -64,12 +66,7 @@ export default class extends Vue {
       const params = {
         deviceId: this.deviceId,
         resourceIds: this.resource.resourceIds,
-        aiApps: this.resource.aIApps.map(app => {
-          return {
-            aiAppId: app.aIAppId,
-            aiType: app.aIType
-          }
-        })
+        aIApps: this.resource.aIApps
       }
       await updateDeviceResource(params)
       this.closeDialog(true)

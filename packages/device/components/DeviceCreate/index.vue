@@ -497,6 +497,8 @@ export default class extends Mixins(deviceFormMixin) {
         videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
           ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm.inVideoProtocol]])
         }
+        // 删除视频中的Resource
+        delete videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]].resource
         params.videos = [ videoDevice ]
       }
       // 补充视图接入信息

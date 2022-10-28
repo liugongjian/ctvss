@@ -2,9 +2,8 @@
  * 资源包
  */
 type Resource = {
-  resourceIds: number[],
-  aIApps?: AIApp[],
-  aiApps?: AIApp[]
+  resourceIds: number[]
+  aIApps: AIApp[]
 }
 
 /**

@@ -21,7 +21,7 @@
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
       <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码">{{ viidInfo.lowerApsId || '-' }}</el-descriptions-item>
+      <!-- <el-descriptions-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码">{{ viidInfo.lowerApsId || '-' }}</el-descriptions-item> -->
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="接入类型">{{ dicts.ViidDeviceType[viidInfo.deviceType] }}</el-descriptions-item>
       <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
@@ -30,8 +30,8 @@
 
     <!-- 视图库信息 -->
     <el-descriptions title="视图库信息" :column="2">
-      <el-descriptions-item label="视图库IP">{{ viidInfo.viidServerIp }}</el-descriptions-item>
-      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidServerPort }}</el-descriptions-item>
+      <el-descriptions-item label="视图库IP">{{ viidInfo.viidIp }}</el-descriptions-item>
+      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidPort }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -61,8 +61,7 @@ export default class extends Vue {
 
   // 视图库接入协议
   private get inViidProtocol() {
-    // return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
-    return InViidProtocolEnum.Ga1400
+    return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
   }
 
   // 视图库接入信息

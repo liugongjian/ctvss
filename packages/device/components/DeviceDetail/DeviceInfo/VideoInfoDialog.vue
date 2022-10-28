@@ -23,7 +23,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts/index'
 import { InVideoProtocolAllowParams } from '@vss/device/settings'
-import { DeviceEnum, ToolsEnum } from '@vss/device/enums'
+import { DeviceEnum } from '@vss/device/enums'
 import { DeviceForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { createDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
@@ -58,16 +58,19 @@ export default class extends Vue {
           DeviceEnum.InVideoProtocol
         ])
       }
-      // 补充协议信息
+      const params: DeviceForm = {
+        [DeviceEnum.Device]: {
+          deviceId: this.device.device.deviceId
+        },
+        [DeviceEnum.Resource]: videoForm.resource,
+      }
+      // 补充视频协议信息
       videoDevice[InVideoProtocolModelMapping[videoForm.inVideoProtocol]] = {
         ...pick(videoForm, [...InVideoProtocolAllowParams[videoForm.inVideoProtocol]])
       }
-      const params: DeviceForm = {
-        device: {
-          deviceId: this.device.device.deviceId
-        },
-        videos: [ videoDevice ]
-      }
+      // 删除视频中的Resource
+      delete videoDevice[InVideoProtocolModelMapping[videoForm.inVideoProtocol]].resource
+      params[DeviceEnum.Videos] = [ videoDevice ]
       try {
         // 提交创建表单
         await this.createDeviceApi(params)

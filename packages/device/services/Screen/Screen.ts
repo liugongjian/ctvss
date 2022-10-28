@@ -42,6 +42,8 @@ export class Screen {
    * 实时预览相关属性
    * ----------------
    */
+  /* 视频地址获取接口 */
+  public getDevicePreviewApi: Function
   /* 直播视频地址 */
   public url?: string
   /* 是否开启RTC切换 */
@@ -106,6 +108,7 @@ export class Screen {
     this.isFullscreen = false
     this.axiosSource = null
     this.errorMsg = ''
+    this.getDevicePreviewApi = getDevicePreview
     this.streams = []
     this.streamSize = null
     this.streamNum = null
@@ -255,7 +258,7 @@ export class Screen {
       this.axiosSource = axios.CancelToken.source()
       this.url = ''
       this.log.previewStartTimestamp = new Date().getTime()
-      const res: any = await getDevicePreview(
+      const res: any = await this.getDevicePreviewApi(
         {
           deviceId: this.deviceId,
           inProtocol: this.inProtocol,
