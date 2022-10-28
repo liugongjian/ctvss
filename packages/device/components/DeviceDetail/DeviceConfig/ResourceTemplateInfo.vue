@@ -203,7 +203,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import { ResourceAiType } from '@vss/device/dicts/index'
+import { ResourceAiType } from '@vss/device/dicts/resource'
 import {
   getDevice,
   unBindAppResource,
