@@ -79,6 +79,7 @@
           v-if="form.resource[ResourceTypeEnum.AI]"
           v-model="form.aIAppsCollection"
           :resource-id="form.resource[ResourceTypeEnum.AI]"
+          :resource-ai-type="currentResourceAIType"
         />
         <el-alert class="resource-apps__stat" :title="appStat" type="info" show-icon :closable="false"></el-alert>
       </div>
@@ -185,7 +186,7 @@ export default class extends Vue {
    * 计算选择的AI应用数量和原始数量的差值
    */
   public get appStat() {
-    const appSize = this.resource.aIApps.length
+    const appSize = this.resource && this.resource.aIApps ? this.resource.aIApps.length : 0
     const messages = []
     messages.push(`已选择${appSize}种AI应用`)
     if (this.isEdit) {
@@ -197,6 +198,14 @@ export default class extends Vue {
       }
     }
     return messages.join(', ')
+  }
+
+  /**
+   * 当前AI资源包的算力
+   */
+  public get currentResourceAIType() {
+    const aIResource = this.resourceList[ResourceTypeEnum.AI].find(resource => resource.resourceId === this.form.resource[ResourceTypeEnum.AI])
+    return aIResource.aIType
   }
 
   @Watch('form', {
