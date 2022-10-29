@@ -59,7 +59,7 @@ export default class TreeMixin extends Vue {
           await this.commonTree.loadChildren(key)
           this.loadChildren(payload)
         } else {
-          this.setCurrentKey(key)
+          this.setCurrentKey(key || this.rootKey)
         }
       } else {
         // 展开目录

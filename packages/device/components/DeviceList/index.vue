@@ -49,10 +49,10 @@
           <el-dropdown v-if="checkToolsVisible(toolsEnum.OperateDevices)" key="dropdown" placement="bottom" @command="handleListTools($event, selectedDeviceList)">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
-              <el-dropdown-item :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
-              <el-dropdown-item :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
-              <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.MoveDevices, policyEnum.AdminDevice)" :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StartDevices, policyEnum.AdminDevice)" :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StopDevices, policyEnum.AdminDevice)" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.DeleteDevices, policyEnum.AdminDevice)" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -275,20 +275,20 @@
     </div>
     <move-dir
       v-if="dialog[toolsEnum.MoveDevice]"
-      :in-protocol="inProtocol" :device="currentDevice"
+      :device="currentDevice"
       :devices="selectedDeviceList"
       :is-batch="isBatchMoveDir"
-      @on-close="closeDialog(toolsEnum.MoveDevice, $event)"
+      @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.MoveDevice, $event)"
     />
-    <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="closeDialog(toolsEnum.Import, $event)" />
-    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="closeDialog(toolsEnum.UpdateResource, $event)" />
+    <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.closeDialog, toolsEnum.Import, $event)" />
+    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="handleListTools(toolsEnum.closeDialog, toolsEnum.UpdateResource, $event)" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic, VideoDevice, ViidDevice } from '@vss/device/type/Device'
-import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum, DeviceTypeEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
@@ -394,7 +394,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.ExportSelected]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected),
     [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this, data),
     [ToolsEnum.ExportTemplate]: () => DeviceManager.exportTemplate(this),
-    [ToolsEnum.MoveDevice]: (row) => DeviceManager.openListDialog(this, ToolsEnum.MoveDevice, row),
+    [ToolsEnum.MoveDevice]: (row) => DeviceManager.openListDialog(this.getVueComponent, ToolsEnum.MoveDevice, row),
     [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
@@ -445,7 +445,6 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get currentDirId() {
-    // if (!this.$route.query.dirId || this.$route.query.dirId.length < 3) return '3'
     return this.$route.query.dirId as string
   }
 
@@ -461,12 +460,6 @@ export default class extends Mixins(deviceMixin) {
     }
   }
 
-  @Watch('filterForm', { deep: true })
-  private onFilterChange() {
-    this.pager.pageNum = 1
-    this.initTable()
-  }
-
   @Watch('$route.query.dirId')
   private async dirIdChange() {
     // 重置列表筛选条件
@@ -477,13 +470,15 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.RecordStatus]: undefined,
       [DeviceEnum.ViidStatus]: undefined
     }
-    // this.pager.pageNum = 1
-    // this.initTable()
-    // console.log('dirIdChange', '----------------')
+  }
+
+  @Watch('filterForm', { deep: true, immediate: true })
+  private onFilterChange() {
+    this.pager.pageNum = 1
+    this.initList()
   }
   
   private mounted() {
-    this.handleTools(ToolsEnum.RefreshDeviceList)
     this.initTableSize()
   }
 
@@ -491,13 +486,17 @@ export default class extends Mixins(deviceMixin) {
     this.tableContainer && this.observer.unobserve(this.tableContainer)
   }
 
+  public getVueComponent() {
+    return this
+  }
+
   /**
    * 设备列表初始化
    */
   private async initList() {
+    this.loading.table = true
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
       this.loading.info = true
-      this.loading.table = true
       await this.getDevice(this.currentDirId)
       this.loading.info = false
       console.log('deviceInfo', this.device)
@@ -509,6 +508,7 @@ export default class extends Mixins(deviceMixin) {
    * 设备table初始化
    */
   private async initTable() {
+    this.loading.table = true
     const params = {
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],

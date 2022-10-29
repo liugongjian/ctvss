@@ -1,6 +1,6 @@
 import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { getDeviceTree } from '../../api/device'
+import { getDeviceTree } from '../../api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
 
 /**

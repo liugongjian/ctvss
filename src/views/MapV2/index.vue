@@ -194,7 +194,7 @@ import { mapObject } from '@/views/Map/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
 import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
-import { getNodeInfo } from '@vss/device/api/device'
+import { getNodeInfo } from '@vss/device/api/dir'
 import { DirectoryTypeEnum } from '@vss/device/enums/index'
 
 @Component({
