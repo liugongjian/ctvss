@@ -418,38 +418,4 @@ export default class extends Vue {
       line-height: 100%;
     }
   }
-
-  .algoWarning {
-    padding: 5px 10px;
-    border: 1px solid;
-
-    span {
-      margin-left: 12px;
-      font-size: 12px;
-      display: inline-block;
-    }
-
-    ::v-deep .el-icon-warning {
-      font-size: 18px;
-      vertical-align: middle;
-    }
-
-    &.algoWarningError {
-      border-color: #950012;
-      color: #950012;
-      background: #fadee0;
-    }
-
-    &.algoWarningTip {
-      border-color: #4a88db;
-      color: #4a88db;
-      background: #edf4fe;
-    }
-  }
-
-  .algoTabTableHidden {
-    ::v-deep .el-table__header-wrapper .el-checkbox {
-      display: none;
-    }
-  }
 </style>

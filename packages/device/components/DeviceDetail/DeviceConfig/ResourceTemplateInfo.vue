@@ -282,6 +282,7 @@ export default class extends Mixins(detailMixin) {
         this.$message.error(e && e.message)
       })
   }
+  
   private closeCanvasDialog() {
     this.canvasDialog = false
     // this.getAlgoList()
