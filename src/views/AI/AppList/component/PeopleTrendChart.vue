@@ -27,6 +27,7 @@ export default class extends Mixins(DashboardMixin) {
   private queryLoading: any = {
     chart: false
   }
+
   private debounceHandle = debounce(this.getData, 500)
   private chart: any = null
 
@@ -36,6 +37,7 @@ export default class extends Mixins(DashboardMixin) {
   private paramUpdated() {
     this.conditionalDebounce()
   }
+
   @Watch('appInfo', { deep: true, immediate: true })
   private appInfoUpdated() {
     this.conditionalDebounce()
@@ -62,6 +64,7 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const [startTime, endTime] = this.param.period
       const [confidenceMin, confidenceMax] = this.param.confidence
+      const { deviceId } = this.device
       const query = {
         appId: this.appInfo.id,
         startTime: Math.floor(startTime / 1000),
@@ -70,7 +73,7 @@ export default class extends Mixins(DashboardMixin) {
         confidenceMax,
         faceDb: this.faceLib.id,
         faceIdList: this.param.faceSelected,
-        deviceId: this.device.deviceId,
+        deviceId: deviceId === 'all' ? undefined : deviceId,
         inProtocol: this.device.inProtocol
       }
       this.queryLoading.chart = true
@@ -126,8 +129,8 @@ export default class extends Mixins(DashboardMixin) {
    * 自适应获取图标y轴刻度
    */
   private getYTickInterval(tickCount: number, scale: any): Array<number> {
-    let maxValue = Math.max(...scale.values)
-    let vnum = maxValue % tickCount
+    const maxValue = Math.max(...scale.values)
+    const vnum = maxValue % tickCount
     let interval = (maxValue - vnum) / tickCount
     if (interval < 1) {
       interval = 1
@@ -135,13 +138,14 @@ export default class extends Mixins(DashboardMixin) {
     if (vnum > interval) {
       return this.getYTickInterval(tickCount - 1, scale)
     }
-    let intervalArr = []
+    const intervalArr = []
     for (let i = 1; i <= tickCount; i++) {
       if (interval * i > maxValue) break
       intervalArr.push(interval * i)
     }
     return intervalArr
   }
+
   /**
    * 更新图表
    */
@@ -208,6 +212,7 @@ export default class extends Mixins(DashboardMixin) {
       this.chart.forceFit()
     }
   }
+
   /**
    * 更新图表
    */

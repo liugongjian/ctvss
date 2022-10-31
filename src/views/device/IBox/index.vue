@@ -82,7 +82,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Provide, Vue
+import {
+  Component, Provide, Vue
   // Mixins
 } from 'vue-property-decorator'
 // import treeMixin from '@vss/device/components/Tree/treeMixin'
@@ -103,6 +104,7 @@ export default class IBox extends Vue {
     dirTree: false,
     iboxTable: false
   }
+
   public isExpanded = true
   public height = 0
   public dirDrag = {
@@ -163,7 +165,6 @@ export default class IBox extends Vue {
   public async handleNodeClick(item: any, node?: any) {
     // TODO 面包屑及刷新后选中逻辑
     const dirTree: any = this.$refs.dirTree
-
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.deviceId)
@@ -502,7 +503,7 @@ export default class IBox extends Vue {
 
   public toDetail(item: any) {
     const path = this.breadcrumb.map((item: any) => item.deviceId).join(',')
-    let query: any = {
+    const query: any = {
       deviceId: item.deviceId,
       type: 'ipc'
     }
@@ -541,7 +542,7 @@ export default class IBox extends Vue {
   // 获取目录菜单路径
   @Provide('getDirPath')
   public getDirPath(node: any) {
-    let path: any = []
+    const path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node ? node.data : ''
       if (data && data.deviceId) {
@@ -562,7 +563,7 @@ export default class IBox extends Vue {
   // 供@vss/device 中回调使用
   @Provide('handleTools')
   public handleTools() {
-    let query: any = {
+    const query: any = {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
     }

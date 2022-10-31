@@ -108,6 +108,7 @@ export default class extends Mixins(AppMixin) {
     pageSize: 10,
     totalNum: 0
   }
+
   private loading = false
   private devices: any = []
   private totalAlarm = 0
@@ -152,6 +153,7 @@ export default class extends Mixins(AppMixin) {
     this.pager.pageSize = pageSize
     this.pager.totalNum = totalNum
   }
+
   /**
    * 启停用应用
    */
@@ -220,6 +222,7 @@ export default class extends Mixins(AppMixin) {
       }
     })
   }
+
   private rowClick(row: any) {
     const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
     GroupModule.SetGroupList(this.groups)

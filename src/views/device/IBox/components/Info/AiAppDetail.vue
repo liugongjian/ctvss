@@ -14,6 +14,7 @@
           v-if="tabNum === '1'"
           :app-info="appInfo"
           :devices="deviceList"
+          @refresh="refreshAttatchedDevice"
         />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
@@ -25,6 +26,7 @@
               placeholder="请选择"
               value-key="deviceId"
             >
+              <el-option v-if="deviceList.length > 0" key="all" label="全部" :value="{deviceId: 'all', deviceName: '全部', inProtocol: ''}" />
               <el-option
                 v-for="value in deviceList"
                 :key="value.deviceId"
@@ -74,7 +76,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private breadCrumbContent: String = '应用详情'
   private appInfo: any = {}
   private device: any = {
-    deviceId: '',
+    deviceId: 'all',
+    deviceName: '全部',
     inProtocol: ''
   }
 
@@ -82,7 +85,11 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private tabNum: string | string[] = '0'
   private deviceList: any = []
 
-  private async mounted() {
+  private mounted() {
+    this.getDetail()
+  }
+
+  private async getDetail() {
     const appId = this.$route.query.appid || this.appDetailId
     const { iboxApp }: any = await describeIboxApp({
       appId,
@@ -90,7 +97,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     })
     this.appInfo = iboxApp
     await this.getAttachedDevice()
-    this.deviceList.length > 0 && (this.device = this.deviceList[0])
+    this.deviceList.length === 0 && (this.device = { deviceId: undefined })
+    console.log('this.deviceList:', this.deviceList)
   }
 
   public changeWidthStartAndResize(ev) {
@@ -102,7 +110,14 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   private async getAttachedDevice() {
-    const deviceIds = JSON.parse(this.appInfo.deviceIds)
+    let deviceIds = []
+    let status = []
+    if (this.appInfo.deviceIds && this.appInfo.deviceIds.length > 0) {
+      deviceIds = JSON.parse(this.appInfo.deviceIds)
+    }
+    if (this.appInfo.status && this.appInfo.status.length > 0) {
+      status = JSON.parse(this.appInfo.status)
+    }
     const param = {
       ParentDeviceId: this.$route.query.deviceId,
       pageNum: 1,
@@ -113,6 +128,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const channels = []
       const iboxId = this.$route.query.deviceId
       const { devices }: any = await getDeviceList(param)
+      debugger
       const _devices = devices.map((device) => {
         if (device.device.deviceType === 'nvr') {
           const deviceChannels = device.device.deviceChannels.map(
@@ -146,9 +162,10 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
       })
       _devices.push(...channels)
-      this.deviceList = _devices.filter((device) =>
+      const filterDevices = _devices.filter((device) =>
         deviceIds.find((id) => id === device.deviceId)
       )
+      this.deviceList = filterDevices.map((device, index) => ({ ...device, status: status[index] || 0 }))
     } catch (e) {
       console.log(e)
     }
@@ -163,6 +180,10 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 
   private back() {
     this.$emit('back')
+  }
+
+  private refreshAttatchedDevice() {
+    this.getDetail()
   }
 }
 </script>
