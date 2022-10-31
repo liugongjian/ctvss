@@ -145,7 +145,8 @@ export default class extends Vue {
     [ResourceTypeEnum.Video]: false,
     [ResourceTypeEnum.AI]: false,
     [ResourceTypeEnum.Upload]: false,
-    bindList: false
+    bindList: false,
+    all: false
   }
   // 资源包列表
   private resourceList = {
@@ -205,7 +206,7 @@ export default class extends Vue {
    */
   public get currentResourceAIType() {
     const aIResource = this.resourceList[ResourceTypeEnum.AI].find(resource => resource.resourceId === this.form.resource[ResourceTypeEnum.AI])
-    return aIResource.aIType
+    return aIResource && aIResource.aIType
   }
 
   @Watch('form', {
@@ -297,13 +298,20 @@ export default class extends Vue {
    * 加载所有资源列表和已绑定的列表
    */
   private async getAllResourcesAndBindList() {
-    await Promise.all([
-      this.getResouces(ResourceTypeEnum.Video),
-      this.getResouces(ResourceTypeEnum.AI),
-      this.getResouces(ResourceTypeEnum.Upload),
-      this.isEdit && this.getDeviceResource()
-    ])
-    this.$emit('loaded')
+    try {
+      this.loading.all = true
+      await Promise.all([
+        this.getResouces(ResourceTypeEnum.Video),
+        this.getResouces(ResourceTypeEnum.AI),
+        this.getResouces(ResourceTypeEnum.Upload),
+        this.isEdit && this.getDeviceResource()
+      ])
+      this.$emit('loaded')
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.all = false
+    }
   }
 
   /**
@@ -314,6 +322,13 @@ export default class extends Vue {
    * 4）AI资源包剩余数量需要大于所选的AI应用数量
    */
   public validate(channelSize: number, orginalChannelSize: number) {
+    if (this.loading.all) {
+      return {
+        result: true,
+        message: null
+      }
+    }
+
     const messages = []
 
     const _validateRemain = (resourceType, channelSize, orginalChannelSize?) => {

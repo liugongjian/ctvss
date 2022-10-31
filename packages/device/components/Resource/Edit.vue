@@ -56,8 +56,6 @@ export default class extends Vue {
   private submit() {
     const resourceForm = this.$refs.resourceForm as Resource
     resourceForm.beforeSubmit(this.doSubmit)
-    // this.beforeSubmit(this.doSubmit)
-    // this.doSubmit()
   }
 
   private async doSubmit() {

@@ -368,7 +368,7 @@ export const syncDeviceStatus = (params: any): Promise<any> =>
  */
 export const syncStatusPolling = (params: any): Promise<any> =>
   request({
-    url: '/device/notify/sync',
+    url: '/device/notifySync',
     method: 'post',
     data: params
   })
