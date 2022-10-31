@@ -1,6 +1,6 @@
 <template>
-  <div class="config-container">
-    <resource-template-info v-if="!isIbox" :device-id="deviceId" />
+  <div v-if="deviceId" class="config-container">
+    <resource-template-info v-if="!isIbox" :device-id="deviceId" :device="device" />
     <record-template-info v-if="!isIbox" :device-id="deviceId" />
     <callback-template-info :device-id="deviceId" />
     <alert-template-info v-if="!isIbox && inProtocol === InVideoProtocolEnum.Gb28181" :device-id="deviceId" />
@@ -27,6 +27,10 @@ import { InVideoProtocolEnum } from '@vss/device/enums/index'
 })
 export default class extends Mixins(detailMixin) {
   private InVideoProtocolEnum = InVideoProtocolEnum
+
+  public async mounted() {
+    await this.getDevice()
+  }
 }
 </script>
 <style lang="scss" scoped>

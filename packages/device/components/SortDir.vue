@@ -35,7 +35,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getDeviceTree, sortDeviceTree } from '../api/device'
+import { getNodeInfo, sortDir } from '@vss/device/api/dir'
 
 @Component({
   name: 'SortDir',
@@ -44,7 +44,7 @@ import { getDeviceTree, sortDeviceTree } from '../api/device'
 })
 export default class extends Vue {
   @Prop()
-  private currentDir!: any
+  private sortDir!: any
 
   private dialogVisible = true
   private loading: any = {
@@ -54,25 +54,24 @@ export default class extends Vue {
   private dirData: any = []
 
   private treeProp = {
-    label: 'label',
     children: 'children',
+    label: 'name',
     isLeaf: 'isLeaf'
   }
 
   private mounted() {
-    this.initTreeStatus(this.currentDir)
+    this.initTreeStatus(this.sortDir)
   }
 
   /**
    * 初始化目录状态
    */
-  private async initTreeStatus(currentDir: any) {
+  private async initTreeStatus(sortDir: any) {
     try {
       this.loading.dialog = true
-      const res = await getDeviceTree({
-        groupId: this.groupId,
-        id: currentDir.id,
-        type: currentDir.type
+      const res = await getNodeInfo({
+        id: sortDir.id,
+        type: sortDir.type
       })
       this.dirData = res.dirs
     } catch (e) {
@@ -104,8 +103,8 @@ export default class extends Vue {
         this.closeDialog()
         return
       }
-      const params = { orderDevices: sortArr }
-      await sortDeviceTree(params)
+      const params = { orderList: sortArr }
+      await sortDir(params)
       this.$message.success('排序保存成功！')
       this.closeDialog(true)
     } catch (e) {

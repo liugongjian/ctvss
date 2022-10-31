@@ -11,7 +11,6 @@ import {
   startRecord,
   stopRecord
 } from '../../api/device'
-import { type } from 'os'
 
 import ExportExcelTemplate from './DeviceExportTemplate'
 
@@ -56,14 +55,18 @@ const viewDevice = function (state, id, type) {
  * 编辑设备
  * @param state.$router 路由
  * @param id 设备id
+ * @param type 设备类型
  */
-const editDevice = function (state, id) {
+const editDevice = function (state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
       ...state.$route.query,
-      // deviceId: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      deviceId: id,
+      type
+    },
+    params: {
+      isEdit: 'true',
     }
   })
 }
@@ -74,23 +77,9 @@ const editDevice = function (state, id) {
  * @param state.handleTools layout工能回调函数
  * @param row 设备信息
  */
-const deleteDevice = function (state, row?) {
-  if (row) {
-    // 单个操作
-    state.$alertDelete({
-      type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${row[DeviceEnum.DeviceName]}"吗？`,
-      method: () => {},
-      payload: {
-        [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
-        [DeviceEnum.ParentDeviceId]: row[DeviceEnum.ParentDeviceId]
-      },
-      onSuccess: () => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
-      }
-    })
-  } else {
+const deleteDevice = function (state, data?) {
+  console.log(data, 111111)
+  if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
     state.$alertDelete({
@@ -100,15 +89,15 @@ const deleteDevice = function (state, row?) {
         h(
           'div',
           { class: 'batch-list' },
-          state.selectedDeviceList.map(device => {
+          data.map(device => {
             return h('p', undefined, [h('span', { class: 'device-name' }, device[DeviceEnum.DeviceName])])
           })
         )
       ]),
       method: () => {
         return Promise.all(
-          state.selectedDeviceList.map(device => {
-            return deleteDevice({
+          data.map(device => {
+            return deleteDeviceApi({
               [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId],
               [DeviceEnum.ParentDeviceId]: device[DeviceEnum.ParentDeviceId]
             })
@@ -116,6 +105,26 @@ const deleteDevice = function (state, row?) {
         )
       },
       payload: null,
+      onSuccess: () => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshDeviceList)
+      }
+    })
+  } else {
+    // 单个操作
+    state.$alertDelete({
+      type: '设备',
+      msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
+      method: () => {
+        return deleteDeviceApi({
+          [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
+          [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+        })
+      },
+      payload: {
+        [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
+        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+      },
       onSuccess: () => {
         state.handleTools(ToolsEnum.RefreshDirectory)
         state.handleTools(ToolsEnum.RefreshDeviceList)
@@ -429,14 +438,16 @@ const startOrStopRecord = async function (state, type, row) {
 }
 
 /**
- * 打开目录对话框
+ * 打开设备列表对话框
+ * @param getVueComponent 获取Vue实例函数
  * @param state.dialog 弹窗状态
  * @param state.currentDevice 当前设备
  * @param state.isBatchMoveDir 是否为批量操作
  * @param type 触发打开窗口的事件类型
- * @param payload 操作目录信息
+ * @param row 设备信息
  */
-const openListDialog = function (state, type: string, row?: any) {
+const openListDialog = function (getVueComponent, type: string, row?: any) {
+  const state = getVueComponent()
   switch (type) {
     case ToolsEnum.MoveDevice:
       state.currentDevice = row
@@ -467,6 +478,7 @@ const closeListDialog = function (state, type: string, isfresh: any) {
   }
   if (isfresh === true) {
     state.handleTools(ToolsEnum.RefreshDirectory)
+    state.handleTools(ToolsEnum.RefreshDeviceList)
   }
 }
 
@@ -479,7 +491,7 @@ const goBack = function (
   getVueComponent: any,
   level: number
 ) {
-  const state: { breadcrumb: any; handleTreeNode: any } = getVueComponent()
+  const state: { breadcrumb: any; handleTreeNode: any, $router: any, $route: any } = getVueComponent()
   const pathList = state.breadcrumb.pathList || []
   // 取当前path的向上level级/根目录
   const target = pathList[pathList.length - 1 - level] || { id: '' }
@@ -496,8 +508,7 @@ const previewEvents = function (state, id) {
     name: 'DeviceEvents',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -512,8 +523,7 @@ const previewVideo = function (state, id) {
     name: 'DevicePreview',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -528,8 +538,7 @@ const replayVideo = function (state, id) {
     name: 'DeviceReplay',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -544,8 +553,7 @@ const previewViid = function (state, id) {
     name: 'DeviceViid',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }

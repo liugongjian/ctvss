@@ -58,6 +58,7 @@
     />
     <sort-dir
       v-if="dialog[toolsEnum.SortDirectory]"
+      :sort-dir="sortDir"
       @on-close="handleTools(toolsEnum.CloseDialog, toolsEnum.SortDirectory, $event)"
     />
   </div>
@@ -87,10 +88,9 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
-    console.log(data)
     const { id, type } = data || {}
-    // 若路由跳转则不需要主动触发列表刷新
-    const refreshFlag = this.$route.name === 'DeviceList'
+    // 若同一目录要主动触发列表刷新
+    const refreshFlag = this.$route.query.dirId === id
     this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
