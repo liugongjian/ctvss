@@ -221,7 +221,7 @@ export default class extends Vue {
       aIApps: this.form.aIAppsCollection[this.form.resource[ResourceTypeEnum.AI]]
     }
     // 触发表单重新验证
-    // this.$parent.$emit('el.form.change')
+    this.$parent.$emit('el.form.change')
   }
 
   /**
@@ -313,13 +313,19 @@ export default class extends Vue {
    * 3）选择AI包后必须选择至少一个AI应用
    * 4）AI资源包剩余数量需要大于所选的AI应用数量
    */
-  public validate(channelSize: number) {
+  public validate(channelSize: number, orginalChannelSize: number) {
     const messages = []
 
-    const _validateRemain = (resourceType, size) => {
+    const _validateRemain = (resourceType, channelSize, orginalChannelSize?) => {
       // 如果当前resourceId不在orginalResource.resourceIds中，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
       const resourceId = this.form.resource[resourceType]
-      const isChanged = this.orginalResource.resourceIds.indexOf(resourceId) === -1
+      let isChanged = this.orginalResource.resourceIds.indexOf(resourceId) === -1
+      let size = channelSize
+      // 如果资源包没有变化，但是通道数量变化了，也认为变化了，然后使用差值比较剩余数量
+      if (!isChanged && (orginalChannelSize !== channelSize)) {
+        size = channelSize - orginalChannelSize
+        isChanged = true
+      }
       // 获得剩余数量
       const resource = this.resourceList[resourceType].find(resource => resource.resourceId === resourceId)
       const remainCount = resource && resource.remainDeviceCount
@@ -332,7 +338,7 @@ export default class extends Vue {
     if (!this.isEdit && !this.isFreeUser && !this.form.resource[ResourceTypeEnum.Video]) {
       messages.push('请配置视频包')
     } else {
-      const videoMessage = _validateRemain(ResourceTypeEnum.Video, channelSize)
+      const videoMessage = _validateRemain(ResourceTypeEnum.Video, channelSize, orginalChannelSize)
       videoMessage && messages.push(videoMessage)
     }
 

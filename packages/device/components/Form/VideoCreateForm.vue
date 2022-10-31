@@ -227,7 +227,6 @@ import { checkVideoVisible, checkFormDisable } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
-import { resolve } from 'dns'
 
 @Component({
   name: 'VideoCreateForm',
@@ -257,7 +256,6 @@ export default class extends Vue {
   private showMore = false
   private showMoreVisable = false
   private minChannelSize = 1
-  private orginalChannelSize = null
   private rules = {
     [DeviceEnum.InVideoProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
@@ -310,6 +308,11 @@ export default class extends Vue {
     return this.basicInfo && this.basicInfo.deviceId
   }
 
+  // 设备通道数量初始值
+  private get orginalChannelSize() {
+    return this.basicInfo && this.basicInfo.deviceChannelSize
+  }
+
   // 视频接入协议
   private get inVideoProtocol() {
     return this.device && this.device.videos && this.device.videos.length && this.device.videos[0].inVideoProtocol
@@ -346,9 +349,6 @@ export default class extends Vue {
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
-    }
-    if (this.orginalChannelSize) {
-      this.orginalChannelSize = this.basicInfo.deviceChannelSize
     }
   }
 
@@ -452,7 +452,7 @@ export default class extends Vue {
    */
   public validateResource(rule: any, value: string, callback: Function) {
     const resourceForm = this.$refs.resourceForm as Resource
-    const res = resourceForm.validate(this.videoForm.deviceChannelSize)
+    const res = resourceForm.validate(this.videoForm.deviceChannelSize, this.orginalChannelSize)
     if (!res.result) {
       callback(new Error(res.message))
     } else {
