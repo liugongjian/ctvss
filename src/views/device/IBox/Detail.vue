@@ -30,6 +30,18 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 export default class extends Vue {
   public activeRouteName: string = 'IBoxDeviceInfo'
 
+  private tabToName = {
+    preview: 'IBoxDevicePreview'
+  }
+
+  mounted() {
+    const { tab = '' } = this.$route.query
+    if (tab) {
+      this.activeRouteName = this.tabToName.preview
+      this.$router.push({ name: this.activeRouteName, query: { deviceId: this.deviceId, path: this.$route.query.path } })
+    }
+  }
+
   private get deviceId() {
     return this.$route.query.deviceId.toString()
   }
@@ -45,6 +57,7 @@ export default class extends Vue {
 
   @Inject('handleTools')
   private handleTools!: Function
+
   public back() {
     this.handleTools()
   }

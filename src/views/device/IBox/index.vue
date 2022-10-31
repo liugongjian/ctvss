@@ -195,13 +195,13 @@ export default class IBox extends Vue {
             const iboxNvr = this.getIboxNvr(_node)
             this.setListInfo('nvrlist', iboxNvr, deviceId)
           } else if (_node.data.deviceType === 'ipc') {
-            this.toDetail(_node.data)
+            this.toDetail(_node.data, item)
           } else {
-            this.toDetail(_node.data)
+            this.toDetail(_node.data, item)
           }
           break
         case 3:
-          this.toDetail(_node.data)
+          this.toDetail(_node.data, item)
           break
         default:
           this.setListInfo('rootlist', this.iboxes, '')
@@ -501,17 +501,19 @@ export default class IBox extends Vue {
     this.handleNodeClick({ deviceId: '0', type: 'rootlist' })
   }
 
-  public toDetail(item: any) {
+  public toDetail(item: any, routeInfo: any) {
     const path = this.breadcrumb.map((item: any) => item.deviceId).join(',')
     const query: any = {
       deviceId: item.deviceId,
       type: 'ipc'
     }
+
     const router: any = {
       name: 'IBoxDeviceInfo',
       query: {
         path,
-        ...query
+        ...query,
+        tab: routeInfo.tab || ''
       }
     }
 

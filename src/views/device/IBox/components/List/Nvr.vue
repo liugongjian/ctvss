@@ -12,7 +12,7 @@
           width="180"
         >
           <template slot-scope="{row}">
-            <div class="ibox-list-table--text" @click="toDetail(row)">
+            <div class="ibox-list-table--text" @click="toDetail(row,'')">
               <div class="ibox-list-table--id">{{ row.deviceId }}</div>
               <div>{{ row.deviceName }}</div>
             </div>
@@ -51,7 +51,7 @@
           label="操作"
         >
           <template slot-scope="{row}">
-            <div class="ibox-list-table--btn">
+            <div class="ibox-list-table--btn" @click.stop.prevent="toDetail(row,'preview')">
               实时预览
             </div>
             <el-dropdown @command="handleMore">
@@ -105,22 +105,23 @@ export default class IBoxList extends Mixins(ListMixins) {
     await this.getDeviceList()
   }
 
-  public toDetail(row: any) {
-    let query: any = {
-      deviceId: row.deviceId,
-      type: this.$route.query.type
-    }
-    const router: any = {
-      name: 'IBoxDeviceInfo',
-      query
-    }
+  public toDetail(row: any, to: any) {
+    // const query: any = {
+    //   deviceId: row.deviceId,
+    //   type: this.$route.query.type
+    // }
+    // const router: any = {
+    //   name: 'IBoxDeviceInfo',
+    //   query
+    // }
 
     const info = {
       deviceId: row.deviceId,
-      type: this.$route.query.type
+      type: this.$route.query.type,
+      tab: to === 'preview' ? 'preview' : ''
     }
 
-    this.$router.push(router)
+    // this.$router.push(router)
 
     this.handleNodeClick(info)
   }

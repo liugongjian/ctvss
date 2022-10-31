@@ -141,7 +141,7 @@ export default class IBoxList extends Vue {
     }
 
     IBoxModule.SetList(listInfo)
-    let query: any = {
+    const query: any = {
       deviceId: row.deviceId,
       type: 'device'
     }
@@ -153,7 +153,7 @@ export default class IBoxList extends Vue {
 
     this.handleNodeClick(router)
 
-    this.$router.push(router)
+    // this.$router.push(router)
   }
 }
 </script>

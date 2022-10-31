@@ -13,7 +13,7 @@
           width="180"
         >
           <template slot-scope="{row}">
-            <div class="ibox-list-table--text" @click="toDetail(row)">
+            <div class="ibox-list-table--text" @click="toDetail(row,'')">
               <div class="ibox-list-table--id">{{ row.deviceId }}</div>
               <div>{{ row.deviceName }}</div>
             </div>
@@ -118,7 +118,7 @@
           label="操作"
         >
           <template slot-scope="{row}">
-            <div v-if="row.deviceType !== 'nvr'" class="ibox-list-table--btn">
+            <div v-if="row.deviceType !== 'nvr'" class="ibox-list-table--btn" @click.stop.prevent="toDetail(row,'preview')">
               实时预览
             </div>
             <el-dropdown @command="handleMore">
@@ -184,8 +184,8 @@ export default class IBoxList extends Mixins(ListMixins) {
   //   this.$router.push(path)
   // }
 
-  public toDetail(row: any) {
-    let query: any = {
+  public toDetail(row: any, to: any) {
+    const query: any = {
       deviceId: row.deviceId,
       type: this.$route.query.type
     }
@@ -196,18 +196,20 @@ export default class IBoxList extends Mixins(ListMixins) {
       router = {
         deviceId: row.deviceId,
         type: 'nvrlist',
+        tab: to === 'preview' ? 'preview' : '',
         query
       }
-      this.$router.push(router)
+      // this.$router.push(router)
       this.handleNodeClick(router)
     } else {
       router = {
         deviceId: row.deviceId,
         name: 'IBoxDeviceInfo',
+        tab: to === 'preview' ? 'preview' : '',
         type: 'device',
         query
       }
-      this.$router.push(router)
+      // this.$router.push(router)
       this.handleNodeClick(router)
     }
   }
