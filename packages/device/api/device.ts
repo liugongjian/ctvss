@@ -194,7 +194,7 @@ export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 /**
