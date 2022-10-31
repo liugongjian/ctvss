@@ -137,6 +137,25 @@ export const stopDevice = (data: any) =>
     data: toUpperCase(data)
   })
 
+//  实时预览
+export const getPreviewUrl = (params: any): Promise<any> => {
+  const headers = params['self-defined-headers']
+  delete params['self-defined-headers']
+  const url = '/ibox/device/preview'
+  return request({
+    url,
+    method: 'get',
+    params: {
+      OutNetwork: 'internet',
+      OutProtocol: 'rtmp,flv,hls',
+      Type: params.type || 'live',
+      ...toUpperCase(params)
+    },
+    headers: headers
+    // cancelToken
+  })
+}
+
 // 解绑应用
 export const unBindIboxApps = (data: any) =>
   request({

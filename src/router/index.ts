@@ -1,7 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import { getDeviceDetail, createDevice, editDeviceInfo } from '@/api/ibox'
+import { getDeviceDetail, createDevice, editDeviceInfo, getPreviewUrl } from '@/api/ibox'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -235,7 +235,7 @@ export const asyncRoutes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
             name: 'device-list',
             meta: {
-              title: '通用设备列表',
+              title: '通用设备',
               icon: 'dot',
               breadcrumb: false,
               perms: ['DescribeDevice'],
@@ -297,7 +297,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/index.vue'),
         name: 'IBox',
         meta: {
-          title: 'iBox设备管理',
+          title: 'iBox',
           breadcrumb: true,
           perms: ['DescribeDevice']
           // groupSelector: true
@@ -410,7 +410,8 @@ export const asyncRoutes: RouteConfig[] = [
                 component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DevicePreview.vue'),
                 name: 'IBoxDevicePreview',
                 props: {
-                  getDeviceApi: getDeviceDetail
+                  getDeviceApi: getDeviceDetail,
+                  getDevicePreviewApi: getPreviewUrl
                 },
                 meta: {
                   title: '实时预览',
