@@ -75,9 +75,9 @@
           <el-radio v-model="form.resource[ResourceTypeEnum.AI]" :label="null">不绑定任何AI包</el-radio>
         </div>
         <ai-apps
-          class="resource-apps"
           v-if="form.resource[ResourceTypeEnum.AI]"
           v-model="form.aIAppsCollection"
+          class="resource-apps"
           :resource-id="form.resource[ResourceTypeEnum.AI]"
           :resource-ai-type="currentResourceAIType"
         />
@@ -106,7 +106,7 @@
         </el-table>
         <!--修改时或者免费用户时才允许选择空-->
         <div v-if="isEdit || isFreeUser" class="resource-tabs__none">
-          <el-radio v-model="form.resource[ResourceTypeEnum.Upload]" :label="-1">不绑定任何上行带宽包</el-radio>
+          <el-radio v-model="form.resource[ResourceTypeEnum.Upload]" :label="null">不绑定任何上行带宽包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -132,7 +132,7 @@ export default class extends Vue {
   // 设备ID
   @Prop() private deviceId?: boolean
   // 是否为私有接入网络
-  @Prop({default: false}) private isPrivateInNetwork?: string
+  @Prop({ default: false }) private isPrivateInNetwork?: string
 
   private ResourceTypeEnum = ResourceTypeEnum
   private ResourceType = ResourceType
@@ -212,7 +212,7 @@ export default class extends Vue {
     deep: true
   })
   private onFormChange() {
-    const resourceIds = this.filterResourceIds(Object.values(this.form.resource))
+    const resourceIds = Object.values(this.form.resource).filter(id => !!id)
     if (!this.form.aIAppsCollection[this.form.resource[ResourceTypeEnum.AI]]) {
       this.$set(this.form.aIAppsCollection, this.form.resource[ResourceTypeEnum.AI], [])
     }
@@ -221,7 +221,7 @@ export default class extends Vue {
       aIApps: this.form.aIAppsCollection[this.form.resource[ResourceTypeEnum.AI]]
     }
     // 触发表单重新验证
-    this.$parent.$emit('el.form.change')
+    // this.$parent.$emit('el.form.change')
   }
 
   /**
@@ -286,7 +286,7 @@ export default class extends Vue {
       // 保存原始数据用于校验
       this.orginalResource.resourceIds = res.resources.map(resource => resource.resourceId)
       this.orginalResource.appSize = res.aIApps.length
-    } catch(e) {
+    } catch (e) {
       this.$message.error(e.message)
     } finally {
       this.loading.bindList = false
@@ -313,7 +313,7 @@ export default class extends Vue {
    * 3）选择AI包后必须选择至少一个AI应用
    * 4）AI资源包剩余数量需要大于所选的AI应用数量
    */
-  public validate(deviceChannelSize) {
+  public validate(channelSize: number) {
     const messages = []
 
     const _validateRemain = (resourceType, size) => {
@@ -327,16 +327,17 @@ export default class extends Vue {
         return `${ResourceType[resourceType]}接入设备余量不足，请增加包资源！`
       }
     }
+
     // 判断视频包
     if (!this.isEdit && !this.isFreeUser && !this.form.resource[ResourceTypeEnum.Video]) {
       messages.push('请配置视频包')
     } else {
-      const videoMessage = _validateRemain(ResourceTypeEnum.Video, deviceChannelSize)
+      const videoMessage = _validateRemain(ResourceTypeEnum.Video, channelSize)
       videoMessage && messages.push(videoMessage)
     }
 
     // 判断AI包
-    if (this.form.resource[ResourceTypeEnum.AI]) {
+    if (this.form.resource[ResourceTypeEnum.AI] && this.resource.aIApps) {
       if (!this.resource.aIApps.length) {
         messages.push('请至少选择一个AI应用')
       } else {
@@ -352,11 +353,68 @@ export default class extends Vue {
   }
 
   /**
-   * 过滤ResourceIds为null的值
-   * @param resourceIds 资源包ID数组
+   * 编辑状态时生成提示信息
    */
-  private filterResourceIds(resourceIds) {
-    return resourceIds.filter(id => !!id)
+  public beforeSubmit(submit: Function, channelSize?: number, orginalChannelSize?: number) {
+    const messages = []
+  
+    // 判断通道数量的变化
+    if (channelSize < orginalChannelSize) {
+      messages.push('缩减子设备的数量将会释放相应包资源。')
+    } else if (channelSize > orginalChannelSize) {
+      messages.push('新增子设备将自动绑定到现有资源包。')
+    }
+    
+    // 判断是否未选资源包
+    const resourceMessage: any = {
+      [ResourceTypeEnum.Video]: '不绑定任何视频包，会导致设备无法上线。',
+      [ResourceTypeEnum.AI]: '不绑定任何AI包，会导致AI服务不可用。',
+      [ResourceTypeEnum.Upload]: '不绑定任何上行带宽包，会导致视频流无法上线。'
+    }
+    for (const resourceType in this.form.resource) {
+      if (resourceType === ResourceTypeEnum.Upload && this.isPrivateInNetwork) continue
+      if (!this.form.resource[resourceType]) {
+        messages.push(resourceMessage[resourceType])
+      }
+    }
+    if (!this.isFreeUser && this.isEdit && messages.length) {
+      const h: Function = this.$createElement
+      this.$msgbox({
+        title: '提示',
+        message: h('div', { class: 'alert-message-list' }, [
+          h(
+            'ul',
+            undefined,
+            messages.map((msg: string) => {
+              return h('li', undefined, msg)
+            })
+          )
+        ]),
+        showCancelButton: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        beforeClose: async(action: any, instance: any, done: Function) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true
+            instance.confirmButtonText = '提交中...'
+            try {
+              await submit()
+              done()
+            } finally {
+              instance.confirmButtonLoading = false
+              instance.confirmButtonText = '确定'
+            }
+          } else {
+            done()
+          }
+        }
+      }).catch((e) => {
+        if (e === 'cancel' || e === 'close') return
+        this.$message.error(e)
+      })
+    } else {
+      submit()
+    }
   }
 }
 </script>

@@ -388,7 +388,7 @@ export default class extends Mixins(deviceFormMixin) {
   /**
    * 切换创建步骤
    */
-  private stepChange(val: number) {
+  private async stepChange(val: number) {
     if (val === 0) {
       this.activeStep = val
     } else {
@@ -407,13 +407,13 @@ export default class extends Mixins(deviceFormMixin) {
       // 校验videoForm
       const videoFormObj: any = this.$refs.videoForm
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
-        validFlag = videoFormObj.validateVideoForm() && validFlag
+        validFlag = await videoFormObj.validateVideoForm() && validFlag
         this.videoForm = videoFormObj.videoForm
       }
       // 校验viidForm
       const viidFormObj: any = this.$refs.viidForm
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
-        validFlag = viidFormObj.validateViidForm() && validFlag
+        validFlag = await viidFormObj.validateViidForm() && validFlag
         this.viidForm = viidFormObj.viidForm
       }
       // 判断校验结果

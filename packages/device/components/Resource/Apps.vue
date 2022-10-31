@@ -1,7 +1,8 @@
 <template>
-  <el-tabs class="resource-app-list" v-loading="loading" v-model="currentAbilityId" type="card" @tab-click="changeAbility">
+  <el-tabs v-model="currentAbilityId" v-loading="loading" class="resource-app-list" type="card" @tab-click="changeAbility">
     <el-tab-pane v-for="ability in abilityList" :key="ability.id" :label="`${ability.name}(${ability.aiApps})`" :name="ability.id">
       <el-table
+        :ref="`table${ability.id}`"
         v-loading="loading"
         tooltip-effect="dark"
         :data="appCollection[ability.id]"
@@ -9,12 +10,12 @@
         empty-text="暂无AI应用，请在AI应用管理中创建"
         @selection-change="handleSelectionChange"
         @row-click="onRowClick"
-        :ref="`table${ability.id}`"
       >
         <el-table-column
           type="selection"
           :selectable="checkAppSelecable"
-          width="55">
+          width="55"
+        >
         </el-table-column>
         <el-table-column prop="name" label="应用名称" />
         <el-table-column label="算法类型" width="120">
@@ -74,7 +75,7 @@ export default class extends Vue {
       })
       await Promise.all(allRequest)
       this.initSelection()
-    } catch(e) {
+    } catch (e) {
       this.$alertError(e)
     }
     finally {
@@ -121,7 +122,7 @@ export default class extends Vue {
       this.loading = true
       const res = await getAppList({ abilityId })
       this.$set(this.appCollection, abilityId, res.aiApps)
-    } catch(e) {
+    } catch (e) {
       this.$alertError(e.message)
     } finally {
       this.loading = false
