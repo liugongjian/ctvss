@@ -60,7 +60,7 @@ import { getRectPropFromPoints,
 } from './utils/index'
 import { getAppDescribeLine, sendAppDescribeLine
 // getAlgoStreamFrame
-} from '@/api/ai-app'
+} from '@vss/device/api/ai-app'
 // import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
@@ -121,7 +121,7 @@ export default class extends Vue {
       const lineNum = len % n === 0 ? len / n : Math.floor(len / n + 1)
       const res = []
       for (let i = 0; i < lineNum; i++) {
-        let temp = arr.slice(i * n, i * n + n)
+        const temp = arr.slice(i * n, i * n + n)
         res.push(temp)
       }
       return res
