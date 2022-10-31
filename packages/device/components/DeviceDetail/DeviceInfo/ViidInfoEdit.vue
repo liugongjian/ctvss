@@ -27,10 +27,9 @@ export default class extends Vue {
     return this.device[DeviceEnum.Device]
   }
 
-  private submit() {
+  private async submit() {
     const form = this.$refs.form as ViidCreateForm
-    if (form.validateVideoForm()) {
-      console.log(form.viidForm)
+    if (await form.validateVideoForm()) {
       this.$emit('cancel')
       this.$emit('updateDevice')
     }

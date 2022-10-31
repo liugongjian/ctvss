@@ -136,12 +136,12 @@ export default class extends Vue {
    * 校验viid表单
    */
   public validateViidForm() {
-    let validFlag = true
     const viidForm: any = this.$refs.viidForm
-    viidForm.validate((valid) => {
-      validFlag = valid
+    return new Promise((resolve) => {
+      viidForm.validate((valid) => {
+        resolve(valid)
+      })
     })
-    return validFlag
   }
 
   /**

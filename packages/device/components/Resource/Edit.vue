@@ -14,6 +14,7 @@
     >
       <el-form-item label="" prop="resources">
         <resource
+          ref="resourceForm"
           v-model="resource"
           :device-id="deviceId"
           @loaded="loading = false"
@@ -52,12 +53,9 @@ export default class extends Vue {
     return this.device && this.device.device.deviceId
   }
 
-  public async mounted() {
-  }
-
   private submit() {
-    // this.beforeSubmit(this.doSubmit)
-    this.doSubmit()
+    const resourceForm = this.$refs.resourceForm as Resource
+    resourceForm.beforeSubmit(this.doSubmit)
   }
 
   private async doSubmit() {
