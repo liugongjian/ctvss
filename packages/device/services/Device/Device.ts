@@ -492,11 +492,6 @@ const goBack = function (
   // 取当前path的向上level级/根目录
   const target = pathList[pathList.length - 1 - level] || { id: '' }
   state.handleTreeNode(target)
-  state.$router.push({
-    query: {
-      ...state.$route.query
-    }
-  })
 }
 
 /**
