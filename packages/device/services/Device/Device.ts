@@ -56,14 +56,18 @@ const viewDevice = function (state, id, type) {
  * 编辑设备
  * @param state.$router 路由
  * @param id 设备id
+ * @param type 设备类型
  */
-const editDevice = function (state, id) {
+const editDevice = function (state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
       ...state.$route.query,
-      // deviceId: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      deviceId: id,
+      type
+    },
+    params: {
+      isEdit: 'true',
     }
   })
 }
@@ -440,7 +444,6 @@ const startOrStopRecord = async function (state, type, row) {
  */
 const openListDialog = function (getVueComponent, type: string, row?: any) {
   const state = getVueComponent()
-  console.log(row, 22222222, state)
   switch (type) {
     case ToolsEnum.MoveDevice:
       state.currentDevice = row
@@ -484,11 +487,16 @@ const goBack = function (
   getVueComponent: any,
   level: number
 ) {
-  const state: { breadcrumb: any; handleTreeNode: any } = getVueComponent()
+  const state: { breadcrumb: any; handleTreeNode: any, $router: any, $route: any } = getVueComponent()
   const pathList = state.breadcrumb.pathList || []
   // 取当前path的向上level级/根目录
   const target = pathList[pathList.length - 1 - level] || { id: '' }
   state.handleTreeNode(target)
+  state.$router.push({
+    query: {
+      ...state.$route.query
+    }
+  })
 }
 
 /**
@@ -501,8 +509,7 @@ const previewEvents = function (state, id) {
     name: 'DeviceEvents',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -517,8 +524,7 @@ const previewVideo = function (state, id) {
     name: 'DevicePreview',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -533,8 +539,7 @@ const replayVideo = function (state, id) {
     name: 'DeviceReplay',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }
@@ -549,8 +554,7 @@ const previewViid = function (state, id) {
     name: 'DeviceViid',
     query: {
       ...state.$route.query,
-      // [DeviceEnum.DeviceId]: id
-      [DeviceEnum.DeviceId]: '29941916753760267'
+      [DeviceEnum.DeviceId]: id
     }
   })
 }

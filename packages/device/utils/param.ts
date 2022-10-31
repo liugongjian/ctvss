@@ -9,9 +9,8 @@ import {
   DeviceTypeDenyParamsForIbox,
   ChannelDenyEditableParams
 } from '@vss/device/settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
 import { VisibleOptions } from '../type/Param'
-import { DeviceType } from '@/store/modules/app'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -43,7 +42,7 @@ const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum
  * @param options 扩展参数 {isIbox, isEdit}
  * @return 判断结果
  */
-export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: InVideoProtocolEnum, prop: DeviceEnum, options: VisibleOptions = { isIbox: false, isEdit: false}): boolean {
+export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: InVideoProtocolEnum, prop: DeviceEnum, options: VisibleOptions = { isIbox: false, isEdit: false }): boolean {
   if (!this) {
     throw new Error('请使用call()将this指向video info')
   }
@@ -124,10 +123,21 @@ export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
  * 判断设备列表按钮显隐
  * @param type 目录类型
  * @param prop 参数名
+ * @param data 具体数据
  * @returns 判断结果
  */
-export function checkDeviceListVisible(type: string, prop: DeviceEnum): boolean {
-  return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop)
+export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+  let allowFlag = true
+  // nvr通道特殊处理
+  if (data && data[DeviceEnum.DeviceChannelNum] > 0) {
+    allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
+  }
+
+  // nvr通道特殊处理
+  if (type === DeviceTypeEnum.Platform) {
+    allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
+  }
+  return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop) && allowFlag
 }
 
 /**

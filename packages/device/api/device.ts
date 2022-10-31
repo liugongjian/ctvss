@@ -23,6 +23,7 @@ export const getDevices = (params: any): Promise<any> => {
           [DeviceEnum.RecordStatus]: '',
           [DeviceEnum.ViidStatus]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceType] === DeviceTypeEnum.Nvr ? item.device[DeviceEnum.DeviceChannelSize] : '',
+          [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
           [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
@@ -44,7 +45,7 @@ export const getDevices = (params: any): Promise<any> => {
           const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
           data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
-          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus] && viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
         }
         return data
       })
@@ -72,6 +73,7 @@ export const getDevicesIbox = (params: any): Promise<any> => {
           [DeviceEnum.RecordStatus]: '',
           [DeviceEnum.ViidStatus]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
+          [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
           [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
@@ -93,7 +95,7 @@ export const getDevicesIbox = (params: any): Promise<any> => {
           const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
           data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
-          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
+          data[DeviceEnum.ViidStatus] = viidInfo[DeviceEnum.DeviceStatus] && viidInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
         }
         return data
       })
