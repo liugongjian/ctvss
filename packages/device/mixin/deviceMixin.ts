@@ -11,21 +11,18 @@ export default class DeviceMixin extends Vue {
 
   // 设备详情
   public device: Device = {} as Device
+
   // 设备详情加载状态
   public deviceLoading = false
 
-  /**
-   * 设备ID
-   */
+  // 设备ID
   public get deviceId() {
     return this.$route.query.deviceId && this.$route.query.deviceId.toString()
   }
 
-  /**
-   * 设备类型
-   */
-   public get type() {
-    return this.$route.query.type as DirectoryTypeEnum
+  // 设备类型
+  public get deviceType() {
+    return this.device.device && this.device.device.deviceType as DirectoryTypeEnum
   }
 
   // 是否含视频
@@ -52,7 +49,7 @@ export default class DeviceMixin extends Vue {
     immediate: true
   })
   private async deviceIdChange(deviceId) {
-    [DirectoryTypeEnum.Ipc].includes(this.type) && this.getDevice(deviceId)
+    [DirectoryTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
   }
 
   /**

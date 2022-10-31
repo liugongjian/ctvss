@@ -133,6 +133,8 @@ export default class extends Vue {
   @Prop() private deviceId?: boolean
   // 是否为私有接入网络
   @Prop({ default: false }) private isPrivateInNetwork?: string
+  // 默认Tab
+  @Prop({ default: false }) private defaultResourceTabType?: ResourceTypeEnum
 
   private ResourceTypeEnum = ResourceTypeEnum
   private ResourceType = ResourceType
@@ -229,6 +231,9 @@ export default class extends Vue {
    * 初始化
    */
   private mounted() {
+    if (this.defaultResourceTabType) {
+      this.resourceTabType = this.defaultResourceTabType
+    }
     this.getAllResourcesAndBindList()
   }
 

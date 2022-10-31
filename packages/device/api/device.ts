@@ -370,7 +370,7 @@ export const syncStatusPolling = (params: any): Promise<any> =>
   request({
     url: '/device/notifySync',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })
 
 /**
