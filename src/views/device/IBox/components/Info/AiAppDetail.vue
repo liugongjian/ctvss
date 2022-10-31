@@ -98,6 +98,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     this.appInfo = iboxApp
     await this.getAttachedDevice()
     this.deviceList.length === 0 && (this.device = { deviceId: undefined })
+    console.log('this.deviceList:', this.deviceList)
   }
 
   public changeWidthStartAndResize(ev) {
@@ -109,8 +110,14 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   private async getAttachedDevice() {
-    const deviceIds = JSON.parse(this.appInfo.deviceIds)
-    const status = JSON.parse(this.appInfo.status)
+    let deviceIds = []
+    let status = []
+    if (this.appInfo.deviceIds && this.appInfo.deviceIds.length > 0) {
+      deviceIds = JSON.parse(this.appInfo.deviceIds)
+    }
+    if (this.appInfo.status && this.appInfo.status.length > 0) {
+      status = JSON.parse(this.appInfo.status)
+    }
     const param = {
       ParentDeviceId: this.$route.query.deviceId,
       pageNum: 1,
@@ -121,6 +128,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const channels = []
       const iboxId = this.$route.query.deviceId
       const { devices }: any = await getDeviceList(param)
+      debugger
       const _devices = devices.map((device) => {
         if (device.device.deviceType === 'nvr') {
           const deviceChannels = device.device.deviceChannels.map(
@@ -157,7 +165,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const filterDevices = _devices.filter((device) =>
         deviceIds.find((id) => id === device.deviceId)
       )
-      this.deviceList = filterDevices.map((device, index) => ({ ...device, status: status[index] }))
+      this.deviceList = filterDevices.map((device, index) => ({ ...device, status: status[index] || 0 }))
     } catch (e) {
       console.log(e)
     }
