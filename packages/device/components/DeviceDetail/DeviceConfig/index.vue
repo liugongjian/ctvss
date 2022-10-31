@@ -1,5 +1,5 @@
 <template>
-  <div class="config-container">
+  <div class="config-container" v-if="deviceId">
     <resource-template-info v-if="!isIbox" :device-id="deviceId" />
     <record-template-info v-if="!isIbox" :device-id="deviceId" />
     <callback-template-info :device-id="deviceId" />

@@ -200,7 +200,8 @@
       </div>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
-      <resource ref="resource" v-model="videoForm.resource" :device-id="deviceId" />
+      <!-- <el-input v-model="videoForm.resource" /> -->
+      <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -241,8 +242,6 @@ export default class extends Vue {
   @Prop({ default: false }) private isIbox: boolean
   @Prop({ default: false }) private isEdit: boolean
   public videoForm: VideoDeviceForm = {}
-  private orginalResourceIdList: Array<string> = []
-  private isPrivateInNetwork = false
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
@@ -292,7 +291,7 @@ export default class extends Vue {
       { validator: this.validateDevicePort, trigger: 'change' }
     ],
     [DeviceEnum.Resource]: [
-      { required: true, validator: this.validateResource, trigger: 'change' }
+      { validator: this.validateResource, trigger: 'change' }
     ],
     [DeviceEnum.OutId]: [
       { validator: this.validateGbId, trigger: 'blur' }
@@ -307,6 +306,11 @@ export default class extends Vue {
   // 设备ID
   private get deviceId() {
     return this.basicInfo && this.basicInfo.deviceId
+  }
+
+  // 设备通道数量初始值
+  private get orginalChannelSize() {
+    return this.basicInfo && this.basicInfo.deviceChannelSize
   }
 
   // 视频接入协议
@@ -344,9 +348,7 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      [DeviceEnum.Resource]: [],
-      vssAIApps: [],
-      aIApps: []
+      [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
     }
   }
 
@@ -367,11 +369,11 @@ export default class extends Vue {
    */
   public validateVideoForm() {
     const videoForm: any = this.$refs.videoForm
-    let validFlag = true
-    videoForm.validate((valid) => {
-      validFlag = valid
+    return new Promise((resolve) => {
+      videoForm.validate((valid) => {
+        resolve(valid)
+      })
     })
-    return validFlag
   }
 
   /**
@@ -413,16 +415,6 @@ export default class extends Vue {
   }
 
   /**
-   * 接受子组件传来的VSSAIApps
-   */
-  private changeVSSAIApps(res: any) {
-    if (this.isUpdate) {
-      this.videoForm.aIApps = res
-    }
-    this.videoForm.vssAIApps = res
-  }
-
-  /**
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
@@ -434,6 +426,14 @@ export default class extends Vue {
    */
   private checkDisable(prop) {
     return this.basicInfo && checkFormDisable.call(this.basicInfo, prop, { isEdit: this.isEdit })
+  }
+
+  /**
+   * 编辑状态时生成提示信息
+   */
+  public beforeSubmit(submit: Function) {
+    const resourceForm = this.$refs.resourceForm as Resource
+    resourceForm.beforeSubmit(submit, this.basicInfo.deviceChannelSize, this.orginalChannelSize)
   }
 
   /*
@@ -451,8 +451,8 @@ export default class extends Vue {
    * 校验资源包
    */
   public validateResource(rule: any, value: string, callback: Function) {
-    const resource = this.$refs.resource as Resource
-    const res = resource.validate(this.videoForm.deviceChannelSize)
+    const resourceForm = this.$refs.resourceForm as Resource
+    const res = resourceForm.validate(this.videoForm.deviceChannelSize, this.orginalChannelSize)
     if (!res.result) {
       callback(new Error(res.message))
     } else {

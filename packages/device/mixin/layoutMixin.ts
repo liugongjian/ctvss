@@ -2,9 +2,8 @@ import { Component, Vue, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
-import AdvancedSearch from '../components/AdvancedSearch.vue'
-import { deleteDir } from '../api/dir'
-import { getNodeInfo } from '../api/device'
+import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
+import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 
 @Component({
   components: {
@@ -54,9 +53,9 @@ export default class LayoutMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
-    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir}),
+    [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
     [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.EditDirectory, data),
-    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data || { id: '', type: DirectoryTypeEnum.Dir}),
+    [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
@@ -111,7 +110,6 @@ export default class LayoutMixin extends Vue {
       this.loading.tree = true
       try {
         res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-        // this.deviceTree.loadChildren('01')
         const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
         this.deviceTree.loadChildren(pathList)
         this.deviceTree.rootSums.onlineSize = res.onlineSize

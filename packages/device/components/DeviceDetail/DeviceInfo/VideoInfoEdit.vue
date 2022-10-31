@@ -33,10 +33,20 @@ export default class extends Vue {
     return this.device.device
   }
 
+  /**
+   * 提交前验证
+   */
   private async submit() {
     const form = this.$refs.form as VideoCreateForm
-    if (form.validateVideoForm()) {
-      const params: DeviceForm = {
+    await form.validateVideoForm() && form.beforeSubmit(this.doSubmit)
+  }
+
+  /**
+   * 提交表单
+   */
+  private async doSubmit() {
+    const form = this.$refs.form as VideoCreateForm
+    const params: DeviceForm = {
         device: {
           deviceId: this.basicInfo.deviceId
         }
@@ -60,9 +70,11 @@ export default class extends Vue {
       } catch (e) {
         this.$alertError(e.message)
       }
-    }
   }
 
+  /**
+   * 取消
+   */
   private cancel() {
     this.$emit('cancel')
   }

@@ -1,4 +1,6 @@
 import { DeviceEnum, StatusEnum } from '../enums'
+import { Resource } from './Resource'
+
 /**
  * 设备统计
  */
@@ -133,20 +135,6 @@ type Industry = {
   [DeviceEnum.NetworkCode]?: string // 设备的网络标识, 取值如下： 0、1、2、3、4 为监控报警专网，5为公安信息网，6为政务网，7为Internet网，8为社会资源接入网，9预留
 }
 
-/**
- * 资源包
- */
-type Resource = {
-  [DeviceEnum.OrderResource]: {
-    [DeviceEnum.WorkOrderId]: string // 订单ID
-    [DeviceEnum.ResourceId]: string // 资源ID
-    [DeviceEnum.ResourceType]: string // 资源类型
-  }
-  [DeviceEnum.OrderAIApp]: {
-    [DeviceEnum.Id]: string
-    [DeviceEnum.AnalyseType]: string
-  }
-}
 
 /**
  * 设备地址
@@ -168,7 +156,7 @@ type Device = {
   [DeviceEnum.Videos]: Video[]
   [DeviceEnum.Viids]: Viid[]
   [DeviceEnum.Industry]: Industry
-  [DeviceEnum.Resource]: Resource[]
+  [DeviceEnum.Resource]: Resource
 }
 
 /**
@@ -189,11 +177,9 @@ type DeviceBasicForm = DeviceBasic &
  * 设备基本信息表单
  */
 type VideoDeviceForm = VideoDevice & {
-  [DeviceEnum.Resource]?: Resource[]
+  [DeviceEnum.Resource]?: Resource
   [DeviceEnum.InVideoProtocol]?: string
   [DeviceEnum.VideoVendor]?: string
-  [DeviceEnum.AIApps]?: any
-  [DeviceEnum.VssAIApps]?: any
   [DeviceEnum.DeviceChannelSize]?: number
 }
 
@@ -216,7 +202,7 @@ type DeviceForm = {
   [DeviceEnum.Videos]?: VideoDeviceForm[]
   [DeviceEnum.Viids]?: ViidDeviceForm[]
   [DeviceEnum.Industry]?: Industry
-  [DeviceEnum.Resource]?: Resource[]
+  [DeviceEnum.Resource]?: Resource
 }
 
 export {

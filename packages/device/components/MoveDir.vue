@@ -13,22 +13,23 @@
         v-for="item in breadcrumb"
         :key="item.id"
         class="breadcrumb__item"
-        @click="deviceRouter(item)"
       >
-        {{ item.label }}
+        {{ item.name }}
       </span>
     </div>
     <div class="tree-wrap">
       <el-tree
         ref="dirTree"
+        v-loading="loading"
         node-key="id"
         highlight-current
         lazy
         :load="loadDirs"
         :props="treeProp"
+        :expand-on-click-node="false"
         @node-click="selectDir"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node">
+        <span slot-scope="{ node, data }" class="custom-tree-node">
           <span class="node-name">
             <svg-icon :name="data.type" color="#6e7c89" />
             {{ node.label }}
@@ -43,12 +44,9 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
-import { DeviceModule } from '@/store/modules/device'
-import { GroupModule } from '@/store/modules/group'
-import { Device } from '../type/Device'
-import { getDeviceTree } from '../api/device'
-import { bindDir } from '../api/dir'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { getNodeInfo, getDirPath, bindDir } from '../api/dir'
+import { DirectoryTypeEnum, DeviceEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'MoveDir',
@@ -56,24 +54,28 @@ import { bindDir } from '../api/dir'
   }
 })
 export default class extends Vue {
-  @Inject('initDirs') private initDirs!: Function
-  @Inject('getDirPath') private getDirPath!: Function
   @Prop()
-  private device!: Device
+  private device
   @Prop()
-  private devices!: Array<Device>
+  private devices
   @Prop()
   private isBatch!: boolean
-  @Prop()
-  private inProtocol!: string
 
   private dialogVisible = true
+  private loading = false
   private submitting = false
   private breadcrumb: Array<any> = []
   private currentDir: any = null
+  private rootNode = {
+    data: {
+      name: '根目录',
+      id: '',
+      type: 'dir'
+    }
+  }
 
   private treeProp = {
-    label: 'label',
+    label: 'name',
     children: 'children',
     isLeaf: 'isLeaf'
   }
@@ -85,46 +87,17 @@ export default class extends Vue {
   }
 
   /**
-   * 当前目录路径
-   */
-  private get dirPath() {
-    return DeviceModule.breadcrumb
-  }
-
-  /**
-   * 当前业务组ID
-   */
-  private get groupId() {
-    return GroupModule.group!.groupId
-  }
-
-  /**
    * 初始化目录状态
    */
   private async initTreeStatus() {
+    this.loading = true
     const dirTree: any = this.$refs.dirTree
-    const root = [{
-      id: '0'
-    }]
-    const dirPath = root.concat(this.dirPath)
-    if (dirPath) {
-      dirPath.forEach(async(dir: any) => {
-        const node = dirTree.getNode(dir.id)
-        if (node) {
-          await this.loadDirChildren(dir.id, node)
-        }
-      })
-    }
-  }
-  /**
-   * 加载子目录
-   */
-  private async loadDirChildren(key: string, node: any) {
-    const dirTree: any = this.$refs.dirTree
-    let dirs = await this.getTree(node)
-    dirTree.updateKeyChildren(key, dirs)
+    const node = dirTree.getNode(this.rootNode.data.id)
+    const dirs = await this.getChildren(node.data)
+    dirTree.updateKeyChildren(node.data.id, dirs)
     node.expanded = true
     node.loaded = true
+    this.loading = false
   }
 
   /**
@@ -133,29 +106,24 @@ export default class extends Vue {
   private async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) {
       return resolve(
-        [{
-          label: '根目录',
-          id: '0',
-          type: 'dir'
-        }]
+        [this.rootNode.data]
       )
     }
-    const dirs = await this.getTree(node)
+    const dirs = await this.getChildren(node.data)
     resolve(dirs)
   }
 
   /**
    * 获取菜单树
    */
-  private async getTree(node: any) {
+  private async getChildren(data: any) {
     try {
-      const res = await getDeviceTree({
-        groupId: this.groupId,
-        id: node.data.id,
-        type: 'dir'
+      const res = await getNodeInfo({
+        id: data.id,
+        type: data.type
       })
       const dirs = res.dirs.filter((dir: any) => {
-        return dir.type === 'dir'
+        return dir.type === DirectoryTypeEnum.Dir
       })
       return dirs
     } catch (e) {
@@ -163,10 +131,13 @@ export default class extends Vue {
     }
   }
 
-  private selectDir(dir: any) {
-    const dirTree: any = this.$refs.dirTree
-    const node = dirTree.getNode(dir.id)
-    this.breadcrumb = this.getDirPath(node).reverse()
+  private async selectDir(dir: any) {
+    if (!dir.id) {
+      this.breadcrumb = [{ id: '', name: '根目录', type: DirectoryTypeEnum.Dir }]
+    } else {
+      const res = await getDirPath({ id: dir.id, type: DirectoryTypeEnum.Dir })
+      this.breadcrumb = [{ id: '', name: '根目录', type: DirectoryTypeEnum.Dir }, ...res.dirPathList]
+    }
     this.currentDir = dir
   }
 
@@ -184,24 +155,23 @@ export default class extends Vue {
         this.submitting = true
         if (this.isBatch) {
           await Promise.all(
-            this.devices.map((device: Device) => {
+            this.devices.map(device => {
               return bindDir({
-                dirId: this.currentDir.id,
-                deviceId: device.deviceId,
-                inProtocol: this.inProtocol
+                [DeviceEnum.DirId]: this.currentDir.id,
+                [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId]
               })
             })
           )
         } else {
           await bindDir({
-            dirId: this.currentDir.id,
-            deviceId: this.device.deviceId,
-            inProtocol: this.inProtocol
+            [DeviceEnum.DirId]: this.currentDir.id,
+            [DeviceEnum.DeviceId]: this.device[DeviceEnum.DeviceId]
           })
         }
         this.initDirs()
         this.$message.success('移动设备成功！')
       } catch (e) {
+        console.log(e)
         this.$message.error(e && e.message)
       } finally {
         this.submitting = false
@@ -210,7 +180,7 @@ export default class extends Vue {
     })
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

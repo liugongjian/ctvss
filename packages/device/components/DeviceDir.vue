@@ -22,9 +22,9 @@
         @node-click="selectDevice"
       >
         <span
-          slot-scope="{node, data}"
+          slot-scope="{ node, data }"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on'}"
+          :class="{ 'online': data.deviceStatus === 'on' }"
         >
           <span class="node-name">
             <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -46,9 +46,9 @@
         @node-click="selectDevice"
       >
         <span
-          slot-scope="{node, data}"
+          slot-scope="{ node, data }"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on'}"
+          :class="{ 'online': data.deviceStatus === 'on' }"
         >
           <span class="node-name">
             <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
