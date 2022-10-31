@@ -11,7 +11,6 @@ import {
   startRecord,
   stopRecord
 } from '../../api/device'
-import { type } from 'os'
 
 import ExportExcelTemplate from './DeviceExportTemplate'
 
@@ -78,23 +77,9 @@ const editDevice = function (state, id, type) {
  * @param state.handleTools layout工能回调函数
  * @param row 设备信息
  */
-const deleteDevice = function (state, row?) {
-  if (row) {
-    // 单个操作
-    state.$alertDelete({
-      type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${row[DeviceEnum.DeviceName]}"吗？`,
-      method: () => {},
-      payload: {
-        [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
-        [DeviceEnum.ParentDeviceId]: row[DeviceEnum.ParentDeviceId]
-      },
-      onSuccess: () => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
-      }
-    })
-  } else {
+const deleteDevice = function (state, data?) {
+  console.log(data, 111111)
+  if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
     state.$alertDelete({
@@ -104,15 +89,15 @@ const deleteDevice = function (state, row?) {
         h(
           'div',
           { class: 'batch-list' },
-          state.selectedDeviceList.map(device => {
+          data.map(device => {
             return h('p', undefined, [h('span', { class: 'device-name' }, device[DeviceEnum.DeviceName])])
           })
         )
       ]),
       method: () => {
         return Promise.all(
-          state.selectedDeviceList.map(device => {
-            return deleteDevice({
+          data.map(device => {
+            return deleteDeviceApi({
               [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId],
               [DeviceEnum.ParentDeviceId]: device[DeviceEnum.ParentDeviceId]
             })
@@ -120,6 +105,26 @@ const deleteDevice = function (state, row?) {
         )
       },
       payload: null,
+      onSuccess: () => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshDeviceList)
+      }
+    })
+  } else {
+    // 单个操作
+    state.$alertDelete({
+      type: '设备',
+      msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
+      method: () => {
+        return deleteDeviceApi({
+          [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
+          [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+        })
+      },
+      payload: {
+        [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
+        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+      },
       onSuccess: () => {
         state.handleTools(ToolsEnum.RefreshDirectory)
         state.handleTools(ToolsEnum.RefreshDeviceList)
@@ -491,11 +496,6 @@ const goBack = function (
   // 取当前path的向上level级/根目录
   const target = pathList[pathList.length - 1 - level] || { id: '' }
   state.handleTreeNode(target)
-  state.$router.push({
-    query: {
-      ...state.$route.query
-    }
-  })
 }
 
 /**

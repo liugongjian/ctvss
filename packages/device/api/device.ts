@@ -194,7 +194,7 @@ export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 /**
@@ -368,9 +368,9 @@ export const syncDeviceStatus = (params: any): Promise<any> =>
  */
 export const syncStatusPolling = (params: any): Promise<any> =>
   request({
-    url: '/device/notify/sync',
-    method: 'post',
-    data: params
+    url: '/device/notifySync',
+    method: 'get',
+    params
   })
 
 /**

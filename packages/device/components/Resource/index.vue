@@ -133,6 +133,8 @@ export default class extends Vue {
   @Prop() private deviceId?: boolean
   // 是否为私有接入网络
   @Prop({ default: false }) private isPrivateInNetwork?: string
+  // 默认Tab
+  @Prop({ default: false }) private defaultResourceTabType?: ResourceTypeEnum
 
   private ResourceTypeEnum = ResourceTypeEnum
   private ResourceType = ResourceType
@@ -145,7 +147,8 @@ export default class extends Vue {
     [ResourceTypeEnum.Video]: false,
     [ResourceTypeEnum.AI]: false,
     [ResourceTypeEnum.Upload]: false,
-    bindList: false
+    bindList: false,
+    all: false
   }
   // 资源包列表
   private resourceList = {
@@ -189,7 +192,7 @@ export default class extends Vue {
     const appSize = this.resource && this.resource.aIApps ? this.resource.aIApps.length : 0
     const messages = []
     messages.push(`已选择${appSize}种AI应用`)
-    if (this.isEdit) {
+    if (this.isEdit && this.orginalResource.resourceIds.indexOf(this.form.resource[ResourceTypeEnum.AI]) > -1) {
       const diff = appSize - this.orginalResource.appSize
       if (diff > 0) {
         messages.push(`将扣除包中${diff}路资源`)
@@ -205,7 +208,7 @@ export default class extends Vue {
    */
   public get currentResourceAIType() {
     const aIResource = this.resourceList[ResourceTypeEnum.AI].find(resource => resource.resourceId === this.form.resource[ResourceTypeEnum.AI])
-    return aIResource.aIType
+    return aIResource && aIResource.aIType
   }
 
   @Watch('form', {
@@ -228,6 +231,9 @@ export default class extends Vue {
    * 初始化
    */
   private mounted() {
+    if (this.defaultResourceTabType) {
+      this.resourceTabType = this.defaultResourceTabType
+    }
     this.getAllResourcesAndBindList()
   }
 
@@ -297,13 +303,20 @@ export default class extends Vue {
    * 加载所有资源列表和已绑定的列表
    */
   private async getAllResourcesAndBindList() {
-    await Promise.all([
-      this.getResouces(ResourceTypeEnum.Video),
-      this.getResouces(ResourceTypeEnum.AI),
-      this.getResouces(ResourceTypeEnum.Upload),
-      this.isEdit && this.getDeviceResource()
-    ])
-    this.$emit('loaded')
+    try {
+      this.loading.all = true
+      await Promise.all([
+        this.getResouces(ResourceTypeEnum.Video),
+        this.getResouces(ResourceTypeEnum.AI),
+        this.getResouces(ResourceTypeEnum.Upload),
+        this.isEdit && this.getDeviceResource()
+      ])
+      this.$emit('loaded')
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.all = false
+    }
   }
 
   /**
@@ -314,6 +327,13 @@ export default class extends Vue {
    * 4）AI资源包剩余数量需要大于所选的AI应用数量
    */
   public validate(channelSize: number, orginalChannelSize: number) {
+    if (this.loading.all) {
+      return {
+        result: true,
+        message: null
+      }
+    }
+
     const messages = []
 
     const _validateRemain = (resourceType, channelSize, orginalChannelSize?) => {

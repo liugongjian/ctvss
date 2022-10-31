@@ -200,8 +200,7 @@
       </div>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
-      <!-- <el-input v-model="videoForm.resource" /> -->
-      <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" />
+      <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
     </el-form-item>
     <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>

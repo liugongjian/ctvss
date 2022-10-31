@@ -33,6 +33,17 @@ Vue.use(Router)
   }
 */
 
+// 过滤掉重复路由产生的报错
+const originalPush = Router.prototype.push
+
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => {
+    if (err.name !== 'NavigationDuplicated') {
+      throw err
+    }
+  })
+}
+
 /**
   ConstantRoutes
   a base page that does not have permission requirements
