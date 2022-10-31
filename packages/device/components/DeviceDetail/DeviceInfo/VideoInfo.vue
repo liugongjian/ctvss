@@ -114,7 +114,7 @@ export default class extends Vue {
 
   // 流信息
   public get streamInfo() {
-    return this.videoInfo && this.videoInfo.streams.length && this.videoInfo.streams[this.videoInfo.deviceStreamPullIndex - 1]
+    return this.videoInfo && this.videoInfo.streams.length && this.videoInfo.streams.find(stream => stream.streamNum === this.videoInfo.deviceStreamPullIndex)
   }
 
   // 流状态
