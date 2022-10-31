@@ -62,7 +62,7 @@
       <el-table-column label="AI启用状态">
         <template slot-scope="scope">
           <status-badge
-            :status="parseInt(scope.row.status) ? 'failed' : 'om'"
+            :status="parseInt(scope.row.status) ? 'on' : 'failed'"
           />
           <span>{{ parseInt(scope.row.status) ? '启用' : '停用' }}</span>
         </template>

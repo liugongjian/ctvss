@@ -165,7 +165,12 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const filterDevices = _devices.filter((device) =>
         deviceIds.find((id) => id === device.deviceId)
       )
-      this.deviceList = filterDevices.map((device, index) => ({ ...device, status: status[index] || 0 }))
+      debugger
+      this.deviceList = filterDevices.map(device => {
+        const index = deviceIds.findIndex((id) => id === device.deviceId)
+        return { ...device, status: index ? status[index] : 0 }
+      })
+      console.log('this.deviceList:', this.deviceList)
     } catch (e) {
       console.log(e)
     }
