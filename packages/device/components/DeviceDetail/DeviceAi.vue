@@ -25,6 +25,7 @@
 import { Component, Vue, Prop, Mixins } from 'vue-property-decorator'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
 import { getAppList } from '@/api/ai-app'
+import { describeIboxApps } from '@/api/ibox'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
@@ -49,12 +50,40 @@ export default class extends Mixins(detailMixin) {
 
   private async mounted() {
     try {
-      this.initDeviceApp()
+      const isIbox = this.$route.path.includes('ibox')
+      isIbox ? this.initIboxApp() : this.initDeviceApp()
       // const { groups }: any = await getAIConfigGroupData({})
       // this.initFaceLib(groups)
     } catch (e) {
       console.log(e)
     }
+  }
+
+  private async initIboxApp() {
+    const { deviceId }: any = this.$route.query
+    const path: any = this.$route.query.path
+    const iboxId = path.split(',')[0]
+    const { iboxApps }: any =
+      await describeIboxApps({
+        pageSize: 1000,
+        iboxId,
+        deviceId
+      })
+    const transformIboxAppInfo = (iboxApps) => {
+      const transformed = iboxApps.map(app => ({
+        ...app,
+        id: app.appId
+      }))
+      return transformed
+    }
+    const transIboxApps = transformIboxAppInfo(iboxApps)
+    if (transIboxApps.length > 0) {
+      this.appInfo = transIboxApps[0]
+      this.apps = transIboxApps
+      this.app = this.appInfo.appId
+    }
+
+    console.log(iboxApps)
   }
 
   private async initDeviceApp() {

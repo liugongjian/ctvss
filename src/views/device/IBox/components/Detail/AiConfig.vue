@@ -57,7 +57,8 @@ import {
   stopIboxApps,
   unBindIboxApps,
   bindIboxApps,
-  configureIboxAlgorithm
+  configureIboxAlgorithm,
+  getIboxFrames
 } from '@/api/ibox'
 import AppConfig from './component/AppConfig.vue'
 import AlgoConfig from '../Info/AlgoConfig/index.vue'
@@ -138,6 +139,30 @@ export default class AiAppList extends Vue {
       algorithmMetadata: JSON.stringify(algorithmMetadata),
       deviceId: undefined
     }
+  }
+
+  private initFrame() {
+    const param = {
+      frames: [{
+        stream: this.deviceId,
+        inProtocol: this.inProtocol
+      }]
+    }
+    getIboxFrames(param).then(res => {
+      if (res) {
+        const { frames = [] } = res
+        const { frame = '' } = frames[0] || []
+        if (!frame) {
+          this.$message.warning('暂时获取不到截图，请稍后再试')
+        } else {
+          this.canvasDialog = true
+          this.configAlgoInfo = rowInfo
+          this.frameImage = frame
+        }
+      }
+    }).catch(e => {
+      this.$message.error(e && e.message)
+    })
   }
 
   private unbind(row) {

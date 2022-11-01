@@ -122,7 +122,7 @@ export default class extends Vue {
       const lineNum = len % n === 0 ? len / n : Math.floor(len / n + 1)
       const res = []
       for (let i = 0; i < lineNum; i++) {
-        let temp = arr.slice(i * n, i * n + n)
+        const temp = arr.slice(i * n, i * n + n)
         res.push(temp)
       }
       return res

@@ -210,8 +210,10 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
-import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
-  unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
+import {
+  getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
+  unBindAppResource, startAppResource, stopAppResource
+} from '@/api/device'
 import { getAlertBind } from '@/api/template'
 import { getAppList, getAlgoStreamFrameShot } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
@@ -315,6 +317,7 @@ export default class extends Vue {
       this.$message.error(e && e.message)
     })
   }
+
   private closeCanvasDialog() {
     this.canvasDialog = false
     // this.getAlgoList()
@@ -494,8 +497,8 @@ export default class extends Vue {
       resourcesRes.resources.forEach((ele: any) => {
         result[ele.resourceType] = ele
       })
-      if (result['VSS_UPLOAD_BW']) {
-        const obj = result['VSS_UPLOAD_BW']
+      if (result.VSS_UPLOAD_BW) {
+        const obj = result.VSS_UPLOAD_BW
         const codeRate = parseInt(obj.codeRate, 10)
         const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
         obj.bwDeviceCountRate = codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
