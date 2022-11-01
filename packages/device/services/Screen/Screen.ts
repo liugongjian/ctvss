@@ -1,9 +1,11 @@
 import axios from 'axios'
 import screenLogManager from './ScreenLogManager'
-import { DeviceInfo, StreamInfo, Stream } from '@vss/vss-video-player/types/VssPlayer'
+import { DeviceInfo, StreamInfo } from '@vss/vss-video-player/types/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
 import { Player } from '@vss/video-player/services/Player'
 import { getDevicePreview } from '@/api/device'
+import { Stream } from '@vss/device/type/Device'
+import { Codec, StatusEnum } from '@vss/device/enums/index'
 
 export class Screen {
   /* 播放器类型 */
@@ -34,8 +36,6 @@ export class Screen {
   public deviceId?: number | string
   public inProtocol?: string
   public deviceName?: string
-  public roleId?: string
-  public realGroupId?: string
 
   /**
    * ----------------
@@ -53,7 +53,7 @@ export class Screen {
   public streamNum: number
   public videoWidth: number
   public videoHeight: number
-  public codec: string
+  public codec: Codec
 
   /**
    * ----------------
@@ -101,8 +101,6 @@ export class Screen {
     this.deviceId = null
     this.inProtocol = ''
     this.deviceName = ''
-    this.roleId = null
-    this.realGroupId = null
     this.isLive = null
     this.isLoading = false
     this.isFullscreen = false
@@ -141,9 +139,7 @@ export class Screen {
     return {
       deviceId: this.deviceId?.toString(),
       inProtocol: this.inProtocol,
-      deviceName: this.deviceName,
-      roleId: this.roleId,
-      realGroupId: this.realGroupId
+      deviceName: this.deviceName
     }
   }
 
@@ -262,11 +258,7 @@ export class Screen {
         {
           deviceId: this.deviceId,
           inProtocol: this.inProtocol,
-          streamNum: this.streamNum,
-          'self-defined-headers': {
-            'role-id': this.roleId || '',
-            'real-group-id': this.realGroupId || ''
-          }
+          streamNum: this.streamNum
         },
         this.axiosSource.token
       )
@@ -281,7 +273,7 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
         if (this.streamNum && this.streams.length) {
           const stream = this.streams[this.streamNum - 1]
-          if (stream) stream.streamStatus = 'on'
+          if (stream) stream.streamStatus = StatusEnum.On
         }
       }
       this.isLoading = false
@@ -345,8 +337,5 @@ export class Screen {
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()
-    // this.recordManager = new RecordManager({
-    //   screen: this
-    // })
   }
 }
