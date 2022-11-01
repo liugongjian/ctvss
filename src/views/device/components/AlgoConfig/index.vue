@@ -55,14 +55,17 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import math from './utils/math'
-import { getRectPropFromPoints,
+import {
+  getRectPropFromPoints,
   getVerticalLinePoints, drawArrow
 } from './utils/index'
-import { getAppDescribeLine, sendAppDescribeLine
+import {
+  getAppDescribeLine, sendAppDescribeLine
 // getAlgoStreamFrame
 } from '@/api/ai-app'
 // import plate from './plate4.jpg'
-import { DRAW_MODES
+import {
+  DRAW_MODES
 //   DRAW_MODES_TEXT
 } from './contants'
 
@@ -121,7 +124,7 @@ export default class extends Vue {
       const lineNum = len % n === 0 ? len / n : Math.floor(len / n + 1)
       const res = []
       for (let i = 0; i < lineNum; i++) {
-        let temp = arr.slice(i * n, i * n + n)
+        const temp = arr.slice(i * n, i * n + n)
         res.push(temp)
       }
       return res

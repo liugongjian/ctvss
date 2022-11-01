@@ -195,3 +195,11 @@ export const configureIboxAlgorithm = (data: any) =>
     method: 'post',
     data
   })
+
+// 配置应用划线
+export const getIboxFrames = (params: any) =>
+  request({
+    url: '/ibox/stream/frame',
+    method: 'get',
+    params: toUpperCase(params)
+  })

@@ -10,7 +10,7 @@
         />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice
+        <AttachedDevice
           v-if="tabNum === '1'"
           :app-info="appInfo"
           :devices="deviceList"
@@ -56,7 +56,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import BasicAppInfo from '@/views/AI/AppList/component/BasicAppInfo.vue'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
-import AtachedDevice from './AtachedDevice.vue'
+import AttachedDevice from './AttachedDevice.vue'
 
 import { describeIboxApp, getDeviceList } from '@/api/ibox'
 // import { getDeviceTree } from '@/api/device'
@@ -68,7 +68,7 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
   components: {
     BasicAppInfo,
     AppSubDetail,
-    AtachedDevice
+    AttachedDevice
   }
 })
 export default class extends Mixins(AppMixin, IndexMixin) {

@@ -42,7 +42,7 @@
       <el-button @click="cancel">取消</el-button>
     </div>
     <algo-config
-      v-if="canvasDialog"
+      v-if="canvasDialog && frameImage"
       :device-id="deviceId"
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
@@ -58,6 +58,7 @@ import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 import { getDeviceList } from '@/api/ibox'
+import AlgoMixin from '@/views/device/IBox/mixin/algoMixin'
 
 // @ts-ignore
 @Component({
@@ -66,9 +67,10 @@ import { getDeviceList } from '@/api/ibox'
     AlgoConfig
   }
 })
-export default class extends Mixins(AppMixin) {
+export default class extends Mixins(AppMixin, AlgoMixin) {
   @Inject('appInfo')
   public appInfo!: any
+
   @Prop() private step!: number
   @Prop() private prod!: any
   private iboxDevice = []
@@ -86,7 +88,6 @@ export default class extends Mixins(AppMixin) {
 
   private configAlgoInfo = { code: '10001' }
   private dangerZone = null
-  private frameImage = require('./AlgoConfig/plate4.jpg')
 
   private async mounted() {
     await this.loadIboxDevice()
@@ -155,13 +156,24 @@ export default class extends Mixins(AppMixin) {
     this.$emit('update:step', this.step - 1)
   }
 
-  private checkCallback(data, isChecked) {
+  private async checkCallback(data, isChecked) {
     if (isChecked && !data.meta) {
-      this.deviceId = data.deviceId
-      this.meta = null
-      this.canvasDialog = true
-      this.nodeChecked = !isChecked
+      try {
+        this.deviceId = data.deviceId
+        this.meta = null
+        this.nodeChecked = !isChecked
+        await this.initFrameAndDialog(data.deviceId)
+      } catch (e) {
+        this.frameImage = null
+        this.setNodeOppositeChecked(data.deviceId)
+        this.$message.warning(e)
+      }
     }
+  }
+
+  private async initFrameAndDialog(deviceId) {
+    await this.initFrame(false, deviceId)
+    this.canvasDialog = true
   }
 
   private onSubmit() {
@@ -200,10 +212,16 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  private editMeta(data) {
+  private async editMeta(data) {
     this.meta = data.meta
-    this.canvasDialog = true
     this.nodeChecked = true
+    try {
+      await this.initFrameAndDialog(data.deviceId)
+    } catch (e) {
+      this.frameImage = null
+      this.setNodeOppositeChecked(data.deviceId)
+      this.$message.warning(e)
+    }
   }
 
   public closeCanvasDialog() {
@@ -245,10 +263,6 @@ export default class extends Mixins(AppMixin) {
   ::v-deep .is-disabled {
     visibility: hidden;
   }
-}
-
-.online {
-  color: #65c465;
 }
 
 .offline {

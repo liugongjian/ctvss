@@ -69,7 +69,7 @@ import {
   getVerticalLinePoints,
   drawArrow
 } from './utils/index'
-import plate from './plate4.jpg'
+// import plate from './plate4.jpg'
 import {
   DRAW_MODES
   //   DRAW_MODES_TEXT
@@ -104,13 +104,13 @@ export default class extends Vue {
   private direction = false
 
   private mounted() {
-    this.$nextTick(() => {
-      // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
-      this.img2Base64(plate)
-    })
     // this.$nextTick(() => {
-    //   this.initCanvas()
+    //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
+    //   this.img2Base64(plate)
     // })
+    this.$nextTick(() => {
+      this.initCanvas()
+    })
   }
 
   // 获取已编辑过的划线
@@ -122,7 +122,7 @@ export default class extends Vue {
       const lineNum = len % n === 0 ? len / n : Math.floor(len / n + 1)
       const res = []
       for (let i = 0; i < lineNum; i++) {
-        let temp = arr.slice(i * n, i * n + n)
+        const temp = arr.slice(i * n, i * n + n)
         res.push(temp)
       }
       return res
@@ -180,9 +180,9 @@ export default class extends Vue {
     this.imgSrc = this.frameImage
     const that = this
     const img = new Image()
-    // img.src = `data:image/png;base64,${this.imgSrc}`
+    img.src = `data:image/png;base64,${this.imgSrc}`
     // let img = new Image()
-    img.src = that.dataURL
+    // img.src = that.dataURL
 
     const backgroundLayer = document.querySelector(
       '#canvasWrapper'
@@ -217,13 +217,7 @@ export default class extends Vue {
         'style',
         `width:${backgroundLayer.width}px;height:${canvasHeight}px`
       )
-      backgroundCtx.drawImage(
-        img,
-        0,
-        0,
-        backgroundLayer.width,
-        backgroundLayer.height
-      )
+      backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
       // that.imageHeight = backgroundLayer.height * this.ratio
       // that.imageWidth = backgroundLayer.width * this.ratio
       that.getHasLine()
@@ -734,6 +728,7 @@ export default class extends Vue {
 
   .canvasDraw {
     position: relative;
+    margin-left: 23px;
   }
 
   .canvasOperator {

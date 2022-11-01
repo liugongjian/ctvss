@@ -6,10 +6,15 @@
       </div>
       <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="应用名称" />
-        <el-table-column prop="algorithmName" label="算法类型" />
-        <el-table-column prop="analyseType" label="状态">
+        <el-table-column label="算法类型">
           <template slot-scope="scope">
             <span>{{ ResourceAiType[scope.row.analyseType] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <status-badge :status="(scope.row.status === '[0]' ? 'off' : 'on')" />
+            <span>{{ scope.row.status === "[0]" ? '停用' : '启用' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -39,7 +44,7 @@
       @close="closeDialogue"
     />
     <algo-config
-      v-if="dialogVisible.algo"
+      v-if="dialogVisible.algo && frameImage"
       :device-id="deviceId"
       :canvas-if="dialogVisible.algo"
       :config-algo-info="configAlgoInfo"
@@ -50,7 +55,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 import {
   describeIboxApps,
   startIboxApps,
@@ -62,15 +68,17 @@ import {
 import AppConfig from './component/AppConfig.vue'
 import AlgoConfig from '../Info/AlgoConfig/index.vue'
 import { ResourceAiType } from '@/dics'
+import AlgoMixin from '@/views/device/IBox/mixin/algoMixin'
 
 @Component({
   name: 'AiConfig',
   components: {
     AppConfig,
-    AlgoConfig
+    AlgoConfig,
+    StatusBadge
   }
 })
-export default class AiAppList extends Vue {
+export default class AiAppList extends Mixins(AlgoMixin) {
   public tableData = []
   public dialogVisible = {
     app: false,
@@ -123,10 +131,11 @@ export default class AiAppList extends Vue {
     this.getAppList()
   }
 
-  private algoConfig(row) {
-    this.dialogVisible.algo = true
-    this.app = row
+  private async algoConfig(row) {
+    await this.initFrame()
     this.initMetaFromApp(row)
+    this.app = row
+    this.dialogVisible.algo = true
   }
 
   private initMetaFromApp(appInfo) {
