@@ -79,11 +79,11 @@ interface ValueObject<> {
 })
 
 export default class extends Vue {
-  @Prop() private inProtocol?: string
+  // @Prop() private inProtocol?: string
   @Prop() private deviceId?: string
   @Prop() private canvasIf?: boolean
   @Prop() private configAlgoInfo?: any
-  @Prop() private deviceInfo?: any
+  // @Prop() private deviceInfo?: any
   @Prop() private frameImage?: any
 
   private mode = ''
