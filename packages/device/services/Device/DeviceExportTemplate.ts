@@ -30,6 +30,8 @@ class ExportExcelTemplate {
   6、预设城市、设备地址、所属行业继承当前业务组的信息
   7、该表格中的sheet顺序和名称不得修改`
 
+  private worksheetExplainName = '表格说明'
+
   /**
    * 静态validation集合
    */
@@ -580,7 +582,12 @@ class ExportExcelTemplate {
    *
    * @memberof 导出模板
    */
-  public async exportTemplate() {
+  public async exportTemplate(data: any) {
+
+    console.log('exportTemplate--data----->', data)
+
+    return
+
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
 
@@ -610,9 +617,11 @@ class ExportExcelTemplate {
 
     // 增加第五个sheet
     const worksheetExplain: any =  this.workbook.addWorksheet('My Sheet')
-    worksheetExplain.name = '表格说明'
+    worksheetExplain.name = this.worksheetExplainName
+    
     // 设置列的宽度
     worksheetExplain.properties.defaultColWidth = 16
+
     // 合并单元格
     worksheetExplain.mergeCells('A1:E6')
     worksheetExplain.getCell('E6').value = this.excelExplain

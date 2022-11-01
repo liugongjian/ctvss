@@ -17,6 +17,7 @@
           ref="resourceForm"
           v-model="resource"
           :device-id="deviceId"
+          :default-resource-tab-type="defaultResourceTabType"
           @loaded="loading = false"
         />
       </el-form-item>
@@ -30,6 +31,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Resource as ResourceType } from '@vss/device/type/Resource'
+import { ResourceTypeEnum } from '@vss/device/enums/resource'
 import Resource from './index.vue'
 import { updateDeviceResource } from '@vss/device/api/billing'
 import { Device } from '@vss/device/type/Device'
@@ -43,14 +45,14 @@ import { Device } from '@vss/device/type/Device'
 export default class extends Vue {
   @Prop()
   private device!: Device
-  @Prop() private algoTabTypeDefault?: String
+  @Prop() private defaultResourceTabType?: ResourceTypeEnum
   public resource: ResourceType = null
   private dialogVisible = true
   private submitting = false
   private loading = true
 
   private get deviceId() {
-    return this.device && this.device.device.deviceId
+    return this.device.device && this.device.device.deviceId
   }
 
   private submit() {

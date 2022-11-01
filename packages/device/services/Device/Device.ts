@@ -328,8 +328,7 @@ const uploadExcel = function (state, data: any) {
  * 导出模板
  */
 const exportTemplate = function (state) {
-  console.log('exportTemplate--->', state)
-  ExportExcelTemplate.exportTemplate()
+  ExportExcelTemplate.exportTemplate(state)
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal

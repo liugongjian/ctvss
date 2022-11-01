@@ -6,9 +6,10 @@
         <el-button
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           type="text"
-          @click="changeResourceDialog"
-          >配置</el-button
+          @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
+          配置
+        </el-button>
       </div>
     </div>
     <el-card v-if="resources.VSS_VIDEO">
@@ -17,9 +18,10 @@
         <el-button
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           type="text"
-          @click="changeResourceDialog"
-          >配置视频包</el-button
+          @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
+          配置视频包
+        </el-button>
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="码率">
@@ -47,13 +49,14 @@
         <el-button
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           type="text"
-          @click="changeResourceDialog('AI')"
-          >配置AI包</el-button
+          @click="openResourceDialog(ResourceTypeEnum.AI)"
         >
+          配置AI包
+        </el-button>
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="分析类型">
-          {{ resourceAiType[resources.VSS_AI.aiType] }}
+          {{ ResourceAiType[resources.VSS_AI.aiType] }}
         </el-descriptions-item>
         <el-descriptions-item label="到期时间">
           {{ resources.VSS_AI.expTime }}
@@ -62,12 +65,14 @@
           content-class-name="detail__table-row"
           label="AI应用"
         >
-          <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
+          <el-table :data="appList" empty-text="当前设备暂未绑定AI应用">
             <el-table-column label="应用名称" min-width="100" prop="name" />
             <el-table-column label="算法类型" min-width="100">
-              <template slot-scope="scope">{{
-                scope.row.algorithm.name
-              }}</template>
+              <template slot-scope="scope">
+                {{
+                  scope.row.algorithm.name
+                }}
+              </template>
             </el-table-column>
             <el-table-column v-if="!isNvr" prop="appEnabled" label="状态">
               <template slot-scope="scope">
@@ -86,20 +91,21 @@
             >
               <template slot-scope="scope">
                 <el-tooltip
-                  v-if="ifShowAlgoBtn(scope.row.algorithm.code)"
+                  v-if="checkAlgoConfigVisable(scope.row.algorithm.code)"
                   class="item"
                   effect="dark"
                   content="设备离线时不可配置算法"
                   placement="top-start"
-                  :disabled="deviceInfo.deviceStatus === 'on'"
+                  :disabled="videoInfo.deviceStatus.isOnline === StatusEnum.On"
                 >
                   <div class="disable-btn-box">
                     <el-button
                       type="text"
-                      :disabled="deviceInfo.deviceStatus !== 'on'"
+                      :disabled="videoInfo.deviceStatus.isOnline !== StatusEnum.On"
                       @click="openCanvasDialog(scope.row)"
-                      >算法配置</el-button
                     >
+                      算法配置
+                    </el-button>
                   </div>
                 </el-tooltip>
                 <el-tooltip
@@ -114,15 +120,17 @@
                       type="text"
                       :disabled="scope.row.status === '1'"
                       @click="changeBindStatus(scope.row)"
-                      >解除绑定</el-button
                     >
+                      解除绑定
+                    </el-button>
                   </div>
                 </el-tooltip>
                 <el-button
                   type="text"
                   @click="changeRunningStatus(scope.row)"
-                  >{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button
                 >
+                  {{ parseInt(scope.row.status) ? '停用' : '启用' }}
+                </el-button>
               </template>
             </el-table-column>
             <el-table-column
@@ -143,8 +151,9 @@
                       type="text"
                       :disabled="scope.row.status === '1'"
                       @click="changeBindStatus(scope.row)"
-                      >解除绑定</el-button
                     >
+                      解除绑定
+                    </el-button>
                   </div>
                 </el-tooltip>
               </template>
@@ -160,9 +169,10 @@
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           v-permission="['*']"
           type="text"
-          @click="changeResourceDialog"
-          >配置带宽包</el-button
+          @click="openResourceDialog(ResourceTypeEnum.Upload)"
         >
+          配置带宽包
+        </el-button>
       </template>
       <el-descriptions :column="2">
         <el-descriptions-item label="码率">
@@ -185,38 +195,34 @@
     <algo-config
       v-if="canvasDialog"
       :device-id="deviceId"
-      :in-protocol="inProtocol"
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
-      :device-info="deviceInfo"
       :frame-image="frameImage"
     />
 
     <resource-edit
       v-if="showResourceDialog"
-      :device="deviceInfo"
-      :algo-tab-type-default="algoTabTypeDefault"
+      :device="device"
+      :default-resource-tab-type="defaultResourceTabType"
       @on-close="closeResourceDialog"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@vss/device/dicts/resource'
-import {
-  getDevice,
-  unBindAppResource,
-  startAppResource,
-  stopAppResource
-} from '@vss/device/api/device'
+import { unBindAppResource, startAppResource, stopAppResource } from '@vss/device/api/device'
 import { getAppList, getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { getDeviceResource } from '@vss/device/api/billing'
 import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
-import detailMixin from '@vss/device/mixin/deviceMixin'
 import { ResourceTemplateInfoCodes } from '@vss/ai/dics'
+import { ResourceTypeEnum } from '@vss/device/enums/resource'
+import { Device, DeviceBasic, VideoDevice } from '@vss/device/type/Device'
+import { DeviceTypeEnum, StatusEnum } from '@vss/device/enums'
+import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
 @Component({
   name: 'ResourceTemplateInfo',
@@ -225,42 +231,200 @@ import { ResourceTemplateInfoCodes } from '@vss/ai/dics'
     ResourceEdit
   }
 })
-export default class extends Mixins(detailMixin) {
-
+export default class extends Vue {
+  @Prop() private deviceId: string
+  @Prop() private device: Device
+  
+  private ResourceTypeEnum = ResourceTypeEnum
+  private StatusEnum = StatusEnum
+  private ResourceAiType = ResourceAiType
   private checkPermission = checkPermission
-
-  private resourceAiType = ResourceAiType
-
+  // 资源包列表
+  private resources: any = {}
+  // AI应用列表
+  private appList: any = []
+  // 是否显示画框弹窗
+  private canvasDialog = false
+  // 是否显示资源包配置弹窗
+  private showResourceDialog = false
+  // 默认资源包TAB
+  private defaultResourceTabType = ResourceTypeEnum.Video
+  // 配置算法信息
+  private configAlgoInfo: any = {}
+  // 加载状态
   private loading = {
-    aiTemplate: false,
     AITable: false
   }
 
-  private algoListData: any = []
+  // 是否为虚拟目录下的设备
+  public get isVGroup() {
+    return false
+  }
 
-  private canvasDialog = false
+  // 视频接入协议
+  private get inVideoProtocol() {
+    return this.device.videos && this.device.videos.length && this.device.videos[0]?.inVideoProtocol
+  }
 
-  private showResourceDialog = false
+  // 设备基本信息
+  private get basicInfo(): DeviceBasic {
+    return this.device && this.device.device
+  }
 
-  private algoTabTypeDefault = ''
+  // 视频接入信息
+  private get videoInfo(): VideoDevice {
+    return this.inVideoProtocol && this.device.videos[0][InVideoProtocolModelMapping[this.inVideoProtocol]]
+  }
 
-  private resources: any = {}
-
-  private configAlgoInfo: any = {}
+  // 是否为NVR
+  public get isNvr() {
+    return this.basicInfo && this.basicInfo.deviceType === DeviceTypeEnum.Nvr
+  }
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
-    this.getAlgoList()
-    await this.getDeviceInfo()
+    this.getAIAppList()
     await this.getDeviceResource()
   }
 
+  /**
+   * 获取资源包
+   */
+  private async getDeviceResource() {
+    this.loading.AITable = true
+    try {
+      const resourcesRes = await getDeviceResource({
+        deviceId: this.deviceId
+      })
+      const result = {}
+      // 以resourceType 为key 重组数据，渲染使用
+      resourcesRes.resources.forEach((ele: any) => {
+        result[ele.resourceType] = ele
+      })
+      if (result['VSS_UPLOAD_BW']) {
+        const obj = result['VSS_UPLOAD_BW']
+        const codeRate = parseInt(obj.codeRate, 10)
+        const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
+        obj.bwDeviceCountRate =
+          codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
+      }
+      this.resources = result
+    } catch (e) {
+      this.$alertError(e.message)
+    } finally {
+      this.loading.AITable = false
+    }
+  }
+
+  /**
+   * 获取AI应用列表
+   */
+  private async getAIAppList() {
+    try {
+      this.loading.AITable = true
+      const algoListResult = await getAppList({ deviceId: this.deviceId })
+      this.appList = algoListResult.aiApps
+    } catch (e) {
+      this.$alertError(e.message)
+      this.appList = []
+    } finally {
+      this.loading.AITable = false
+    }
+  }
+
+  /**
+   * 启用/停用AI应用
+   */
+  private async changeRunningStatus(rowInfo: any) {
+    this.loading.AITable = true
+    const status = parseInt(rowInfo.status)
+    const param = {
+      inProtocol: this.inProtocol,
+      deviceId: this.deviceId,
+      appIds: [rowInfo.id]
+    }
+    // startAppResource
+    if (status) {
+      stopAppResource(param)
+        .then(() => {
+          this.loading.AITable = false
+          this.$message.success(`停用 ${rowInfo.name} 成功！`)
+          this.getAIAppList()
+        })
+        .catch((e) => {
+          this.loading.AITable = false
+          this.$message.error(
+            `停用 ${rowInfo.name} 失败，原因：${e && e.message}`
+          )
+        })
+    } else {
+      startAppResource(param)
+        .then(() => {
+          this.loading.AITable = false
+          this.$message.success(`启用 ${rowInfo.name} 成功！`)
+          this.getAIAppList()
+        })
+        .catch((e) => {
+          this.loading.AITable = false
+          this.$message.error(
+            `启用 ${rowInfo.name} 失败，原因：${e && e.message}`
+          )
+        })
+    }
+  }
+
+  /**
+   * 解绑AI应用
+   */
+  private changeBindStatus(rowInfo: any) {
+    this.loading.AITable = true
+    const param = {
+      deviceId: this.deviceId,
+      appId: [rowInfo.id]
+    }
+
+    unBindAppResource(param)
+      .then(() => {
+        this.loading.AITable = false
+        this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
+        this.getAIAppList()
+      })
+      .catch((e) => {
+        this.loading.AITable = false
+        this.$message.error(
+          `解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`
+        )
+      })
+  }
+
+  /**
+   * 打开资源包配置弹窗
+   */
+  private openResourceDialog(resourceType: ResourceTypeEnum) {
+    this.defaultResourceTabType = resourceType
+    this.showResourceDialog = true
+  }
+
+  /**
+   * 关闭资源包配置弹窗
+   */
+  private closeResourceDialog(isRefresh: boolean) {
+    this.showResourceDialog = false
+    this.algoTabTypeDefault = ''
+    if (isRefresh) {
+      this.getDeviceResource()
+      this.getAIAppList()
+    }
+  }
+
+  /**
+   * 打开画框弹窗
+   */
   private openCanvasDialog(rowInfo: any) {
     const param = {
       frames: [
         {
-          stream: this.deviceId,
-          inProtocol: this.inProtocol
+          stream: this.deviceId
         }
       ]
     }
@@ -279,158 +443,22 @@ export default class extends Mixins(detailMixin) {
         }
       })
       .catch((e) => {
-        this.$message.error(e && e.message)
+        this.$alertError(e.message)
       })
   }
   
+  /**
+   * 关闭画框弹窗
+   */
   private closeCanvasDialog() {
     this.canvasDialog = false
-    // this.getAlgoList()
-    this.getDeviceInfo()
     this.getDeviceResource()
   }
 
-  public get isVGroup() {
-    return this.$route.query.inProtocol === 'vgroup'
-  }
-
-  public get isNvr() {
-    return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
-  }
-
-  // 获取算法能力
-  private async getAlgoList() {
-    try {
-      this.loading.AITable = true
-      const algoListResult = await getAppList({ deviceId: this.deviceId })
-      this.algoListData = algoListResult.aiApps
-    } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
-      this.algoListData = []
-    } finally {
-      this.loading.AITable = false
-    }
-  }
-
-  // 获取设备信息
-  private async getDeviceInfo() {
-    this.deviceInfo = await getDevice({
-      deviceId: this.deviceId,
-      inProtocol: this.inProtocol
-    })
-  }
-
-  // 打开算法配置弹窗
-  private changeResourceDialog(kind: String) {
-    this.showResourceDialog = true
-    if (kind && kind === 'AI') {
-      this.algoTabTypeDefault = 'AI'
-    }
-  }
-
-  // 关闭算法配置弹窗
-  private closeResourceDialog() {
-    this.showResourceDialog = false
-    this.algoTabTypeDefault = ''
-    this.getDeviceResource()
-    this.getAlgoList()
-  }
-
-  // 获取资源包
-  private async getDeviceResource() {
-    this.loading.AITable = true
-    try {
-      const resourcesRes = await getDeviceResource({
-        deviceId: this.deviceId,
-        deviceType: this.deviceInfo.deviceType,
-        inProtocol: this.inProtocol
-      })
-      const result = {}
-      // 以resourceType 为key 重组数据，渲染使用
-      resourcesRes.resources.forEach((ele: any) => {
-        result[ele.resourceType] = ele
-      })
-      if (result['VSS_UPLOAD_BW']) {
-        const obj = result['VSS_UPLOAD_BW']
-        const codeRate = parseInt(obj.codeRate, 10)
-        const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
-        obj.bwDeviceCountRate =
-          codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
-      }
-      this.resources = result
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.AITable = false
-    }
-  }
-
-  // 启用停用
-  private async changeRunningStatus(rowInfo: any) {
-    this.loading.AITable = true
-    const status = parseInt(rowInfo.status)
-    const param = {
-      inProtocol: this.inProtocol,
-      deviceId: this.deviceId,
-      appIds: [rowInfo.id]
-    }
-    // startAppResource
-    if (status) {
-      stopAppResource(param)
-        .then(() => {
-          this.loading.AITable = false
-          this.$message.success(`停用 ${rowInfo.name} 成功！`)
-          this.getAlgoList()
-        })
-        .catch((e) => {
-          this.loading.AITable = false
-          this.$message.error(
-            `停用 ${rowInfo.name} 失败，原因：${e && e.message}`
-          )
-        })
-    } else {
-      startAppResource(param)
-        .then(() => {
-          this.loading.AITable = false
-          this.$message.success(`启用 ${rowInfo.name} 成功！`)
-          this.getAlgoList()
-        })
-        .catch((e) => {
-          this.loading.AITable = false
-          this.$message.error(
-            `启用 ${rowInfo.name} 失败，原因：${e && e.message}`
-          )
-        })
-    }
-  }
-
-  // 解绑
-  private changeBindStatus(rowInfo: any) {
-    this.loading.AITable = true
-    const param = {
-      deviceId: this.deviceId,
-      appId: [rowInfo.id],
-      deviceType: this.deviceInfo.deviceType,
-      inProtocol: this.inProtocol
-    }
-
-    unBindAppResource(param)
-      .then(() => {
-        this.loading.AITable = false
-        this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
-        this.getAlgoList()
-      })
-      .catch((e) => {
-        this.loading.AITable = false
-        this.$message.error(
-          `解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`
-        )
-      })
-  }
-
-  private ifShowAlgoBtn(rowCode: any) {
+  /**
+   * 判断是否显示算法配置按钮
+   */
+  private checkAlgoConfigVisable(rowCode: any) {
     /** algorithm.code
      * 危险区域: code 10006
      * 人脸搜索: code 10001
@@ -442,7 +470,7 @@ export default class extends Mixins(detailMixin) {
      * 人员跌倒  code 10028
      *  动物检测 code 10033
      */
-    ResourceTemplateInfoCodes.includes(rowCode)
+    return ResourceTemplateInfoCodes.includes(rowCode)
   }
 }
 </script>

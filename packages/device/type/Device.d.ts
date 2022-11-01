@@ -51,7 +51,7 @@ type DeviceStatus = {
  * 流信息
  */
 type Stream = {
-  [DeviceEnum.StreamNum]: string
+  [DeviceEnum.StreamNum]: number
   [DeviceEnum.StreamStatus]: StatusEnum
   [DeviceEnum.RecordStatus]: StatusEnum
   [DeviceEnum.StreamTransType]: string // 流传输类型

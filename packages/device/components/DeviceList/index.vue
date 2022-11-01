@@ -71,7 +71,7 @@
       <div v-if="filterButtons.length" class="filter-buttons list-wrap__filter">
         <div v-for="{ key, value } in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
           <label>{{ deviceFiltersLabel[key] }}</label>
-          <span v-if="key === deviceEnum.DeviceType">{{ deviceType[value] }}</span>
+          <span v-if="key === deviceEnum.DeviceType">{{ deviceTypeDic[value] }}</span>
           <span v-if="key === deviceEnum.VideoStatus">{{ videoStatus[value] }}</span>
           <span v-if="key === deviceEnum.StreamStatus">{{ streamStatus[value] }}</span>
           <span v-if="key === deviceEnum.RecordStatus">{{ recordStatus[value] }}</span>
@@ -132,7 +132,7 @@
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{ row }">
-                {{ deviceType[row[deviceEnum.DeviceType]] }}
+                {{ deviceTypeDic[row[deviceEnum.DeviceType]] }}
               </template>
             </el-table-column>
             <el-table-column
@@ -290,7 +290,7 @@ import { Component, Mixins, Watch, Inject, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic, VideoDevice, ViidDevice } from '@vss/device/type/Device'
 import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
-import { DeviceType, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
+import { DeviceType as DeviceTypeDic, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { getDevices } from '@vss/device/api/device'
@@ -325,7 +325,7 @@ export default class extends Mixins(deviceMixin) {
   private statusEnum = StatusEnum
   private policyEnum = PolicyEnum
   private deviceFiltersLabel = DeviceFiltersLabel
-  private deviceType = DeviceType
+  private deviceTypeDic = DeviceTypeDic
   private videoStatus = VideoStatus
   private streamStatus = StreamStatus
   private recordStatus = RecordStatus
@@ -372,7 +372,7 @@ export default class extends Mixins(deviceMixin) {
 
   // 筛选类型
   private filtersArray = {
-    [DeviceEnum.DeviceType]: this.dictToFilterArray(DeviceType),
+    [DeviceEnum.DeviceType]: this.dictToFilterArray(DeviceTypeDic),
     [DeviceEnum.VideoStatus]: this.dictToFilterArray(VideoStatus),
     [DeviceEnum.StreamStatus]: this.dictToFilterArray(StreamStatus),
     [DeviceEnum.RecordStatus]: this.dictToFilterArray(RecordStatus),
