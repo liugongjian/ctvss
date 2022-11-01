@@ -101,7 +101,7 @@
                   <div class="disable-btn-box">
                     <el-button
                       type="text"
-                      :disable1d="videoInfo.deviceStatus.isOnline !== StatusEnum.On"
+                      :disabled="videoInfo.deviceStatus.isOnline !== StatusEnum.On"
                       @click="openCanvasDialog(scope.row)"
                     >
                       算法配置
@@ -195,7 +195,6 @@
     <algo-config
       v-if="canvasDialog"
       :device-id="deviceId"
-      :in-protocol="inProtocol"
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :frame-image="frameImage"
@@ -425,8 +424,7 @@ export default class extends Vue {
     const param = {
       frames: [
         {
-          stream: this.deviceId,
-          inProtocol: this.inProtocol
+          stream: this.deviceId
         }
       ]
     }

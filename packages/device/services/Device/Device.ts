@@ -189,7 +189,7 @@ const statusPolling = function (state, param: any) {
       .then(res => {
         if (res.syncStatus === true) {
           setTimeout(() => {
-            resolve(this.statusPolling(param))
+            resolve(this.statusPolling(state, param))
           }, state.pollingTimes * 1000)
         } else {
           resolve(res)
@@ -244,7 +244,8 @@ const viewChannels = function (state, row) {
   state.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
 }
 
-const exportDeviceExcel = async function (state, policy) {
+// 导出设备
+const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = true
   try {
     const params: any = {}
@@ -254,9 +255,9 @@ const exportDeviceExcel = async function (state, policy) {
       params.command = 'selected'
       let deviceArr: any = []
       if (policy === ToolsEnum.ExportCurrentPage) {
-        deviceArr = state.deviceList
+        deviceArr = data.deviceList
       } else if (policy === ToolsEnum.ExportSelected) {
-        deviceArr = state.selectedDeviceList
+        deviceArr = data.selectedDeviceList
       }
       params.deviceIds = deviceArr.map((device: any) => {
         return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
@@ -270,7 +271,7 @@ const exportDeviceExcel = async function (state, policy) {
   state.loading.export = false
 }
 
-// 导出设备表格
+// 导出设备实体方法
 async function exportDevicesExcel(data: any) {
   const params: any = {
     groupId: data.groupId,
@@ -279,7 +280,7 @@ async function exportDevicesExcel(data: any) {
     parentDeviceId: data.parentDeviceId
   }
   // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
-   
+   let res
   try {
     if (data.command === 'all') {
       const query = this.$route.query
@@ -290,7 +291,7 @@ async function exportDevicesExcel(data: any) {
       params.searchKey = query.searchKey || undefined
       params.pageSize = 5000
       params.pageNum = 1
-      var res = await exportDeviceAll(params)
+      res = await exportDeviceAll(params)
     } else if (data.command === 'selected') {
       params.deviceIds = data.deviceIds
       res = await exportDeviceOption(params)

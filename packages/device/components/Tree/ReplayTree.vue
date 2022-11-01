@@ -11,9 +11,10 @@
     :is-draggable="checkIsDraggable"
     @handle-node="handleNode"
   >
-    <template slot="itemLabelPrefix" slot-scope="{ data }">
-      <svg-icon :name="data.type" />
-      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" status="on" />
+    <template slot="itemLabelPrefix" slot-scope="{ node, data }">
+      <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
+      <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
+      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data[deviceEnum.StreamStatus]" />
     </template>
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
@@ -55,5 +56,9 @@ export default class extends Mixins(treeMixin) {
   width: 6px;
   height: 6px;
   opacity: 0.7;
+}
+
+.active-icon {
+  color: $color-status-success;
 }
 </style>

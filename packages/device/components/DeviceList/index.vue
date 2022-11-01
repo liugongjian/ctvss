@@ -27,12 +27,12 @@
           <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleListTools(toolsEnum.ViewDevice)">查看详情</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
-          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event)">
+          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList })">
             <el-button :loading="loading.export">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="toolsEnum.ExportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
               <el-dropdown-item :command="toolsEnum.ExportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
-              <el-dropdown-item :command="toolsEnum.ExportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+              <el-dropdown-item :command="toolsEnum.ExportSelected" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
           <el-upload
@@ -389,9 +389,9 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
     [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
-    [ToolsEnum.ExportAll]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll),
-    [ToolsEnum.ExportCurrentPage]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage),
-    [ToolsEnum.ExportSelected]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected),
+    [ToolsEnum.ExportAll]: (data,) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll, data),
+    [ToolsEnum.ExportCurrentPage]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage, data),
+    [ToolsEnum.ExportSelected]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected, data),
     [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this, data),
     [ToolsEnum.ExportTemplate]: () => DeviceManager.exportTemplate(this),
     [ToolsEnum.MoveDevice]: (row) => DeviceManager.openListDialog(this.getVueComponent, ToolsEnum.MoveDevice, row),

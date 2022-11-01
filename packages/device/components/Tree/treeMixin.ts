@@ -1,6 +1,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
-import { DeviceTypeEnum, ToolsEnum } from '../../enums/index'
+import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum } from '../../enums/index'
 import StreamSelector from '../StreamSelector.vue'
 
 @Component({
@@ -19,7 +19,10 @@ export default class TreeMixin extends Vue {
   public load
 
   public toolsEnum = ToolsEnum
+  public deviceEnum = DeviceEnum
+  public statusEnum = StatusEnum
   public deviceTypeEnum = DeviceTypeEnum
+  public directoryTypeEnum = DirectoryTypeEnum
   public rootKey = ''
   public nodeKey = 'id'
   public rootLabel = '根目录'

@@ -1,4 +1,4 @@
-import { DeviceEnum, StatusEnum } from '../enums'
+import { DeviceEnum, StatusEnum, Codec } from '../enums'
 import { Resource } from './Resource'
 
 /**
@@ -51,11 +51,14 @@ type DeviceStatus = {
  * 流信息
  */
 type Stream = {
-  [DeviceEnum.StreamNum]: string
+  [DeviceEnum.StreamNum]: number
   [DeviceEnum.StreamStatus]: StatusEnum
-  [DeviceEnum.RecordStatus]: StatusEnum
-  [DeviceEnum.StreamTransType]: string // 流传输类型
-  [DeviceEnum.Bitrate]: number
+  [DeviceEnum.RecordStatus]?: StatusEnum
+  [DeviceEnum.StreamTransType]?: string // 流传输类型
+  [DeviceEnum.Bitrate]?: number
+  [DeviceEnum.Video]?: {
+    [DeviceEnum.Codec]: Codec
+  }
 }
 
 /**
@@ -215,5 +218,6 @@ export {
   DeviceBasicForm,
   VideoDeviceForm,
   ViidDeviceForm,
-  DeviceForm
+  DeviceForm,
+  Stream
 }

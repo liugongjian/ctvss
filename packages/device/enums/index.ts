@@ -117,6 +117,8 @@ export enum DeviceEnum {
   ErrorCode = 'errorCode',
   ErrorMsg = 'errorMsg',
   OnvifDevicevice = 'onvifDevicevice',
+  Video = 'video',
+  Codec = 'codec',
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',
@@ -203,6 +205,14 @@ export enum InNetworkTypeEnum {
 export enum OutNetworkTypeEnum {
   Public = 'public',
   Private = 'private'
+}
+
+/**
+ * 视频编码
+ */
+export enum Codec {
+  H264 = 'h264',
+  H265 = 'h265'
 }
 
 /**

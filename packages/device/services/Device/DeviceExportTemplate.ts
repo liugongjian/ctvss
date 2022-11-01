@@ -586,8 +586,6 @@ class ExportExcelTemplate {
 
     console.log('exportTemplate--data----->', data)
 
-    return
-
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
 

@@ -192,8 +192,11 @@ export default class extends Vue {
     const appSize = this.resource && this.resource.aIApps ? this.resource.aIApps.length : 0
     const messages = []
     messages.push(`已选择${appSize}种AI应用`)
-    if (this.isEdit && this.orginalResource.resourceIds.indexOf(this.form.resource[ResourceTypeEnum.AI]) > -1) {
-      const diff = appSize - this.orginalResource.appSize
+    if (this.isEdit) {
+      let diff = appSize
+      if (this.orginalResource.resourceIds.indexOf(this.form.resource[ResourceTypeEnum.AI]) > -1) {
+        diff = appSize - this.orginalResource.appSize
+      }
       if (diff > 0) {
         messages.push(`将扣除包中${diff}路资源`)
       } else if (diff < 0) {
