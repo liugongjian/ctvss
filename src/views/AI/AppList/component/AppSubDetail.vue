@@ -2,27 +2,6 @@
   <div>
     <div v-if="!device.deviceId" class="no-device">请先选择设备</div>
     <div v-else>
-      <!-- <div> -->
-      <!-- <div v-if="isFaceAlgoCode" class="face-filter">
-      <el-descriptions :column="1">
-        <el-descriptions-item label="人脸库">
-          {{ faceLib.name ? faceLib.name : '' }}
-        </el-descriptions-item>
-      </el-descriptions>
-      <div style="margin-top: 20px">
-        <el-checkbox-group v-model="queryParam.faceSelected" size="mdedium" @change="handleChange">
-          <el-checkbox v-for="item in faceInfos" :key="item.faceSampleId" :label="item.faceSampleId" border>
-            <div class="checkbox-content">
-              <img :src="decodeBase64(item.imageString)" alt="">
-              <div>
-                <span>{{ item.labels.name }}</span>
-              </div>
-            </div>
-          </el-checkbox>
-        </el-checkbox-group>
-      </div>
-    </div> -->
-
       <div class="query-wrapper">
         <span>截图时间：
           <el-radio-group
@@ -342,19 +321,20 @@ export default class extends Vue {
   }
 
   private get isFaceAlgoCode() {
-    return this.appInfo.algorithm.code === '10001'
+    return this.appInfo.algorithm?.code === '10001'
   }
 
   private get isGatheringCode() {
-    return this.appInfo.algorithm.code === '10005'
+    return this.appInfo.algorithm?.code === '10005'
   }
 
   private get isCarFlowCode() {
-    return this.appInfo.algorithm.code === '10019'
+    return this.appInfo.algorithm?.code === '10019'
   }
 
   private async mounted() {
     // this.initFaceInfos()
+    console.log('this.appInfo:', this.appInfo)
     if (this.device.deviceId.length > 0) {
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()
@@ -485,7 +465,7 @@ export default class extends Vue {
 
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
-    const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
+    const locations = parseMetaData(this.appInfo.algorithm?.code, metaData)
     const img = this.$refs.dialogue
     this.dialoguePic = {
       ...this.dialoguePic,

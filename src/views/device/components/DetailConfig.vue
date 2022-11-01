@@ -492,7 +492,7 @@ export default class extends Vue {
         deviceType: this.deviceInfo.deviceType,
         inProtocol: this.inProtocol
       })
-      const result = {}
+      const result: any = {}
       // 以resourceType 为key 重组数据，渲染使用
       resourcesRes.resources.forEach((ele: any) => {
         result[ele.resourceType] = ele

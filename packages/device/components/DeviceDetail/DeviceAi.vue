@@ -36,22 +36,26 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Prop() private deviceId!: any
+  @Prop() private inProtocol!: any
   private appInfo: any = {}
   private apps: any = []
   private app: any = ''
   private faceLib: any = {}
   private appselected: String = ''
-  // private get device() {
-  //   return { deviceId: this.deviceId, inProtocol: this.inProtocol }
-  // }
-  private get noapp() {
+  public device!: any
+
+  public get noapp() {
     return this.apps.length === 0
+  }
+
+  public get isIbox() {
+    return this.$route.path.includes('ibox')
   }
 
   private async mounted() {
     try {
-      const isIbox = this.$route.path.includes('ibox')
-      isIbox ? this.initIboxApp() : this.initDeviceApp()
+      this.isIbox ? this.initIboxApp() : this.initDeviceApp()
       // const { groups }: any = await getAIConfigGroupData({})
       // this.initFaceLib(groups)
     } catch (e) {
@@ -63,12 +67,11 @@ export default class extends Mixins(detailMixin) {
     const { deviceId }: any = this.$route.query
     const path: any = this.$route.query.path
     const iboxId = path.split(',')[0]
-    const { iboxApps }: any =
-      await describeIboxApps({
-        pageSize: 1000,
-        iboxId,
-        deviceId
-      })
+    const { iboxApps }: any = await describeIboxApps({
+      pageSize: 1000,
+      iboxId,
+      deviceId
+    })
     const transformIboxAppInfo = (iboxApps) => {
       const transformed = iboxApps.map(app => ({
         ...app,
@@ -77,18 +80,19 @@ export default class extends Mixins(detailMixin) {
       return transformed
     }
     const transIboxApps = transformIboxAppInfo(iboxApps)
+    this.device = { deviceId, inProtocol: '' }
     if (transIboxApps.length > 0) {
       this.appInfo = transIboxApps[0]
       this.apps = transIboxApps
       this.app = this.appInfo.appId
     }
-
-    console.log(iboxApps)
+    console.log(this.appInfo.name)
   }
 
   private async initDeviceApp() {
     const { aiApps } = await getAppList({ deviceId: this.deviceId })
     if (aiApps.length > 0) {
+      this.device = { deviceId: this.deviceId, inProtocol: this.inProtocol }
       this.appInfo = aiApps[0]
       this.apps = aiApps
       this.app = this.appInfo.id
