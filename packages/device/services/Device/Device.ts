@@ -189,7 +189,7 @@ const statusPolling = function (state, param: any) {
       .then(res => {
         if (res.syncStatus === true) {
           setTimeout(() => {
-            resolve(this.statusPolling(param))
+            resolve(this.statusPolling(state, param))
           }, state.pollingTimes * 1000)
         } else {
           resolve(res)
