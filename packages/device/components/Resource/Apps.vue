@@ -91,9 +91,18 @@ export default class extends Vue {
     if (this.selectedAppCollection[this.resourceId]) {
       if (!this.selectionCollection[this.resourceId]) {
         this.selectionCollection[this.resourceId] = {}
-        this.selectionCollection[this.resourceId][this.currentAbilityId] = this.selectedAppCollection[this.resourceId].map(app => {
-          return {
-            id: app.aIAppId
+        const apps = flatten(Object.values(this.appCollection))      
+        this.selectedAppCollection[this.resourceId].forEach(app => {
+          // 找出AI应用源数据  
+          const selectedApp: any = apps.find((sourceApp: any) => app.aIAppId === sourceApp.id)
+          if (selectedApp) {
+            // 得到AI应用的算法类别ID
+            const abilityId = selectedApp.abilityId
+            if (!this.selectionCollection[this.resourceId][abilityId]) {
+              this.selectionCollection[this.resourceId][abilityId] = []
+            }
+            // 将源数据添加到selectionCollection
+            this.selectionCollection[this.resourceId][abilityId].push(selectedApp)
           }
         })
       }
@@ -168,13 +177,17 @@ export default class extends Vue {
    */
   private recoverSelection() {
     try {
-      const selections = this.cloneSelectionCollection[this.resourceId][this.currentAbilityId]
-      const apps = this.appCollection[this.currentAbilityId].filter(app => selections.some(selection => selection.id === app.id))
       const table: any = this.$refs[`table${this.currentAbilityId}`]
-      table[0].clearSelection()
-      apps && apps.forEach(row => {
-        table[0].toggleRowSelection(row, true)
-      })
+      const selections = this.cloneSelectionCollection[this.resourceId][this.currentAbilityId]
+      if (selections) {
+        const apps = this.appCollection[this.currentAbilityId].filter(app => selections.some(selection => selection.id === app.id))
+        table[0].clearSelection()
+        apps && apps.forEach(row => {
+          table[0].toggleRowSelection(row, true)
+        })
+      } else {
+        table[0].clearSelection()
+      }
     } catch (e) {}
   }
 
@@ -183,7 +196,9 @@ export default class extends Vue {
    */
   private onRowClick(row) {
     const table: any = this.$refs[`table${this.currentAbilityId}`]
-    table[0].toggleRowSelection(row)
+    if (this.checkAppSelecable(row)) {
+      table[0].toggleRowSelection(row)
+    }
   }
 
   /**
