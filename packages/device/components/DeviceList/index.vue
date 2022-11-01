@@ -24,6 +24,9 @@
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
           <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.AdminDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.AdminDevice])" key="configure-channels" type="primary" @click="handleListTools(toolsEnum.ConfigureChannels)">
+            配置子通道
+          </el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleListTools(toolsEnum.ViewDevice)">查看详情</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
@@ -389,6 +392,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
     [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
+    [ToolsEnum.ConfigureChannels]: () => DeviceManager.configureChannels(this),
     [ToolsEnum.ExportAll]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll),
     [ToolsEnum.ExportCurrentPage]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage),
     [ToolsEnum.ExportSelected]: () => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected),
@@ -575,8 +579,8 @@ export default class extends Mixins(deviceMixin) {
    * @param permissions 策略名
    * @param row 具体信息
    */
-  private checkToolsVisible(prop, permissions?, row?: DeviceBasic) {
-    !row && (row = { deviceType: this.currentDirType })
+  private checkToolsVisible(prop, permissions?, row?) {
+    !row && (row = { deviceType: this.currentDirType, inProtocol: this.inProtocol })
     return checkDeviceListVisible(row.deviceType, prop, row) && checkPermission(permissions)
   }
 

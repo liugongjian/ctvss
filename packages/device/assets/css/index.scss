@@ -473,7 +473,8 @@
       overflow: auto;
       padding: $padding-medium;
 
-      &__form {
+      &__form,
+      &__table {
         width: calc(100% - $padding-medium);
         position: absolute;
       }

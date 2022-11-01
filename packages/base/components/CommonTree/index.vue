@@ -45,6 +45,7 @@
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
             class="common-tree__item"
+            :class="{ 'current-node': node.key === currentNodeKey }"
           >
             <div class="common-tree__item__label-prefix">
               <slot name="itemLabelPrefix" :node="node" :data="data" />

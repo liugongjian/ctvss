@@ -314,6 +314,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.DeleteDevice,
     ToolsEnum.SyncDeviceStatus,
     ToolsEnum.ViewChannels,
+    ToolsEnum.ConfigureChannels,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
