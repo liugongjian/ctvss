@@ -245,7 +245,7 @@ const viewChannels = function (state, row) {
 }
 
 // 导出设备
-const exportDeviceExcel = async function (state, policy,data) {
+const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = true
   try {
     const params: any = {}
@@ -263,8 +263,7 @@ const exportDeviceExcel = async function (state, policy,data) {
         return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
       })
     }
-    console.log('data------>',data,'policy--->',policy)
-    // await exportDevicesExcel(params)
+    await exportDevicesExcel(params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
@@ -281,7 +280,7 @@ async function exportDevicesExcel(data: any) {
     parentDeviceId: data.parentDeviceId
   }
   // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
-   
+   let res
   try {
     if (data.command === 'all') {
       const query = this.$route.query
@@ -292,7 +291,7 @@ async function exportDevicesExcel(data: any) {
       params.searchKey = query.searchKey || undefined
       params.pageSize = 5000
       params.pageNum = 1
-      var res = await exportDeviceAll(params)
+      res = await exportDeviceAll(params)
     } else if (data.command === 'selected') {
       params.deviceIds = data.deviceIds
       res = await exportDeviceOption(params)
