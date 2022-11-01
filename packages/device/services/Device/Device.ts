@@ -244,7 +244,8 @@ const viewChannels = function (state, row) {
   state.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
 }
 
-const exportDeviceExcel = async function (state, policy) {
+// 导出设备
+const exportDeviceExcel = async function (state, policy,data) {
   state.loading.export = true
   try {
     const params: any = {}
@@ -254,15 +255,16 @@ const exportDeviceExcel = async function (state, policy) {
       params.command = 'selected'
       let deviceArr: any = []
       if (policy === ToolsEnum.ExportCurrentPage) {
-        deviceArr = state.deviceList
+        deviceArr = data.deviceList
       } else if (policy === ToolsEnum.ExportSelected) {
-        deviceArr = state.selectedDeviceList
+        deviceArr = data.selectedDeviceList
       }
       params.deviceIds = deviceArr.map((device: any) => {
         return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
       })
     }
-    await exportDevicesExcel(params)
+    console.log('data------>',data,'policy--->',policy)
+    // await exportDevicesExcel(params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
@@ -270,7 +272,7 @@ const exportDeviceExcel = async function (state, policy) {
   state.loading.export = false
 }
 
-// 导出设备表格
+// 导出设备实体方法
 async function exportDevicesExcel(data: any) {
   const params: any = {
     groupId: data.groupId,
