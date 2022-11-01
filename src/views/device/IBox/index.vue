@@ -494,11 +494,14 @@ export default class IBox extends Vue {
     console.log(node, data)
   }
 
+  // 返回根目录
   public async gotoRoot() {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(null)
     await IBoxModule.ResetBreadcrumb()
-    this.handleNodeClick({ deviceId: '0', type: 'rootlist' })
+    // this.handleNodeClick({ deviceId: '0', type: 'rootlist' })
+    this.$router.push({ name: 'IBox' })
+    await this.getDirList()
   }
 
   public toDetail(item: any, routeInfo: any) {
@@ -564,14 +567,15 @@ export default class IBox extends Vue {
 
   // 供@vss/device 中回调使用
   @Provide('handleTools')
-  public handleTools() {
+  public async handleTools() {
     const query: any = {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
     }
+
+    await this.getDirList()
     if (this.$route.query.type === 'ipc') {
       const temp = this.breadcrumb.slice(-2, -1)[0]
-
       this.handleNodeClick(temp)
     } else {
       const router: any = {
@@ -580,7 +584,6 @@ export default class IBox extends Vue {
         deviceId: this.$route.query.deviceId,
         type: this.$route.query.type
       }
-      this.$router.push(router)
       this.handleNodeClick(router)
     }
   }
