@@ -571,11 +571,7 @@ export class RecordManager {
           inProtocol: this.screen.inProtocol,
           type: 'vod',
           startTime,
-          endTime,
-          'self-defined-headers': {
-            'role-id': this.screen.roleId || '',
-            'real-group-id': this.screen.realGroupId || ''
-          }
+          endTime
         },
         axiosSource.token
       )

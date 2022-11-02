@@ -43,7 +43,7 @@ import { AIApp } from '@vss/device/type/Resource'
 })
 export default class extends Vue {
   // 所选AI应用
-  @VModel() private selectedAppCollection: { [resourceId: string ]: AIApp[] }
+  @VModel() private savedAppCollection: { [resourceId: string ]: AIApp[] }
   // 当前AI资源包ID
   @Prop() private resourceId: string
   // 当前AI资源包算力
@@ -60,9 +60,12 @@ export default class extends Vue {
   private selectionCollection = {}
   // 克隆列表用于切换算法类型后恢复所勾选的数据
   private cloneSelectionCollection = {}
+  // 上一次所选的resourceId
+  private lastResourceId = null
+
 
   @Watch('resourceId')
-  private onResourceIdChange() {
+  private onResourceIdChange(resourceId) {
     this.initSelection()
   }
 
@@ -88,18 +91,47 @@ export default class extends Vue {
    * 初始化数据
    */
   private initSelection() {
-    if (this.selectedAppCollection[this.resourceId]) {
+    if (this.savedAppCollection[this.resourceId].length) {
       if (!this.selectionCollection[this.resourceId]) {
         this.selectionCollection[this.resourceId] = {}
-        this.selectionCollection[this.resourceId][this.currentAbilityId] = this.selectedAppCollection[this.resourceId].map(app => {
-          return {
-            id: app.aIAppId
+        const apps = flatten(Object.values(this.appCollection))      
+        this.savedAppCollection[this.resourceId].forEach(app => {
+          // 找出AI应用源数据  
+          const selectedApp: any = apps.find((sourceApp: any) => app.aIAppId === sourceApp.id)
+          if (selectedApp) {
+            // 得到AI应用的算法类别ID
+            const abilityId = selectedApp.abilityId
+            if (!this.selectionCollection[this.resourceId][abilityId]) {
+              this.selectionCollection[this.resourceId][abilityId] = []
+            }
+            // 将源数据添加到selectionCollection
+            this.selectionCollection[this.resourceId][abilityId].push(selectedApp)
           }
         })
       }
     } else {
-      this.selectionCollection[this.resourceId] = {}
+      // 切换AI资源包后保持原来AI应用的勾选，但是不符合算力类型的应用需要排除
+      const removeAITypes = new Set()
+      let removeCount = 0
+      const collection = cloneDeep(this.selectionCollection)
+      const lastResourceCollection = collection[this.lastResourceId]
+      for (const abilityId in lastResourceCollection) {
+        lastResourceCollection[abilityId].forEach((app, index) => {
+          if (app.analyseType > this.resourceAiType) {
+            removeAITypes.add(app.analyseType)
+            removeCount++
+            lastResourceCollection[abilityId][index] = null
+          }
+        })
+        lastResourceCollection[abilityId] = lastResourceCollection[abilityId].filter(app => app)
+      }
+      this.selectionCollection[this.resourceId] = lastResourceCollection
+      if (removeCount > 0) {
+        const typesString = Array.from(removeAITypes).map((type: string) => ResourceAiType[type])
+        this.$message.info(`${ResourceAiType[this.resourceAiType]}的资源包不能绑定${typesString.join('、')}的应用，已取消${removeCount}个应用的勾选`)
+      }
     }
+    this.lastResourceId = this.resourceId
     this.cloneSelectionCollection = cloneDeep(this.selectionCollection)
     this.recoverSelection()
   }
@@ -160,7 +192,7 @@ export default class extends Vue {
       this.selectionCollection[this.resourceId] = {}
     }
     this.selectionCollection[this.resourceId][this.currentAbilityId] = val
-    this.selectedAppCollection[this.resourceId] = this.generateSelectedAppCollection()
+    this.savedAppCollection[this.resourceId] = this.generateSelectedAppCollection()
   }
 
   /**
@@ -168,13 +200,17 @@ export default class extends Vue {
    */
   private recoverSelection() {
     try {
-      const selections = this.cloneSelectionCollection[this.resourceId][this.currentAbilityId]
-      const apps = this.appCollection[this.currentAbilityId].filter(app => selections.some(selection => selection.id === app.id))
       const table: any = this.$refs[`table${this.currentAbilityId}`]
-      table[0].clearSelection()
-      apps && apps.forEach(row => {
-        table[0].toggleRowSelection(row, true)
-      })
+      const selections = this.cloneSelectionCollection[this.resourceId][this.currentAbilityId]
+      if (selections) {
+        const apps = this.appCollection[this.currentAbilityId].filter(app => selections.some(selection => selection.id === app.id))
+        table[0].clearSelection()
+        apps && apps.forEach(row => {
+          table[0].toggleRowSelection(row, true)
+        })
+      } else {
+        table[0].clearSelection()
+      }
     } catch (e) {}
   }
 
@@ -183,7 +219,9 @@ export default class extends Vue {
    */
   private onRowClick(row) {
     const table: any = this.$refs[`table${this.currentAbilityId}`]
-    table[0].toggleRowSelection(row)
+    if (this.checkAppSelecable(row)) {
+      table[0].toggleRowSelection(row)
+    }
   }
 
   /**

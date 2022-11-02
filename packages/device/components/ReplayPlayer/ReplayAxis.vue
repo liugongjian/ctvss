@@ -1,11 +1,11 @@
 <template>
-  <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
+  <div ref="axisWrap" class="axis__wrap" :class="{ 'axis__wrap--disabled': disabled }">
     <div class="axis__middle" />
     <div class="axis__border" />
     <div v-if="!hasAxis">
       <div v-if="!editTime" class="axis__time" @click="enableEditTime">
         <el-tooltip placement="right" content="编辑时间" :disabled="disabled">
-          <span class="axis__span" :class="{'axis__time__btn': !disabled}">{{ formatedCurrentTime }}</span>
+          <span class="axis__span" :class="{ 'axis__time__btn': !disabled }">{{ formatedCurrentTime }}</span>
         </el-tooltip>
       </div>
       <TimeEditer v-else :screen="screen" :current-time="currentTime" @change="onTimeEditerChange" @close="onCloseTimeEditer" />
@@ -13,7 +13,7 @@
     <div v-else class="axis__time">
       <span class="axis__span">{{ formatedCurrentTime }}</span>
     </div>
-    <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
+    <canvas ref="canvas" class="axis__canvas" :class="{ 'dragging': axisDrag.isDragging }" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
       <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" width="12" /></div>
@@ -28,11 +28,11 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
-import { prefixZero } from '@/utils/number'
-import { Screen } from '@/views/device/services/Screen/Screen'
+import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@vss/base/utils/date'
+import { prefixZero } from '@vss/base/utils/number'
+import { Screen } from '@vss/device/services/Screen/Screen'
 import { throttle } from 'lodash'
-import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
+import TimeEditer from './TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
@@ -124,9 +124,9 @@ export default class extends Vue {
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
-  private axisStartTime: number = 0
+  private axisStartTime = 0
   /* 当前时间轴的末尾时间 */
-  private axisEndTime: number = 0
+  private axisEndTime = 0
   /* 是否加载中 */
   private isLoading = false
   /* 延时加载相邻日期定时器 */
@@ -385,21 +385,21 @@ export default class extends Vue {
 
     /* 绘制录像线 */
     this.ctx.fillStyle = this.settings.recordColor
-    for (let i in this.axisData.records) {
+    for (const i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制heatmap线 */
     this.ctx.fillStyle = this.settings.heatmapColor
-    for (let i in this.axisData.heatmaps) {
+    for (const i in this.axisData.heatmaps) {
       const line = this.axisData.heatmaps[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制小时线 */
     this.ctx.fillStyle = this.settings.hourLineColor
-    for (let i in this.axisData.hours) {
+    for (const i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
       const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
@@ -409,7 +409,7 @@ export default class extends Vue {
 
     /* 绘制半小时线 */
     this.ctx.fillStyle = this.settings.minLineColor
-    for (let i in this.axisData.halfHours) {
+    for (const i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
       if (this.settings.hourSpan > 70) {
@@ -420,7 +420,7 @@ export default class extends Vue {
     }
 
     /* 绘制10分钟线 */
-    for (let i in this.axisData.tenMins) {
+    for (const i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       if (this.settings.ratio < 150) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
       if (this.settings.hourSpan > 196) {
@@ -434,7 +434,7 @@ export default class extends Vue {
     }
 
     /* 绘制5分钟线 */
-    for (let i in this.axisData.fiveMins) {
+    for (const i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       if (this.settings.ratio < 70) { this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight) }
       if (this.settings.hourSpan > 673) {
@@ -448,7 +448,7 @@ export default class extends Vue {
     }
 
     /* 绘制1分钟线 */
-    for (let i in this.axisData.oneMins) {
+    for (const i in this.axisData.oneMins) {
       const line = this.axisData.oneMins[i]
       if (this.settings.ratio < 15) { this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight) }
       if (this.settings.hourSpan > 2200) {

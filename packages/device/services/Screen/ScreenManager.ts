@@ -4,7 +4,8 @@
 import { Screen } from './Screen'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
-import { GroupModule } from '@/store/modules/group'
+import { Stream } from '@vss/device/type/Device'
+import { StatusEnum } from '@vss/device/enums/index'
 import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
@@ -175,9 +176,6 @@ export class ScreenManager {
   public transformDeviceParams(screen: Screen, data: any, streamNum?: number) {
     screen.deviceId = data.id
     screen.deviceName = data.label
-    screen.roleId = data.roleId || ''
-    screen.realGroupId = data.realGroupId || ''
-    // screen.realGroupInProtocol = item.realGroupInProtocol || ''
     screen.streamSize = data.multiStreamSize
     screen.streams = data.deviceStreams
     if (streamNum && !isNaN(streamNum)) {
@@ -193,12 +191,12 @@ export class ScreenManager {
    * @returns streams
    */
   public fillStreams(screen: Screen) {
-    const streams = []
+    const streams: Stream[] = []
     if (screen.streamSize > 0 && !screen.streams.length) {
       for (let i = 0; i < screen.streamSize; i++) {
         streams.push({
           streamNum: i + 1,
-          streamStatus: 'off'
+          streamStatus: StatusEnum.Off
         })
       }
       return streams
@@ -230,7 +228,6 @@ export class ScreenManager {
         const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,
-          groupId: GroupModule.group.groupId,
           ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
@@ -258,10 +255,6 @@ export class ScreenManager {
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
       if (screenCache.mainUserID !== UserModule.mainUserID) return false
-      if (screenCache.groupId !== GroupModule.group.groupId) {
-        this.clearCache()
-        return false
-      }
       SCREEN_CACHE_MANAGER_PARAMS.forEach(key => {
         this[key] = screenCache[key]
       })

@@ -192,8 +192,11 @@ export default class extends Vue {
     const appSize = this.resource && this.resource.aIApps ? this.resource.aIApps.length : 0
     const messages = []
     messages.push(`已选择${appSize}种AI应用`)
-    if (this.isEdit && this.orginalResource.resourceIds.indexOf(this.form.resource[ResourceTypeEnum.AI]) > -1) {
-      const diff = appSize - this.orginalResource.appSize
+    if (this.isEdit) {
+      let diff = appSize
+      if (this.orginalResource.resourceIds.indexOf(this.form.resource[ResourceTypeEnum.AI]) > -1) {
+        diff = appSize - this.orginalResource.appSize
+      }
       if (diff > 0) {
         messages.push(`将扣除包中${diff}路资源`)
       } else if (diff < 0) {
@@ -326,7 +329,7 @@ export default class extends Vue {
    * 3）选择AI包后必须选择至少一个AI应用
    * 4）AI资源包剩余数量需要大于所选的AI应用数量
    */
-  public validate(channelSize: number, orginalChannelSize: number) {
+  public validate(channelSize?: number, orginalChannelSize?: number) {
     if (this.loading.all) {
       return {
         result: true,
@@ -336,7 +339,7 @@ export default class extends Vue {
 
     const messages = []
 
-    const _validateRemain = (resourceType, channelSize, orginalChannelSize?) => {
+    const _validateRemain = (resourceType, channelSize?, orginalChannelSize?) => {
       // 如果当前resourceId不在orginalResource.resourceIds中，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
       const resourceId = this.form.resource[resourceType]
       let isChanged = this.orginalResource.resourceIds.indexOf(resourceId) === -1
