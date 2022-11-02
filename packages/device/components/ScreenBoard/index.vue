@@ -50,8 +50,8 @@ export default class extends Vue {
   })
   private isLive: boolean
 
-  @Prop()
-  private inProtocol: string
+  // @Prop()
+  // private inProtocol: string
 
   @Prop({
     default: 4
@@ -132,7 +132,7 @@ export default class extends Vue {
       size: this.defaultSize,
       layout: this.defaultSize.toString(),
       isLive: this.isLive,
-      inProtocol: this.inProtocol,
+      // inProtocol: this.inProtocol,
       isSingle: this.isSingle
     })
     this.flushLogsInterval = setInterval(screenLogManager.flushLogs, 60 * 1000)

@@ -89,17 +89,24 @@ import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 export default class extends Mixins(layoutMxin) {
   private isLive = false
   private isCollapse = false
+  // 分屏管理器实例
   public screenManager: ScreenManager = null
 
-  /* 当前选中的分屏 */
+  // 当前选中的分屏
   public get currentScreen() {
     return this.screenManager && this.screenManager.currentScreen
   }
   
+  /**
+   * 录像管理器实例
+   */
   private get recordManager() {
     return this.currentScreen && this.currentScreen.recordManager
   }
 
+  /**
+   * 是否显示录像管理工具
+   */
   private get showRecordTool() {
     return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || (this.screenManager && this.screenManager.isSync)
   }
