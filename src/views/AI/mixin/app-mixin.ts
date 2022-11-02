@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { deleteApps, startOrStopApps } from '@/api/ai-app'
 import { checkPermission } from '@/utils/permission'
 import { Component, Vue } from 'vue-property-decorator'
