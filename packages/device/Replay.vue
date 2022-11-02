@@ -28,21 +28,23 @@
       </template>
       <template slot="leftBottom">
         <!-- TODO -->
-        <advanced-search
-          :search-form="advancedSearchForm"
-          @search="handleTools(toolsEnum.AdvanceSearch, $event)"
-        />
-        <template v-if="showRecordTool">
-          <div class="device-list__calander" :class="{ 'device-list__calander__hidden': isCollapse }">
-            <div class="device-list__replay-type">
-              <ReplayType :screen-manager="screenManager" :screen="currentScreen" @change="onReplayTypeChange" />
+        <div class="bottom-tools">
+          <advanced-search
+            :search-form="advancedSearchForm"
+            @search="handleTools(toolsEnum.AdvanceSearch, $event)"
+          />
+          <template v-if="showRecordTool">
+            <div class="bottom-tools__calander" :class="{ 'bottom-tools__calander__hidden': isCollapse }">
+              <div class="bottom-tools__replay-type">
+                <ReplayType :screen-manager="screenManager" :screen="currentScreen" @change="onReplayTypeChange" />
+              </div>
+              <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
             </div>
-            <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
-          </div>
-          <el-button class="device-list__arrow" :class="{ 'device-list__arrow__active': isCollapse }" type="text" @click="isCollapse = !isCollapse">
-            <svg-icon name="arrow-down" />
-          </el-button>
-        </template>
+            <el-button class="bottom-tools__arrow" :class="{ 'bottom-tools__arrow__active': isCollapse }" type="text" @click="isCollapse = !isCollapse">
+              <svg-icon name="arrow-down" />
+            </el-button>
+          </template>
+        </div>
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
@@ -138,44 +140,49 @@ export default class extends Mixins(layoutMxin) {
   margin: -$margin-medium;
 }
 
-.device-list__replay-type {
-  border-top: 1px solid $border-color-light-1;
-  margin: 0;
-  padding-top: 5px;
-  text-align: center;
+.bottom-tools {
+  flex: 1;
 
-  ::v-deep {
-    .el-radio-button__inner {
-      padding: 7px 25px;
+  &__replay-type {
+    border-top: 1px solid $border-color-light-1;
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+
+    ::v-deep {
+      .el-radio-button__inner {
+        padding: 7px 25px;
+      }
+    }
+  }
+
+  &__calander {
+    max-height: 1000px;
+    transition: all 0.5s;
+    overflow: hidden;
+
+    &__hidden {
+      max-height: 0;
+    }
+
+    .datepicker {
+      height: 260px;
+    }
+  }
+
+  &__arrow {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    background: #fff;
+    padding: 0 0 5px;
+
+    &__active {
+      svg {
+        transform: rotate(180deg);
+      }
     }
   }
 }
 
-.device-list__calander {
-  max-height: 1000px;
-  transition: all 0.5s;
-  overflow: hidden;
-
-  &__hidden {
-    max-height: 0;
-  }
-
-  .datepicker {
-    height: 260px;
-  }
-}
-
-.device-list__arrow {
-  display: inline-block;
-  text-align: center;
-  width: 100%;
-  background: #fff;
-  padding: 0 0 5px;
-
-  &__active {
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-}
 </style>
