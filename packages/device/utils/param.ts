@@ -133,9 +133,14 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
   }
 
-  // nvr通道特殊处理
+  // platform特殊处理
   if (type === DeviceTypeEnum.Platform) {
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
+  }
+
+  // ConfigureChannels仅供ehome使用
+  if (prop === ToolsEnum.ConfigureChannels && type === DeviceTypeEnum.Nvr) {
+    return data && data[DeviceEnum.InProtocol] === InVideoProtocolEnum.Ehome
   }
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop) && allowFlag
 }

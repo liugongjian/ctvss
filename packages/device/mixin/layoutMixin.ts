@@ -67,7 +67,12 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
-    [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level)
+    [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
+    [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
+    [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
+    [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
+    [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
+    [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row)
   }
   /* 设备目录树 */
   public get deviceTree() {

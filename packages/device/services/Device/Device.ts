@@ -271,7 +271,21 @@ const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = false
 }
 
-// 导出设备实体方法
+/**
+ * 配置子通道
+ * @param state.$router 路由
+ * @param dirId 目录id
+ */
+ const configureChannels = function (state) {
+  state.$router.push({
+    name: 'ConfigureChannels',
+    query: {
+      ...state.$route.query,
+    }
+  })
+}
+
+// 导出设备表格
 async function exportDevicesExcel(data: any) {
   const params: any = {
     groupId: data.groupId,
@@ -570,6 +584,7 @@ export default {
   statusPolling,
   refreshDeviceList,
   viewChannels,
+  configureChannels,
   exportDeviceExcel,
   uploadExcel,
   exportTemplate,

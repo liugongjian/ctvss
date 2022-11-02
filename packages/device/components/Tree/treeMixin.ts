@@ -63,7 +63,12 @@ export default class TreeMixin extends Vue {
           this.loadChildren(payload)
         } else {
           this.setCurrentKey(key || this.rootKey)
+          // this.$nextTick(() => {
+          //   const currentNodeDom = document.getElementsByClassName('current-node')[0]
+          //   console.log((currentNodeDom.parentNode as any).scrollTop)
+          // })
         }
+        
       } else {
         // 展开目录
         this.commonTree.loadChildren(payload)
