@@ -85,7 +85,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private async mounted() {
     try {
       this.tabNum = this.$route.query.tabNum
-      debugger
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
       const { data } = await listGroup({
         pageNum: 0,
