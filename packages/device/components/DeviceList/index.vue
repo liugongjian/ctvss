@@ -27,7 +27,12 @@
           <el-button v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.AdminDevice])" key="configure-channels" type="primary" @click="handleListTools(toolsEnum.ConfigureChannels)">
             配置子通道
           </el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice" @click="handleListTools(toolsEnum.ViewDevice)">查看详情</el-button>
+          <el-button 
+            v-if="checkToolsVisible(toolsEnum.ViewDevice)" :key="toolsEnum.ViewDevice"
+            @click="handleListTools(toolsEnum.ViewDevice, { [deviceEnum.DeviceId]: currentDirId, [deviceEnum.DeviceType]: currentDirType })"
+          >
+            查看详情
+          </el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList })">
