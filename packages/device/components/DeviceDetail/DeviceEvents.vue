@@ -50,8 +50,8 @@
 </template>
 
 <script lang='ts'>
-import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { getDeviceEvents } from '@/api/device'
+import { Component, Mixins } from 'vue-property-decorator'
+import { getDeviceEvents } from '@vss/device/api/device'
 import { errorLevel, eventsType } from '@/dics/index'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
@@ -104,11 +104,11 @@ export default class extends Mixins(detailMixin) {
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         deviceId: this.deviceId,
         inProtocal: this.inProtocol,
-        startTime: this.search.timeRange[0]?.getTime(),
-        endTime: this.search.timeRange[1]?.getTime(),
+        startTime: this.search.timeRange && this.search.timeRange[0]?.getTime(),
+        endTime: this.search.timeRange && this.search.timeRange[1]?.getTime(),
         errorLevel: this.search.errorLevel,
         eventType: this.search.eventType,
         pageNum: this.pager.pageNum,
@@ -116,7 +116,7 @@ export default class extends Mixins(detailMixin) {
       }
       const res = await getDeviceEvents(params)
       this.pager.total = res.totalNum
-      this.dataList = res.desDeviceEvent?.map(event => {
+      this.dataList = res.deviceEvents?.map(event => {
         return {
           createdTime: event.createdTime,
           errorLevel: this.errorLevelList.find(error => error.value === event.errorLevel)?.label,
@@ -126,6 +126,7 @@ export default class extends Mixins(detailMixin) {
       })
     } catch (e) {
       this.$message.error(`获取事件列表失败，原因：${e && e.message}`)
+      this.dataList = []
     } finally {
       this.loading = false
     }

@@ -32,6 +32,17 @@
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
+        <template v-if="showRecordTool">
+          <div class="device-list__calander" :class="{ 'device-list__calander__hidden': isCollapse }">
+            <div class="device-list__replay-type">
+              <ReplayType :screen-manager="screenManager" :screen="currentScreen" @change="onReplayTypeChange" />
+            </div>
+            <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
+          </div>
+          <el-button class="device-list__arrow" :class="{ 'device-list__arrow__active': isCollapse }" type="text" @click="isCollapse = !isCollapse">
+            <svg-icon name="arrow-down" />
+          </el-button>
+        </template>
       </template>
       <template slot="rightHeader">
         <!-- TODO -->
@@ -58,23 +69,65 @@ import { Component, Mixins } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import ReplayTree from '@vss/device/components/Tree/ReplayTree.vue'
+import DatePicker from '@vss/device/components/ScreenBoard/components/DatePicker.vue'
+import ReplayType from '@vss/device/components/ScreenBoard/components/ReplayType.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 
 @Component({
   name: 'Replay',
   components: {
     ReplayTree,
     ScreenBoard,
-    Breadcrumb
+    Breadcrumb,
+    DatePicker,
+    ReplayType
   }
 })
 export default class extends Mixins(layoutMxin) {
+  private isLive = false
+  private isCollapse = false
+  public screenManager: ScreenManager = null
+
+  /* 当前选中的分屏 */
+  public get currentScreen() {
+    return this.screenManager && this.screenManager.currentScreen
+  }
+  
+  private get recordManager() {
+    return this.currentScreen && this.currentScreen.recordManager
+  }
+
+  private get showRecordTool() {
+    return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || (this.screenManager && this.screenManager.isSync)
+  }
+
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard?.screenManager
+  }
+
   /**
    * 树节点点击事件
-   * @param data node信息
+   * @param item node信息
    */
-  private handleTreeNode(data: any) {
-    console.log(data)
+  private handleTreeNode(item: any) {
+    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+  }
+
+  /**
+   * 切换日期
+   */
+  private onDateChange(date) {
+    this.screenManager.changeReplayDate(date)
+  }
+
+  /**
+   * 切换录像类型
+   */
+  private onReplayTypeChange(recordType) {
+    this.screenManager.changeReplayType(recordType)
   }
 }
 </script>
@@ -83,5 +136,46 @@ export default class extends Mixins(layoutMxin) {
 .screen-board {
   flex: 1;
   margin: -$margin-medium;
+}
+
+.device-list__replay-type {
+  border-top: 1px solid $border-color-light-1;
+  margin: 0;
+  padding-top: 5px;
+  text-align: center;
+
+  ::v-deep {
+    .el-radio-button__inner {
+      padding: 7px 25px;
+    }
+  }
+}
+
+.device-list__calander {
+  max-height: 1000px;
+  transition: all 0.5s;
+  overflow: hidden;
+
+  &__hidden {
+    max-height: 0;
+  }
+
+  .datepicker {
+    height: 260px;
+  }
+}
+
+.device-list__arrow {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  background: #fff;
+  padding: 0 0 5px;
+
+  &__active {
+    svg {
+      transform: rotate(180deg);
+    }
+  }
 }
 </style>

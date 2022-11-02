@@ -86,15 +86,15 @@ export default class LayoutMixin extends Vue {
     )
   }
 
-  /* 播放器管理实例 */
-  public get screenManager() {
-    return (this.$refs.screenBoard as any)?.screenManager
-  }
+  // /* 播放器管理实例 */
+  // public get screenManager() {
+  //   return (this.$refs.screenBoard as any)?.screenManager
+  // }
 
-  /* 视频队列执行器 */
-  public get queueExecutor() {
-    return this.screenManager && this.screenManager.refs.queueExecutor
-  }
+  // /* 视频队列执行器 */
+  // public get queueExecutor() {
+  //   return this.screenManager && this.screenManager.refs.queueExecutor
+  // }
 
   public mounted() {
     DeviceManager.initAdvancedSearch(this)
