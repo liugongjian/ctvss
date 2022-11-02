@@ -31,7 +31,7 @@ export default class AppMixin extends Vue {
    */
   public appDetail(app: any, tabNum: any) {
     this.$router.push({
-      name: 'AIAppDetail',
+      path: '/ai/detail',
       query: {
         appid: app.id,
         tabNum
@@ -44,7 +44,7 @@ export default class AppMixin extends Vue {
    */
   public editApp(app) {
     this.$router.push({
-      name: 'AIEditApp',
+      path: '/ai/edit',
       query: {
         id: app.id
       }
@@ -87,7 +87,7 @@ export default class AppMixin extends Vue {
 
   public backToAppList() {
     this.$router.push({
-      name: 'AIAppList'
+      path: '/ai/ai-app-list'
     })
   }
 
@@ -95,9 +95,9 @@ export default class AppMixin extends Vue {
    * 得到N天前的时间戳
    */
   public getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 

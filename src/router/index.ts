@@ -494,7 +494,7 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  
+
   {
     path: '/viid',
     component: Layout,
@@ -810,6 +810,123 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/aiv1',
+    component: Layout,
+    redirect: 'noredirect',
+    name: 'AI',
+    meta: {
+      title: 'AI管理',
+      icon: 'menu-ai',
+      alwaysShow: true,
+      perms: ['DescribeAi']
+    },
+    children: [
+      {
+        path: 'mask-recognation',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/MaskRecognation/index.vue'),
+        name: 'AIMaskRecognation',
+        meta: {
+          title: '口罩识别',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/ai',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'ai-app-list',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/index.vue'),
+        name: 'AIAppList',
+        meta: {
+          title: 'AI应用',
+          icon: 'dot',
+          hidden: false,
+          breadcrumb: true,
+          only: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        name: 'AIAddApp',
+        meta: {
+          title: '添加应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'edit',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        name: 'AIEditApp',
+        meta: {
+          title: '编辑应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'detail',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AppDetail.vue'),
+        name: 'AIAppDetail',
+        meta: {
+          title: '应用详情',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'config',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/Config/index.vue'),
+        name: 'AIConfig',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/config',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/index.vue'),
+        name: 'facelib',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/ai/facelib',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib/detail',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/Personal.vue'),
+        name: 'facelib-detail',
+        meta: {
+          title: '人脸库详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/ai/facelib',
+          perms: ['AdminAi']
+        }
+      }
+    ]
+  },
+    {
     path: '/ai',
     component: Layout,
     redirect: 'noredirect',
