@@ -52,7 +52,7 @@ export default class extends Vue {
   private submitting = false
   private loading = true
   private form = {
-    resource:  null as ResourceType
+    resource: null as ResourceType
   }
   private rules = {
     resource: [

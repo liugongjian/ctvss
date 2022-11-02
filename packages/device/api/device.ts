@@ -536,7 +536,7 @@ export const getDeviceEvents = (params: any): Promise<any> =>
   request({
     url: '/device/event',
     method: 'get',
-    params
+    params: toUpperCase(params)
   })
 
 // player组件  缩放

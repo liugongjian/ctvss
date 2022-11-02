@@ -287,7 +287,7 @@ export default class extends Mixins(deviceFormMixin) {
     // step0
     [DeviceEnum.DeviceName]: '',
     [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
-    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video, DeviceInTypeEnum.Viid],
+    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video],
     [DeviceEnum.InNetworkType]: InNetworkTypeEnum.Public,
     [DeviceEnum.OutNetworkType]: OutNetworkTypeEnum.Public,
     // step1
