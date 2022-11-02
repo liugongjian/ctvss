@@ -128,7 +128,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const channels = []
       const iboxId = this.$route.query.deviceId
       const { devices }: any = await getDeviceList(param)
-      debugger
       const _devices = devices.map((device) => {
         if (device.device.deviceType === 'nvr') {
           const deviceChannels = device.device.deviceChannels.map(
@@ -165,12 +164,11 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const filterDevices = _devices.filter((device) =>
         deviceIds.find((id) => id === device.deviceId)
       )
-      debugger
       this.deviceList = filterDevices.map(device => {
         const index = deviceIds.findIndex((id) => id === device.deviceId)
-        return { ...device, status: index ? status[index] : 0 }
+        const s = index > -1 ? status[index] : 0
+        return { ...device, status: s }
       })
-      console.log('this.deviceList:', this.deviceList)
     } catch (e) {
       console.log(e)
     }
