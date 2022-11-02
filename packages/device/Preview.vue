@@ -66,6 +66,7 @@ import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 
 @Component({
   name: 'Preview',
@@ -77,12 +78,26 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  // 分屏管理器实例
+  public screenManager: ScreenManager = null
+
+  // 当前选中的分屏
+  public get currentScreen() {
+    return this.screenManager && this.screenManager.currentScreen
+  }
+
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard?.screenManager
+  }
+
   /**
    * 树节点点击事件
-   * @param data node信息
+   * @param item node信息
    */
-  private handleTreeNode(data: any) {
-    console.log(data)
+  private handleTreeNode(item: any) {
+    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
   }
 }
 </script>
