@@ -209,7 +209,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     redirect: '/device/camera',
     meta: {
-      title: '设备管理',
+      title: '',
       icon: 'menu-device',
       perms: ['DescribeDevice'],
       breadcrumb: false,
@@ -224,7 +224,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         name: 'device',
         meta: {
-          title: '设备管理',
+          title: '通用设备',
           breadcrumb: true,
           perms: ['DescribeDevice'],
           groupSelector: true
@@ -308,7 +308,7 @@ export const asyncRoutes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/List.vue'),
             name: 'IBoxDeviceList',
             meta: {
-              title: 'iBox设备列表',
+              title: 'iBox',
               breadcrumb: false,
               icon: 'dot',
               perms: ['DescribeDevice'],
