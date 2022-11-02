@@ -538,6 +538,7 @@ class ExportExcelTemplate {
       error: '请选择国标用户名'
     }
   }
+
   private getAvailableChannelsValidation() {
     return {
       type: 'list',
@@ -547,6 +548,7 @@ class ExportExcelTemplate {
       error: '请选择通道号'
     }
   }
+
   private getVideoPackageValidation() {
     return {
       type: 'list',
