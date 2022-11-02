@@ -21,7 +21,7 @@ export default class ListMixin extends Vue {
   }
 
   public addIBox() {
-    let query: any = {
+    const query: any = {
       deviceId: this.$route.query.deviceId,
       parentDeviceId: this.$route.query.deviceId,
       type: this.$route.query.type
@@ -116,6 +116,7 @@ export default class ListMixin extends Vue {
     }
     try {
       await startDevice(param)
+      this.$message.success('启用流成功')
     } catch (error) {
       console.log(error)
     }
@@ -129,6 +130,7 @@ export default class ListMixin extends Vue {
     }
     try {
       await stopDevice(param)
+      this.$message.success('停用流成功')
     } catch (error) {
       console.log(error)
     }

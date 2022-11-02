@@ -7,9 +7,12 @@
         class="ibox-container__tree-box"
       >
         <div class="ibox-container__left" :style="`width: ${dirDrag.width}px`">
-          <div>
+          <div class="ibox-container__btnbox">
             <el-button class="ibox-container__expand" @click="toggledirList">
               <svg-icon name="hamburger" />
+            </el-button>
+            <el-button class="ibox-container__refresh" round plain @click="getDirList">
+              <svg-icon name="refresh" />
             </el-button>
           </div>
           <div
@@ -676,6 +679,10 @@ export default class IBox extends Vue {
     position: relative;
   }
 
+  &__btnbox {
+    position: relative;
+  }
+
   &__expand {
     border: none;
     border-radius: 0;
@@ -687,6 +694,13 @@ export default class IBox extends Vue {
     font-size: 18px;
     padding: 10px 15px;
     background: #f8f8f8;
+  }
+
+  &__refresh {
+    border: none;
+    border-radius: 0;
+    position: absolute;
+    right: 0;
   }
 
   &__list {

@@ -240,6 +240,7 @@ export default class extends Vue {
   }
 
   private showChangeName() {
+    this.editDeviceName = this.deviceName
     this.isEditDeviceName = !this.isEditDeviceName
   }
 
