@@ -126,8 +126,8 @@ export default class extends Mixins(DashboardMixin) {
    * 自适应获取图标y轴刻度
    */
   private getYTickInterval(tickCount: number, scale: any): Array<number> {
-    let maxValue = Math.max(...scale.values)
-    let vnum = maxValue % tickCount
+    const maxValue = Math.max(...scale.values)
+    const vnum = maxValue % tickCount
     let interval = (maxValue - vnum) / tickCount
     if (interval < 1) {
       interval = 1
@@ -135,7 +135,7 @@ export default class extends Mixins(DashboardMixin) {
     if (vnum > interval) {
       return this.getYTickInterval(tickCount - 1, scale)
     }
-    let intervalArr = []
+    const intervalArr = []
     for (let i = 1; i <= tickCount; i++) {
       if (interval * i > maxValue) break
       intervalArr.push(interval * i)

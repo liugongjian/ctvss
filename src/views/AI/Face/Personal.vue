@@ -37,7 +37,7 @@
       <el-table v-loading="loading" class="personal-info__table" :data="dataList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="imgString" label="头像">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="image-container">
               <el-image :src="row.faceCropUrls[0]"></el-image>
             </div>
@@ -111,7 +111,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       groupId: this.groupId,
       keyword: this.searchKey,
       pageNum: this.pager.pageNum,

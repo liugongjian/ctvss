@@ -82,11 +82,11 @@
                 <el-dropdown @command="handleMore">
                   <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :command="{type: 'detail', app: scope.row}">应用详情</el-dropdown-item>
+                    <el-dropdown-item :command="{ type: 'detail', app: scope.row }">应用详情</el-dropdown-item>
                     <!-- <el-dropdown-item v-if="parseInt(scope.row.appEnabled)" :command="{type: 'stop', app: scope.row}">停用</el-dropdown-item>
                     <el-dropdown-item v-if="!parseInt(scope.row.appEnabled)" :command="{type: 'start', app: scope.row}">启用</el-dropdown-item> -->
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{type: 'edit', app: scope.row}">编辑</el-dropdown-item>
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{type: 'delete', app: scope.row}">删除</el-dropdown-item>
+                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'edit', app: scope.row }">编辑</el-dropdown-item>
+                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'delete', app: scope.row }">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
@@ -197,7 +197,7 @@ export default class extends Mixins(AppMixin) {
    * 创建应用
    */
   private addApp() {
-    this.$router.push({ path: '/AI/create', query: { appType: 1, abilityId: this.activeTabName } })
+    this.$router.push({ path: '/ai/create', query: { appType: 1, abilityId: this.activeTabName } })
   }
 
   /**

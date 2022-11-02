@@ -19,7 +19,7 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
-<!--        <el-table-column type="selection" width="55" />-->
+        <!--        <el-table-column type="selection" width="55" />-->
         <el-table-column prop="name" label="人脸库名称" align="center" :show-overflow-tooltip="true" />
         <el-table-column prop="description" label="描述" align="center" :show-overflow-tooltip="true" />
         <el-table-column prop="personCnt" label="人数" width="140" align="center" />
@@ -77,7 +77,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       keyword: this.searchKey,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
@@ -112,7 +112,7 @@ export default class extends Vue {
 
   private viewFace(row) {
     this.$router.push({
-      name: 'facelib-detail',
+      path: '/ai/facelib/detail',
       query: {
         groupId: row.id,
         groupName: row.name
