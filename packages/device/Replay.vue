@@ -182,7 +182,7 @@ export default class extends Mixins(layoutMxin) {
     text-align: center;
     width: 100%;
     background: #fff;
-    padding: 0 0 5px;
+    padding: 5px;
 
     &__active {
       svg {
