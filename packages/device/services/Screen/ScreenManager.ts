@@ -9,7 +9,7 @@ import { StatusEnum } from '@vss/device/enums/index'
 import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
-  inProtocol: string
+  // inProtocol: string
   size: number
   isLive: boolean
   layout: string
@@ -23,11 +23,11 @@ const SCREEN_CACHE_KEY = {
 const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
 const SCREEN_CACHE_PARAMS = [
   'isLive',
-  'inProtocol',
+  // 'inProtocol',
   'deviceId',
   'deviceName',
-  'roleId',
-  'realGroupId',
+  // 'roleId',
+  // 'realGroupId',
   'streamSize',
   'streams',
   'streamNum',
@@ -45,7 +45,7 @@ export interface ExecuteQueueConfig {
 }
 
 export class ScreenManager {
-  public inProtocol: string
+  // public inProtocol: string
   public screenList: Screen[]
   public currentIndex: number
   public layout: string
@@ -65,7 +65,7 @@ export class ScreenManager {
   private _size: number
 
   constructor(config: ScreenManagerConfig) {
-    this.inProtocol = config.inProtocol
+    // this.inProtocol = config.inProtocol
     this.layout = config.layout
     this.view = 'screen'
     this.isLive = config.isLive
@@ -157,7 +157,7 @@ export class ScreenManager {
     this.transformDeviceParams(screen, item, streamNum)
     screen.streams = this.fillStreams(screen)
     screen.isLive = this.isLive
-    screen.inProtocol = this.inProtocol
+    screen.inProtocol = item.inProtocol
     // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
     if (this.isSync) {
       const currentRecordDatetime = this.findRecordCurrentDatetime()
