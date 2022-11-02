@@ -305,7 +305,8 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
-    ToolsEnum.ReplayVideo
+    ToolsEnum.ReplayVideo,
+    ToolsEnum.PreviewViid
   ]),
   [DirectoryTypeEnum.Nvr]: new Set([
     ToolsEnum.ShowDeviceInfo,

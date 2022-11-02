@@ -3,10 +3,14 @@
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources)" type="text">配置资源包</el-button>
-      <el-dropdown>
+      <el-dropdown @command="handleTools($event, basicInfo)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="{ type: 'delete' }">删除</el-dropdown-item>
+          <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
+          <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
+          <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
+          <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
+          <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -73,10 +77,10 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, StatusEnum } from '@vss/device/enums'
+import { DeviceEnum, StatusEnum, ToolsEnum } from '@vss/device/enums'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
 
@@ -87,10 +91,14 @@ import { Device, VideoDevice } from '@vss/device/type/Device'
   }
 })
 export default class extends Vue {
+  @Inject('handleTools')
+  private handleTools!: Function
   @Prop() private device: Device
   @Prop({ default: false }) private isIbox: boolean
   private dicts = dicts
   private deviceEnum = DeviceEnum
+  private statusEnum = StatusEnum
+  private toolsEnum = ToolsEnum
 
   // 设备基本信息
   private get basicInfo() {
