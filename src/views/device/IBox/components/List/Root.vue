@@ -107,8 +107,8 @@ export default class IBoxList extends Vue {
 
   async getIBoxList() {
     const param = {
-      pageNum: this.pageNum,
-      pageSize: this.pageSize
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize
     }
     try {
       const res = await getIBoxList(param)

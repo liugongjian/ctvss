@@ -23,7 +23,7 @@ import ExportExcelTemplate from './DeviceExportTemplate'
  * @param state.$router 路由
  * @param dirId 目录id
  */
-const addDevice = function (state, dirId) {
+const addDevice = function(state, dirId) {
   state.$router.push({
     name: 'DeviceCreate',
     query: {
@@ -39,7 +39,7 @@ const addDevice = function (state, dirId) {
  * @param id 设备id
  * @param type 设备类型
  */
-const viewDevice = function (state, id, type) {
+const viewDevice = function(state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
@@ -57,7 +57,7 @@ const viewDevice = function (state, id, type) {
  * @param id 设备id
  * @param type 设备类型
  */
-const editDevice = function (state, id, type) {
+const editDevice = function(state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
@@ -66,7 +66,7 @@ const editDevice = function (state, id, type) {
       type
     },
     params: {
-      isEdit: 'true',
+      isEdit: 'true'
     }
   })
 }
@@ -77,7 +77,7 @@ const editDevice = function (state, id, type) {
  * @param state.handleTools layout工能回调函数
  * @param row 设备信息
  */
-const deleteDevice = function (state, data?) {
+const deleteDevice = function(state, data?) {
   console.log(data, 111111)
   if (data instanceof Array) {
     // 批量操作
@@ -139,7 +139,7 @@ const deleteDevice = function (state, data?) {
  * @param state.$route 页面路由对象
  * @param flag 刷新标志
  */
-const refreshDeviceList = function (state, flag = 'true') {
+const refreshDeviceList = function(state, flag = 'true') {
   state.$router.replace({
     query: {
       ...state.$route.query,
@@ -155,7 +155,7 @@ const refreshDeviceList = function (state, flag = 'true') {
  * @param state.pollingTimes 轮询次数
  * @param state.$message 信息提示工具函数
  */
-const syncDevice = function (state, id) {
+const syncDevice = function(state, id) {
   state.loading.syncDevice = true
   const param = {
     [DeviceEnum.DeviceId]: id
@@ -178,7 +178,7 @@ const syncDevice = function (state, id) {
  * 轮询同步设备状态
  * @param param 请求体 Object
  */
-const statusPolling = function (state, param: any) {
+const statusPolling = function(state, param: any) {
   if (state.pollingTimes < 8) {
     state.pollingTimes += 1
   } else {
@@ -202,7 +202,7 @@ const statusPolling = function (state, param: any) {
 /**
  * 同步设备状态
  */
-const syncDeviceStatus = async function (state, id, type) {
+const syncDeviceStatus = async function(state, id, type) {
   let deviceIdAndTypes = []
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -240,12 +240,12 @@ const syncDeviceStatus = async function (state, id, type) {
 /**
  * 查看通道
  */
-const viewChannels = function (state, row) {
+const viewChannels = function(state, row) {
   state.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
 }
 
 // 导出设备
-const exportDeviceExcel = async function (state, policy, data) {
+const exportDeviceExcel = async function(state, policy, data) {
   state.loading.export = true
   try {
     const params: any = {}
@@ -280,7 +280,7 @@ async function exportDevicesExcel(data: any) {
     parentDeviceId: data.parentDeviceId
   }
   // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
-   let res
+  let res
   try {
     if (data.command === 'all') {
       const query = this.$route.query
@@ -305,7 +305,7 @@ async function exportDevicesExcel(data: any) {
 /**
  * 导入设备表
  */
-const uploadExcel = function (state, data: any) {
+const uploadExcel = function(state, data: any) {
   console.log(data)
   // if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
   // state.dialog.uploadExcel = true
@@ -328,12 +328,12 @@ const uploadExcel = function (state, data: any) {
 /**
  * 导出模板
  */
-const exportTemplate = function (state) {
+const exportTemplate = function(state) {
   ExportExcelTemplate.exportTemplate(state)
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal
-  // this.exelName = `${currentInProtocal}导入模板` 
+  // this.exelName = `${currentInProtocal}导入模板`
   // this.regionName = this.groupData?.regionName || ''
   // this.excelGroupDate = this.groupData
   // if (this.isNVR) {
@@ -348,7 +348,7 @@ const exportTemplate = function (state) {
 /**
  * 启用/停用设备
  */
-const startOrStopDevice = async function (state, type, row?) {
+const startOrStopDevice = async function(state, type, row?) {
   const method = type === ToolsEnum.StartDevice ? startDevice : stopDevice
   const methodStr = type === ToolsEnum.StartDevice ? '启用' : '停用'
   if (row) {
@@ -384,7 +384,7 @@ const startOrStopDevice = async function (state, type, row?) {
         showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        beforeClose: async (action: any, instance: any, done: Function) => {
+        beforeClose: async(action: any, instance: any, done: Function) => {
           if (action === 'confirm') {
             instance.confirmButtonLoading = true
             instance.confirmButtonText = '...'
@@ -422,7 +422,7 @@ const startOrStopDevice = async function (state, type, row?) {
 /**
  * 开始/停止录像
  */
-const startOrStopRecord = async function (state, type, row) {
+const startOrStopRecord = async function(state, type, row) {
   const method = type === ToolsEnum.StartRecord ? startRecord : stopRecord
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
@@ -447,7 +447,7 @@ const startOrStopRecord = async function (state, type, row) {
  * @param type 触发打开窗口的事件类型
  * @param row 设备信息
  */
-const openListDialog = function (getVueComponent, type: string, row?: any) {
+const openListDialog = function(getVueComponent, type: string, row?: any) {
   const state = getVueComponent()
   switch (type) {
     case ToolsEnum.MoveDevice:
@@ -470,7 +470,7 @@ const openListDialog = function (getVueComponent, type: string, row?: any) {
  * @param type 触发关闭窗口的事件类型
  * @param isRefresh 是否更新列表
  */
-const closeListDialog = function (state, type: string, isfresh: any) {
+const closeListDialog = function(state, type: string, isfresh: any) {
   state.dialog[type] = false
   switch (type) {
     case ToolsEnum.MoveDevice:
@@ -488,7 +488,7 @@ const closeListDialog = function (state, type: string, isfresh: any) {
  * @param getVueComponent 获取Vue实例函数
  * @param level 返回层级数（0/1/2...）
  */
-const goBack = function (
+const goBack = function(
   getVueComponent: any,
   level: number
 ) {
@@ -504,7 +504,7 @@ const goBack = function (
  * @param state.$router 路由
  * @param id 设备id
  */
-const previewEvents = function (state, id) {
+const previewEvents = function(state, id) {
   state.$router.push({
     name: 'DeviceEvents',
     query: {
@@ -519,7 +519,7 @@ const previewEvents = function (state, id) {
  * @param state.$router 路由
  * @param id 设备id
  */
-const previewVideo = function (state, id) {
+const previewVideo = function(state, id) {
   state.$router.push({
     name: 'DevicePreview',
     query: {
@@ -534,7 +534,7 @@ const previewVideo = function (state, id) {
  * @param state.$router 路由
  * @param id 设备id
  */
-const replayVideo = function (state, id) {
+const replayVideo = function(state, id) {
   state.$router.push({
     name: 'DeviceReplay',
     query: {
@@ -549,7 +549,7 @@ const replayVideo = function (state, id) {
  * @param state.$router 路由
  * @param id 设备id
  */
-const previewViid = function (state, id) {
+const previewViid = function(state, id) {
   state.$router.push({
     name: 'DeviceViid',
     query: {
