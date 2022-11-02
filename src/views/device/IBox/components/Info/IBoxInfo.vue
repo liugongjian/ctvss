@@ -1,69 +1,69 @@
 <template>
-<div class="ibox-bar">
-  <div class="ibox-info">
-    <el-card v-loading="loading" class="base-info">
-      <div class="title">
-        <span>设备信息</span>
-      </div>
-      <div class="info">
-        <el-descriptions :column=2>
-          <el-descriptions-item label="设备状态"><span class="register-status" :style="statusStyle">{{ registerStatus }}</span></el-descriptions-item>
-          <el-descriptions-item label="设备名称">
-            <span v-if="!isEditDeviceName">{{ deviceName }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeName" /></span>
-            <span v-if="isEditDeviceName" class="name-edit">
-              <el-input ref="deviceName" v-model="editDeviceName" :maxlength="16" autofocus />
-              <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeName" />
-              <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelChange" />
-            </span>
-            <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
-          </el-descriptions-item>
-          <el-descriptions-item label="设备ID">{{ basic.deviceId }}</el-descriptions-item>
-          <el-descriptions-item label="IP地址">{{ basic.ip }}</el-descriptions-item>
-          <el-descriptions-item label="序列号">{{ basic.sn }}</el-descriptions-item>
-          <el-descriptions-item label="描述">
-            <span v-if="!isEditDes">{{ description }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeDes" /></span>
-            <span v-if="isEditDes" class="name-edit">
-              <el-input ref="des" v-model="editDes" :maxlength="64" autofocus />
-              <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
-              <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelEdit" />
-            </span>
-            <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
-      <div class="title">
-        <span>硬件信息</span>
-      </div>
-      <div class="info-chart">
-        <BarChart class="bar-chart" :barChartId="0" :chartData="hardware.ram" :type="'ram'" :barColor="customColor_usage" />
-        <BarChart class="bar-chart" :barChartId="1" :chartData="hardware.storage" :type="'storage'" :barColor="customColor_usage" />
-        <BarChart class="bar-chart" :barChartId="2" :chartData="hardware.cpu" :type="'cpu'" :barColor="customColor_usageRate" />
-        <BarChart class="bar-chart" :barChartId="3" :chartData="hardware.gpu" :type="'gpu'" :barColor="customColor_usageRate" />
-      </div>
-      <div class="title">
-        <span>应用信息</span>
-      </div>
-      <div class="info-chart">
-        <!-- 设备、算法、分析路数 -->
-        <BarChart :barChartId="4" :chartData="app.stream" :type="'stream'" :barColor="customColor_app" /> 
-        <BarChart :barChartId="5" :chartData="app.aiAlgo" :type="'aiAlgo'" :barColor="customColor_app" />
-        <BarChart :barChartId="6" :chartData="app.aiApp" :type="'aiApp'" :barColor="customColor_app" />
-      </div>
-    <div class="title">
-        <span>SIP服务信息</span>
-      </div>
-      <div class="info">
-        <el-descriptions :column=2>
-          <el-descriptions-item label="SIP服务器ID">{{ sip.sipId }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器域">{{ sip.sipRegion }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器地址">{{ sip.sipIp }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器TCP端口">{{ sip.sipTcpPort }}</el-descriptions-item>
-          <el-descriptions-item label="SIP服务器UDP端口">{{ sip.sipUdpPort }}</el-descriptions-item>
-        </el-descriptions>
-      </div>
-    </el-card>
+  <div class="ibox-bar">
+    <div class="ibox-info">
+      <el-card v-loading="loading" class="base-info">
+        <div class="title">
+          <span>设备信息</span>
+        </div>
+        <div class="info">
+          <el-descriptions :column="2">
+            <el-descriptions-item label="设备状态"><span class="register-status" :style="statusStyle">{{ registerStatus }}</span></el-descriptions-item>
+            <el-descriptions-item label="设备名称">
+              <span v-if="!isEditDeviceName">{{ deviceName }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeName" /></span>
+              <span v-if="isEditDeviceName" class="name-edit">
+                <el-input ref="deviceName" v-model="editDeviceName" :maxlength="16" autofocus />
+                <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeName" />
+                <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelChange" />
+              </span>
+              <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
+            </el-descriptions-item>
+            <el-descriptions-item label="设备ID">{{ basic.deviceId }}</el-descriptions-item>
+            <el-descriptions-item label="IP地址">{{ basic.ip }}</el-descriptions-item>
+            <el-descriptions-item label="序列号">{{ basic.sn }}</el-descriptions-item>
+            <el-descriptions-item label="描述">
+              <span v-if="!isEditDes">{{ description }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeDes" /></span>
+              <span v-if="isEditDes" class="name-edit">
+                <el-input ref="des" v-model="editDes" :maxlength="64" autofocus />
+                <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
+                <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelEdit" />
+              </span>
+              <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+        <div class="title">
+          <span>硬件信息</span>
+        </div>
+        <div class="info-chart">
+          <BarChart class="bar-chart" :bar-chart-id="0" :chart-data="hardware.ram" :type="'ram'" :bar-color="customColor_usage" />
+          <BarChart class="bar-chart" :bar-chart-id="1" :chart-data="hardware.storage" :type="'storage'" :bar-color="customColor_usage" />
+          <BarChart class="bar-chart" :bar-chart-id="2" :chart-data="hardware.cpu" :type="'cpu'" :bar-color="customColor_usageRate" />
+          <BarChart class="bar-chart" :bar-chart-id="3" :chart-data="hardware.gpu" :type="'gpu'" :bar-color="customColor_usageRate" />
+        </div>
+        <div class="title">
+          <span>应用信息</span>
+        </div>
+        <div class="info-chart">
+          <!-- 设备、算法、分析路数 -->
+          <BarChart :bar-chart-id="4" :chart-data="app.stream" :type="'stream'" :bar-color="customColor_app" />
+          <BarChart :bar-chart-id="5" :chart-data="app.aiAlgo" :type="'aiAlgo'" :bar-color="customColor_app" />
+          <BarChart :bar-chart-id="6" :chart-data="app.aiApp" :type="'aiApp'" :bar-color="customColor_app" />
+        </div>
+        <div class="title">
+          <span>SIP服务信息</span>
+        </div>
+        <div class="info">
+          <el-descriptions :column="2">
+            <el-descriptions-item label="SIP服务器ID">{{ sip.sipId }}</el-descriptions-item>
+            <el-descriptions-item label="SIP服务器域">{{ sip.sipRegion }}</el-descriptions-item>
+            <el-descriptions-item label="SIP服务器地址">{{ sip.sipIp }}</el-descriptions-item>
+            <el-descriptions-item label="SIP服务器TCP端口">{{ sip.sipTcpPort }}</el-descriptions-item>
+            <el-descriptions-item label="SIP服务器UDP端口">{{ sip.sipUdpPort }}</el-descriptions-item>
+          </el-descriptions>
+        </div>
+      </el-card>
+    </div>
   </div>
-</div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -83,31 +83,33 @@ export default class extends Vue {
     deviceId: '',
     ip: '',
     sn: '',
-    description: '',
+    description: ''
   }
+
   private sip = {
     sipId: '',
     sipRegion: '',
     sipIp: '',
     sipTcpPort: '',
-    sipUdpPort: '',
+    sipUdpPort: ''
   }
+
   private app = {
-    "stream": {
-      "total": 0,
-      "usage": 0,
+    stream: {
+      total: 0,
+      usage: 0
     },
-    "aiAlgo": {
-      "total": 0,
-      "usage": 0,
+    aiAlgo: {
+      total: 0,
+      usage: 0
     },
-    "aiApp": {
-      "total": 0,
-      "usage": 0,
+    aiApp: {
+      total: 0,
+      usage: 0
     },
-    "aiAlarm": {
-      "total": 0,
-      "usage": 0,
+    aiAlarm: {
+      total: 0,
+      usage: 0
     }
   }
 
@@ -115,31 +117,32 @@ export default class extends Vue {
   // private isRegistered: boolean
   private chartData: any
   private hardware = {
-    "ram": {
-                "total": 0,
-                "usage": 0,
-                "unit": "",
-                "usageRate": 0
-            },
-            "storage": {
-                "total": 0,
-                "usage": 0,
-                "unit": "",
-                "usageRate": 0
-            },
-            "cpu": {
-                "total": 0,
-                "usage": 0,
-                "unit": "",
-                "usageRate": 0
-            },
-            "gpu": {
-                "total": 0,
-                "usage": 0,
-                "unit": "",
-                "usageRate": 0
-            }
+    ram: {
+      total: 0,
+      usage: 0,
+      unit: '',
+      usageRate: 0
+    },
+    storage: {
+      total: 0,
+      usage: 0,
+      unit: '',
+      usageRate: 0
+    },
+    cpu: {
+      total: 0,
+      usage: 0,
+      unit: '',
+      usageRate: 0
+    },
+    gpu: {
+      total: 0,
+      usage: 0,
+      unit: '',
+      usageRate: 0
+    }
   }
+
   private statusStyle: any = null
   private registerStatus: string = ''
 
@@ -160,28 +163,28 @@ export default class extends Vue {
 
   private customColor_usage = {
     mainColor: '#9FCD54',
-    subColor: '#8BB2F9',
+    subColor: '#8BB2F9'
   }
 
   private customColor_usageRate = {
     mainColor: '#F8D34C',
-    subColor: '#FDF1C6',
+    subColor: '#FDF1C6'
   }
 
   private customColor_app = {
     mainColor: '#F19E4B',
-    subColor: '#F7CC8B',
+    subColor: '#F7CC8B'
   }
-  
+
   private async mounted() {
     try {
       this.loading = true
       this.checkedFalse = false
       this.checkedFalseDes = false
-      let params = {
+      const params = {
         DeviceId: this.$route.query.deviceId
       }
-      let res = await getIBoxDetail(params)
+      const res = await getIBoxDetail(params)
       // res = this.jsonKeysCaseTrans(res.Data)
       this.renderInfo(res)
     } catch (e) {
@@ -196,7 +199,7 @@ export default class extends Vue {
     this.dataInfo(res)
   }
 
-  private dataInfo(res: any){
+  private dataInfo(res: any) {
     this.deviceName = res.basic.deviceName
     this.description = res.basic.description
     this.basic = res.basic
@@ -207,30 +210,30 @@ export default class extends Vue {
 
   private transStatus(status: string) {
     // this.statusJoining = false
-    switch(status) {
+    switch (status) {
       case 'on':
         this.registerStatus = '在线'
         this.statusStyle = {
-          '--isOnline':'#52C41A'
+          '--isOnline': '#52C41A'
         }
         // this.statusJoining = true
         break
       case 'off':
         this.registerStatus = '离线'
         this.statusStyle = {
-          '--isOnline':'#999999'
+          '--isOnline': '#999999'
         }
         break
       case 'new':
         this.registerStatus = '未接入'
         this.statusStyle = {
-          '--isOnline':'#999999'
+          '--isOnline': '#999999'
         }
         break
       default :
         this.registerStatus = '状态错误'
         this.statusStyle = {
-          '--isOnline':'red'
+          '--isOnline': 'red'
         }
         break
     }
@@ -296,14 +299,14 @@ export default class extends Vue {
 
   private cancelChange() {
     this.editDeviceName = this.deviceName
-    const refs: any = this.$refs['deviceName']
+    const refs: any = this.$refs.deviceName
     refs.blur()
     this.isEditDeviceName = false
   }
 
   private cancelEdit() {
     this.editDes = this.description
-    const refs: any = this.$refs['des']
+    const refs: any = this.$refs.des
     refs.blur()
     this.isEditDes = false
   }
@@ -311,29 +314,29 @@ export default class extends Vue {
   // 用于变量大小写转换
   private jsonKeysCaseTrans(json: any, type?: number) {
     if (typeof json === 'object') {
-      let tmpJson = JSON.parse(JSON.stringify(json))
+      const tmpJson = JSON.parse(JSON.stringify(json))
       caseTrans(tmpJson)
       return tmpJson
     } else {
       return json
     }
-     function caseTrans(json: any) {
+    function caseTrans(json: any) {
       if (typeof json === 'object') {
         if (Array.isArray(json)) {
           json.forEach((item: any) => {
             caseTrans(item)
           })
         } else {
-          for (let key in json) {
-            let item = json[key]
+          for (const key in json) {
+            const item = json[key]
             if (typeof item === 'object') {
               caseTrans(item)
             }
-            delete(json[key])
+            delete (json[key])
             switch (type) {
               case 1:
                 // 首字母大写
-                json[key.substring(0,1).toUpperCase() + key.substring(1)] = item
+                json[key.substring(0, 1).toUpperCase() + key.substring(1)] = item
                 break
               case 2:
                 // 全小写
@@ -341,15 +344,14 @@ export default class extends Vue {
                 break
               default:
                 // 默认首字母小写
-                json[key.substring(0,1).toLowerCase() + key.substring(1)] = item
+                json[key.substring(0, 1).toLowerCase() + key.substring(1)] = item
                 break
             }
           }
         }
       }
-     }
+    }
   }
-
 }
 </script>
 <style lang="scss" scoped>

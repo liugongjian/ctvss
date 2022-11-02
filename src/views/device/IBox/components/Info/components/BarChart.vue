@@ -1,5 +1,5 @@
 <template>
-  <div :id="barChartId" class="bar-chart"></div>
+  <div :id="barChartId" class="bar-chart" />
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -12,10 +12,13 @@ import * as echarts from 'echarts'
 export default class extends Vue {
   @Prop()
   private chartData: any
+
   @Prop()
   private barChartId: number
+
   @Prop()
   private type: string
+
   @Prop()
   private barColor: any
 
@@ -27,7 +30,7 @@ export default class extends Vue {
 
   private chartObj: any
 
-  @Watch('chartData', {immediate: true})
+  @Watch('chartData', { immediate: true })
   private onDataChange() {
     if (!this.chartObj) return
     this.chartObj.clear()
@@ -44,7 +47,7 @@ export default class extends Vue {
       const chartDom: any = document.getElementById('' + this.barChartId)
       this.chartObj = echarts.init(chartDom)
       this.options && this.chartObj.setOption(this.options)
-      window.addEventListener('resize',this.resizeCharts)
+      window.addEventListener('resize', this.resizeCharts)
       this.resizeCharts()
     })
   }
@@ -68,7 +71,7 @@ export default class extends Vue {
               verticalAlign: 'bottom',
               height: 1,
               fontWeight: 400,
-              color: '#333333',
+              color: '#333333'
             }
           }
         },
@@ -78,7 +81,7 @@ export default class extends Vue {
               fontSize: 14,
               verticalAlign: 'bottom',
               fontWeight: 400,
-              color: '#333333',
+              color: '#333333'
             }
           }
         },
@@ -90,7 +93,7 @@ export default class extends Vue {
         top: '50%',
         left: '70%',
         orient: 'vertical',
-        align: 'left',
+        align: 'left'
         // fomatter: function (name) {
         //   console.log('name + data + unit', name, this.unit)
         //   return name + this.unit
@@ -104,10 +107,10 @@ export default class extends Vue {
         type: 'pie',
         center: ['30%', '50%'],
         radius: ['50%', '75%'],
-        avoidLabelOverlap:true,
+        avoidLabelOverlap: true,
         itemStyle: {
           color: (p) => {
-            if(p.dataIndex === 0) {
+            if (p.dataIndex === 0) {
               return this.barColor.mainColor
             } else {
               return this.barColor.subColor
@@ -119,11 +122,11 @@ export default class extends Vue {
         },
         labelLayout(params) {
           return {
-              x: params.rect.x + params.rect.width / 2,
-              dx: 100,
-              y: params.rect.y,
-              verticalAlign: 'middle',
-              align: 'middle'
+            x: params.rect.x + params.rect.width / 2,
+            dx: 100,
+            y: params.rect.y,
+            verticalAlign: 'middle',
+            align: 'middle'
           }
         },
         data: this.seriesData
@@ -166,16 +169,23 @@ export default class extends Vue {
           }
         }
       ]
-    }else if (this.type === 'cpu' || this.type === 'gpu') {
-      chartData.usageRate = +(chartData.usageRate).toFixed(2)
-      const unuse = +(1 - chartData.usageRate).toFixed(2)
-      this.title = '' + chartData.usageRate * 100
+    } else if (this.type === 'cpu' || this.type === 'gpu') {
+      const usageRate = chartData.usageRate
+      const showUsageRate = (usageRate * 100).toFixed(2)
+
+      // chartData.usageRate = +(chartData.usageRate).toFixed(2)
+      // const unuse = +(1 - chartData.usageRate).toFixed(2)
+      const unuse = (1 - usageRate).toFixed(2)
+      // this.title = '' + chartData.usageRate * 100
+      this.title = showUsageRate
       this.subtitle = this.type === 'cpu' ? 'CPU使用率' : 'GPU使用率'
       this.unit = '%'
       this.seriesData = [
         {
-          value: chartData.usageRate,
-          name: '使用率: ' + chartData.usageRate * 100 + this.unit
+          // value: chartData.usageRate,
+          // name: '使用率: ' + chartData.usageRate * 100 + this.unit
+          value: showUsageRate,
+          name: `使用率${showUsageRate}${this.unit}`
         },
         {
           value: unuse,
@@ -191,7 +201,7 @@ export default class extends Vue {
       const unuse = +(chartData.total - chartData.usage).toFixed(2)
       this.title = chartData.usage
       let name1, name2
-      switch(this.type + '') {
+      switch (this.type + '') {
         case 'stream':
           this.unit = '路'
           this.subtitle = '视频接入'
@@ -222,7 +232,7 @@ export default class extends Vue {
       this.seriesData = [
         {
           value: chartData.usage,
-          name: name1 + chartData.usage + this.unit,
+          name: name1 + chartData.usage + this.unit
         },
         {
           value: unuse,
