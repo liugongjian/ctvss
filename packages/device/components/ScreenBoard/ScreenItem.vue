@@ -1,8 +1,9 @@
 <template>
   <div
+    v-droppable="getDropCallback()"
     class="screen-item"
     :data-index="itemIndex"
-    :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
+    :class="{ 'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive }"
     @click="click"
   >
     <template v-if="screen.deviceId">
@@ -44,9 +45,13 @@ import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../DeviceDir.vue'
+import { droppable } from './droppable'
 
 @Component({
   name: 'ScreenItem',
+  directives: {
+    'droppable': droppable
+  },
   components: {
     LivePlayer,
     ReplayPlayer,
@@ -123,6 +128,21 @@ export default class extends Vue {
    */
   private get isCarTask() {
     return this.screenManager.isCarTask
+  }
+
+  private getVueComponent() {
+    return this
+  }
+
+  /**
+   * 获取拖拽元素拖入drop后触发回调
+   */
+  private getDropCallback() {
+    console.log(this.itemIndex)
+    return function(itemIndex, nodeData) {
+      console.log('emitOK', nodeData, itemIndex, this)
+      this.$emit('dropCallbak', nodeData, itemIndex)
+    }.bind(this, this.itemIndex)
   }
 
   /**

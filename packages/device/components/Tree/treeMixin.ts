@@ -99,7 +99,6 @@ export default class TreeMixin extends Vue {
    * @param data 设备信息
    */
   public checkTreeItemStatus(data: any) {
-    console.log(this.playingScreens)
     return data.type === DirectoryTypeEnum.Ipc && this.playingScreens.includes(data.id)
   }
 
