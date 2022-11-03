@@ -306,7 +306,6 @@ export const asyncRoutes: RouteConfig[] = [
   },
   deviceRouter,
   videoRouter,
-  iboxRouter,
   {
     path: '/screen',
     component: Layout,

@@ -90,11 +90,11 @@ export default class extends Mixins(layoutMxin) {
   private isLive = false
   private isCollapse = false
   // 分屏管理器实例
-  public screenManager: ScreenManager = null
+  public _screenManager: ScreenManager = null
 
   // 当前选中的分屏
   public get currentScreen() {
-    return this.screenManager && this.screenManager.currentScreen
+    return this._screenManager && this._screenManager.currentScreen
   }
   
   /**
@@ -108,18 +108,18 @@ export default class extends Mixins(layoutMxin) {
    * 是否显示录像管理工具
    */
   private get showRecordTool() {
-    return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || (this.screenManager && this.screenManager.isSync)
+    return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || (this._screenManager && this._screenManager.isSync)
   }
 
   public mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
-    this.screenManager = screenBoard?.screenManager
+    this._screenManager = screenBoard?.screenManager
     window.addEventListener('beforeunload', this.saveCache)
   }
 
   public destroyed() {
-    this.screenManager.saveCache()
+    this._screenManager.saveCache()
     window.removeEventListener('beforeunload', this.saveCache)
   }
 
@@ -128,28 +128,28 @@ export default class extends Mixins(layoutMxin) {
    * @param item node信息
    */
   private handleTreeNode(item: any) {
-    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+    this._screenManager.openTreeItem(item, item.deviceStreamPullIndex)
   }
 
   /**
    * 切换日期
    */
   private onDateChange(date) {
-    this.screenManager.changeReplayDate(date)
+    this._screenManager.changeReplayDate(date)
   }
 
   /**
    * 切换录像类型
    */
   private onReplayTypeChange(recordType) {
-    this.screenManager.changeReplayType(recordType)
+    this._screenManager.changeReplayType(recordType)
   }
 
   /**
    * 保存分屏缓存
    */
   private saveCache() {
-    this.screenManager.saveCache()
+    this._screenManager.saveCache()
   }
 }
 </script>
