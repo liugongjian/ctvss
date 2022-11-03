@@ -396,7 +396,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
 
   {
-    path: '/map',
+    path: '/mapv1',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -404,12 +404,13 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeMap'],
       alwaysShow: false,
       only: true,
-      groupSelector: false
+      groupSelector: false,
+      version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV1/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
@@ -421,7 +422,7 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/mapv2',
+    path: '/map',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -435,10 +436,10 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV2/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
-          title: '电子地图V2',
+          title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
           perms: ['DescribeMap']

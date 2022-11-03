@@ -1,6 +1,6 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
-import { getDevice } from '@vss/device/api/device'
+import { getDevice } from '@/api/device'
 // import { checkPermission } from '@/utils/permission'
 import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
@@ -120,7 +120,7 @@ export default class VMap {
     this.container = container
   }
 
-  creatMap(lng: number, lat: number, zoom: number, is3D = false, isOverView = false) {
+  creatMap(lng: number, lat: number, zoom: number, is3D: boolean = false, isOverView: boolean = false) {
     try {
       const AMap = window.AMap
       const options = {
@@ -264,17 +264,18 @@ export default class VMap {
     if (!marker.selected) {
       this.cancelChoose()
       if (!marker.deviceStatus) {
-        const { deviceId } = marker
+        const { deviceId, inProtocol } = marker
         const deviceInfo = await getDevice({
-          deviceId
+          deviceId,
+          inProtocol
         })
-        const deviceLabel = deviceInfo.device.deviceName
-        // if (deviceInfo.deviceChannels.length > 0) {
-        //   deviceLabel = deviceInfo.deviceChannels[0].channelName
-        // }
-        marker.deviceStatus = deviceInfo.device.deviceStatus
-        marker.streamStatus = deviceInfo.device.streamStatus
-        marker.recordStatus = deviceInfo.device.recordStatus
+        let deviceLabel = deviceInfo.deviceName
+        if (deviceInfo.deviceChannels.length > 0) {
+          deviceLabel = deviceInfo.deviceChannels[0].channelName
+        }
+        marker.deviceStatus = deviceInfo.deviceStatus
+        marker.streamStatus = deviceInfo.streamStatus
+        marker.recordStatus = deviceInfo.recordStatus
         marker.deviceLabel = deviceLabel
       }
       this.curMarkerList.forEach((item) => {
@@ -393,7 +394,7 @@ export default class VMap {
       this.indexCluster.setMap(null)
     }
     const clusterIndexSet = {
-      dirName: {
+      groupName: {
         minZoom: 3,
         maxZoom: 15
       }

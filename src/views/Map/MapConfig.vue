@@ -33,7 +33,7 @@
       <el-form-item>
         <template slot="label">
           <div @click="showMore = !showMore">
-            <span style="color: #F59A23; margin-right: 10px;">更多设置</span>
+            <span style="color: #f59a23; margin-right: 10px;">更多设置</span>
             <svg-icon name="arrow-right" :class="['more-arrow', showMore ? 'on': '']" width="6" />
           </div>
         </template>
@@ -215,7 +215,7 @@ export default class MapConfig extends Vue {
           name: this.form.name,
           longitude: this.form.longitude || '116.397428',
           latitude: this.form.latitude || '39.90923',
-          zoom: this.form.zoom,
+          zoom: this.form.zoom.toString(),
           mask: this.form.mask ? 'Y' : 'N',
           eagle: this.form.eagle ? 'Y' : 'N',
           dimension: this.form.dimension ? 'Y' : 'N',
@@ -279,12 +279,15 @@ export default class MapConfig extends Vue {
     flex: 1;
   }
 }
+
 .more-arrow {
-  color: #F59A23;
+  color: #f59a23;
+
   &.on {
     transform: rotate(90deg);
   }
 }
+
 .el-form {
   margin-top: 20px;
 
