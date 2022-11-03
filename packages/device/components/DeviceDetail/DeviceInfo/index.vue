@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
@@ -50,6 +50,7 @@ import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
 import { DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { ToolsEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceInfo',
@@ -63,6 +64,9 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Inject('handleTools')
+  private handleTools!: Function
+
   @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
   private deviceInTypeEnum = DeviceInTypeEnum
@@ -91,8 +95,14 @@ export default class extends Mixins(detailMixin) {
     }
   }
 
-  public updateDevice() {
-    this.getDevice(this.deviceId, true)
+  /**
+   * 刷新设备
+   */
+  public async updateDevice() {
+    await this.getDevice(this.deviceId, true)
+    if (this.device.device.deviceId) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
   }
 }
 </script>
