@@ -80,6 +80,15 @@ export default class extends Mixins(detailMixin) {
     if (this.hasViid && !this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Viid
     }
+
+    // 编辑模式打开所有编辑状态
+    if (this.$route.params.isEdit) {
+      this.isEdit = {
+        basicInfo: true,
+        videoInfo: true,
+        viidInfo: true
+      }
+    }
   }
 
   public updateDevice() {

@@ -38,9 +38,30 @@ export class Screen extends VuexModule implements IScreenState {
     this.playingScreens = payload
   }
 
+  /**
+   * 添加正在播放中的设备
+   * @param deviceId 设备ID
+   */
   @Action
-  public SetPlayingScreens(payload: string[]) {
-    this.SET_PLAYING_SCREENS(payload)
+  public AddPlayingScreen(deviceId: string) {
+    if (!this.playingScreens.includes(deviceId)) {
+      this.SET_PLAYING_SCREENS([deviceId, ...this.playingScreens])
+    }
+  }
+
+
+  /**
+   * 删除正在播放中的设备
+   * @param deviceId 设备ID
+   */
+  @Action
+  public RemovePlayingScreen(deviceId: string) {
+    const index = this.playingScreens.indexOf(deviceId)
+    if (index > -1) {
+      const playingScreens = [...this.playingScreens]
+      playingScreens.splice(index, 1)
+      this.SET_PLAYING_SCREENS(playingScreens)
+    }
   }
 }
 

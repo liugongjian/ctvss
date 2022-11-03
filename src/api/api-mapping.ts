@@ -26,4 +26,7 @@ export const ApiMapping = {
   '/alarm/alarmrule/delete': '/alarm/rule/delete',
   '/alarm/alarmrule/describeAlarmRule': '/alarm/rule/describe',
   '/alarm/alarmrule/describeAlarmRules': '/alarm/rule/list',
+  // PTZ 云台控制
+  '/ptz/keepwatch': '/ptz/keepwatch/describe',
+  '/ptz/startDeviceKeepwatch': '/ptz/keepwatch/start',
 }

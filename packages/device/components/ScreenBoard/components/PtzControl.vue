@@ -73,7 +73,7 @@
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex.preset === index, 'preset-line__no-set': !preset.setFlag}]"
+                    :class="['preset-line', { 'preset-line__select': currentIndex.preset === index, 'preset-line__no-set': !preset.setFlag }]"
                     @click="currentIndex.preset = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
@@ -95,7 +95,7 @@
                 <template v-for="(cruise, index) in cruises">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex.cruise === index, 'preset-line__no-set': !cruise.setFlag}]"
+                    :class="['preset-line', { 'preset-line__select': currentIndex.cruise === index, 'preset-line__no-set': !cruise.setFlag }]"
                     @click="currentIndex.cruise = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
@@ -165,8 +165,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
-import UpdateCruise from '../../UpdateCruise.vue'
+import * as ptzControlApi from '../../../api/ptz_control'
+import UpdateCruise from './UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
@@ -202,11 +202,11 @@ export default class extends Vue {
   private dialog: any = {
     cruise: false
   }
-  private isCreate: boolean = true
+  private isCreate = true
   private presets: Array<any> = []
   private cruises: Array<any> = []
   private homepositionList: Array<any> = []
-  private tabName: string = 'preset'
+  private tabName = 'preset'
   private homepositionForm: any = {
     enable: '0',
     waitTime: '',
@@ -249,7 +249,7 @@ export default class extends Vue {
   private async getPresets() {
     try {
       this.loading.preset = true
-      const res = await describeDevicePresets({ deviceId: this.deviceId })
+      const res = await ptzControlApi.describeDevicePresets({ deviceId: this.deviceId })
       this.presets = Array.from({ length: 255 }, (value, index) => {
         const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
         return {
@@ -273,7 +273,7 @@ export default class extends Vue {
   private async getCruises() {
     try {
       this.loading.cruise = true
-      const res = await describePTZCruiseList({ deviceId: this.deviceId })
+      const res = await ptzControlApi.describePTZCruiseList({ deviceId: this.deviceId })
       this.cruises = Array.from({ length: 8 }, (value, index) => {
         const found = res.cruiseInfos.find((cruise: any) => cruise.cruiseId === (index + 1).toString())
         return {
@@ -293,7 +293,7 @@ export default class extends Vue {
   private async getKeepWatchInfo() {
     try {
       this.loading.homeposition = true
-      const res = await describePTZKeepwatch({ deviceId: this.deviceId })
+      const res = await ptzControlApi.describePTZKeepwatch({ deviceId: this.deviceId })
       this.homepositionForm = {
         enable: res.enable,
         waitTime: res.waitTime,
@@ -310,7 +310,7 @@ export default class extends Vue {
   }
 
   private async deletePreset(presetId: number) {
-    await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await ptzControlApi.deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
     // this.$set(this.presets, presetId - 1, {
     //   'setFlag': false,
     //   'name': `预置位 ${presetId}`,
@@ -319,7 +319,7 @@ export default class extends Vue {
     this.getPresets()
   }
   private async setPreset(presetId: number, presetName: string) {
-    await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
+    await ptzControlApi.setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
     // this.$set(this.presets, presetId - 1, {
     //   'setFlag': true,
     //   'name': presetName,
@@ -341,7 +341,7 @@ export default class extends Vue {
     preset.editNameFlag = false
   }
   private async gotoPreset(presetId: number) {
-    await gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await ptzControlApi.gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
   }
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
@@ -453,19 +453,19 @@ export default class extends Vue {
   }
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await startDeviceMove(data)
+    await ptzControlApi.startDeviceMove(data)
   }
   private async endPtzMove(direction: number) {
     const data = this.formatEndParam(direction)
-    await endDeviceMove(data)
+    await ptzControlApi.endDeviceMove(data)
   }
   private async startPtzAdjust(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await startDeviceAdjust(data)
+    await ptzControlApi.startDeviceAdjust(data)
   }
   private async endPtzAdjust(direction: number) {
     const data = this.formatEndParam(direction)
-    await endDeviceAdjust(data)
+    await ptzControlApi.endDeviceAdjust(data)
   }
   private formatToolTip() {
     return '云台速度 ' + this.speed
@@ -486,7 +486,7 @@ export default class extends Vue {
 
   private async handleCruise(cruiseId: any) {
     try {
-      await startPTZCruise({
+      await ptzControlApi.startPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId
       })
@@ -501,7 +501,7 @@ export default class extends Vue {
 
   private async stopCruise(cruiseId: any) {
     try {
-      await stopPTZCruise({
+      await ptzControlApi.stopPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId
       })
@@ -520,7 +520,7 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (!valid) return
       try {
-        await updatePTZKeepwatch({
+        await ptzControlApi.updatePTZKeepwatch({
           deviceId: this.deviceId,
           enable: this.homepositionForm.enable,
           waitTime: this.homepositionForm.waitTime,
