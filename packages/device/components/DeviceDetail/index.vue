@@ -53,9 +53,9 @@ export default class extends Vue {
 
   private back() {
     if (this.type === DeviceTypeEnum.Ipc) {
-      this.handleTools([ToolsEnum.GoBack], 1)
+      this.handleTools(ToolsEnum.GoBack, 1)
     } else {
-      this.handleTools([ToolsEnum.GoBack], 0)
+      this.handleTools(ToolsEnum.GoBack, 0)
     }
   }
 }

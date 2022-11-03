@@ -392,7 +392,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.AddDevice]: () => DeviceManager.addDevice(this, this.currentDirId),
     [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
     [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
-    [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row),
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
     [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
     [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),

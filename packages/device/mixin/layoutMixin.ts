@@ -73,7 +73,7 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
-    [ToolsEnum.DeleteDevice]: (row) => DeviceManager.deleteDevice(this, row)
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
   }
   /* 设备目录树 */
   public get deviceTree() {

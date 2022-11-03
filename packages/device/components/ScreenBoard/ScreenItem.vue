@@ -134,11 +134,17 @@ export default class extends Vue {
     return this
   }
 
+  // private getDropCallback = (() => {
+  //   return (nodeData) => {
+  //     console.log('emitOK', nodeData, this.itemIndex, this)
+  //     this.$emit('dropCallbak', nodeData, this.itemIndex)
+  //   }
+  // })()
+
   /**
    * 获取拖拽元素拖入drop后触发回调
    */
   private getDropCallback() {
-    console.log(this.itemIndex)
     return function(itemIndex, nodeData) {
       console.log('emitOK', nodeData, itemIndex, this)
       this.$emit('dropCallbak', nodeData, itemIndex)

@@ -76,10 +76,11 @@ const editDevice = function (state, id, type) {
  * 删除设备
  * @param state.$alertDelete 提示框工具函数
  * @param state.handleTools layout工能回调函数
- * @param row 设备信息
+ * @param data 设备信息
+ * @param inProtocol 删除协议
  */
-const deleteDevice = function (state, data?) {
-  console.log(data, 111111)
+const deleteDevice = function (state, data?, inProtocol?) {
+  console.log(data, 111111, inProtocol)
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -112,23 +113,25 @@ const deleteDevice = function (state, data?) {
       }
     })
   } else {
+    console.log(data)
     // 单个操作
     state.$alertDelete({
       type: '设备',
       msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
-      method: () => {
-        return deleteDeviceApi({
-          [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-          [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
-        })
-      },
+      method: deleteDeviceApi,
       payload: {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId],
+        [DeviceEnum.InProtocol]: inProtocol
       },
       onSuccess: () => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        // 判断是否完全删除
+        // if (inProtocol && data[DeviceEnum.InProtocol].length < 2) {
+        //   state.handleTools(ToolsEnum.GoBack, 1)
+        // } else {
+          state.handleTools(ToolsEnum.RefreshDirectory)
+          state.handleTools(ToolsEnum.RefreshDeviceList)
+        // }
       }
     })
   }

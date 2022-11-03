@@ -3,7 +3,7 @@
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources)" type="text">配置资源包</el-button>
-      <el-dropdown @command="handleTools($event, basicInfo)">
+      <el-dropdown @command="handleTools($event, basicInfo, inVideoProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
