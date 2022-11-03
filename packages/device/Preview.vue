@@ -90,6 +90,11 @@ export default class extends Mixins(layoutMxin) {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
+    window.addEventListener('beforeunload', this.saveCache)
+  }
+
+  public destroyed() {
+    window.removeEventListener('beforeunload', this.saveCache)
   }
 
   /**
@@ -98,6 +103,13 @@ export default class extends Mixins(layoutMxin) {
    */
   private handleTreeNode(item: any) {
     this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this.screenManager.saveCache()
   }
 }
 </script>

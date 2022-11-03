@@ -115,6 +115,12 @@ export default class extends Mixins(layoutMxin) {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
+    window.addEventListener('beforeunload', this.saveCache)
+  }
+
+  public destroyed() {
+    this.screenManager.saveCache()
+    window.removeEventListener('beforeunload', this.saveCache)
   }
 
   /**
@@ -137,6 +143,13 @@ export default class extends Mixins(layoutMxin) {
    */
   private onReplayTypeChange(recordType) {
     this.screenManager.changeReplayType(recordType)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this.screenManager.saveCache()
   }
 }
 </script>
