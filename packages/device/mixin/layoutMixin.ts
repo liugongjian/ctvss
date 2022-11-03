@@ -2,6 +2,7 @@ import { Component, Vue, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
+import DeviceScreen from '../services/Device/DeviceScreen'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 
@@ -59,12 +60,12 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
-    [ToolsEnum.Polling]: node => DeviceManager.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: node => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
-    [ToolsEnum.IntervalChange]: interval => DeviceManager.intervalChange(this, interval),
-    [ToolsEnum.StopPolling]: () => DeviceManager.stopPolling(this),
-    [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
-    [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
+    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this, interval),
+    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this),
+    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this),
+    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),

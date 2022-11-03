@@ -20,6 +20,7 @@
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix" slot-scope="{ data }">
+      <svg-icon v-if="checkTreeItemStatus(data)" :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" name="playing" class="playing" />
       <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{ node, data }">

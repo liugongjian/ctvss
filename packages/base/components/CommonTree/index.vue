@@ -36,7 +36,7 @@
           :props="props"
           :empty-text="emptyText"
           :default-expand-all="!lazy"
-          :expand-on-click-node="false"
+          :expand-on-click-node="expandOnClickNode"
           :show-checkbox="hasCheckbox"
           highlight-current
           @node-click="handleNode"
@@ -112,6 +112,9 @@ export default class extends Vue {
 
   @Prop({ default: false })
   private hasCheckbox: boolean
+
+  @Prop({ default: true })
+  private expandOnClickNode: boolean
 
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()

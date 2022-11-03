@@ -45,7 +45,7 @@ const viewDevice = function (state, id, type) {
     query: {
       ...state.$route.query,
       [DeviceEnum.DeviceId]: id,
-      [DeviceEnum.DirId]: id,
+      [DeviceEnum.DirId]: '',
       type
     }
   })
@@ -517,14 +517,16 @@ const goBack = function (
 /**
  * 查看设备事件
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewEvents = function (state, id) {
+const previewEvents = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceEvents',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -532,14 +534,16 @@ const previewEvents = function (state, id) {
 /**
  * 实时预览
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewVideo = function (state, id) {
+const previewVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DevicePreview',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -547,14 +551,16 @@ const previewVideo = function (state, id) {
 /**
  * 录像回放
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const replayVideo = function (state, id) {
+const replayVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceReplay',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -562,14 +568,16 @@ const replayVideo = function (state, id) {
 /**
  * 视图查看
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewViid = function (state, id) {
+const previewViid = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceViid',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }

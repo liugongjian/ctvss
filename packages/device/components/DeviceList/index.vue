@@ -409,10 +409,10 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
     [ToolsEnum.UpdateResource]: (row) => DeviceManager.openListDialog(this, ToolsEnum.UpdateResource, row),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeListDialog(this, type, isfresh),
-    [ToolsEnum.PreviewEvents]: () => DeviceManager.previewEvents(this, this.currentDirId),
-    [ToolsEnum.PreviewVideo]: () => DeviceManager.previewVideo(this, this.currentDirId),
-    [ToolsEnum.ReplayVideo]: () => DeviceManager.replayVideo(this, this.currentDirId),
-    [ToolsEnum.PreviewViid]: () => DeviceManager.previewViid(this, this.currentDirId)
+    [ToolsEnum.PreviewEvents]: (row) => DeviceManager.previewEvents(this, row),
+    [ToolsEnum.PreviewVideo]: (row) => DeviceManager.previewVideo(this, row),
+    [ToolsEnum.ReplayVideo]: (row) => DeviceManager.replayVideo(this, row),
+    [ToolsEnum.PreviewViid]: (row) => DeviceManager.previewViid(this, row)
   }
 
   // 设备基本信息
