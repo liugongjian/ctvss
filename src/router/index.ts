@@ -1164,6 +1164,18 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
+        path: 'secretManage-v1',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManageV1/index.vue'),
+        name: 'AccessManageSecretManage',
+        meta: {
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/secretManage',
+          perms: ['*']
+        }
+      },
+      {
         path: 'secretManage',
         component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManage/index.vue'),
         name: 'AccessManageSecretManage',
