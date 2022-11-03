@@ -63,6 +63,7 @@ const editDevice = function (state, id, type) {
     query: {
       ...state.$route.query,
       deviceId: id,
+      dirId: '',
       type
     },
     params: {
