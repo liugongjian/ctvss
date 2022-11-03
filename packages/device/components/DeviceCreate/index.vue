@@ -83,7 +83,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item :prop="deviceEnum.OutNetworkType">
+            <!-- <el-form-item :prop="deviceEnum.OutNetworkType">
               <template slot="label">
                 播放网络:
                 <el-popover
@@ -105,7 +105,7 @@
                   {{ value }}
                 </el-radio>
               </el-radio-group>
-            </el-form-item>
+            </el-form-item> -->
             <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Video)">
               <div class="form-title">视频接入信息</div>
               <video-create-form
