@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{height: `${maxHeight + 35}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ height: `${maxHeight + 35}px` }" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -32,7 +32,7 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
+          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{ height: `${maxHeight-230}px` }">
             <el-tree
               ref="dirTree"
               node-key="id"
@@ -42,7 +42,7 @@
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="deviceClick(data)">
+              <span slot-scope="{ node, data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }" @click.stop.prevent="deviceClick(data)">
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
@@ -82,7 +82,7 @@
               <template v-if="isEdit">
                 <div class="device-list__right__handleBox">
                   <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{'active': toolState === item.tool}" @click="changeToolState(item.tool)">
+                    <span class="device-list__right__handleBox__tools" :class="{ 'active': toolState === item.tool }" @click="changeToolState(item.tool)">
                       <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
@@ -110,7 +110,7 @@
               </el-tooltip>
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{ height: `${maxHeight}px` }">
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
@@ -190,7 +190,7 @@ import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './MapView.vue'
 import { getMaps, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/Map/models/VMap'
+import { mapObject } from '@/views/MapV1/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
 import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
@@ -233,8 +233,8 @@ export default class extends Mixins(IndexMixin) {
   private deviceInfo: any = {}
   private markerInfo: any = {}
   private dragNodeInfo: any = {}
-  private ifDragging: boolean = false
-  private customInfoType: string = ''
+  private ifDragging = false
+  private customInfoType = ''
 
   private form = {
     mapId: '',
@@ -450,7 +450,7 @@ export default class extends Mixins(IndexMixin) {
         node.data.realGroupId = node.data.id
         node.data.realGroupInProtocol = node.data.inProtocol
       }
-      let shareDeviceIds: any = []
+      const shareDeviceIds: any = []
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
@@ -462,7 +462,7 @@ export default class extends Mixins(IndexMixin) {
         }
       })
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      const checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -1120,7 +1120,7 @@ export default class extends Mixins(IndexMixin) {
    */
   public async getMapList() {
     try {
-      let params: any = {
+      const params: any = {
         pageNum: 0,
         pageSize: 20
       }

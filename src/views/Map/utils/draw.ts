@@ -1,4 +1,4 @@
-import { markerObject } from '@/views/MapV1/models/VMap'
+import { markerObject } from '@/views/Map/models/VMap'
 import { checkPermission } from '@/utils/permission'
 
 const createNode = (htmlstr: string) => {
