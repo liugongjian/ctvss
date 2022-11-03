@@ -274,14 +274,14 @@ export default class extends Vue {
   }
 
   private get isFaceAlgoCode() {
-    return this.appInfo.algorithm.code === '10001'
+    return this.appInfo.algorithm?.code === '10001'
   }
   private get isGatheringCode() {
-    return this.appInfo.algorithm.code === '10005'
+    return this.appInfo.algorithm?.code === '10005'
   }
 
   private get isCarFlowCode() {
-    return this.appInfo.algorithm.code === '10019'
+    return this.appInfo.algorithm?.code === '10019'
   }
   private async mounted() {
     // this.initFaceInfos()
@@ -353,10 +353,10 @@ export default class extends Vue {
      * 初始化人脸选项图片
      */
   private async initFaceInfos() {
-    if (this.appInfo.algorithmMetadata.length > 0) {
+    if (this.appInfo.algorithmMetadata?.length > 0) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-      if (algorithmMetadata.FaceDbName) {
-        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+      if (algorithmMetadata?.FaceDbName) {
+        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata?.FaceDbName })
         this.faceInfos = faces.map(face => {
           return { ...face, labels: JSON.parse(face.labels) }
         })
@@ -404,7 +404,7 @@ export default class extends Vue {
   }
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
-    const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
+    const locations = parseMetaData(this.appInfo.algorithm?.code, metaData)
     const img = this.$refs.dialogue
     this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
   }

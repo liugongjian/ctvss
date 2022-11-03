@@ -40,6 +40,7 @@ export default class extends Mixins(detailMixin) {
   private app: any = ''
   private faceLib: any = {}
   private appselected: String = ''
+  public device: any = {}
   // private get device() {
   //   return { deviceId: this.deviceId, inProtocol: this.inProtocol }
   // }
@@ -60,6 +61,7 @@ export default class extends Mixins(detailMixin) {
   private async initDeviceApp() {
     const { aiApps } = await getAppList({ deviceId: this.deviceId })
     if (aiApps.length > 0) {
+      this.device = { deviceId: this.deviceId, inProtocol: this.inProtocol || '' }
       this.appInfo = aiApps[0]
       this.apps = aiApps
       this.app = this.appInfo.id

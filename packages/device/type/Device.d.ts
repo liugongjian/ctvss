@@ -160,6 +160,7 @@ type Device = {
   [DeviceEnum.Viids]: Viid[]
   [DeviceEnum.Industry]: Industry
   [DeviceEnum.Resource]: Resource
+  [DeviceEnum.InProtocol]?: string
 }
 
 /**
