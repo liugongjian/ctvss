@@ -2,14 +2,16 @@ import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-dec
 import store from '@vss/device/store'
 
 export interface IScreenState {
-  isMutedAll?: boolean;
-  isFullscreen?: boolean;
+  isMutedAll?: boolean
+  isFullscreen?: boolean
+  playingScreens?: string[]
 }
 
 @Module({ dynamic: true, store, name: 'screen' })
 export class Screen extends VuexModule implements IScreenState {
   isMutedAll = false
   isFullscreen = false
+  playingScreens = []
 
   @Mutation
   public SET_IS_MUTED_ALL(payload: boolean) {
@@ -29,6 +31,16 @@ export class Screen extends VuexModule implements IScreenState {
   @Action
   public SetIsFullscreen(payload: boolean) {
     this.SET_IS_FULLSCREEN(payload)
+  }
+
+  @Mutation
+  public SET_PLAYING_SCREENS(payload: string[]) {
+    this.playingScreens = payload
+  }
+
+  @Action
+  public SetPlayingScreens(payload: string[]) {
+    this.SET_PLAYING_SCREENS(payload)
   }
 }
 

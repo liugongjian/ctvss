@@ -3,7 +3,7 @@
     :title="isEdit ? '编辑目录' : '创建目录'"
     :visible="dialogVisible"
     :close-on-click-modal="false"
-    width="500px"
+    width="550px"
     center
     @close="closeDialog"
   >

@@ -79,17 +79,22 @@ import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 })
 export default class extends Mixins(layoutMxin) {
   // 分屏管理器实例
-  public screenManager: ScreenManager = null
+  public _screenManager: ScreenManager = null
 
   // 当前选中的分屏
   public get currentScreen() {
-    return this.screenManager && this.screenManager.currentScreen
+    return this._screenManager && this._screenManager.currentScreen
   }
 
   public mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
-    this.screenManager = screenBoard?.screenManager
+    this._screenManager = screenBoard?.screenManager
+    window.addEventListener('beforeunload', this.saveCache)
+  }
+
+  public destroyed() {
+    window.removeEventListener('beforeunload', this.saveCache)
   }
 
   /**
@@ -97,7 +102,14 @@ export default class extends Mixins(layoutMxin) {
    * @param item node信息
    */
   private handleTreeNode(item: any) {
-    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+    this._screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this._screenManager.saveCache()
   }
 }
 </script>

@@ -4,6 +4,7 @@
 import { Screen } from './Screen'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
 import { pick } from 'lodash'
@@ -165,6 +166,7 @@ export class ScreenManager {
     }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()
+    this.savePlayingScreens()
   }
 
   /**
@@ -264,6 +266,7 @@ export class ScreenManager {
         screen.init()
         this.screenList.push(screen)
       }
+      this.savePlayingScreens()
       return true
     } catch (e) {
       return false
@@ -357,6 +360,19 @@ export class ScreenManager {
       this.currentScreen.recordType = recordType
       this.currentScreen.init()
     }
+  }
+
+  /**
+   * 保存当前播放中的设备ID
+   */
+  private savePlayingScreens() {
+    const screens = new Set()
+    this.screenList.forEach(screen => {
+      if (screen.deviceId) {
+        screens.add(screen.deviceId as string)
+      }
+    })
+    ScreenModule.SetPlayingScreens(Array.from(screens) as string[])
   }
 
   /**

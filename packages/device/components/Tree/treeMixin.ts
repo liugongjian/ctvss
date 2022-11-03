@@ -109,7 +109,6 @@ export default class TreeMixin extends Vue {
    * 判断item是否可拖拽
    */
   public checkIsDraggable(node) {
-    return node.data.type === DeviceTypeEnum.Ipc
-    // if (isLive && node.data.deviceStatus !== 'on') return
+    return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.StreamStatus] === StatusEnum.On
   }
 }
