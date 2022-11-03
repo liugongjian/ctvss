@@ -32,7 +32,7 @@
         <el-button type="primary" @click="searchEvents">搜索</el-button>
       </div>
     </div>
-    <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
+    <el-table ref="table" v-loading="loading" :data="dataList" fit>
       <el-table-column prop="createdTime" label="时间" min-width="200" />
       <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
       <el-table-column prop="eventType" label="事件类型" min-width="100" />
@@ -159,18 +159,6 @@ export default class extends Mixins(detailMixin) {
 
   .el-select {
     width: 150px;
-  }
-}
-
-.template__table {
-  ::v-deep .el-table__body {
-    td {
-      cursor: pointer;
-    }
-
-    .col-action {
-      cursor: default;
-    }
   }
 }
 </style>
