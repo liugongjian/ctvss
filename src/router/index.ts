@@ -306,7 +306,6 @@ export const asyncRoutes: RouteConfig[] = [
   },
   deviceRouter,
   videoRouter,
-  iboxRouter,
   {
     path: '/screen',
     component: Layout,
@@ -1160,6 +1159,18 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/access-manage/role',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'secretManage-v1',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManageV1/index.vue'),
+        name: 'AccessManageSecretManage',
+        meta: {
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
       },

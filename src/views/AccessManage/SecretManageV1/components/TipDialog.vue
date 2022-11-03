@@ -43,7 +43,7 @@ import ExcelMixin from '@/views/device/mixin/excelMixin'
   name: 'TipDialog'
 })
 export default class extends Mixins(ExcelMixin) {
-  @Prop()
+  @Prop({ default: () => {} })
   private data!: any
 
   private downloading = false

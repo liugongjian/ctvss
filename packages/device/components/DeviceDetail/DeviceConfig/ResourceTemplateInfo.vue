@@ -339,7 +339,7 @@ export default class extends Vue {
     this.loading.AITable = true
     const status = parseInt(rowInfo.status)
     const param = {
-      inProtocol: this.inProtocol,
+      inProtocol: this.inVideoProtocol,
       deviceId: this.deviceId,
       appIds: [rowInfo.id]
     }
