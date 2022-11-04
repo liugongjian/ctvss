@@ -49,14 +49,17 @@
       <certificate-select v-model="videoForm.inUserName" :disabled="checkDisable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
-      <el-radio
+      <!-- <el-radio
         v-for="(value, key) in inType"
         :key="key"
         v-model="videoForm.inType"
         :label="key"
       >
         {{ value }}
-      </el-radio>
+      </el-radio> -->
+      <!-- Temp Commit -->
+      <el-radio v-model="videoForm.inType" label="push" :disabled="videoForm.inVideoProtocol === 'rtsp'">推流</el-radio>
+      <el-radio v-model="videoForm.inType" label="pull" :disabled="videoForm.inVideoProtocol === 'rtmp'">拉流</el-radio>
     </el-form-item>
     <template v-if="videoForm[deviceEnum.VideoVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
       <el-form-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址:" :prop="deviceEnum.PullUrl">
@@ -392,6 +395,14 @@ export default class extends Vue {
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+    // Temp Commit
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
+      this.videoForm.inType = 'push'
+    }
+
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+      this.videoForm.inType = 'pull'
+    }
   }
 
   /**

@@ -254,27 +254,59 @@ const viewChannels = function (state, row) {
 const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = true
   try {
-    const params: any = {}
+    let params: any = {}
     if (policy === ToolsEnum.ExportAll) {
-      params.command = 'all'
-    } else {
-      params.command = 'selected'
-      let deviceArr: any = []
-      if (policy === ToolsEnum.ExportCurrentPage) {
-        deviceArr = data.deviceList
-      } else if (policy === ToolsEnum.ExportSelected) {
-        deviceArr = data.selectedDeviceList
+      params = {
+        command: 'all'
       }
-      params.deviceIds = deviceArr.map((device: any) => {
-        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
-      })
+    } else {
+      params = {
+        command:'selected',
+        policy,
+        ...data
+      }
     }
-    await exportDevicesExcel(params)
+    await exportDeviceFile(params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
   }
   state.loading.export = false
+}
+
+const exportDeviceFile = async function (data:any) {
+  try {
+    let res:any = {}
+    if(data.command === 'all'){
+      const param = {
+        parentDeviceId: data.parentDeviceId,
+        dirId: data.dirId.toString()  ,
+        sortBy: "",
+        sortDirection: "desc",
+        pageNum: 1,
+        pageSize: 9999
+      }
+      res = await exportDeviceAll(param)
+    } else {
+      let deviceArr: any = []
+      if (data.policy === ToolsEnum.ExportCurrentPage) {
+        deviceArr = data.deviceList
+      } else if (data.policy === ToolsEnum.ExportSelected) {
+        deviceArr = data.selectedDeviceList
+      }
+      const deviceIds = deviceArr.map((device: any) => {
+        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
+      })
+      const param={
+        deviceIds
+      }
+      res = await exportDeviceOption(param)
+    }
+    this.downloadFileUrl('设备表格', res.exportFile)
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 /**
