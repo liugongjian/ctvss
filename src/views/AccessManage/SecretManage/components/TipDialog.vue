@@ -7,7 +7,7 @@
     :destroy-on-close="true"
     @close="closeDialog"
   >
-    <el-form label-width="10px" size="mini">
+    <el-form v-if="step" label-width="10px" size="mini">
       <el-form-item>
         <span>{{ 'AccessKeyId: ' + data.accessKey }}</span>
         <el-button v-clipboard:copy="data.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
@@ -28,8 +28,18 @@
         />
       </el-form-item>
     </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="downloading" @click="downloadSecret">下载密钥</el-button>
+    <el-form v-else label-width="80px" label-position="left">
+      <el-form-item label="描述">
+        <el-input v-model="desc" type="textarea" rows="5"></el-input>
+      </el-form-item>
+    </el-form>
+    <div v-if="!step" slot="footer" class="dialog-footer">
+      <el-button type="primary" :loading="loading" @click="confirm">确定</el-button>
+      <el-button @click="closeDialog">取消</el-button>
+    </div>
+    <div v-else slot="footer" class="dialog-footer">
+      <el-button type="primary" :loading="loading" @click="downloadCSV">下载CSV文件</el-button>
+      <el-button type="primary" :loading="loading" @click="downloadSecret">下载密钥</el-button>
       <el-button @click="closeDialog">关闭</el-button>
     </div>
   </el-dialog>
@@ -46,7 +56,14 @@ export default class extends Mixins(ExcelMixin) {
   @Prop()
   private data!: any
 
-  private downloading = false
+  @Prop()
+  private step!: number
+
+  @Prop()
+  private loading = false
+
+  @Prop()
+  private editFlag!: boolean
 
   private closeDialog() {
     this.$emit('on-close')
@@ -54,14 +71,24 @@ export default class extends Mixins(ExcelMixin) {
 
   private async downloadSecret() {
     try {
-      this.downloading = true
+      this.loading = true
       const res = await exportSecret({ ids: [this.data.id] })
       this.downloadFileUrl(`${this.data.type === 'api' ? 'API密钥' : 'OpenAPI授权'}`, res.exportFile)
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.downloading = false
+      this.loading = false
     }
+  }
+
+  private async downloadCSV(){
+    this.$emit('loading-change', true)
+    // 下载 await
+    this.$emit('loading-change', false)
+  }
+
+  private async confirm(){
+    this.editFlag ? this.$emit('edit-secret') : this.$emit('create-secret')
   }
 
   private copySuccess() {
