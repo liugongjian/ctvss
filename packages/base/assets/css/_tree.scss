@@ -127,6 +127,10 @@
     }
   }
 
+  .node-disable {
+    cursor: not-allowed;
+  }
+
   .el-tree-node > .el-tree-node__children {
     overflow: visible;
   }

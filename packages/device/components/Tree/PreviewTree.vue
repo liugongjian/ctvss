@@ -9,6 +9,7 @@
     :props="defaultProps"
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"
+    :is-node-disabled="checkIsDisable"
     @handle-node="handleNode"
   >
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
@@ -56,6 +57,13 @@ export default class extends Mixins(treeMixin) {
    */
   public checkIsDraggable(node) {
     return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.DeviceStatus] === StatusEnum.On
+  }
+
+  /**
+   * 判断item是否可以点击
+   */
+  public checkIsDisable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.DeviceStatus] !== StatusEnum.On
   }
 }
 </script>
