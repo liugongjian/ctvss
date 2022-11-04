@@ -121,7 +121,7 @@ export default class extends ComponentMixin {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
-    ScreenModule.SetIsMutedAll(false)
+    ScreenModule.setIsMutedAll(false)
   }
 
   private mounted() {
@@ -131,7 +131,7 @@ export default class extends ComponentMixin {
   private toIntercom() {
     this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
     this.showDialog = true
-    ScreenModule.SetIsMutedAll(true)
+    ScreenModule.setIsMutedAll(true)
     window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 

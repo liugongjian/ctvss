@@ -209,7 +209,7 @@ export class Screen {
       // 先销毁原有的录像列表和取消原有请求
       this.recordManager && this.recordManager.destroy()
       this.axiosSource && this.axiosSource.cancel()
-      ScreenModule.AddPlayingScreen(this.deviceId)
+      ScreenModule.addPlayingScreen(this.deviceId)
       this.isLive ? this.initLive() : this.initReplay()
     } catch (e) {
       console.error(e)
@@ -229,7 +229,7 @@ export class Screen {
    * 销毁
    */
   public destroy() {
-    ScreenModule.RemovePlayingScreen(this.deviceId)
+    ScreenModule.removePlayingScreen(this.deviceId)
     this.recordManager && this.recordManager.destroy()
     this.axiosSource && this.axiosSource.cancel()
     this.constructor()

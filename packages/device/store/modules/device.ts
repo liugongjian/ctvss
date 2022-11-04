@@ -65,8 +65,14 @@ export class Device extends VuexModule implements IDeviceState {
       }
       return this.device
     } catch (e) {
+      this.SET_DEVICE(null)
       console.log(e)
     }
+  }
+
+  @Action
+  public async clearDevice() {
+    this.SET_DEVICE(null)
   }
 
   /**

@@ -76,6 +76,12 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
   // 过滤IBOX的字段
   if (options.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
+  // 编辑状态下不显示视频接入协议
+  if (prop === DeviceEnum.InVideoProtocol && options.isEdit) return false
+
+  // 编辑状态下不显示版本
+  if (prop === DeviceEnum.InVersion && options.isEdit) return false
+
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
@@ -90,10 +96,6 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
     // 通道编辑页面部分组件不可编辑
     if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
       return ChannelDenyEditableParams.has(prop)
-    }
-    // 编辑状态下禁用视频接入协议的修改
-    if (prop === DeviceEnum.InVideoProtocol && options.isEdit) {
-      return true
     }
     return false
  }

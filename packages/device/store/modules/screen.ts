@@ -19,7 +19,7 @@ export class Screen extends VuexModule implements IScreenState {
   }
 
   @Action
-  public SetIsMutedAll(payload: boolean) {
+  public setIsMutedAll(payload: boolean) {
     this.SET_IS_MUTED_ALL(payload)
   }
 
@@ -29,7 +29,7 @@ export class Screen extends VuexModule implements IScreenState {
   }
 
   @Action
-  public SetIsFullscreen(payload: boolean) {
+  public setIsFullscreen(payload: boolean) {
     this.SET_IS_FULLSCREEN(payload)
   }
 
@@ -43,7 +43,7 @@ export class Screen extends VuexModule implements IScreenState {
    * @param deviceId 设备ID
    */
   @Action
-  public AddPlayingScreen(deviceId: string) {
+  public addPlayingScreen(deviceId: string) {
     if (!this.playingScreens.includes(deviceId)) {
       this.SET_PLAYING_SCREENS([deviceId, ...this.playingScreens])
     }
@@ -54,7 +54,7 @@ export class Screen extends VuexModule implements IScreenState {
    * @param deviceId 设备ID
    */
   @Action
-  public RemovePlayingScreen(deviceId: string) {
+  public removePlayingScreen(deviceId: string) {
     const index = this.playingScreens.indexOf(deviceId)
     if (index > -1) {
       const playingScreens = [...this.playingScreens]
@@ -67,7 +67,7 @@ export class Screen extends VuexModule implements IScreenState {
    * 清空正在播放的设备列表
    */
   @Action
-  public ClearPlayingScreen() {
+  public clearPlayingScreen() {
     this.SET_PLAYING_SCREENS([])
   }
 }

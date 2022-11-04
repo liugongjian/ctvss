@@ -124,7 +124,7 @@ export default class extends Vue {
       } else {
         this.screenManager.restoreAllMuteStatus()
       }
-      ScreenModule.SetIsMutedAll(null)
+      ScreenModule.setIsMutedAll(null)
     }
   }
 

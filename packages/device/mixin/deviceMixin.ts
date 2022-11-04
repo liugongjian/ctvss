@@ -69,4 +69,11 @@ export default class DeviceMixin extends Vue {
       this.deviceLoading = false
     }
   }
+
+  /**
+   * 清空设备详情
+   */
+  public async clearDevice() {
+    DeviceModule.clearDevice()
+  }
 }
