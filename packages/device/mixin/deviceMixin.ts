@@ -2,7 +2,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
-import { DeviceEnum, DirectoryTypeEnum } from '../enums/index'
+import { DeviceEnum, DeviceTypeEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -22,7 +22,7 @@ export default class DeviceMixin extends Vue {
 
   // 设备类型
   public get deviceType() {
-    return this.device.device && this.device.device.deviceType as DirectoryTypeEnum
+    return this.device.device && this.device.device.deviceType
   }
 
   // 是否含视频
@@ -49,7 +49,7 @@ export default class DeviceMixin extends Vue {
     immediate: true
   })
   private async deviceIdChange(deviceId) {
-    [DirectoryTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
+    [DeviceTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
   }
 
   /**
