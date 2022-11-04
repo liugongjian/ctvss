@@ -40,12 +40,19 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
+import { DeviceTypeEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'ReplayTree'
 })
 export default class extends Mixins(treeMixin) {
+  /**
+   * 判断item是否可拖拽
+   */
+  public checkIsDraggable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc
+  }
 }
 </script>
 

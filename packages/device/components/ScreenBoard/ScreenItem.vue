@@ -146,7 +146,7 @@ export default class extends Vue {
    */
   private getDropCallback() {
     return function(itemIndex, nodeData) {
-      this.$emit('dropCallbak', nodeData, itemIndex)
+      this.$emit('drop', nodeData, itemIndex)
     }.bind(this, this.itemIndex)
   }
 

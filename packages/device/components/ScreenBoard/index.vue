@@ -16,6 +16,7 @@
           :is-single="isSingle"
           :style="`grid-area: item${index}`"
           :class="[{ 'actived': index === currentIndex && screenList.length > 1 }]"
+          @drop="dropCallback"
           @click="selectScreen(index)"
         />
       </div>
@@ -149,6 +150,15 @@ export default class extends Vue {
    */
   public selectScreen(index: number) {
     this.screenManager.currentIndex = index
+  }
+
+  /**
+   * 获取拖拽元素拖入drop后触发回调
+   * @param data 设备信息
+   * @param index 播放器索引
+   */
+  public dropCallback(data, index) {
+    this.screenManager.openTreeItem(data, index)
   }
 }
 </script>

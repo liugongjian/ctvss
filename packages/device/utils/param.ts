@@ -11,6 +11,7 @@ import {
 } from '@vss/device/settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
 import { VisibleOptions } from '../type/Param'
+import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -128,6 +129,22 @@ export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
  */
 export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any): boolean {
   let allowFlag = true
+  // 不同inProtocol特殊处理
+  if (data) {
+    const inProtocolList = data.inProtocol || []
+    if (inProtocolList.length === 1) {
+      console.log(data, InVideoProtocolDict, inProtocolList[0], InVideoProtocolDict[inProtocolList[0]])
+      // 仅接入视频
+      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewViid].includes(prop)) {
+        return false
+      }
+      // 仅接入视图
+      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewVideo, ToolsEnum.ReplayVideo].includes(prop)) {
+        return false
+      }
+    }
+  }
+
   // nvr通道特殊处理
   if (data && data[DeviceEnum.DeviceChannelNum] > 0) {
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)

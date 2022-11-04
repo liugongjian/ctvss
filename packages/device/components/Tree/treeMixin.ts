@@ -117,12 +117,4 @@ export default class TreeMixin extends Vue {
   public handleTools(type: any, ...payload) {
     this.$emit('handle-tools', type, ...payload)
   }
-
-  /**
-   * 判断item是否可拖拽
-   */
-  public checkIsDraggable(node) {
-    // return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.StreamStatus] === StatusEnum.On
-    return node.data.type === DeviceTypeEnum.Ipc
-  }
 }

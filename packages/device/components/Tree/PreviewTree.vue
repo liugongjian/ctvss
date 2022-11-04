@@ -44,12 +44,19 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
+import { DeviceTypeEnum, DeviceEnum, StatusEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'PreviewTree'
 })
 export default class extends Mixins(treeMixin) {
+  /**
+   * 判断item是否可拖拽
+   */
+  public checkIsDraggable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.DeviceStatus] === StatusEnum.On
+  }
 }
 </script>
 
