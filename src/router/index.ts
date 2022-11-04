@@ -162,7 +162,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '业务组管理',
       icon: 'menu-group',
       perms: ['DescribeGroup'],
-      alwaysShow: false
+      alwaysShow: false,
+      version: 1
     },
     children: [
       {
@@ -225,7 +226,7 @@ export const asyncRoutes: RouteConfig[] = [
       alwaysShow: false,
       only: true,
       groupSelector: true,
-      // version: 1,
+      version: 1,
     },
     children: [
       {
@@ -314,7 +315,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-live',
       perms: ['ScreenPreview'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -376,7 +378,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-replay',
       perms: ['ReplayRecord'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -818,7 +821,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: 'AI管理',
       icon: 'menu-ai',
       alwaysShow: true,
-      perms: ['DescribeAi']
+      perms: ['DescribeAi'],
+      version: 1
     },
     children: [
       {
