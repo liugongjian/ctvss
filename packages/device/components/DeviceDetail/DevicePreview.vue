@@ -59,6 +59,8 @@ export default class extends Mixins(detailMixin) {
         screen.getDevicePreviewApi = this.getDevicePreviewApi
       }
       screen.init()
+    } else {
+      screen.errorMsg = '未接入视频协议'
     }
   }
 }
