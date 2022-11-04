@@ -70,7 +70,7 @@
             class="el-button-rect filter-container__sync-button"
             :disabled="loading.syncDeviceStatus"
             :class="{ 'loading': loading.syncDeviceStatus }"
-            @click="handleListTools(toolsEnum.syncDeviceStatus)"
+            @click="handleListTools(toolsEnum.SyncDeviceStatus)"
           >
             <svg-icon name="refresh" /> 同步设备状态
           </el-button>
@@ -288,8 +288,8 @@
       :is-batch="isBatchMoveDir"
       @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.MoveDevice, $event)"
     />
-    <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.closeDialog, toolsEnum.Import, $event)" />
-    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="currentDevice" @on-close="handleListTools(toolsEnum.closeDialog, toolsEnum.UpdateResource, $event)" />
+    <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.Import, $event)" />
+    <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="{ device: currentDevice }" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.UpdateResource, $event)" />
   </div>
 </template>
 
@@ -394,7 +394,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
     [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
-    [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
+    [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this.getVueComponent, this.currentDirId, this.currentDirType),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
     [ToolsEnum.ExportAll]: (data,) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll, data),
@@ -407,7 +407,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
-    [ToolsEnum.UpdateResource]: (row) => DeviceManager.openListDialog(this, ToolsEnum.UpdateResource, row),
+    [ToolsEnum.UpdateResource]: (row) => DeviceManager.openListDialog(this.getVueComponent, ToolsEnum.UpdateResource, row),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeListDialog(this, type, isfresh),
     [ToolsEnum.PreviewEvents]: (row) => DeviceManager.previewEvents(this, row),
     [ToolsEnum.PreviewVideo]: (row) => DeviceManager.previewVideo(this, row),

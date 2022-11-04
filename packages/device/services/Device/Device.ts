@@ -206,7 +206,8 @@ const statusPolling = function (state, param: any) {
 /**
  * 同步设备状态
  */
-const syncDeviceStatus = async function (state, id, type) {
+const syncDeviceStatus = async function (getVueComponent, id, type) {
+  const state = getVueComponent()
   let deviceIdAndTypes = []
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -234,6 +235,7 @@ const syncDeviceStatus = async function (state, id, type) {
       deviceIdAndTypes
     })
     state.handleTools(ToolsEnum.RefreshDirectory)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   } catch (e) {
     state.$message.error(e && e.message)
   } finally {

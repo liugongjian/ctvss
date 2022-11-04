@@ -135,7 +135,7 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
 
   // platform特殊处理
   if (type === DeviceTypeEnum.Platform) {
-    allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
+    allowFlag = ![ToolsEnum.DeleteDevices, ToolsEnum.MoveDevices].includes(prop)
   }
 
   // ConfigureChannels仅供ehome使用
