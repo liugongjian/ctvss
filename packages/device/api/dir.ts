@@ -32,6 +32,16 @@ export const getNodeInfo = (params: any): Promise<any> =>
    params: toUpperCase(params)
  })
 
+/**
+ * 获取目录下所有设备
+ */
+export const getDirDevices = (params: any): Promise<any> =>
+request({
+  url: '/dir/device/list',
+  method: 'get',
+  params: toUpperCase(params)
+})
+
 export const getDeviceTree = (params): Promise<any> => {
  console.log(params)
  const res = [{
