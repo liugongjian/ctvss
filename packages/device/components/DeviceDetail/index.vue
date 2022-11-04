@@ -1,16 +1,16 @@
 <template>
-  <div class="device-container">
+  <div v-loading="deviceLoading" class="device-container">
     <div class="detail-wrap">
       <div class="detail-wrap__header">
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
           <el-tab-pane label="基本信息" name="DeviceInfo" />
-          <el-tab-pane label="配置信息" name="DeviceConfig" />
-          <el-tab-pane label="设备事件" name="DeviceEvents" />
-          <el-tab-pane label="实时预览" name="DevicePreview" />
-          <el-tab-pane label="录像回放" name="DeviceReplay" />
-          <el-tab-pane label="AI分析" name="DeviceAi" />
-          <el-tab-pane label="视图数据" name="DeviceViid" />
+          <el-tab-pane v-if="hasVideo" label="配置信息" name="DeviceConfig" />
+          <el-tab-pane v-if="hasVideo" label="设备事件" name="DeviceEvents" />
+          <el-tab-pane v-if="hasVideo" label="实时预览" name="DevicePreview" />
+          <el-tab-pane v-if="hasVideo" label="录像回放" name="DeviceReplay" />
+          <el-tab-pane v-if="hasVideo" label="AI分析" name="DeviceAi" />
+          <el-tab-pane v-if="hasViid" label="视图数据" name="DeviceViid" />
         </el-tabs>
       </div>
       <div v-if="device.device" class="detail-wrap__body">
