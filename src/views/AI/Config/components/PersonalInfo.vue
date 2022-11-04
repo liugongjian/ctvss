@@ -3,7 +3,7 @@
     <el-button type="primary" @click="showAddPesronDialog=true">添加人员</el-button>
     <el-table v-loading="loading" class="personal-info__table" :data="dataList" fit>
       <el-table-column prop="imgString" label="头像">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <div class="image-container">
             <img :src="decodeBase64(row.imageString)">
           </div>

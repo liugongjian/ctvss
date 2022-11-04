@@ -110,7 +110,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.PushUrl
   ])
 }
 

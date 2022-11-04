@@ -9,6 +9,7 @@
     :load="load"
     :props="defaultProps"
     :empty-text="emptyText"
+    :expand-on-click-node="false"
     @handle-node="handleNode"
   >
     <template slot="rootLabelPrefix">

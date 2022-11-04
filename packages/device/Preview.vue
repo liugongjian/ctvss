@@ -39,13 +39,6 @@
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
       </template>
-      <template slot="rightHeader">
-        <!-- TODO -->
-        <breadcrumb
-          ref="breadcrumb"
-          @node-change="1"
-        />
-      </template>
       <template slot="rightBody">
         <!-- TODO -->
         <screen-board
@@ -66,6 +59,8 @@ import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Preview',
@@ -77,12 +72,39 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  // 分屏管理器实例
+  public _screenManager: ScreenManager = null
+
+  // 当前选中的分屏
+  public get currentScreen() {
+    return this._screenManager && this._screenManager.currentScreen
+  }
+
+  public mounted() {
+    ScreenModule.ClearPlayingScreen()
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this._screenManager = screenBoard?.screenManager
+    window.addEventListener('beforeunload', this.saveCache)
+  }
+
+  public destroyed() {
+    window.removeEventListener('beforeunload', this.saveCache)
+  }
+
   /**
    * 树节点点击事件
-   * @param data node信息
+   * @param item node信息
    */
-  private handleTreeNode(data: any) {
-    console.log(data)
+  private handleTreeNode(item: any) {
+    this._screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this._screenManager.saveCache()
   }
 }
 </script>

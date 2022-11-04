@@ -83,7 +83,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item :prop="deviceEnum.OutNetworkType">
+            <!-- <el-form-item :prop="deviceEnum.OutNetworkType">
               <template slot="label">
                 播放网络:
                 <el-popover
@@ -105,7 +105,7 @@
                   {{ value }}
                 </el-radio>
               </el-radio-group>
-            </el-form-item>
+            </el-form-item> -->
             <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Video)">
               <div class="form-title">视频接入信息</div>
               <video-create-form
@@ -287,7 +287,7 @@ export default class extends Mixins(deviceFormMixin) {
     // step0
     [DeviceEnum.DeviceName]: '',
     [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
-    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video, DeviceInTypeEnum.Viid],
+    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video],
     [DeviceEnum.InNetworkType]: InNetworkTypeEnum.Public,
     [DeviceEnum.OutNetworkType]: OutNetworkTypeEnum.Public,
     // step1
@@ -519,7 +519,7 @@ export default class extends Mixins(deviceFormMixin) {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.handleTools([ToolsEnum.RefreshDirectory])
-        this.handleTools([ToolsEnum.GoBack], 0)
+        this.handleTools(ToolsEnum.GoBack, 0)
       } catch (e) {
         this.$alertError(e.message)
       }
@@ -527,7 +527,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoBack], 0)
+    this.handleTools(ToolsEnum.GoBack, 0)
   }
 }
 </script>

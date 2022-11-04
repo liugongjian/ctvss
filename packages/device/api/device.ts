@@ -332,7 +332,7 @@ export const startDevice = (params: any): Promise<any> =>
   request({
     url: '/device/start',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 /**
@@ -342,7 +342,7 @@ export const stopDevice = (params: any): Promise<any> =>
   request({
     url: '/device/stop',
     method: 'post',
-    data: params
+    data: toUpperCase(params)
   })
 
 /**
@@ -536,7 +536,7 @@ export const getDeviceEvents = (params: any): Promise<any> =>
   request({
     url: '/device/event',
     method: 'get',
-    params
+    params: toUpperCase(params)
   })
 
 // player组件  缩放

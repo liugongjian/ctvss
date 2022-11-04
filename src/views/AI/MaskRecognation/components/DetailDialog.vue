@@ -122,7 +122,7 @@ export default class extends Vue {
     datetime: '2020-12-23 13:32:40'
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

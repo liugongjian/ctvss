@@ -203,7 +203,7 @@ export default class extends Vue {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoBack], 0)
+    this.handleTools(ToolsEnum.GoBack, 0)
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{height: `${maxHeight + 35}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ height: `${maxHeight + 35}px` }" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -32,26 +32,25 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
+          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{ height: `${maxHeight-230}px` }">
             <el-tree
               ref="dirTree"
               node-key="id"
               lazy
-              :data="dirList"
               :load="loadDirs"
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="deviceClick(data)">
+              <span slot-scope="{ data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }" @click.stop.prevent="deviceClick(data)">
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   <span
                     class="node-label"
                     @mousedown="(e) => {
-                      mousedownHandle(e,data)
+                      mousedownHandle(e, data)
                     }"
-                  >{{ node.label }}{{ getNumbers(node, data) }}</span>
+                  >{{ data.name }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon" />
                 </span>
@@ -82,7 +81,7 @@
               <template v-if="isEdit">
                 <div class="device-list__right__handleBox">
                   <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{'active': toolState === item.tool}" @click="changeToolState(item.tool)">
+                    <span class="device-list__right__handleBox__tools" :class="{ 'active': toolState === item.tool }" @click="changeToolState(item.tool)">
                       <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
@@ -110,7 +109,7 @@
               </el-tooltip>
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{ height: `${maxHeight}px` }">
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
@@ -186,7 +185,8 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
-import { getDeviceTree, getDevice } from '@/api/device'
+// import { getDeviceTree, getDevice } from '@/api/device'
+import { getDevice } from '@vss/device/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './MapView.vue'
 import { getMaps, deleteMap, modifyMap } from '@/api/map'
@@ -194,6 +194,8 @@ import { mapObject } from '@/views/Map/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
 import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
+import { getNodeInfo } from '@vss/device/api/dir'
+import { DirectoryTypeEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'Map',
@@ -233,8 +235,8 @@ export default class extends Mixins(IndexMixin) {
   private deviceInfo: any = {}
   private markerInfo: any = {}
   private dragNodeInfo: any = {}
-  private ifDragging: boolean = false
-  private customInfoType: string = ''
+  private ifDragging = false
+  private customInfoType = ''
 
   private form = {
     mapId: '',
@@ -339,7 +341,7 @@ export default class extends Mixins(IndexMixin) {
   public dirList: any = []
   private deviceList: any = []
   public treeProp = {
-    label: 'label',
+    label: 'name',
     children: 'children',
     isLeaf: 'isLeaf'
   }
@@ -433,67 +435,90 @@ export default class extends Mixins(IndexMixin) {
   /**
    * 加载目录
    */
-  public async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
-  }
+  // public async loadDirs(node: any, resolve: Function) {
+  //   if (node.level === 0) return resolve([])
+  //   const dirs = await this.getTree(node)
+  //   resolve(dirs)
+  // }
 
   /**
    * 获取菜单树
    */
-  private async getTree(node: any) {
+  // private async getTree(node: any) {
+  //   try {
+  //     if (node.data.type === 'role') {
+  //       node.data.roleId = node.data.id
+  //     } else if (node.data.type === 'group') {
+  //       node.data.realGroupId = node.data.id
+  //       node.data.realGroupInProtocol = node.data.inProtocol
+  //     }
+  //     const shareDeviceIds: any = []
+  //     const devices: any = await getDeviceTree({
+  //       groupId: node.data.groupId,
+  //       id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+  //       inProtocol: node.data.inProtocol,
+  //       type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+  //       'self-defined-headers': {
+  //         'role-id': node.data.roleId,
+  //         'real-group-id': node.data.realGroupId
+  //       }
+  //     })
+  //     const dirTree: any = this.$refs.dirTree
+  //     const checkedKeys = dirTree.getCheckedKeys()
+  //     let dirs: any = devices.dirs.map((dir: any) => {
+  //       let sharedFlag = false
+  //       if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+  //         sharedFlag = true
+  //         checkedKeys.push(dir.id)
+  //         dirTree.setCheckedKeys(checkedKeys)
+  //       }
+  //       if (dir.type === 'ipc') {
+  //         node.data.disabled = false
+  //       }
+  //       return {
+  //         id: dir.id,
+  //         groupId: node.data.groupId,
+  //         label: dir.label,
+  //         inProtocol: dir.inProtocol || node.data.inProtocol,
+  //         isLeaf: dir.isLeaf,
+  //         type: dir.type,
+  //         deviceStatus: dir.deviceStatus,
+  //         streamStatus: dir.streamStatus,
+  //         disabled: sharedFlag,
+  //         path: node.data.path.concat([dir]),
+  //         sharedFlag: sharedFlag,
+  //         roleId: node.data.roleId || '',
+  //         realGroupId: node.data.realGroupId || '',
+  //         realGroupInProtocol: node.data.realGroupInProtocol || '',
+  //         onlineSize: dir.onlineSize,
+  //         totalSize: dir.totalSize
+  //       }
+  //     })
+  //     dirs = setDirsStreamStatus(dirs)
+  //     return dirs
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
+
+  /**
+   * 懒加载时加载节点方法
+   * @param node 节点信息
+   */
+  public async loadDirs(node: any, resolve: Function) {
     try {
-      if (node.data.type === 'role') {
-        node.data.roleId = node.data.id
-      } else if (node.data.type === 'group') {
-        node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = node.data.inProtocol
+      let res
+      if (node.level === 0) {
+        // this.loading.tree = true
+        res = await getNodeInfo({ id: '-1', type: DirectoryTypeEnum.Dir })
+        console.log(res)
+        // this.deviceTree.loadChildren('01')
+        // this.loading.tree = false
+      } else {
+        res = await getNodeInfo({ id: node.data.id, type: node.data.type })
       }
-      let shareDeviceIds: any = []
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
-        'self-defined-headers': {
-          'role-id': node.data.roleId,
-          'real-group-id': node.data.realGroupId
-        }
-      })
-      const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
-      let dirs: any = devices.dirs.map((dir: any) => {
-        let sharedFlag = false
-        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
-          sharedFlag = true
-          checkedKeys.push(dir.id)
-          dirTree.setCheckedKeys(checkedKeys)
-        }
-        if (dir.type === 'ipc') {
-          node.data.disabled = false
-        }
-        return {
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: dir.inProtocol || node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          deviceStatus: dir.deviceStatus,
-          streamStatus: dir.streamStatus,
-          disabled: sharedFlag,
-          path: node.data.path.concat([dir]),
-          sharedFlag: sharedFlag,
-          roleId: node.data.roleId || '',
-          realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || '',
-          onlineSize: dir.onlineSize,
-          totalSize: dir.totalSize
-        }
-      })
-      dirs = setDirsStreamStatus(dirs)
-      return dirs
+      console.log(res.dirs)
+      resolve(res.dirs)
     } catch (e) {
       console.log(e)
     }
@@ -877,27 +902,26 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private async getDeviceInfo() {
-    const { id, inProtocol } = this.marker
+    const { id } = this.marker
     this.deviceInfo = await getDevice({
-      deviceId: id,
-      inProtocol: inProtocol
+      deviceId: id
     })
-    let deviceLabel = this.deviceInfo.deviceName
-    if (this.deviceInfo.deviceChannels.length > 0) {
-      deviceLabel = this.deviceInfo.deviceChannels[0].channelName
-    }
+    const deviceLabel = this.deviceInfo.device.deviceName
+    // if (this.deviceInfo.deviceChannels.length > 0) {
+    //   deviceLabel = this.deviceInfo.deviceChannels[0].channelName
+    // }
     this.markerInfo = {
-      deviceId: this.deviceInfo.deviceId,
-      inProtocol: this.deviceInfo.inProtocol,
-      deviceType: this.deviceInfo.deviceType,
+      deviceId: this.deviceInfo.device.deviceId,
+      // inProtocol: this.deviceInfo.inProtocol,
+      deviceType: this.deviceInfo.device.deviceType,
       deviceLabel,
       longitude: '',
       latitude: '',
-      deviceStatus: this.deviceInfo.deviceStatus,
-      streamStatus: this.deviceInfo.streamStatus,
-      recordStatus: this.deviceInfo.recordStatus,
-      regionNames: this.deviceInfo.regionNames,
-      gbRegionNames: this.deviceInfo.gbRegionNames,
+      deviceStatus: this.deviceInfo.device.deviceStatus,
+      streamStatus: this.deviceInfo.device.streamStatus,
+      recordStatus: this.deviceInfo.device.recordStatus,
+      // regionNames: this.deviceInfo.regionNames,
+      // gbRegionNames: this.deviceInfo.gbRegionNames,
       viewRadius: '0',
       viewAngle: '0',
       deviceAngle: '0',
@@ -1120,7 +1144,7 @@ export default class extends Mixins(IndexMixin) {
    */
   public async getMapList() {
     try {
-      let params: any = {
+      const params: any = {
         pageNum: 0,
         pageSize: 20
       }
@@ -1197,12 +1221,12 @@ export default class extends Mixins(IndexMixin) {
     try {
       const params = { ...originMap }
       if (this.modifyMapForm.center) {
-        params.longitude = this.curMapInfo.longitude
-        params.latitude = this.curMapInfo.latitude
+        params.longitude = this.curMapInfo.longitude.toString()
+        params.latitude = this.curMapInfo.latitude.toString()
         checklnglat = this.checklng(params.longitude) && this.checklat(params.latitude)
       }
       if (this.modifyMapForm.zoom) {
-        params.zoom = this.curMapInfo.zoom
+        params.zoom = this.curMapInfo.zoom.toString()
         checkzoom = this.checkZoom(params.zoom)
       }
       if (checklnglat && checkzoom) {
@@ -1244,7 +1268,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private async mounted() {
-    this.initDirs()
     await this.getMapList()
     if (this.mapList.length > 0) {
       this.curMap = this.mapList[0]

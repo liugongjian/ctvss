@@ -16,6 +16,7 @@
           :is-single="isSingle"
           :style="`grid-area: item${index}`"
           :class="[{ 'actived': index === currentIndex && screenList.length > 1 }]"
+          @drop="dropCallback"
           @click="selectScreen(index)"
         />
       </div>
@@ -50,8 +51,8 @@ export default class extends Vue {
   })
   private isLive: boolean
 
-  @Prop()
-  private inProtocol: string
+  // @Prop()
+  // private inProtocol: string
 
   @Prop({
     default: 4
@@ -132,7 +133,7 @@ export default class extends Vue {
       size: this.defaultSize,
       layout: this.defaultSize.toString(),
       isLive: this.isLive,
-      inProtocol: this.inProtocol,
+      // inProtocol: this.inProtocol,
       isSingle: this.isSingle
     })
     this.flushLogsInterval = setInterval(screenLogManager.flushLogs, 60 * 1000)
@@ -149,6 +150,15 @@ export default class extends Vue {
    */
   public selectScreen(index: number) {
     this.screenManager.currentIndex = index
+  }
+
+  /**
+   * 获取拖拽元素拖入drop后触发回调
+   * @param data 设备信息
+   * @param index 播放器索引
+   */
+  public dropCallback(data, index) {
+    this.screenManager.openTreeItem(data, data.deviceStreamPullIndex, index)
   }
 }
 </script>

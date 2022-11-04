@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject, Watch } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
@@ -50,6 +50,7 @@ import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
 import { DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { ToolsEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceInfo',
@@ -63,6 +64,9 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Inject('handleTools')
+  private handleTools!: Function
+
   @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
   private deviceInTypeEnum = DeviceInTypeEnum
@@ -73,17 +77,56 @@ export default class extends Mixins(detailMixin) {
     viidInfo: false
   }
 
-  public async mounted() {
-    await this.getDevice()
-
-    // 只有viid设备时tab默认选中viid
-    if (this.hasViid && !this.hasVideo) {
-      this.activeTab = DeviceInTypeEnum.Viid
+  @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
+  private async statusChange(val) {
+    if (val === 'true') {
+      this.updateDevice()
+      this.handleTools(ToolsEnum.RefreshRouterView, 'false')
     }
   }
 
-  public updateDevice() {
-    this.getDevice(this.deviceId, true)
+  public async mounted() {
+    await this.getDevice()
+
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
+
+    this.setTab()
+
+    // 编辑模式打开所有编辑状态
+    if (this.$route.params.isEdit) {
+      this.isEdit = {
+        basicInfo: true,
+        videoInfo: true,
+        viidInfo: true
+      }
+    }
+  }
+
+  /**
+   * 刷新设备
+   */
+  public async updateDevice() {
+    await this.getDevice(this.deviceId, true)
+    this.setTab()
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
+  }
+
+  /**
+   * 设置Tab
+   */
+  private setTab() {
+    // 只有viid设备时tab默认选中viid
+    if (this.hasViid && !this.hasVideo) {
+      this.activeTab = DeviceInTypeEnum.Viid
+    } else {
+      this.activeTab = DeviceInTypeEnum.Video
+    }
   }
 }
 </script>
