@@ -158,7 +158,7 @@ export default class extends Vue {
    * @param index 播放器索引
    */
   public dropCallback(data, index) {
-    this.screenManager.openTreeItem(data, index)
+    this.screenManager.openTreeItem(data, data.deviceStreamPullIndex, index)
   }
 }
 </script>

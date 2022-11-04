@@ -132,9 +132,7 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
   // 不同inProtocol特殊处理
   if (data) {
     const inProtocolList = data.inProtocol || []
-    if (inProtocolList.length === 1) {
-      console.log(data, InVideoProtocolDict, inProtocolList[0], InVideoProtocolDict[inProtocolList[0]])
-      // 仅接入视频
+    if (inProtocolList.length === 1) { // 仅接入视频
       if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewViid].includes(prop)) {
         return false
       }
