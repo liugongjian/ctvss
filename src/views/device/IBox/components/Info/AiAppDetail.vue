@@ -98,7 +98,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     this.appInfo = iboxApp
     await this.getAttachedDevice()
     this.deviceList.length === 0 && (this.device = { deviceId: undefined })
-    console.log('this.deviceList:', this.deviceList)
   }
 
   public changeWidthStartAndResize(ev) {

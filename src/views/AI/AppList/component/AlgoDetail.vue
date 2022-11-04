@@ -735,7 +735,6 @@ export default class extends Mixins(AppMixin) {
     let param: any = this.generateAlgoParam()
     try {
       if (this.$route.query.id) {
-        console.log('param:', param)
         // 如果有关联的设备则不能传analyseType参数
         if (parseInt(param.associateDevices) > 0) {
           delete param.analyseType

@@ -109,7 +109,7 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <div :column="1" label-class-name="desc" :label-style="{ 'font-weight': 'bold', color: 'black' }">
+                <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
                   <div v-for="(val,key) in objectInfos" :key="key">
                     <div v-if="detailPic[key]" class="dialogue-right__section__item">
                       <span class="dialogue-right__section__item__key">{{ val }}:</span>
@@ -180,16 +180,19 @@ export default class extends Vue {
   private queryLoading: any = {
     pic: false
   }
+
   private pager = {
     pageNum: 1,
     pageSize: 12,
     total: 0
   }
+
   private queryParam: any = {
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
     viewType: '0'
   }
+
   private visibile = false
   private activeIndex = 0
 
@@ -205,6 +208,7 @@ export default class extends Vue {
         return NonMotorInfos
     }
   }
+
   // get filters() {
   //   switch (this.currentPic.type) {
   //     case 1 :
@@ -218,9 +222,9 @@ export default class extends Vue {
   //   }
   // }
   // 防抖
-  private debounceHandle = debounce(() => {
+  private debounceHandle = debounce(async() => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
-    this.getViewsList()
+    await this.getViewsList()
     // this.isCarFlowCode && this.getAlarmsList()
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
   }, 500)
@@ -256,20 +260,20 @@ export default class extends Vue {
 
   private async getViewsList() {
     try {
-    const res = await getViewsList({
-      deviceId: this.$route.query.deviceId || '',
-      startTime: this.getTimeStamp(this.queryParam.period[0]),
-      endTime: this.getTimeStamp(this.queryParam.period[1]),
-      type: this.queryParam.viewType,
-      ...this.pager
-    })
+      const res = await getViewsList({
+        deviceId: this.$route.query.deviceId || '',
+        startTime: this.getTimeStamp(this.queryParam.period[0]),
+        endTime: this.getTimeStamp(this.queryParam.period[1]),
+        type: this.queryParam.viewType,
+        ...this.pager
+      })
       this.picInfos = res.list.map(x => ({
         ...x,
         recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
       }))
       const { pageNum, pageSize, total } = res
       this.pager = { pageNum, pageSize, total }
-    } catch (e){
+    } catch (e) {
       console.log(e)
     }
   }
@@ -297,6 +301,7 @@ export default class extends Vue {
   private handleChange() {
     this.debounceHandle()
   }
+
   /**
      * 分页操作
      */
@@ -304,6 +309,7 @@ export default class extends Vue {
     this.pager.pageSize = val
     this.getViewsList()
   }
+
   /**
      * 分页操作
      */
@@ -322,6 +328,7 @@ export default class extends Vue {
   private dialogueOprate() {
     this.visibile = !this.visibile
   }
+
   private async showDialogue(pic) {
     this.currentPic = pic
     try {
@@ -345,13 +352,16 @@ export default class extends Vue {
     }
     this.visibile = true
   }
+
   private async refresh() {
     this.debounceHandle()
   }
+
   private scrollPicList(e) {
     // @ts-ignore
     this.$refs.picList.scrollLeft += e.deltaY > 0 ? 100 : -100
   }
+
   private active(index) {
     this.activeIndex = index
     // @ts-ignore

@@ -86,7 +86,6 @@ export default class extends Mixins(detailMixin) {
       this.apps = transIboxApps
       this.app = this.appInfo.appId
     }
-    console.log(this.appInfo.name)
   }
 
   private async initDeviceApp() {

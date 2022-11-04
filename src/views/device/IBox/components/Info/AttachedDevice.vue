@@ -145,7 +145,6 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
-    console.log()
     this.loading = true
     try {
       await this.getAlarms()

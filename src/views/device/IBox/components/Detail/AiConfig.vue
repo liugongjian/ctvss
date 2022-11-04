@@ -24,7 +24,7 @@
             </el-button>
             <el-button type="text" @click="unbind(scope.row)"> 解绑 </el-button>
             <el-button type="text" @click="startOrStop(scope.row)">
-              {{ scope.row.status ? '停用' : '启用' }}
+              {{ scope.row.status === '[0]' ? '启用' : '停用' }}
             </el-button>
           </template>
         </el-table-column>
@@ -156,7 +156,7 @@ export default class AiAppList extends Mixins(AlgoMixin) {
     this.$alertHandle({
       titleConfirmHide: true,
       handleName: '解除绑定',
-      type: '车辆录像',
+      type: '',
       msg: `是否解绑应用："${row.name}"`,
       method: unBindIboxApps,
       payload: { appIds: [row.appId], iboxId, deviceId },
@@ -165,15 +165,15 @@ export default class AiAppList extends Mixins(AlgoMixin) {
   }
 
   private startOrStop(row) {
-    const func = row.status ? stopIboxApps : startIboxApps
+    const func = row.status === '[0]' ? startIboxApps : stopIboxApps
     const path: any = this.$route.query.path
     const iboxId: any = path.split(',')[0]
     const deviceId: any = path.split(',').pop()
     this.$alertHandle({
       titleConfirmHide: true,
-      handleName: `${row.status ? '停用' : '启用'}应用`,
+      handleName: `${row.status !== '[0]' ? '停用' : '启用'}应用`,
       type: '',
-      msg: `是否确认${row.status ? '停用' : '启用'}应用："${row.name}"`,
+      msg: `是否确认${row.status !== '[0]' ? '停用' : '启用'}应用："${row.name}"`,
       method: func,
       payload: { appIds: [row.appId], iboxId, deviceId },
       onSuccess: this.getAppList

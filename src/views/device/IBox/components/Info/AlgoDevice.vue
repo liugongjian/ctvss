@@ -1,5 +1,11 @@
 <template>
   <div class="app-container">
+    <el-alert
+      v-if="isDevice"
+      title="勾选设备后会弹出分析配置窗口，您可以绘制指定的分析区域"
+      type="warning"
+      show-icon
+    />
     <span class="title">选择设备:</span>
     <el-radio-group v-model="isDevice">
       <el-radio :label="true">完成后立即启用分析</el-radio>
@@ -8,6 +14,7 @@
     <el-tree
       v-if="isDevice"
       ref="deviceTree"
+      v-loading="treeLoading"
       node-key="deviceId"
       show-checkbox
       :data="iboxDevice"
@@ -20,7 +27,7 @@
         :class="{online: data.deviceStatus === 'on'}"
       >
         <span class="node-name">
-          <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+          <status-badge v-if="data.deviceType==='ipc'" :status="data.streamStatus" />
           <svg-icon
             :name="data.deviceType || 'ipc'"
             width="15"
@@ -31,7 +38,8 @@
         </span>
         <span v-if="!!data.meta && node.checked" style="margin-left: 12px;">
           <el-button type="text" size="mini" @click="() => editMeta(data)">
-            <svg-icon name="clipboard" width="15" height="15" />
+            <!-- <svg-icon name="clipboard" width="15" height="15" /> -->
+            <i class="el-icon-edit-outline" />
           </el-button>
         </span>
       </span>
@@ -59,12 +67,14 @@ import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 import { getDeviceList } from '@/api/ibox'
 import AlgoMixin from '@/views/device/IBox/mixin/algoMixin'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 // @ts-ignore
 @Component({
   name: 'AlgoDevice',
   components: {
-    AlgoConfig
+    AlgoConfig,
+    StatusBadge
   }
 })
 export default class extends Mixins(AppMixin, AlgoMixin) {
@@ -81,6 +91,8 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     children: 'deviceChannels',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
+
+  private treeLoading = false
 
   private nodeChecked: boolean = false
 
@@ -129,20 +141,23 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     try {
       const data: any = await getDeviceList(param)
       this.iboxDevice = data.devices.map((device) => {
+        const inProtocal = device.videos[0]?.inVideoProtocol
         if (device.device.deviceType === 'nvr') {
           return {
             ...device.device,
             disabled: true,
             meta: null,
             deviceStatus:
-              device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off'
+              device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off'
           }
         }
         return {
           ...device.device,
           meta: null,
           deviceStatus:
-            device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off'
+            device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
+          streamStatus:
+            device.videos[0][inProtocal + 'Device']?.streams[0]?.streamStatus || 'off'
         }
       })
     } catch (error) {
@@ -159,6 +174,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   private async checkCallback(data, isChecked) {
     if (isChecked && !data.meta) {
       try {
+        this.treeLoading = true
         this.deviceId = data.deviceId
         this.meta = null
         this.nodeChecked = !isChecked
@@ -167,6 +183,8 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
         this.frameImage = null
         this.setNodeOppositeChecked(data.deviceId)
         this.$message.warning(e)
+      } finally {
+        this.treeLoading = false
       }
     }
   }
@@ -213,6 +231,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   }
 
   private async editMeta(data) {
+    this.treeLoading = true
     this.meta = data.meta
     this.nodeChecked = true
     try {
@@ -221,6 +240,8 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
       this.frameImage = null
       this.setNodeOppositeChecked(data.deviceId)
       this.$message.warning(e)
+    } finally {
+      this.treeLoading = false
     }
   }
 
@@ -241,6 +262,10 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 }
 </script>
 <style lang="scss" scoped>
+.el-alert {
+  margin-bottom: 20px;
+}
+
 .title {
   margin-right: 25px;
 }
@@ -271,5 +296,23 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 
 .btns {
   margin-top: 40px;
+}
+
+.node-name {
+  position: relative;
+
+  .status-badge {
+    position: absolute;
+    top: -1px;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    opacity: 0.7;
+  }
+
+  .el-icon-edit-outline {
+    width: 15px;
+    height: 15px;
+  }
 }
 </style>
