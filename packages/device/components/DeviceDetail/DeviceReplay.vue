@@ -35,16 +35,16 @@ export default class extends Mixins(detailMixin) {
   }
 
   public async mounted() {
-    await this.getDevice()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
     this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
-    screen.inProtocol = this.inVideoProtocol
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
+    await this.getDevice()
+    screen.inProtocol = this.inVideoProtocol
     screen.init()
   }
 }

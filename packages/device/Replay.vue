@@ -106,6 +106,7 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public mounted() {
+    ScreenModule.ClearPlayingScreen()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this._screenManager = screenBoard?.screenManager
@@ -115,7 +116,6 @@ export default class extends Mixins(layoutMxin) {
   public destroyed() {
     this._screenManager.saveCache()
     window.removeEventListener('beforeunload', this.saveCache)
-    ScreenModule.ClearPlayingScreen()
   }
 
   /**
