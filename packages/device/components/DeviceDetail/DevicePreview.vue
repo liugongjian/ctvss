@@ -42,17 +42,17 @@ export default class extends Mixins(detailMixin) {
   }
 
   public async mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    this.screenManager = screenBoard?.screenManager
+    const screen = this.screenManager.currentScreen
+    screen.deviceId = this.deviceId
+    screen.isLive = true
     await this.getDevice()
     if (this.videoInfo) {
-      const screenBoard = this.$refs.screenBoard as ScreenBoard
-      this.screenManager = screenBoard?.screenManager
-      const screen = this.screenManager.currentScreen
-      screen.deviceId = this.deviceId
       screen.inProtocol = this.inVideoProtocol
       screen.streams = this.videoInfo.streams
       screen.streamSize = this.videoInfo.deviceStreamSize
       screen.streamNum = this.videoInfo.deviceStreamPullIndex
-      screen.isLive = true
       screen.streams = this.screenManager.fillStreams(screen)
       // IBox替换默认获取流地址接口
       if (this.getDevicePreviewApi) {

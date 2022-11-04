@@ -93,10 +93,7 @@ export default class extends Mixins(detailMixin) {
       this.handleTools(ToolsEnum.GoBack, 1)
     }
 
-    // 只有viid设备时tab默认选中viid
-    if (this.hasViid && !this.hasVideo) {
-      this.activeTab = DeviceInTypeEnum.Viid
-    }
+    this.setTab()
 
     // 编辑模式打开所有编辑状态
     if (this.$route.params.isEdit) {
@@ -113,9 +110,22 @@ export default class extends Mixins(detailMixin) {
    */
   public async updateDevice() {
     await this.getDevice(this.deviceId, true)
+    this.setTab()
     // 如果设备不存在直接跳出当前目录
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
+    }
+  }
+
+  /**
+   * 设置Tab
+   */
+  private setTab() {
+    // 只有viid设备时tab默认选中viid
+    if (this.hasViid && !this.hasVideo) {
+      this.activeTab = DeviceInTypeEnum.Viid
+    } else {
+      this.activeTab = DeviceInTypeEnum.Video
     }
   }
 }
