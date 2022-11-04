@@ -45,7 +45,7 @@ const viewDevice = function (state, id, type) {
     query: {
       ...state.$route.query,
       [DeviceEnum.DeviceId]: id,
-      [DeviceEnum.DirId]: id,
+      [DeviceEnum.DirId]: '',
       type
     }
   })
@@ -76,10 +76,11 @@ const editDevice = function (state, id, type) {
  * 删除设备
  * @param state.$alertDelete 提示框工具函数
  * @param state.handleTools layout工能回调函数
- * @param row 设备信息
+ * @param data 设备信息
+ * @param inProtocol 删除协议
  */
-const deleteDevice = function (state, data?) {
-  console.log(data, 111111)
+const deleteDevice = function (state, data?, inProtocol?) {
+  console.log(data, 111111, inProtocol)
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -108,27 +109,29 @@ const deleteDevice = function (state, data?) {
       payload: null,
       onSuccess: () => {
         state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        state.handleTools(ToolsEnum.RefreshRouterView)
       }
     })
   } else {
+    console.log(data)
     // 单个操作
     state.$alertDelete({
       type: '设备',
       msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
-      method: () => {
-        return deleteDeviceApi({
-          [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-          [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
-        })
-      },
+      method: deleteDeviceApi,
       payload: {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId],
+        [DeviceEnum.InProtocol]: inProtocol
       },
       onSuccess: () => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        // 判断是否完全删除
+        // if (inProtocol && data[DeviceEnum.InProtocol].length < 2) {
+        //   state.handleTools(ToolsEnum.GoBack, 1)
+        // } else {
+          state.handleTools(ToolsEnum.RefreshDirectory)
+          state.handleTools(ToolsEnum.RefreshRouterView)
+        // }
       }
     })
   }
@@ -140,11 +143,11 @@ const deleteDevice = function (state, data?) {
  * @param state.$route 页面路由对象
  * @param flag 刷新标志
  */
-const refreshDeviceList = function (state, flag = 'true') {
+const refreshRouterView = function (state, flag = 'true') {
   state.$router.replace({
     query: {
       ...state.$route.query,
-      deviceListRefreshFlag: flag
+      refreshFlag: flag
     }
   })
 }
@@ -203,7 +206,8 @@ const statusPolling = function (state, param: any) {
 /**
  * 同步设备状态
  */
-const syncDeviceStatus = async function (state, id, type) {
+const syncDeviceStatus = async function (getVueComponent, id, type) {
+  const state = getVueComponent()
   let deviceIdAndTypes = []
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -231,6 +235,7 @@ const syncDeviceStatus = async function (state, id, type) {
       deviceIdAndTypes
     })
     state.handleTools(ToolsEnum.RefreshDirectory)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   } catch (e) {
     state.$message.error(e && e.message)
   } finally {
@@ -494,7 +499,7 @@ const closeListDialog = function (state, type: string, isfresh: any) {
   }
   if (isfresh === true) {
     state.handleTools(ToolsEnum.RefreshDirectory)
-    state.handleTools(ToolsEnum.RefreshDeviceList)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   }
 }
 
@@ -517,14 +522,16 @@ const goBack = function (
 /**
  * 查看设备事件
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewEvents = function (state, id) {
+const previewEvents = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceEvents',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -532,14 +539,16 @@ const previewEvents = function (state, id) {
 /**
  * 实时预览
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewVideo = function (state, id) {
+const previewVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DevicePreview',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -547,14 +556,16 @@ const previewVideo = function (state, id) {
 /**
  * 录像回放
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const replayVideo = function (state, id) {
+const replayVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceReplay',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -562,14 +573,16 @@ const replayVideo = function (state, id) {
 /**
  * 视图查看
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewViid = function (state, id) {
+const previewViid = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceViid',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -583,7 +596,7 @@ export default {
   syncDevice,
   syncDeviceStatus,
   statusPolling,
-  refreshDeviceList,
+  refreshRouterView,
   viewChannels,
   configureChannels,
   exportDeviceExcel,

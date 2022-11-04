@@ -13,7 +13,7 @@
       <el-descriptions-item label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
       <el-descriptions-item label="设备ID">{{ basicInfo.deviceId }}</el-descriptions-item>
       <el-descriptions-item label="接入网络">{{ dicts.InNetworkType[device.inNetworkType] }}</el-descriptions-item>
-      <el-descriptions-item label="播放网络">{{ dicts.OutNetworkType[device.outNetworkType] }}</el-descriptions-item>
+      <!-- <el-descriptions-item label="播放网络">{{ dicts.OutNetworkType[device.outNetworkType] }}</el-descriptions-item> -->
       <el-descriptions-item label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
       <el-descriptions-item label="接入区域">{{ regionTxt }}</el-descriptions-item>
       <el-descriptions-item label="所属行业">{{ industryTxt }}</el-descriptions-item>
@@ -98,7 +98,7 @@ export default class extends Vue {
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox})
+    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
   }
 
   @Watch('device', { immediate: true })

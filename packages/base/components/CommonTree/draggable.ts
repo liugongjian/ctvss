@@ -35,7 +35,8 @@ function onDragEnd() {
 
 export const draggable: DirectiveOptions = {
   bind(el: any, binding, vnode) {
-    let { node, isDraggable } = binding.value
+    const { node } = binding.value
+    let { isDraggable } = binding.value
     if (typeof isDraggable === 'function') {
       isDraggable = isDraggable(node)
     }

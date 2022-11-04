@@ -3,7 +3,7 @@
     :title="isCreate ? '创建巡航路径' : `${currentName}配置`"
     :visible="dialogVisible"
     :close-on-click-modal="false"
-    width="400px"
+    width="600px"
     center
     @close="closeDialog"
   >
@@ -70,7 +70,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { describeDevicePresets, describePTZCruise, updatePTZCruise } from '@/api/ptz_control'
+import { describeDevicePresets, describePTZCruise, updatePTZCruise } from '../../../api/ptz_control'
 
 @Component({
   name: 'CreateDir'
@@ -129,11 +129,11 @@ export default class extends Vue {
       this.loading.form = true
       await this.initPresets()
       if (!this.isCreate) {
-        let res: any = await describePTZCruise({
+        const res: any = await describePTZCruise({
           deviceId: this.deviceId,
           cruiseId: this.currentIndex
         })
-        let cruisePath = res.cruisePresets?.map(cruise => {
+        const cruisePath = res.cruisePresets?.map(cruise => {
           return cruise.presetId
         })
         this.form = {
@@ -160,7 +160,7 @@ export default class extends Vue {
         name: found?.presetName || `预置位 ${index + 1}`,
         value: (index + 1).toString()
       }
-    })
+    }).filter((preset: any) => preset.setFlag)
   }
 
   private addItem() {
@@ -204,7 +204,7 @@ export default class extends Vue {
     })
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
@@ -247,11 +247,13 @@ export default class extends Vue {
       .el-slider__input {
         width: 50px;
       }
+
       input {
         padding-left: 4px;
         padding-right: 4px;
       }
     }
+
     .el-slider__runway.show-input {
       margin-right: 60px;
     }
@@ -259,40 +261,48 @@ export default class extends Vue {
 
   .time-input {
     width: 80px;
-    margin-right: 10px
+    margin-right: 10px;
   }
+
   .path-list {
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
     border-radius: 5px;
     text-align: center;
     height: 200px;
+
     &__header {
       width: 90%;
       display: inline-block;
-      border-bottom: 1px solid #DCDFE6;
+      border-bottom: 1px solid #dcdfe6;
       margin-bottom: 15px;
+
       .el-button {
-        margin-left: 10px
+        margin-left: 10px;
       }
     }
+
     &__content {
       height: 145px;
       overflow: auto;
     }
+
     &__item {
       height: 50px;
       line-height: 50px;
+
       .el-select {
         width: 120px;
         margin-right: 10px;
       }
+
       ::v-deep {
         .el-input__inner {
-          text-align: center
+          text-align: center;
         }
+
         .el-form-item__error {
           left: 25%;
-          top: calc(100% - 6px)
+          top: calc(100% - 6px);
         }
       }
     }

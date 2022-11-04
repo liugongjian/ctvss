@@ -46,13 +46,6 @@
           </template>
         </div>
       </template>
-      <template slot="rightHeader">
-        <!-- TODO -->
-        <breadcrumb
-          ref="breadcrumb"
-          @node-change="1"
-        />
-      </template>
       <template slot="rightBody">
         <!-- TODO -->
         <screen-board
@@ -75,6 +68,7 @@ import DatePicker from '@vss/device/components/ScreenBoard/components/DatePicker
 import ReplayType from '@vss/device/components/ScreenBoard/components/ReplayType.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Replay',
@@ -112,6 +106,7 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public mounted() {
+    ScreenModule.ClearPlayingScreen()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this._screenManager = screenBoard?.screenManager

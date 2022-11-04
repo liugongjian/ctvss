@@ -162,7 +162,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '业务组管理',
       icon: 'menu-group',
       perms: ['DescribeGroup'],
-      alwaysShow: false
+      alwaysShow: false,
+      version: 1
     },
     children: [
       {
@@ -225,7 +226,7 @@ export const asyncRoutes: RouteConfig[] = [
       alwaysShow: false,
       only: true,
       groupSelector: true,
-      // version: 1,
+      version: 1,
     },
     children: [
       {
@@ -314,7 +315,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-live',
       perms: ['ScreenPreview'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -376,7 +378,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-replay',
       perms: ['ReplayRecord'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -396,7 +399,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
 
   {
-    path: '/map',
+    path: '/mapv1',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -404,12 +407,13 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeMap'],
       alwaysShow: false,
       only: true,
-      groupSelector: false
+      groupSelector: false,
+      version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV1/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
@@ -421,7 +425,7 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/mapv2',
+    path: '/map',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -435,10 +439,10 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV2/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
-          title: '电子地图V2',
+          title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
           perms: ['DescribeMap']
@@ -817,7 +821,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: 'AI管理',
       icon: 'menu-ai',
       alwaysShow: true,
-      perms: ['DescribeAi']
+      perms: ['DescribeAi'],
+      version: 1
     },
     children: [
       {
