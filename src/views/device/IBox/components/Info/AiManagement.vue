@@ -8,14 +8,15 @@
         <el-table-column prop="name" label="算法类型" />
         <el-table-column prop="summary" label="描述" />
         <el-table-column prop="version" label="当前算法版本" />
-        <!-- <el-table-column label="操作">
+        <el-table-column prop="updatedTime" label="更新时间" />
+        <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="text" @click="upgrade(scope.row)">升级</el-button>
-            <el-button type="text" @click="uninstall(scope.row)">
+            <el-button type="text" :disabled="true" @click="upgrade(scope.row)">升级</el-button>
+            <el-button type="text" :disabled="true" @click="uninstall(scope.row)">
               卸载
             </el-button>
           </template>
-        </el-table-column> -->
+        </el-table-column>
       </el-table>
     </div>
     <div v-else>

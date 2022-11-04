@@ -5,8 +5,15 @@
         <el-button type="primary" @click="addApp">添加AI应用</el-button>
       </div>
       <el-table v-loading="loading.table" :data="tableData">
-        <el-table-column prop="name" label="算法名" />
+        <el-table-column prop="name" label="应用名称" />
+        <el-table-column prop="algorithmName" label="算法类型" />
         <el-table-column prop="description" label="描述" />
+        <el-table-column label="当前算法版本">
+          <template slot-scope="scope">
+            <span>1.0.0</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="deviceNum" label="关联设备" />
         <el-table-column prop="analyseType" label="分析类型">
           <template slot-scope="scope">
             <span>{{ ResourceAiType[scope.row.analyseType] }}</span>
@@ -110,7 +117,12 @@ export default class AiAppList extends Vue {
         iboxId
       })
     this.pager = { pageSize, pageNum, totalNum }
-    this.tableData = iboxApps
+    this.tableData = iboxApps.map(app => {
+      const deviceIds = JSON.parse(app.deviceIds)
+      return {
+        ...app, deviceNum: deviceIds ? deviceIds.length : 0
+      }
+    })
     this.loading.table = false
   }
 
