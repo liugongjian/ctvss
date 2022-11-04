@@ -60,6 +60,7 @@ import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Preview',
@@ -88,6 +89,7 @@ export default class extends Mixins(layoutMxin) {
 
   public destroyed() {
     window.removeEventListener('beforeunload', this.saveCache)
+    ScreenModule.ClearPlayingScreen()
   }
 
   /**

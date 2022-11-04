@@ -49,7 +49,6 @@ export class Screen extends VuexModule implements IScreenState {
     }
   }
 
-
   /**
    * 删除正在播放中的设备
    * @param deviceId 设备ID
@@ -62,6 +61,14 @@ export class Screen extends VuexModule implements IScreenState {
       playingScreens.splice(index, 1)
       this.SET_PLAYING_SCREENS(playingScreens)
     }
+  }
+
+  /**
+   * 清空正在播放的设备列表
+   */
+  @Action
+  public ClearPlayingScreen() {
+    this.SET_PLAYING_SCREENS([])
   }
 }
 
