@@ -86,17 +86,17 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     try {
       this.tabNum = this.$route.query.tabNum
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
-      const { data } = await listGroup({
-        pageNum: 0,
-        pageSize: 3000
-      })
-      this.initFaceLib(data)
       const { deviceList } = await getAttachedDevice({
         appId: this.$route.query.appid,
         pageSize: 3000
       })
       this.deviceList = deviceList
       deviceList.length > 0 && (this.device = deviceList[0])
+      const { data } = await listGroup({
+        pageNum: 0,
+        pageSize: 3000
+      })
+      this.initFaceLib(data)
     } catch (e){
       console.log(e)
     }

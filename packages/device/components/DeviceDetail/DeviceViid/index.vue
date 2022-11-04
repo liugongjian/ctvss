@@ -218,9 +218,9 @@ export default class extends Vue {
   //   }
   // }
   // 防抖
-  private debounceHandle = debounce(() => {
+  private debounceHandle = debounce(async () => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
-    this.getViewsList()
+    await this.getViewsList()
     // this.isCarFlowCode && this.getAlarmsList()
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
   }, 500)

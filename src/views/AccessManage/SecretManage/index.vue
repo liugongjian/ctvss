@@ -8,7 +8,7 @@
     >
       <span slot="title">使用提示</span>
       <ul class="alert-desc">
-        <li>API密钥是构建 API 请求的重要凭证。用于您调用视频监控API时生成签名，查看生成签名算法</li>
+        <li>API密钥是构建 API 请求的重要凭证。用于您调用视频监控API时生成签名，查看<el-link href="https://vcn.ctyun.cn/document/api/RequestMethod/Signature" target="_blank">生成签名算法</el-link></li>
         <li>如果访问密钥泄露，可能造成您的云上资产重大损失。每个访问密钥仅能下载一次，为了帐号安全性，建议您定期更换并妥善保存API密钥。</li>
       </ul>
     </el-alert>
@@ -39,6 +39,7 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="description" label="描述" min-width="160" />
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
@@ -50,10 +51,12 @@
         <el-table-column label="操作" min-width="200" fixed="right">
           <template slot-scope="scope">
             <template v-if="scope.row.status">
+              <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
               <el-button type="text" disabled @click="disableSecret(scope.row)">禁用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
             <template v-else>
+              <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
               <el-button type="text" disabled @click="enableSecret(scope.row)">启用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
@@ -61,7 +64,17 @@
         </el-table-column>
       </el-table>
     </el-card>
-    <tip-dialog v-if="showTipDialog" :data="dialogData" @on-close="closeTipDialog" />
+    <tip-dialog
+      v-if="showTipDialog"
+      :data="dialogData"
+      :step="dialogStep"
+      :loading="dialogLoading"
+      :edit-flag="editFlag"
+      @on-close="closeTipDialog"
+      @create-secret="createSecret"
+      @edit-secret="editSecretDesc"
+      @loading-change="loadingChange"
+    />
   </div>
 </template>
 
@@ -86,6 +99,10 @@ export default class extends Vue {
   private showTipDialog = false
   private dialogData: SecretTip
 
+  private dialogStep = 0
+
+  private editFlag = false
+
   private apiForm: any = { type: false }
 
   private closeTipDialog() {
@@ -97,11 +114,11 @@ export default class extends Vue {
       secretKey: ''
     }
     this.showTipDialog = false
+    this.dialogStep = 0
   }
 
   private async mounted() {
     await this.getList()
-    this.getAuth()
   }
 
   private get canCreateFlag() {
@@ -117,27 +134,12 @@ export default class extends Vue {
       this.loading = true
       const res = await getSecretList()
       this.dataList = res.keys
+      this.dialogStep = 1
     } catch (e) {
       // TODO
       // 错误处理
     } finally {
       this.loading = false
-    }
-  }
-
-  private async getAuth() {
-    try {
-      const res = await getSecretList({ type: 'public' })
-      if (res.keys.length > 0) {
-        this.apiForm = { ...res.keys[0], type: true }
-      } else {
-        this.apiForm = { type: false }
-      }
-    } catch (e) {
-      this.$message({
-        message: e,
-        type: 'error'
-      })
     }
   }
 
@@ -172,6 +174,23 @@ export default class extends Vue {
     }
   }
 
+  private async editSecret(row: Secret){
+    this.showTipDialog = true
+    this.dialogStep = 0
+    this.dialogData = {
+        type: 'api',
+        headline: '编辑密钥',
+        id: row.id + '',
+        accessKey: row.accessKey,
+        secretKey: row.secretKey
+      }
+    this.editFlag = true
+  }
+
+  private async editSecretDesc(){
+    console.log('提交修改')
+  }
+
   private async disableSecret(row: Secret) {
     try {
       this.loading = true
@@ -191,6 +210,7 @@ export default class extends Vue {
 
   private async createSecret() {
     try {
+      this.dialogLoading = true
       const res = await createSecret()
       await this.getList()
       this.dialogData = {
@@ -200,22 +220,26 @@ export default class extends Vue {
         accessKey: res.accessKey,
         secretKey: res.secretKey
       }
-      this.showTipDialog = true
+      this.dialogStep = 1
+      this.dialogLoading = false
+      this.$forceUpdate()
+      // this.showTipDialog = true
     } catch (e) {
       // TODO
       // 错误处理
-    } finally {
-      MessageBox.close()
     }
   }
 
   private handleCreate() {
-    MessageBox.alert('请稍后，正在创建密钥......', '正在创建密钥', {
-      showClose: false,
-      closeOnClickModal: false,
-      showConfirmButton: false
-    })
-    this.createSecret()
+    this.dialogStep = 0
+    this.showTipDialog = true
+    this.dialogData = {
+      type: '',
+      headline: '新建密钥',
+      id: '',
+      accessKey: '',
+      secretKey: ''
+    }
   }
 
   private async deleteSecret(row: Secret) {
@@ -237,42 +261,9 @@ export default class extends Vue {
     })
   }
 
-  private async operateAuth() {
-    const auth = '同意赋予OpenAPI权限后，将允许该服务调用部分开放接口，访问您视频监控资源，并读取您在视频监控上产生的业务数据，请谨慎使用以保护您的数据安全？'
-    const unauth = '取消后将暂停OpenAPI的访问权限（可按需重新授权），确定取消？'
-    this.$confirm(this.apiForm.type ? unauth : auth,
-      `${this.apiForm.type ? '取消' : ''}授权`,
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(async() => {
-      try {
-        this.loading = true
-        const res = this.apiForm.type ? await deleteSecret(this.apiForm.id, 'public') : await createSecret({ type: 'public' })
-        this.$message({
-          message: `${this.apiForm.type ? '取消' : ''}授权成功`,
-          type: 'success'
-        })
-        await this.getAuth()
-        if (this.apiForm.type) {
-          this.dialogData = {
-            type: 'public',
-            headline: 'OpenAPI授权成功',
-            id: res.id,
-            accessKey: res.accessKey,
-            secretKey: res.secretKey
-          }
-          this.showTipDialog = true
-        }
-      } catch (e) {
-        this.$message({
-          message: `${this.apiForm.type ? '取消' : ''}授权失败 :${e}`,
-          type: 'error'
-        })
-      } finally {
-        this.loading = false
-      }
-    })
+  private loadingChange(status){
+    this.dialogLoading = status
+    this.$forceUpdate()
   }
 }
 </script>
