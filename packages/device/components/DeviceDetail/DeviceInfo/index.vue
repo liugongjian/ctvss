@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject, Watch } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
@@ -77,8 +77,21 @@ export default class extends Mixins(detailMixin) {
     viidInfo: false
   }
 
+  @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
+  private async statusChange(val) {
+    if (val === 'true') {
+      this.updateDevice()
+      this.handleTools(ToolsEnum.RefreshRouterView, 'false')
+    }
+  }
+
   public async mounted() {
     await this.getDevice()
+
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
 
     // 只有viid设备时tab默认选中viid
     if (this.hasViid && !this.hasVideo) {
@@ -100,7 +113,8 @@ export default class extends Mixins(detailMixin) {
    */
   public async updateDevice() {
     await this.getDevice(this.deviceId, true)
-    if (this.device.device.deviceId) {
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
     }
   }

@@ -395,7 +395,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
     [ToolsEnum.SyncDevice]: () => DeviceManager.syncDevice(this, this.currentDirId),
     [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this, this.currentDirId, this.currentDirType),
-    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
+    [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
     [ToolsEnum.ExportAll]: (data,) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll, data),
     [ToolsEnum.ExportCurrentPage]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage, data),
@@ -460,11 +460,11 @@ export default class extends Mixins(deviceMixin) {
     return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
   }
 
-  @Watch('$route.query.deviceListRefreshFlag', { deep: true, immediate: true })
+  @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
   private async statusChange(val) {
     if (val === 'true') {
       this.initList()
-      this.handleListTools(ToolsEnum.RefreshDeviceList, 'false')
+      this.handleListTools(ToolsEnum.RefreshRouterView, 'false')
     }
   }
 
@@ -507,7 +507,6 @@ export default class extends Mixins(deviceMixin) {
       this.loading.info = true
       await this.getDevice(this.currentDirId)
       this.loading.info = false
-      console.log('deviceInfo', this.device)
     }
     this.initTable()
   }

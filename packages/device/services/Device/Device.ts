@@ -109,7 +109,7 @@ const deleteDevice = function (state, data?, inProtocol?) {
       payload: null,
       onSuccess: () => {
         state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        state.handleTools(ToolsEnum.RefreshRouterView)
       }
     })
   } else {
@@ -130,7 +130,7 @@ const deleteDevice = function (state, data?, inProtocol?) {
         //   state.handleTools(ToolsEnum.GoBack, 1)
         // } else {
           state.handleTools(ToolsEnum.RefreshDirectory)
-          state.handleTools(ToolsEnum.RefreshDeviceList)
+          state.handleTools(ToolsEnum.RefreshRouterView)
         // }
       }
     })
@@ -143,11 +143,11 @@ const deleteDevice = function (state, data?, inProtocol?) {
  * @param state.$route 页面路由对象
  * @param flag 刷新标志
  */
-const refreshDeviceList = function (state, flag = 'true') {
+const refreshRouterView = function (state, flag = 'true') {
   state.$router.replace({
     query: {
       ...state.$route.query,
-      deviceListRefreshFlag: flag
+      refreshFlag: flag
     }
   })
 }
@@ -497,7 +497,7 @@ const closeListDialog = function (state, type: string, isfresh: any) {
   }
   if (isfresh === true) {
     state.handleTools(ToolsEnum.RefreshDirectory)
-    state.handleTools(ToolsEnum.RefreshDeviceList)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   }
 }
 
@@ -594,7 +594,7 @@ export default {
   syncDevice,
   syncDeviceStatus,
   statusPolling,
-  refreshDeviceList,
+  refreshRouterView,
   viewChannels,
   configureChannels,
   exportDeviceExcel,
