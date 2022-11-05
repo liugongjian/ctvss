@@ -39,6 +39,7 @@
           :expand-on-click-node="false"
           :show-checkbox="hasCheckbox"
           highlight-current
+          @check-change="onCheckDevice"
           @node-click="handleNode"
         >
           <div
@@ -135,6 +136,7 @@ export default class extends Vue {
       
     //   console.log('getCurrentKey==============', this.tree.getCurrentKey())
     // })
+    console.log('......        ........       ', this.load)
     this.checkRootVisable()
   }
 
@@ -154,7 +156,6 @@ export default class extends Vue {
    * 初始化树
    */
   private initTree() {
-    console.log('init')
     this.currentKey = this.rootKey
     // const node = this.tree.getNode(this.currentKey)
     // const data = node && node.data
@@ -221,5 +222,27 @@ export default class extends Vue {
   private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
+
+  /**
+   * 节点选中事件
+   */
+  private onCheckDevice(data: any) {
+    const dirTree: any = this.tree
+    const nodes = dirTree.getCheckedNodes()
+    // const list = nodes.filter((node: any) => {
+    //   const nodeIdsList = nodes.map((node: any) => node.id)
+    //   return nodeIdsList.indexOf(node.parentId) === -1
+    // })
+    this.currentKey = data.id
+    this.tree.setCurrentKey(this.currentNodeKey)
+    this.$emit('check-device', nodes)
+    // const dirTree: any = this.tree
+    // const nodes = dirTree.getCheckedNodes()
+    // this.form.resourceList = nodes.filter((node: any) => {
+    //   const nodeIdsList = nodes.map((node: any) => node.id)
+    //   return nodeIdsList.indexOf(node.parentId) === -1
+    // })
+  }
+
 }
 </script>
