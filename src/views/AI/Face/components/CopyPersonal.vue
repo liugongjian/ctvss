@@ -62,7 +62,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
@@ -119,7 +119,7 @@ export default class extends Vue {
 
   private toCreateGroup() {
     this.$router.push({
-      name: 'facelib',
+      path: '/ai/facelib',
       params: {
         showAdd: 'Y'
       }

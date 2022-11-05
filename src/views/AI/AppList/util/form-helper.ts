@@ -1,5 +1,5 @@
 export const getRule = (msg) => {
-  let rule = []
+  const rule = []
   if (msg === '应用名称') {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
   } else if (['人员数量阈值', '车辆数量阈值',

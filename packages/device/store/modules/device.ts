@@ -53,7 +53,7 @@ export class Device extends VuexModule implements IDeviceState {
   public async getDevice(payload: { deviceId: string, isForce: boolean, fetch: Function }) {
     try {
       // 如果isForce = true，强制刷新设备详情
-      if (payload.isForce || !this.device || this.device.deviceId !== payload.deviceId) {
+      if (payload.isForce || !this.device || this.device.device.deviceId !== payload.deviceId) {
         let device
         if (payload.fetch) {
           const res = await payload.fetch({
@@ -65,8 +65,14 @@ export class Device extends VuexModule implements IDeviceState {
       }
       return this.device
     } catch (e) {
+      this.SET_DEVICE(null)
       console.log(e)
     }
+  }
+
+  @Action
+  public async clearDevice() {
+    this.SET_DEVICE(null)
   }
 
   /**

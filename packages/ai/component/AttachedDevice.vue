@@ -95,8 +95,8 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
 import AppMixin from '@/views/AI/mixin/app-mixin'
-import { GroupModule } from '@/store/modules/group'
-import { getGroups } from '@/api/group'
+// import { GroupModule } from '@/store/modules/group'
+// import { getGroups } from '@/api/group'
 
 @Component({
   name: 'AttachedDevice',
@@ -129,17 +129,22 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
-    this.loading = true
-    await this.getGroupsList()
-    await this.getAttachedDevice()
-    this.getAlarms()
-    this.loading = false
+    try {
+      this.loading = true
+      // await this.getGroupsList()
+      await this.getAttachedDevice()
+      this.getAlarms()
+    } catch (e){
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
-  private async getGroupsList() {
-    const { groups } = await getGroups({ pageNum: 1, pageSize: 1000 })
-    this.groups = groups
-  }
+  // private async getGroupsList() {
+  //   const { groups } = await getGroups({ pageNum: 1, pageSize: 1000 })
+  //   this.groups = groups
+  // }
 
   private async getAttachedDevice() {
     const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
@@ -221,10 +226,10 @@ export default class extends Mixins(AppMixin) {
     })
   }
   private rowClick(row: any) {
-    const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
-    GroupModule.SetGroupList(this.groups)
-    GroupModule.SetGroupListIndex(Math.ceil(this.groups.length / 20))
-    GroupModule.SetGroup(this.groups[curGroupIndex])
+    // const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
+    // GroupModule.SetGroupList(this.groups)
+    // GroupModule.SetGroupListIndex(Math.ceil(this.groups.length / 20))
+    // GroupModule.SetGroup(this.groups[curGroupIndex])
     this.$router.push({
       name: 'device-detail',
       query: {

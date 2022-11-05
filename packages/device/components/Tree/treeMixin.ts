@@ -1,6 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum } from '../../enums/index'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import StreamSelector from '../StreamSelector.vue'
 
 @Component({
@@ -45,6 +46,10 @@ export default class TreeMixin extends Vue {
     return this.$route.query.dirId
   }
 
+  public get playingScreens() {
+    return ScreenModule ? ScreenModule.playingScreens : []
+  }
+
   public initCommonTree() {
     console.log('使用  initCommonTree ')
     this.commonTree.initTree()
@@ -65,7 +70,12 @@ export default class TreeMixin extends Vue {
           this.loadChildren(payload)
         } else {
           this.setCurrentKey(key || this.rootKey)
+          // this.$nextTick(() => {
+          //   const currentNodeDom = document.getElementsByClassName('current-node')[0]
+          //   console.log((currentNodeDom.parentNode as any).scrollTop)
+          // })
         }
+        
       } else {
         // 展开目录
         this.commonTree.loadChildren(payload)
@@ -87,6 +97,14 @@ export default class TreeMixin extends Vue {
   }
 
   /**
+   * 判断设备状态
+   * @param data 设备信息
+   */
+  public checkTreeItemStatus(data: any) {
+    return data.type === DirectoryTypeEnum.Ipc && this.playingScreens.includes(data.id)
+  }
+
+  /**
    * 判断是否显示form-item
    */
   public checkVisible(type, prop) {
@@ -100,13 +118,5 @@ export default class TreeMixin extends Vue {
    */
   public handleTools(type: any, ...payload) {
     this.$emit('handle-tools', type, ...payload)
-  }
-
-  /**
-   * 判断item是否可拖拽
-   */
-  public checkIsDraggable(node) {
-    return node.data.type === DeviceTypeEnum.Ipc
-    // if (isLive && node.data.deviceStatus !== 'on') return
   }
 }

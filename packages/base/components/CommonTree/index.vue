@@ -36,16 +36,17 @@
           :props="props"
           :empty-text="emptyText"
           :default-expand-all="!lazy"
-          :expand-on-click-node="false"
+          :expand-on-click-node="expandOnClickNode"
           :show-checkbox="hasCheckbox"
           highlight-current
-          @check-change="onCheckDevice"
           @node-click="handleNode"
         >
           <div
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
             class="common-tree__item"
+            :disabled="true"
+            :class="{ 'current-node': node.key === currentNodeKey, 'node-disable': isNodeDisabled(node) }"
           >
             <div class="common-tree__item__label-prefix">
               <slot name="itemLabelPrefix" :node="node" :data="data" />
@@ -110,8 +111,14 @@ export default class extends Vue {
   @Prop({ default: () => false })
   private isDraggable: Function | boolean
 
+  @Prop({ default: () => function(){ return false } })
+  private isNodeDisabled: Function | boolean
+
   @Prop({ default: false })
   private hasCheckbox: boolean
+
+  @Prop({ default: true })
+  private expandOnClickNode: boolean
 
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
@@ -128,15 +135,6 @@ export default class extends Vue {
   }
 
   private mounted() {
-    // this.$nextTick(() => {
-      
-    //   console.log('defaultKey==============', this.defaultKey)
-    //   this.currentKey = this.defaultKey
-    //   this.tree.setCurrentKey(this.currentKey)
-      
-    //   console.log('getCurrentKey==============', this.tree.getCurrentKey())
-    // })
-    console.log('......        ........       ', this.load)
     this.checkRootVisable()
   }
 
@@ -156,6 +154,7 @@ export default class extends Vue {
    * 初始化树
    */
   private initTree() {
+    console.log('init')
     this.currentKey = this.rootKey
     // const node = this.tree.getNode(this.currentKey)
     // const data = node && node.data
@@ -222,27 +221,5 @@ export default class extends Vue {
   private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
-
-  /**
-   * 节点选中事件
-   */
-  private onCheckDevice(data: any) {
-    const dirTree: any = this.tree
-    const nodes = dirTree.getCheckedNodes()
-    // const list = nodes.filter((node: any) => {
-    //   const nodeIdsList = nodes.map((node: any) => node.id)
-    //   return nodeIdsList.indexOf(node.parentId) === -1
-    // })
-    this.currentKey = data.id
-    this.tree.setCurrentKey(this.currentNodeKey)
-    this.$emit('check-device', nodes)
-    // const dirTree: any = this.tree
-    // const nodes = dirTree.getCheckedNodes()
-    // this.form.resourceList = nodes.filter((node: any) => {
-    //   const nodeIdsList = nodes.map((node: any) => node.id)
-    //   return nodeIdsList.indexOf(node.parentId) === -1
-    // })
-  }
-
 }
 </script>

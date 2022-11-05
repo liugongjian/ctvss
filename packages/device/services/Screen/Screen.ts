@@ -6,6 +6,7 @@ import { Player } from '@vss/video-player/services/Player'
 import { getDevicePreview } from '@/api/device'
 import { Stream } from '@vss/device/type/Device'
 import { Codec, StatusEnum } from '@vss/device/enums/index'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 export class Screen {
   /* 播放器类型 */
@@ -33,7 +34,7 @@ export class Screen {
    * 设备相关属性
    * ----------------
    */
-  public deviceId?: number | string
+  public deviceId?: string
   public inProtocol?: string
   public deviceName?: string
 
@@ -208,6 +209,7 @@ export class Screen {
       // 先销毁原有的录像列表和取消原有请求
       this.recordManager && this.recordManager.destroy()
       this.axiosSource && this.axiosSource.cancel()
+      ScreenModule.addPlayingScreen(this.deviceId)
       this.isLive ? this.initLive() : this.initReplay()
     } catch (e) {
       console.error(e)
@@ -227,6 +229,7 @@ export class Screen {
    * 销毁
    */
   public destroy() {
+    ScreenModule.removePlayingScreen(this.deviceId)
     this.recordManager && this.recordManager.destroy()
     this.axiosSource && this.axiosSource.cancel()
     this.constructor()
@@ -285,7 +288,9 @@ export class Screen {
         this.log.previewEndTimestamp = new Date().getTime()
         screenLogManager.addLog(this)
       }
-      if (e.code !== -2) this.isLoading = false
+      if (e.code !== -2) {
+        this.isLoading = false
+      }
       throw new Error(e.message)
     }
   }

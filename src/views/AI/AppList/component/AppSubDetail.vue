@@ -159,7 +159,13 @@
             <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
             <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
           </div>
-          <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+          <Attributes
+            v-if="appInfo.algorithm.code === '10009'"
+            class="ai-image-fullscreen__img--attributes"
+            :type="appInfo.algorithm.code"
+            :img="dialoguePic"
+            :attributes-index="currentLocationIndex"
+          />
         </div>
       </el-dialog>
     </div>
@@ -200,7 +206,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
-  private currentLocationIndex: number = -1
+  private currentLocationIndex = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
   private timeInterval = ResultTimeInterval
@@ -268,14 +274,14 @@ export default class extends Vue {
   }
 
   private get isFaceAlgoCode() {
-    return this.appInfo.algorithm.code === '10001'
+    return this.appInfo.algorithm?.code === '10001'
   }
   private get isGatheringCode() {
-    return this.appInfo.algorithm.code === '10005'
+    return this.appInfo.algorithm?.code === '10005'
   }
 
   private get isCarFlowCode() {
-    return this.appInfo.algorithm.code === '10019'
+    return this.appInfo.algorithm?.code === '10019'
   }
   private async mounted() {
     // this.initFaceInfos()
@@ -289,9 +295,9 @@ export default class extends Vue {
      * 得到N天前的时间戳
      */
   private getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 
@@ -347,10 +353,10 @@ export default class extends Vue {
      * 初始化人脸选项图片
      */
   private async initFaceInfos() {
-    if (this.appInfo.algorithmMetadata.length > 0) {
+    if (this.appInfo.algorithmMetadata?.length > 0) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-      if (algorithmMetadata.FaceDbName) {
-        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+      if (algorithmMetadata?.FaceDbName) {
+        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata?.FaceDbName })
         this.faceInfos = faces.map(face => {
           return { ...face, labels: JSON.parse(face.labels) }
         })
@@ -398,7 +404,7 @@ export default class extends Vue {
   }
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
-    const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
+    const locations = parseMetaData(this.appInfo.algorithm?.code, metaData)
     const img = this.$refs.dialogue
     this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
   }

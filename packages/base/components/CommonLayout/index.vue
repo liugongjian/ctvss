@@ -227,7 +227,7 @@ $bar-height: 40px;
 
     &__header {
       display: flex;
-      height: $bar-height;
+      max-height: $bar-height;
       line-height: $bar-height;
       padding: 0 $padding-medium;
       border-bottom: 1px solid $border-color-primary;

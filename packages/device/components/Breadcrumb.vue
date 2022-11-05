@@ -45,6 +45,9 @@ export default class extends Vue {
         query: {
           ...this.$route.query,
           path: this.pathList.map(path => path.id).join(',')
+        },
+        params: {
+          ...this.$route.params,
         }
       })
     } else {
@@ -53,6 +56,9 @@ export default class extends Vue {
         query: {
           ...this.$route.query,
           path: ''
+        },
+        params: {
+          ...this.$route.params,
         }
       })
     }
