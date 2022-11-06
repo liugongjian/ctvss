@@ -46,9 +46,17 @@ export default class LayoutMixin extends Vue {
   public loading = {
     tree: false
   }
+
+  // public treeNodeInfo: any = {}
+
+  // public get getTreeNodeInfo() {
+  //   return this.treeNodeInfo
+  // }
+
   public getVueComponent() {
     return this
   }
+  
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
@@ -112,12 +120,13 @@ export default class LayoutMixin extends Vue {
    */
   public treeLoad = async function (node) {
     let res
-    console.log('懒加载时加载节点方法。。。。。。。。。。。。。', node)
+    // 增加 层级关系
+    // console.log('怎么将 node  和 data 关联起来？   node', node)
     if (node.level === 0) {
       this.loading.tree = true
       try {
         res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-        console.log('懒加载时加载节点方法。。。。。。。res。。。。。。', res)
+        // console.log('get node info     ', res)
         const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
         this.deviceTree.loadChildren(pathList)
         this.deviceTree.rootSums.onlineSize = res.onlineSize
@@ -127,15 +136,13 @@ export default class LayoutMixin extends Vue {
       }
       this.loading.tree = false
     } else {
-      // this.$emit('load-path', node)
-      this.loadDirs(node)
       // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
-      console.log('展开了  晓得不     八嘎    在这里加 path    ', res)
+      // console.log('get node info     ', res)
+      let parentPath = this.concatPath(node)
       res.dirs.map((item: any) => {
-        item.path = node.level === 1 ? node.label : '/' + node.label
+        item.path = node.level === 1 ? node.label : parentPath + '/' + node.label
       })
-      console.log('小八嘎     add path to res    ', res)
     }
     return res.dirs
   }.bind(this)
@@ -148,6 +155,13 @@ export default class LayoutMixin extends Vue {
   public handleTools(type: string, ...payload: any) {
     console.log(type, ...payload)
     this.handleToolsMap[type](...payload)
+  }
+
+  // 拼接 path
+  private concatPath(node: any) {
+    if (typeof(node.parent.label) === "undefined") return ''
+    let label = node.parent.label ? node.parent.label : ''
+    return this.concatPath(node.parent) + '/' + label
   }
 
 }

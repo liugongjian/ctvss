@@ -60,7 +60,7 @@ export default class TreeMixin extends Vue {
    * @param payload node/key
    */
   public loadChildren(payload) {
-    console.log('hhhhhhh      hhhhhh')
+    console.log('hhhhhhh   loadChildren   hhhhhh', payload)
     window.setImmediate(async() => {
       if (Array.isArray(payload)) {
         // 展开路径列表

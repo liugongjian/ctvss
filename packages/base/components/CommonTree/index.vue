@@ -40,6 +40,7 @@
           :show-checkbox="hasCheckbox"
           highlight-current
           @node-click="handleNode"
+          @check-change="onCheckDevice"
         >
           <div
             slot-scope="{ node, data }"
@@ -220,6 +221,20 @@ export default class extends Vue {
 
   private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
+  }
+
+  /**
+   * 节点选中事件
+  */
+  private onCheckDevice(data: any) {
+    const dirTree: any = this.tree
+    const nodes = dirTree.getCheckedNodes()
+    // console.log('选中节点    data    ', data)
+    // console.log('选中节点    dirTree   ', dirTree)
+    // console.log('选中节点    c   ', c)
+    this.currentKey = data.id
+    this.tree.setCurrentKey(this.currentNodeKey)
+    this.$emit('check-device', nodes)
   }
 }
 </script>

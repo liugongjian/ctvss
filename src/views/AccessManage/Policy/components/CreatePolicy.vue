@@ -28,7 +28,7 @@
           </el-radio-group>
           <div v-show="resourceType === 'selected'" class="dialog-wrap">
             <!-- <div v-loading="loading.dir" class="tree-wrap"> -->
-              <!-- <el-tree ref="dirTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
+              <!-- <el-tree ref="deviceTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
                 <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
@@ -37,7 +37,7 @@
                 </span>
               </el-tree> -->
               <IAMResourceTree 
-                ref="dirTree"
+                ref="deviceTree"
                 v-loading="loading.tree"
                 :load="treeLoad"
                 :lazy="lazy"
@@ -58,7 +58,7 @@
                 </el-table-column>
                 <el-table-column key="path" prop="path" label="所在位置">
                   <template slot-scope="{row}">
-                    {{ row.path || '' }}
+                    {{ renderPath(row.path) || '' }}
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
@@ -361,7 +361,7 @@ export default class extends Mixins(layoutMxin) {
   public async initResourceStatus(resourceList: any) {
     try {
       this.policyLoading.dir = true
-      const dirTree: any = this.$refs.dirTree
+      const deviceTree: any = this.$refs.deviceTree
       const checkedKeys = []
       for (let index = 0, len = resourceList.length; index < len; index++) {
         const resource = resourceList[index]
@@ -373,7 +373,7 @@ export default class extends Mixins(layoutMxin) {
           if (keyPath && keyPath.length) {
             for (let i = 0; i < keyPath.length - 1; i++) {
               const _key = keyPath[i]
-              const node = dirTree.getNode(_key)
+              const node = deviceTree.getNode(_key)
               if (node) {
                 await this.loadDirChildren(_key, node)
               }
@@ -382,7 +382,7 @@ export default class extends Mixins(layoutMxin) {
           }
         }
       }
-      dirTree.setCheckedKeys(checkedKeys)
+      deviceTree.setCheckedKeys(checkedKeys)
     } catch (e) {
       console.log('e: ', e)
     } finally {
@@ -400,7 +400,7 @@ export default class extends Mixins(layoutMxin) {
       return
     }
     try {
-      const dirTree: any = this.$refs.dirTree
+      const deviceTree: any = this.$refs.deviceTree
       let data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -420,7 +420,7 @@ export default class extends Mixins(layoutMxin) {
             path: node.data.path.concat([dir]),
             parentId: node.data.id
           }))
-        dirTree.updateKeyChildren(key, dirs)
+        deviceTree.updateKeyChildren(key, dirs)
       }
       node.expanded = true
       node.loaded = true
@@ -468,7 +468,6 @@ export default class extends Mixins(layoutMxin) {
    * 加载目录
    */
   private async loadDirs(node: any, resolve?: Function) {
-    console.log('加载目录      ！！！！！！！！！！！！！！！', node)
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
     resolve(dirs)
@@ -487,14 +486,14 @@ export default class extends Mixins(layoutMxin) {
         type: node.data.type === 'group' ? undefined : node.data.type
       })
       console.log('devices      ', devices)
-      const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      const deviceTree: any = this.$refs.deviceTree
+      let checkedKeys = deviceTree.getCheckedKeys()
       let dirs: any = devices.dirs  
         .filter((dir: any) => dir.type === 'dir')
         .map((dir: any) => {
           if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
             checkedKeys.push(dir.id)
-            dirTree.setCheckedKeys(checkedKeys)
+            deviceTree.setCheckedKeys(checkedKeys)
           }
           return {
             id: dir.id,
@@ -517,16 +516,17 @@ export default class extends Mixins(layoutMxin) {
    * 当设备被选中时回调，将选中的设备列出
    */
   private onCheckDevice(nodes: any) {
-    // const dirTree: any = this.$refs.dirTree
-    // const nodes = dirTree.getCheckedNodes()
+    // const deviceTree: any = this.$refs.deviceTree
+    // const nodes = deviceTree.getCheckedNodes()
     // nodes.filter((node: any) => node.parentDirId !== '').map((node: any) => {
 
     // })
+    // 这一块儿收缩有问题。。。。。。。。按什么来收缩？要不是数据错了，要不是收缩方法错了
     const list = nodes.filter((node: any) => {
       const nodeIdsList = nodes.map((node: any) => node.id)
       return nodeIdsList.indexOf(node.parentDirId) === -1
     })
-    console.log('list       ', list)
+    console.log('resourceList       ', list)
     this.form.resourceList = list
   }
 
@@ -534,20 +534,21 @@ export default class extends Mixins(layoutMxin) {
    * 移除设备
    */
   private removeDevice(device: any) {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setChecked(device.id, false)
+    const deviceTree: any = this.$refs.deviceTree
+    deviceTree.setChecked(device.id, false)
   }
 
   /**
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    console.log('path       ', path)
-    const dirPath = path.slice(0, -1)
-    const dirPathName = dirPath.map((dir: any) => {
-      return dir.label
-    })
-    return dirPathName.join('/')
+    console.log('path     aaa    ', path)
+    return path && path.indexOf('/') === 0 ? path.slice(1) : path
+    // const dirPath = path.slice(0, -1)
+    // const dirPathName = dirPath.map((dir: any) => {
+    //   return dir.label
+    // })
+    // return dirPathName.join('/')
   }
 
   private upload() {
@@ -555,6 +556,8 @@ export default class extends Mixins(layoutMxin) {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
+          let pathIdArr = this.form.resourceList.map((resource: any) => resource.id)
+          console.log('提交   哈哈哈哈哈    略略略      ', pathIdArr)
           let data = {
             policyId: this.form.policyId || undefined,
             policyName: this.form.policyName,
@@ -570,18 +573,18 @@ export default class extends Mixins(layoutMxin) {
                     this.resourceType === 'all'
                       ? ['*']
                       : this.form.resourceList.map((resource: any) => {
-                        // console.log('resource     ', resource)
+                        console.log('提交  有问题     ', resource)
                         const mainUserID = this.$store.state.user.mainUserID
                         const inProtocol = resource.inProtocol
                         const type = resource.type
-                        const pathIds = resource.path.map(
-                          (obj: any) => obj.id
-                        )
+                        // const pathIds = resource.path.map(
+                        //   (obj: any) => obj.id // 目录 ID 串接咯？
+                        // )
                         return `${mainUserID}:${inProtocol}-${
                           type === 'group' ? 'vssgroup' : 'directory'
-                        }:${pathIds[0]}${
-                          (pathIds.length > 1 ? ':' : '') +
-                            pathIds.slice(1).join('/')
+                        }:${pathIdArr[0]}${
+                          (pathIdArr.length > 1 ? ':' : '') +
+                            pathIdArr.slice(1).join('/')
                         }`
                       })
                 }
