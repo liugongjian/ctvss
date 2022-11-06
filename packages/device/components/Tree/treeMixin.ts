@@ -51,7 +51,6 @@ export default class TreeMixin extends Vue {
   }
 
   public initCommonTree() {
-    console.log('使用  initCommonTree ')
     this.commonTree.initTree()
   }
 
@@ -60,7 +59,6 @@ export default class TreeMixin extends Vue {
    * @param payload node/key
    */
   public loadChildren(payload) {
-    console.log('hhhhhhh   loadChildren   hhhhhh', payload)
     window.setImmediate(async() => {
       if (Array.isArray(payload)) {
         // 展开路径列表
@@ -92,7 +90,6 @@ export default class TreeMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
-    console.log('getCheckedNodes', this.commonTree.getCheckedNodes())
     this.$emit('handle-node', data)
   }
 

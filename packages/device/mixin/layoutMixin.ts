@@ -126,7 +126,6 @@ export default class LayoutMixin extends Vue {
       this.loading.tree = true
       try {
         res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-        // console.log('get node info     ', res)
         const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
         this.deviceTree.loadChildren(pathList)
         this.deviceTree.rootSums.onlineSize = res.onlineSize

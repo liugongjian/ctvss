@@ -246,7 +246,6 @@ export default class extends Mixins(layoutMxin) {
       }
     } else {
       this.actionType = 'selected'
-      // console.log('这里金？？？？？         ？    这里是新建策略')
       await this.initDirs()
     }
   }
@@ -329,7 +328,6 @@ export default class extends Mixins(layoutMxin) {
       } else {
         this.resourceType = 'selected'
       }
-      // console.log('这里金？？--------------------？？？         ？    这里是编辑策略')
       await this.initDirs()
       this.$nextTick(() => this.initResourceStatus(resourceList))
     } catch (e) {
@@ -394,7 +392,6 @@ export default class extends Mixins(layoutMxin) {
    * 加载子目录
    */
   public async loadDirChildren(key: string, node: any) {
-    console.log('加载子目录     ')
     if (node.loaded) {
       node.parent.expanded = true
       return
@@ -485,7 +482,6 @@ export default class extends Mixins(layoutMxin) {
         inProtocol: node.data.inProtocol,
         type: node.data.type === 'group' ? undefined : node.data.type
       })
-      console.log('devices      ', devices)
       const deviceTree: any = this.$refs.deviceTree
       let checkedKeys = deviceTree.getCheckedKeys()
       let dirs: any = devices.dirs  
@@ -526,7 +522,6 @@ export default class extends Mixins(layoutMxin) {
       const nodeIdsList = nodes.map((node: any) => node.id)
       return nodeIdsList.indexOf(node.parentDirId) === -1
     })
-    console.log('resourceList       ', list)
     this.form.resourceList = list
   }
 
@@ -542,7 +537,6 @@ export default class extends Mixins(layoutMxin) {
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    console.log('path     aaa    ', path)
     return path && path.indexOf('/') === 0 ? path.slice(1) : path
     // const dirPath = path.slice(0, -1)
     // const dirPathName = dirPath.map((dir: any) => {
@@ -557,7 +551,6 @@ export default class extends Mixins(layoutMxin) {
       try {
         if (valid) {
           let pathIdArr = this.form.resourceList.map((resource: any) => resource.id)
-          console.log('提交   哈哈哈哈哈    略略略      ', pathIdArr)
           let data = {
             policyId: this.form.policyId || undefined,
             policyName: this.form.policyName,
@@ -573,7 +566,6 @@ export default class extends Mixins(layoutMxin) {
                     this.resourceType === 'all'
                       ? ['*']
                       : this.form.resourceList.map((resource: any) => {
-                        console.log('提交  有问题     ', resource)
                         const mainUserID = this.$store.state.user.mainUserID
                         const inProtocol = resource.inProtocol
                         const type = resource.type
