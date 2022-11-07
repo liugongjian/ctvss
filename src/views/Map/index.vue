@@ -28,9 +28,9 @@
           </el-card>
           <div class="device-tree__title">
             <span class="device-tree__text">设备树</span>
-            <span class="device-tree__refresh" @click="initDirs">
+            <!-- <span class="device-tree__refresh" @click="loadDirs">
               <svg-icon name="refresh" />
-            </span>
+            </span> -->
           </div>
           <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{ height: `${maxHeight-230}px` }">
             <el-tree
@@ -509,11 +509,11 @@ export default class extends Mixins(IndexMixin) {
     try {
       let res
       if (node.level === 0) {
-        // this.loading.tree = true
-        res = await getNodeInfo({ id: '-1', type: DirectoryTypeEnum.Dir })
+        this.loading.dir = true
+        res = await getNodeInfo({ type: DirectoryTypeEnum.Dir })
         console.log(res)
         // this.deviceTree.loadChildren('01')
-        // this.loading.tree = false
+        this.loading.dir = false
       } else {
         res = await getNodeInfo({ id: node.data.id, type: node.data.type })
       }
