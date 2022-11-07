@@ -424,7 +424,8 @@ export default class extends Vue {
     const param = {
       frames: [
         {
-          stream: this.deviceId
+          stream: this.deviceId,
+          inProtocol: this.inVideoProtocol
         }
       ]
     }
