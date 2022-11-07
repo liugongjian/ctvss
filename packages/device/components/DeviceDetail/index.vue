@@ -44,7 +44,7 @@ export default class extends Mixins(detailMixin) {
     await this.getDevice()
   }
 
-  public destroy() {
+  public destroyed() {
     this.clearDevice()
   }
 

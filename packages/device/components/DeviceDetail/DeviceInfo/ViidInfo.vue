@@ -2,7 +2,7 @@
   <div>
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
-      <el-dropdown @command="handleTools($event, basicInfo, inViidProtocol)">
+      <el-dropdown v-if="hasVideo" @command="handleTools($event, basicInfo, inViidProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
@@ -70,6 +70,11 @@ export default class extends Vue {
   // 视图库接入信息
   private get viidInfo(): ViidDevice {
     return this.inViidProtocol && this.device.viids[0][dicts.InViidProtocolModelMapping[this.inViidProtocol]]
+  }
+
+  // 是否含视频
+  private get hasVideo() {
+    return this.device.videos && this.device.videos.length
   }
 
   // 进入编辑模式
