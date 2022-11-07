@@ -9,7 +9,8 @@
       top="7vh"
       @close="cancel"
     >
-      <div class="configureInfo">
+      <div v-if="frameLoading==='error'" class="loadingFailed">图像加载失败</div>
+      <div v-else v-loading="loading.frameImage" class="configureInfo">
         <!-- <div class="configureDetail">
           <span class="configureName">应用名称：</span>
           <span class="configureValue">{{ configAlgoInfo.name }}</span>
@@ -62,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import math from './utils/math'
 import {
   getRectPropFromPoints,
@@ -90,7 +91,12 @@ export default class extends Vue {
   @Prop() private canvasIf?: boolean
   @Prop() private configAlgoInfo?: any
   @Prop() private frameImage?: any
+  @Prop() private frameLoading?: any
   @Prop() private meta!: any
+
+  private loading = {
+    frameImage: true
+  }
 
   private mode = ''
   private isDraw = false
@@ -103,14 +109,12 @@ export default class extends Vue {
   private cannotDraw = false
   private direction = false
 
-  private mounted() {
-    // this.$nextTick(() => {
-    //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
-    //   this.img2Base64(plate)
-    // })
-    this.$nextTick(() => {
+  @Watch('frameImage', { immediate: true })
+  private onCurrentGroupChange() {
+    if (this.frameImage && this.frameImage.length > 0) {
+      this.loading.frameImage = false
       this.initCanvas()
-    })
+    }
   }
 
   // 获取已编辑过的划线
@@ -737,5 +741,12 @@ export default class extends Vue {
     left: 0;
     z-index: 102;
   }
+}
+
+.loadingFailed {
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

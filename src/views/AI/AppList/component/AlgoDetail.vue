@@ -587,6 +587,7 @@ export default class extends Mixins(AppMixin) {
         alertPeriod: '0',
         alertSilencePeriod: '3'
       }
+      this.isSelectDevice && (this.form.analyseType = 'AI-300') // IBOX默认选择分析类型
       if (this.algoParam) {
         this.form = this.algoParam
         this.alertDisabled = this.algoParam.alertDisabled
