@@ -79,7 +79,7 @@ const editDevice = function (state, id, type) {
  * @param data 设备信息
  * @param inProtocol 删除协议
  */
-const deleteDevice = function (state, data?, inProtocol: string?) {
+const deleteDevice = function (state, data?, inProtocol?: string) {
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -145,13 +145,13 @@ const deleteDevice = function (state, data?, inProtocol: string?) {
  * 刷新设备列表
  * @param state.$router 页面路由实例
  * @param state.$route 页面路由对象
- * @param flag 刷新标志
+ * @param count 刷新次数
  */
-const refreshRouterView = function (state, flag = 'true') {
+const refreshRouterView = function (state, count = 1) {
   state.$router.replace({
     query: {
       ...state.$route.query,
-      refreshFlag: flag
+      refreshFlag: count
     }
   })
 }
@@ -415,7 +415,11 @@ const startOrStopDevice = async function (state, type, row?) {
       }
       await method(params)
       state.$message.success(`已通知${methodStr}设备`)
-      state.handleTools(ToolsEnum.RefreshDirectory)
+      // 启停操作为异步操作，过3秒后刷新目录和当前视图
+      setTimeout(() => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
+      }, 3000)
     } catch (e) {
       state.$message.error(e && e.message)
     }
@@ -448,7 +452,7 @@ const startOrStopDevice = async function (state, type, row?) {
               await Promise.all(
                 deviceList.map(device => {
                   return method({
-                    [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+                    [DeviceEnum.DeviceId]: device.deviceId
                   })
                 })
               )
@@ -467,6 +471,7 @@ const startOrStopDevice = async function (state, type, row?) {
       .then(() => {
         state.$message.success(`已通知${methodStr}设备`)
         state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView)
       })
       .catch(e => {
         if (e === 'cancel' || e === 'close') return

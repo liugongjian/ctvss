@@ -75,6 +75,16 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Gb28181SipInfo,
     DeviceEnum.Viids,
     DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
     DeviceEnum.PlatformName,
     DeviceEnum.VideoStatus,
     DeviceEnum.CreatedTime
@@ -91,6 +101,16 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.EhomeSipInfo,
     DeviceEnum.Viids,
     DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
     DeviceEnum.VideoStatus,
     DeviceEnum.CreatedTime
   ]),
@@ -104,7 +124,18 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.VideoVendor,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
@@ -115,7 +146,52 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
     DeviceEnum.Viids,
-    DeviceEnum.PushUrl
+    DeviceEnum.PushUrl,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+  ])
+}
+
+/**
+ * 根据接入协议显示子通道需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+ export const ChannelAllowParams = {
+  [InVideoProtocolEnum.Gb28181]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.DeviceSerialNumber,
+    DeviceEnum.DeviceModel,
+    DeviceEnum.DevicePoleId,
+    DeviceEnum.Description
+  ]),
+  [InVideoProtocolEnum.Ehome]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description
+  ]),
+  [InVideoProtocolEnum.Rtsp]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description
   ])
 }
 

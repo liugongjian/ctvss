@@ -39,10 +39,6 @@ export default class DeviceFormMixin extends Vue {
     region: false
   }
 
-  public get isChannel() {
-    return false
-  }
-
   /**
    * 选择设备地址
    */
