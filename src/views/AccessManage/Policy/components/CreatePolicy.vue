@@ -519,8 +519,10 @@ export default class extends Mixins(layoutMxin) {
     // })
     // 这一块儿收缩有问题。。。。。。。。按什么来收缩？要不是数据错了，要不是收缩方法错了
     const list = nodes.filter((node: any) => {
+      const currentNodeParentDirId = (node.parentDirId === 0 || node.parentDirId === -1) ? 0 : node.parentDirId
+      const currentNodeParentDeviceId = (node.parentDeviceId === 0 || node.parentDeviceId === -1) ? 0 : node.parentDeviceId
       const nodeIdsList = nodes.map((node: any) => node.id)
-      return nodeIdsList.indexOf(node.parentDirId) === -1
+      return ((currentNodeParentDirId !== 0) && nodeIdsList.indexOf(node.parentDirId) === -1) && ((currentNodeParentDeviceId !== 0) && nodeIdsList.indexOf(node.parentDeviceId) === -1)
     })
     this.form.resourceList = list
   }
