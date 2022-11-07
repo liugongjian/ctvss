@@ -134,10 +134,10 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
-import debounce from '@/utils/debounce'
+import debounce from '@vss/base/utils/debounce'
 import { ViewTypes } from '@vss/ai/dics/contants'
-import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@/dics/ga1400'
-import { getViewsList, getViewDetail } from '@/api/device'
+import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@vss/device/dicts/ga1400'
+import { getViewsList, getViewDetail } from '@vss/device/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
 @Component({
@@ -218,9 +218,9 @@ export default class extends Vue {
   //   }
   // }
   // 防抖
-  private debounceHandle = debounce(() => {
+  private debounceHandle = debounce(async () => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
-    this.getViewsList()
+    await this.getViewsList()
     // this.isCarFlowCode && this.getAlarmsList()
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
   }, 500)

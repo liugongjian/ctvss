@@ -89,19 +89,19 @@ export default class extends Mixins(layoutMxin) {
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     const { id, type } = data || {}
-    // 若同一目录要主动触发列表刷新
-    const refreshFlag = this.$route.query.dirId === id
     this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {
+          ...this.$route.query,
           type: type,
           deviceId: id,
           dirId: ''
         }
       })
     } else {
+      console.log(this.$router)
       this.$router.push({
         name: 'DeviceList',
         query: {
@@ -111,7 +111,6 @@ export default class extends Mixins(layoutMxin) {
           deviceId: id
         }
       })
-      refreshFlag && this.handleTools(this.toolsEnum.RefreshDeviceList)
     }
   }
 }

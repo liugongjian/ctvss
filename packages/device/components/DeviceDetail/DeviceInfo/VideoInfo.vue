@@ -3,10 +3,14 @@
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources)" type="text">配置资源包</el-button>
-      <el-dropdown>
+      <el-dropdown @command="handleTools($event, basicInfo, inVideoProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="{ type: 'delete' }">删除</el-dropdown-item>
+          <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
+          <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
+          <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
+          <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
+          <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -44,8 +48,19 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.StreamTransType)" label="流传输模式">{{ dicts.StreamTransType[streamInfo.streamTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式">{{ dicts.InType[videoInfo.inType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.PushType)" label="自动激活推流地址">{{ dicts.PushType[videoInfo.pushType] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.PushUrl)" label="推流地址">
+        {{ videoInfo.pushUrl }}
+        <el-tooltip v-if="videoInfo.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
+          <el-button class="copy-button" type="text" @click="copyUrl(videoInfo.pushUrl)"><svg-icon name="copy" /></el-button>
+        </el-tooltip>
+      </el-descriptions-item>
       <template v-if="basicInfo[deviceEnum.DeviceVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
-        <el-descriptions-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址">{{ videoInfo.pullUrl }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址">
+          {{ videoInfo.pullUrl }}
+          <el-tooltip v-if="videoInfo.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
+            <el-button class="copy-button" type="text" @click="copyUrl(videoInfo.pullUrl)"><svg-icon name="copy" /></el-button>
+          </el-tooltip>
+        </el-descriptions-item>
       </template>
       <template v-else>
         <el-descriptions-item v-if="checkVisible(deviceEnum.UserName)" label="用户名">{{ videoInfo.userName }}</el-descriptions-item>
@@ -73,12 +88,13 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, StatusEnum } from '@vss/device/enums'
+import { DeviceEnum, StatusEnum, ToolsEnum } from '@vss/device/enums'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
+import copy from 'copy-to-clipboard'
 
 @Component({
   name: 'VideoInfo',
@@ -87,10 +103,14 @@ import { Device, VideoDevice } from '@vss/device/type/Device'
   }
 })
 export default class extends Vue {
+  @Inject('handleTools')
+  private handleTools!: Function
   @Prop() private device: Device
   @Prop({ default: false }) private isIbox: boolean
   private dicts = dicts
   private deviceEnum = DeviceEnum
+  private statusEnum = StatusEnum
+  private toolsEnum = ToolsEnum
 
   // 设备基本信息
   private get basicInfo() {
@@ -137,5 +157,18 @@ export default class extends Vue {
   private edit() {
     this.$emit('edit')
   }
+
+  /**
+   * 一键复制
+   */
+  public copyUrl(text: string) {
+    copy(text)
+    this.$message.success('复制成功')
+  }
 }
 </script>
+<style lang="scss" scoped>
+  .copy-button {
+    padding: 0;
+  }
+</style>

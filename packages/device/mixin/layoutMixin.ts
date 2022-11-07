@@ -2,6 +2,7 @@ import { Component, Vue, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
+import DeviceScreen from '../services/Device/DeviceScreen'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 
@@ -45,9 +46,17 @@ export default class LayoutMixin extends Vue {
   public loading = {
     tree: false
   }
+
+  // public treeNodeInfo: any = {}
+
+  // public get getTreeNodeInfo() {
+  //   return this.treeNodeInfo
+  // }
+
   public getVueComponent() {
     return this
   }
+  
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
@@ -59,15 +68,20 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
-    [ToolsEnum.Polling]: node => DeviceManager.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: node => DeviceManager.executeQueue(this, node, !node, 'autoPlay'),
-    [ToolsEnum.IntervalChange]: interval => DeviceManager.intervalChange(this, interval),
-    [ToolsEnum.StopPolling]: () => DeviceManager.stopPolling(this),
-    [ToolsEnum.PausePolling]: () => DeviceManager.pausePolling(this),
-    [ToolsEnum.ResumePolling]: () => DeviceManager.resumePolling(this),
+    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this, interval),
+    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this),
+    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this),
+    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
-    [ToolsEnum.RefreshDeviceList]: (flag?) => DeviceManager.refreshDeviceList(this, flag),
-    [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level)
+    [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
+    [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
+    [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
+    [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
+    [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
+    [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
   }
   /* 设备目录树 */
   public get deviceTree() {
@@ -106,6 +120,8 @@ export default class LayoutMixin extends Vue {
    */
   public treeLoad = async function (node) {
     let res
+    // 增加 层级关系
+    // console.log('怎么将 node  和 data 关联起来？   node', node)
     if (node.level === 0) {
       this.loading.tree = true
       try {
@@ -119,7 +135,13 @@ export default class LayoutMixin extends Vue {
       }
       this.loading.tree = false
     } else {
+      // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+      // console.log('get node info     ', res)
+      let parentPath = this.concatPath(node)
+      res.dirs.map((item: any) => {
+        item.path = node.level === 1 ? node.label : parentPath + '/' + node.label
+      })
     }
     return res.dirs
   }.bind(this)
@@ -133,4 +155,12 @@ export default class LayoutMixin extends Vue {
     console.log(type, ...payload)
     this.handleToolsMap[type](...payload)
   }
+
+  // 拼接 path
+  private concatPath(node: any) {
+    if (typeof(node.parent.label) === "undefined") return ''
+    let label = node.parent.label ? node.parent.label : ''
+    return this.concatPath(node.parent) + '/' + label
+  }
+
 }

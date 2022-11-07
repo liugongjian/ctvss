@@ -22,7 +22,7 @@ type DeviceBasic = {
   [DeviceEnum.ParentDeviceId]?: string
   [DeviceEnum.DeviceName]?: string
   [DeviceEnum.DeviceLocalName]?: string // 设备侧名称
-  [DeviceEnum.DeviceType]?: string
+  [DeviceEnum.DeviceType]?: DeviceTypeEnum
   [DeviceEnum.DeviceLongitude]?: string
   [DeviceEnum.DeviceLatitude]?: string
   [DeviceEnum.DeviceVendor]?: string
@@ -160,6 +160,7 @@ type Device = {
   [DeviceEnum.Viids]: Viid[]
   [DeviceEnum.Industry]: Industry
   [DeviceEnum.Resource]: Resource
+  [DeviceEnum.InProtocol]?: string
 }
 
 /**

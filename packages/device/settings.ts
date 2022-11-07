@@ -10,6 +10,7 @@ import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, To
  */
 export const InVideoProtocolCreateParams = {
   [InVideoProtocolEnum.Gb28181]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
     DeviceEnum.InUserName,
     DeviceEnum.DeviceStreamAutoPull,
@@ -21,6 +22,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.OutId
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
@@ -29,6 +31,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.DeviceMac
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InType,
     DeviceEnum.PullUrl,
     DeviceEnum.UserName,
@@ -44,6 +47,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.StreamTransProtocol
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InType,
     DeviceEnum.PullUrl,
     DeviceEnum.DeviceStreamAutoPull,
@@ -110,7 +114,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.PushUrl
   ])
 }
 
@@ -305,7 +310,8 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
-    ToolsEnum.ReplayVideo
+    ToolsEnum.ReplayVideo,
+    ToolsEnum.PreviewViid
   ]),
   [DirectoryTypeEnum.Nvr]: new Set([
     ToolsEnum.ShowDeviceInfo,
@@ -314,6 +320,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.DeleteDevice,
     ToolsEnum.SyncDeviceStatus,
     ToolsEnum.ViewChannels,
+    ToolsEnum.ConfigureChannels,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,

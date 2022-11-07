@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div v-if="hasFiltered" class="filter-container filter-buttons">
-        <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
+        <div v-for="{ key, value } in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
           <label>{{ alertParams[key] }}</label>
           <span v-if="key === 'alertType'">{{ alertType[value] }}</span>
           <span v-if="key === 'alertLevel'">{{ alertLevel[value] }}</span>
@@ -23,7 +23,7 @@
             <span class="filter">告警级别</span>
             <svg-icon class="filter" name="filter" width="15" height="15" />
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ alertLevel[row.level] }}
           </template>
         </el-table-column>
@@ -40,7 +40,7 @@
             <span class="filter">告警类型</span>
             <svg-icon class="filter" name="filter" width="15" height="15" />
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ alertType[row.type] }}
           </template>
         </el-table-column>
@@ -102,7 +102,7 @@ export default class extends Vue {
 
   private get filterButtons() {
     const buttons = []
-    for (let key in this.filter) {
+    for (const key in this.filter) {
       const value = this.filter[key]
       if (value) {
         buttons.push({
@@ -217,7 +217,7 @@ export default class extends Vue {
    */
   private dictToFilterArray(dict: any) {
     const filterArray = []
-    for (let key in dict) {
+    for (const key in dict) {
       filterArray.push({
         text: dict[key],
         value: key
@@ -230,7 +230,7 @@ export default class extends Vue {
    * 当表格的筛选条件发生变化
    */
   private filterChange(filters: any) {
-    for (let key in filters) {
+    for (const key in filters) {
       const values = filters[key]
       if (values.length) {
         this.filter[key] = values[0]

@@ -11,6 +11,7 @@ import {
 } from '@vss/device/settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
 import { VisibleOptions } from '../type/Param'
+import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -75,6 +76,12 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
   // 过滤IBOX的字段
   if (options.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
+  // 编辑状态下不显示视频接入协议
+  if (prop === DeviceEnum.InVideoProtocol && options.isEdit) return false
+
+  // 编辑状态下不显示版本
+  if (prop === DeviceEnum.InVersion && options.isEdit) return false
+
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
@@ -89,10 +96,6 @@ export function checkVideoVisible(deviceType: DeviceTypeEnum, inVideoProtocol: I
     // 通道编辑页面部分组件不可编辑
     if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
       return ChannelDenyEditableParams.has(prop)
-    }
-    // 编辑状态下禁用视频接入协议的修改
-    if (prop === DeviceEnum.InVideoProtocol && options.isEdit) {
-      return true
     }
     return false
  }
@@ -128,14 +131,33 @@ export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
  */
 export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any): boolean {
   let allowFlag = true
+  // 不同inProtocol特殊处理
+  if (data) {
+    const inProtocolList = data.inProtocol || []
+    if (inProtocolList.length === 1) { // 仅接入视频
+      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewViid].includes(prop)) {
+        return false
+      }
+      // 仅接入视图
+      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewVideo, ToolsEnum.ReplayVideo].includes(prop)) {
+        return false
+      }
+    }
+  }
+
   // nvr通道特殊处理
   if (data && data[DeviceEnum.DeviceChannelNum] > 0) {
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
   }
 
-  // nvr通道特殊处理
+  // platform特殊处理
   if (type === DeviceTypeEnum.Platform) {
-    allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
+    allowFlag = ![ToolsEnum.DeleteDevices, ToolsEnum.MoveDevices].includes(prop)
+  }
+
+  // ConfigureChannels仅供ehome使用
+  if (prop === ToolsEnum.ConfigureChannels && type === DeviceTypeEnum.Nvr) {
+    return data && data[DeviceEnum.InProtocol] === InVideoProtocolEnum.Ehome
   }
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop) && allowFlag
 }

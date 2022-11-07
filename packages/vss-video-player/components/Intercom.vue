@@ -60,7 +60,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator'
 import { startTalk, stopTalk } from '@/api/intercom'
 import { StreamInfo, DeviceInfo } from '../types/VssPlayer'
 import Player from '@vss/video-player/index.vue'
-import { ScreenModule } from '@/store/modules/screen'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -93,7 +93,7 @@ export default class extends ComponentMixin {
   }) private volume: number
 
   private intercomInfo?: any = {}
-  private showDialog: boolean = false
+  private showDialog = false
   private streamAudio: any
   private ctxAudio: any
   private sourceAudio: any
@@ -121,7 +121,7 @@ export default class extends ComponentMixin {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
-    ScreenModule.SetIsMutedAll(false)
+    ScreenModule.setIsMutedAll(false)
   }
 
   private mounted() {
@@ -131,7 +131,7 @@ export default class extends ComponentMixin {
   private toIntercom() {
     this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
     this.showDialog = true
-    ScreenModule.SetIsMutedAll(true)
+    ScreenModule.setIsMutedAll(true)
     window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 
@@ -323,7 +323,7 @@ export default class extends ComponentMixin {
 
     for (let i = 0; i < bytes.length; i++, offset += 2) {
       // 保证采样帧的值在-1到1之间
-      let s = Math.max(-1, Math.min(1, bytes[i]))
+      const s = Math.max(-1, Math.min(1, bytes[i]))
       // 将32位浮点映射为16位整形 值
       // 16位的划分的是 2^16=65536，范围是-32768到32767
       //  获取到的数据范围是[-1,1]之间，所以要转成16位的话，需要负数*32768，正数*32767，就可以得到[-32768，32767]范围内的数据
@@ -343,7 +343,7 @@ export default class extends ComponentMixin {
     // 循环间隔 compression 位取一位数据
     while (index < length) {
       // 取整是因为存在比例compression不是整数的情况
-      let temp = Math.floor(j)
+      const temp = Math.floor(j)
       result[index] = data[temp]
       index++
       j += compression

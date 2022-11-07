@@ -162,7 +162,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '业务组管理',
       icon: 'menu-group',
       perms: ['DescribeGroup'],
-      alwaysShow: false
+      alwaysShow: false,
+      version: 1
     },
     children: [
       {
@@ -225,7 +226,7 @@ export const asyncRoutes: RouteConfig[] = [
       alwaysShow: false,
       only: true,
       groupSelector: true,
-      // version: 1,
+      version: 1,
     },
     children: [
       {
@@ -306,7 +307,6 @@ export const asyncRoutes: RouteConfig[] = [
   },
   deviceRouter,
   videoRouter,
-  iboxRouter,
   {
     path: '/screen',
     component: Layout,
@@ -315,7 +315,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-live',
       perms: ['ScreenPreview'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -377,7 +378,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-replay',
       perms: ['ReplayRecord'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -397,7 +399,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
 
   {
-    path: '/map',
+    path: '/mapv1',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -405,12 +407,13 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeMap'],
       alwaysShow: false,
       only: true,
-      groupSelector: false
+      groupSelector: false,
+      version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV1/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
@@ -422,7 +425,7 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/mapv2',
+    path: '/map',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -436,10 +439,10 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV2/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
-          title: '电子地图V2',
+          title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
           perms: ['DescribeMap']
@@ -494,7 +497,7 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  
+
   {
     path: '/viid',
     component: Layout,
@@ -810,6 +813,124 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/aiv1',
+    component: Layout,
+    redirect: 'noredirect',
+    name: 'AI',
+    meta: {
+      title: 'AI管理',
+      icon: 'menu-ai',
+      alwaysShow: true,
+      perms: ['DescribeAi'],
+      version: 1
+    },
+    children: [
+      {
+        path: 'mask-recognation',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/MaskRecognation/index.vue'),
+        name: 'AIMaskRecognation',
+        meta: {
+          title: '口罩识别',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/ai',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'ai-app-list',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/index.vue'),
+        name: 'AIAppList',
+        meta: {
+          title: 'AI应用',
+          icon: 'dot',
+          hidden: false,
+          breadcrumb: true,
+          only: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        name: 'AIAddApp',
+        meta: {
+          title: '添加应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'edit',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        name: 'AIEditApp',
+        meta: {
+          title: '编辑应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'detail',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AppDetail.vue'),
+        name: 'AIAppDetail',
+        meta: {
+          title: '应用详情',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/ai/ai-app-list',
+          perms: ['DescribeAi']
+        }
+      },
+      {
+        path: 'config',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/Config/index.vue'),
+        name: 'AIConfig',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/ai/config',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/index.vue'),
+        name: 'facelib',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/ai/facelib',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib/detail',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/Personal.vue'),
+        name: 'facelib-detail',
+        meta: {
+          title: '人脸库详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/ai/facelib',
+          perms: ['AdminAi']
+        }
+      }
+    ]
+  },
+    {
     path: '/ai',
     component: Layout,
     redirect: 'noredirect',
@@ -1043,6 +1164,18 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/access-manage/role',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'secretManage-v1',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManageV1/index.vue'),
+        name: 'AccessManageSecretManage',
+        meta: {
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
       },

@@ -202,11 +202,16 @@
     }
   }
 
-  .screen-grid.dragging-node {
-    .screen-item:hover {
-      background: #4a4541;
-    }
+  // .screen-grid.dragging-node {
+  //   .screen-item:hover {
+  //     background: #4a4541;
+  //   }
+  // }
+  
+  .screen-item.drag-hover {
+    background: #4a4541;
   }
+
 
   /* 录像回放列表模式 */
   .screen-list {

@@ -82,7 +82,7 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="播放网络:" :prop="deviceEnum.OutNetworkType">
+        <!-- <el-form-item label="播放网络:" :prop="deviceEnum.OutNetworkType">
           <el-radio-group v-model="deviceForm.outNetworkType">
             <el-radio
               v-for="(value, key) in dicts.OutNetworkType"
@@ -92,7 +92,7 @@
               {{ value }}
             </el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
       </div>
       <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
         <el-form-item>
