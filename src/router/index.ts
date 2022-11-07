@@ -209,7 +209,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     redirect: '/device/camera',
     meta: {
-      title: '',
+      title: '设备管理',
       icon: 'menu-device',
       perms: ['DescribeDevice'],
       breadcrumb: false,
