@@ -6,13 +6,12 @@
     label-position="right"
     label-width="165px"
   >
-    <el-form-item class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
+    <el-form-item v-if="checkVisible(deviceEnum.InVideoProtocol)" class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
       <el-radio
         v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm.deviceType]"
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
-        :disabled="checkDisable(deviceEnum.InVideoProtocol)"
         @change="inVideoProtocolChange"
       >
         {{ value }}

@@ -127,7 +127,8 @@ export enum DeviceEnum {
   PageNum = 'pageNum',
   PageSize = 'pageSize',
   TotalNum = 'totalNum',
-  DeviceTotalSize = 'deviceTotalSize'
+  DeviceTotalSize = 'deviceTotalSize',
+  ChannelName = 'channelName'
 }
 
 /**

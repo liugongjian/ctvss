@@ -79,8 +79,7 @@ const editDevice = function (state, id, type) {
  * @param data 设备信息
  * @param inProtocol 删除协议
  */
-const deleteDevice = function (state, data?, inProtocol?) {
-  console.log(data, 111111, inProtocol)
+const deleteDevice = function (state, data?, inProtocol?: string) {
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -113,11 +112,16 @@ const deleteDevice = function (state, data?, inProtocol?) {
       }
     })
   } else {
-    console.log(data)
     // 单个操作
+    let msg = ''
+    if (inProtocol) {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"的${inProtocol.toUpperCase()}协议吗？`
+    } else {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`
+    }
     state.$alertDelete({
       type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
+      msg,
       method: deleteDeviceApi,
       payload: {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
@@ -141,13 +145,13 @@ const deleteDevice = function (state, data?, inProtocol?) {
  * 刷新设备列表
  * @param state.$router 页面路由实例
  * @param state.$route 页面路由对象
- * @param flag 刷新标志
+ * @param count 刷新次数
  */
-const refreshRouterView = function (state, flag = 'true') {
+const refreshRouterView = function (state, count = 1) {
   state.$router.replace({
     query: {
       ...state.$route.query,
-      refreshFlag: flag
+      refreshFlag: count
     }
   })
 }
@@ -254,27 +258,59 @@ const viewChannels = function (state, row) {
 const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = true
   try {
-    const params: any = {}
+    let params: any = {}
     if (policy === ToolsEnum.ExportAll) {
-      params.command = 'all'
-    } else {
-      params.command = 'selected'
-      let deviceArr: any = []
-      if (policy === ToolsEnum.ExportCurrentPage) {
-        deviceArr = data.deviceList
-      } else if (policy === ToolsEnum.ExportSelected) {
-        deviceArr = data.selectedDeviceList
+      params = {
+        command: 'all'
       }
-      params.deviceIds = deviceArr.map((device: any) => {
-        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
-      })
+    } else {
+      params = {
+        command: 'selected',
+        policy,
+        ...data
+      }
     }
-    await exportDevicesExcel(params)
+    await exportDeviceFile(params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
   }
   state.loading.export = false
+}
+
+const exportDeviceFile = async function (data: any) {
+  try {
+    let res: any = {}
+    if (data.command === 'all'){
+      const param = {
+        parentDeviceId: data.parentDeviceId,
+        dirId: data.dirId.toString(),
+        sortBy: '',
+        sortDirection: 'desc',
+        pageNum: 1,
+        pageSize: 9999
+      }
+      res = await exportDeviceAll(param)
+    } else {
+      let deviceArr: any = []
+      if (data.policy === ToolsEnum.ExportCurrentPage) {
+        deviceArr = data.deviceList
+      } else if (data.policy === ToolsEnum.ExportSelected) {
+        deviceArr = data.selectedDeviceList
+      }
+      const deviceIds = deviceArr.map((device: any) => {
+        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
+      })
+      const param = {
+        deviceIds
+      }
+      res = await exportDeviceOption(param)
+    }
+    this.downloadFileUrl('设备表格', res.exportFile)
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 /**
@@ -379,7 +415,11 @@ const startOrStopDevice = async function (state, type, row?) {
       }
       await method(params)
       state.$message.success(`已通知${methodStr}设备`)
-      state.handleTools(ToolsEnum.RefreshDirectory)
+      // 启停操作为异步操作，过3秒后刷新目录和当前视图
+      setTimeout(() => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
+      }, 3000)
     } catch (e) {
       state.$message.error(e && e.message)
     }
@@ -412,7 +452,7 @@ const startOrStopDevice = async function (state, type, row?) {
               await Promise.all(
                 deviceList.map(device => {
                   return method({
-                    [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+                    [DeviceEnum.DeviceId]: device.deviceId
                   })
                 })
               )
@@ -431,6 +471,7 @@ const startOrStopDevice = async function (state, type, row?) {
       .then(() => {
         state.$message.success(`已通知${methodStr}设备`)
         state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView)
       })
       .catch(e => {
         if (e === 'cancel' || e === 'close') return

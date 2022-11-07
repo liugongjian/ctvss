@@ -50,9 +50,17 @@ export default class LayoutMixin extends Vue {
   public loading = {
     tree: false
   }
+
+  // public treeNodeInfo: any = {}
+
+  // public get getTreeNodeInfo() {
+  //   return this.treeNodeInfo
+  // }
+
   public getVueComponent() {
     return this
   }
+  
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
@@ -121,6 +129,8 @@ export default class LayoutMixin extends Vue {
    */
   public treeLoad = async function (node) {
     let res
+    // 增加 层级关系
+    // console.log('怎么将 node  和 data 关联起来？   node', node)
     if (node.level === 0) {
       this.loading.tree = true
       try {
@@ -134,7 +144,13 @@ export default class LayoutMixin extends Vue {
       }
       this.loading.tree = false
     } else {
+      // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+      // console.log('get node info     ', res)
+      let parentPath = this.concatPath(node)
+      res.dirs.map((item: any) => {
+        item.path = node.level === 1 ? node.label : parentPath + '/' + node.label
+      })
     }
     return res.dirs
   }.bind(this)
@@ -148,4 +164,12 @@ export default class LayoutMixin extends Vue {
     console.log(type, ...payload)
     this.handleToolsMap[type](...payload)
   }
+
+  // 拼接 path
+  private concatPath(node: any) {
+    if (typeof(node.parent.label) === "undefined") return ''
+    let label = node.parent.label ? node.parent.label : ''
+    return this.concatPath(node.parent) + '/' + label
+  }
+
 }

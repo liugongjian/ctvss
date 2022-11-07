@@ -90,7 +90,6 @@ export default class TreeMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
-    console.log('getCheckedNodes', this.commonTree.getCheckedNodes())
     this.$emit('handle-node', data)
   }
 

@@ -44,6 +44,10 @@ export default class extends Mixins(detailMixin) {
     await this.getDevice()
   }
 
+  public destroyed() {
+    this.clearDevice()
+  }
+
   private handleClick(tab) {
     this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }

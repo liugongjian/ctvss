@@ -55,9 +55,11 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId, isForce = false) {
+  public async getDevice(deviceId: string = this.deviceId, isForce = false, hasLoading = true) {
     try {
-      this.deviceLoading = true
+      if (hasLoading) {
+        this.deviceLoading = true
+      }
       this.device = await DeviceModule.getDevice({
         deviceId,
         isForce,
@@ -68,5 +70,12 @@ export default class DeviceMixin extends Vue {
     } finally {
       this.deviceLoading = false
     }
+  }
+
+  /**
+   * 清空设备详情
+   */
+  public async clearDevice() {
+    DeviceModule.clearDevice()
   }
 }

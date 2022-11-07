@@ -141,7 +141,7 @@ export default class extends Vue {
    * 全屏操作
    */
   private onFullscreenChange(isFullscreen) {
-    ScreenModule.SetIsFullscreen(isFullscreen)
+    ScreenModule.setIsFullscreen(isFullscreen)
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="loading.resource">
+    <el-card v-loading="policyLoading.resource">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="policyId">
           <el-input v-model="form.policyId" class="form__input" :disabled="isUpdate" />
@@ -27,27 +27,38 @@
             <el-radio label="selected">特定资源</el-radio>
           </el-radio-group>
           <div v-show="resourceType === 'selected'" class="dialog-wrap">
-            <div v-loading="loading.dir" class="tree-wrap">
-              <el-tree ref="dirTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
+            <!-- <div v-loading="loading.dir" class="tree-wrap"> -->
+              <!-- <el-tree ref="deviceTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
                 <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
                     {{ node.label }}
                   </span>
                 </span>
-              </el-tree>
-            </div>
+              </el-tree> -->
+              <IAMResourceTree 
+                ref="deviceTree"
+                v-loading="loading.tree"
+                :load="treeLoad"
+                :lazy="lazy"
+                :data="dirList"
+                :props="treeProp"
+                @check-device="onCheckDevice"
+              />
+            <!-- </div> -->
             <div class="device-wrap">
               <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
               <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
-                <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
+                <!-- <el-table-column key="label" prop="label" width="180" label="业务组/目录名称"> -->
+                <el-table-column key="name" prop="name" width="180" label="业务组/目录名称">
                   <template slot-scope="{row}">
-                    {{ row.label || '-' }}
+                    <!-- {{ row.label || '-' }} -->
+                    {{ row.name || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column key="path" prop="path" label="所在位置">
                   <template slot-scope="{row}">
-                    {{ renderPath(row.path) }}
+                    {{ renderPath(row.path) || '' }}
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
@@ -62,7 +73,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" :loading="loading.dir || loading.resource" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="policyLoading.dir || policyLoading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -80,15 +91,19 @@ import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import TemplateBind from '@/views/components/TemplateBind.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
+import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
+import layoutMxin from '@vss/device/mixin/layoutMixin'
 
 @Component({
-  name: 'AddDevices',
+  name: 'CreatePolicy',
   components: {
-    TemplateBind
+    TemplateBind,
+    IAMResourceTree
   }
 })
-export default class extends Vue {
+export default class extends Mixins(layoutMxin) {
+  public hasCheckbox = true
   private breadCrumbContent = ''
   private systemActionList = [
     {
@@ -153,7 +168,7 @@ export default class extends Vue {
     }
   ]
   private dirList: any = []
-  public loading = {
+  public policyLoading = {
     dir: false,
     resource: false
   }
@@ -214,7 +229,7 @@ export default class extends Vue {
   private get isUpdate() {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
-  private async mounted() {
+  public async mounted() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
       ? this.$route.meta.title
@@ -272,7 +287,7 @@ export default class extends Vue {
    */
   private async getPolicyInfo() {
     try {
-      this.loading.resource = true
+      this.policyLoading.resource = true
       const res: any = await getPolicyInfo({
         policyId: this.form.policyId
       })
@@ -319,7 +334,7 @@ export default class extends Vue {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
     } finally {
-      this.loading.resource = false
+      this.policyLoading.resource = false
     }
   }
   /**
@@ -343,8 +358,8 @@ export default class extends Vue {
    */
   public async initResourceStatus(resourceList: any) {
     try {
-      this.loading.dir = true
-      const dirTree: any = this.$refs.dirTree
+      this.policyLoading.dir = true
+      const deviceTree: any = this.$refs.deviceTree
       const checkedKeys = []
       for (let index = 0, len = resourceList.length; index < len; index++) {
         const resource = resourceList[index]
@@ -356,7 +371,7 @@ export default class extends Vue {
           if (keyPath && keyPath.length) {
             for (let i = 0; i < keyPath.length - 1; i++) {
               const _key = keyPath[i]
-              const node = dirTree.getNode(_key)
+              const node = deviceTree.getNode(_key)
               if (node) {
                 await this.loadDirChildren(_key, node)
               }
@@ -365,11 +380,11 @@ export default class extends Vue {
           }
         }
       }
-      dirTree.setCheckedKeys(checkedKeys)
+      deviceTree.setCheckedKeys(checkedKeys)
     } catch (e) {
       console.log('e: ', e)
     } finally {
-      this.loading.dir = false
+      this.policyLoading.dir = false
     }
   }
 
@@ -382,7 +397,7 @@ export default class extends Vue {
       return
     }
     try {
-      const dirTree: any = this.$refs.dirTree
+      const deviceTree: any = this.$refs.deviceTree
       let data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -402,7 +417,7 @@ export default class extends Vue {
             path: node.data.path.concat([dir]),
             parentId: node.data.id
           }))
-        dirTree.updateKeyChildren(key, dirs)
+        deviceTree.updateKeyChildren(key, dirs)
       }
       node.expanded = true
       node.loaded = true
@@ -416,7 +431,7 @@ export default class extends Vue {
    */
   public async initDirs() {
     try {
-      this.loading.dir = true
+      this.policyLoading.dir = true
       const res = await getGroups({
         pageSize: 1000
       })
@@ -442,14 +457,14 @@ export default class extends Vue {
     } catch (e) {
       this.dirList = []
     } finally {
-      this.loading.dir = false
+      this.policyLoading.dir = false
     }
   }
 
   /**
    * 加载目录
    */
-  private async loadDirs(node: any, resolve: Function) {
+  private async loadDirs(node: any, resolve?: Function) {
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
     resolve(dirs)
@@ -461,22 +476,20 @@ export default class extends Vue {
   private async getTree(node: any) {
     try {
       let shareDeviceIds: any = []
-
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
         type: node.data.type === 'group' ? undefined : node.data.type
       })
-
-      const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
-      let dirs: any = devices.dirs
+      const deviceTree: any = this.$refs.deviceTree
+      let checkedKeys = deviceTree.getCheckedKeys()
+      let dirs: any = devices.dirs  
         .filter((dir: any) => dir.type === 'dir')
         .map((dir: any) => {
           if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
             checkedKeys.push(dir.id)
-            dirTree.setCheckedKeys(checkedKeys)
+            deviceTree.setCheckedKeys(checkedKeys)
           }
           return {
             id: dir.id,
@@ -498,32 +511,40 @@ export default class extends Vue {
   /**
    * 当设备被选中时回调，将选中的设备列出
    */
-  private onCheckDevice() {
-    const dirTree: any = this.$refs.dirTree
-    const nodes = dirTree.getCheckedNodes()
-    this.form.resourceList = nodes.filter((node: any) => {
+  private onCheckDevice(nodes: any) {
+    // const deviceTree: any = this.$refs.deviceTree
+    // const nodes = deviceTree.getCheckedNodes()
+    // nodes.filter((node: any) => node.parentDirId !== '').map((node: any) => {
+
+    // })
+    // 这一块儿收缩有问题。。。。。。。。按什么来收缩？要不是数据错了，要不是收缩方法错了
+    const list = nodes.filter((node: any) => {
+      const currentNodeParentDirId = (node.parentDirId === 0 || node.parentDirId === -1) ? 0 : node.parentDirId
+      const currentNodeParentDeviceId = (node.parentDeviceId === 0 || node.parentDeviceId === -1) ? 0 : node.parentDeviceId
       const nodeIdsList = nodes.map((node: any) => node.id)
-      return nodeIdsList.indexOf(node.parentId) === -1
+      return ((currentNodeParentDirId !== 0) && nodeIdsList.indexOf(node.parentDirId) === -1) && ((currentNodeParentDeviceId !== 0) && nodeIdsList.indexOf(node.parentDeviceId) === -1)
     })
+    this.form.resourceList = list
   }
 
   /**
    * 移除设备
    */
   private removeDevice(device: any) {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setChecked(device.id, false)
+    const deviceTree: any = this.$refs.deviceTree
+    deviceTree.setChecked(device.id, false)
   }
 
   /**
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    const dirPath = path.slice(0, -1)
-    const dirPathName = dirPath.map((dir: any) => {
-      return dir.label
-    })
-    return dirPathName.join('/')
+    return path && path.indexOf('/') === 0 ? path.slice(1) : path
+    // const dirPath = path.slice(0, -1)
+    // const dirPathName = dirPath.map((dir: any) => {
+    //   return dir.label
+    // })
+    // return dirPathName.join('/')
   }
 
   private upload() {
@@ -531,6 +552,7 @@ export default class extends Vue {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
+          let pathIdArr = this.form.resourceList.map((resource: any) => resource.id)
           let data = {
             policyId: this.form.policyId || undefined,
             policyName: this.form.policyName,
@@ -549,14 +571,14 @@ export default class extends Vue {
                         const mainUserID = this.$store.state.user.mainUserID
                         const inProtocol = resource.inProtocol
                         const type = resource.type
-                        const pathIds = resource.path.map(
-                          (obj: any) => obj.id
-                        )
+                        // const pathIds = resource.path.map(
+                        //   (obj: any) => obj.id // 目录 ID 串接咯？
+                        // )
                         return `${mainUserID}:${inProtocol}-${
                           type === 'group' ? 'vssgroup' : 'directory'
-                        }:${pathIds[0]}${
-                          (pathIds.length > 1 ? ':' : '') +
-                            pathIds.slice(1).join('/')
+                        }:${pathIdArr[0]}${
+                          (pathIdArr.length > 1 ? ':' : '') +
+                            pathIdArr.slice(1).join('/')
                         }`
                       })
                 }

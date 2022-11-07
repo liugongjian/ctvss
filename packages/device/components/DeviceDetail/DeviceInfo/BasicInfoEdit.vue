@@ -8,21 +8,24 @@
       label-width="165px"
     >
       <div class="two-column-wrap">
-        <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="deviceEnum.DeviceName">
           <el-input v-model="deviceForm.deviceName" />
         </el-form-item>
-        <el-form-item label="设备分类:">
+        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
+          <el-input v-model="deviceForm.deviceName" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备分类:">
           {{ dicts.DeviceType[basicInfo.deviceType] }}
         </el-form-item>
-        <el-form-item label="接入方式:">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceInType)" label="接入方式:">
           <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
           <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
         </el-form-item>
-        <el-form-item label="经纬度:" :prop="deviceEnum.Longlat">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceLongitude)" label="经纬度:" :prop="deviceEnum.Longlat">
           <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="厂商:" :prop="deviceEnum.DeviceVendor">
           <el-select v-model="deviceForm.deviceVendor">
             <el-option
               v-for="(value, key) in deviceVendor[inVideoProtocol]"
@@ -32,10 +35,10 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
+        <el-form-item v-if="checkVisible(deviceEnum.Region)" v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
           <region-cascader v-model="deviceForm.region" />
         </el-form-item>
-        <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
+        <el-form-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址:" :prop="deviceEnum.InOrgRegion">
           <address-cascader
             :code="deviceForm.inOrgRegion"
             :level="deviceForm.inOrgRegionLevel"
@@ -43,7 +46,7 @@
             @change="onDeviceAddressChange"
           />
         </el-form-item>
-        <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
+        <el-form-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业:" :prop="deviceEnum.IndustryCode">
           <el-select
             v-model="deviceForm.industryCode"
             :disabled="hasOutId"
@@ -57,7 +60,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
+        <el-form-item v-if="checkVisible(deviceEnum.NetworkCode)" label="网络标识:" :prop="deviceEnum.NetworkCode">
           <el-select
             v-model="deviceForm.networkCode"
             :disabled="hasOutId"
@@ -71,7 +74,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="接入网络:" :prop="deviceEnum.InNetworkType">
+        <el-form-item v-if="checkVisible(deviceEnum.InNetworkType)" label="接入网络:" :prop="deviceEnum.InNetworkType">
           <el-radio-group v-model="deviceForm.inNetworkType">
             <el-radio
               v-for="(value, key) in dicts.InNetworkType"
@@ -120,7 +123,7 @@
         </div>
       </div>
       <div class="two-column-wrap">
-        <el-form-item label="设备描述:" :prop="deviceEnum.Description">
+        <el-form-item v-if="checkVisible(deviceEnum.Description)" label="设备描述:" :prop="deviceEnum.Description">
           <el-input
             v-model="deviceForm.description"
             type="textarea"
@@ -244,9 +247,15 @@ export default class extends Mixins(deviceFormMixin) {
     return this.videoInfo && !!this.videoInfo.outId
   }
 
+  // 是否为NVR通道
+  private get isChannel() {
+    return this.basicInfo && this.basicInfo.deviceChannelNum > -1
+  }
+
   private async mounted() {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
+    this.checkIsShowMore()
   }
 
   private updated() {
@@ -266,7 +275,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.hasVideo) {
-      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
+      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox, isChannel: this.isChannel })
     } else {
       return checkViidVisible.call(this.viidInfo, this.basicInfo.deviceType, this.inViidProtocol, prop)
     }

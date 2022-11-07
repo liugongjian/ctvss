@@ -33,6 +33,7 @@ type DeviceBasic = {
   [DeviceEnum.DeviceModel]?: string // 设备型号
   [DeviceEnum.DeviceMac]?: string // 设备MAC地址
   [DeviceEnum.DevicePoleId]?: string // 设备杆号
+  [DeviceEnum.DeviceChannelNum]?: number // 通道号
   [DeviceEnum.DeviceChannelSize]?: number
   [DeviceEnum.DeviceStats]?: DeviceStats
 }
