@@ -39,9 +39,9 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
-import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
-import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
+import { checkPermission } from '@vss/base/utils/permission'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import screenLogManager from '@vss/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../DeviceDir.vue'

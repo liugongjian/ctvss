@@ -1,5 +1,5 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
@@ -38,6 +38,10 @@ export default class LayoutMixin extends Vue {
   // 排序目录标志
   public sortDir = null
   public sortNode = null
+  // 轮询状态
+  public pollingStatus = PollingStatusEnum.Free
+  // 轮询时间
+  public pollingInterval = 20
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
@@ -60,12 +64,12 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
-    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this, node, !node, 'autoPlay'),
-    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this, interval),
-    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this),
-    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this),
-    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this),
+    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this.getVueComponent, interval),
+    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
+    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),
+    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this.getVueComponent),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
@@ -83,6 +87,11 @@ export default class LayoutMixin extends Vue {
   /* 面包屑 */
   public get breadcrumb() {
     return this.$refs.breadcrumb as any
+  }
+
+  /* 轮询遮罩 */
+  public get pollingMask() {
+    return this.$refs.pollingMask as any
   }
 
   /* 设备目录树是否懒加载依据 */

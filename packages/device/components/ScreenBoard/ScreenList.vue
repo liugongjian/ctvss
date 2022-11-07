@@ -104,7 +104,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
-import { Record } from '@/views/device/services/Record/Record'
+import { Record } from '@vss/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'

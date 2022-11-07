@@ -30,7 +30,12 @@
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
-        <polling-mask v-if="false" polling-status="free" @polling-handle="handleTools" />
+        <polling-mask
+          ref="pollingMask"
+          :current-dir="currentDir"
+          :execute-queue-config="screenManager.executeQueueConfig"
+          @polling-handle="handleTools"
+        />
       </template>
       <template slot="leftBottom">
         <!-- TODO -->
