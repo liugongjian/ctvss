@@ -8,7 +8,7 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
           <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
-          <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
+          <el-dropdown-item v-if="recordStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
           <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
           <el-dropdown-item v-if="hasViid" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>

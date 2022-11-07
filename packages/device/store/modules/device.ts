@@ -70,7 +70,8 @@ export class Device extends VuexModule implements IDeviceState {
         let device
         if (payload.fetch) {
           const res = await payload.fetch({
-            deviceId: payload.deviceId
+            deviceId: payload.deviceId,
+            includeDeviceDir: 1
           })
           device = res
           this.SET_LAST_LOADED_TIMESTAMP(new Date().getTime())
