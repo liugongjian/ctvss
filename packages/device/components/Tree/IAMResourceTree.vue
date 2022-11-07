@@ -36,7 +36,7 @@ import treeMixin from '@vss/device/components/Tree/treeMixin'
 })
 export default class extends Mixins(treeMixin) {
   private handleCheck(nodes: any) {
-    // console.log('勾选    tree    中间层 传递 nodes ', nodes)
+    console.log('勾选    tree    中间层 传递 nodes ', nodes)
     this.$emit('check-device', nodes)
   }
   
