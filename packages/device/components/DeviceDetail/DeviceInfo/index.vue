@@ -6,6 +6,7 @@
           设备信息
           <div class="detail__buttons">
             <el-button v-if="!isEdit.basicInfo" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo" type="text" @click="deleteDevice">删除</el-button>
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" @updateDevice="updateDevice()" />
@@ -76,6 +77,7 @@ export default class extends Mixins(detailMixin) {
     videoInfo: false,
     viidInfo: false
   }
+  private interval = null
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
   private async statusChange(val) {
@@ -103,18 +105,32 @@ export default class extends Mixins(detailMixin) {
         viidInfo: true
       }
     }
+
+    // 定时刷新设备
+    this.interval = setInterval(this.updateDevice, 5 * 1000)
+  }
+
+  public destroyed() {
+    clearInterval(this.interval)
   }
 
   /**
    * 刷新设备
    */
   public async updateDevice() {
-    await this.getDevice(this.deviceId, true)
+    await this.getDevice(this.deviceId, true, false)
     this.setTab()
     // 如果设备不存在直接跳出当前目录
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
     }
+  }
+
+  /**
+   * 删除设备
+   */
+  private deleteDevice() {
+    this.handleTools(ToolsEnum.DeleteDevice, this.device.device)
   }
 
   /**

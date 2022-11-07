@@ -79,8 +79,7 @@ const editDevice = function (state, id, type) {
  * @param data 设备信息
  * @param inProtocol 删除协议
  */
-const deleteDevice = function (state, data?, inProtocol?) {
-  console.log(data, 111111, inProtocol)
+const deleteDevice = function (state, data?, inProtocol: string?) {
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -113,11 +112,16 @@ const deleteDevice = function (state, data?, inProtocol?) {
       }
     })
   } else {
-    console.log(data)
     // 单个操作
+    let msg = ''
+    if (inProtocol) {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"的${inProtocol.toUpperCase()}协议吗？`
+    } else {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`
+    }
     state.$alertDelete({
       type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
+      msg,
       method: deleteDeviceApi,
       payload: {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
@@ -261,7 +265,7 @@ const exportDeviceExcel = async function (state, policy, data) {
       }
     } else {
       params = {
-        command:'selected',
+        command: 'selected',
         policy,
         ...data
       }
@@ -274,15 +278,15 @@ const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = false
 }
 
-const exportDeviceFile = async function (data:any) {
+const exportDeviceFile = async function (data: any) {
   try {
-    let res:any = {}
-    if(data.command === 'all'){
+    let res: any = {}
+    if (data.command === 'all'){
       const param = {
         parentDeviceId: data.parentDeviceId,
-        dirId: data.dirId.toString()  ,
-        sortBy: "",
-        sortDirection: "desc",
+        dirId: data.dirId.toString(),
+        sortBy: '',
+        sortDirection: 'desc',
         pageNum: 1,
         pageSize: 9999
       }
@@ -297,7 +301,7 @@ const exportDeviceFile = async function (data:any) {
       const deviceIds = deviceArr.map((device: any) => {
         return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
       })
-      const param={
+      const param = {
         deviceIds
       }
       res = await exportDeviceOption(param)

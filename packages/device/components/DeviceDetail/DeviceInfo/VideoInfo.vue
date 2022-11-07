@@ -10,7 +10,7 @@
           <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
           <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
           <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
-          <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
+          <el-dropdown-item v-if="hasViid" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -146,6 +146,11 @@ export default class extends Vue {
   // 录制状态
   public get recordStatus() {
     return this.streamInfo && this.streamInfo.recordStatus
+  }
+
+  // 是否含视图库
+  private get hasViid() {
+    return this.device.viids && this.device.viids.length
   }
 
   // 根据设备类型 & 接入协议判断字段是否显示
