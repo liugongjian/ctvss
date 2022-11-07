@@ -526,8 +526,13 @@ export default class extends Mixins(layoutMxin) {
    */
   private removeDevice(device: any) {
     const tree = this.deviceTree.$refs.commonTree
-    console.log('移除设备       ', tree)
     tree.setChecked(device.id, false, true)
+    this.onCheckDevice(this.getTreeCheckedNodes(tree))
+  }
+
+  private getTreeCheckedNodes(tree: any) {
+    const nodes = tree.getCheckedNodes()
+    return nodes
   }
 
   /**

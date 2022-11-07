@@ -121,7 +121,6 @@ export default class LayoutMixin extends Vue {
   public treeLoad = async function (node) {
     let res
     // 增加 层级关系
-    // console.log('怎么将 node  和 data 关联起来？   node', node)
     if (node.level === 0) {
       this.loading.tree = true
       try {
@@ -137,7 +136,6 @@ export default class LayoutMixin extends Vue {
     } else {
       // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
-      // console.log('get node info     ', res)
       let parentPath = this.concatPath(node)
       res.dirs.map((item: any) => {
         item.path = node.level === 1 ? node.label : parentPath + '/' + node.label

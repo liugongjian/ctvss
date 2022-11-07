@@ -42,6 +42,23 @@
           @node-click="handleNode"
           @check="onCheckDevice"
         >
+        <!-- <el-tree
+          :key="treeKey"
+          ref="Tree"
+          :node-key="nodeKey"
+          :current-node-key="currentNodeKey"
+          :data="data"
+          :lazy="lazy"
+          :load="loadChildren"
+          :props="props"
+          :empty-text="emptyText"
+          :default-expand-all="!lazy"
+          :expand-on-click-node="expandOnClickNode"
+          :show-checkbox="hasCheckbox"
+          highlight-current
+          @node-click="handleNode"
+          @check-change="onCheckDevice"
+        > -->
           <div
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
