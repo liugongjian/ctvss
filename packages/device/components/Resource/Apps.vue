@@ -130,7 +130,7 @@ export default class extends Vue {
   private async getAppList(abilityId) {
     try {
       this.loading = true
-      const res = await getAppList({ abilityId })
+      const res = await getAppList({ abilityId, pageSize: 9999 })
       this.$set(this.appCollection, abilityId, res.aiApps)
     } catch (e) {
       this.$alertError(e.message)
