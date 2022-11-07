@@ -3,7 +3,7 @@
     <div class="create-wrap">
       <div class="create-wrap__header">
         <el-page-header :content="breadCrumbContent" @back="back" />
-        <div v-if="!isChannel" class="process">
+        <div class="process">
           <el-steps :active="activeStep" finish-status="success" simple>
             <el-step title="接入配置"><span slot="icon">1</span></el-step>
             <el-step title="设备配置"><span slot="icon">2</span></el-step>

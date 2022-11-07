@@ -382,7 +382,7 @@ export const startRecord = (params: any): Promise<any> =>
   request({
     url: '/record/task/start',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -392,7 +392,7 @@ export const stopRecord = (params: any): Promise<any> =>
   request({
     url: '/record/task/stop',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**

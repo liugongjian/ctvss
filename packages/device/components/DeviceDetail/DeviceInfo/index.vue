@@ -77,13 +77,20 @@ export default class extends Mixins(detailMixin) {
     videoInfo: false,
     viidInfo: false
   }
-  private interval = null
+  // 定时刷新
+  private refreshCount = {
+    target: 0, // 目标总的刷新次数
+    index: 0 // 当前刷新的次数
+  }
+  private refreshTimeout = null
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
   private async statusChange(val) {
-    if (val === 'true') {
+    if (val > 0) {
+      this.refreshCount.target = val
+      this.refreshCount.index = 0
       this.updateDevice()
-      this.handleTools(ToolsEnum.RefreshRouterView, 'false')
+      this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
   }
 
@@ -105,24 +112,30 @@ export default class extends Mixins(detailMixin) {
         viidInfo: true
       }
     }
-
-    // 定时刷新设备
-    this.interval = setInterval(this.updateDevice, 5 * 1000)
   }
 
-  public destroyed() {
-    clearInterval(this.interval)
+  private destroyed() {
+    clearTimeout(this.refreshTimeout)
   }
 
   /**
    * 刷新设备
    */
   public async updateDevice() {
+    // 如果在编辑模式中，则不刷新
+    const isEdit = Object.values(this.isEdit).some(val => val)
+    if (isEdit) return
+    
     await this.getDevice(this.deviceId, true, false)
     this.setTab()
     // 如果设备不存在直接跳出当前目录
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
+    }
+    // 如果
+    if (this.refreshCount.index < this.refreshCount.target) {
+      this.refreshTimeout = setTimeout(this.updateDevice, 5000)
+      this.refreshCount.index++
     }
   }
 
