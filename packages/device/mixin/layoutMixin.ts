@@ -1,5 +1,5 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum } from '../enums/index'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum } from '../enums/index'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
@@ -38,6 +38,10 @@ export default class LayoutMixin extends Vue {
   // 排序目录标志
   public sortDir = null
   public sortNode = null
+  // 轮询状态
+  public pollingStatus = PollingStatusEnum.Free
+  // 轮询时间
+  public pollingInterval = 20
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
@@ -67,13 +71,13 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
-    [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
-    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this, node, !node, 'autoPlay'),
-    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this, interval),
-    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this),
-    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this),
-    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this),
+    [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this.getVueComponent, data, streamNum),
+    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'polling'),
+    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'autoPlay'),
+    [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this.getVueComponent, interval),
+    [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
+    [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),
+    [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this.getVueComponent),
     [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
@@ -83,6 +87,15 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
   }
+
+  private get currentDirId() {
+    return this.$route.query.dirId as string
+  }
+
+  private get currentDirType() {
+    return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
+  }
+  
   /* 设备目录树 */
   public get deviceTree() {
     return this.$refs.deviceTree as any
@@ -93,21 +106,16 @@ export default class LayoutMixin extends Vue {
     return this.$refs.breadcrumb as any
   }
 
+  /* 轮询遮罩 */
+  public get pollingMask() {
+    return this.$refs.pollingMask as any
+  }
+
   /* 设备目录树是否懒加载依据 */
   public get lazy(): boolean {
     return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
       param => !this.$route.query[param]
     )
-  }
-
-  /* 播放器管理实例 */
-  public get screenManager() {
-    return (this.$refs.screenBoard as any)?.screenManager
-  }
-
-  /* 视频队列执行器 */
-  public get queueExecutor() {
-    return this.screenManager && this.screenManager.refs.queueExecutor
   }
 
   public mounted() {
@@ -129,6 +137,13 @@ export default class LayoutMixin extends Vue {
         this.deviceTree.loadChildren(pathList)
         this.deviceTree.rootSums.onlineSize = res.onlineSize
         this.deviceTree.rootSums.totalSize = res.totalSize
+        res.dirs.map((item: any) => {
+          item.path = [{
+            id: item.id,
+            label: '',
+            type: item.type
+          }]
+        })
       } catch (e) {
         console.log(e)
       }
@@ -136,9 +151,12 @@ export default class LayoutMixin extends Vue {
     } else {
       // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
-      let parentPath = this.concatPath(node)
+      const parentPath = this.concatPath(node)
       res.dirs.map((item: any) => {
-        item.path = node.level === 1 ? node.label : parentPath + '/' + node.label
+        item.path = node.data.path.concat([{
+          label: node.level === 1 ? node.label : parentPath + '/' + node.label,
+          ...item
+        }])
       })
     }
     return res.dirs
@@ -156,8 +174,8 @@ export default class LayoutMixin extends Vue {
 
   // 拼接 path
   private concatPath(node: any) {
-    if (typeof(node.parent.label) === "undefined") return ''
-    let label = node.parent.label ? node.parent.label : ''
+    if (typeof(node.parent.label) === 'undefined') return ''
+    const label = node.parent.label ? node.parent.label : ''
     return this.concatPath(node.parent) + '/' + label
   }
 

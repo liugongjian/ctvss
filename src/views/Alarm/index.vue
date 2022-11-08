@@ -1,8 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div v-if="$route.query.inProtocol !== 'gb28181'" class="warning-info">暂仅支持国标协议的设备告警信息查询</div>
-      <div v-show="$route.query.inProtocol === 'gb28181'" class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}" :style="{height: `${maxHeight}px`}">
+      <div class="device-list" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }" :style="{ height: `${maxHeight}px` }">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -19,35 +18,16 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
-              <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
-              <el-tree
-                ref="dirTree"
-                empty-text="暂无目录或设备"
-                :data="dirList"
-                node-key="id"
-                highlight-current
-                lazy
-                :load="loadDirs"
-                :props="treeProp"
-                :current-node-key="defaultKey"
-                @node-click="alarmRouter"
-              >
-                <span
-                  slot-scope="{node, data}"
-                  class="custom-tree-node"
-                  :class="{'online': data.deviceStatus === 'on'}"
-                >
-                  <span class="node-name">
-                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                    <span v-else class="node-dir">
-                      <svg-icon name="dir" width="15" height="15" />
-                      <svg-icon name="dir-close" width="15" height="15" />
-                    </span>
-                    <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
-                  </span>
-                </span>
-              </el-tree>
+              <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
+              <alarm-tree
+                ref="deviceTree"
+                v-loading="loading.tree"
+                :load="treeLoad"
+                :lazy="lazy"
+                :data="treeSearchResult"
+                @handle-node="handleTreeNode"
+                @handle-tools="handleTools"
+              />
             </div>
           </div>
         </div>
@@ -63,7 +43,7 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{ height: `${maxHeight}px` }">
             <router-view :group-id="currentGroupId" :max-height="maxHeight" />
           </div>
         </div>
@@ -74,21 +54,20 @@
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import IndexMixin from '@/views/device/mixin/indexMixin'
+import layoutMxin from '@vss/device/mixin/layoutMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { deleteDir } from '@/api/dir'
-import { renderAlertType } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
-import StatusBadge from '@/components/StatusBadge/index.vue'
+import AlarmTree from '@vss/device/components/Tree/AlarmTree.vue'
 
 @Component({
   name: 'Alarm',
   components: {
-    StatusBadge
+    AlarmTree
   }
 })
-export default class extends Mixins(IndexMixin) {
+export default class extends Mixins(IndexMixin, layoutMxin) {
   private checkPermission = checkPermission
-  private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
   private dialog = {
@@ -96,7 +75,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private mounted() {
-    // this.getGroupList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }

@@ -24,7 +24,7 @@
       <svg-icon v-if="checkTreeItemStatus(data)" :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" name="playing" class="playing" />
       <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{ node, data }">
+    <template slot="itemTools" slot-scope="{ data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SetStreamNum)" effect="dark" content="切换主子码流" placement="top" :open-delay="500">
         <stream-selector :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="handleTools(toolsEnum.SetStreamNum, data, $event)" />
       </el-tooltip>
@@ -34,8 +34,8 @@
             <el-button type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, node)">轮巡</el-button>
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, node)">一键播放</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data)">轮巡</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data)">一键播放</el-button>
           </template>
         </hover-selector>
       </el-tooltip>

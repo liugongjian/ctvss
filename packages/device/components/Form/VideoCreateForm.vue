@@ -87,7 +87,7 @@
         <el-input v-model="videoForm.deviceIp" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.DevicePort">
-        <el-input v-model="videoForm.devicePort" />
+        <el-input v-model.number="videoForm.devicePort" />
       </el-form-item>
     </template>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">

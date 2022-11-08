@@ -49,7 +49,7 @@ import VideoInfo from './VideoInfo.vue'
 import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
-import { DeviceInTypeEnum } from '@vss/device/enums'
+import { DeviceTypeEnum, DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 import { ToolsEnum } from '@vss/device/enums/index'
 
@@ -85,13 +85,19 @@ export default class extends Mixins(detailMixin) {
   private refreshTimeout = null
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
-  private async statusChange(val) {
+  private async refreshFlagChange(val) {
     if (val > 0) {
       this.refreshCount.target = val
       this.refreshCount.index = 0
       this.updateDevice()
       this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
+  }
+
+  @Watch('$route.query.deviceId')
+  public async deviceIdChange(deviceId) {
+    [DeviceTypeEnum.Ipc].includes(this.deviceType) && await this.getDevice(deviceId)
+    this.setTab()
   }
 
   public async mounted() {
@@ -132,7 +138,7 @@ export default class extends Mixins(detailMixin) {
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
     }
-    // 如果
+    // 进行多次刷新，保证设备相关状态的更新
     if (this.refreshCount.index < this.refreshCount.target) {
       this.refreshTimeout = setTimeout(this.updateDevice, 5000)
       this.refreshCount.index++

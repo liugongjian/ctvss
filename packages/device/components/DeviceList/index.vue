@@ -367,6 +367,14 @@ export default class extends Mixins(deviceMixin) {
     syncDeviceStatus: false
   }
 
+  // 定时刷新
+  private refreshCount = {
+    target: 0, // 目标总的刷新次数
+    index: 0 // 当前刷新的次数
+  }
+
+  private refreshTimeout = null
+
   private dialog = {
     [ToolsEnum.MoveDevice]: false,
     [ToolsEnum.Import]: false,
@@ -397,6 +405,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.SyncDeviceStatus]: () => DeviceManager.syncDeviceStatus(this.getVueComponent, this.currentDirId, this.currentDirType),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.ViewChannels]: (row) => DeviceManager.viewChannels(this, row),
+    [ToolsEnum.ConfigureChannels]: () => DeviceManager.configureChannels(this),
     [ToolsEnum.ExportAll]: (data,) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll, data),
     [ToolsEnum.ExportCurrentPage]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage, data),
     [ToolsEnum.ExportSelected]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected, data),
@@ -461,10 +470,12 @@ export default class extends Mixins(deviceMixin) {
   }
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
-  private async statusChange(val) {
-    if (val === 'true') {
-      this.initList()
-      this.handleListTools(ToolsEnum.RefreshRouterView, 'false')
+  private async refreshFlagChange(val) {
+    if (val > 0) {
+      this.refreshCount.target = val
+      this.refreshCount.index = 0
+      this.initList(false)
+      this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
   }
 
@@ -497,6 +508,7 @@ export default class extends Mixins(deviceMixin) {
 
   private beforeDestroy() {
     this.tableContainer && this.observer.unobserve(this.tableContainer)
+    clearTimeout(this.refreshTimeout)
   }
 
   public getVueComponent() {
@@ -506,21 +518,25 @@ export default class extends Mixins(deviceMixin) {
   /**
    * 设备列表初始化
    */
-  private async initList() {
-    this.loading.table = true
+  private async initList(isLoading = true) {
+    this.loading.table = isLoading
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
-      this.loading.info = true
-      await this.getDevice(this.currentDirId)
+      this.loading.info = isLoading
+      try {
+        await this.getDevice(this.currentDirId)
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
       this.loading.info = false
     }
-    this.initTable()
+    this.initTable(isLoading)
   }
 
   /**
    * 设备table初始化
    */
-  private async initTable() {
-    this.loading.table = true
+  private async initTable(isLoading = true) {
+    this.loading.table = isLoading
     const params = {
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
@@ -535,7 +551,18 @@ export default class extends Mixins(deviceMixin) {
     } else {
       params[DeviceEnum.ParentDeviceId] = this.currentDirId
     }
-    const res: any = await this.getDevicesApi(params)
+    let res
+    try {
+      res = await this.getDevicesApi(params)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      // 进行多次刷新，保证设备相关状态的更新
+      if (this.refreshCount.index < this.refreshCount.target) {
+        this.refreshTimeout = setTimeout(() => this.initTable(isLoading), 5000)
+        this.refreshCount.index++
+      }
+    }
     this.deviceList = res.devices
     this.pager.totalNum = +res.totalNum
     this.loading.table = false

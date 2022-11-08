@@ -1264,7 +1264,8 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['*'],
       alwaysShow: false,
       only: true,
-      groupSelector: true
+      groupSelector: false,
+      version: 2
     },
     children: [
       {
@@ -1276,12 +1277,53 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'menu-alarm',
           breadcrumb: false,
           perms: ['*'],
-          groupSelector: true
+          groupSelector: false
         },
         children: [
           {
             path: '',
             component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
+            name: 'AlarmList',
+            meta: {
+              title: '告警信息列表',
+              breadcrumb: false,
+              perms: ['*'],
+              activeMenu: '/alarm',
+              groupSelector: false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/alarmv1',
+    component: Layout,
+    meta: {
+      title: '告警管理',
+      icon: 'menu-alarm',
+      perms: ['*'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: true,
+      version: 1
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
+        name: 'Alarm',
+        meta: {
+          title: '告警管理',
+          icon: 'menu-alarm',
+          breadcrumb: false,
+          perms: ['*'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
             name: 'AlarmList',
             meta: {
               title: '告警信息列表',

@@ -1,11 +1,10 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
-import { toLowerCase } from '@vss/base/utils/param'
 import { ApiMapping } from '@/api/api-mapping'
 import { whiteList } from '@/api/v1-whitelist'
 
@@ -18,7 +17,7 @@ const service = axios.create({
 // Request interceptors
 service.interceptors.request.use(
   (config) => {
-    config.url = urlTransform(config.url)
+    requestTransform(config)
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
@@ -57,23 +56,35 @@ service.interceptors.response.use(
 )
 
 // 根据用户tag转换请求url
-function urlTransform(url: string) {
-  const apiList = Object.keys(ApiMapping)
+function requestTransform(config: AxiosRequestConfig) {
+  const url = config.url
   if (UserModule.version === 2 && !whiteList.includes(url)) {
-    url = '/v2' + (apiList.includes(url) ? ApiMapping[url] : url)
+    const apiList = Object.keys(ApiMapping)
+    if (apiList.includes(url)) {
+      const mapArr = ApiMapping[url].split(':')
+      config.url = '/v2' + mapArr[0]
+      if (mapArr[1] === 'get') {
+        config.params = config.data
+        config.data = undefined
+      } else if (mapArr[1]) {
+        config.data = config.params
+        config.params = undefined
+      }
+    } else {
+      config.url = '/v2' + url
+    }
   } else {
-    url = '/v1' + url
+    config.url = '/v1' + url
   }
-  return url
+  return config
 }
 
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    // TODO: 后端处理大小写
-    const resData = response.data.data ? toLowerCase(response.data.data) : toLowerCase(response.data)
+    const resData = response.data.data
     return resData as AxiosResponse
   } else {
-    if (!timeoutPromise && response && response.data && response.data.Code === 16) {
+    if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',
         '确定登出',
@@ -96,8 +107,7 @@ function responseHandler(response: AxiosResponse) {
         }
       })
     }
-    // TODO: 后端处理大小写
-    const data: any = toLowerCase(response && response.data)
+    const data: any = response && response.data
     const requestId = data && data.requestId
     const code = data && data.code ? data.code : '-1'
     const message = data && data.message ? data.message : '服务器异常，请稍后再试。'

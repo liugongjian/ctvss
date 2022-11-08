@@ -39,7 +39,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, DeviceInTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, VideoDevice, Industry } from '@vss/device/type/Device'
-import { checkVideoVisible } from '@vss/device/utils/param'
+import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { translateIndustry, translateNetwork, translateOrgRegion, translateResourceRegion } from '@vss/device/api/dict'
 import VideoInfoDialog from './VideoInfoDialog.vue'
 import ViidInfoDialog from './ViidInfoDialog.vue'
@@ -78,6 +78,11 @@ export default class extends Vue {
     return this.device.videos && this.device.videos.length && this.device.videos[0]?.inVideoProtocol
   }
 
+  // 视图接入协议
+  private get inViidProtocol() {
+    return this.device.viids && this.device.viids.length && this.device.viids[0]?.inViidProtocol
+  }
+
   // 视频接入信息
   private get videoInfo(): VideoDevice {
     return (this.inVideoProtocol && this.device.videos[0][dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]) || {}
@@ -105,7 +110,11 @@ export default class extends Vue {
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox, isChannel: this.isChannel })
+    if (this.hasVideo) {
+      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox, isChannel: this.isChannel })
+    } else {
+      return checkViidVisible.call(null, this.basicInfo.deviceType, this.inViidProtocol, prop)
+    }
   }
 
   @Watch('basicInfo.deviceId', { immediate: true })

@@ -9,7 +9,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { Screen } from '@/views/device/services/Screen/Screen'
+import { Screen } from '@vss/device/services/Screen/Screen'
 import { setTimeout } from 'timers'
 
 @Component({

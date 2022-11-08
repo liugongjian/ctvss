@@ -65,7 +65,10 @@ export default class extends Vue {
     // 设备参数
     const params: DeviceForm = {
       device: {
-        deviceId: this.basicInfo.deviceId
+        deviceId: this.basicInfo.deviceId,
+        ...pick(form.videoForm, [
+          DeviceEnum.DeviceChannelSize
+        ])
       }
     }
     // 补充视频接入信息

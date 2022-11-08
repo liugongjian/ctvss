@@ -1,25 +1,24 @@
 import request from '@/utils/request'
-import { toUpperCase } from '@vss/base/utils/param'
 
 export const createDir = (params: any): Promise<any> =>
   request({
     url: '/dir/create',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const updateDir = (params: any): Promise<any> =>
   request({
     url: '/dir/update',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const deleteDir = (params: any): Promise<any> =>
   request({
     url: '/dir/delete',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -29,7 +28,7 @@ export const getNodeInfo = (params: any): Promise<any> =>
  request({
    url: '/dir/list/status',
    method: 'get',
-   params: toUpperCase(params)
+   params
  })
 
 /**
@@ -39,7 +38,7 @@ export const getDirDevices = (params: any): Promise<any> =>
 request({
   url: '/dir/device/list',
   method: 'get',
-  params: toUpperCase(params)
+  params
 })
 
 export const getDeviceTree = (params): Promise<any> => {
@@ -123,7 +122,7 @@ export const getDeviceTree = (params): Promise<any> => {
  request({
    url: '/dir/path',
    method: 'get',
-   params: toUpperCase(params)
+   params
  })
 
 /**
@@ -135,12 +134,12 @@ export const getDeviceTree = (params): Promise<any> => {
  request({
    url: '/location/move',
    method: 'post',
-   data: toUpperCase(params)
+   data: params
  })
 
 export const bindDir = (params: any): Promise<any> =>
   request({
     url: '/dir/bind',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })

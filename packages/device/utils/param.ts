@@ -174,6 +174,7 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
   if (prop === ToolsEnum.ConfigureChannels && type === DeviceTypeEnum.Nvr) {
     return data && data[DeviceEnum.InProtocol] === InVideoProtocolEnum.Ehome
   }
+
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop) && allowFlag
 }
 
