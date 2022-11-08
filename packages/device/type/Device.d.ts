@@ -28,7 +28,7 @@ type DeviceBasic = {
   [DeviceEnum.DeviceVendor]?: string
   [DeviceEnum.Description]?: string
   [DeviceEnum.DeviceIp]?: string
-  [DeviceEnum.DevicePort]?: string
+  [DeviceEnum.DevicePort]?: number
   [DeviceEnum.DeviceSerialNumber]?: string // 设备序列号
   [DeviceEnum.DeviceModel]?: string // 设备型号
   [DeviceEnum.DeviceMac]?: string // 设备MAC地址
@@ -85,7 +85,7 @@ type VideoDevice = {
   [DeviceEnum.UserName]?: string
   [DeviceEnum.Password]?: string
   [DeviceEnum.DeviceIp]?: string
-  [DeviceEnum.DevicePort]?: string
+  [DeviceEnum.DevicePort]?: number
   [DeviceEnum.EnableDomain]?: number // 是否启动域名
   [DeviceEnum.DeviceDomain]?: string // 设备域名
   [DeviceEnum.DeviceStatus]?: DeviceStatus

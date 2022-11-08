@@ -87,6 +87,15 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
   }
+
+  private get currentDirId() {
+    return this.$route.query.dirId as string
+  }
+
+  private get currentDirType() {
+    return this.$route.query.type as DirectoryTypeEnum || DirectoryTypeEnum.Dir
+  }
+  
   /* 设备目录树 */
   public get deviceTree() {
     return this.$refs.deviceTree as any
