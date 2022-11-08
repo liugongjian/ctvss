@@ -70,7 +70,7 @@ export default class extends Mixins(IndexMixin, layoutMxin) {
   private checkPermission = checkPermission
   private parentDir = null
   private currentDir = null
-  private dialog = {
+  private dialog: any = {
     createDir: false
   }
 
@@ -104,20 +104,20 @@ export default class extends Mixins(IndexMixin, layoutMxin) {
   /**
    * 删除目录
    */
-  private deleteDir(dir: any) {
-    this.$alertDelete({
-      type: '目录',
-      msg: `是否确认删除目录"${dir.label}"`,
-      method: deleteDir,
-      payload: { dirId: dir.id },
-      onSuccess: () => {
-        this.initDirs()
-        if (dir.id === this.$route.query.dirId) {
-          this.gotoRoot()
-        }
-      }
-    })
-  }
+  // private deleteDir(dir: any) {
+  //   this.$alertDelete({
+  //     type: '目录',
+  //     msg: `是否确认删除目录"${dir.label}"`,
+  //     method: deleteDir,
+  //     payload: { dirId: dir.id },
+  //     onSuccess: () => {
+  //       this.initDirs()
+  //       if (dir.id === this.$route.query.dirId) {
+  //         this.gotoRoot()
+  //       }
+  //     }
+  //   })
+  // }
 
   /**
    * 打开对话框

@@ -285,6 +285,7 @@ export default class extends Mixins(layoutMxin) {
       this.form.policyName = res.policyName
       this.form.desc = res.desc
       const policyInfo = JSON.parse(res.policyDocument)
+      console.log('获取策略   info    ', policyInfo)
       this.form.actionList = policyInfo.Statement[0].Action
       if (this.form.actionList[0] === 'vss:*') {
         this.actionType = 'besideSelected'
