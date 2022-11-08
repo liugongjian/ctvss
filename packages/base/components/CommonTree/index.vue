@@ -42,7 +42,7 @@
           @node-click="handleNode"
           @check="onCheckDevice"
         >
-        <!-- <el-tree
+          <!-- <el-tree
           :key="treeKey"
           ref="Tree"
           :node-key="nodeKey"
@@ -251,7 +251,7 @@ export default class extends Vue {
     this.$emit('check-device', nodes)
   }
 
-  private setChecked(data: any, checked: boolean, deep: boolean = false) {
+  private setChecked(data: any, checked: boolean, deep = false) {
     return this.tree.setChecked(data, checked, deep)
   }
 }
