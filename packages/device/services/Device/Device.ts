@@ -404,28 +404,12 @@ const exportTemplate = function (state) {
 /**
  * 启用/停用设备
  */
-const startOrStopDevice = async function (state, type, row?) {
+const startOrStopDevice = async function (state, type, data?) {
   const method = type === ToolsEnum.StartDevice ? startDevice : stopDevice
   const methodStr = type === ToolsEnum.StartDevice ? '启用' : '停用'
-  if (row) {
-    // 单个操作
-    try {
-      const params: any = {
-        [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
-      }
-      await method(params)
-      state.$message.success(`已通知${methodStr}设备`)
-      // 启停操作为异步操作，过3秒后刷新目录和当前视图
-      setTimeout(() => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshRouterView, 5)
-      }, 3000)
-    } catch (e) {
-      state.$message.error(e && e.message)
-    }
-  } else {
+  if (data instanceof Array) {
     // 批量操作
-    const deviceList = state.selectedDeviceList.filter(device => {
+    const deviceList = data.filter(device => {
       return device[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc
     })
     const h: Function = state.$createElement
@@ -477,6 +461,22 @@ const startOrStopDevice = async function (state, type, row?) {
         if (e === 'cancel' || e === 'close') return
         state.$message.error(e && e.message)
       })
+  } else {
+    // 单个操作
+    try {
+      const params: any = {
+        [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId]
+      }
+      await method(params)
+      state.$message.success(`已通知${methodStr}设备`)
+      // 启停操作为异步操作，过3秒后刷新目录和当前视图
+      setTimeout(() => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
+      }, 3000)
+    } catch (e) {
+      state.$message.error(e && e.message)
+    }
   }
 }
 

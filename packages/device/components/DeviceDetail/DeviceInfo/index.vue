@@ -85,7 +85,7 @@ export default class extends Mixins(detailMixin) {
   private refreshTimeout = null
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
-  private async statusChange(val) {
+  private async refreshFlagChange(val) {
     if (val > 0) {
       this.refreshCount.target = val
       this.refreshCount.index = 0

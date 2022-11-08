@@ -157,33 +157,33 @@ export default class extends ComponentMixin {
     this.currentExecuteIndex = this.currentExecuteIndex + this.maxSize
   }
 
-  /**
-   * 轮巡预加载
-   */
-  private async preLoadPollingVideos() {
-    console.log('轮巡预加载')
-    const length = this.devicesQueue.length
-    const currentExecuteIndex = this.currentExecuteIndex % length
-    let currentIndex = 0
-    let preLoadScreen = new Screen()
-    for (let i = 0; i < this.maxSize; i++) {
-      const pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
-      preLoadScreen.destroy()
-      preLoadScreen.deviceId = pollingDeviceInfo.id
-      preLoadScreen.deviceName = pollingDeviceInfo.label
-      preLoadScreen.inProtocol = pollingDeviceInfo.inProtocol
-      preLoadScreen.isLive = true
-      await preLoadScreen.init()
-      pollingDeviceInfo.url = preLoadScreen.url
-      pollingDeviceInfo.codec = preLoadScreen.codec
-      if (currentIndex < this.maxSize - 1) {
-        currentIndex++
-      } else {
-        currentIndex = 0
-      }
-    }
-    preLoadScreen = null
-  }
+  // /**
+  //  * 轮巡预加载
+  //  */
+  // private async preLoadPollingVideos() {
+  //   console.log('轮巡预加载')
+  //   const length = this.devicesQueue.length
+  //   const currentExecuteIndex = this.currentExecuteIndex % length
+  //   let currentIndex = 0
+  //   let preLoadScreen = new Screen()
+  //   for (let i = 0; i < this.maxSize; i++) {
+  //     const pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
+  //     preLoadScreen.destroy()
+  //     preLoadScreen.deviceId = pollingDeviceInfo.id
+  //     preLoadScreen.deviceName = pollingDeviceInfo.label
+  //     preLoadScreen.inProtocol = pollingDeviceInfo.inProtocol
+  //     preLoadScreen.isLive = true
+  //     await preLoadScreen.init()
+  //     pollingDeviceInfo.url = preLoadScreen.url
+  //     pollingDeviceInfo.codec = preLoadScreen.codec
+  //     if (currentIndex < this.maxSize - 1) {
+  //       currentIndex++
+  //     } else {
+  //       currentIndex = 0
+  //     }
+  //   }
+  //   preLoadScreen = null
+  // }
 
   /**
    * 停止轮巡

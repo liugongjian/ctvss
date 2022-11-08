@@ -202,7 +202,8 @@ const closeDirectoryDialog = function (
     sortDir?: any
     deviceTree?: any
     loadDirChildren?: any,
-    handleTreeNode: any
+    handleTreeNode: any,
+    handleTools: any
   } = getVueComponent()
   // @ts-ignore
   state.dialog[type] = false
@@ -217,6 +218,7 @@ const closeDirectoryDialog = function (
         }
       }
       state.handleTreeNode({ id: state.sortDir.id, type: state.sortDir.type })
+      state.handleTools(ToolsEnum.RefreshRouterView)
       state.sortDir = null
       break
     case ToolsEnum.AddDirectory:
