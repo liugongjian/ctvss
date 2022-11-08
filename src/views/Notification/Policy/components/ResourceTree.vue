@@ -1,45 +1,25 @@
 <template>
   <div class="dialog-wrap">
-    <!-- <div v-loading="loading" class="tree-wrap"> -->
-    <!-- <div class="tree-wrap"> -->
-      <!-- <el-tree
-        ref="deviceTree"
-        node-key="id"
-        lazy
-        show-checkbox
-        :data="dirList"
-        :load="loadDirs"
-        :props="treeProp"
-        :check-strictly="false"
-        @check-change="onCheckDevice"
-      >
-        <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-          <span class="node-name">
-            <svg-icon :name="data.type" color="#6e7c89" />
-            {{ node.label }}
-          </span>
-        </span>
-      </el-tree> -->
-      <IAMResourceTree 
-        ref="deviceTree"
-        v-loading="loading.tree"
-        :load="treeLoad"
-        :lazy="lazy"
-        :data="dirList"
-        :props="treeProp"
-        @check-device="onCheckDevice"
-      />
-    <!-- </div> -->
+    <IAMResourceTree 
+      ref="deviceTree"
+      v-loading="loading.tree"
+      class="tree-wrap"
+      :load="treeLoad"
+      :lazy="lazy"
+      :data="dirList"
+      :props="treeProp"
+      @check-device="onCheckDevice"
+    />
     <div class="device-wrap">
       <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
       <el-table ref="deviceTable" :data="resourceList" empty-text="暂无选择资源" fit>
-        <el-table-column key="name" prop="name" label="业务组/目录名称/设备名称">
-          <template slot-scope="{row}">
+        <el-table-column key="name" prop="name" width="220" label="业务组/目录名称/设备名称">
+          <template slot-scope="{ row }">
             {{ row.name || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="path" prop="path" label="所在位置">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ renderPath(row.path) || '' }}
           </template>
         </el-table-column>
@@ -159,7 +139,7 @@ export default class extends Mixins(layoutMxin) {
     }
     try {
       const deviceTree: any = this.deviceTree.$refs.commonTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
@@ -206,7 +186,7 @@ export default class extends Mixins(layoutMxin) {
         type: node.data.type === 'group' ? undefined : node.data.type
       })
 
-      let dirs: any = devices.dirs.map((dir: any) => {
+      const dirs: any = devices.dirs.map((dir: any) => {
         return {
           id: dir.id,
           groupId: node.data.groupId,
@@ -235,24 +215,10 @@ export default class extends Mixins(layoutMxin) {
       return ((currentNodeParentDirId !== 0) && nodeIdsList.indexOf(node.parentDirId) === -1) && ((currentNodeParentDeviceId !== 0) && nodeIdsList.indexOf(node.parentDeviceId) === -1)
     })
     this.resourceList = list
-    let pathIdArr = list.map((resource: any) => resource.id)
     this.$emit('resourceListChange', this.resourceList.map((resource: any) => {
       const mainUserID = this.$store.state.user.mainUserID
-      const inProtocol = resource.inProtocol
-      const pathLength = resource.path.length
-      let type = resource.type
-      if (type === 'ipc' && resource.path[pathLength - 2] && resource.path[pathLength - 2].type === 'nvr') {
-        type = 'nvrchannel'
-      }
-      const typeMap = {
-        group: 'vssgroup',
-        dir: 'directory',
-        nvr: 'nvr',
-        nvrchannel: 'nvrchannel',
-        ipc: 'ipc'
-      }
-      // const pathIds = resource.path.map((obj: any) => obj.id)
-      return `${mainUserID}:${inProtocol}-${typeMap[type]}:${pathIdArr[0]}${(pathIdArr.length > 1 ? ':' : '') + pathIdArr.slice(1).join('/')}`
+      const pathIds = resource.path.map((obj: any) => obj.id)
+      return `${mainUserID}:${'type-' + resource.type}:${pathIds.join('/')}`
     }))
   }
 
