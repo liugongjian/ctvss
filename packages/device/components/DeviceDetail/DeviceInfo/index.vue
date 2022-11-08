@@ -49,7 +49,7 @@ import VideoInfo from './VideoInfo.vue'
 import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
-import { DeviceInTypeEnum } from '@vss/device/enums'
+import { DeviceTypeEnum, DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 import { ToolsEnum } from '@vss/device/enums/index'
 
@@ -92,6 +92,12 @@ export default class extends Mixins(detailMixin) {
       this.updateDevice()
       this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
+  }
+
+  @Watch('$route.query.deviceId')
+  private async deviceIdChange(deviceId) {
+    [DeviceTypeEnum.Ipc].includes(this.deviceType) && await this.getDevice(deviceId)
+    this.setTab()
   }
 
   public async mounted() {

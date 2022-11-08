@@ -12,7 +12,8 @@
           <el-input v-model="deviceForm.deviceName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
-          <el-input v-model="deviceForm.deviceName" />
+          <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
+          <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备分类:">
           {{ dicts.DeviceType[basicInfo.deviceType] }}
@@ -151,6 +152,7 @@ import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BasicInfoEdit'
@@ -250,6 +252,12 @@ export default class extends Mixins(deviceFormMixin) {
   // 是否为NVR通道
   private get isChannel() {
     return this.basicInfo && this.basicInfo.deviceChannelNum > -1
+  }
+
+  // 获取是否使用设备名称
+  private get isEnableCloudChannelName() {
+    const enableCloudChannelName = UserModule.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    return enableCloudChannelName.value === 'true'
   }
 
   private async mounted() {
