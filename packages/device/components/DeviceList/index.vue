@@ -35,7 +35,7 @@
           </el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
-          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList })">
+          <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList,currentDirId })">
             <el-button :loading="loading.export">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="toolsEnum.ExportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
@@ -409,7 +409,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.ExportAll]: (data,) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportAll, data),
     [ToolsEnum.ExportCurrentPage]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportCurrentPage, data),
     [ToolsEnum.ExportSelected]: (data) => DeviceManager.exportDeviceExcel(this, ToolsEnum.ExportSelected, data),
-    [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this, data),
+    [ToolsEnum.Import]: (data) => DeviceManager.uploadExcel(this.getVueComponent, data, this.currentDirId),
     [ToolsEnum.ExportTemplate]: () => DeviceManager.exportTemplate(this),
     [ToolsEnum.MoveDevice]: (row) => DeviceManager.openListDialog(this.getVueComponent, ToolsEnum.MoveDevice, row),
     [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
@@ -495,6 +495,11 @@ export default class extends Mixins(deviceMixin) {
   private onFilterChange() {
     this.pager.pageNum = 1
     this.initList()
+  }
+
+  @Watch('fileData', { deep: true, immediate: true })
+  onFileDataChange(){
+    console.log('fileData------>', this.fileData)
   }
   
   private mounted() {

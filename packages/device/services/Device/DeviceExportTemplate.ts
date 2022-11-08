@@ -1,3 +1,10 @@
+import { getRegions } from '../../api/region'
+import { getResources } from '../../api/billing'
+import { getGa1400CertificateList } from '../../api/certificate'
+import { getDevice } from '../../api/device'
+
+import { ResourceAiType } from '../../dicts/resource'
+import { getIndustryList } from '../../api/dict'
 class ExportExcelTemplate {
   private excelName = ''
   private workbook: any
@@ -13,12 +20,23 @@ class ExportExcelTemplate {
     }
   ]
 
-  private options: any = {
+  public regionList: any = []
+
+  public industryList:any = []
+
+  public resourceAiType: any = ResourceAiType
+
+  public availableChannels: any = []
+
+  public gbCertificateList:any = []
+
+  public options: any = {
     gbAccountList: [],
     availableChannels: [],
     VIDEOList: [],
     BWList: [],
-    options: []
+    options: [],
+    AIList:[]
   }
 
   private excelExplain = `
@@ -114,36 +132,71 @@ class ExportExcelTemplate {
       showErrorMessage: true,
       formulae: ['"tcp,udp"'],
       error: '请从选项中选择传输协议'
+    },
+    network: {
+      // 设备的网络标识, 取值如下： 0、1、2、3、4 为监控报警专网，5为公安信息网，6为政务网，7为Internet网，8为社会资源接入网，9预留
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: ['"监控报警专网,公安信息网,政务网,Internet网,社会资源接入网"'],
+      error: '请从选项中选择网络标识'
+    },
+    ifTcp:{
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: ['"是,否"'],
     }
   }
-
 
   // excel 模板实体内容
   private get excelTemplateSheet() {
     return [
       {
-        name: 'GB28181',
+        name: 'GB28181导入表格',
         content: [
-          // {
-          //   title: { header: '*设备类型', key: 'deviceType', width: 16 },
-          //   validation: this.validation.deviceType
-          // },
-          // {
-          //   title: { header: '*国标版本', key: 'gbVersion', width: 16 },
-          //   validation: {
-          //     type: 'list',
-          //     allowBlank: true,
-          //     showInputMessage: true,
-          //     showErrorMessage: true,
-          //     formulae: ['"2011,2016"'],
-          //     prompt: '当选择 “IPC” 或 “NVR” 设备类型时为必选',
-          //     error: '请从选项中选择国标版本'
-          //   }
-          // },
-          // {
-          //   title: { header: '*设备厂商', key: 'deviceVendor', width: 16 },
-          //   validation: this.validation.deviceVendor
-          // },
+          {
+            title: { header: '*设备类型', key: 'deviceType', width: 16 },
+            validation: this.validation.deviceType
+          },
+          {
+            title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
+            validation: null
+          },
+          {
+            title: { header: '接入区域', key: 'region', width: 16 },
+            validation: this.getRegionValidation()
+          },
+          {
+            title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+            validation: null //  todo
+          },
+          {
+            title: { header: '所属行业', key: 'industry', width: 16 },
+            validation: this.validation.industry
+          },
+          {
+            title: { header: '网络标识', key: 'network', width: 16 },
+            validation: this.validation.network
+          },
+          {
+            title: { header: '*国标版本', key: 'gbVersion', width: 16 },
+            validation: {
+              type: 'list',
+              allowBlank: true,
+              showInputMessage: true,
+              showErrorMessage: true,
+              formulae: ['"2011,2016"'],
+              prompt: '当选择 “IPC” 或 “NVR” 设备类型时为必选',
+              error: '请从选项中选择国标版本'
+            }
+          },
+          {
+            title: { header: '*设备厂商', key: 'deviceVendor', width: 16 },
+            validation: this.validation.deviceVendor
+          },
           {
             title: { header: '*设备名称', key: 'deviceName', width: 24 },
             validation: this.validation.deviceName
@@ -179,17 +232,17 @@ class ExportExcelTemplate {
             title: { header: '设备MAC地址', key: 'macAddr', width: 24 },
             validation: null
           },
-          {
-            title: { header: '杆号', key: 'poleId', width: 24, style: { numFmt: '@' } },
-            validation: {
-              type: 'textLength',
-              allowBlank: false,
-              operator: 'between',
-              showErrorMessage: true,
-              formulae: [1, 21],
-              error: '请输入规范杆号。'
-            }
-          },
+          // {
+          //   title: { header: '杆号', key: 'poleId', width: 24, style: { numFmt: '@' } },
+          //   validation: {
+          //     type: 'textLength',
+          //     allowBlank: false,
+          //     operator: 'between',
+          //     showErrorMessage: true,
+          //     formulae: [1, 21],
+          //     error: '请输入规范杆号。'
+          //   }
+          // },
           {
             title: { header: '经度', key: 'deviceLongitude', width: 16 },
             validation: null
@@ -217,15 +270,15 @@ class ExportExcelTemplate {
           {
             title: { header: 'AI包', key: 'AIPackage', width: 40 },
             validation: this.getAIPackageValidation()
+          },
+          {
+            title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
+            validation: this.getBWPackageValidation()
           }
-          // {
-          //   title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          //   validation: this.getBWPackageValidation()
-          // }
         ]
       },
       {
-        name: 'EHOME',
+        name: 'EHOME导入表格',
         content: [
           {
             title: { header: '*设备类型', key: 'deviceType', width: 16 },
@@ -236,6 +289,26 @@ class ExportExcelTemplate {
               formulae: ['"IPC,NVR"'],
               error: '请选择设备类型'
             }
+          },
+          {
+            title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
+            validation: null
+          },
+          {
+            title: { header: '接入区域', key: 'region', width: 16 },
+            validation: this.getRegionValidation()
+          },
+          {
+            title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+            validation: null //  todo
+          },
+          {
+            title: { header: '所属行业', key: 'industry', width: 16 },
+            validation: this.validation.industry
+          },
+          {
+            title: { header: '网络标识', key: 'network', width: 16 },
+            validation: this.validation.network
           },
           {
             title: { header: '*版本', key: 'ehomeVersion', width: 16, style: { numFmt: '0.0' } },
@@ -305,7 +378,11 @@ class ExportExcelTemplate {
             }
           },
           {
-            title: { header: '*设备通道数量（设备类型为NVR时，该项必填）', key: 'channelSize', width: 16 },
+            title: { header: 'TCP传输', key: 'ifTcp', width: 16 },
+            validation: this.validation.ifTcp
+          },
+          {
+            title: { header: '*子设备数量（设备类型为NVR时，该项必填）', key: 'channelSize', width: 16 },
             validation: this.validation.channelSize
           },
           {
@@ -323,12 +400,32 @@ class ExportExcelTemplate {
         ]
       },
       {
-        name: 'RTMP',
+        name: 'RTMP导入表格',
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
             validation: this.validation.inType
           },
+          {
+            title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
+            validation: null
+          },
+          {
+            title: { header: '接入区域', key: 'region', width: 16 },
+            validation: this.getRegionValidation()
+          },
+          // {
+          //   title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+          //   validation: null //  todo
+          // },
+          // {
+          //   title: { header: '所属行业', key: 'industry', width: 16 },
+          //   validation: this.validation.industry
+          // },
+          // {
+          //   title: { header: '网络标识', key: 'network', width: 16 },
+          //   validation: this.validation.network
+          // },
           {
             title: { header: '*设备类型', key: 'deviceType', width: 16 },
             validation: {
@@ -394,12 +491,32 @@ class ExportExcelTemplate {
         ]
       },
       {
-        name: 'RTSP',
+        name: 'RTSP导入表格',
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
             validation: this.validation.inType
           },
+          {
+            title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
+            validation: null
+          },
+          {
+            title: { header: '接入区域', key: 'region', width: 16 },
+            validation: this.getRegionValidation()
+          },
+          // {
+          //   title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+          //   validation: null //  todo
+          // },
+          // {
+          //   title: { header: '所属行业', key: 'industry', width: 16 },
+          //   validation: this.validation.industry
+          // },
+          // {
+          //   title: { header: '网络标识', key: 'network', width: 16 },
+          //   validation: this.validation.network
+          // },
           {
             title: { header: '*设备类型', key: 'deviceType', width: 16 },
             validation: {
@@ -500,14 +617,14 @@ class ExportExcelTemplate {
             title: { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
             validation: this.validation.transPriority
           },
-          {
-            title: { header: '拉流地址', key: 'pullAddress', width: 30 },
-            validation: null
-          },
-          {
-            title: { header: '视频流标签', key: 'tags', width: 24 },
-            validation: this.validation.tags
-          },
+          // {
+          //   title: { header: '拉流地址', key: 'pullAddress', width: 30 },
+          //   validation: null
+          // },
+          // {
+          //   title: { header: '视频流标签', key: 'tags', width: 24 },
+          //   validation: this.validation.tags
+          // },
           {
             title: { header: '*视频包', key: 'videoPackage', width: 40 },
             validation: this.getVideoPackageValidation()
@@ -529,7 +646,6 @@ class ExportExcelTemplate {
    * 动态validation
    */
   private getGbAccountValidation() {
-    console.log()
     return {
       type: 'list',
       allowBlank: false,
@@ -564,8 +680,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      //   formulae: this.options.AIList.length ? [`'AIListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.AIList.length)}$1`] : ['""'],
-      formulae: '',
+      formulae: this.options.AIList.length ? [`'AIListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.AIList.length)}$1`] : ['""'],
+      // formulae: '',
       error: '请选择AI包'
     }
   }
@@ -575,18 +691,145 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: this.options.BWList.length ? [`'BWListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.BWList.length)}$1`] : ['""'],
+      formulae: [this.joinedDropDownlist(this.options.BWList)],
       error: '请选择上行带宽包'
     }
   }
+
+  private getRegionValidation() {
+    return {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae:[this.joinedDropDownlist(this.regionList)],
+      error: '请选择接入区域'
+    }
+  }
+
+  private getIndustryList(){
+    return {
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: '',
+      error: '请从选项中选择所属行业'
+    }
+  }
+
+  // 动态校验 formulae值 转换处理
+  public joinedDropDownlist = (data:any)=>{
+    return data.length ? "\""+data.join(',')+"\"" : ['""']
+  }
+
+  // 调接口获取下拉数据 --- start ---
+  private async getRegionList() {
+    try {
+      const regionList = await getRegions()
+      this.regionList = regionList?.map((item:any)=>{
+        return item.children.map((val:any)=>{
+          return `${item.value}/${val.label}`
+        })
+      }).flat()
+      console.log('this.regionList=----->',this.regionList)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  private async getIndustry(){
+    try {
+      const industryList = await getIndustryList()
+      console.log('industryList----->',industryList.data)
+
+      this.industryList  = industryList.data.map((item:any)=>item.name)
+
+      console.log('industryList---->',this.industryList)
+    }catch(e){
+      console.error(e)
+    }
+  }
+
+  private async getOptions() {
+    // 获取资源包选项
+    try {
+      const VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
+      this.options.VIDEOList = VIDEORes.resPkgList
+        ? VIDEORes.resPkgList
+            .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
+            .map((item: any) => {
+              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
+            })
+        : []
+      const AIRes: any = await getResources({ type: 'VSS_AI' })
+      this.options.AIList = AIRes.resPkgList
+        ? AIRes.resPkgList
+            .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
+            .map((item: any) => {
+              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
+            })
+        : []
+      const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
+      this.options.BWList = BWRes.resPkgList
+        ? BWRes.resPkgList
+            .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
+            .map((item: any) => {
+              return `${item.bitRate}M||${item.resourceId}`
+            })
+        : []
+    } catch (e) {
+      console.error(e)
+    }
+      // 获取设备用户选项
+      try {
+        const res = await getGa1400CertificateList({
+          pageSize: 1000
+        })
+        res.gbCerts.forEach((account: any) => {
+          this.options.gbAccountList.push(account.userName)
+        })
+      } catch (e) {
+        console.error(e)
+      }
+
+      // todo   通道 构建可选择的通道，排除已选择通道
+      // const info = await getDevice({
+      //   deviceId: this.parentDeviceId,
+      //   inProtocol: this.excelInProtocol
+      // })
+      // const usedChannelNum = info.deviceChannels.map((channel: any) => {
+      //   return channel.channelNum
+      // })
+      // const channelSize = info.deviceStats.maxChannelSize
+      // this.options.availableChannels = []
+      // for (let i = 1; i <= channelSize; i++) {
+      //   if (!~usedChannelNum.indexOf(i)) {
+      //     this.availableChannels.push(`D${i}`)
+      //   }
+      // }
+    
+    // 生成额外sheet存储动态选项
+    for (const key in this.options) {
+      if (this.options[key].length) {
+        const sheet = this.workbook.addWorksheet(`${key}Sheet`)
+        sheet.state = 'hidden'
+        sheet.addRow(this.options[key])
+      }
+    }
+  }
+  // 调接口获取下拉数据 --- end ---
+
 
   /**
    *
    * @memberof 导出模板
    */
   public async exportTemplate(data: any) {
-
     console.log('exportTemplate--data----->', data)
+
+    await this.getRegionList()
+
+    await this.getIndustry()
 
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
@@ -596,12 +839,21 @@ class ExportExcelTemplate {
 
     //Todo 获取四个sheet 中下拉框数据
 
-    this.excelTemplateSheet.forEach((item: any) => {
+    this.excelTemplateSheet.forEach((item: any, index) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
       worksheet.name = item.name
       worksheet.columns = item.content.map((val: any) => val.title)
 
-      // Todo 增加校验规则
+      console.log('item.content---->',item.content.length)
+
+      //增加校验规则
+      item.content.forEach((val: any, idx)=>{
+        const columnIndex = String.fromCharCode(65 + idx) 
+        worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, val.validation)
+        // console.log('XXXX------->',`${columnIndex}2:${columnIndex}9999`)
+        // console.log('worksheet.dataValidations---->', worksheet.dataValidations)
+        // console.log('val.validation----->', val.validation)
+      })
 
       // 调整样式
       worksheet._columns.forEach((column: any) => {
@@ -612,13 +864,23 @@ class ExportExcelTemplate {
         }
       })
 
-      // Todo 增加过滤器
+      // 添加过滤器
+      worksheet.autoFilter = {
+        from: {
+          row: 1,
+          column: 1
+        },
+        to: {
+          row: 9999,
+          column: worksheet._columns.length
+        }
+      }
     })
 
     // 增加第五个sheet
-    const worksheetExplain: any =  this.workbook.addWorksheet('My Sheet')
+    const worksheetExplain: any = this.workbook.addWorksheet('My Sheet')
     worksheetExplain.name = this.worksheetExplainName
-    
+
     // 设置列的宽度
     worksheetExplain.properties.defaultColWidth = 16
 
@@ -633,7 +895,46 @@ class ExportExcelTemplate {
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${excelName}.xlsx`
+    // link.click()
+  }
+
+  // 下载表格
+  public downloadFileUrl(fileName: string, file: any) {
+    const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `${fileName}.xlsx`
     link.click()
+  }
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
+  }
+
+  // 文件转base64
+  public fileToBase64(file: any, reader: any) {
+    return new Promise((resolve, reject) => {
+      reader = new FileReader()
+      let fileResult: any = ''
+      reader.readAsDataURL(file)
+      reader.onload = function () {
+        fileResult = reader.result
+      }
+      reader.onerror = function (error: any) {
+        reject(error)
+      }
+      reader.onloadend = function () {
+        resolve(fileResult)
+      }
+    })
   }
 }
 
