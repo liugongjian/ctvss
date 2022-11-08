@@ -150,7 +150,7 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '33':// 动物检测
     case '10033':// 动物检测
       // eslint-disable-next-line no-case-declarations
-      let counts = {}
+      const counts = {}
       AnimalType.forEach(item => { counts[item.label] = 0 })
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
@@ -405,6 +405,7 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '9':// 危险区域检测
     case '10006': // 危险区域检测
+    case '20001': // 危险区域检测-ibox
     case '26': // 人群感应检测
     case '27': // 实时在岗检测
     case '10023': // 人群感应检测
@@ -914,7 +915,7 @@ export const transformLocationAi = (locations: any, img: any) => {
 
 const parseBodyAttributes = (attributes: any) => {
   const attributesArray = []
-  for (let key in attributes) {
+  for (const key in attributes) {
     attributesArray.push({
       key: key.toLocaleLowerCase(),
       value: attributes[key].Name

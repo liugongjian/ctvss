@@ -41,11 +41,10 @@
         <template slot-scope="scope">
           <div class="device-list__device-type">
             <status-badge
-              v-if="scope.row.deviceType === 'ipc'"
               :status="scope.row.streamStatus"
             />
             <svg-icon
-              :name="scope.row.deviceType"
+              :name="scope.row.deviceType || 'ipc'"
               width="20"
               height="20"
               :class="scope.row.deviceStatus + 'line'"

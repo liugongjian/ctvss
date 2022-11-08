@@ -55,12 +55,14 @@ export default class extends Vue {
     const img = this.$refs.img
     this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
   }
+
   private nopic() {
     const img: any = this.$refs.img
     this.isPicLoaded = false
     img.src = require('@/assets/dashboard/image-placeholder.png')
     img.onerror = null // 防止闪图
   }
+
   private viewDetail() {
     this.$emit('showDialogue', this.pic)
   }

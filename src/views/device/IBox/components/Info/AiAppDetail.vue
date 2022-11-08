@@ -135,6 +135,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
               ...channel,
               deviceDir:
                 iboxId + ',' + device.device.deviceId + ',' + channel.deviceId,
+              streamStatus: channel.streams[0]?.streamStatus,
+              deviceStatus: device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
               path: [device.device, channel]
             })
           )
@@ -163,8 +165,9 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
       })
       _devices.push(...channels)
-      const filterDevices = _devices.filter((device) =>
-        deviceIds.find((id) => id === device.deviceId)
+      const filterDevices = _devices.filter((device) => {
+        return deviceIds.find((id) => id === device.deviceId)
+      }
       )
       this.deviceList = filterDevices.map(device => {
         const index = deviceIds.findIndex((id) => id === device.deviceId)

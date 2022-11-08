@@ -44,11 +44,12 @@
       @close="closeDialogue"
     />
     <algo-config
-      v-if="dialogVisible.algo && frameImage"
+      v-if="dialogVisible.algo"
       :device-id="deviceId"
       :canvas-if="dialogVisible.algo"
       :config-algo-info="configAlgoInfo"
       :frame-image="frameImage"
+      :frame-loading="frameLoading"
       :meta="meta"
       @add-meta="addMeta"
     />
@@ -132,10 +133,18 @@ export default class AiAppList extends Mixins(AlgoMixin) {
   }
 
   private async algoConfig(row) {
-    await this.initFrame()
-    this.initMetaFromApp(row)
-    this.app = row
-    this.dialogVisible.algo = true
+    try {
+      this.initMetaFromApp(row)
+      this.app = row
+      this.dialogVisible.algo = true
+      await this.initFrame()
+      this.frameLoading = 'correct'
+    } catch (e) {
+      console.log(e)
+      this.frameLoading = 'error'
+    } finally {
+      this.$forceUpdate()
+    }
   }
 
   private initMetaFromApp(appInfo) {

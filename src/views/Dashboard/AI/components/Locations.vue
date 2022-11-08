@@ -48,10 +48,13 @@ import { AiMaskType, AnimalType } from '@/dics'
 export default class extends Vue {
   @Prop()
   private img!: any
+
   @Prop()
   private type!: string
+
   @Prop()
   private clickable?: boolean
+
   private aiMaskType = AiMaskType
   private animalType = AnimalType
   private currentIndex: number = -1
@@ -65,6 +68,7 @@ export default class extends Vue {
       this.currentIndex = 0
       this.clickLocation(this.currentIndex)
     }
+    console.log('img:', img.locations)
   }
 
   private clickLocation(locationIndex: number) {
