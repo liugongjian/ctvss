@@ -19,9 +19,11 @@ const recursionData = (data, method) => {
 }
 
 export const toLowerCase = (data) => {
+  return data
   return recursionData(data, Method.ToLowerCase)
 }
 
 export const toUpperCase = (data) => {
+  return data
   return recursionData(data, Method.ToUpperCase)
 }

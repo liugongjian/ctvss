@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, DeviceTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -9,7 +8,7 @@ export const getDevices = (params: any): Promise<any> => {
     request({
       url: '/device/list',
       method: 'get',
-      params: toUpperCase(params)
+      params
     }).then((res: any) => {
       res.devices = res.devices.map(item => {
         const data = {
@@ -61,7 +60,7 @@ export const getDevicesIbox = (params: any): Promise<any> => {
     request({
       url: '/ibox/devicelist',
       method: 'get',
-      params: toUpperCase(params)
+      params
     }).then((res: any) => {
       res.devices = res.devices.map(item => {
         const data: any = {
@@ -110,7 +109,7 @@ export const exportDevicesExcel = (params: any): Promise<any> =>
   request({
     url: '/new/device',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })
 
 /* ----------------------------------------------- */
@@ -121,7 +120,7 @@ export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/describe',
     method: 'get',
-    params: toUpperCase(params),
+    params,
     cancelToken
   })
 
@@ -129,7 +128,7 @@ export const getDeviceIbox = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/ibox/device',
     method: 'get',
-    params: toUpperCase(params),
+    params,
     cancelToken
   })
 
@@ -169,14 +168,14 @@ export const createDevice = (params: any): Promise<any> =>
   request({
     url: '/device/create',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const createDeviceIbox = (params: any): Promise<any> =>
   request({
     url: '/ibox/device',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -186,7 +185,7 @@ export const updateDevice = (params: any): Promise<any> =>
   request({
     url: '/device/update',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -196,7 +195,7 @@ export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -332,7 +331,7 @@ export const startDevice = (params: any): Promise<any> =>
   request({
     url: '/device/start',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -342,7 +341,7 @@ export const stopDevice = (params: any): Promise<any> =>
   request({
     url: '/device/stop',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -536,7 +535,7 @@ export const getDeviceEvents = (params: any): Promise<any> =>
   request({
     url: '/device/event',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })
 
 // player组件  缩放
