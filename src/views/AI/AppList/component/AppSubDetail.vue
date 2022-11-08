@@ -333,8 +333,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    // this.initFaceInfos()
-    console.log('this.appInfo:', this.appInfo)
     if (this.device.deviceId.length > 0) {
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()

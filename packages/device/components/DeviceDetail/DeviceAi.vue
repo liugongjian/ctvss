@@ -4,6 +4,7 @@
       <div class="select">
         应用名称：
         <el-select v-model="app" placeholder="请选择" @change="appChange">
+          <!-- <el-option key="all" value="all" label="全部" /> -->
           <el-option
             v-for="item in apps"
             :key="item.id"
@@ -45,6 +46,13 @@ export default class extends Mixins(detailMixin) {
   private appselected: String = ''
   public device!: any
 
+  public allAppOption = {
+    appId: 'all',
+    algorithm: {
+      code: '20001'
+    }
+  }
+
   public get noapp() {
     return this.apps.length === 0
   }
@@ -75,12 +83,15 @@ export default class extends Mixins(detailMixin) {
     const transformIboxAppInfo = (iboxApps) => {
       const transformed = iboxApps.map(app => ({
         ...app,
-        id: app.appId
+        id: app.appId,
+        algorithm: {
+          code: app?.algorithmsId
+        }
       }))
       return transformed
     }
     const transIboxApps = transformIboxAppInfo(iboxApps)
-    this.device = { deviceId, inProtocol: '' }
+    this.device = { deviceId, inProtocol: this.inProtocol }
     if (transIboxApps.length > 0) {
       this.appInfo = transIboxApps[0]
       this.apps = transIboxApps
