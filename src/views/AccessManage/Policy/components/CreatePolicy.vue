@@ -34,6 +34,7 @@
               :load="treeLoad"
               :lazy="lazy"
               :data="dirList"
+              :default-expanded-keys="defaultExpandedKeys"
               :props="treeProp"
               @check-device="onCheckDevice"
             />
@@ -180,6 +181,8 @@ export default class extends Mixins(layoutMxin) {
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
+  // 初始化 目录树 keys list
+  private initCheckedKeyList = []
   private rules = {
     policyName: [
       { required: true, message: '请输入策略名称', trigger: 'blur' },
@@ -315,13 +318,46 @@ export default class extends Mixins(layoutMxin) {
         })
       }
       const resourceList = policyInfo.Statement[0].Resource
-      if (resourceList[0] === '*') {
+      if(resourceList[0] === '*') {
         this.resourceType = 'all'
+        this.initCheckedKeyList = []
       } else {
         this.resourceType = 'selected'
+        this.initCheckedKeyList = resourceList.map((keyId: any) => {
+          const ids = keyId.split(':')[2].split('/')
+          const leafId = ids[ids.length -1]
+          return leafId
+        })
+        this.defaultExpandedKeys = resourceList.map((keyId: any) => {
+          const ids = keyId.split(':')[2].split('/')
+          ids.pop()
+          return ids
+        }).flat()
       }
-      await this.initDirs()
-      this.$nextTick(() => this.initResourceStatus(resourceList))
+      const tree = this.deviceTree.$refs.commonTree
+      tree.setCheckedKeys.call(this.deviceTree, this.initCheckedKeyList)
+      // console.log('需要展开的节点的ID        ', this.defaultExpandedKeys)
+      // console.log('需要勾选的节点 ', this.initCheckedKeyList)
+      // const resourceList = policyInfo.Statement[0].Resource
+      // console.log('resourceList     ', policyInfo.Statement[0].Resource)
+      // if(resourceList[0] === '*') {
+      //   this.resourceType = 'all'
+      //   this.initCheckedKeyList = []
+      // } else {
+      //   this.resourceType = 'selected'
+      //   this.initCheckedKeyList = resourceList.map((keyId: any) => {
+      //     const ids = keyId.split(':')[2].split('/')
+      //     const id = ids[ids.length -1]
+      //     return id
+      //   })
+      // }
+      // if (this.initCheckedKeyList[0] === '*') {
+      //   this.resourceType = 'all'
+      // } else {
+      //   this.resourceType = 'selected'
+      // }
+      // await this.initDirs()
+      // this.$nextTick(() => this.initResourceStatus(this.initCheckedKeyList))
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
