@@ -637,7 +637,6 @@ class ExportExcelTemplate {
    * 动态validation
    */
   private getGbAccountValidation() {
-    console.log()
     return {
       type: 'list',
       allowBlank: false,
@@ -810,6 +809,7 @@ class ExportExcelTemplate {
   }
   // 调接口获取下拉数据 --- end ---
 
+
   /**
    *
    * @memberof 导出模板
@@ -825,12 +825,18 @@ class ExportExcelTemplate {
 
     //Todo 获取四个sheet 中下拉框数据
 
-    this.excelTemplateSheet.forEach((item: any) => {
+    this.excelTemplateSheet.forEach((item: any, index) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
       worksheet.name = item.name
       worksheet.columns = item.content.map((val: any) => val.title)
 
-      // Todo 增加校验规则
+      //增加校验规则
+      item.content.forEach((val: any, idx)=>{
+        const columnIndex = String.fromCharCode(65 + idx) 
+        worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, val.validation)
+        console.log('worksheet.dataValidations---->', worksheet.dataValidations)
+        console.log('val.validation----->', val.validation)
+      })
 
       // 调整样式
       worksheet._columns.forEach((column: any) => {
@@ -841,7 +847,17 @@ class ExportExcelTemplate {
         }
       })
 
-      // Todo 增加过滤器
+      // 添加过滤器
+      worksheet.autoFilter = {
+        from: {
+          row: 1,
+          column: 1
+        },
+        to: {
+          row: 9999,
+          column: worksheet._columns.length
+        }
+      }
     })
 
     // 增加第五个sheet
