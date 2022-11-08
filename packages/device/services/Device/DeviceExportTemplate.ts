@@ -1,3 +1,4 @@
+import { getRegions } from '../../api/region'
 class ExportExcelTemplate {
   private excelName = ''
   private workbook: any
@@ -12,6 +13,8 @@ class ExportExcelTemplate {
       visibility: 'visible'
     }
   ]
+
+  public regionList:any = []
 
   private options: any = {
     gbAccountList: [],
@@ -124,11 +127,19 @@ class ExportExcelTemplate {
       {
         name: 'GB28181',
         content: [
-          // {
-          //   title: { header: '*设备类型', key: 'deviceType', width: 16 },
-          //   validation: this.validation.deviceType
-          // },
-          // {
+          {
+            title: { header: '*设备类型', key: 'deviceType', width: 16 },
+            validation: this.validation.deviceType
+          },
+          {
+            title: { header:'接入网络类型', key: 'inNetworkType', width: 16 },
+            validation: null
+          },
+          {
+            title: { header:'接入区域', key: 'region', width: 16 },
+            validation: this.getRegionValidation()
+          },
+          // {  
           //   title: { header: '*国标版本', key: 'gbVersion', width: 16 },
           //   validation: {
           //     type: 'list',
@@ -579,6 +590,28 @@ class ExportExcelTemplate {
       error: '请选择上行带宽包'
     }
   }
+
+  private getRegionValidation(){
+    return {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: this.regionList.length ? [`'RegionListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.regionList.length)}$1`] : ['""'],
+      error: '请选择上行带宽包'
+    }
+  }
+
+
+  // 调接口获取下拉数据 --- start ---
+  private async getRegionList() {
+    try {
+      this.regionList = await getRegions()
+    } catch (e) {
+      console.error(e)
+    } 
+  }
+
+// 调接口获取下拉数据 --- end ---
 
   /**
    *
