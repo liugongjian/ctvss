@@ -3,7 +3,6 @@ import { AdvancedSearch } from '../../type/AdvancedSearch'
 import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
 import { DirectoryTypeEnum } from '@vss/device/enums'
-import { AnyAaaaRecord } from 'dns'
 
 /**
  * ===============================================================================================
@@ -15,7 +14,8 @@ import { AnyAaaaRecord } from 'dns'
  * @param data 播放器信息
  * @param streamNum 第几路流
  */
-const openScreen = function (state: { screenManager: ScreenManager }, data: any, streamNum?: number) {
+const openScreen = function (getVueComponent, data: any, streamNum?: number) {
+  const state = getVueComponent()
   state.screenManager.openTreeItem(data, streamNum)
 }
 

@@ -71,7 +71,7 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.SortDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.SortDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
-    [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this, data, streamNum),
+    [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this.getVueComponent, data, streamNum),
     [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'polling'),
     [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'autoPlay'),
     [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this.getVueComponent, interval),
