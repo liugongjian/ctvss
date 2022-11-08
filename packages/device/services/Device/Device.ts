@@ -455,7 +455,7 @@ const startOrStopDevice = async function (state, type, data?) {
       .then(() => {
         state.$message.success(`已通知${methodStr}设备`)
         state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshRouterView)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
       })
       .catch(e => {
         if (e === 'cancel' || e === 'close') return
