@@ -266,12 +266,22 @@ export const InViidProtocolCreateParams = {
 export const InViidProtocolAllowParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
     ...InViidProtocolCreateParams[InViidProtocolEnum.Ga1400],
+    DeviceEnum.DeviceName,
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.InVersion,
-    DeviceEnum.InUserName,
-    DeviceEnum.DeviceStreamAutoPull,
-    DeviceEnum.StreamTransProtocol,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+    DeviceEnum.PlatformName,
+    DeviceEnum.CreatedTime
   ])
 }
 
