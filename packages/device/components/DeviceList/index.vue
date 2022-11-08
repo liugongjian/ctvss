@@ -367,6 +367,12 @@ export default class extends Mixins(deviceMixin) {
     syncDeviceStatus: false
   }
 
+  // 定时刷新
+  private refreshCount = {
+    target: 0, // 目标总的刷新次数
+    index: 0 // 当前刷新的次数
+  }
+
   private dialog = {
     [ToolsEnum.MoveDevice]: false,
     [ToolsEnum.Import]: false,
@@ -461,10 +467,12 @@ export default class extends Mixins(deviceMixin) {
   }
 
   @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
-  private async statusChange(val) {
-    if (val === 'true') {
-      this.initList()
-      this.handleListTools(ToolsEnum.RefreshRouterView, 'false')
+  private async refreshFlagChange(val) {
+    if (val > 0) {
+      this.refreshCount.target = val
+      this.refreshCount.index = 0
+      this.initList(false)
+      this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
   }
 
@@ -501,8 +509,8 @@ export default class extends Mixins(deviceMixin) {
   /**
    * 设备列表初始化
    */
-  private async initList() {
-    this.loading.table = true
+  private async initList(isLoading = true) {
+    this.loading.table = isLoading
     if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
       this.loading.info = true
       await this.getDevice(this.currentDirId)
