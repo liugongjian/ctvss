@@ -106,7 +106,7 @@
             <el-input v-model="deviceForm.deviceIp" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
-            <el-input v-model="deviceForm.devicePort" />
+            <el-input v-model.number="deviceForm.devicePort" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
             <el-input v-model="deviceForm.devicePoleId " />
@@ -303,7 +303,6 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.DeviceLongitude,
               DeviceEnum.DeviceLatitude,
               DeviceEnum.DeviceIp,
-              DeviceEnum.DevicePort,
               DeviceEnum.DeviceMac,
               DeviceEnum.DevicePoleId,
               DeviceEnum.DeviceSerialNumber,
@@ -313,8 +312,9 @@ export default class extends Mixins(deviceFormMixin) {
             ...pick(this.videoForm, [
               DeviceEnum.DeviceChannelSize
             ]),
+            [DeviceEnum.DevicePort]: Number(this.deviceForm.devicePort),
             // 父级设备ID
-            parentDeviceId: this.parentDeviceId
+            [DeviceEnum.ParentDeviceId]: this.parentDeviceId
           },
           industry: {
             ...pick(this.deviceForm, [
