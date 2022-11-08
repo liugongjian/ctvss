@@ -492,7 +492,10 @@ const startOrStopRecord = async function (state, type, row) {
     }
     await method(params)
     state.$message.success(`已通知${methodStr}录制`)
-    state.handleTools(ToolsEnum.RefreshDirectory)
+    // 启停操作为异步操作，过3秒后当前视图
+    setTimeout(() => {
+      state.handleTools(ToolsEnum.RefreshRouterView, 5)
+    }, 3000)
   } catch (e) {
     state.$message.error(e && e.message)
     console.error(e)

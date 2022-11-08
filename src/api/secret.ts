@@ -24,6 +24,13 @@ export const deleteSecret = (params: number, type = undefined): Promise<any> =>
     }
   })
 
+export const updateSecret = (data: any = undefined): Promise<any> =>
+  request({
+    url: '/openapi/update',
+    method: 'post',
+    data
+  })
+
 export const enableSecret = (params: number): Promise<any> =>
   request({
     url: '/openapi/start',
@@ -45,6 +52,13 @@ export const disableSecret = (params: number): Promise<any> =>
 export const exportSecret = (data: any): Promise<any> =>
   request({
     url: '/openapi/exportAkskOption',
+    method: 'post',
+    data
+  })
+
+export const exportSecretCSV = (data: any): Promise<any> =>
+  request({
+    url: '/openapi/exportAkskCSV',
     method: 'post',
     data
   })

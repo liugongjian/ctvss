@@ -40,8 +40,25 @@
           :show-checkbox="hasCheckbox"
           highlight-current
           @node-click="handleNode"
-          @check-change="onCheckDevice"
+          @check="onCheckDevice"
         >
+        <!-- <el-tree
+          :key="treeKey"
+          ref="Tree"
+          :node-key="nodeKey"
+          :current-node-key="currentNodeKey"
+          :data="data"
+          :lazy="lazy"
+          :load="loadChildren"
+          :props="props"
+          :empty-text="emptyText"
+          :default-expand-all="!lazy"
+          :expand-on-click-node="expandOnClickNode"
+          :show-checkbox="hasCheckbox"
+          highlight-current
+          @node-click="handleNode"
+          @check-change="onCheckDevice"
+        > -->
           <div
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
@@ -229,12 +246,13 @@ export default class extends Vue {
   private onCheckDevice(data: any) {
     const dirTree: any = this.tree
     const nodes = dirTree.getCheckedNodes()
-    // console.log('选中节点    data    ', data)
-    // console.log('选中节点    dirTree   ', dirTree)
-    // console.log('选中节点    c   ', c)
     this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('check-device', nodes)
+  }
+
+  private setChecked(data: any, checked: boolean, deep: boolean = false) {
+    return this.tree.setChecked(data, checked, deep)
   }
 }
 </script>

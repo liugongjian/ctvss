@@ -30,7 +30,7 @@
     </el-form>
     <el-form v-else label-width="80px" label-position="left">
       <el-form-item label="描述">
-        <el-input v-model="desc" type="textarea" rows="5"></el-input>
+        <el-input v-model="description" type="textarea" rows="5"></el-input>
       </el-form-item>
     </el-form>
     <div v-if="!step" slot="footer" class="dialog-footer">
@@ -46,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { exportSecret } from '@/api/secret'
+import { exportSecret, exportSecretCSV } from '@/api/secret'
 import ExcelMixin from '@/views/device/mixin/excelMixin'
 
 @Component({
@@ -64,6 +64,12 @@ export default class extends Mixins(ExcelMixin) {
 
   @Prop()
   private editFlag!: boolean
+
+  private description = ''
+
+  private mounted(){
+    this.description = this.data.description
+  }
 
   private closeDialog() {
     this.$emit('on-close')
@@ -83,12 +89,18 @@ export default class extends Mixins(ExcelMixin) {
 
   private async downloadCSV(){
     this.$emit('loading-change', true)
-    // 下载 await
-    this.$emit('loading-change', false)
+    try {
+      const res = await exportSecretCSV({ ids: [this.data.id] })
+      this.downloadFileUrl(`${this.data.type === 'api' ? 'API密钥' : 'OpenAPI授权'}`, res.exportFile)
+    } catch (e){
+      console.log(e)
+    } finally {
+      this.$emit('loading-change', false)
+    }
   }
 
   private async confirm(){
-    this.editFlag ? this.$emit('edit-secret') : this.$emit('create-secret')
+    this.editFlag ? this.$emit('edit-secret', { id: this.data.id, description: this.description }) : this.$emit('create-secret', this.description)
   }
 
   private copySuccess() {

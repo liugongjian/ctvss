@@ -84,8 +84,7 @@ import { Secret, SecretTip } from '@/type/Secret'
 import { SecretStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import TipDialog from './components/TipDialog.vue'
-import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret } from '@/api/secret'
-import { MessageBox } from 'element-ui'
+import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret, updateSecret } from '@/api/secret'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
@@ -111,10 +110,12 @@ export default class extends Vue {
       headline: '',
       id: '',
       accessKey: '',
-      secretKey: ''
+      secretKey: '',
+      description: ''
     }
     this.showTipDialog = false
     this.dialogStep = 0
+    this.editFlag = false
   }
 
   private async mounted() {
@@ -182,13 +183,19 @@ export default class extends Vue {
         headline: '编辑密钥',
         id: row.id + '',
         accessKey: row.accessKey,
-        secretKey: row.secretKey
+        secretKey: row.secretKey,
+        description: row.description
       }
     this.editFlag = true
   }
 
-  private async editSecretDesc(){
-    console.log('提交修改')
+  private async editSecretDesc({ id, description }){
+    try {
+      await updateSecret({ id, description })
+      this.$message.success('更新密钥成功')
+    } catch (e){
+      this.$message.error('更新失败：' + e)
+    }
   }
 
   private async disableSecret(row: Secret) {
@@ -208,17 +215,18 @@ export default class extends Vue {
     }
   }
 
-  private async createSecret() {
+  private async createSecret(description) {
     try {
       this.dialogLoading = true
-      const res = await createSecret()
+      const res = await createSecret({ description })
       await this.getList()
       this.dialogData = {
         type: 'api',
         headline: '新建密钥成功',
         id: res.id,
         accessKey: res.accessKey,
-        secretKey: res.secretKey
+        secretKey: res.secretKey,
+        description: res.description
       }
       this.dialogStep = 1
       this.dialogLoading = false
@@ -238,7 +246,8 @@ export default class extends Vue {
       headline: '新建密钥',
       id: '',
       accessKey: '',
-      secretKey: ''
+      secretKey: '',
+      description: ''
     }
   }
 

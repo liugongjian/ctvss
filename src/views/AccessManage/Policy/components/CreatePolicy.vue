@@ -512,12 +512,6 @@ export default class extends Mixins(layoutMxin) {
    * 当设备被选中时回调，将选中的设备列出
    */
   private onCheckDevice(nodes: any) {
-    // const deviceTree: any = this.$refs.deviceTree
-    // const nodes = deviceTree.getCheckedNodes()
-    // nodes.filter((node: any) => node.parentDirId !== '').map((node: any) => {
-
-    // })
-    // 这一块儿收缩有问题。。。。。。。。按什么来收缩？要不是数据错了，要不是收缩方法错了
     const list = nodes.filter((node: any) => {
       const currentNodeParentDirId = (node.parentDirId === 0 || node.parentDirId === -1) ? 0 : node.parentDirId
       const currentNodeParentDeviceId = (node.parentDeviceId === 0 || node.parentDeviceId === -1) ? 0 : node.parentDeviceId
@@ -531,8 +525,14 @@ export default class extends Mixins(layoutMxin) {
    * 移除设备
    */
   private removeDevice(device: any) {
-    const deviceTree: any = this.$refs.deviceTree
-    deviceTree.setChecked(device.id, false)
+    const tree = this.deviceTree.$refs.commonTree
+    tree.setChecked(device.id, false, true)
+    this.onCheckDevice(this.getTreeCheckedNodes(tree))
+  }
+
+  private getTreeCheckedNodes(tree: any) {
+    const nodes = tree.getCheckedNodes()
+    return nodes
   }
 
   /**
