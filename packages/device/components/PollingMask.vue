@@ -62,17 +62,17 @@ export default class extends Vue {
   private currentDir
 
   /* 轮巡及一键播放 */
-  @Prop({ default: {} })
-  private executeQueueConfig
+  @Prop({ default: () => {} })
+  private screenManager
 
   /* 轮巡状态 */
   private get pollingStatus() {
-    return this.executeQueueConfig.status
+    return this.screenManager ? this.screenManager.executeQueueConfig.status : PollingStatusEnum.Free
   }
 
   /* 轮巡间隔 */
   private get pollingInterval() {
-    return this.executeQueueConfig.interval
+    return this.screenManager ? this.screenManager.executeQueueConfig.interval : 20
   }
  
   // @Prop({ default: 20 })

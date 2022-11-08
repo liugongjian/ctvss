@@ -109,15 +109,15 @@ export default class LayoutMixin extends Vue {
     )
   }
 
-  /* 播放器管理实例 */
-  public get screenManager() {
-    return (this.$refs.screenBoard as any)?.screenManager
-  }
+  // /* 播放器管理实例 */
+  // public get screenManager() {
+  //   return (this.$refs.screenBoard as any)?.screenManager
+  // }
 
-  /* 视频队列执行器 */
-  public get queueExecutor() {
-    return this.screenManager && this.screenManager.refs.queueExecutor
-  }
+  // /* 视频队列执行器 */
+  // public get queueExecutor() {
+  //   return this.screenManager && this.screenManager.refs.queueExecutor
+  // }
 
   public mounted() {
     DeviceManager.initAdvancedSearch(this)
@@ -147,7 +147,7 @@ export default class LayoutMixin extends Vue {
       // 增加 path 属性
       res = await getNodeInfo({ id: node.data.id, type: node.data.type })
       // console.log('get node info     ', res)
-      let parentPath = this.concatPath(node)
+      const parentPath = this.concatPath(node)
       res.dirs.map((item: any) => {
         item.path = node.level === 1 ? node.label : parentPath + '/' + node.label
       })
@@ -167,8 +167,8 @@ export default class LayoutMixin extends Vue {
 
   // 拼接 path
   private concatPath(node: any) {
-    if (typeof(node.parent.label) === "undefined") return ''
-    let label = node.parent.label ? node.parent.label : ''
+    if (typeof(node.parent.label) === 'undefined') return ''
+    const label = node.parent.label ? node.parent.label : ''
     return this.concatPath(node.parent) + '/' + label
   }
 

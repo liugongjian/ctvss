@@ -33,7 +33,7 @@
         <polling-mask
           ref="pollingMask"
           :current-dir="currentDir"
-          :execute-queue-config="screenManager.executeQueueConfig"
+          :screen-manager="screenManager"
           @polling-handle="handleTools"
         />
       </template>
@@ -78,18 +78,23 @@ import { ScreenModule } from '@vss/device/store/modules/screen'
 })
 export default class extends Mixins(layoutMxin) {
   // 分屏管理器实例
-  public _screenManager: ScreenManager = null
+  public screenManager: ScreenManager = null
+
+  // 视频队列执行器
+  public get queueExecutor() {
+    return this.screenManager && this.screenManager.refs.queueExecutor
+  }
 
   // 当前选中的分屏
   public get currentScreen() {
-    return this._screenManager && this._screenManager.currentScreen
+    return this.screenManager && this.screenManager.currentScreen
   }
 
   public mounted() {
     ScreenModule.clearPlayingScreen()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
-    this._screenManager = screenBoard?.screenManager
+    this.screenManager = screenBoard?.screenManager
     window.addEventListener('beforeunload', this.saveCache)
   }
 
@@ -102,14 +107,14 @@ export default class extends Mixins(layoutMxin) {
    * @param item node信息
    */
   private handleTreeNode(item: any) {
-    this._screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
   }
 
   /**
    * 保存分屏缓存
    */
   private saveCache() {
-    this._screenManager.saveCache()
+    this.screenManager.saveCache()
   }
 }
 </script>

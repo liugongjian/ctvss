@@ -2,7 +2,8 @@ import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
 import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
-import { DirectoryTypeEnum, PollingStatusEnum } from '@vss/device/enums'
+import { DirectoryTypeEnum } from '@vss/device/enums'
+import { AnyAaaaRecord } from 'dns'
 
 /**
  * ===============================================================================================
@@ -52,21 +53,25 @@ const executeQueue = async function (
     advancedSearchForm?: AdvancedSearch
     setDirsStreamStatus?: Function
   } = getVueComponent()
-  const devicesQueue: Device[] = []
+  let devicesQueue: Device[] = []
   // const deviceTree: any = state.deviceTree
   state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node 
   policy === 'polling' && (state.pollingMask.isLoading = true)
   // await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
-  const res = await getDirDevices({
-    id: state.currentDir.id,
-    type: state.currentDir.type
-  })
-  console.log('--------', res)
+  try {
+    const res = await getDirDevices({
+      id: state.currentDir.id,
+      type: state.currentDir.type
+    })
+    devicesQueue = res.devices
+  } catch (e) {
+    console.log(e)
+  }
   policy === 'polling' && (state.pollingMask.isLoading = false)
   if (state.queueExecutor) {
     state.screenManager.devicesQueue = devicesQueue
+    console.log('screenManager', state.screenManager.devicesQueue)
     state.queueExecutor.executeDevicesQueue(policy)
-    policy === 'polling' && (state.pollingStatus = PollingStatusEnum.Working)
   }
 }
 
@@ -146,9 +151,8 @@ const deepDispatchTree = async function (
  * @param val 时间
  */
 const intervalChange = function (getVueComponent, interval: number) {
-  const state: { screenManager, pollingInterval: number } = getVueComponent() 
+  const state: { screenManager } = getVueComponent() 
   state.screenManager.executeQueueConfig.interval = interval
-  state.pollingInterval = interval
 }
 
 /**
@@ -156,10 +160,9 @@ const intervalChange = function (getVueComponent, interval: number) {
  * @param state.queueExecutor 轮询执行器
  */
 const stopPolling = function (getVueComponent) {
-  const state: { queueExecutor: any, pollingStatus: string } = getVueComponent()
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.stopPolling()
-    state.pollingStatus = PollingStatusEnum.Free
   }
 }
 
@@ -168,10 +171,9 @@ const stopPolling = function (getVueComponent) {
  * @param state.queueExecutor 轮询执行器
  */
 const pausePolling = function (getVueComponent) {
-  const state: { queueExecutor: any, pollingStatus: string } = getVueComponent()
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.pausePolling()
-    state.pollingStatus = PollingStatusEnum.Pause
   }
 }
 
@@ -180,10 +182,9 @@ const pausePolling = function (getVueComponent) {
  * @param state.queueExecutor 轮询执行器
  */
 const resumePolling = function (getVueComponent) {
-  const state: { queueExecutor: any, pollingStatus: string } = getVueComponent()
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.resumePolling()
-    state.pollingStatus = PollingStatusEnum.Working
   }
 }
 
