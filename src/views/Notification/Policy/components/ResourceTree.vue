@@ -59,7 +59,7 @@ export default class extends Mixins(layoutMxin) {
     isLeaf: 'isLeaf'
   }
 
-  private async mounted() {
+  public async mounted() {
     await this.initDirs()
     await this.initResourceStatus(this.checkedList)
   }
