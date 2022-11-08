@@ -95,7 +95,7 @@ export default class extends Mixins(detailMixin) {
   }
 
   @Watch('$route.query.deviceId')
-  private async deviceIdChange(deviceId) {
+  public async deviceIdChange(deviceId) {
     [DeviceTypeEnum.Ipc].includes(this.deviceType) && await this.getDevice(deviceId)
     this.setTab()
   }
