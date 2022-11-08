@@ -120,6 +120,7 @@ export default class ListMixin extends Vue {
     try {
       await startDevice(param)
       this.$message.success('已通知启用流，请耐心等待流启用成功')
+      this.count = 0
       const query = {
         deviceId,
         status: 'on'
@@ -139,6 +140,7 @@ export default class ListMixin extends Vue {
     try {
       await stopDevice(param)
       this.$message.success('已通知停用流，请耐心等待流停用成功')
+      this.count = 0
       const query = {
         deviceId,
         status: 'off'
@@ -150,10 +152,11 @@ export default class ListMixin extends Vue {
   }
 
   public syncDeviceStream(query: any) {
-    this.streamPolling(query).then(() => {
-      this.getDirList()
-      this.getDeviceList()
-      this.count = 0
+    this.streamPolling(query).then(({ streamStatus, status }) => {
+      if (streamStatus !== status) {
+        this.getDirList()
+        this.getDeviceList()
+      }
     })
   }
 
@@ -171,7 +174,8 @@ export default class ListMixin extends Vue {
               resolve(this.streamPolling(query))
             }, this.times * 1000)
           } else {
-            resolve(res)
+            const result = { streamStatus: videosInfo?.streams[0]?.streamStatus, status }
+            resolve(result)
           }
         }).catch(err => reject(err))
       })
