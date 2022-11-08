@@ -1,5 +1,5 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { getDeviceList, startDevice, stopDevice, deleteDevice } from '@/api/ibox'
+import { getDeviceList, startDevice, stopDevice, deleteDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
 @Component
@@ -19,6 +19,9 @@ export default class ListMixin extends Vue {
     pageSize: 10,
     total: 0
   }
+
+  public count = 0 // 轮训上限次数
+  public times = 5 // 轮训间隔
 
   public addIBox() {
     const query: any = {
@@ -116,7 +119,12 @@ export default class ListMixin extends Vue {
     }
     try {
       await startDevice(param)
-      this.$message.success('启用流成功')
+      this.$message.success('已通知启用流，请耐心等待流启用成功')
+      const query = {
+        deviceId,
+        status: 'on'
+      }
+      this.syncDeviceStream(query)
     } catch (error) {
       console.log(error)
     }
@@ -130,9 +138,45 @@ export default class ListMixin extends Vue {
     }
     try {
       await stopDevice(param)
-      this.$message.success('停用流成功')
+      this.$message.success('已通知停用流，请耐心等待流停用成功')
+      const query = {
+        deviceId,
+        status: 'off'
+      }
+      this.syncDeviceStream(query)
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  public syncDeviceStream(query: any) {
+    this.streamPolling(query).then(() => {
+      this.getDirList()
+      this.getDeviceList()
+      this.count = 0
+    })
+  }
+
+  public streamPolling(query: any) {
+    if (this.count < 6) {
+      this.count = this.count + 1
+      const { deviceId, status } = query
+      const param = { deviceId }
+      return new Promise((resolve, reject) => {
+        getDeviceDetail(param).then((res: any) => {
+          const videos = res.videos[0]
+          const videosInfo = videos[InVideoProtocolModelMapping[videos.inVideoProtocol]]
+          if (videosInfo?.streams[0]?.streamStatus !== status) {
+            setTimeout(() => {
+              resolve(this.streamPolling(query))
+            }, this.times * 1000)
+          } else {
+            resolve(res)
+          }
+        }).catch(err => reject(err))
+      })
+    } else {
+      this.count = 6
     }
   }
 }
