@@ -2,9 +2,10 @@
   <div />
 </template>
 <script lang="ts">
-import { Screen } from '@/views/device/services/Screen/Screen'
+import { Screen } from '@vss/device/services/Screen/Screen'
 import { pick } from 'lodash'
 import { Component } from 'vue-property-decorator'
+import { PollingStatusEnum } from '@vss/device/enums'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -53,8 +54,8 @@ export default class extends ComponentMixin {
     this.currentExecuteIndex = 0
     switch (policy) {
       case 'polling':
-        if (this.pollingStatus === 'free') {
-          this.pollingStatus = 'working'
+        if (this.pollingStatus === PollingStatusEnum.Free) {
+          this.pollingStatus = PollingStatusEnum.Working
           this.doPolling()
         }
         break
@@ -86,36 +87,47 @@ export default class extends ComponentMixin {
   private doPolling() {
     // 轮巡初始化
     this.timer && clearTimeout(this.timer)
+    console.log('this.devicesQueue', this.devicesQueue)
     if (this.devicesQueue.length - 1 < this.maxSize) {
       this.doAutoPlay()
     } else {
       // 刷新
       this.pollingVideos()
       // 间隔时间大于预加载时间则执行预加载策略
-      let preLoadDelay = 5
-      if (this.pollingInterval <= preLoadDelay) {
-        preLoadDelay = 0
-      }
-      let intervalPolling = () => {
+      // let preLoadDelay = 5
+      // if (this.pollingInterval <= preLoadDelay) {
+      //   preLoadDelay = 0
+      // }
+      // const intervalPolling = () => {
+      //   this.timer = setTimeout(
+      //     () => {
+      //       this.timer && clearTimeout(this.timer)
+      //       if (preLoadDelay) {
+      //         this.preLoadPollingVideos()
+      //         this.timer = setTimeout(
+      //           () => {
+      //             this.timer && clearTimeout(this.timer)
+      //             this.pollingVideos()
+      //             intervalPolling()
+      //           },
+      //           preLoadDelay * 1000
+      //         )
+      //       } else {
+      //         this.pollingVideos()
+      //         intervalPolling()
+      //       }
+      //     },
+      //     (this.pollingInterval - preLoadDelay) * 1000
+      //   )
+      // }
+      const intervalPolling = () => {
         this.timer = setTimeout(
           () => {
-            this.timer && clearTimeout(this.timer)
-            if (preLoadDelay) {
-              this.preLoadPollingVideos()
-              this.timer = setTimeout(
-                () => {
-                  this.timer && clearTimeout(this.timer)
-                  this.pollingVideos()
-                  intervalPolling()
-                },
-                preLoadDelay * 1000
-              )
-            } else {
-              this.pollingVideos()
-              intervalPolling()
-            }
+            this.timer && clearTimeout(this.timer) 
+            this.pollingVideos()
+            intervalPolling()
           },
-          (this.pollingInterval - preLoadDelay) * 1000
+          this.pollingInterval * 1000
         )
       }
       intervalPolling()
@@ -131,17 +143,11 @@ export default class extends ComponentMixin {
     let currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
-      let deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
+      const deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
       this.screenList[i].inProtocol = deviceInfo.inProtocol
       this.screenList[i].isLive = this.screenManager.isLive
-      if (deviceInfo.url && deviceInfo.codec) {
-        this.$nextTick(() => {
-          Object.assign(this.screenList[i], pick(deviceInfo, ['codec', 'url']))
-        })
-      } else {
-        this.screenList[i].init()
-      }
+      this.screenList[i].init()
       if (currentIndex < this.maxSize - 1) {
         currentIndex++
       } else {
@@ -157,11 +163,11 @@ export default class extends ComponentMixin {
   private async preLoadPollingVideos() {
     console.log('轮巡预加载')
     const length = this.devicesQueue.length
-    let currentExecuteIndex = this.currentExecuteIndex % length
+    const currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     let preLoadScreen = new Screen()
     for (let i = 0; i < this.maxSize; i++) {
-      let pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
+      const pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
       preLoadScreen.destroy()
       preLoadScreen.deviceId = pollingDeviceInfo.id
       preLoadScreen.deviceName = pollingDeviceInfo.label
@@ -183,9 +189,9 @@ export default class extends ComponentMixin {
    * 停止轮巡
    */
   private stopPolling() {
-    if (this.pollingStatus !== 'free') {
+    if (this.pollingStatus !== PollingStatusEnum.Free) {
       clearTimeout(this.timer)
-      this.pollingStatus = 'free'
+      this.pollingStatus = PollingStatusEnum.Free
     }
   }
 
@@ -193,9 +199,9 @@ export default class extends ComponentMixin {
    * 暂停轮巡
    */
   private pausePolling() {
-    if (this.pollingStatus === 'working') {
+    if (this.pollingStatus === PollingStatusEnum.Working) {
       clearTimeout(this.timer)
-      this.pollingStatus = 'pause'
+      this.pollingStatus = PollingStatusEnum.Pause
     }
   }
 
@@ -203,9 +209,9 @@ export default class extends ComponentMixin {
    * 继续轮巡
    */
   private resumePolling() {
-    if (this.pollingStatus === 'pause') {
+    if (this.pollingStatus === PollingStatusEnum.Pause) {
       this.doPolling()
-      this.pollingStatus = 'working'
+      this.pollingStatus = PollingStatusEnum.Working
     }
   }
 }

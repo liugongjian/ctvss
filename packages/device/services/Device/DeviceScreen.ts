@@ -1,7 +1,9 @@
 import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { getDeviceTree } from '../../api/dir'
+import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
+import { DirectoryTypeEnum } from '@vss/device/enums'
+import { AnyAaaaRecord } from 'dns'
 
 /**
  * ===============================================================================================
@@ -24,7 +26,8 @@ const openScreen = function (state: { screenManager: ScreenManager }, data: any,
  * @param state.queueExecutor 轮询执行器
  * @param state.deviceTree 设备树
  * @param state.currentNode 当前节点
- * @param state.polling 轮询状态
+ * @param state.pollingStatus 轮询状态
+ * @param state.pollingInterval 轮询间隔
  * @param state.maxSize 最大轮询数量
  * @param state.advancedSearchForm 搜索表单
  * @param state.setDirsStreamStatus 设置流状态
@@ -33,40 +36,41 @@ const openScreen = function (state: { screenManager: ScreenManager }, data: any,
  * @param policy 执行策略
  */
 const executeQueue = async function (
-  state: {
-    screenManager?: ScreenManager
-    queueExecutor?: any
-    deviceTree?: any
-    currentNode?: any
-    polling?: any
-    maxSize?: number
-    advancedSearchForm?: AdvancedSearch
-    setDirsStreamStatus?: Function
-  },
+  getVueComponent,
   node: any,
   isRoot: boolean,
   policy: 'polling' | 'autoPlay'
 ) {
-  const devicesQueue: Device[] = []
-  const deviceTree: any = state.deviceTree
-  if (node) {
-    state.currentNode = node
-    // 设置虚拟业务组相关信息
-    // VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
-    // VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
-    // VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
+  const state: {
+    currentDir?: any,
+    screenManager?: ScreenManager
+    queueExecutor?: any
+    deviceTree?: any
+    currentNode?: any
+    pollingMask?: any
+    pollingStatus?: string
+    maxSize?: number
+    advancedSearchForm?: AdvancedSearch
+    setDirsStreamStatus?: Function
+  } = getVueComponent()
+  let devicesQueue: Device[] = []
+  // const deviceTree: any = state.deviceTree
+  state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node 
+  policy === 'polling' && (state.pollingMask.isLoading = true)
+  // await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
+  try {
+    const res = await getDirDevices({
+      id: state.currentDir.id,
+      type: state.currentDir.type
+    })
+    devicesQueue = res.devices
+  } catch (e) {
+    console.log(e)
   }
-  policy === 'polling' && (state.polling.isLoading = true)
-  // if (isRoot) {
-  //   for (let i = 0, length = state.dirList.length; i < length; i++) {
-  //     await deepDispatchTree(state, deviceTree, deviceTree.getNode(state.dirList[i].id), devicesQueue, policy)
-  //   }
-  // } else {
-  await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
-  // }
-  policy === 'polling' && (state.polling.isLoading = false)
+  policy === 'polling' && (state.pollingMask.isLoading = false)
   if (state.queueExecutor) {
     state.screenManager.devicesQueue = devicesQueue
+    console.log('screenManager', state.screenManager.devicesQueue)
     state.queueExecutor.executeDevicesQueue(policy)
   }
 }
@@ -146,7 +150,8 @@ const deepDispatchTree = async function (
  * @param state.screenManager Screen Manager
  * @param val 时间
  */
-const intervalChange = function (state: { screenManager }, interval: number) {
+const intervalChange = function (getVueComponent, interval: number) {
+  const state: { screenManager } = getVueComponent() 
   state.screenManager.executeQueueConfig.interval = interval
 }
 
@@ -154,7 +159,8 @@ const intervalChange = function (state: { screenManager }, interval: number) {
  * 停止轮巡
  * @param state.queueExecutor 轮询执行器
  */
-const stopPolling = function (state: { queueExecutor: any }) {
+const stopPolling = function (getVueComponent) {
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.stopPolling()
   }
@@ -164,7 +170,8 @@ const stopPolling = function (state: { queueExecutor: any }) {
  * 暂停轮巡
  * @param state.queueExecutor 轮询执行器
  */
-const pausePolling = function (state: { queueExecutor: any }) {
+const pausePolling = function (getVueComponent) {
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.pausePolling()
   }
@@ -174,7 +181,8 @@ const pausePolling = function (state: { queueExecutor: any }) {
  * 继续轮巡
  * @param state.queueExecutor 轮询执行器
  */
-const resumePolling = function (state: { queueExecutor: any }) {
+const resumePolling = function (getVueComponent) {
+  const state: { queueExecutor: any } = getVueComponent()
   if (state.queueExecutor) {
     state.queueExecutor.resumePolling()
   }

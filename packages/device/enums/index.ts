@@ -283,3 +283,13 @@ export enum DirectoryTypeEnum {
   Nvr = 'nvr',
   Platform = 'platform'
 }
+
+
+/**
+ * 轮巡状态
+ */
+export enum PollingStatusEnum {
+  Free = 'free',
+  Working = 'working',
+  Pause = 'pause'
+}
