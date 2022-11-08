@@ -21,7 +21,7 @@ export default class ListMixin extends Vue {
   }
 
   public count = 0 // 轮训上限次数
-  public times = 1 // 轮训间隔
+  public times = 5 // 轮训间隔
 
   public addIBox() {
     const query: any = {
