@@ -101,7 +101,6 @@ export default class extends Mixins(layoutMxin) {
         }
       })
     } else {
-      console.log(this.$router)
       this.$router.push({
         name: 'DeviceList',
         query: {

@@ -39,7 +39,7 @@
     >
       <!-- <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" /> -->
       <el-table-column label="设备ID/名称" min-width="240">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
             <div>{{ row.deviceName }}</div>
@@ -63,7 +63,7 @@
           <span class="filter">报警级别</span>
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ getLabel('alarmPriority', row.alarmPriority) }}
         </template>
       </el-table-column>
@@ -84,7 +84,7 @@
           <span class="filter">报警方式</span>
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ getLabel('alarmMethod', row.alarmMethod) || '-' }}
         </template>
       </el-table-column>
@@ -98,7 +98,7 @@
           <span class="filter">报警类型</span>
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) || '-' }}
         </template>
       </el-table-column>
@@ -110,13 +110,13 @@
         label="报警时间"
         min-width="240"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.alarmTime }}
         </template>
       </el-table-column>
       <el-table-column prop="alarmDescription" label="报警内容" min-width="240" />
       <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <el-button type="text" @click.stop="deleteAlarm(row)">删除</el-button>
         </template>
       </el-table-column>
@@ -141,7 +141,7 @@ import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
 export default class extends Vue {
   @Prop() private maxHeight
   @Prop({ default: '' }) private groupId!: string
-  private loading: boolean = false
+  private loading = false
   private showViewBindDialog = false
   private currentTemplateId: any = ''
   private selectedDeviceList: any = []
@@ -287,7 +287,7 @@ export default class extends Vue {
   }
 
   private async getList(forbitLoading?: boolean) {
-    let params = {
+    const params = {
       inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
       startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
@@ -308,7 +308,7 @@ export default class extends Vue {
     }
     try {
       !forbitLoading && (this.loading = true) && (this.alarmList = [])
-      let res: any = await getAlarmRules(params)
+      const res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
       this.pager.total = res.totalNum
     } catch (e) {
@@ -328,8 +328,8 @@ export default class extends Vue {
         break
       case 'alarmType':
         arr = (() => {
-          let key = value.split('-')[0]
-          let obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
+          const key = value.split('-')[0]
+          const obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
           if (obj) {
             return obj.children
           } else {
@@ -340,7 +340,7 @@ export default class extends Vue {
     }
     if (!arr) return undefined
     if (type === 'alarmType') {
-      let obj = arr.find((item: any) => item.value === value.split('-')[1])
+      const obj = arr.find((item: any) => item.value === value.split('-')[1])
       if (obj) {
         return obj.label
       } else {
@@ -348,7 +348,7 @@ export default class extends Vue {
       }
     } else {
       let res: any = arr.map((str: any) => {
-        let obj = this[`${type}Options`].find((item: any) => item.value === str)
+        const obj = this[`${type}Options`].find((item: any) => item.value === str)
         if (obj) {
           return obj.label
         } else {
@@ -369,7 +369,7 @@ export default class extends Vue {
     })
   }
   private filterChange(filters: any) {
-    for (let key in filters) {
+    for (const key in filters) {
       const values = filters[key]
       if (values.length) {
         this.searchFrom[key] = values

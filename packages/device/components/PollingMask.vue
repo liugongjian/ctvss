@@ -99,6 +99,10 @@ export default class extends Vue {
   private intervalChange(val: number) {
     this.$emit('polling-handle', ToolsEnum.IntervalChange, val)
   }
+
+  private beforeDestroy() {
+    this.$emit('polling-handle', ToolsEnum.StopPolling, this.currentDir)
+  }
 }
 </script>
 <style lang="scss" scoped>

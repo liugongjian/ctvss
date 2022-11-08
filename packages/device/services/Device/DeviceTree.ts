@@ -1,6 +1,6 @@
 import { ToolsEnum } from '../../enums/index'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { deleteDir as deleteDirApi, sortDir } from '../../api/dir'
+import { deleteDir as deleteDirApi } from '../../api/dir'
 import { exportSearchResult as exportSearchResultApi } from '../../api/device'
 import { getDeviceTree } from '../../api/dir'
 import { downloadFileUrl } from '@vss/base/utils/excel'

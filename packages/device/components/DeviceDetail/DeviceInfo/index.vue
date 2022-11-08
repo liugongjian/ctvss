@@ -132,7 +132,7 @@ export default class extends Mixins(detailMixin) {
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
     }
-    // 如果
+    // 进行多次刷新，保证设备相关状态的更新
     if (this.refreshCount.index < this.refreshCount.target) {
       this.refreshTimeout = setTimeout(this.updateDevice, 5000)
       this.refreshCount.index++

@@ -172,7 +172,7 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
 
   // ConfigureChannels仅供ehome使用
   if (prop === ToolsEnum.ConfigureChannels && type === DeviceTypeEnum.Nvr) {
-    return data && data[DeviceEnum.InProtocol][0] === InVideoProtocolEnum.Ehome
+    return data && data[DeviceEnum.InProtocol] === InVideoProtocolEnum.Ehome
   }
 
   return DeviceListToolsAllowParams[type] && DeviceListToolsAllowParams[type].has(prop) && allowFlag
