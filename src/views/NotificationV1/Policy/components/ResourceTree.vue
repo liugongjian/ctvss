@@ -1,8 +1,8 @@
 <template>
   <div class="dialog-wrap">
-    <!-- <div v-loading="loading" class="tree-wrap"> -->
-    <!-- <div class="tree-wrap"> -->
-      <!-- <el-tree
+    <div v-loading="loading" class="tree-wrap">
+    <div class="tree-wrap">
+      <el-tree
         ref="deviceTree"
         node-key="id"
         lazy
@@ -19,28 +19,19 @@
             {{ node.label }}
           </span>
         </span>
-      </el-tree> -->
-      <IAMResourceTree 
-        ref="deviceTree"
-        v-loading="loading.tree"
-        :load="treeLoad"
-        :lazy="lazy"
-        :data="dirList"
-        :props="treeProp"
-        @check-device="onCheckDevice"
-      />
-    <!-- </div> -->
+      </el-tree>
+    </div>
     <div class="device-wrap">
       <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
       <el-table ref="deviceTable" :data="resourceList" empty-text="暂无选择资源" fit>
-        <el-table-column key="name" prop="name" label="业务组/目录名称/设备名称">
+        <el-table-column key="label" prop="label" label="业务组/目录名称/设备名称">
           <template slot-scope="{row}">
-            {{ row.name || '-' }}
+            {{ row.label || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="path" prop="path" label="所在位置">
           <template slot-scope="{row}">
-            {{ renderPath(row.path) || '' }}
+            {{ renderPath(row.path) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
@@ -54,25 +45,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
-import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
 import { getGroups } from '@/api/group'
-import layoutMxin from '@vss/device/mixin/layoutMixin'
 
 @Component({
-  name: 'source-tree',
-  components: {
-    IAMResourceTree
-  }
+  name: 'source-tree'
 })
-export default class extends Mixins(layoutMxin) {
+export default class extends Vue {
   @Prop()
   private checkedList: []
 
   private resourceList = []
   private dirList: any = []
-  // public loading = false
+  public loading = false
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -88,7 +74,7 @@ export default class extends Mixins(layoutMxin) {
    * 初始化资源选中状态
    */
   public async initResourceStatus(checkedList: any) {
-    // this.loading = true
+    this.loading = true
     const deviceTree: any = this.deviceTree.$refs.commonTree
     const checkedKeys = []
     for (let index = 0, len = checkedList.length; index < len; index++) {
@@ -111,7 +97,7 @@ export default class extends Mixins(layoutMxin) {
       }
     }
     deviceTree && deviceTree.setCheckedKeys(checkedKeys)
-    // this.loading = false
+    this.loading = false
   }
 
   /**
@@ -119,7 +105,7 @@ export default class extends Mixins(layoutMxin) {
    */
   public async initDirs() {
     try {
-      // this.loading = true
+      this.loading = true
       const res = await getGroups({
         pageSize: 1000
       })
@@ -145,7 +131,7 @@ export default class extends Mixins(layoutMxin) {
     } catch (e) {
       this.dirList = []
     } finally {
-      // this.loading = false
+      this.loading = false
     }
   }
 
@@ -158,7 +144,7 @@ export default class extends Mixins(layoutMxin) {
       return
     }
     try {
-      const deviceTree: any = this.deviceTree.$refs.commonTree
+      const deviceTree: any = this.$refs.deviceTree
       let data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -227,15 +213,13 @@ export default class extends Mixins(layoutMxin) {
   /**
    * 当设备被选中时回调，将选中的设备列出
    */
-  private onCheckDevice(nodes: any) {
-    const list = nodes.filter((node: any) => {
-      const currentNodeParentDirId = (node.parentDirId === 0 || node.parentDirId === -1) ? 0 : node.parentDirId
-      const currentNodeParentDeviceId = (node.parentDeviceId === 0 || node.parentDeviceId === -1) ? 0 : node.parentDeviceId
+  private onCheckDevice() {
+    const deviceTree: any = this.$refs.deviceTree
+    const nodes = deviceTree.getCheckedNodes()
+    this.resourceList = nodes.filter((node: any) => {
       const nodeIdsList = nodes.map((node: any) => node.id)
-      return ((currentNodeParentDirId !== 0) && nodeIdsList.indexOf(node.parentDirId) === -1) && ((currentNodeParentDeviceId !== 0) && nodeIdsList.indexOf(node.parentDeviceId) === -1)
+      return nodeIdsList.indexOf(node.parentId) === -1
     })
-    this.resourceList = list
-    let pathIdArr = list.map((resource: any) => resource.id)
     this.$emit('resourceListChange', this.resourceList.map((resource: any) => {
       const mainUserID = this.$store.state.user.mainUserID
       const inProtocol = resource.inProtocol
@@ -251,8 +235,8 @@ export default class extends Mixins(layoutMxin) {
         nvrchannel: 'nvrchannel',
         ipc: 'ipc'
       }
-      // const pathIds = resource.path.map((obj: any) => obj.id)
-      return `${mainUserID}:${inProtocol}-${typeMap[type]}:${pathIdArr[0]}${(pathIdArr.length > 1 ? ':' : '') + pathIdArr.slice(1).join('/')}`
+      const pathIds = resource.path.map((obj: any) => obj.id)
+      return `${mainUserID}:${inProtocol}-${typeMap[type]}:${pathIds[0]}${(pathIds.length > 1 ? ':' : '') + pathIds.slice(1).join('/')}`
     }))
   }
 
@@ -260,26 +244,19 @@ export default class extends Mixins(layoutMxin) {
    * 移除设备
    */
   private removeDevice(device: any) {
-    const tree = this.deviceTree.$refs.commonTree
-    tree.setChecked(device.id, false, true)
-    this.onCheckDevice(this.getTreeCheckedNodes(tree))
-  }
-    
-  private getTreeCheckedNodes(tree: any) {
-    const nodes = tree.getCheckedNodes()
-    return nodes
+    const tree: any = this.$refs.deviceTree
+    tree.setChecked(device.id, false)
   }
 
   /**
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    const end = path.length - 1
-    if (path.length > 1) {
-      return path[end].label.indexOf('/') === 0 ? path[end].label.slice(1) : path[end].label
-    } else {
-      return ''
-    }
+    const dirPath = path.slice(0, -1)
+    const dirPathName = dirPath.map((dir: any) => {
+      return dir.label
+    })
+    return dirPathName.join('/')
   }
 }
 </script>

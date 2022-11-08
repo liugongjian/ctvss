@@ -539,7 +539,12 @@ export default class extends Mixins(layoutMxin) {
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    return path && path.indexOf('/') === 0 ? path.slice(1) : path
+    const end = path.length - 1
+    if (path.length > 1) {
+      return path[end].label.indexOf('/') === 0 ? path[end].label.slice(1) : path[end].label
+    } else {
+      return ''
+    }
     // const dirPath = path.slice(0, -1)
     // const dirPathName = dirPath.map((dir: any) => {
     //   return dir.label
