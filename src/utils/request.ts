@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
@@ -17,7 +17,7 @@ const service = axios.create({
 // Request interceptors
 service.interceptors.request.use(
   (config) => {
-    config.url = urlTransform(config.url)
+    requestTransform(config)
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
@@ -56,14 +56,27 @@ service.interceptors.response.use(
 )
 
 // 根据用户tag转换请求url
-function urlTransform(url: string) {
-  const apiList = Object.keys(ApiMapping)
+function requestTransform(config: AxiosRequestConfig) {
+  const url = config.url
   if (UserModule.version === 2 && !whiteList.includes(url)) {
-    url = '/v2' + (apiList.includes(url) ? ApiMapping[url] : url)
+    const apiList = Object.keys(ApiMapping)
+    if (apiList.includes(url)) {
+      const mapArr = ApiMapping[url].split(':')
+      config.url = '/v2' + mapArr[0]
+      if (mapArr[1] === 'get') {
+        config.params = config.data
+        config.data = undefined
+      } else if (mapArr[1]) {
+        config.data = config.params
+        config.params = undefined
+      }
+    } else {
+      config.url = '/v2' + url
+    }
   } else {
-    url = '/v1' + url
+    config.url = '/v1' + url
   }
-  return url
+  return config
 }
 
 function responseHandler(response: AxiosResponse) {
