@@ -175,6 +175,15 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   }
 
   private async checkCallback(data, isChecked) {
+    debugger
+    if (isChecked) { // 未勾选时，勾选操作
+      const { streamStatus, deviceStatus } = data
+      if (streamStatus === 'off' || deviceStatus === 'off') {
+        this.$message.warning('当前设备流不在线，无法进行算法配置，您可在流上线后再进行配置')
+        this.setNodeOppositeChecked(data.deviceId)
+        return
+      }
+    }
     if (isChecked && !data.meta) {
       try {
         this.deviceId = data.deviceId

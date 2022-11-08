@@ -68,7 +68,6 @@ export default class extends Vue {
       this.currentIndex = 0
       this.clickLocation(this.currentIndex)
     }
-    console.log('img:', img.locations)
   }
 
   private clickLocation(locationIndex: number) {
