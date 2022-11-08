@@ -13,6 +13,12 @@
             <span>1.0.0</span>
           </template>
         </el-table-column>
+        <el-table-column label="最新版本">
+          <template slot-scope="">
+            <span>1.0.0</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="count" label="告警次数" />
         <el-table-column prop="deviceNum" label="关联设备" />
         <el-table-column prop="analyseType" label="分析类型">
           <template slot-scope="scope">
@@ -70,6 +76,7 @@ import AiAppAdd from './AiAppAdd.vue'
 import AiAppDetail from './AiAppDetail.vue'
 import { describeIboxApps, deleteIboxApps } from '@/api/ibox'
 import { ResourceAiType } from '@/dics'
+import { getAiAlarm } from '@/api/ai-app'
 
 @Component({
   name: 'AiAppList',
@@ -104,12 +111,40 @@ export default class AiAppList extends Vue {
     return this.app
   }
 
-  private mounted() {
-    this.getAppList()
+  private async mounted() {
+    this.loading.table = true
+    await this.getAppList()
+    await this.getAlarms()
+    this.loading.table = false
+  }
+
+  public async getAlarms() {
+    this.alarms = []
+    const promiseArray = []
+    this.tableData.forEach((app) => {
+      const deviceIds = JSON.parse(app.deviceIds)
+      if (deviceIds) {
+        deviceIds.forEach(deviceId => promiseArray.push(this.getAlarm(app.appId, deviceId)))
+      }
+    }
+    )
+    await Promise.all(promiseArray)
+    const alarms = {}
+    this.alarms.forEach(item => {
+      alarms[item.appId] = alarms[item.appId] ? alarms[item.appId] + item.count : item.count
+    })
+    this.tableData = this.tableData.map(item => ({ ...item, count: alarms[item.appId] || 0 }))
+  }
+
+  public async getAlarm(appId, deviceId) {
+    const res = await getAiAlarm({
+      appId,
+      deviceId
+    })
+    this.alarms.push(res)
   }
 
   private async getAppList() {
-    this.loading.table = true
     const iboxId: any = this.$route.query.deviceId
     const { iboxApps, pageNum, pageSize, totalNum }: any =
       await describeIboxApps({
@@ -123,7 +158,6 @@ export default class AiAppList extends Vue {
         ...app, deviceNum: deviceIds ? deviceIds.length : 0
       }
     })
-    this.loading.table = false
   }
 
   private handleMore(command) {

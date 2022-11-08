@@ -50,11 +50,12 @@
       <el-button @click="cancel">取消</el-button>
     </div>
     <algo-config
-      v-if="canvasDialog && frameImage"
+      v-if="canvasDialog"
       :device-id="deviceId"
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :frame-image="frameImage"
+      :frame-loading="frameLoading"
       :meta="meta"
       @add-meta="addMeta"
     />
@@ -91,6 +92,8 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     children: 'deviceChannels',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
+
+  private frameLoading = ''
 
   private treeLoading = false
 
@@ -174,24 +177,25 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   private async checkCallback(data, isChecked) {
     if (isChecked && !data.meta) {
       try {
-        this.treeLoading = true
         this.deviceId = data.deviceId
         this.meta = null
         this.nodeChecked = !isChecked
         await this.initFrameAndDialog(data.deviceId)
+        this.frameLoading = 'correct'
       } catch (e) {
         this.frameImage = null
         this.setNodeOppositeChecked(data.deviceId)
         this.$message.warning(e)
+        this.frameLoading = 'error'
       } finally {
-        this.treeLoading = false
+        this.$forceUpdate()
       }
     }
   }
 
   private async initFrameAndDialog(deviceId) {
-    await this.initFrame(false, deviceId)
     this.canvasDialog = true
+    await this.initFrame(false, deviceId)
   }
 
   private onSubmit() {
@@ -231,22 +235,25 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   }
 
   private async editMeta(data) {
-    this.treeLoading = true
     this.meta = data.meta
     this.nodeChecked = true
     try {
       await this.initFrameAndDialog(data.deviceId)
+      this.frameLoading = 'correct'
     } catch (e) {
       this.frameImage = null
       this.setNodeOppositeChecked(data.deviceId)
       this.$message.warning(e)
+      this.frameLoading = 'error'
     } finally {
-      this.treeLoading = false
+      this.$forceUpdate()
     }
   }
 
   public closeCanvasDialog() {
     this.canvasDialog = false
+    this.frameLoading = ''
+    this.frameImage = null
     this.meta = null
   }
 

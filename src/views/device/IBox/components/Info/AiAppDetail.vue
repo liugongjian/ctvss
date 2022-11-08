@@ -128,6 +128,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       const iboxId = this.$route.query.deviceId
       const { devices }: any = await getDeviceList(param)
       const _devices = devices.map((device) => {
+        const inProtocal = device.videos[0]?.inVideoProtocol
         if (device.device.deviceType === 'nvr') {
           const deviceChannels = device.device.deviceChannels.map(
             (channel) => ({
@@ -142,20 +143,22 @@ export default class extends Mixins(AppMixin, IndexMixin) {
           return {
             ...device.device,
             deviceStatus:
-              device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
+              device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
+            streamStatus:
+              device.videos[0][inProtocal + 'Device']?.streams[0]?.streamStatus || 'off',
             deviceDir: iboxId + ',' + device.device.deviceId,
             path: [device.device],
-            streamStatus: device.videos[0].gb28181Device?.streams[0]?.streamStatus || 'off',
             inProtocol: device.videos[0].inVideoProtocol
           }
         }
         return {
           ...device.device,
           deviceStatus:
-            device.videos[0].gb28181Device?.deviceStatus?.isOnline || 'off',
+              device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
+          streamStatus:
+              device.videos[0][inProtocal + 'Device']?.streams[0]?.streamStatus || 'off',
           deviceDir: iboxId + ',' + device.device.deviceId,
           path: [device.device],
-          streamStatus: device.videos[0].gb28181Device?.streams[0]?.streamStatus || 'off',
           inProtocol: device.videos[0].inVideoProtocol
         }
       })
