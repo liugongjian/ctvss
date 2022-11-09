@@ -6,10 +6,10 @@
     <div
       v-for="playWindowInfo in playWindowList"
       :key="playWindowInfo.deviceId"
-      v-draggable:[playWindowInfo.deviceId]="{cb: changeStyle, screen: playWindowInfo.screen}"
+      v-draggable:[playWindowInfo.deviceId]="{ cb: changeStyle, screen: playWindowInfo.screen }"
       class="play-wrap"
       :style="playWindowInfo.style"
-      :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
+      :class="{ 'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen }"
       @mousedown="choosePlayer(playWindowInfo.deviceId)"
     >
       <div v-if="playWindowInfo.show !== 'none'" class="play-container">
@@ -107,7 +107,7 @@ export default class MapView extends Vue {
   }
 
   private async getMapMarkers(pageNum) {
-    let params: any = {
+    const params: any = {
       pageNum,
       pageSize: 2000,
       mapId: this.mapId
@@ -474,7 +474,7 @@ export default class MapView extends Vue {
       houseInfo: device.houseInfo,
       unitInfo: device.unitInfo,
       gbRegionNames: device.gbRegionNames,
-      groupId: device.groupId,
+      dirId: device.dirId,
       deviceColor: '',
       appearance: JSON.stringify(appearance)
     }
@@ -500,6 +500,7 @@ export default class MapView extends Vue {
         mapId: this.mapOption.mapId,
         devices: [this.handleDevice(markerOption)]
       })
+      console.log(11111, data.devices)
       this.vmap.addMarker(data.devices[0])
       this.$emit('markerlistChange', this.markerlist)
     } catch (e) {
@@ -515,7 +516,7 @@ export default class MapView extends Vue {
   choosePoi(point, type?) {
     if (point) {
       const otherPoints = document.getElementsByClassName('marker-containt')
-      let len = otherPoints.length
+      const len = otherPoints.length
       for (let i = 0; i < len; i += 1) {
         const nClass = otherPoints[i].getAttribute('class').replace('selected', '')
         otherPoints[i].setAttribute('class', nClass)
@@ -531,7 +532,7 @@ export default class MapView extends Vue {
       })
     } else {
       const otherPoints = document.getElementsByClassName('marker-containt')
-      let len = otherPoints.length
+      const len = otherPoints.length
       for (let i = 0; i < len; i += 1) {
         // 只需要取消兴趣点位，不能取消摄像头点位
         const classes = otherPoints[i].getAttribute('class')

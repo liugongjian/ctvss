@@ -249,11 +249,6 @@ export default class extends Mixins(deviceFormMixin) {
     return this.videoInfo && !!this.videoInfo.outId
   }
 
-  // 是否为NVR通道
-  private get isChannel() {
-    return this.basicInfo && this.basicInfo.deviceChannelNum > -1
-  }
-
   // 获取是否使用设备名称
   private get isEnableCloudChannelName() {
     const enableCloudChannelName = UserModule.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
@@ -283,7 +278,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.hasVideo) {
-      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox, isChannel: this.isChannel })
+      return checkVideoVisible.call({ ...this.videoInfo, ...this.basicInfo, isIbox: this.isIbox }, this.basicInfo.deviceType, this.inVideoProtocol, prop)
     } else {
       return checkViidVisible.call(this.viidInfo, this.basicInfo.deviceType, this.inViidProtocol, prop)
     }

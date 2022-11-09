@@ -6,6 +6,8 @@ import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'
 import { isEqual } from 'lodash'
+import { VideoDevice } from '@vss/device/type/Device'
+import * as dicts from '@vss/device/dicts'
 
 export interface mapObject {
   mapId: string,
@@ -278,12 +280,14 @@ export default class VMap {
           deviceId
         })
         const deviceLabel = deviceInfo.device.deviceName
-        // if (deviceInfo.deviceChannels.length > 0) {
-        //   deviceLabel = deviceInfo.deviceChannels[0].channelName
-        // }
-        marker.deviceStatus = deviceInfo.device.deviceStatus
-        marker.streamStatus = deviceInfo.device.streamStatus
-        marker.recordStatus = deviceInfo.device.recordStatus
+        const inVideoProtocol = deviceInfo.videos && deviceInfo.videos.length && deviceInfo.videos[0]?.inVideoProtocol
+        const videoInfo: VideoDevice = inVideoProtocol && deviceInfo.videos[0][dicts.InVideoProtocolModelMapping[inVideoProtocol]]
+        const streamInfo = videoInfo && videoInfo.streams.length && videoInfo.streams.find(stream => stream.streamNum === videoInfo.deviceStreamPullIndex)
+        const deviceStatus = videoInfo && videoInfo.deviceStatus
+
+        marker.deviceStatus = deviceStatus.isOnline,
+        marker.streamStatus = streamInfo.streamStatus
+        marker.recordStatus = streamInfo.recordStatus
         marker.deviceLabel = deviceLabel
       }
       this.curMarkerList.forEach((item) => {

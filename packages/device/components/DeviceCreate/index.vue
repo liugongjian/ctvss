@@ -351,7 +351,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
-      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
+      return checkVideoVisible.call({ ...this.videoForm, isIbox: this.isIbox }, this.deviceForm.deviceType, this.inVideoProtocol, prop)
     } else {
       return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
     }
