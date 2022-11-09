@@ -175,7 +175,8 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
-            validation: this.validation.industry
+            // validation: this.validation.industry
+            validation: null
           },
           {
             title: { header: '网络标识', key: 'network', width: 16 },
@@ -304,7 +305,8 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
-            validation: this.validation.industry
+            // validation: this.validation.industry
+            validation: null
           },
           {
             title: { header: '网络标识', key: 'network', width: 16 },
