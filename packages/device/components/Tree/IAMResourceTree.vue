@@ -10,6 +10,7 @@
     :props="defaultProps"
     :empty-text="emptyText"
     :has-checkbox="true"
+    :default-expanded-keys="defaultExpandedKeys"
     @handle-node="handleNode"
     @check-device="handleCheck"
   >
@@ -35,6 +36,7 @@ import treeMixin from '@vss/device/components/Tree/treeMixin'
   name: 'IAMResourceTree'
 })
 export default class extends Mixins(treeMixin) {
+
   private handleCheck(nodes: any) {
     this.$emit('check-device', nodes)
   }

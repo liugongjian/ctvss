@@ -51,6 +51,9 @@ export default class LayoutMixin extends Vue {
     tree: false
   }
 
+  // 需要展开项
+  public defaultExpandedKeys = []
+
   // public treeNodeInfo: any = {}
 
   // public get getTreeNodeInfo() {
