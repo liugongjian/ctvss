@@ -453,7 +453,8 @@ const startOrStopRecord = async function (state, type, row) {
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
     const params: any = {
-      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.RecordTaskId]: row[DeviceEnum.RecordTaskId]
     }
     await method(params)
     state.$message.success(`已通知${methodStr}录制`)

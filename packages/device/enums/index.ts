@@ -33,6 +33,7 @@ export enum DeviceEnum {
   DeviceStreamSize = 'deviceStreamSize',
   DeviceStreamAutoPull = 'deviceStreamAutoPull',
   DeviceStreamPullIndex = 'deviceStreamPullIndex',
+  RecordTaskId = 'recordTaskId',
   Description = 'description',
   DeviceInType = 'deviceInType',
   DeviceInTypeRadio = 'deviceInTypeRadio',
