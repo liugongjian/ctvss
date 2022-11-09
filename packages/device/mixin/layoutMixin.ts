@@ -51,9 +51,6 @@ export default class LayoutMixin extends Vue {
     tree: false
   }
 
-  // 需要展开项
-  public defaultExpandedKeys = []
-
   // public treeNodeInfo: any = {}
 
   // public get getTreeNodeInfo() {
@@ -136,8 +133,12 @@ export default class LayoutMixin extends Vue {
       this.loading.tree = true
       try {
         res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
-        const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
-        this.deviceTree.loadChildren(pathList)
+        if (typeof this.initResourceStatus === 'function') {
+          this.$nextTick(() => this.initResourceStatus())
+        } else {
+          const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
+          this.deviceTree.loadChildren(pathList)
+        }
         this.deviceTree.rootSums.onlineSize = res.onlineSize
         this.deviceTree.rootSums.totalSize = res.totalSize
         res.dirs.map((item: any) => {

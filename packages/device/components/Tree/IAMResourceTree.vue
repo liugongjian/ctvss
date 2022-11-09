@@ -10,7 +10,6 @@
     :props="defaultProps"
     :empty-text="emptyText"
     :has-checkbox="true"
-    :default-expanded-keys="defaultExpandedKeys"
     @handle-node="handleNode"
     @check-device="handleCheck"
   >

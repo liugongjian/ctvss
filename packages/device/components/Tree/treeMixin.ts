@@ -19,9 +19,6 @@ export default class TreeMixin extends Vue {
   @Prop({ default: {} })
   public load
 
-  @Prop({ default: [] })
-  public defaultExpandedKeys
-
   public toolsEnum = ToolsEnum
   public deviceEnum = DeviceEnum
   public statusEnum = StatusEnum
@@ -62,7 +59,6 @@ export default class TreeMixin extends Vue {
    * @param payload node/key
    */
   public loadChildren(payload) {
-    console.log('load children   payload     ', payload)
     window.setImmediate(async() => {
       if (Array.isArray(payload)) {
         // 展开路径列表
@@ -83,6 +79,27 @@ export default class TreeMixin extends Vue {
         this.commonTree.loadChildren(payload)
       }
     })
+  }
+
+  public async asyncLoadChildren(payload) {
+    if (Array.isArray(payload)) {
+      // 展开路径列表
+      const key = Array.isArray(payload) ? payload.shift() : payload
+      if (payload.length) {
+        await this.commonTree.loadChildren(key)
+        await this.asyncLoadChildren(payload)
+      } else {
+        this.setCurrentKey(key || this.rootKey)
+        // this.$nextTick(() => {
+        //   const currentNodeDom = document.getElementsByClassName('current-node')[0]
+        //   console.log((currentNodeDom.parentNode as any).scrollTop)
+        // })
+      }
+      
+    } else {
+      // 展开目录
+      this.commonTree.loadChildren(payload)
+    }
   }
 
   private setCurrentKey(payload) {

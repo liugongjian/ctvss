@@ -15,7 +15,7 @@ export const createNotificationPolicy = (data: any): Promise<any> =>
  */
 export const editNotificationPolicy = (data: any): Promise<any> =>
   request({
-    url: 'notification/policy/edit',
+    url: '/notification/policy/edit',
     method: 'post',
     data
   })
