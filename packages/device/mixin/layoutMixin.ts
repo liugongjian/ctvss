@@ -1,10 +1,12 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum } from '../enums/index'
+import { PolicyEnum } from '@vss/base/enums/iam'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   components: {
@@ -15,6 +17,8 @@ export default class LayoutMixin extends Vue {
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
   public deviceTypeEnum = DeviceTypeEnum
+  public policyEnum = PolicyEnum
+  public checkPermission = checkPermission
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
     deviceStatusKeys: [],

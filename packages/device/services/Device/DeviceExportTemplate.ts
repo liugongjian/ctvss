@@ -1,7 +1,7 @@
 import { getRegions } from '../../api/region'
 import { getResources } from '../../api/billing'
 import { getGa1400CertificateList } from '../../api/certificate'
-import { getDevice } from '../../api/device'
+// import { getDevice } from '../../api/device'
 
 import { ResourceAiType } from '../../dicts/resource'
 import { getIndustryList } from '../../api/dict'
@@ -22,13 +22,13 @@ class ExportExcelTemplate {
 
   public regionList: any = []
 
-  public industryList:any = []
+  public industryList: any = []
 
   public resourceAiType: any = ResourceAiType
 
   public availableChannels: any = []
 
-  public gbCertificateList:any = []
+  public gbCertificateList: any = []
 
   public options: any = {
     gbAccountList: [],
@@ -36,7 +36,7 @@ class ExportExcelTemplate {
     VIDEOList: [],
     BWList: [],
     options: [],
-    AIList:[]
+    AIList: []
   }
 
   private excelExplain = `
@@ -142,7 +142,7 @@ class ExportExcelTemplate {
       formulae: ['"监控报警专网,公安信息网,政务网,Internet网,社会资源接入网"'],
       error: '请从选项中选择网络标识'
     },
-    ifTcp:{
+    ifTcp: {
       type: 'list',
       allowBlank: false,
       showInputMessage: true,
@@ -175,7 +175,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
-            validation: this.validation.industry
+            validation: this.getIndustryList()
           },
           {
             title: { header: '网络标识', key: 'network', width: 16 },
@@ -304,7 +304,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
-            validation: this.validation.industry
+            validation: this.getIndustryList()
           },
           {
             title: { header: '网络标识', key: 'network', width: 16 },
@@ -420,7 +420,7 @@ class ExportExcelTemplate {
           // },
           // {
           //   title: { header: '所属行业', key: 'industry', width: 16 },
-          //   validation: this.validation.industry
+          //   validation: this.getIndustryList()
           // },
           // {
           //   title: { header: '网络标识', key: 'network', width: 16 },
@@ -511,7 +511,7 @@ class ExportExcelTemplate {
           // },
           // {
           //   title: { header: '所属行业', key: 'industry', width: 16 },
-          //   validation: this.validation.industry
+          //   validation: this.getIndustryList()
           // },
           // {
           //   title: { header: '网络标识', key: 'network', width: 16 },
@@ -650,7 +650,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
+      // formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
+      formulae: [this.joinDropdownlist(this.options.gbAccountList)],
       error: '请选择国标用户名'
     }
   }
@@ -660,7 +661,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: this.options.availableChannels.length ? [`'availableChannelsSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.availableChannels.length)}$1`] : ['""'],
+      formulae: [this.joinDropdownlist(this.options.availableChannels)],
       error: '请选择通道号'
     }
   }
@@ -670,7 +671,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: this.options.VIDEOList.length ? [`'VIDEOListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.VIDEOList.length)}$1`] : ['""'],
+      formulae: [this.joinDropdownlist(this.options.VIDEOList)],
       error: '请选择视频包'
     }
   }
@@ -680,8 +681,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: this.options.AIList.length ? [`'AIListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.AIList.length)}$1`] : ['""'],
-      // formulae: '',
+      formulae: [this.joinDropdownlist(this.options.AIList)],
       error: '请选择AI包'
     }
   }
@@ -691,7 +691,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinedDropDownlist(this.options.BWList)],
+      formulae: [this.joinDropdownlist(this.options.BWList)],
       error: '请选择上行带宽包'
     }
   }
@@ -701,7 +701,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae:[this.joinedDropDownlist(this.regionList)],
+      formulae: [this.joinDropdownlist(this.regionList)],
       error: '请选择接入区域'
     }
   }
@@ -712,26 +712,25 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: '',
+      formulae: [this.joinDropdownlist(this.industryList)],
       error: '请从选项中选择所属行业'
     }
   }
 
   // 动态校验 formulae值 转换处理
-  public joinedDropDownlist = (data:any)=>{
-    return data.length ? "\""+data.join(',')+"\"" : ['""']
+  public joinDropdownlist = (data: any)=>{
+    return data.length ? '"' + data.join(',') + '"' : '""'
   }
 
   // 调接口获取下拉数据 --- start ---
   private async getRegionList() {
     try {
       const regionList = await getRegions()
-      this.regionList = regionList?.map((item:any)=>{
-        return item.children.map((val:any)=>{
+      this.regionList = regionList?.map((item: any)=>{
+        return item.children.map((val: any)=>{
           return `${item.value}/${val.label}`
         })
       }).flat()
-      console.log('this.regionList=----->',this.regionList)
     } catch (e) {
       console.error(e)
     }
@@ -740,12 +739,8 @@ class ExportExcelTemplate {
   private async getIndustry(){
     try {
       const industryList = await getIndustryList()
-      console.log('industryList----->',industryList.data)
-
-      this.industryList  = industryList.data.map((item:any)=>item.name)
-
-      console.log('industryList---->',this.industryList)
-    }catch(e){
+      this.industryList  = industryList.data.map((item: any)=>item.name)
+    } catch (e){
       console.error(e)
     }
   }
@@ -766,7 +761,7 @@ class ExportExcelTemplate {
         ? AIRes.resPkgList
             .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
             .map((item: any) => {
-              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
+              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aIType]}||${item.resourceId}`
             })
         : []
       const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
@@ -785,8 +780,8 @@ class ExportExcelTemplate {
         const res = await getGa1400CertificateList({
           pageSize: 1000
         })
-        res.gbCerts.forEach((account: any) => {
-          this.options.gbAccountList.push(account.userName)
+        res.data.forEach((account: any) => {
+          this.options.gbAccountList.push(account.username)
         })
       } catch (e) {
         console.error(e)
@@ -808,14 +803,14 @@ class ExportExcelTemplate {
       //   }
       // }
     
-    // 生成额外sheet存储动态选项
-    for (const key in this.options) {
-      if (this.options[key].length) {
-        const sheet = this.workbook.addWorksheet(`${key}Sheet`)
-        sheet.state = 'hidden'
-        sheet.addRow(this.options[key])
-      }
-    }
+    // 生成额外sheet存储动态选项  暂时关闭
+    // for (const key in this.options) {
+    //   if (this.options[key].length) {
+    //     const sheet = this.workbook.addWorksheet(`${key}Sheet`)
+    //     sheet.addRow(this.options[key])
+    //     sheet.state = 'hidden'
+    //   }
+    // }
   }
   // 调接口获取下拉数据 --- end ---
 
@@ -831,28 +826,24 @@ class ExportExcelTemplate {
 
     await this.getIndustry()
 
+
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
 
     this.workbook = new ExcelJS.Workbook()
     this.workbook.views = this.excelViews
 
-    //Todo 获取四个sheet 中下拉框数据
+    // await this.getOptions()  // todo 待完善
 
-    this.excelTemplateSheet.forEach((item: any, index) => {
+    this.excelTemplateSheet.forEach((item: any) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
       worksheet.name = item.name
       worksheet.columns = item.content.map((val: any) => val.title)
-
-      console.log('item.content---->',item.content.length)
 
       //增加校验规则
       item.content.forEach((val: any, idx)=>{
         const columnIndex = String.fromCharCode(65 + idx) 
         worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, val.validation)
-        // console.log('XXXX------->',`${columnIndex}2:${columnIndex}9999`)
-        // console.log('worksheet.dataValidations---->', worksheet.dataValidations)
-        // console.log('val.validation----->', val.validation)
       })
 
       // 调整样式
@@ -895,7 +886,7 @@ class ExportExcelTemplate {
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${excelName}.xlsx`
-    // link.click()
+    link.click()
   }
 
   // 下载表格

@@ -24,6 +24,7 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
 export default class extends Mixins(detailMixin) {
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
+  @Prop() private readonly deviceIdCar?: any
 
   private height = 'auto'
 
@@ -40,7 +41,7 @@ export default class extends Mixins(detailMixin) {
     this.screenManager = screenBoard?.screenManager
     this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId
+    screen.deviceId = this.deviceId || this.deviceIdCar
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
     await this.getDevice()

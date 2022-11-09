@@ -55,6 +55,7 @@ type Stream = {
   [DeviceEnum.StreamNum]: number
   [DeviceEnum.StreamStatus]: StatusEnum
   [DeviceEnum.RecordStatus]?: StatusEnum
+  [DeviceEnum.RecordTaskId]?: string // 录制任务ID
   [DeviceEnum.StreamTransType]?: string // 流传输类型
   [DeviceEnum.Bitrate]?: number
   [DeviceEnum.Video]?: {

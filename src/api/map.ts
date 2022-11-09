@@ -66,7 +66,7 @@ export const modifyMap = (params: any): Promise<any> => {
   // TODO: 设备重构
   if (UserModule.version === 2) {
     return request({
-      url: '/map/modify',
+      url: '/map/update',
       method: 'post',
       data: params
     })
