@@ -68,13 +68,13 @@ import AlarmTree from '@vss/device/components/Tree/AlarmTree.vue'
 })
 export default class extends Mixins(IndexMixin, layoutMxin) {
   private checkPermission = checkPermission
-  private parentDir = null
-  private currentDir = null
-  private dialog: any = {
+  public parentDir = null
+  public currentDir = null
+  public dialog: any = {
     createDir: false
   }
 
-  private mounted() {
+  public mounted() {
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
