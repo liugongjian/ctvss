@@ -11,7 +11,7 @@ export const ApiMapping = {
   '/map/DescribeMaps': '/map/list',
   // '/map/CreateMap': '/map/create',
   '/map/DeleteMap': '/map/delete',
-  '/map/ModifyMap': '/map/modify',
+  '/map/ModifyMap': '/map/update',
   '/map/DescribeMapMarkers': '/map/describeMarkers',
   '/map/MarkOnMap': '/map/mark',
   '/map/ReMarkOnMap': '/map/reMark',

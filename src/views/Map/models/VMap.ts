@@ -83,7 +83,8 @@ export const getAMapLoad = () => {
           'AMap.ControlBar',
           'AMap.IndexCluster',
           'AMap.MouseTool',
-          'AMap.PolygonEditor'
+          'AMap.PolygonEditor',
+          'AMap.MapType'
         ]
       }).then((AMap) => {
         resolve(AMap)
@@ -161,6 +162,13 @@ export default class VMap {
           right: '10px'
         }
       })
+      const mapType = new AMap.MapType({
+        defaultType: 0,
+        position: {
+          bottom: '130px',
+          left: '210px'
+        }
+      })
 
       const auto = new AMap.AutoComplete({ input: 'map-tip-input' })
       auto.on('select', (e) => {
@@ -171,6 +179,7 @@ export default class VMap {
       map.addControl(this.overView)
       map.addControl(scale)
       map.addControl(controlBar)
+      map.addControl(mapType)
       // map.on('click', () => {
       //   this.cancelChoose()
       // })
