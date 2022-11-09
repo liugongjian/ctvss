@@ -12,7 +12,8 @@
           <el-input v-model="deviceForm.deviceName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
-          <el-input v-model="deviceForm.deviceName" />
+          <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
+          <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备分类:">
           {{ dicts.DeviceType[basicInfo.deviceType] }}
@@ -106,7 +107,7 @@
             <el-input v-model="deviceForm.deviceIp" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
-            <el-input v-model="deviceForm.devicePort" />
+            <el-input v-model.number="deviceForm.devicePort" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
             <el-input v-model="deviceForm.devicePoleId " />
@@ -151,6 +152,7 @@ import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BasicInfoEdit'
@@ -252,6 +254,12 @@ export default class extends Mixins(deviceFormMixin) {
     return this.basicInfo && this.basicInfo.deviceChannelNum > -1
   }
 
+  // 获取是否使用设备名称
+  private get isEnableCloudChannelName() {
+    const enableCloudChannelName = UserModule.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    return enableCloudChannelName.value === 'true'
+  }
+
   private async mounted() {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
@@ -303,7 +311,6 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.DeviceLongitude,
               DeviceEnum.DeviceLatitude,
               DeviceEnum.DeviceIp,
-              DeviceEnum.DevicePort,
               DeviceEnum.DeviceMac,
               DeviceEnum.DevicePoleId,
               DeviceEnum.DeviceSerialNumber,
@@ -313,8 +320,9 @@ export default class extends Mixins(deviceFormMixin) {
             ...pick(this.videoForm, [
               DeviceEnum.DeviceChannelSize
             ]),
+            [DeviceEnum.DevicePort]: Number(this.deviceForm.devicePort),
             // 父级设备ID
-            parentDeviceId: this.parentDeviceId
+            [DeviceEnum.ParentDeviceId]: this.parentDeviceId
           },
           industry: {
             ...pick(this.deviceForm, [

@@ -27,37 +27,29 @@
             <el-radio label="selected">特定资源</el-radio>
           </el-radio-group>
           <div v-show="resourceType === 'selected'" class="dialog-wrap">
-            <!-- <div v-loading="loading.dir" class="tree-wrap"> -->
-              <!-- <el-tree ref="deviceTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
-                <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-                  <span class="node-name">
-                    <svg-icon :name="data.type" color="#6e7c89" />
-                    {{ node.label }}
-                  </span>
-                </span>
-              </el-tree> -->
-              <IAMResourceTree 
-                ref="deviceTree"
-                v-loading="loading.tree"
-                :load="treeLoad"
-                :lazy="lazy"
-                :data="dirList"
-                :props="treeProp"
-                @check-device="onCheckDevice"
-              />
-            <!-- </div> -->
+            <IAMResourceTree 
+              ref="deviceTree"
+              v-loading="loading.tree"
+              class="tree-wrap"
+              :load="treeLoad"
+              :lazy="lazy"
+              :data="dirList"
+              :default-expanded-keys="defaultExpandedKeys"
+              :props="treeProp"
+              @check-device="onCheckDevice"
+            />
             <div class="device-wrap">
               <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
               <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
                 <!-- <el-table-column key="label" prop="label" width="180" label="业务组/目录名称"> -->
-                <el-table-column key="name" prop="name" width="180" label="业务组/目录名称">
-                  <template slot-scope="{row}">
+                <el-table-column key="name" prop="name" width="220" label="业务组/目录名称">
+                  <template slot-scope="{ row }">
                     <!-- {{ row.label || '-' }} -->
                     {{ row.name || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column key="path" prop="path" label="所在位置">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     {{ renderPath(row.path) || '' }}
                   </template>
                 </el-table-column>
@@ -189,6 +181,8 @@ export default class extends Mixins(layoutMxin) {
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
+  // 初始化 目录树 keys list
+  private initCheckedKeyList = []
   private rules = {
     policyName: [
       { required: true, message: '请输入策略名称', trigger: 'blur' },
@@ -294,6 +288,7 @@ export default class extends Mixins(layoutMxin) {
       this.form.policyName = res.policyName
       this.form.desc = res.desc
       const policyInfo = JSON.parse(res.policyDocument)
+      console.log('获取策略   info    ', policyInfo)
       this.form.actionList = policyInfo.Statement[0].Action
       if (this.form.actionList[0] === 'vss:*') {
         this.actionType = 'besideSelected'
@@ -323,13 +318,46 @@ export default class extends Mixins(layoutMxin) {
         })
       }
       const resourceList = policyInfo.Statement[0].Resource
-      if (resourceList[0] === '*') {
+      if(resourceList[0] === '*') {
         this.resourceType = 'all'
+        this.initCheckedKeyList = []
       } else {
         this.resourceType = 'selected'
+        this.initCheckedKeyList = resourceList.map((keyId: any) => {
+          const ids = keyId.split(':')[2].split('/')
+          const leafId = ids[ids.length -1]
+          return leafId
+        })
+        this.defaultExpandedKeys = resourceList.map((keyId: any) => {
+          const ids = keyId.split(':')[2].split('/')
+          ids.pop()
+          return ids
+        }).flat()
       }
-      await this.initDirs()
-      this.$nextTick(() => this.initResourceStatus(resourceList))
+      const tree = this.deviceTree.$refs.commonTree
+      tree.setCheckedKeys.call(this.deviceTree, this.initCheckedKeyList)
+      // console.log('需要展开的节点的ID        ', this.defaultExpandedKeys)
+      // console.log('需要勾选的节点 ', this.initCheckedKeyList)
+      // const resourceList = policyInfo.Statement[0].Resource
+      // console.log('resourceList     ', policyInfo.Statement[0].Resource)
+      // if(resourceList[0] === '*') {
+      //   this.resourceType = 'all'
+      //   this.initCheckedKeyList = []
+      // } else {
+      //   this.resourceType = 'selected'
+      //   this.initCheckedKeyList = resourceList.map((keyId: any) => {
+      //     const ids = keyId.split(':')[2].split('/')
+      //     const id = ids[ids.length -1]
+      //     return id
+      //   })
+      // }
+      // if (this.initCheckedKeyList[0] === '*') {
+      //   this.resourceType = 'all'
+      // } else {
+      //   this.resourceType = 'selected'
+      // }
+      // await this.initDirs()
+      // this.$nextTick(() => this.initResourceStatus(this.initCheckedKeyList))
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
@@ -398,7 +426,7 @@ export default class extends Mixins(layoutMxin) {
     }
     try {
       const deviceTree: any = this.$refs.deviceTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
@@ -462,53 +490,6 @@ export default class extends Mixins(layoutMxin) {
   }
 
   /**
-   * 加载目录
-   */
-  private async loadDirs(node: any, resolve?: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
-  }
-
-  /**
-   * 获取菜单树
-   */
-  private async getTree(node: any) {
-    try {
-      let shareDeviceIds: any = []
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
-      const deviceTree: any = this.$refs.deviceTree
-      let checkedKeys = deviceTree.getCheckedKeys()
-      let dirs: any = devices.dirs  
-        .filter((dir: any) => dir.type === 'dir')
-        .map((dir: any) => {
-          if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
-            checkedKeys.push(dir.id)
-            deviceTree.setCheckedKeys(checkedKeys)
-          }
-          return {
-            id: dir.id,
-            groupId: node.data.groupId,
-            label: dir.label,
-            inProtocol: node.data.inProtocol,
-            isLeaf: dir.isLeaf,
-            type: dir.type,
-            path: node.data.path.concat([dir]),
-            parentId: node.data.id
-          }
-        })
-      return dirs
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
    * 当设备被选中时回调，将选中的设备列出
    */
   private onCheckDevice(nodes: any) {
@@ -539,7 +520,12 @@ export default class extends Mixins(layoutMxin) {
    * 显示设备所在路径
    */
   private renderPath(path: any) {
-    return path && path.indexOf('/') === 0 ? path.slice(1) : path
+    const end = path.length - 1
+    if (path.length > 1) {
+      return path[end].label.indexOf('/') === 0 ? path[end].label.slice(1) : path[end].label
+    } else {
+      return ''
+    }
     // const dirPath = path.slice(0, -1)
     // const dirPathName = dirPath.map((dir: any) => {
     //   return dir.label
@@ -552,14 +538,13 @@ export default class extends Mixins(layoutMxin) {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
-          let pathIdArr = this.form.resourceList.map((resource: any) => resource.id)
-          let data = {
+          const data = {
             policyId: this.form.policyId || undefined,
             policyName: this.form.policyName,
             desc: this.form.desc,
             scope: 'local',
             policyDocument: JSON.stringify({
-              Version: '2021-03-08',
+              Version: '2022-11-08',
               Statement: [
                 {
                   Effect: 'Allow',
@@ -569,17 +554,8 @@ export default class extends Mixins(layoutMxin) {
                       ? ['*']
                       : this.form.resourceList.map((resource: any) => {
                         const mainUserID = this.$store.state.user.mainUserID
-                        const inProtocol = resource.inProtocol
-                        const type = resource.type
-                        // const pathIds = resource.path.map(
-                        //   (obj: any) => obj.id // 目录 ID 串接咯？
-                        // )
-                        return `${mainUserID}:${inProtocol}-${
-                          type === 'group' ? 'vssgroup' : 'directory'
-                        }:${pathIdArr[0]}${
-                          (pathIdArr.length > 1 ? ':' : '') +
-                            pathIdArr.slice(1).join('/')
-                        }`
+                        const pathIds = resource.path.map((obj: any) => obj.id)
+                        return `${mainUserID}:${'type-' + resource.type}:${pathIds.join('/')}`
                       })
                 }
               ]

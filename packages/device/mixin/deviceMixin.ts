@@ -48,7 +48,7 @@ export default class DeviceMixin extends Vue {
   @Watch('$route.query.deviceId', {
     immediate: true
   })
-  private async deviceIdChange(deviceId) {
+  public async deviceIdChange(deviceId) {
     [DeviceTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
   }
 
