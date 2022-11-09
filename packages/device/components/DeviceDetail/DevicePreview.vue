@@ -28,6 +28,7 @@ export default class extends Mixins(detailMixin) {
   // @Prop() private streams?: Stream[]
   // @Prop() private streamSize?: number
   @Prop() private getDevicePreviewApi: Function
+  @Prop() private readonly deviceIdCar?: any
 
   public screenManager: ScreenManager = null
 
@@ -45,7 +46,7 @@ export default class extends Mixins(detailMixin) {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     this.screenManager = screenBoard?.screenManager
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId
+    screen.deviceId = this.deviceId || this.deviceIdCar
     screen.isLive = true
     await this.getDevice()
     if (this.videoInfo) {

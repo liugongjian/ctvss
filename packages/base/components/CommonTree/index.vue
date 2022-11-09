@@ -139,7 +139,7 @@ export default class extends Vue {
   @Prop({ default: true })
   private expandOnClickNode: boolean
 
-  @Prop({ default: []})
+  @Prop({ default: () => [] })
   private defaultExpandedKeys
 
   private hasRoot = false

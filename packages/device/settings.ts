@@ -175,7 +175,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceSerialNumber,
     DeviceEnum.DeviceModel,
     DeviceEnum.DevicePoleId,
-    DeviceEnum.Description
+    DeviceEnum.Description,
+    DeviceEnum.Resource
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     DeviceEnum.ChannelName,
@@ -183,7 +184,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceId,
     DeviceEnum.DeviceLongitude,
     DeviceEnum.DeviceVendor,
-    DeviceEnum.Description
+    DeviceEnum.Description,
+    DeviceEnum.Resource
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
     DeviceEnum.ChannelName,
@@ -191,7 +193,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceId,
     DeviceEnum.DeviceLongitude,
     DeviceEnum.DeviceVendor,
-    DeviceEnum.Description
+    DeviceEnum.Description,
+    DeviceEnum.Resource
   ])
 }
 
@@ -307,17 +310,6 @@ export const DeviceTypeDenyParamsForViid = {
   ])
 }
 
-
-/**
- * 子通道不能编辑的字段
- */
-export const ChannelDenyEditableParams = new Set([
-  DeviceEnum.InVideoProtocol,
-  DeviceEnum.InVersion,
-  DeviceEnum.InUserName,
-  DeviceEnum.DeviceStreamAutoPull,
-  DeviceEnum.StreamTransProtocol
-])
 
 /**
  * ==============================================================================================================================

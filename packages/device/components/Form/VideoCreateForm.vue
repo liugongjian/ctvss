@@ -34,7 +34,6 @@
           :key="key"
           :label="value"
           :value="key"
-          :disabled="checkDisable(deviceEnum.InVersion)"
         />
       </el-radio-group>
     </el-form-item>
@@ -46,7 +45,7 @@
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm.inUserName" :disabled="checkDisable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
       <!-- <el-radio
@@ -136,7 +135,6 @@
         v-model="videoForm.deviceStreamAutoPull"
         :active-value="1"
         :inactive-value="2"
-        :disabled="checkDisable(deviceEnum.DeviceStreamAutoPull)"
       />
     </el-form-item>
     <el-form-item
@@ -192,7 +190,6 @@
         v-model="videoForm.streamTransProtocol"
         active-value="tcp"
         inactive-value="udp"
-        :disabled="checkDisable(deviceEnum.StreamTransProtocol)"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
@@ -224,7 +221,7 @@ import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor,
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '@vss/device/dicts/tips'
 import { validGbId } from '@vss/device/api/device'
-import { checkVideoVisible, checkFormDisable } from '@vss/device/utils/param'
+import { checkVideoVisible } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
@@ -322,6 +319,11 @@ export default class extends Vue {
   // 视频接入信息
   private get videoInfo(): VideoDevice {
     return (this.inVideoProtocol && this.device.videos[0][InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
+  }
+
+  // 是否为NVR通道
+  private get isChannel() {
+    return this.basicInfo && this.basicInfo.deviceChannelNum > -1
   }
 
   @Watch('device', {
@@ -427,14 +429,7 @@ export default class extends Vue {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop, { isIbox: this.isIbox, isEdit: this.isEdit })
-  }
-
-  /**
-   * 判断表单项是否可以编辑
-   */
-  private checkDisable(prop) {
-    return this.basicInfo && checkFormDisable.call(this.basicInfo, prop, { isEdit: this.isEdit })
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop, { isIbox: this.isIbox, isEdit: this.isEdit, isChannel: this.isChannel })
   }
 
   /**

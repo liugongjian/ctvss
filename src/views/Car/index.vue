@@ -10,7 +10,7 @@
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table" @row-click="rowClick">
         <el-table-column prop="plateNumber" label="车牌号" width="120">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
@@ -18,7 +18,7 @@
         <el-table-column
           label="任务状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="transformStatus(row.status).status" />
             {{ `${transformStatus(row.status).cname}` }}
           </template>
@@ -27,7 +27,7 @@
           label="开始/结束"
           min-width="170"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="start-time">{{ row.startTime }}</div>
             <div class="end-time">{{ row.endTime.length > 0 ? row.endTime : '—' }}</div>
           </template>
@@ -36,13 +36,13 @@
           label="最近操作"
           min-width="210"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span>{{ row.latestOperation.operate | translateOperate }}</span>
             <span>{{ '  ' + row.latestOperation.operateTime }}</span>
           </template>
         </el-table-column>
         <el-table-column label="设备名" min-width="180">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="device-list__device-name">
               <!-- <div class="device-list__device-id">{{ row.deviceId }}</div> -->
               <div>{{ row.deviceName }}</div>
@@ -52,7 +52,7 @@
         <el-table-column
           label="设备状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div v-if="row.status !== 2">
               <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
               {{ row.deviceStatus === 'on' ? '在线' : '离线' }}
@@ -65,7 +65,7 @@
         <el-table-column
           label="流状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div v-if="row.status !== 2">
               <status-badge :status="row.streamStatus === 'on' ? 'on' : 'error'" />
               {{ row.streamStatus === 'on' ? '在线' : '离线' }}
@@ -196,7 +196,7 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         plateNumber: this.plateNumber || undefined,
         factory: this.factory || undefined,
         pageNum: this.pager.pageNum,

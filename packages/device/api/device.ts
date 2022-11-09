@@ -40,6 +40,7 @@ export const getDevices = (params: any): Promise<any> => {
           ) : {}
           data[DeviceEnum.StreamStatus] = streamInfo[DeviceEnum.StreamStatus]
           data[DeviceEnum.RecordStatus] = streamInfo[DeviceEnum.RecordStatus]
+          data[DeviceEnum.RecordTaskId] = streamInfo[DeviceEnum.RecordTaskId]
         }
 
         if (inViidProtocol) {

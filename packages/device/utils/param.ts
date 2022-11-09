@@ -7,7 +7,6 @@ import {
   DeviceListToolsAllowParams,
   DeviceTableColumnAllowParams,
   DeviceTypeDenyParamsForIbox,
-  ChannelDenyEditableParams,
   ChannelAllowParams
 } from '@vss/device/settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
@@ -102,20 +101,6 @@ export function checkVideoVisible(
 }
 
 /**
- * 视频接入form-item是否禁用状态
- * @param prop 参数名
- * @param options 扩展参数 {isIbox, isEdit}
- * @return 判断结果
- */
- export function checkFormDisable(prop, options: VisibleOptions = { isEdit: false }): boolean {
-    // 通道编辑页面部分组件不可编辑
-    if (this[DeviceEnum.DeviceChannelNum] > 0 && options.isEdit) {
-      return ChannelDenyEditableParams.has(prop)
-    }
-    return false
- }
-
-/**
  * 视图接入form-item显示判断
  * @param deviceType 设备类型
  * @param inViidProtocol 视图接入协议
@@ -150,11 +135,22 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
   if (data) {
     const inProtocolList = data.inProtocol || []
     if (inProtocolList.length === 1) { // 仅接入视频
-      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewViid].includes(prop)) {
+      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [
+        ToolsEnum.PreviewViid
+      ].includes(prop)) {
         return false
       }
       // 仅接入视图
-      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewVideo, ToolsEnum.ReplayVideo].includes(prop)) {
+      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [
+        ToolsEnum.PreviewVideo,
+        ToolsEnum.ReplayVideo,
+        ToolsEnum.StartDevice,
+        ToolsEnum.StopDevice,
+        ToolsEnum.StartRecord,
+        ToolsEnum.StopRecord,
+        ToolsEnum.UpdateResource,
+        ToolsEnum.PreviewEvents
+      ].includes(prop)) {
         return false
       }
     }

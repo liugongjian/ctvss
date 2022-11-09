@@ -4,6 +4,7 @@
 export enum PolicyEnum {
   DescribeGroup = 'DescribeGroup',
   AdminGroup = 'AdminGroup',
+  AdminDevice = 'AdminDevice',
   DescribeDevice = 'DescribeDevice',
   ScreenPreview = 'ScreenPreview',
   ReplayRecord = 'ReplayRecord',

@@ -316,11 +316,12 @@ const exportDeviceFile = async function (data: any) {
  * @param state.$router 路由
  * @param dirId 目录id
  */
- const configureChannels = function (state) {
+ const configureChannels = function (state, data) {
   state.$router.push({
     name: 'ConfigureChannels',
     query: {
       ...state.$route.query,
+      channelNumList: data.length ? data.map(item => item.deviceChannelNum).join(',') : ''
     }
   })
 }
@@ -453,7 +454,8 @@ const startOrStopRecord = async function (state, type, row) {
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
     const params: any = {
-      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.RecordTaskId]: row[DeviceEnum.RecordTaskId]
     }
     await method(params)
     state.$message.success(`已通知${methodStr}录制`)
