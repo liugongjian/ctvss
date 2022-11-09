@@ -135,11 +135,22 @@ export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any
   if (data) {
     const inProtocolList = data.inProtocol || []
     if (inProtocolList.length === 1) { // 仅接入视频
-      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewViid].includes(prop)) {
+      if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [
+        ToolsEnum.PreviewViid
+      ].includes(prop)) {
         return false
       }
       // 仅接入视图
-      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [ToolsEnum.PreviewVideo, ToolsEnum.ReplayVideo].includes(prop)) {
+      if (Object.values(InViidProtocolDict).includes(inProtocolList[0]) && [
+        ToolsEnum.PreviewVideo,
+        ToolsEnum.ReplayVideo,
+        ToolsEnum.StartDevice,
+        ToolsEnum.StopDevice,
+        ToolsEnum.StartRecord,
+        ToolsEnum.StopRecord,
+        ToolsEnum.UpdateResource,
+        ToolsEnum.PreviewEvents
+      ].includes(prop)) {
         return false
       }
     }
