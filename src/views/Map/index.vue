@@ -183,7 +183,7 @@
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
-import { getGroups } from '@/api/group'
+// import { getGroups } from '@/api/group'
 import { renderAlertType, getSums } from '@/utils/device'
 // import { getDeviceTree, getDevice } from '@/api/device'
 import { getDevice } from '@vss/device/api/device'
@@ -397,37 +397,37 @@ export default class extends Mixins(IndexMixin) {
   /**
    * 目录初始化
    */
-  public async initDirs() {
-    try {
-      this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        // 放开rtsp rtmp
-        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        this.dirList.push({
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
-          groupStats: group.groupStats,
-          path: [{
-            id: group.groupId,
-            label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-          }]
-        })
-      })
-    } catch (e) {
-      this.dirList = []
-    } finally {
-      this.loading.dir = false
-    }
-  }
+  // public async initDirs() {
+  //   try {
+  //     this.loading.dir = true
+  //     const res = await getGroups({
+  //       pageSize: 1000
+  //     })
+  //     this.dirList = []
+  //     res.groups.forEach((group: any) => {
+  //       // 放开rtsp rtmp
+  //       // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+  //       this.dirList.push({
+  //         id: group.groupId,
+  //         groupId: group.groupId,
+  //         label: group.groupName,
+  //         inProtocol: group.inProtocol,
+  //         type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+  //         disabled: false,
+  //         groupStats: group.groupStats,
+  //         path: [{
+  //           id: group.groupId,
+  //           label: group.groupName,
+  //           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+  //         }]
+  //       })
+  //     })
+  //   } catch (e) {
+  //     this.dirList = []
+  //   } finally {
+  //     this.loading.dir = false
+  //   }
+  // }
 
   @Watch('$route.query')
   private onRouterChange() {
