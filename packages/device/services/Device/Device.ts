@@ -316,11 +316,12 @@ const exportDeviceFile = async function (data: any) {
  * @param state.$router 路由
  * @param dirId 目录id
  */
- const configureChannels = function (state) {
+ const configureChannels = function (state, data) {
   state.$router.push({
     name: 'ConfigureChannels',
     query: {
       ...state.$route.query,
+      channelNumList: data.length ? data.map(item => item.deviceChannelNum).join(',') : ''
     }
   })
 }
