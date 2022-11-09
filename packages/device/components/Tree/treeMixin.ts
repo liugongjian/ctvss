@@ -1,8 +1,10 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum } from '../../enums/index'
+import { PolicyEnum } from '@vss/base/enums/iam'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import StreamSelector from '../StreamSelector.vue'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   components: {
@@ -27,6 +29,7 @@ export default class TreeMixin extends Vue {
   public statusEnum = StatusEnum
   public deviceTypeEnum = DeviceTypeEnum
   public directoryTypeEnum = DirectoryTypeEnum
+  public policyEnum = PolicyEnum
   public rootKey = ''
   public nodeKey = 'id'
   public rootLabel = '根目录'
@@ -108,8 +111,8 @@ export default class TreeMixin extends Vue {
   /**
    * 判断是否显示form-item
    */
-  public checkVisible(type, prop) {
-    return checkTreeToolsVisible(type, prop)
+  public checkVisible(type, prop, permission?) {
+    return checkTreeToolsVisible(type, prop) && checkPermission(permission)
   }
 
   /**

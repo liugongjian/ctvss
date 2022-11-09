@@ -49,7 +49,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <el-upload
-            v-if="checkToolsVisible(toolsEnum.Import)"
+            v-if="checkToolsVisible(toolsEnum.Import, [policyEnum.AdminDevice])"
             ref="excelUpload"
             action="#"
             :show-file-list="false"
@@ -58,8 +58,8 @@
           >
             <el-button>导入</el-button>
           </el-upload>
-          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate)" @click="handleListTools(toolsEnum.ExportTemplate)">下载模板</el-button>
-          <el-dropdown v-if="checkToolsVisible(toolsEnum.OperateDevices)" key="dropdown" placement="bottom" @command="handleListTools($event, selectedDeviceList)">
+          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate, [policyEnum.AdminDevice])" @click="handleListTools(toolsEnum.ExportTemplate)">下载模板</el-button>
+          <el-dropdown v-if="checkToolsVisible(toolsEnum.OperateDevices, [policyEnum.AdminDevice])" key="dropdown" placement="bottom" @command="handleListTools($event, selectedDeviceList)">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="checkToolsVisible(toolsEnum.MoveDevices, [policyEnum.AdminDevice])" :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
