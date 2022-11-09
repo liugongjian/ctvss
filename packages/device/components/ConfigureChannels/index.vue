@@ -44,14 +44,15 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Inject } from 'vue-property-decorator'
 import { ToolsEnum } from '@vss/device/enums/index'
 import { getChannelList, configChannels } from '@/api/device'
+import deviceMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'ConfigEhomeNvrChannel',
 })
-export default class extends Vue {
+export default class extends Mixins(deviceMixin) {
   @Inject('handleTools')
   private handleTools!: Function
   private breadCrumbContent = '配置子通道'
@@ -64,15 +65,20 @@ export default class extends Vue {
   private dialogVisible = false
 
   private tableLoading = false
+  private submitting = false
 
   private selectChannels: any = []
 
+  private deviceChannelSize = 0
+
   public async mounted() {
+    await this.getDevice()
     await this.getChannels()
   }
 
   // 获取子通道列表
   private async getChannels() {
+    console.log(this.inProtocol)
     try {
       this.tableLoading = true
       const params = {
@@ -92,8 +98,8 @@ export default class extends Vue {
         this.setChecked()
       }
 
-      if (this.$route.query.channelSize) {
-        this.channelSize = this.$route.query.channelSize
+      if (this.device && this.device.device) {
+        this.channelSize = this.device.device.deviceChannelSize
       }
       this.channelData = deviceChannels
     } catch (e) {
@@ -203,6 +209,12 @@ export default class extends Vue {
   }
 
   private back() {
+    this.$router.replace({
+    query: {
+      ...this.$route.query,
+      channelNumList: ''
+    }
+  })
     this.handleTools(ToolsEnum.GoBack, 0)
   }
 }

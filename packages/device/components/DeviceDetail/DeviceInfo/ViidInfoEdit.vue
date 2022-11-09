@@ -9,9 +9,13 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Device, DeviceBasic } from '@vss/device/type/Device'
+import { Device, DeviceBasic, DeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
+import { InViidProtocolModelMapping } from '@vss/device/dicts/index'
+import { InViidProtocolCreateParams } from '@vss/device/settings'
+import { updateDevice } from '@vss/device/api/device'
 import { DeviceEnum } from '@vss/device/enums'
 import ViidCreateForm from '../../Form/ViidCreateForm.vue'
+import { pick } from 'lodash'
 
 @Component({
   name: 'ViidInfoEdit',
@@ -29,14 +33,44 @@ export default class extends Vue {
 
   private async submit() {
     const form = this.$refs.form as ViidCreateForm
-    if (await form.validateVideoForm()) {
-      this.$emit('cancel')
-      this.$emit('updateDevice')
+    if (await form.validateViidForm()) {
+      this.doSubmit()
     }
   }
 
   private cancel() {
     this.$emit('cancel')
+  }
+
+  /**
+   * 提交表单
+   */
+  private async doSubmit() {
+    const form = this.$refs.form as ViidCreateForm
+    // 设备参数
+    const params: DeviceForm = {
+      device: {
+        deviceId: this.basicInfo.deviceId
+      }
+    }
+    const viidDevice: ViidDeviceForm = {
+      ...pick(form.viidForm, [
+        DeviceEnum.InViidProtocol
+      ])
+    }
+    // 补充协议信息
+    viidDevice[InViidProtocolModelMapping[form.viidForm.inViidProtocol]] = {
+      ...pick(form.viidForm, [...InViidProtocolCreateParams[form.viidForm.inViidProtocol]])
+    }
+    params.viids = [ viidDevice ]
+    try {
+      await updateDevice(params)
+      this.$alertSuccess('更新成功!')
+      this.$emit('cancel')
+      this.$emit('updateDevice')
+    } catch (e) {
+      this.$alertError(e.message)
+    }
   }
 }
 </script>

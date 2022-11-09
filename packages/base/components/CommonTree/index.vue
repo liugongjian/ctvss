@@ -36,13 +36,14 @@
           :props="props"
           :empty-text="emptyText"
           :default-expand-all="!lazy"
+          :default-expanded-keys="defaultExpandedKeys"
           :expand-on-click-node="expandOnClickNode"
           :show-checkbox="hasCheckbox"
           highlight-current
           @node-click="handleNode"
           @check="onCheckDevice"
         >
-        <!-- <el-tree
+          <!-- <el-tree
           :key="treeKey"
           ref="Tree"
           :node-key="nodeKey"
@@ -138,6 +139,9 @@ export default class extends Vue {
   @Prop({ default: true })
   private expandOnClickNode: boolean
 
+  @Prop({ default: () => [] })
+  private defaultExpandedKeys
+
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   public currentKey = null
@@ -225,6 +229,7 @@ export default class extends Vue {
   }
 
   private getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
+    console.log('common tree  里面的 this  ', this.tree)
     return this.tree.getCheckedNodes(leafOnly, includeHalfChecked)
   }
 
@@ -240,19 +245,25 @@ export default class extends Vue {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
 
+  private setDefaultCheckedKeys(keysList: any) {
+    this.defaultExpandedKeys = keysList
+  }
+
   /**
    * 节点选中事件
   */
   private onCheckDevice(data: any) {
     const dirTree: any = this.tree
     const nodes = dirTree.getCheckedNodes()
+    console.log('触发节点选中事件   this.tree   ', this.tree, nodes)
     this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('check-device', nodes)
   }
 
-  private setChecked(data: any, checked: boolean, deep: boolean = false) {
+  private setChecked(data: any, checked: boolean, deep = false) {
     return this.tree.setChecked(data, checked, deep)
   }
+
 }
 </script>

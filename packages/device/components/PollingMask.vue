@@ -62,7 +62,7 @@ export default class extends Vue {
   private currentDir
 
   /* 轮巡及一键播放 */
-  @Prop({ default: () => {} })
+  @Prop({ default: {} })
   private screenManager
 
   /* 轮巡状态 */
@@ -74,9 +74,6 @@ export default class extends Vue {
   private get pollingInterval() {
     return this.screenManager ? this.screenManager.executeQueueConfig.interval : 20
   }
- 
-  // @Prop({ default: 20 })
-  // private pollingInterval: number
 
   private isLoading = false
 
@@ -98,6 +95,10 @@ export default class extends Vue {
 
   private intervalChange(val: number) {
     this.$emit('polling-handle', ToolsEnum.IntervalChange, val)
+  }
+
+  private beforeDestroy() {
+    this.$emit('polling-handle', ToolsEnum.StopPolling, this.currentDir)
   }
 }
 </script>

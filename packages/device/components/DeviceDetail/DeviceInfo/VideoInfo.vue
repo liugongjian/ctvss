@@ -3,7 +3,7 @@
     <div class="detail__buttons">
       <el-button type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources)" type="text">配置资源包</el-button>
-      <el-dropdown @command="handleTools($event, basicInfo, inVideoProtocol)">
+      <el-dropdown @command="handleTools($event, handleData, inVideoProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-if="streamStatus === statusEnum.On" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
@@ -151,6 +151,14 @@ export default class extends Vue {
   // 是否含视图库
   private get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 操作所需的数据
+  private get handleData() {
+    return {
+      ...this.basicInfo,
+      ...this.streamInfo
+    }
   }
 
   // 根据设备类型 & 接入协议判断字段是否显示

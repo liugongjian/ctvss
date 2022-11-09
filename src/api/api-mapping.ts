@@ -11,7 +11,7 @@ export const ApiMapping = {
   '/map/DescribeMaps': '/map/list',
   // '/map/CreateMap': '/map/create',
   '/map/DeleteMap': '/map/delete',
-  '/map/ModifyMap': '/map/modify',
+  '/map/ModifyMap': '/map/update',
   '/map/DescribeMapMarkers': '/map/describeMarkers',
   '/map/MarkOnMap': '/map/mark',
   '/map/ReMarkOnMap': '/map/reMark',
@@ -29,4 +29,7 @@ export const ApiMapping = {
   // PTZ 云台控制
   '/ptz/keepwatch': '/ptz/keepwatch/describe',
   '/ptz/startDeviceKeepwatch': '/ptz/keepwatch/start',
+  // 国标告警
+  '/alarm/alarmrule/describeAlarms': '/alarm/info/list',
+  '/alarm/alarmrule/deleteAlarmInfo': '/alarm/info/delete:post'
 }

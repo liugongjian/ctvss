@@ -9,11 +9,15 @@
     :load="load"
     :props="defaultProps"
     :empty-text="emptyText"
-    :has-checkbox="true"
-    :default-expanded-keys="defaultExpandedKeys"
+    :expand-on-click-node="false"
     @handle-node="handleNode"
-    @check-device="handleCheck"
   >
+    <template slot="rootLabelPrefix">
+      <svg-icon name="component" />
+    </template>
+    <template slot="rootLabel">
+      {{ rootLabel }}
+    </template>
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
@@ -23,7 +27,7 @@
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix" slot-scope="{ data }">
-      <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
+      <span class="alert-type">{{ renderAlertType(data) }}</span>
     </template>
   </common-tree>
 </template>
@@ -31,16 +35,17 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import StatusBadge from '@/components/StatusBadge/index.vue'
+import { renderAlertType } from '@/utils/device'
 
 @Component({
-  name: 'IAMResourceTree'
+  name: 'AlarmTree',
+  components: {
+    StatusBadge
+  }
 })
 export default class extends Mixins(treeMixin) {
-
-  private handleCheck(nodes: any) {
-    this.$emit('check-device', nodes)
-  }
-  
+  private renderAlertType = renderAlertType
 }
 </script>
 

@@ -511,13 +511,11 @@ export default class extends Mixins(IndexMixin) {
       if (node.level === 0) {
         this.loading.dir = true
         res = await getNodeInfo({ type: DirectoryTypeEnum.Dir })
-        console.log(res)
         // this.deviceTree.loadChildren('01')
         this.loading.dir = false
       } else {
         res = await getNodeInfo({ id: node.data.id, type: node.data.type })
       }
-      console.log(res.dirs)
       resolve(res.dirs)
     } catch (e) {
       console.log(e)

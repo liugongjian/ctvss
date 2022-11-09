@@ -261,7 +261,8 @@ const exportDeviceExcel = async function (state, policy, data) {
     let params: any = {}
     if (policy === ToolsEnum.ExportAll) {
       params = {
-        command: 'all'
+        command: 'all',
+        ...data
       }
     } else {
       params = {
@@ -283,8 +284,7 @@ const exportDeviceFile = async function (data: any) {
     let res: any = {}
     if (data.command === 'all'){
       const param = {
-        parentDeviceId: data.parentDeviceId,
-        dirId: data.dirId.toString(),
+        parentDeviceId: data.currentDirId,
         sortBy: '',
         sortDirection: 'desc',
         pageNum: 1,
@@ -298,15 +298,13 @@ const exportDeviceFile = async function (data: any) {
       } else if (data.policy === ToolsEnum.ExportSelected) {
         deviceArr = data.selectedDeviceList
       }
-      const deviceIds = deviceArr.map((device: any) => {
-        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
-      })
+      const deviceIds = deviceArr.map((device: any) =>  device[DeviceEnum.DeviceId]  )
       const param = {
         deviceIds
       }
       res = await exportDeviceOption(param)
     }
-    this.downloadFileUrl('设备表格', res.exportFile)
+    ExportExcelTemplate.downloadFileUrl('设备表格', res.exportFile)
   } catch (error) {
     console.log(error)
   }
@@ -318,67 +316,35 @@ const exportDeviceFile = async function (data: any) {
  * @param state.$router 路由
  * @param dirId 目录id
  */
- const configureChannels = function (state) {
+ const configureChannels = function (state, data) {
   state.$router.push({
     name: 'ConfigureChannels',
     query: {
       ...state.$route.query,
+      channelNumList: data.length ? data.map(item => item.deviceChannelNum).join(',') : ''
     }
   })
-}
-
-// 导出设备表格
-async function exportDevicesExcel(data: any) {
-  const params: any = {
-    groupId: data.groupId,
-    inProtocol: data.inProtocol,
-    dirId: data.dirId.toString(),
-    parentDeviceId: data.parentDeviceId
-  }
-  // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
-   let res
-  try {
-    if (data.command === 'all') {
-      const query = this.$route.query
-      params.deviceStatusKeys = query.deviceStatusKeys || undefined
-      params.streamStatusKeys = query.streamStatusKeys || undefined
-      params.deviceAddresses = query.deviceAddresses || undefined
-      params.matchKeys = query.matchKeys
-      params.searchKey = query.searchKey || undefined
-      params.pageSize = 5000
-      params.pageNum = 1
-      res = await exportDeviceAll(params)
-    } else if (data.command === 'selected') {
-      params.deviceIds = data.deviceIds
-      res = await exportDeviceOption(params)
-    }
-    this.downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
-  } catch (e) {
-    console.log(e)
-  }
 }
 
 /**
  * 导入设备表
  */
-const uploadExcel = function (state, data: any) {
-  console.log(data)
-  // if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
-  // state.dialog.uploadExcel = true
-  //   state.selectedFile = data.file
-  //   state.fileData = {
-  //     groupId: this.groupId,
-  //     inProtocol: this.inProtocol,
-  //     dirId: this.dirId,
-  //     fileName: data.file.name
-  //   }
-  //   if (this.isNVR) {
-  //     this.fileData.parentDeviceId = this.deviceInfo.deviceId
-  //     delete this.fileData.dirId
-  //   }
-  // } else {
-  //   this.$message.error('导入文件必须为表格')
-  // }
+const uploadExcel = function (getVueComponent, data: any, dirId) {
+  const state = getVueComponent()
+  if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+    state.selectedFile = data.file
+    state.fileData = {
+      dirId: dirId,
+      fileName: data.file.name
+    }
+    state.dialog[ToolsEnum.Import] = true
+    if (this.isNVR) {
+      state.fileData.parentDeviceId = state.deviceInfo.deviceId
+      delete state.fileData.dirId
+    }
+  } else {
+    state.$message.error('导入文件必须为表格')
+  }
 }
 
 /**
@@ -455,7 +421,7 @@ const startOrStopDevice = async function (state, type, data?) {
       .then(() => {
         state.$message.success(`已通知${methodStr}设备`)
         state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshRouterView)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
       })
       .catch(e => {
         if (e === 'cancel' || e === 'close') return
@@ -488,7 +454,8 @@ const startOrStopRecord = async function (state, type, row) {
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
     const params: any = {
-      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.RecordTaskId]: row[DeviceEnum.RecordTaskId]
     }
     await method(params)
     state.$message.success(`已通知${methodStr}录制`)
