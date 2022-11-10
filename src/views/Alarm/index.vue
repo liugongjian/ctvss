@@ -115,62 +115,60 @@ export default class extends Mixins(IndexMixin, layoutMxin) {
   private async handleTreeNode(data: any, node: any) {
     console.log('树节点点击      ', data, node)
     const { id, type } = data || {}
-    let router: any
-    let query: any = {}
-    this.deviceTree.setCurrentKey(id)
-    console.log('data type  id  ', data.type || '2', data.id || '1')
-    switch (data.type) {
-      // case 'platformDir':
-      case '':
-        router = {
-          name: 'AlarmList'
-        }
-        query = {
-          dirId: data.id || ''
-        }
-      case 'dir':
-        router = {
-          name: 'AlarmList'
-        }
-        query = {
-          dirId: data.id || ''
-        }
-        break
-      case 'platform':
-        router = {
-          name: 'AlarmList'
-        }
-        query = {
-          dirId: data.id || '',
-          deviceId: data.id || ''
-        }
-        break
-      case 'nvr':
-        router = {
-          name: 'AlarmList'
-        }
-        query = {
-          deviceId: data.id || ''
-        }
-        break
-      case 'ipc':
-        router = {
-          name: 'AlarmList'
-        }
-        query = {       
-          deviceId: data.id || ''
-        }
-      break
+    const router = {
+      name: 'AlarmList',
+      query: {
+        dirId: data.id,
+        deviceId: data.id,
+        type: data.type,
+      }
     }
-    // console.log(' !!!!!!!!!!!!!!!!!!  ', ...query)  
-    (router.query = {
-      // inProtocol: this.currentGroup!.inProtocol,
-      // groupId: item.groupId,
-      type: data.type,
-      // path: this.breadcrumb.map((item: any) => item.id).join(','),
-      ...query
-    })
-    console.log('面包屑 组织完成后   请求参数   query      ', router.query)
+    this.deviceTree.setCurrentKey(id)
+    // switch (data.type) {
+    //   // case 'platformDir':
+    //   case 'dir':
+    //     router = {
+    //       name: 'AlarmList'
+    //     }
+    //     query = {
+    //       dirId: data.id || ''
+    //     }
+    //     break
+    //   case 'platform':
+    //     router = {
+    //       name: 'AlarmList'
+    //     }
+    //     query = {
+    //       dirId: data.id || '',
+    //       deviceId: data.id || ''
+    //     }
+    //     break
+    //   case 'nvr':
+    //     router = {
+    //       name: 'AlarmList'
+    //     }
+    //     query = {
+    //       deviceId: data.id || ''
+    //     }
+    //     break
+    //   case 'ipc':
+    //     router = {
+    //       name: 'AlarmList'
+    //     }
+    //     query = {       
+    //       deviceId: data.id || ''
+    //     }
+    //   break
+    // }
+    // console.log(' !!!!!!!!!!!!!!!!!!  ', query)  
+    // router.query = {
+    //   // inProtocol: this.currentGroup!.inProtocol,
+    //   // groupId: item.groupId,
+    //   type: data.type,
+    //   // path: this.breadcrumb.map((item: any) => item.id).join(','),
+    //   ...query
+    // }
+    console.log('面包屑 组织完成后   请求参数   query      ', router)
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
     // if (type === this.deviceTypeEnum.Ipc) {
