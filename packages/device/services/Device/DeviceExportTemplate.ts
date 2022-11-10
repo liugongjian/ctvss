@@ -833,7 +833,7 @@ class ExportExcelTemplate {
     this.workbook = new ExcelJS.Workbook()
     this.workbook.views = this.excelViews
 
-    // await this.getOptions()  // todo 待完善
+    await this.getOptions()  // todo 待完善
 
     this.excelTemplateSheet.forEach((item: any) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
