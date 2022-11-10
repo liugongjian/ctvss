@@ -4,7 +4,7 @@
       <div class="detail-wrap__header">
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
-          <el-tab-pane label="基本信息" name="DeviceInfo" />
+          <el-tab-pane label="基本信息" :name="DeviceDetailTab.DeviceInfo" />
           <el-tab-pane v-if="hasVideo" label="配置信息" :name="DeviceDetailTab.DeviceConfig" />
           <el-tab-pane v-if="hasVideo" label="设备事件" :name="DeviceDetailTab.DeviceEvents" />
           <el-tab-pane v-if="hasVideo" label="实时预览" :name="DeviceDetailTab.DevicePreview" />
@@ -33,11 +33,11 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
 export default class extends Mixins(detailMixin) {
   @Inject('handleTools')
   private handleTools!: Function
-  private activeRouteName = 'DeviceInfo'
+  private activeRouteName = DeviceDetailTab.DeviceInfo
   private DeviceDetailTab = DeviceDetailTab
 
   @Watch('$route.name', { immediate: true })
-  private routeChange(activeRouteName: string) {
+  private routeChange(activeRouteName: DeviceDetailTab) {
     this.activeRouteName = activeRouteName
   }
 

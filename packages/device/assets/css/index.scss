@@ -342,6 +342,21 @@
           }
         }
 
+        .form-longitude {
+          .el-form-item__content {
+            display: flex;
+
+            .longlat-input {
+              width: 48%;
+              max-width: 203px;
+            }
+          }
+
+          &__colon {
+            margin: 0 5px;
+          }
+        }
+
         .el-input:not(.el-input-number > .el-input, .longlat-input),
         .el-select,
         .el-textarea,
@@ -349,11 +364,6 @@
         .tags {
           width: 100%;
           max-width: 420px;
-        }
-
-        .longlat-input {
-          width: 48%;
-          max-width: 203px;
         }
 
         .certificate-select {
