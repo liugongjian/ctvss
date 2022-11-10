@@ -1,8 +1,8 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
-import { DeviceEnum, DeviceTypeEnum } from '../enums/index'
+import { DeviceEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -43,13 +43,6 @@ export default class DeviceMixin extends Vue {
       return this.device.viids[0][DeviceEnum.InViidProtocol]
     }
     return null
-  }
-
-  @Watch('$route.query.deviceId', {
-    immediate: true
-  })
-  public async deviceIdChange(deviceId) {
-    [DeviceTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
   }
 
   /**

@@ -25,6 +25,7 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Inject } from 'vue-property-decorator'
 import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
+import { Device } from '@vss/device/type/Device'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -41,14 +42,21 @@ export default class extends Mixins(detailMixin) {
     this.activeRouteName = activeRouteName
   }
 
-  public async mounted() {
-    await this.getDevice()
+  @Watch('$route.query.deviceId', {
+    immediate: true
+  })
+  public async deviceIdChange(deviceId) {
+    this.device = {} as Device
+    this.getDevice(deviceId)
   }
 
   public destroyed() {
     this.clearDevice()
   }
 
+  /**
+   * 切换TAB
+   */
   private handleClick(tab) {
     if (tab.name === DeviceDetailTab.DeviceInfo) {
       this.getDevice(this.deviceId, true)
@@ -56,6 +64,9 @@ export default class extends Mixins(detailMixin) {
     this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }
 
+  /**
+   * 返回
+   */
   private back() {
     if (this.deviceType === DeviceTypeEnum.Ipc) {
       this.handleTools(ToolsEnum.GoBack, 1)

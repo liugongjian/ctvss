@@ -2,6 +2,7 @@
   <div>
     <el-descriptions :column="2">
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称">{{ basicInfo.deviceName }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.PlatformName)" label="平台名称">{{ basicInfo.deviceName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称">{{ basicInfo.deviceName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelNum)" label="通道号">{{ basicInfo.deviceChannelNum }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceInType)" label="接入方式">
