@@ -250,8 +250,8 @@ export default class extends Vue {
     }
   }
 
-  private mounted() {
-    this.getViewsList()
+  private async mounted() {
+    this.debounceHandle()
   }
 
   private async getViewsList() {
