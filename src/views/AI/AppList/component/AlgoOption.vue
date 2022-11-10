@@ -97,7 +97,6 @@ export default class extends Mixins(AppMixin) {
         abilityId: this.activeName,
         type: isIbox ? '2' : '1'
       })
-      console.log('aiAbilityAlgorithms:', aiAbilityAlgorithms)
       let tagdalgoList = []
       if (isIbox) {
         const iboxId: any = this.$route.query.deviceId
@@ -107,14 +106,12 @@ export default class extends Mixins(AppMixin) {
         })
         tagdalgoList = aiAbilityAlgorithms.map((algo) => {
           const res = iboxAIAlgorithms.findIndex((item) => item.code === algo.code)
-          console.log('res:', res)
           return { ...algo, isLoaded: res > -1, isIbox }
           // return { ...algo, isLoaded: true, isIbox }
         })
       } else {
         tagdalgoList = aiAbilityAlgorithms.map((item) => ({ ...item, isIbox }))
       }
-      console.log('tagdalgoList:', tagdalgoList)
       // 过滤掉没有icon的算法
       this.algoList = tagdalgoList.filter((algo) => this.isHasIcon(algo))
     } catch (e) {

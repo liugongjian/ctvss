@@ -2,7 +2,7 @@
   <el-card>
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item label="算法类型" prop="algoName">
-        <el-input v-model="form.algoName" :disabled="true" />
+        <el-input v-model="form.algoName" disabled />
       </el-form-item>
       <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
@@ -305,7 +305,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
-    if (this.$route.query.id || this.appInfo()) {
+    if (this.$route.query.id || (this.appInfo && this.appInfo())) {
       // 编辑
       if (this.$route.query.id) {
         const id = this.$route.query.id

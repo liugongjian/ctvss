@@ -54,18 +54,23 @@ export default class IBoxList extends Vue {
   }
 
   private async getAiList() {
-    this.loading.table = true
-    const iboxId: any = this.$route.query.deviceId
-    const { iboxAIAlgorithms }: any =
-      await describeAlgorithmList({
-        ...this.pager,
-        iboxId
-      })
-    this.tableData = iboxAIAlgorithms.map((algo) => ({
-      ...algo,
-      version: '1.0.0'
-    }))
-    this.loading.table = false
+    try {
+      this.loading.table = true
+      const iboxId: any = this.$route.query.deviceId
+      const { iboxAIAlgorithms }: any =
+        await describeAlgorithmList({
+          ...this.pager,
+          iboxId
+        })
+      this.tableData = iboxAIAlgorithms.map((algo) => ({
+        ...algo,
+        version: '1.0.0'
+      }))
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.table = false
+    }
   }
 
   @Watch('prod', {

@@ -112,10 +112,15 @@ export default class AiAppList extends Vue {
   }
 
   private async mounted() {
-    this.loading.table = true
-    await this.getAppList()
-    await this.getAlarms()
-    this.loading.table = false
+    try {
+      this.loading.table = true
+      await this.getAppList()
+      await this.getAlarms()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.table = false
+    }
   }
 
   public async getAlarms() {
