@@ -11,6 +11,7 @@ export default class AppMixin extends Vue {
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
   }
+
   public msOfADay = 864 * 100000
 
   public form: any = {
@@ -123,9 +124,9 @@ export default class AppMixin extends Vue {
    * 得到N天前的时间戳
    */
   public getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 
@@ -140,14 +141,14 @@ export default class AppMixin extends Vue {
 
   public generateAlgoParam() {
     this.generateEffectiveTime()
-    let algorithmMetadata = this.form.algorithmMetadata
+    const algorithmMetadata = this.form.algorithmMetadata
     if (algorithmMetadata) {
       Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     }
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'
     }
-    let param = {
+    const param = {
       ...this.form,
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,

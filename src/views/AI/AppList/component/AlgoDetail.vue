@@ -68,237 +68,11 @@
         </div>
       </el-form-item>
       <!-- 算法定制项--meta数据，考虑单独提取组件 -->
-      <!-- 蜜蜂阈值 -->
-      <el-form-item
-        v-if="ifShow('10010')"
-        label="蜜蜂数量阈值"
-        prop="beeNumber"
-      >
-        <el-input v-model="form.beeNumber" />
-      </el-form-item>
-      <!-- 人群感应检测 -->
-      <el-form-item
-        v-if="ifShow('10023')"
-        label="人员数量阈值"
-        prop="algorithmMetadata.crowdThreShold"
-      >
-        <el-input v-model="form.algorithmMetadata.crowdThreShold" />
-      </el-form-item>
-      <!-- 车辆统计 -->
-      <el-form-item
-        v-if="ifShow('10019')"
-        label="时间窗口"
-        prop="algorithmMetadata.timeSlide"
-      >
-        <el-select
-          v-model="form.algorithmMetadata.timeSlide"
-          placeholder="请选择时间窗口"
-        >
-          <el-option
-            v-for="(val, key) in getHourInterval(1, 24)"
-            :key="key"
-            :label="val"
-            :value="val"
-          />
-        </el-select>
-        <span class="comment">小时</span>
-      </el-form-item>
-      <el-form-item
-        v-if="ifShow('10019')"
-        label="车辆数量阈值"
-        prop="algorithmMetadata.vehiclesThreshold"
-      >
-        <el-input v-model="form.algorithmMetadata.vehiclesThreshold" />
-      </el-form-item>
-      <!-- 实时在岗检测 -->
-      <el-form-item
-        v-if="ifShow('10024')"
-        label="脱岗超时时间"
-        prop="algorithmMetadata.offDutyThreShold"
-      >
-        <el-input v-model="form.algorithmMetadata.offDutyThreShold" />
-        <span class="comment">分钟</span>
-        <template slot="label">
-          脱岗超时时间
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            :content="tips.offDutyThreShold"
-          >
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
-        </template>
-      </el-form-item>
-      <el-form-item
-        v-if="ifShow('10024')"
-        label="睡岗超时时间"
-        prop="algorithmMetadata.sleepOnDutyThreShold"
-      >
-        <el-input v-model="form.algorithmMetadata.sleepOnDutyThreShold" />
-        <span class="comment">分钟</span>
-        <template slot="label">
-          睡岗超时时间
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            :content="tips.sleepOnDutyThreShold"
-          >
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
-        </template>
-      </el-form-item>
-      <!-- 车辆违停 -->
-      <el-form-item
-        v-if="ifShow('10021')"
-        label="临停时间"
-        prop="algorithmMetadata.pvTime"
-      >
-        <el-input v-model="form.algorithmMetadata.pvTime" />
-        <span class="comment">分钟</span>
-        <template slot="label">
-          临停时间
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            :content="tips.pvTime"
-          >
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
-        </template>
-      </el-form-item>
-      <!-- 车辆拥堵 -->
-      <el-form-item
-        v-if="ifShow('10022')"
-        label="拥堵车辆阈值"
-        prop="algorithmMetadata.jamThreshold"
-      >
-        <el-input v-model="form.algorithmMetadata.jamThreshold" />
-        <span class="comment">辆</span>
-        <template slot="label">
-          拥堵车辆阈值
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            :content="tips.jamThreshold"
-          >
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
-        </template>
-      </el-form-item>
-      <!-- 人员徘徊 -->
-      <el-form-item
-        v-if="ifShow('10025')"
-        prop="algorithmMetadata.lingerInterval"
-        label="徘徊时间"
-      >
-        <el-input v-model="form.algorithmMetadata.lingerInterval" />
-        <span class="comment">分钟</span>
-      </el-form-item>
-      <el-form-item
-        v-if="ifShow('10001', '10016', '10017', '10034')"
-        prop="algorithmMetadata.FaceDbName"
-        label="人脸库"
-      >
-        <el-select
-          v-model="form.algorithmMetadata.FaceDbName"
-          placeholder="请选择人脸库"
-          :loading="isfaceLibLoading"
-        >
-          <el-option
-            v-for="item in faceLibs"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id + ''"
-          />
-        </el-select>
-        <!-- <i class="el-icon-refresh" @click="refreshFaceLib" /> -->
-        <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
-      </el-form-item>
-      <el-form-item
-        v-if="ifShow('10005')"
-        prop="algorithmMetadata.pedThreshold"
-        label="人员数量阈值"
-      >
-        <el-input v-model="form.algorithmMetadata.pedThreshold" />
-      </el-form-item>
-      <el-form-item v-if="ifShow('10006')" label="围栏区域">
-        <el-alert
-          title="围栏区域需在绑定设备后，在设备详情中进行设置。"
-          type="info"
-          show-icon
-          :closable="false"
-          class="mb5"
-        />
-      </el-form-item>
-      <!-- 摄像头遮挡 -->
-      <el-form-item
-        v-if="ifShow('10027')"
-        label="视野遮挡阈值"
-        prop="algorithmMetadata.areaThreshold"
-      >
-        <el-input v-model="form.algorithmMetadata.areaThreshold" />
-        <span class="comment">%</span>
-      </el-form-item>
-      <!-- 动物检测 -->
-      <el-form-item
-        v-if="ifShow('10033')"
-        label="动物列表"
-        prop="algorithmMetadata.animalDetectType"
-      >
-        <el-checkbox-group v-model="form.algorithmMetadata.animalDetectType">
-          <el-checkbox
-            v-for="type in AnimalType"
-            :key="type.label"
-            :label="type.label"
-            :disabled="true"
-          >
-            {{ type.cname }}
-          </el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <!-- 垃圾投放站检测 -->
-      <el-form-item
-        v-if="ifShow('10026')"
-        label="细分检测项"
-        prop="algorithmMetadata.trashRecycleType"
-      >
-        <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
-          <el-checkbox
-            v-for="type in TrashType"
-            :key="type.label"
-            :label="type.label"
-          >
-            {{ type.cname }}
-          </el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <!-- 安全帽反光服 -->
-      <el-form-item
-        v-if="ifShow('10004')"
-        label="检测项"
-        prop="algorithmMetadata.helmetReflectiveType"
-      >
-        <el-checkbox-group
-          v-model="form.algorithmMetadata.helmetReflectiveType"
-        >
-          <el-checkbox
-            v-for="type in HelmetClothType"
-            :key="type.label"
-            :label="type.label"
-          >
-            {{ type.cname }}
-          </el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <!---->
+      <component
+        :is="formComponent"
+        v-if="formComponent && form"
+        :form="form"
+      />
       <el-form-item label="置信度" prop="confidence">
         <el-slider
           v-model="form.confidence"
@@ -463,13 +237,18 @@ import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
 import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { describeIboxApp } from '@/api/ibox'
-import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
+import { TrashType, HelmetClothType, AnimalType } from '@vss/ai/dics/contants'
+import { ResourceAiType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
-import { formRule, formTips } from '../util/form-helper'
+import { FormRef } from '@vss/ai/dics'
+import AlgoConfigs from '@vss/ai/component/AlgoConfig'
+import { formRule, formTips } from '@vss/ai/util/form-helper'
 
 @Component({
   name: 'AlgoDetail',
-  components: {}
+  components: {
+    ...AlgoConfigs.components
+  }
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private step!: number
@@ -508,6 +287,21 @@ export default class extends Mixins(AppMixin) {
         (this.form.algorithm && this.form.algorithm.code === code)
     )
     return res.length > 0
+  }
+
+  get algoCode() {
+    return this.prod?.code || (this.form.algorithm && this.form.algorithm.code)
+  }
+
+  get formComponent() {
+    const names = Object.keys(AlgoConfigs.components)
+    if (names.includes('form' + this.algoCode)) {
+      return 'form' + this.algoCode
+    } else if (FormRef[this.algoCode]) {
+      return 'form' + FormRef[this.algoCode]
+    } else {
+      return null
+    }
   }
 
   private async mounted() {
