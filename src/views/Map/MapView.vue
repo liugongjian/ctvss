@@ -42,9 +42,9 @@ import {
   editInterestPoint,
   delInterestPoint
 } from '@/api/map'
-import { Screen } from '@/views/device/services/Screen/Screen'
-import LivePlayer from '@/views/device/components/LivePlayer.vue'
-import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
+import { Screen } from '@vss/device/services/Screen/Screen'
+import LivePlayer from '@vss/device/components/LivePlayer.vue'
+import ReplayView from '@vss/device/components/ReplayPlayer/index.vue'
 import draggable from '@/views/Map/directives/draggable'
 
 @Component({
