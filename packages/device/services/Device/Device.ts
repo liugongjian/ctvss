@@ -271,7 +271,7 @@ const exportDeviceExcel = async function (state, policy, data) {
         ...data
       }
     }
-    await exportDeviceFile(params)
+    await exportDeviceFile(state, params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
@@ -279,17 +279,24 @@ const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = false
 }
 
-const exportDeviceFile = async function (data: any) {
+const exportDeviceFile = async function (state, data: any) {
   try {
     let res: any = {}
     if (data.command === 'all'){
-      const param = {
-        parentDeviceId: data.currentDirId,
+      const param: any = {
         sortBy: '',
         sortDirection: 'desc',
         pageNum: 1,
         pageSize: 9999
       }
+      const { query } = state.$route
+
+       if (query.type === 'nvr'){
+        param.parentDeviceId = data.currentDirId
+      } else {
+        param.dirId = query.dirId
+      }
+      
       res = await exportDeviceAll(param)
     } else {
       let deviceArr: any = []
@@ -351,7 +358,9 @@ const uploadExcel = function (getVueComponent, data: any, dirId) {
  * 导出模板
  */
 const exportTemplate = function (state) {
-  ExportExcelTemplate.exportTemplate(state)
+  // ExportExcelTemplate.exportTemplate(state)
+  console.log('test------>', state.dialog[ToolsEnum.ExportTemplate])
+  state.dialog[ToolsEnum.ExportTemplate] = true
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal

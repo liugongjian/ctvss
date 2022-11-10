@@ -295,6 +295,7 @@
     />
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.Import, $event)" />
     <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="{ device: currentDevice }" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.UpdateResource, $event)" />
+    <ExportTemplateAddressVue v-if="dialog[toolsEnum.ExportTemplate]" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.ExportTemplate, $event)" />
   </div>
 </template>
 
@@ -314,13 +315,15 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '@vss/device/components/MoveDir.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
 import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
+import ExportTemplateAddressVue from '@vss/device/components//ExportTemplateAddress.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
     MoveDir,
     UploadExcel,
-    ResourceEdit
+    ResourceEdit,
+    ExportTemplateAddressVue
   }
 })
 export default class extends Mixins(deviceMixin) {
@@ -383,7 +386,8 @@ export default class extends Mixins(deviceMixin) {
   private dialog = {
     [ToolsEnum.MoveDevice]: false,
     [ToolsEnum.Import]: false,
-    [ToolsEnum.UpdateResource]: false
+    [ToolsEnum.UpdateResource]: false,
+    [ToolsEnum.ExportTemplate]: false,
   }
 
   private isBatchMoveDir = false
