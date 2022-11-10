@@ -139,8 +139,7 @@ export default class extends Vue {
 
   // 流状态
   public get streamStatus() {
-    const streamStataus = this.videoInfo && this.videoInfo.streams.length && this.videoInfo.streams.some(stream => stream.streamStatus === StatusEnum.On)
-    return streamStataus ? StatusEnum.On : StatusEnum.Off
+    return this.streamInfo && this.streamInfo.streamStatus
   }
 
   // 录制状态
@@ -163,7 +162,7 @@ export default class extends Vue {
 
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
+    return checkVideoVisible.call({ ...this.videoInfo, isIbox: this.isIbox }, this.basicInfo.deviceType, this.inVideoProtocol, prop)
   }
 
   // 进入编辑模式

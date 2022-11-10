@@ -54,14 +54,14 @@
       </template> -->
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
-          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
+          <a :class="{ 'actived': !queryAlertType }" @click="routeToHome()">可视化大屏</a>
           <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
              -->
           <template v-if="checkPermission(['DescribeAi'])">
-            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
+            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{ width: `${item.name.length * 16 + 56}px` }">
               {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
-              <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
+              <ul class="dropdown__menu" :style="{ width: `${item.name.length * 16 + 56}px` }">
                 <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
                     {{ alertType[aiType] }}
                   </li> -->
@@ -254,7 +254,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private async mounted() {
-    GroupModule.GetGroupList()
+    this.hasGroupSelector && GroupModule.GetGroupList()
     this.aiInfos = await this.getAiApps()
 
     // TODO: Hardcode 300015

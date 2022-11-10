@@ -321,11 +321,6 @@ export default class extends Vue {
     return (this.inVideoProtocol && this.device.videos[0][InVideoProtocolModelMapping[this.inVideoProtocol]]) || {} as VideoDevice
   }
 
-  // 是否为NVR通道
-  private get isChannel() {
-    return this.basicInfo && this.basicInfo.deviceChannelNum > -1
-  }
-
   @Watch('device', {
     immediate: true
   })
@@ -429,7 +424,17 @@ export default class extends Vue {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop, { isIbox: this.isIbox, isEdit: this.isEdit, isChannel: this.isChannel })
+    return checkVideoVisible.call(
+      {
+        ...this.videoForm,
+        ...this.basicInfo,
+        isEdit: this.isEdit,
+        isIbox: this.isIbox
+      }, 
+      this.deviceForm.deviceType,
+      this.videoForm.inVideoProtocol,
+      prop
+    )
   }
 
   /**

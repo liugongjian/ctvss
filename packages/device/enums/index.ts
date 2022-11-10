@@ -294,3 +294,16 @@ export enum PollingStatusEnum {
   Working = 'working',
   Pause = 'pause'
 }
+
+/**
+ * 设备基本信息Tab
+ */
+export enum DeviceDetailTab {
+  DeviceInfo = 'DeviceInfo',
+  DeviceConfig = 'DeviceConfig',
+  DeviceEvents = 'DeviceEvents',
+  DevicePreview = 'DevicePreview',
+  DeviceReplay = 'DeviceReplay',
+  DeviceAi = 'DeviceAi',
+  DeviceViid = 'DeviceViid'
+}

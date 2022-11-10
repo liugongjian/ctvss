@@ -608,8 +608,6 @@ export default class extends Mixins(deviceMixin) {
    * @param row 具体信息
    */
   private checkInfoVisible(prop) {
-    // return checkVideoVisible.call(this.basicInfo, DeviceTypeEnum.Nvr, 'ehome', false, prop)
-    // return checkViidVisible.call(this.basicInfo, DeviceTypeEnum.Platform, 'ga1400', prop)
     return (this.hasVideo ? checkVideoVisible : checkViidVisible).call(this.basicInfo, this.basicInfo.deviceType, this.inProtocol, prop)
   }
 

@@ -35,9 +35,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { getDeviceTree } from '@/api/device'
 import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
-import { getGroups } from '@/api/group'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 
 @Component({
@@ -60,148 +58,25 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public async mounted() {
-    await this.initDirs()
-    await this.initResourceStatus(this.checkedList)
+    // await this.initResourceStatus()
   }
 
-  /**
+    /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus(checkedList: any) {
-    // this.loading = true
-    const deviceTree: any = this.deviceTree.$refs.commonTree
-    const checkedKeys = []
-    for (let index = 0, len = checkedList.length; index < len; index++) {
-      const resource = checkedList[index]
-      if (/vssgroup/.test(resource)) {
-        const _key = resource.split(':').slice(-1)[0]
-        checkedKeys.push(_key)
-      } else {
-        const keyPath = resource.split(':').slice(2).join('/').split(/\//)
-        if (keyPath && keyPath.length) {
-          for (let i = 0; i < keyPath.length - 1; i++) {
-            const _key = keyPath[i]
-            const node = deviceTree && deviceTree.getNode(_key)
-            if (node) {
-              await this.loadDirChildren(_key, node)
-            }
+  public async initResourceStatus() {
+    Promise.resolve(this.checkedList).then(async(checkedList: any) => {
+      if (checkedList.length) {
+        const pathList = checkedList.map((resource: any) => resource.split(':')[2].split('/'))
+        const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
+        for (let idx = 0, len = pathList.length; idx < len; idx++) {
+            await this.deviceTree.asyncLoadChildren(pathList[idx])
           }
-          checkedKeys.push(keyPath[keyPath.length - 1])
-        }
+        const tree = this.deviceTree.$refs.commonTree
+        tree.setCheckedKeys(checkedKeys)
+        this.onCheckDevice(this.getTreeCheckedNodes(tree))
       }
-    }
-    deviceTree && deviceTree.setCheckedKeys(checkedKeys)
-    // this.loading = false
-  }
-
-  /**
-   * 目录初始化
-   */
-  public async initDirs() {
-    try {
-      // this.loading = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        (group.inProtocol !== 'vgroup') && (
-          this.dirList.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: 'group',
-            parentId: '0',
-            path: [{
-              id: group.groupId,
-              label: group.groupName,
-              type: 'group'
-            }],
-            isLeaf: group.inProtocol !== 'gb28181'
-          })
-        )
-      })
-    } catch (e) {
-      this.dirList = []
-    } finally {
-      // this.loading = false
-    }
-  }
-
-  /**
-   * 加载子目录
-   */
-  public async loadDirChildren(key: string, node: any) {
-    if (node.loaded) {
-      node.parent.expanded = true
-      return
-    }
-    try {
-      const deviceTree: any = this.deviceTree.$refs.commonTree
-      const data = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
-      if (data.dirs) {
-        const dirs = data.dirs.map((dir: any) => ({
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          path: node.data.path.concat([dir]),
-          parentId: node.data.id
-        }))
-        deviceTree && deviceTree.updateKeyChildren(key, dirs)
-      }
-      node.expanded = true
-      node.loaded = true
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
-   * 加载目录
-   */
-  private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
-  }
-
-  /**
-   * 获取菜单树
-   */
-  private async getTree(node: any) {
-    try {
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
-
-      const dirs: any = devices.dirs.map((dir: any) => {
-        return {
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          path: node.data.path.concat([dir]),
-          parentId: node.data.id
-        }
-      })
-      return dirs
-    } catch (e) {
-      console.log(e)
-    }
+    })
   }
 
   /**

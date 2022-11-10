@@ -183,8 +183,8 @@
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
-import { getGroups } from '@/api/group'
-import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
+// import { getGroups } from '@/api/group'
+import { renderAlertType, getSums } from '@/utils/device'
 // import { getDeviceTree, getDevice } from '@/api/device'
 import { getDevice } from '@vss/device/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -196,6 +196,8 @@ import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
 import { getNodeInfo } from '@vss/device/api/dir'
 import { DirectoryTypeEnum } from '@vss/device/enums/index'
+import { VideoDevice } from '@vss/device/type/Device'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'Map',
@@ -395,37 +397,37 @@ export default class extends Mixins(IndexMixin) {
   /**
    * 目录初始化
    */
-  public async initDirs() {
-    try {
-      this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        // 放开rtsp rtmp
-        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        this.dirList.push({
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
-          groupStats: group.groupStats,
-          path: [{
-            id: group.groupId,
-            label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-          }]
-        })
-      })
-    } catch (e) {
-      this.dirList = []
-    } finally {
-      this.loading.dir = false
-    }
-  }
+  // public async initDirs() {
+  //   try {
+  //     this.loading.dir = true
+  //     const res = await getGroups({
+  //       pageSize: 1000
+  //     })
+  //     this.dirList = []
+  //     res.groups.forEach((group: any) => {
+  //       // 放开rtsp rtmp
+  //       // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+  //       this.dirList.push({
+  //         id: group.groupId,
+  //         groupId: group.groupId,
+  //         label: group.groupName,
+  //         inProtocol: group.inProtocol,
+  //         type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+  //         disabled: false,
+  //         groupStats: group.groupStats,
+  //         path: [{
+  //           id: group.groupId,
+  //           label: group.groupName,
+  //           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+  //         }]
+  //       })
+  //     })
+  //   } catch (e) {
+  //     this.dirList = []
+  //   } finally {
+  //     this.loading.dir = false
+  //   }
+  // }
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -905,19 +907,22 @@ export default class extends Mixins(IndexMixin) {
       deviceId: id
     })
     const deviceLabel = this.deviceInfo.device.deviceName
-    // if (this.deviceInfo.deviceChannels.length > 0) {
-    //   deviceLabel = this.deviceInfo.deviceChannels[0].channelName
-    // }
+    const inVideoProtocol = this.deviceInfo.videos && this.deviceInfo.videos.length && this.deviceInfo.videos[0]?.inVideoProtocol
+    const videoInfo: VideoDevice = inVideoProtocol && this.deviceInfo.videos[0][dicts.InVideoProtocolModelMapping[inVideoProtocol]]
+    const streamInfo = videoInfo && videoInfo.streams.length && videoInfo.streams.find(stream => stream.streamNum === videoInfo.deviceStreamPullIndex)
+    const deviceStatus = videoInfo && videoInfo.deviceStatus
+
     this.markerInfo = {
       deviceId: this.deviceInfo.device.deviceId,
+      dirId: this.deviceInfo.device.dirId,
       // inProtocol: this.deviceInfo.inProtocol,
       deviceType: this.deviceInfo.device.deviceType,
       deviceLabel,
       longitude: '',
       latitude: '',
-      deviceStatus: this.deviceInfo.device.deviceStatus,
-      streamStatus: this.deviceInfo.device.streamStatus,
-      recordStatus: this.deviceInfo.device.recordStatus,
+      deviceStatus: deviceStatus.isOnline,
+      streamStatus: streamInfo.streamStatus,
+      recordStatus: streamInfo.recordStatus,
       // regionNames: this.deviceInfo.regionNames,
       // gbRegionNames: this.deviceInfo.gbRegionNames,
       viewRadius: '0',
@@ -926,7 +931,6 @@ export default class extends Mixins(IndexMixin) {
       population: '',
       houseInfo: '',
       unitInfo: '',
-      groupId: this.deviceInfo.groupId,
       deviceColor: ''
     }
   }

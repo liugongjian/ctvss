@@ -36,7 +36,6 @@
           :props="props"
           :empty-text="emptyText"
           :default-expand-all="!lazy"
-          :default-expanded-keys="defaultExpandedKeys"
           :expand-on-click-node="expandOnClickNode"
           :show-checkbox="hasCheckbox"
           highlight-current
@@ -139,9 +138,6 @@ export default class extends Vue {
   @Prop({ default: true })
   private expandOnClickNode: boolean
 
-  @Prop({ default: () => [] })
-  private defaultExpandedKeys
-
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   public currentKey = null
@@ -193,6 +189,11 @@ export default class extends Vue {
     if (typeof payload === 'string') {
       payload = this.tree.getNode(payload)
     }
+    // 如果已经加载过，则提前返回，不重新请求接口
+    if (payload && payload.loaded) {
+      payload.parent.expanded = true
+      return
+    }
     // 未传则使用自定义resolve
     if (!resolve) {
       resolve = this.resolveChildren.bind(this, payload)
@@ -207,7 +208,6 @@ export default class extends Vue {
   }
 
   private setCurrentKey(val) {
-    console.log('setCurrentKey', val)
     this.currentKey = val
     this.tree.setCurrentKey(this.currentNodeKey)
   }
@@ -245,17 +245,12 @@ export default class extends Vue {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
 
-  private setDefaultCheckedKeys(keysList: any) {
-    this.defaultExpandedKeys = keysList
-  }
-
   /**
    * 节点选中事件
   */
   private onCheckDevice(data: any) {
     const dirTree: any = this.tree
     const nodes = dirTree.getCheckedNodes()
-    console.log('触发节点选中事件   this.tree   ', this.tree, nodes)
     this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
     this.$emit('check-device', nodes)

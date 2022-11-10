@@ -34,7 +34,6 @@
               :load="treeLoad"
               :lazy="lazy"
               :data="dirList"
-              :default-expanded-keys="defaultExpandedKeys"
               :props="treeProp"
               @check-device="onCheckDevice"
             />
@@ -81,7 +80,6 @@
 <script lang="ts">
 import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
 import { getDeviceTree } from '@/api/device'
-import { getGroups } from '@/api/group'
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
@@ -181,8 +179,6 @@ export default class extends Mixins(layoutMxin) {
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
-  // 初始化 目录树 keys list
-  private initCheckedKeyList = []
   private rules = {
     policyName: [
       { required: true, message: '请输入策略名称', trigger: 'blur' },
@@ -240,7 +236,6 @@ export default class extends Mixins(layoutMxin) {
       }
     } else {
       this.actionType = 'selected'
-      await this.initDirs()
     }
   }
 
@@ -282,13 +277,13 @@ export default class extends Mixins(layoutMxin) {
   private async getPolicyInfo() {
     try {
       this.policyLoading.resource = true
-      const res: any = await getPolicyInfo({
+      this.policyPromise = getPolicyInfo({
         policyId: this.form.policyId
       })
+      const res: any = await this.policyPromise
       this.form.policyName = res.policyName
       this.form.desc = res.desc
       const policyInfo = JSON.parse(res.policyDocument)
-      console.log('获取策略   info    ', policyInfo)
       this.form.actionList = policyInfo.Statement[0].Action
       if (this.form.actionList[0] === 'vss:*') {
         this.actionType = 'besideSelected'
@@ -318,46 +313,11 @@ export default class extends Mixins(layoutMxin) {
         })
       }
       const resourceList = policyInfo.Statement[0].Resource
-      if(resourceList[0] === '*') {
+      if (resourceList[0] === '*') {
         this.resourceType = 'all'
-        this.initCheckedKeyList = []
       } else {
         this.resourceType = 'selected'
-        this.initCheckedKeyList = resourceList.map((keyId: any) => {
-          const ids = keyId.split(':')[2].split('/')
-          const leafId = ids[ids.length -1]
-          return leafId
-        })
-        this.defaultExpandedKeys = resourceList.map((keyId: any) => {
-          const ids = keyId.split(':')[2].split('/')
-          ids.pop()
-          return ids
-        }).flat()
       }
-      const tree = this.deviceTree.$refs.commonTree
-      tree.setCheckedKeys.call(this.deviceTree, this.initCheckedKeyList)
-      // console.log('需要展开的节点的ID        ', this.defaultExpandedKeys)
-      // console.log('需要勾选的节点 ', this.initCheckedKeyList)
-      // const resourceList = policyInfo.Statement[0].Resource
-      // console.log('resourceList     ', policyInfo.Statement[0].Resource)
-      // if(resourceList[0] === '*') {
-      //   this.resourceType = 'all'
-      //   this.initCheckedKeyList = []
-      // } else {
-      //   this.resourceType = 'selected'
-      //   this.initCheckedKeyList = resourceList.map((keyId: any) => {
-      //     const ids = keyId.split(':')[2].split('/')
-      //     const id = ids[ids.length -1]
-      //     return id
-      //   })
-      // }
-      // if (this.initCheckedKeyList[0] === '*') {
-      //   this.resourceType = 'all'
-      // } else {
-      //   this.resourceType = 'selected'
-      // }
-      // await this.initDirs()
-      // this.$nextTick(() => this.initResourceStatus(this.initCheckedKeyList))
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
@@ -381,40 +341,57 @@ export default class extends Mixins(layoutMxin) {
       (row.actionValue === 'DescribeAi' && actionList.indexOf('AdminAi') !== -1)
     )
   }
+
   /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus(resourceList: any) {
-    try {
-      this.policyLoading.dir = true
-      const deviceTree: any = this.$refs.deviceTree
-      const checkedKeys = []
-      for (let index = 0, len = resourceList.length; index < len; index++) {
-        const resource = resourceList[index]
-        if (/vssgroup/.test(resource)) {
-          const _key = resource.split(':').slice(-1)[0]
-          checkedKeys.push(_key)
-        } else {
-          const keyPath = resource.split(':').slice(2).join('/').split(/\//)
-          if (keyPath && keyPath.length) {
-            for (let i = 0; i < keyPath.length - 1; i++) {
-              const _key = keyPath[i]
-              const node = deviceTree.getNode(_key)
-              if (node) {
-                await this.loadDirChildren(_key, node)
-              }
-            }
-            checkedKeys.push(keyPath[keyPath.length - 1])
+  public async initResourceStatus() {
+    this.policyPromise.then( async(policy: any) => {
+      const resourceList = JSON.parse(policy.policyDocument).Statement[0].Resource
+      if (resourceList.length) {
+        const pathList = resourceList.map((resource: any) => resource.split(':')[2].split('/'))
+        const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
+        for (let idx = 0, len = pathList.length; idx < len; idx++) {
+            await this.deviceTree.asyncLoadChildren(pathList[idx])
           }
-        }
+        const tree = this.deviceTree.$refs.commonTree
+        tree.setCheckedKeys(checkedKeys)
+        this.onCheckDevice(this.getTreeCheckedNodes(tree))
       }
-      deviceTree.setCheckedKeys(checkedKeys)
-    } catch (e) {
-      console.log('e: ', e)
-    } finally {
-      this.policyLoading.dir = false
-    }
+    })
   }
+
+  // public async initResourceStatus(resourceList: any) {
+  //   try {
+  //     this.policyLoading.dir = true
+  //     const deviceTree: any = this.$refs.deviceTree
+  //     const checkedKeys = []
+  //     for (let index = 0, len = resourceList.length; index < len; index++) {
+  //       const resource = resourceList[index]
+  //       if (/vssgroup/.test(resource)) {
+  //         const _key = resource.split(':').slice(-1)[0]
+  //         checkedKeys.push(_key)
+  //       } else {
+  //         const keyPath = resource.split(':').slice(2).join('/').split(/\//)
+  //         if (keyPath && keyPath.length) {
+  //           for (let i = 0; i < keyPath.length - 1; i++) {
+  //             const _key = keyPath[i]
+  //             const node = deviceTree.getNode(_key)
+  //             if (node) {
+  //               await this.loadDirChildren(_key, node)
+  //             }
+  //           }
+  //           checkedKeys.push(keyPath[keyPath.length - 1])
+  //         }
+  //       }
+  //     }
+  //     deviceTree.setCheckedKeys(checkedKeys)
+  //   } catch (e) {
+  //     console.log('e: ', e)
+  //   } finally {
+  //     this.policyLoading.dir = false
+  //   }
+  // }
 
   /**
    * 加载子目录
@@ -451,41 +428,6 @@ export default class extends Mixins(layoutMxin) {
       node.loaded = true
     } catch (e) {
       console.log(e)
-    }
-  }
-
-  /**
-   * 目录初始化
-   */
-  public async initDirs() {
-    try {
-      this.policyLoading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        group.inProtocol !== 'vgroup' &&
-          this.dirList.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: 'group',
-            parentId: '0',
-            path: [
-              {
-                id: group.groupId,
-                label: group.groupName,
-                type: 'group'
-              }
-            ]
-          })
-      })
-    } catch (e) {
-      this.dirList = []
-    } finally {
-      this.policyLoading.dir = false
     }
   }
 
