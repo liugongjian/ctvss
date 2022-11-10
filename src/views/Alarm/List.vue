@@ -307,6 +307,7 @@ export default class extends Vue {
       }
     }
     try {
+      console.log('papapa        ', params)
       !forbitLoading && (this.loading = true) && (this.alarmList = [])
       const res: any = await getAlarmRules(params)
       this.alarmList = res.alarms

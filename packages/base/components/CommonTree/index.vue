@@ -222,10 +222,11 @@ export default class extends Vue {
   /**
    * node点击事件
    */
-  private handleNode(data: any) {
+  private handleNode(data: any, node: any) {
+    console.log('node 点击事件    ', data, node)
     this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
-    this.$emit('handle-node', data)
+    this.$emit('handle-node', data, node)
   }
 
   private getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
