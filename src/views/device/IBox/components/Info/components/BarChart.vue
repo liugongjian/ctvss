@@ -231,12 +231,12 @@ export default class extends Vue {
       }
       this.seriesData = [
         {
-          value: chartData.usage,
-          name: name1 + chartData.usage + this.unit
+          value: unuse,
+          name: name1 + unuse + this.unit
         },
         {
-          value: unuse,
-          name: name2 + unuse + this.unit,
+          value: chartData.usage,
+          name: name2 + chartData.usage + this.unit,
           label: { show: false },
           labelLine: { show: false },
           emphasis: {
