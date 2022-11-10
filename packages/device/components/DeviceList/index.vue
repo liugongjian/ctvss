@@ -525,7 +525,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private async initList(isLoading = true) {
     this.loading.table = isLoading
-    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
+    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
       this.loading.info = isLoading
       try {
         await this.getDevice(this.currentDirId)
@@ -551,7 +551,7 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.PageNum]: this.pager.pageNum,
       [DeviceEnum.PageSize]: this.pager.pageSize
     }
-    if (this.currentDirType === DirectoryTypeEnum.Dir) {
+    if ([DirectoryTypeEnum.Dir, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
       params[DeviceEnum.DirId] = this.currentDirId
     } else {
       params[DeviceEnum.ParentDeviceId] = this.currentDirId

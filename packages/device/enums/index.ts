@@ -282,7 +282,8 @@ export enum DirectoryTypeEnum {
   Ipc = 'ipc',
   Dir = 'dir',
   Nvr = 'nvr',
-  Platform = 'platform'
+  Platform = 'platform',
+  Role = 'role'
 }
 
 

@@ -73,7 +73,7 @@ export default class extends Mixins(deviceMixin) {
 
   public async mounted() {
     await this.getDevice()
-    await this.getChannels()
+    // await this.getChannels()
   }
 
   // 获取子通道列表
@@ -137,8 +137,10 @@ export default class extends Mixins(deviceMixin) {
       // 全不选时 逻辑
       this.$confirm('确定取消全部通道么？', '提示', {
         confirmButtonText: '关闭',
-        cancelButtonText: '确定取消',
-        type: 'warning'
+        cancelButtonText: '确定',
+        type: 'warning',
+        cancelButtonClass: 'el-button--primary',
+        confirmButtonClass: 'config-channel__confirm-color'
       }).then(() => {
         this.setChecked()
       }).catch(() => {
@@ -159,8 +161,10 @@ export default class extends Mixins(deviceMixin) {
       // 取消逻辑
       this.$confirm('确定取消此通道么？', '提示', {
         confirmButtonText: '关闭',
-        cancelButtonText: '确定取消',
-        type: 'warning'
+        cancelButtonText: '确定',
+        type: 'warning',
+        cancelButtonClass: 'el-button--primary',
+        confirmButtonClass: 'config-channel__confirm-color'
       }).then(() => {
         const selectResult = [...selection, row]
         this.selectChannels = selectResult
@@ -195,7 +199,7 @@ export default class extends Mixins(deviceMixin) {
       await configChannels(params)
       this.$message.success('配置子通道成功！')
       this.back()
-      this.initDirs()
+      this.handleTools(ToolsEnum.RefreshDirectory)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -236,5 +240,12 @@ export default class extends Mixins(deviceMixin) {
       }
     }
   }
-
+</style>
+<style lang="scss">
+  .config-channel__confirm-color {
+    background: $color-white !important;
+    border: 1px solid $color-grey-6 !important;
+    border-color: $color-grey-6 !important;
+    color: $color-grey-1 !important;
+  }
 </style>
