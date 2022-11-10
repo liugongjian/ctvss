@@ -4,13 +4,13 @@
       <div class="detail-wrap__header">
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
-          <el-tab-pane label="基本信息" name="DeviceInfo" />
-          <el-tab-pane v-if="hasVideo" label="配置信息" name="DeviceConfig" />
-          <el-tab-pane v-if="hasVideo" label="设备事件" name="DeviceEvents" />
-          <el-tab-pane v-if="hasVideo" label="实时预览" name="DevicePreview" />
-          <el-tab-pane v-if="hasVideo" label="录像回放" name="DeviceReplay" />
-          <el-tab-pane v-if="hasVideo" label="AI分析" name="DeviceAi" />
-          <el-tab-pane v-if="hasViid" label="视图数据" name="DeviceViid" />
+          <el-tab-pane label="基本信息" :name="DeviceDetailTab.DeviceInfo" />
+          <el-tab-pane v-if="hasVideo" label="配置信息" :name="DeviceDetailTab.DeviceConfig" />
+          <el-tab-pane v-if="hasVideo" label="设备事件" :name="DeviceDetailTab.DeviceEvents" />
+          <el-tab-pane v-if="hasVideo" label="实时预览" :name="DeviceDetailTab.DevicePreview" />
+          <el-tab-pane v-if="hasVideo" label="录像回放" :name="DeviceDetailTab.DeviceReplay" />
+          <el-tab-pane v-if="hasVideo" label="AI分析" :name="DeviceDetailTab.DeviceAi" />
+          <el-tab-pane v-if="hasViid" label="视图数据" :name="DeviceDetailTab.DeviceViid" />
         </el-tabs>
       </div>
       <div v-if="device.device" class="detail-wrap__body">
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch, Inject } from 'vue-property-decorator'
-import { ToolsEnum, DeviceTypeEnum } from '@vss/device/enums/index'
+import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -33,10 +33,11 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
 export default class extends Mixins(detailMixin) {
   @Inject('handleTools')
   private handleTools!: Function
-  private activeRouteName = 'DeviceInfo'
+  private activeRouteName = DeviceDetailTab.DeviceInfo
+  private DeviceDetailTab = DeviceDetailTab
 
   @Watch('$route.name', { immediate: true })
-  private routeChange(activeRouteName: string) {
+  private routeChange(activeRouteName: DeviceDetailTab) {
     this.activeRouteName = activeRouteName
   }
 
@@ -49,6 +50,9 @@ export default class extends Mixins(detailMixin) {
   }
 
   private handleClick(tab) {
+    if (tab.name === DeviceDetailTab.DeviceInfo) {
+      this.getDevice(this.deviceId, true)
+    }
     this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }
 

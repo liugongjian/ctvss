@@ -12,7 +12,7 @@
       </div>
       <el-table v-loading="loading" :data="dataList">
         <el-table-column prop="id" label="设备ID/名称" min-width="180">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="device-list__device-name">
               <div class="device-list__device-id">{{ row.deviceId }}</div>
               <div>{{ row.deviceName }}</div>
@@ -27,12 +27,12 @@
           </template>
         </el-table-column> -->
         <el-table-column prop="deviceVendor" label="厂商">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.deviceVendor ? row.deviceVendor : '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="gbId" label="国标ID" min-width="190">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.gbId ? row.gbId : '-' }}
           </template>
         </el-table-column>
@@ -41,6 +41,7 @@
             <!-- <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button> -->
             <el-button v-permission="['*']" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
+            <el-button v-if="UserModule.version === 2" type="text" @click="goToDevice(scope.row)">查看设备</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -61,6 +62,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BillingResourceManagement',
@@ -69,6 +71,7 @@ import Resource from '@/views/device/components/dialogs/Resource.vue'
   }
 })
 export default class extends Vue {
+  private UserModule = UserModule
   private resourceId: any = ''
   private deviceName = ''
   private loading = false
@@ -76,7 +79,7 @@ export default class extends Vue {
     resource: false
   }
   private currentDevice = ''
-  private breadCrumbContent: string = ''
+  private breadCrumbContent = ''
   private dataList: Array<object> = []
   private pager: any = {
     pageNum: 1,
@@ -90,7 +93,7 @@ export default class extends Vue {
   }
 
   private back() {
-    let params: any = this.$route.params
+    const params: any = this.$route.params
     this.$router.push({
       name: 'BillingResource',
       query: {
@@ -102,6 +105,16 @@ export default class extends Vue {
   public updateResource(row: any) {
     this.currentDevice = row
     this.dialog.resource = true
+  }
+
+  private goToDevice(row: any) {
+    this.$router.push({
+      name: 'DeviceInfo',
+      query: {
+        deviceId: row.deviceId,
+        type: row.deviceType
+      }
+    })
   }
 
   public closeDialog(type: string, refresh: any) {
@@ -123,14 +136,14 @@ export default class extends Vue {
    */
   private async getResourceDevices() {
     try {
-      let params = {
+      const params = {
         resourceId: this.resourceId,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         deviceName: this.deviceName || undefined
       }
       this.loading = true
-      let res: any = await getResourceDevices(params)
+      const res: any = await getResourceDevices(params)
       this.dataList = res.devices
       this.pager.total = res.totalNum
     } catch (e) {

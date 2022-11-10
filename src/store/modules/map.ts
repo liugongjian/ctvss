@@ -19,7 +19,7 @@ class Map extends VuexModule implements IMapState {
   public interestInfo: any = null
   public fontInfo: any = null
   public polygonInfo: any = null
-  public isClickInterest: boolean = false
+  public isClickInterest = false
   public polygonEdit: any = null
 
   @Mutation
@@ -39,6 +39,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMarkerInfo(payload: any) {
+    console.log('1111', payload)
     const info = cloneDeep(payload)
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)

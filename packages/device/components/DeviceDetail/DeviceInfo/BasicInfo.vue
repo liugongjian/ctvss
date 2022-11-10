@@ -19,7 +19,6 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceLongitude)" label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Region)" label="接入区域">{{ regionTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业">{{ industryTxt }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.NetworkCode)" label="网络标识">{{ networkTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址">{{ orgRegionTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP">{{ basicInfo.deviceIp || '-' }}</el-descriptions-item>
@@ -111,7 +110,7 @@ export default class extends Vue {
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
     if (this.hasVideo) {
-      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox, isChannel: this.isChannel })
+      return checkVideoVisible.call({ ...this.videoInfo, ...this.basicInfo, isIbox: this.isIbox }, this.basicInfo.deviceType, this.inVideoProtocol, prop)
     } else {
       return checkViidVisible.call(null, this.basicInfo.deviceType, this.inViidProtocol, prop)
     }
