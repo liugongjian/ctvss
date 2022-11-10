@@ -25,7 +25,8 @@
               <span class="direction" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
                 <i class="icon-ptz-left" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)">
+              <span class="direction">
+                <!-- <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
                 <i class="icon-ptz-auto" />
               </span>
               <span class="direction" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">

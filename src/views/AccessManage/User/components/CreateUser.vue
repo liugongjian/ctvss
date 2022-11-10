@@ -41,7 +41,7 @@
               </el-table-column>
               <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
               <el-table-column label="操作" width="80">
-                <template slot-scope="{row}">
+                <template slot-scope="{ row }">
                   <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
                 </template>
               </el-table-column>
@@ -138,8 +138,8 @@ export default class extends Vue {
     form: false,
     submit: false
   }
-  private cardIndex: string = 'form'
-  private breadCrumbContent: string = ''
+  private cardIndex = 'form'
+  private breadCrumbContent = ''
   private form: any = {
     mainUserId: '',
     iamUserName: '',
@@ -168,9 +168,9 @@ export default class extends Vue {
   }
   private policyList: Array<object> = []
   private newUserData: Array<object> = []
-  private showPasswords: boolean = false
-  private showSecretKey: boolean = false
-  private fromUrl: string = ''
+  private showPasswords = false
+  private showSecretKey = false
+  private fromUrl = ''
 
   private editPolicy(row: any) {
     this.$router.push({
@@ -202,7 +202,7 @@ export default class extends Vue {
 
   private copyRow(row: any, type: any) {
     if (type === 'data') {
-      let str = `
+      const str = `
       主账号ID：${row.mainUserId}
       用户名：${row.userName}
       登录密码：${row.passwords}
@@ -228,7 +228,7 @@ export default class extends Vue {
     if (this.fromUrl === 'access-manage-dashboard') {
       this.$router.go(-1)
     } else {
-      let query: any = this.$route.query
+      const query: any = this.$route.query
       this.$router.push({
         name: 'AccessManageUser',
         params: {
@@ -257,12 +257,12 @@ export default class extends Vue {
   }
 
   private async getPolicyList() {
-    let params: any = {
+    const params: any = {
       pageSize: 1000,
       policyType: 'subUser'
     }
     try {
-      let res: any = await getPolicyList(params)
+      const res: any = await getPolicyList(params)
       this.policyList = res.iamPolices
     } catch (e) {
       this.$message.error(e && e.message)
@@ -271,7 +271,7 @@ export default class extends Vue {
 
   private async getUser() {
     try {
-      let res = await getUser({
+      const res = await getUser({
         iamUserId: this.$router.currentRoute.query.userId
       })
       this.form = {
@@ -283,7 +283,7 @@ export default class extends Vue {
         email: res.email,
         phone: res.phone
       }
-      let selectRow = this.policyList.find((policy: any) => {
+      const selectRow = this.policyList.find((policy: any) => {
         return policy.policyId === res.policyId
       })
       const policyList: any = this.$refs.policyList
@@ -296,7 +296,7 @@ export default class extends Vue {
   private async operateUser(type: any) {
     const form: any = this.$refs.userForm
     form.validate(async(valid: any) => {
-      let params: any = {
+      const params: any = {
         iamUserName: this.form.iamUserName,
         policyId: this.form.policy.policyId,
         consoleEnabled: this.form.consoleEnabled ? '1' : '2',
@@ -310,7 +310,7 @@ export default class extends Vue {
           this.loading.submit = true
           if (type === 'add') {
             params.groupId = this.$router.currentRoute.query.groupId
-            let res = await createUser(params)
+            const res = await createUser(params)
             this.cardIndex = 'table'
             this.newUserData = [
               {
@@ -343,7 +343,7 @@ export default class extends Vue {
    */
   private async exportExel() {
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
-    const exelName: string = '新建用户的所有信息'
+    const exelName = '新建用户的所有信息'
     const workbook = new ExcelJS.Workbook()
     workbook.views = [
       {
@@ -368,8 +368,8 @@ export default class extends Vue {
       worksheet.addRow(user)
     })
     const buffer = await workbook.xlsx.writeBuffer()
-    var blob = new Blob([buffer], { type: 'application/xlsx' })
-    var link = document.createElement('a')
+    const blob = new Blob([buffer], { type: 'application/xlsx' })
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${exelName}.xlsx`
     link.click()
