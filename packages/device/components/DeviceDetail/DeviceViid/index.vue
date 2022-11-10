@@ -330,7 +330,7 @@ export default class extends Vue {
         type: pic.type,
         id: pic.id
       })
-      this.detailPic = res
+      this.detailPic = res.detail
       this.$nextTick(() => {
       // TODO   这里得问下雪萍两个图片得关联ID如何做
         this.detailPic.subImageList.length > 0 && this.detailPic.subImageList.forEach((item, index) => {
