@@ -28,13 +28,14 @@
           </el-card>
           <div class="device-tree__title">
             <span class="device-tree__text">设备树</span>
-            <!-- <span class="device-tree__refresh" @click="loadDirs">
+            <span class="device-tree__refresh" @click="refreshDir">
               <svg-icon name="refresh" />
-            </span> -->
+            </span>
           </div>
           <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{ height: `${maxHeight-230}px` }">
             <el-tree
               ref="dirTree"
+              :key="treeKey"
               node-key="id"
               lazy
               :load="loadDirs"
@@ -385,7 +386,9 @@ export default class extends Mixins(IndexMixin) {
   ]
   private toolState = 'pointer' // 当前工具栏状态
 
-  get isAddCustom() {
+  private treeKey = 'ct' + new Date().getTime()
+
+  private get isAddCustom() {
     return this.toolState !== 'pointer'
   }
 
@@ -522,6 +525,13 @@ export default class extends Mixins(IndexMixin) {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  /**
+   * 刷新树
+   */
+  private refreshDir() {
+    this.treeKey = 'ct' + new Date().getTime()
   }
 
   private async checkCallback(data: any) {
@@ -767,7 +777,8 @@ export default class extends Mixins(IndexMixin) {
       return (node.type === 'ipc' && !node.sharedFlag)
     })
   }
-  handleMapClick(infos) {
+
+  private handleMapClick(infos) {
     const { type, info } = infos
     this.customInfoType = type
     switch (type) {
@@ -915,7 +926,7 @@ export default class extends Mixins(IndexMixin) {
     this.markerInfo = {
       deviceId: this.deviceInfo.device.deviceId,
       dirId: this.deviceInfo.device.dirId,
-      // inProtocol: this.deviceInfo.inProtocol,
+      inProtocol: inVideoProtocol,
       deviceType: this.deviceInfo.device.deviceType,
       deviceLabel,
       longitude: '',
@@ -1368,6 +1379,7 @@ export default class extends Mixins(IndexMixin) {
   right: 20px;
   height: 100%;
   line-height: 40px;
+  cursor: pointer;
 }
 
 .el-tree__content {

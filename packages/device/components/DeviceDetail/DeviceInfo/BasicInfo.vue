@@ -2,6 +2,7 @@
   <div>
     <el-descriptions :column="2">
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称">{{ basicInfo.deviceName }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.PlatformName)" label="平台名称">{{ basicInfo.deviceName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称">{{ basicInfo.deviceName }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelNum)" label="通道号">{{ basicInfo.deviceChannelNum }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceInType)" label="接入方式">
@@ -19,7 +20,6 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceLongitude)" label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.Region)" label="接入区域">{{ regionTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业">{{ industryTxt }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.NetworkCode)" label="网络标识">{{ networkTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址">{{ orgRegionTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP">{{ basicInfo.deviceIp || '-' }}</el-descriptions-item>

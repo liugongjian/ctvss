@@ -64,7 +64,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" :loading="policyLoading.dir || policyLoading.resource" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="loading.tree || policyLoading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -360,38 +360,6 @@ export default class extends Mixins(layoutMxin) {
       }
     })
   }
-
-  // public async initResourceStatus(resourceList: any) {
-  //   try {
-  //     this.policyLoading.dir = true
-  //     const deviceTree: any = this.$refs.deviceTree
-  //     const checkedKeys = []
-  //     for (let index = 0, len = resourceList.length; index < len; index++) {
-  //       const resource = resourceList[index]
-  //       if (/vssgroup/.test(resource)) {
-  //         const _key = resource.split(':').slice(-1)[0]
-  //         checkedKeys.push(_key)
-  //       } else {
-  //         const keyPath = resource.split(':').slice(2).join('/').split(/\//)
-  //         if (keyPath && keyPath.length) {
-  //           for (let i = 0; i < keyPath.length - 1; i++) {
-  //             const _key = keyPath[i]
-  //             const node = deviceTree.getNode(_key)
-  //             if (node) {
-  //               await this.loadDirChildren(_key, node)
-  //             }
-  //           }
-  //           checkedKeys.push(keyPath[keyPath.length - 1])
-  //         }
-  //       }
-  //     }
-  //     deviceTree.setCheckedKeys(checkedKeys)
-  //   } catch (e) {
-  //     console.log('e: ', e)
-  //   } finally {
-  //     this.policyLoading.dir = false
-  //   }
-  // }
 
   /**
    * 加载子目录

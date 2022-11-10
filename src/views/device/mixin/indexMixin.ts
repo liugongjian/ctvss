@@ -291,7 +291,7 @@ export default class IndexMixin extends Vue {
       if (data && data.id) {
         path.push({
           id: data.id,
-          label: data.label,
+          label: data.name,
           type: data.type
         })
       }
@@ -300,6 +300,7 @@ export default class IndexMixin extends Vue {
       }
     }
     _getPath(node, path)
+    console.log('获取菜单树路径',  path)
     return path
   }
 

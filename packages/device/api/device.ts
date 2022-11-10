@@ -76,7 +76,8 @@ export const getDevicesIbox = (params: any): Promise<any> => {
           [DeviceEnum.ViidStatus]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
           [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
-          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor],
+          [DeviceEnum.IsRoleShared]: item.device[DeviceEnum.IsRoleShared]
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
