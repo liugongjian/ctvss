@@ -22,7 +22,7 @@ export default class DeviceMixin extends Vue {
 
   // 设备类型
   public get deviceType() {
-    return this.device.device && this.device.device.deviceType
+    return this.$route.query.type || this.device.device && this.device.device.deviceType
   }
 
   // 是否含视频

@@ -76,6 +76,7 @@ export default class extends Mixins(layoutMxin) {
         tree.setCheckedKeys(checkedKeys)
         this.onCheckDevice(this.getTreeCheckedNodes(tree))
       }
+      this.$emit('resourceLoaded')
     })
   }
 

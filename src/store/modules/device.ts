@@ -13,7 +13,9 @@ class Device extends VuexModule implements IDeviceState {
 
   @Mutation
   public SET_BREADCRUMB(payload: any) {
+    console.log("what's wrong with this     ?     ", payload)
     this.breadcrumb = payload
+    console.log("then   what     ?     ", this.breadcrumb)
   }
 
   @Action

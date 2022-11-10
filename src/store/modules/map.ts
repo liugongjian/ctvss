@@ -1,5 +1,5 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, pick } from 'lodash'
 import store from '@/store'
 
 export interface IMapState {
@@ -39,11 +39,15 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMarkerInfo(payload: any) {
-    console.log('1111', payload)
-    const info = cloneDeep(payload)
-    const appearance = info.appearance || '{}'
-    info.appearance = JSON.parse(appearance)
-    this.SET_MARKER_INFO(info)
+    // 不能直接取payload，里面有marker的原型链，直接保存会导致死循环
+    const device: any = pick(payload, ['deviceAngle', 'deviceColor', 'deviceId', 'deviceLabel',
+      'deviceName', 'deviceStatus', 'deviceType', 'dirId', 'dirName',
+      'gbRegionNames', 'houseInfo', 'inProtocol', 'latitude', 'lnglat', 'longitude',
+      'population', 'recordStatus', 'selected', 'streamStatus', 'unitInfo', 'viewAngle', 'viewRadius'
+    ])
+    const appearance = payload.appearance || '{}'
+    device.appearance = JSON.parse(appearance)
+    this.SET_MARKER_INFO(device)
   }
 
   @Mutation
