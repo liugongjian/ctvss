@@ -378,7 +378,7 @@ export default class extends Vue {
   private async getAlgorithmList() {
     try {
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.aiSourceRulesOptions = aiAbilityAlgorithms.map(item => {
+      this.aiSourceRulesOptions = aiAbilityAlgorithms.filter((algorithm: any) => algorithm.type === '1' ).map(item => {
         return {
           value: item.id,
           label: item.name
