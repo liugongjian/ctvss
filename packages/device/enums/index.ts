@@ -120,6 +120,7 @@ export enum DeviceEnum {
   OnvifDevicevice = 'onvifDevicevice',
   Video = 'video',
   Codec = 'codec',
+  IsRoleShared = 'isRoleShared',
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',

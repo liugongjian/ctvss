@@ -78,7 +78,6 @@ export default class extends Mixins(deviceMixin) {
 
   // 获取子通道列表
   private async getChannels() {
-    console.log(this.inProtocol)
     try {
       this.tableLoading = true
       const params = {
