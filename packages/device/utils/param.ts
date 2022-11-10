@@ -10,6 +10,7 @@ import {
   ChannelAllowParams
 } from '@vss/device/settings'
 import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
+import { VisibleOptions } from '../type/Param'
 import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
@@ -20,8 +21,13 @@ import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtoco
  * @param prop 参数名
  * @returns 判断结果
  */
-const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum, inProtocol: InVideoProtocolEnum | InViidProtocolEnum, prop: DeviceEnum): boolean => {
+const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum, inProtocol: InVideoProtocolEnum | InViidProtocolEnum, prop: DeviceEnum, isChannel?: boolean): boolean => {
   if (deviceInType === DeviceInTypeEnum.Video) {
+    // 过滤出子通道需要显示的字段
+    if (isChannel) {
+      return (ChannelAllowParams[inProtocol] && ChannelAllowParams[inProtocol].has(prop)) && // 根据接入协议显示子通道字段列表中包含的
+      (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+    }
     return (InVideoProtocolAllowParams[inProtocol] && InVideoProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
       (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
   }
@@ -45,7 +51,12 @@ const checkVisible = (deviceInType: DeviceInTypeEnum, deviceType: DeviceTypeEnum
 export function checkVideoVisible(
   deviceType: DeviceTypeEnum, 
   inVideoProtocol: InVideoProtocolEnum,
-  prop: DeviceEnum
+  prop: DeviceEnum,
+  options: VisibleOptions = {
+    isIbox: false,
+    isEdit: false,
+    isChannel: false
+  }
 ): boolean {
   if (!this) {
     throw new Error('请使用call()将this指向video info')
@@ -77,22 +88,16 @@ export function checkVideoVisible(
   }
 
   // 过滤IBOX的字段
-  if (this.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
+  if (options.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
   // 编辑状态下不显示视频接入协议
-  if (prop === DeviceEnum.InVideoProtocol && this.isEdit) return false
+  if (prop === DeviceEnum.InVideoProtocol && options.isEdit) return false
 
   // 编辑状态下不显示版本
-  if (prop === DeviceEnum.InVersion && this.isEdit) return false
-
-  // 过滤出子通道需要显示的字段
-  if (this.deviceChannelNum > -1) {
-    return (ChannelAllowParams[inVideoProtocol] && ChannelAllowParams[inVideoProtocol].has(prop)) && // 根据接入协议显示子通道字段列表中包含的
-    (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
-  }
+  if (prop === DeviceEnum.InVersion && options.isEdit) return false
 
   // 默认使用字典过滤
-  return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
+  return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop, options.isChannel)
 }
 
 /**
@@ -118,18 +123,19 @@ export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
 }
 
 /**
- * 判断设备列表按钮显隐
+ * 判断设备列表及详情按钮显隐
  * @param type 目录类型
  * @param prop 参数名
  * @param data 具体数据
  * @returns 判断结果
  */
-export function checkDeviceListVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: any): boolean {
   let allowFlag = true
   // 不同inProtocol特殊处理
   if (data) {
     const inProtocolList = data.inProtocol || []
-    if (inProtocolList.length === 1) { // 仅接入视频
+    if (inProtocolList.length === 1) {
+      // 仅接入视频
       if (Object.values(InVideoProtocolDict).includes(inProtocolList[0]) && [
         ToolsEnum.PreviewViid
       ].includes(prop)) {

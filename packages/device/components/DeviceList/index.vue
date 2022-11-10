@@ -305,7 +305,7 @@ import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '@vss/devic
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType as DeviceTypeDic, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
-import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
+import { checkDeviceToolsVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { getDevices } from '@vss/device/api/device'
 import * as dicts from '@vss/device/dicts'
 import deviceMixin from '@vss/device/mixin/deviceMixin'
@@ -619,7 +619,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private checkToolsVisible(prop, permissions?, row?) {
     !row && (row = { deviceType: this.currentDirType, inProtocol: this.inProtocol })
-    return checkDeviceListVisible(row.deviceType, prop, row) && checkPermission(permissions)
+    return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions)
   }
 
   /**

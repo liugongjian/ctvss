@@ -427,18 +427,10 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.UpdateResource
   ]),
   [DirectoryTypeEnum.Role]: new Set([
-    ToolsEnum.ShowDeviceInfo,
     ToolsEnum.ViewDevice,
-    ToolsEnum.DeleteDevice,
-    ToolsEnum.DeleteDevices,
-    ToolsEnum.SyncDeviceStatus,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
-    ToolsEnum.ExportCurrentPage,
-    ToolsEnum.MoveDevice,
-    ToolsEnum.StartDevices,
-    ToolsEnum.StopDevices,
-    ToolsEnum.UpdateResource
+    ToolsEnum.ExportCurrentPage
   ])
 }
 
