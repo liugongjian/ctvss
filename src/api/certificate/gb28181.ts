@@ -30,7 +30,7 @@ export const updateCertificate = (params: any): Promise<any> =>
 
 export const queryCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181',
+    url: '/certificate/gb28181/describe',
     method: 'get',
     params
   })
