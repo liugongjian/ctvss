@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
@@ -7,10 +7,11 @@ import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 
 import { toLowerCase } from '@/utils/param'
+import { whitelist } from '@/api/v2-whitelist'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1', // url = base url + request url
+  // baseURL: '/v1', // url = base url + request url
   timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
@@ -18,8 +19,9 @@ const service = axios.create({
 // Request interceptors
 service.interceptors.request.use(
   (config) => {
+    requestTransform(config)
     if (UserModule.token) {
-      config.headers['token'] = UserModule.token
+      config.headers.token = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
         const pathname = window.location.pathname
         // 防止虚拟业务组页面加载groupList时带role-id与real-group-id
@@ -55,7 +57,7 @@ service.interceptors.response.use(
   }
 )
 
-function responseHandler(response: any) {
+function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     return (toLowerCase(response.data) as any).data
   } else {
@@ -83,16 +85,27 @@ function responseHandler(response: any) {
         }
       })
     }
-    let data = response && response.data
+    const data = response && response.data
     Object.keys(data).forEach(key => {
       data[key.toLowerCase()] = data[key]
     })
     const requestId = data && data.requestId
     const code = data && data.code ? data.code : '-1'
-    let message = data && data.message ? data.message : '服务器异常，请稍后再试。'
+    const message = data && data.message ? data.message : '服务器异常，请稍后再试。'
     console.log('code: ', code, ' message: ', message)
     return Promise.reject(new VSSError(code, message, requestId))
   }
+}
+
+// 转换 ibox 中所需v2 或者 v1 请求地址
+function requestTransform(config: AxiosRequestConfig) {
+  const url = config.url
+  if (whitelist.includes(url)) {
+    config.url = '/v2' + url
+  } else {
+    config.url = '/v1' + url
+  }
+  return config
 }
 
 export default service
