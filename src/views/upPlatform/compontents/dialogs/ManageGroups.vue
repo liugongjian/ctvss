@@ -243,7 +243,7 @@ export default class extends Mixins(Validate) {
           groupId: group.groupId,
           label: group.name,
           inProtocol: group.inProtocol,
-          gbId: group.gbId || '',
+          gbId: group.outId || '',
           type: group.type,
           disabled: false,
           path: [{
@@ -251,11 +251,11 @@ export default class extends Mixins(Validate) {
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || '',
-            upGbId: group.gbId || '',
-            upGbIdOrigin: group.gbId || ''
+            upGbId: group.outId || '',
+            upGbIdOrigin: group.outId || ''
           }],
-          upGbId: group.gbId || '',
-          upGbIdOrigin: group.gbId || ''
+          upGbId: group.outId || '',
+          upGbIdOrigin: group.outId || ''
         })
       })
 
@@ -633,16 +633,16 @@ export default class extends Mixins(Validate) {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag && !isDeleteFlag,
-          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
+          path: node.data.path.concat([{ ...dir, upGbId: dir.outId || '', upGbIdOrigin: dir.outId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || '',
           dragInFlag: !!node.data?.dragInFlag,
 
-          gbId: dir.gbId,
-          upGbId: dir.gbId || '',
-          upGbIdOrigin: dir.gbId || ''
+          gbId: dir.outId,
+          upGbId: dir.outId || '',
+          upGbIdOrigin: dir.outId || ''
         }
       })
       dirs = setDirsStreamStatus(dirs)
