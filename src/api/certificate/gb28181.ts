@@ -1,3 +1,4 @@
+// 已移到@vss/deivce
 import request from '@/utils/request'
 
 export const getList = (params: any): Promise<any> =>
@@ -30,7 +31,7 @@ export const updateCertificate = (params: any): Promise<any> =>
 
 export const queryCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181/describe',
+    url: '/certificate/gb28181',
     method: 'get',
     params
   })

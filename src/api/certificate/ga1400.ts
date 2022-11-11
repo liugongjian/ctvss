@@ -1,3 +1,4 @@
+// 已移到@vss/deivce
 import request from '@/utils/request'
 
 export const getList = (params: any): Promise<any> =>

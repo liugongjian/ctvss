@@ -13,6 +13,7 @@ import '@/styles/index.scss'
 
 import '@/icons/components'
 import '@/permission'
+import '@/gray-scale'
 import '@/utils/error-log'
 import * as directives from '@/directives'
 import * as filters from '@/filters'
