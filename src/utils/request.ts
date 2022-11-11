@@ -67,6 +67,7 @@ function requestTransform(config: AxiosRequestConfig) {
         config.params = config.data
         config.data = undefined
       } else if (mapArr[1]) {
+        config.method = mapArr[1]
         config.data = config.params
         config.params = undefined
       }

@@ -258,11 +258,13 @@ export default class extends Vue {
     const tableDom: any = this.$refs.table
     tableDom.clearSort()
     tableDom.clearFilter()
-    this.$route.query.inProtocol && this.getList()
+    // this.$route.query.inProtocol && this.getList()
+    this.getList()
   }
 
   private mounted() {
-    this.$route.query.inProtocol && this.getList()
+    // this.$route.query.inProtocol && this.getList()
+    this.getList()
     this.setTimer()
   }
 
@@ -288,7 +290,7 @@ export default class extends Vue {
 
   private async getList(forbitLoading?: boolean) {
     const params = {
-      inProtocol: this.$route.query.inProtocol,
+      // inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
       startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
       endTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[1].getTime() : '',

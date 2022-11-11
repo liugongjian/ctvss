@@ -31,5 +31,5 @@ export const ApiMapping = {
   '/ptz/startDeviceKeepwatch': '/ptz/keepwatch/start',
   // 国标告警
   '/alarm/alarmrule/describeAlarms': '/alarm/info/list',
-  '/alarm/alarmrule/deleteAlarmInfo': '/alarm/info/delete:post'
+  '/alarm/alarmrule/deleteAlarmInfo': '/alarm/info/delete:post',
 }
