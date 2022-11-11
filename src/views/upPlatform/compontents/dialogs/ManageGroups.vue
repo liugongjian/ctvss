@@ -731,9 +731,6 @@ export default class extends Mixins(Validate) {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
-    console.log('this.deleteNodes:', this.deleteNodes)
-    console.log('selectSharedDevice  node:', node)
     this.selectedNode = node
   }
 
@@ -751,7 +748,6 @@ export default class extends Mixins(Validate) {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    debugger
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
         const draggingData = _.cloneDeep(draggingNode.data)

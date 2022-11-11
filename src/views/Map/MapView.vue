@@ -500,7 +500,6 @@ export default class MapView extends Vue {
         mapId: this.mapOption.mapId,
         devices: [this.handleDevice(markerOption)]
       })
-      console.log(11111, data.devices)
       this.vmap.addMarker(data.devices[0])
       this.$emit('markerlistChange', this.markerlist)
     } catch (e) {
