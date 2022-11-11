@@ -7,7 +7,7 @@
       <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="应用名称" />
         <el-table-column prop="algorithmName" label="算法类型" />
-        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="description" label="描述" show-overflow-tooltip />
         <el-table-column label="当前算法版本">
           <template slot-scope="">
             <span>1.0.0</span>
