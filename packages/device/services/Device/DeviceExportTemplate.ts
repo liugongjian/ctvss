@@ -753,7 +753,7 @@ class ExportExcelTemplate {
         ? VIDEORes.resPkgList
             .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
             .map((item: any) => {
-              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
+              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.workOrderNo}`
             })
         : []
       const AIRes: any = await getResources({ type: 'VSS_AI' })
@@ -761,7 +761,7 @@ class ExportExcelTemplate {
         ? AIRes.resPkgList
             .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
             .map((item: any) => {
-              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aIType]}||${item.resourceId}`
+              return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aIType]}||${item.workOrderNo}`
             })
         : []
       const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
@@ -769,7 +769,7 @@ class ExportExcelTemplate {
         ? BWRes.resPkgList
             .filter((pkg) => new Date().getTime() < new Date(pkg.expireTime).getTime())
             .map((item: any) => {
-              return `${item.bitRate}M||${item.resourceId}`
+              return `${item.bitRate}M||${item.workOrderNo}`
             })
         : []
     } catch (e) {
@@ -819,8 +819,9 @@ class ExportExcelTemplate {
    *
    * @memberof 导出模板
    */
-  public async exportTemplate(data: any) {
-    console.log('exportTemplate--data----->', data)
+  public async exportTemplate(state: any) {
+
+    console.log('state---->', state.$alertHandle)
 
     await this.getRegionList()
 
