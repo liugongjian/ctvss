@@ -376,6 +376,7 @@ export default class extends Mixins(AppMixin) {
         availableperiod: [],
         validateType: '无验证',
         confidence: 60,
+        effectPeriod: '全天',
         beeNumber: 1,
         alertTriggerThreshold: '1',
         alertPeriod: '0',
