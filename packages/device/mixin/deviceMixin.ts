@@ -9,6 +9,10 @@ export default class DeviceMixin extends Vue {
   @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
+
+  // 如果无法从路由获取deviceId
+  public deviceIdSecondary
+
   // 设备详情
   public device: Device = {} as Device
 
@@ -48,7 +52,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId, isForce = false, hasLoading = true) {
+  public async getDevice(deviceId: string = this.deviceId || this.deviceIdSecondary, isForce = false, hasLoading = true) {
     try {
       if (hasLoading) {
         this.deviceLoading = true

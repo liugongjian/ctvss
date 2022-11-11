@@ -43,10 +43,11 @@ export default class extends Mixins(detailMixin) {
   }
 
   public async mounted() {
+    this.deviceIdSecondary = this.deviceIdCar
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     this.screenManager = screenBoard?.screenManager
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId || this.deviceIdCar
+    screen.deviceId = this.deviceId || this.deviceIdSecondary
     screen.isLive = true
     await this.getDevice()
     if (this.videoInfo) {
