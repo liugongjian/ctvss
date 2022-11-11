@@ -7,15 +7,23 @@
     center
     @close="closeDialog(false)"
   >
-    <el-cascader
-      ref="exportAddressCascader"
-      v-model="address"
-      :options="selectedRegionList"
-      :props="prop"
-      clearable
-      popper-class="address-cascader"
-      @change="onDeviceAddressChange"
-    />
+    <el-form 
+      ref="exportAddressForm"
+      :v-model="exportAddressForm"
+    >
+      <el-form-item label="地址">
+        <div v-for="(address,index) in exportAddressForm.addressArr" :key="address.code">
+          <el-cascader
+            ref="exportAddressCascader"
+            :options="selectedRegionList"
+            :props="prop"
+            clearable
+            popper-class="address-cascader"
+            @change="onDeviceAddressChange"
+          />
+        </div>
+      </el-form-item>
+    </el-form>
   </el-dialog>
 </template>
 <script lang="ts">
@@ -28,6 +36,15 @@ import axios from 'axios'
 })
 export default class extends Vue {
   public dialogVisible = true
+
+  public exportAddressForm: any = {
+    addressArr: [{
+      code: '',
+      label: ''
+    }]
+  }
+
+  // public 
 
   public address = []
 
@@ -50,6 +67,12 @@ export default class extends Vue {
 
   public onDeviceAddressChange(region: any) {
     console.log('region------>', region)
+    console.log('this.$refs[\'exportAddressCascader\']---->', this.$refs['exportAddressCascader'].length)
+    // const checkedNodes = ( this.$refs['exportAddressCascader'] as any).getCheckedNodes()[0]
+    // const { pathLabels } = checkedNodes
+    // console.log('pathLabels------>', pathLabels.join('/'))
+
+    
   }
 
   public async loadAddress(node, resolve) {
@@ -81,3 +104,15 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .el-dialog {
+  .el-form {
+    .el-cascader {
+      .el-input {
+        width: 100%;
+      }
+    }
+  }
+}
+
+</style>
