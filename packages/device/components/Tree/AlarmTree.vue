@@ -34,15 +34,15 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import treeMixin from '@vss/device/components/Tree/treeMixin'
-import StatusBadge from '@/components/StatusBadge/index.vue'
+// import StatusBadge from '@/components/StatusBadge/index.vue'
 import { renderAlertType } from '@/utils/device'
+import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'AlarmTree',
-  components: {
-    StatusBadge
-  }
+  // components: {
+  //   StatusBadge
+  // }
 })
 export default class extends Mixins(treeMixin) {
   private renderAlertType = renderAlertType

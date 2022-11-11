@@ -425,6 +425,12 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
     ToolsEnum.UpdateResource
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
+    ToolsEnum.SyncDeviceStatus,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage
   ])
 }
 
@@ -450,6 +456,18 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.DeviceVendor
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
+    DeviceEnum.DeviceInType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.DeviceType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.ViidStatus,
+    DeviceEnum.DeviceChannelSize,
+    DeviceEnum.DeviceVendor
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
     DeviceEnum.DeviceInType,
     DeviceEnum.InProtocol,
     DeviceEnum.DeviceType,

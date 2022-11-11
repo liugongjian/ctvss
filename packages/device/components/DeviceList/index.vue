@@ -295,6 +295,7 @@
     />
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.Import, $event)" />
     <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="{ device: currentDevice }" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.UpdateResource, $event)" />
+    <ExportTemplateAddressVue v-if="dialog[toolsEnum.ExportTemplate]" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.ExportTemplate, $event)" />
   </div>
 </template>
 
@@ -305,7 +306,7 @@ import { DeviceEnum, DirectoryTypeEnum, ToolsEnum, StatusEnum } from '@vss/devic
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { DeviceType as DeviceTypeDic, DeviceFiltersLabel, VideoStatus, StreamStatus, RecordStatus, ViidStatus } from '@vss/device/dicts/index'
 import { checkPermission } from '@vss/base/utils/permission'
-import { checkDeviceListVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
+import { checkDeviceToolsVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { getDevices } from '@vss/device/api/device'
 import * as dicts from '@vss/device/dicts'
 import deviceMixin from '@vss/device/mixin/deviceMixin'
@@ -314,13 +315,15 @@ import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '@vss/device/components/MoveDir.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
 import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
+import ExportTemplateAddressVue from '@vss/device/components//ExportTemplateAddress.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
     MoveDir,
     UploadExcel,
-    ResourceEdit
+    ResourceEdit,
+    ExportTemplateAddressVue
   }
 })
 export default class extends Mixins(deviceMixin) {
@@ -383,7 +386,8 @@ export default class extends Mixins(deviceMixin) {
   private dialog = {
     [ToolsEnum.MoveDevice]: false,
     [ToolsEnum.Import]: false,
-    [ToolsEnum.UpdateResource]: false
+    [ToolsEnum.UpdateResource]: false,
+    [ToolsEnum.ExportTemplate]: false,
   }
 
   private isBatchMoveDir = false
@@ -525,7 +529,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private async initList(isLoading = true) {
     this.loading.table = isLoading
-    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform].includes(this.currentDirType)) {
+    if ([DirectoryTypeEnum.Nvr, DirectoryTypeEnum.Platform, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
       this.loading.info = isLoading
       try {
         await this.getDevice(this.currentDirId)
@@ -551,7 +555,7 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.PageNum]: this.pager.pageNum,
       [DeviceEnum.PageSize]: this.pager.pageSize
     }
-    if (this.currentDirType === DirectoryTypeEnum.Dir) {
+    if ([DirectoryTypeEnum.Dir, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
       params[DeviceEnum.DirId] = this.currentDirId
     } else {
       params[DeviceEnum.ParentDeviceId] = this.currentDirId
@@ -619,7 +623,7 @@ export default class extends Mixins(deviceMixin) {
    */
   private checkToolsVisible(prop, permissions?, row?) {
     !row && (row = { deviceType: this.currentDirType, inProtocol: this.inProtocol })
-    return checkDeviceListVisible(row.deviceType, prop, row) && checkPermission(permissions)
+    return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions)
   }
 
   /**

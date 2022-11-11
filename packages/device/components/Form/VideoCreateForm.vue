@@ -39,7 +39,7 @@
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
       <el-input-number
-        v-model="videoForm.deviceChannelSize"
+        v-model.number="videoForm.deviceChannelSize"
         :min="minChannelSize"
         type="number"
       />
@@ -262,7 +262,8 @@ export default class extends Vue {
       { required: true, message: '请选择厂商', trigger: 'change' }
     ],
     [DeviceEnum.DeviceChannelSize]: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
+      { required: true, message: '请填写子设备数量', trigger: 'blur' },
+      { validator: this.validateDeviceChannelSize, trigger: 'blur' }
     ],
     [DeviceEnum.InUserName]: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -400,6 +401,10 @@ export default class extends Vue {
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
       this.videoForm.inType = 'pull'
     }
+
+    // 重置验证
+    const videoForm: any = this.$refs.videoForm
+    videoForm.clearValidate()
   }
 
   /**
@@ -515,6 +520,19 @@ export default class extends Vue {
       } catch (e) {
         console.log(e)
       }
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验子设备数量
+   */
+  public validateDeviceChannelSize(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
+      callback(new Error('子设备数量仅支持整数'))
+    } else if (this.isIbox && value > 16) {
+      callback(new Error('子设备数量仅支持16路及以下'))
     } else {
       callback()
     }

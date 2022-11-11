@@ -17,7 +17,7 @@
         {{ DeviceStatus[markerInfo.streamStatus] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="录制状态">
-        <status-badge :status="RecordStatusType[markerInfo.recordStatus]" />
+        <status-badge :status="markerInfo.recordStatus" />
         {{ RecordStatus[markerInfo.recordStatus] || '-' }}
       </el-descriptions-item>
     </el-descriptions>
@@ -39,10 +39,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { DeviceStatus, RecordStatus, RecordStatusType } from '@/dics'
+import { DeviceStatus, RecordStatus } from '@vss/device/dicts'
 import { MapModule } from '@/store/modules/map'
 import { validateIsLng, validateIsLat } from '../../utils/validate'
-import StatusBadge from '@/components/StatusBadge/index.vue'
+import StatusBadge from '@vss/base/components/StatusBadge/index.vue'
 
 @Component({
   name: 'PointInfo',
@@ -61,7 +61,6 @@ export default class extends Vue {
 
   private DeviceStatus = DeviceStatus
   private RecordStatus = RecordStatus
-  private RecordStatusType = RecordStatusType
 
   get markerInfo() {
     this.color = MapModule.markerInfo.appearance.color || '#1e78e0'

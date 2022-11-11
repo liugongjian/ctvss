@@ -222,14 +222,13 @@ export default class extends Vue {
   /**
    * node点击事件
    */
-  private handleNode(data: any) {
+  private handleNode(data: any, node: any) {
     this.currentKey = data.id
     this.tree.setCurrentKey(this.currentNodeKey)
-    this.$emit('handle-node', data)
+    this.$emit('handle-node', data, node)
   }
 
   private getCheckedNodes(leafOnly = false, includeHalfChecked = false) {
-    console.log('common tree  里面的 this  ', this.tree)
     return this.tree.getCheckedNodes(leafOnly, includeHalfChecked)
   }
 

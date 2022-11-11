@@ -120,6 +120,7 @@ export enum DeviceEnum {
   OnvifDevicevice = 'onvifDevicevice',
   Video = 'video',
   Codec = 'codec',
+  IsRoleShared = 'isRoleShared',
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',
@@ -282,7 +283,8 @@ export enum DirectoryTypeEnum {
   Ipc = 'ipc',
   Dir = 'dir',
   Nvr = 'nvr',
-  Platform = 'platform'
+  Platform = 'platform',
+  Role = 'role'
 }
 
 

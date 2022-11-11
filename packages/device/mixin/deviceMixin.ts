@@ -1,13 +1,17 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
-import { DeviceEnum, DeviceTypeEnum } from '../enums/index'
+import { DeviceEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
   @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
+
+
+  // 如果无法从路由获取deviceId
+  public deviceIdSecondary
 
   // 设备详情
   public device: Device = {} as Device
@@ -22,7 +26,7 @@ export default class DeviceMixin extends Vue {
 
   // 设备类型
   public get deviceType() {
-    return this.device.device && this.device.device.deviceType
+    return this.$route.query.type || this.device.device && this.device.device.deviceType
   }
 
   // 是否含视频
@@ -45,17 +49,10 @@ export default class DeviceMixin extends Vue {
     return null
   }
 
-  @Watch('$route.query.deviceId', {
-    immediate: true
-  })
-  public async deviceIdChange(deviceId) {
-    [DeviceTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
-  }
-
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId, isForce = false, hasLoading = true) {
+  public async getDevice(deviceId: string = this.deviceId || this.deviceIdSecondary, isForce = false, hasLoading = true) {
     try {
       if (hasLoading) {
         this.deviceLoading = true

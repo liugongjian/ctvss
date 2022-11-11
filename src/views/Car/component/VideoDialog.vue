@@ -61,11 +61,6 @@ export default class extends Vue {
   private dateTimeRange = {}
   private Operations = []
 
-  public created(){
-    this.$route.query = {
-      deviceId: this.record?.deviceId
-    }
-  }
 
   public async mounted() {
     try {

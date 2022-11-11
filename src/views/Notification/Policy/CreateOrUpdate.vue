@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="isloading">
+    <el-card v-loading="isPolicyLoading">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="120px">
         <!-- <el-form-item v-if="isUpdate" label="策略ID：" prop="id">
           <el-input v-model="form.id" class="form__input" :disabled="isUpdate" />
@@ -118,14 +118,15 @@
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <resource-tree
-            v-if="isloading === false"
+            v-if="isPolicyLoading === false"
             :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
+            @resourceLoaded="resourceLoaded"
           />
         </el-form-item>
         <el-form-item label="推送对象：" prop="notifyDestinations">
           <destinations-tree
-            v-if="isloading === false"
+            v-if="isPolicyLoading === false"
             :checked-list="form.notifyDestinations"
             @destinationListChange="destinationListChange"
           />
@@ -141,7 +142,7 @@
         </el-form-item>
         <el-form-item>
           <el-row style="margin: 20px 0;">
-            <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
+            <el-button :loading="isResourceLoading || uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
             <el-button :loading="uploadLoading" @click="back">取消</el-button>
           </el-row>
         </el-form-item>
@@ -171,7 +172,9 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
-  public isloading: boolean | null = null
+  public isPolicyLoading: boolean | null = null
+  public isResourceLoading: boolean | null = null
+
   public uploadLoading = false
   private treeProp = {
     label: 'label',
@@ -310,7 +313,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.isloading = true
+    this.isPolicyLoading = true
     this.breadCrumbContent = this.$route.meta.title
     await this.getAlgorithmList()
     if (this.isUpdate) {
@@ -318,13 +321,14 @@ export default class extends Vue {
       if (id) {
         this.$set(this.form, 'id', id)
         await this.initNotificationPolicy()
+        this.isResourceLoading = true
       } else {
         this.back()
       }
     } else {
       this.handleSourceChange(this.form.source)
     }
-    this.isloading = false
+    this.isPolicyLoading = false
   }
 
   /**
@@ -374,7 +378,7 @@ export default class extends Vue {
   private async getAlgorithmList() {
     try {
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.aiSourceRulesOptions = aiAbilityAlgorithms.map(item => {
+      this.aiSourceRulesOptions = aiAbilityAlgorithms.filter((algorithm: any) => algorithm.type === '1' ).map(item => {
         return {
           value: item.id,
           label: item.name
@@ -447,8 +451,11 @@ export default class extends Vue {
     this.form.notifyResources = resourceList
   }
 
+  private resourceLoaded() {
+    this.isResourceLoading = false
+  }
+
   private destinationListChange(destinationList) {
-    console.log('-----destinationList: ', destinationList)
     this.form.notifyDestinations = destinationList
   }
 

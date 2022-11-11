@@ -28,7 +28,7 @@
     <el-table
       ref="table"
       v-loading="loading"
-      :height="maxHeight - 160"
+      :height="maxHeight - 200"
       :data="alarmList"
       fit
       class="template__table"
