@@ -46,11 +46,6 @@ import treeMixin from '@vss/device/components/Tree/treeMixin'
 })
 export default class extends Mixins(treeMixin) {
   private renderAlertType = renderAlertType
-
-  // private handleNode(data: any, node: any) {
-  //   console.log('中间件传递数据     ', data, node)
-  //   this.$emit('handle-node', data, node)
-  // }
 }
 </script>
 

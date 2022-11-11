@@ -65,7 +65,6 @@ export default class extends Vue {
   }
 
   private nodeChange(data) {
-    console.log('面包屑里面  的 点击事件   ', data)
     this.$emit('node-change', data)
   }
 }
