@@ -358,8 +358,6 @@ const uploadExcel = function (getVueComponent, data: any, dirId) {
  * 导出模板
  */
 const exportTemplate = function (state) {
-  // ExportExcelTemplate.exportTemplate(state)
-  console.log('test------>', state.dialog[ToolsEnum.ExportTemplate])
   state.dialog[ToolsEnum.ExportTemplate] = true
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
