@@ -13,7 +13,7 @@
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
         <el-table-column prop="description" label="模板备注" min-width="260" />
-        <el-table-column prop="createdTime" label="创建时间" width="200" />
+        <el-table-column prop="createdTime" label="创建时间" width="200" :formatter="dateFormatInTable" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
@@ -84,7 +84,7 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         templateName: this.callbackTemplateName || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
