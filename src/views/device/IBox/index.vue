@@ -188,7 +188,7 @@ export default class IBox extends Vue {
       await IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
       const { deviceId } = _node?.data
       this.treeIboxId = deviceId
-
+      console.log('_node.level---->', _node.level)
       switch (_node.level) {
         case 1:
           this.setListInfo('device', this.iboxDevice, deviceId)
@@ -254,6 +254,7 @@ export default class IBox extends Vue {
       this.iboxes = iboxes
 
       this.setListInfo(type, iboxes, deviceId)
+      console.log('type-=-->', type)
       this.$nextTick(() => {
         this.dirTreesStatus()
       })
@@ -359,10 +360,6 @@ export default class IBox extends Vue {
         pageSize: 9999 // 第一次请求，为了获取目录，传入9999
       }
       const res = await getDeviceList(param)
-      // if (data.dirs) {
-      //   data.dirs = this.setDirsStreamStatus(data.dirs)
-      //   dirTree.updateKeyChildren(key, data.dirs)
-      // }
 
       const iboxList = this.iboxDeviceData(res.devices)
 
@@ -461,8 +458,16 @@ export default class IBox extends Vue {
     const path =
       this.breadcrumb.map((item: any) => item.deviceId).join(',') ||
       this.$route.query.path
-
-    if (path) {
+    if (type === 'ipc') {
+      router = {
+        name: 'IBoxDeviceInfo',
+        query: {
+          path,
+          ...query,
+          tab: this.$route.query.tab || ''
+        }
+      }
+    } else if (path) {
       router = {
         name: 'IBoxDeviceList',
         query: {
