@@ -1,4 +1,4 @@
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Provide } from 'vue-property-decorator'
 import { getDeviceList, startDevice, stopDevice, deleteDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
@@ -181,6 +181,13 @@ export default class ListMixin extends Vue {
       })
     } else {
       this.count = 6
+    }
+  }
+
+  @Provide('handleTools')
+  public async handleTools(type: string, payload: any) {
+    if (type === 'deleteDevice') {
+      await this.deleteIboxDevice(payload)
     }
   }
 }
