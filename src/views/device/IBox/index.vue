@@ -574,13 +574,7 @@ export default class IBox extends Vue {
 
   // 供@vss/device 中回调使用
   @Provide('handleTools')
-  public async handleTools(type: string) {
-    if (type === 'goBack') {
-      await this.goBack()
-    }
-  }
-
-  public async goBack() {
+  public async handleTools() {
     const query: any = {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
