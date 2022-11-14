@@ -6,7 +6,7 @@
       </div>
       <el-table v-loading="loading.table" :data="tableData">
         <el-table-column prop="name" label="算法类型" />
-        <el-table-column prop="summary" label="描述" />
+        <el-table-column prop="summary" label="描述" show-overflow-tooltip />
         <el-table-column prop="version" label="当前算法版本" />
         <el-table-column prop="updatedTime" label="更新时间" />
         <el-table-column label="操作">

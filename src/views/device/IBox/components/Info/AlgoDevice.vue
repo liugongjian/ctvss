@@ -175,7 +175,6 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   }
 
   private async checkCallback(data, isChecked) {
-    debugger
     if (isChecked) { // 未勾选时，勾选操作
       const { streamStatus, deviceStatus } = data
       if (streamStatus === 'off' || deviceStatus === 'off') {
