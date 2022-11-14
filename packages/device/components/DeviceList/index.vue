@@ -537,7 +537,7 @@ export default class extends Mixins(deviceMixin) {
         this.$message.error(e && e.message)
       }
       this.loading.info = false
-    } else if ([DirectoryTypeEnum.Dir].includes(this.currentDirType)) {
+    } else if ([DirectoryTypeEnum.Dir].includes(this.currentDirType) && this.currentDirId) {
       this.loading.info = isLoading
       try {
         await this.getDir(this.currentDirId)
