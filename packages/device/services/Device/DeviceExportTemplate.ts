@@ -30,7 +30,7 @@ class ExportExcelTemplate {
 
   public gbCertificateList: any = []
 
-  public addressList:any = []
+  public addressList: any = []
 
   public options: any = {
     gbAccountList: [],
@@ -60,7 +60,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: ['"IPC,NVR,Platform"'],
+      formulae: ['"IPC,NVR"'],
       error: '请选择设备类型'
     },
     deviceVendor: {
