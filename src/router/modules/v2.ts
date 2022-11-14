@@ -4,27 +4,6 @@ import { deviceRouter, videoRouter } from '@vss/device/router'
 
 export const v2Router: RouteConfig[] = [
   {
-    path: '/changePassword',
-    component: Layout,
-    meta: {
-      title: '修改密码',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
-        meta: {
-          title: '修改密码',
-          icon: 'tree',
-          breadcrumb: false
-        }
-      }
-    ]
-  },
-  {
     path: '/dashboard',
     component: Layout,
     meta: {
@@ -830,6 +809,28 @@ export const v2Router: RouteConfig[] = [
           breadcrumb: false,
           icon: 'menu-system',
           perms: ['*']
+        }
+      }
+    ]
+  },
+  {
+    path: '/changePassword',
+    component: Layout,
+    meta: {
+      title: '修改密码',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      version: 2
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
+        meta: {
+          title: '修改密码',
+          icon: 'tree',
+          breadcrumb: false
         }
       }
     ]
