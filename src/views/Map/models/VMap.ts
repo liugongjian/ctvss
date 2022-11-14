@@ -487,6 +487,7 @@ export default class VMap {
         div.style.color = fontColor
         div.style.fontSize = '14px'
         div.style.textAlign = 'center'
+        div.className = 'cluster-marker'
         context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
         context.marker.setContent(div)
         let content = ''

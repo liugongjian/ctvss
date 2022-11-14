@@ -59,29 +59,32 @@ service.interceptors.response.use(
 function requestTransform(config: AxiosRequestConfig) {
   const url = config.url
   if (UserModule.version === 2 && !whiteList.includes(url)) {
+    config.url = '/v2' + url
+  } else {
     const apiList = Object.keys(ApiMapping)
     if (apiList.includes(url)) {
       const mapArr = ApiMapping[url].split(':')
-      config.url = '/v2' + mapArr[0]
+      config.url = '/v1' + mapArr[0]
       if (mapArr[1] === 'get') {
+        config.method = mapArr[1]
         config.params = config.data
         config.data = undefined
       } else if (mapArr[1]) {
+        config.method = mapArr[1]
         config.data = config.params
         config.params = undefined
       }
     } else {
-      config.url = '/v2' + url
+      config.url = '/v1' + url
     }
-  } else {
-    config.url = '/v1' + url
   }
   return config
 }
 
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    const resData = response.data.data
+    // TODO: 后续删除灰度判断
+    const resData = UserModule.version === 2 ? response.data.data : response.data
     return resData as AxiosResponse
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {

@@ -159,7 +159,8 @@ export const videoRouter = {
     icon: 'menu-live',
     perms: ['DescribeDevice'],
     alwaysShow: true,
-    breadcrumb: true
+    breadcrumb: true,
+    version: 2
   },
   children: [
     {

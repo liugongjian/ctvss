@@ -36,12 +36,13 @@ export default class extends Mixins(detailMixin) {
   }
 
   public async mounted() {
+    this.deviceIdSecondary = this.deviceIdCar
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
     this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId || this.deviceIdCar
+    screen.deviceId = this.deviceId || this.deviceIdSecondary
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
     await this.getDevice()
