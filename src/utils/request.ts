@@ -66,6 +66,7 @@ function requestTransform(config: AxiosRequestConfig) {
       const mapArr = ApiMapping[url].split(':')
       config.url = '/v1' + mapArr[0]
       if (mapArr[1] === 'get') {
+        config.method = mapArr[1]
         config.params = config.data
         config.data = undefined
       } else if (mapArr[1]) {
