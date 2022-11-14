@@ -65,8 +65,15 @@ export const editDeviceInfo = (params: any) =>
     data: toUpperCase(params)
   })
 
-// ibox凭证 /v1/ibox/certificates
+// 获取ibox凭证
 export const getIBoxCertificates = () =>
+  request({
+    url: '/ibox/certificates',
+    method: 'get'
+    // data: toUpperCase(data)
+  })
+// 更新ibox凭证
+export const freshIBoxCertificates = () =>
   request({
     url: '/ibox/certificates',
     method: 'post'

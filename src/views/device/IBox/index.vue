@@ -575,8 +575,6 @@ export default class IBox extends Vue {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
     }
-
-    await this.getDirList()
     if (this.$route.query.type === 'ipc') {
       const temp = this.breadcrumb.slice(-2, -1)[0]
       this.handleNodeClick(temp)

@@ -72,7 +72,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getIBoxCertificates } from '@/api/ibox'
+import { getIBoxCertificates, freshIBoxCertificates } from '@/api/ibox'
 
 @Component({
   name: 'IBoxCertificate',
@@ -85,7 +85,6 @@ export default class IBoxCertificate extends Vue {
   public ifShowDialog = false
 
   public async mounted() {
-    console.log('3123123')
     await this.getCaptcha()
   }
 
@@ -98,12 +97,21 @@ export default class IBoxCertificate extends Vue {
     }
   }
 
+  public async freshCaptcha() {
+    try {
+      const res: any = await freshIBoxCertificates()
+      this.captcha = (res.captcha || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1 ')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   public changeDialog() {
     this.ifShowDialog = !this.ifShowDialog
   }
 
   public async changeCaptcha() {
-    await this.getCaptcha()
+    await this.freshCaptcha()
     this.ifShowDialog = false
   }
 }

@@ -2,7 +2,7 @@
   <div class="ibox-list">
     <div class="ibox-list-table">
       <div class="ibox-list__btn-box">
-        <el-button type="primary" @click="addIBox">添加设备</el-button>
+        <el-button type="primary" @click="addIBox">添加子设备</el-button>
       </div>
       <el-table :data="tableData" fit>
         <el-table-column
