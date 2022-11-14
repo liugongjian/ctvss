@@ -9,41 +9,48 @@
   >
     <el-form
       ref="exportAddressForm"
-      :v-model="exportAddressForm"
+      :model="exportAddressForm"
       class="export-address-form"
+      label-width="100px"
     >
-      <el-form-item label="地址：">
-        <el-col v-loading="btnLoading" :span="20" class="cascader-box">
-          <div
-            v-for="(address, index) in exportAddressForm.addressArr"
-            :key="address.key"
-          >
-            <el-cascader
-              ref="exportAddressCascader"
-              :props="prop"
-              clearable
-              popper-class="address-cascader"
-              @change="onDeviceAddressChange"
-            />
-            <el-button
-              v-if="index === 0"
-              type="text"
-              class="cascader-box__btn"
-              :disabled="exportAddressForm.addressArr.length >= 5"
-              @click="addAddress"
-            >
-              <i class="el-icon-circle-plus" />
-            </el-button>
-            <el-button
-              v-else
-              type="text"
-              class="cascader-box__btn"
-              @click="removeAddress(index)"
-            >
-              <i class="el-icon-remove" />
-            </el-button>
-          </div>
-        </el-col>
+      <el-form-item
+        v-for="(item, index) in exportAddressForm.address"
+        :key="item.key"
+        :label="`${index === 0 ? '地址：' : ''}`"
+        prop="address"
+        :rules="{
+          type: 'array',
+          required: true,
+          validator: (rules, value, callback) =>
+            validateAddress(rules, value, callback, index),
+          trigger: 'change'
+        }"
+      >
+        <el-cascader
+          ref="exportAddressCascader"
+          :model="item.address"
+          :props="prop"
+          clearable
+          popper-class="address-cascader"
+          @change="onDeviceAddressChange"
+        />
+        <el-button
+          v-if="index === 0"
+          type="text"
+          class="cascader-box__btn"
+          :disabled="exportAddressForm.address.length >= 5"
+          @click="addAddress"
+        >
+          <i class="el-icon-circle-plus" />
+        </el-button>
+        <el-button
+          v-else
+          type="text"
+          class="cascader-box__btn"
+          @click="removeAddress(index)"
+        >
+          <i class="el-icon-remove" />
+        </el-button>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -67,30 +74,30 @@ export default class extends Vue {
   public dialogVisible = true
 
   public exportAddressForm: any = {
-    addressArr: [
+    address: [
       {
         code: '',
-        label: ''
+        pathLabels: '',
+        address: ''
       }
     ]
   }
+
+  public regionList = []
 
   public btnLoading = false
 
   public downloadLoading = false
 
-  public address = []
+  public addressA = []
 
-  public selectedRegionList = []
-
-  public deviceAddresses = {
-    code: '',
-    level: ''
-  }
+  public selectedRegionList: any = []
 
   public prop: any = {
     value: 'code',
     label: 'name',
+    address: 'name',
+    level: 'level',
     children: 'children',
     checkStrictly: 'true',
     expandTrigger: 'hover',
@@ -98,21 +105,56 @@ export default class extends Vue {
     lazyLoad: this.loadAddress
   }
 
+  // public rules = {
+  //   address: [
+  //     // { type: 'array', required: true, message: '请选择设备地址',  },
+  //     { type: 'array', required: true,  validator: this.validateAddress, trigger: 'blur' }
+  //   ]
+  // }
+
+  public validateAddress(
+    rule: any,
+    value: any,
+    callback: Function,
+    index: number
+  ) {
+    const errList = value.filter((item: any, idx: number) => {
+      if (idx !== index) {
+        return item.pathLabels && item.pathLabels === value[index].pathLabels
+      }
+    })
+    if (errList.length > 0) {
+      callback(new Error('请选择不同地址'))
+    } else if (value[index].pathLabels === '') {
+      callback(new Error('请选择地址'))
+    } else {
+      callback()
+    }
+  }
+
   public onDeviceAddressChange() {
     const arr = (this.$refs['exportAddressCascader'] as any).map(
-      (item: any) => {
+      (item: any, index) => {
         item.dropDownVisible = false
         const {
-          // label = '',  // 选中的label值
-          // value = '',
+          label = '', // 选中的label值
+          value = '',
+          level = '',
           pathLabels = [] // 选中的完整label值
         } = item.getCheckedNodes()[0] || {}
-        // this.exportAddressForm.addressArr[index].code = value
-        // this.exportAddressForm.addressArr[index].label = label
-        return pathLabels.join('/')
+        this.exportAddressForm.address[index].code = value
+        this.exportAddressForm.address[index].address = label
+        this.exportAddressForm.address[index].pathLabels = pathLabels.join('/')
+        return {
+          label,
+          value,
+          pathLabels,
+          level
+        }
       }
     )
     this.selectedRegionList = arr
+    this.regionList = arr
   }
 
   public async loadAddress(node, resolve) {
@@ -147,7 +189,7 @@ export default class extends Vue {
   }
 
   public addAddress() {
-    this.exportAddressForm.addressArr.push({
+    this.exportAddressForm.address.push({
       code: '',
       label: '',
       key: Date.now()
@@ -155,12 +197,29 @@ export default class extends Vue {
   }
 
   public removeAddress(index: number) {
-    this.exportAddressForm.addressArr.splice(index, 1)
+    this.exportAddressForm.address.splice(index, 1)
   }
 
-  public async sureThis() {
-    console.log('this.selectedRegionList--->', this.selectedRegionList)
-    
+  public sureThis() {
+    (this.$refs.exportAddressForm as any).validate(async (valid: boolean, errorInfo: any) => {
+      if (valid) {
+        try {
+          this.downloadLoading = true
+          // 数组去除空数据
+          const arr = this.selectedRegionList.map((item: any)=>{
+            return  item.pathLabels.join('/')
+          })
+          await ExportExcelTemplate.exportTemplate(arr)
+          this.closeDialog(false)
+        } catch (error) {
+        } finally {
+          this.downloadLoading = false
+        }
+      } else {
+        //就像用户提示发生错误的消息
+        console.log(errorInfo)
+      }
+    })
   }
 }
 </script>
