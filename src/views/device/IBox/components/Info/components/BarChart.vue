@@ -255,6 +255,6 @@ export default class extends Vue {
   width: 100%;
   min-width: 0;
   height: 100%;
-  display: inline-table;
+  // display: inline-table;
 }
 </style>

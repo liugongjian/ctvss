@@ -395,7 +395,8 @@ export default class extends Vue {
 </style>
 <style lang="scss">
 .ibox-bar {
-  height: 700px;
+  height: 95%;
+  // height: 700px;
 }
 
 // .base-info,
@@ -446,6 +447,7 @@ export default class extends Vue {
 
 .bar-chart {
   min-width: 455px;
+  overflow: hidden;
 }
 
 </style>
