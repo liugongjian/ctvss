@@ -197,63 +197,63 @@ export const getCallbackBind = (params: any): Promise<any> =>
  */
 export const getAlertTemplates = (params: any): Promise<any> =>
   request({
-    url: '/alarmtemplates/describe',
+    url: '/alarm/template/list',
     method: 'get',
     params
   })
 
 export const getAlertTemplateDetails = (params: any): Promise<any> =>
   request({
-    url: '/alarmtemplate/describe',
+    url: '/alarm/template/describe',
     method: 'get',
     params
   })
 
 export const createAlertTemplate = (params: any): Promise<any> =>
   request({
-    url: '/alarmtemplate/create',
+    url: '/alarm/template/create',
     method: 'post',
     data: params
   })
 
 export const updateAlertTemplate = (params: any): Promise<any> =>
   request({
-    url: '/alarmtemplate/modify',
+    url: '/alarm/template/update',
     method: 'post',
     data: params
   })
 
 export const deleteAlertTemplate = (params: any): Promise<any> =>
   request({
-    url: '/alarmtemplate/delete',
+    url: '/alarm/template/delete',
     method: 'post',
     data: params
   })
 
 export const bindAlertTemplates = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/create',
+    url: '/alarm/rule/create',
     method: 'post',
     data: params
   })
 
 export const unbindAlertTemplates = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/delete',
+    url: '/alarm/rule/delete',
     method: 'post',
     data: params
   })
 
 export const getAlertBind = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/describeAlarmRule',
+    url: '/alarm/rule/describe',
     method: 'get',
     params
   })
 
 export const getAlertBindList = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/describeAlarmRules',
+    url: '/alarm/rule/list',
     method: 'get',
     params
   })

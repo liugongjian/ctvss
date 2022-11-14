@@ -7,8 +7,9 @@
         <el-link
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           @click="changeResourceDialog"
-          >配置</el-link
         >
+          配置
+        </el-link>
       </div>
       <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
@@ -16,8 +17,9 @@
           <el-link
             v-if="!isVGroup && checkPermission(['AdminDevice'])"
             @click="changeResourceDialog"
-            >配置视频包</el-link
           >
+            配置视频包
+          </el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -45,8 +47,9 @@
           <el-link
             v-if="!isVGroup && checkPermission(['AdminDevice'])"
             @click="changeResourceDialog('AI')"
-            >配置AI包</el-link
           >
+            配置AI包
+          </el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -62,9 +65,11 @@
             <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
-                <template slot-scope="scope">{{
-                  scope.row.algorithm.name
-                }}</template>
+                <template slot-scope="scope">
+                  {{
+                    scope.row.algorithm.name
+                  }}
+                </template>
               </el-table-column>
               <el-table-column v-if="!isNvr" prop="appEnabled" label="状态">
                 <template slot-scope="scope">
@@ -95,8 +100,9 @@
                         type="text"
                         :disabled="deviceInfo.deviceStatus !== 'on'"
                         @click="openCanvasDialog(scope.row)"
-                        >算法配置</el-button
                       >
+                        算法配置
+                      </el-button>
                     </div>
                   </el-tooltip>
                   <el-tooltip
@@ -111,17 +117,19 @@
                         type="text"
                         :disabled="scope.row.status === '1'"
                         @click="changeBindStatus(scope.row)"
-                        >解除绑定</el-button
                       >
+                        解除绑定
+                      </el-button>
                     </div>
                   </el-tooltip>
                   <el-button
                     type="text"
                     @click="changeRunningStatus(scope.row)"
-                    >{{
-                      parseInt(scope.row.status) ? '停用' : '启用'
-                    }}</el-button
                   >
+                    {{
+                      parseInt(scope.row.status) ? '停用' : '启用'
+                    }}
+                  </el-button>
                 </template>
               </el-table-column>
               <el-table-column
@@ -142,8 +150,9 @@
                         type="text"
                         :disabled="scope.row.status === '1'"
                         @click="changeBindStatus(scope.row)"
-                        >解除绑定</el-button
                       >
+                        解除绑定
+                      </el-button>
                     </div>
                   </el-tooltip>
                 </template>
@@ -159,8 +168,9 @@
             v-if="!isVGroup && checkPermission(['AdminDevice'])"
             v-permission="['*']"
             @click="changeResourceDialog"
-            >配置带宽包</el-link
           >
+            配置带宽包
+          </el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -187,8 +197,9 @@
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           v-permission="['*']"
           @click="setRecordTemplate"
-          >配置</el-link
         >
+          配置
+        </el-link>
       </div>
       <el-descriptions v-if="template.recordTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -200,19 +211,19 @@
         <el-descriptions-item label="录制格式">
           {{
             template.recordTemplate.flvParam &&
-            template.recordTemplate.flvParam.enable
+              template.recordTemplate.flvParam.enable
               ? 'flv'
               : ''
           }}
           {{
             template.recordTemplate.hlsParam &&
-            template.recordTemplate.hlsParam.enable
+              template.recordTemplate.hlsParam.enable
               ? 'hls'
               : ''
           }}
           {{
             template.recordTemplate.hlsParam &&
-            template.recordTemplate.hlsParam.enable
+              template.recordTemplate.hlsParam.enable
               ? 'mp4'
               : ''
           }}
@@ -230,8 +241,9 @@
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           v-permission="['*']"
           @click="setCallbackTemplate"
-          >配置</el-link
         >
+          配置
+        </el-link>
       </div>
       <el-descriptions v-if="template.callbackTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -277,8 +289,9 @@
           v-if="!isVGroup && checkPermission(['AdminDevice'])"
           v-permission="['*']"
           @click="setAlertTemplate"
-          >配置</el-link
         >
+          配置
+        </el-link>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -353,7 +366,7 @@ import {
   startAppResource,
   stopAppResource
 } from '@/api/device'
-import { getAlertBind } from '@/api/template'
+import { getAlertBind } from '@vss/device/api/template'
 import { getAppList, getAlgoStreamFrameShot } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
