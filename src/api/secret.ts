@@ -51,14 +51,14 @@ export const disableSecret = (params: number): Promise<any> =>
 
 export const exportSecret = (data: any): Promise<any> =>
   request({
-    url: '/aksk/exportAkskOption',
+    url: '/aksk/export',
     method: 'post',
     data
   })
 
 export const exportSecretCSV = (data: any): Promise<any> =>
   request({
-    url: '/aksk/exportAkskCSV',
+    url: '/aksk/exportCSV',
     method: 'post',
     data
   })

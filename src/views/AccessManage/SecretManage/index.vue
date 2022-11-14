@@ -195,6 +195,9 @@ export default class extends Vue {
       this.$message.success('更新密钥成功')
     } catch (e){
       this.$message.error('更新失败：' + e)
+    } finally {
+      this.getList()
+      this.showTipDialog = false
     }
   }
 
@@ -228,6 +231,7 @@ export default class extends Vue {
         secretKey: res.secretKey,
         description: res.description
       }
+      debugger
       this.dialogStep = 1
       this.dialogLoading = false
       this.$forceUpdate()

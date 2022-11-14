@@ -10,11 +10,11 @@ import { ResourceAiType } from '@/dics'
 export default class ExcelMixin extends Vue {
   private workbook = null
   public resourceAiType: any = ResourceAiType
-  public exelType: string = ''
+  public exelType = ''
   public exelDeviceType: any = ''
   public exportData: any = []
-  public exelName: string = ''
-  public parentDeviceId: string = ''
+  public exelName = ''
+  public parentDeviceId = ''
   public excelInProtocol: any = ''
   public excelViews: any = [
     {
@@ -574,15 +574,15 @@ export default class ExcelMixin extends Vue {
   private async getOptions() {
     // 获取资源包选项
     try {
-      let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
+      const VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
       this.options.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
       }) : []
-      let AIRes: any = await getResources({ type: 'VSS_AI' })
+      const AIRes: any = await getResources({ type: 'VSS_AI' })
       this.options.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
       }) : []
-      let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
+      const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
       this.options.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.bitRate}M||${item.resourceId}`
       }) : []
@@ -666,7 +666,7 @@ export default class ExcelMixin extends Vue {
    */
   private optionsInit(worksheet: any, template: any) {
     template.forEach((column, index) => {
-      let columnIndex = String.fromCharCode(65 + index)
+      const columnIndex = String.fromCharCode(65 + index)
       worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, column.validation)
     })
   }
@@ -726,8 +726,8 @@ export default class ExcelMixin extends Vue {
       }
     }
     const buffer = await this.workbook.xlsx.writeBuffer()
-    var blob = new Blob([buffer], { type: 'application/xlsx' })
-    var link = document.createElement('a')
+    const blob = new Blob([buffer], { type: 'application/xlsx' })
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${exelName}.xlsx`
     link.click()
@@ -735,7 +735,7 @@ export default class ExcelMixin extends Vue {
 
   // 导出设备表格
   public async exportDevicesExcel(data: any) {
-    let params: any = {
+    const params: any = {
       groupId: data.groupId,
       inProtocol: data.inProtocol,
       dirId: data.dirId.toString(),
@@ -766,18 +766,18 @@ export default class ExcelMixin extends Vue {
   // 下载表格
   public downloadFileUrl(fileName: string, file: any) {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    var link = document.createElement('a')
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`
     link.click()
   }
   // base64转blob
   public base64ToBlob(base64: any) {
-    var arr = base64.split(',')
-    var mime = arr[0].match(/:(.*?);/)[1]
-    var bstr = atob(arr[1])
-    var n = bstr.length
-    var u8arr = new Uint8Array(n)
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }
@@ -801,4 +801,16 @@ export default class ExcelMixin extends Vue {
       }
     })
   }
+
+  // 下载CSV
+  public downloadFileCSV(fileName: string, fileContent: any) {
+      const CsvString = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(fileContent)
+      const fileLinkEle = document.createElement('a')
+      fileLinkEle.setAttribute('href', CsvString)
+      fileLinkEle.setAttribute('download', fileName + '.csv')
+      document.body.appendChild(fileLinkEle)
+      fileLinkEle.click()
+      document.body.removeChild(fileLinkEle)
+  }
+
 }

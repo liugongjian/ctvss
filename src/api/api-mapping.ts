@@ -6,7 +6,7 @@ export const ApiMapping = {
   '/aksk/delete': '/openapi/delete',
   '/aksk/start': '/openapi/start',
   '/aksk/stop': '/openapi/stop',
-  '/aksk/exportAkskOption': '/openapi/exportAkskOption',
+  '/aksk/export': '/openapi/exportAkskOption',
   // 电子地图
   '/map/list': '/map/DescribeMaps',
   '/map/create': '/map/CreateMap:get',
