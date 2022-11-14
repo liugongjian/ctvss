@@ -44,7 +44,7 @@ class User extends VuexModule implements IUserState {
   public userConfigInfo: any = []
   public outNetwork: 'internet' | 'vpn' = 'internet'
   public isPrivate = false
-  public version = 2
+  public version = 1
 
   @Mutation
   private SET_TOKEN(token: string) {

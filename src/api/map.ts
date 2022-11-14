@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { UserModule } from '@/store/modules/user'
 
 /**
  * 查询电子地图列表
@@ -18,68 +17,33 @@ export const getMaps = (params: any): Promise<any> =>
 /**
  * 新建电子地图
  */
-export const createMap = (params: any): Promise<any> => {
-  // TODO: 设备重构
-  if (UserModule.version === 2) {
-    return request({
-      url: '/map/create',
-      method: 'post',
-      data: params
-    })
-  } else {
-    return request({
-      url: '/map/CreateMap',
-      method: 'get',
-      params: {
-        ...params
-      }
-    })
-  }
-}
+export const createMap = (params: any): Promise<any> => 
+  request({
+    url: '/map/create',
+    method: 'post',
+    data: params
+  })
 
 /**
  * 删除电子地图
  */
-export const deleteMap = (params: any): Promise<any> => {
-  // TODO: 设备重构
-  if (UserModule.version === 2) {
-    return request({
-      url: '/map/delete',
-      method: 'post',
-      data: params
-    })
-  } else {
-    request({
-      url: '/map/DeleteMap',
-      method: 'get',
-      params: {
-        ...params
-      }
-    })
-  }
-}
+export const deleteMap = (params: any): Promise<any> => 
+  request({
+    url: '/map/delete',
+    method: 'post',
+    data: params
+  })
 
 /**
  * 编辑电子地图
  */
-export const modifyMap = (params: any): Promise<any> => {
-  // TODO: 设备重构
-  if (UserModule.version === 2) {
-    return request({
-      url: '/map/update',
-      method: 'post',
-      data: params
-    })
-  } else {
-    request({
-      url: '/map/ModifyMap',
-      method: 'get',
-      params: {
-        ...params
-      }
-    })
-  }
-}
+export const modifyMap = (params: any): Promise<any> =>
+  request({
+    url: '/map/update',
+    method: 'post',
+    data: params
+  })
+
 
 /**
  * 查询地图标识（设备）
