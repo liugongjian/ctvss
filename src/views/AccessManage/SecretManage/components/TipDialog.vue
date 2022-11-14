@@ -79,7 +79,7 @@ export default class extends Mixins(ExcelMixin) {
     this.$emit('loading-change', true)
     try {
       const res = await exportSecretCSV({ ids: [this.data.id] })
-      this.downloadFileCSV('API密钥', res.exportFile)
+      this.downloadFileUrl('API密钥', res.exportFile)
     } catch (e){
       console.log(e)
     } finally {

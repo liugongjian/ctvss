@@ -768,7 +768,7 @@ export default class ExcelMixin extends Vue {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
-    link.download = `${fileName}.xlsx`
+    link.download = `${fileName}.csv`
     link.click()
   }
   // base64转blob
