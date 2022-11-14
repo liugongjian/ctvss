@@ -128,8 +128,8 @@ export default class TreeMixin extends Vue {
   /**
    * 判断是否显示form-item
    */
-  public checkVisible(type, prop, permission?) {
-    return checkTreeToolsVisible(type, prop) && checkPermission(permission)
+  public checkVisible(type, prop, permission?, data?) {
+    return checkTreeToolsVisible(type, prop, data) && checkPermission(permission)
   }
 
   /**

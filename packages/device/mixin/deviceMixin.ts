@@ -2,7 +2,8 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
-import { DeviceEnum } from '../enums/index'
+import { getDir } from '@vss/device/api/dir'
+import { DeviceEnum, DirectoryTypeEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -15,6 +16,9 @@ export default class DeviceMixin extends Vue {
 
   // 设备详情
   public device: Device = {} as Device
+
+  // 目录详情
+  public dir: any = {}
 
   // 设备详情加载状态
   public deviceLoading = false
@@ -37,6 +41,24 @@ export default class DeviceMixin extends Vue {
   // 是否含视图库
   public get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 设备或目录来源
+  public get deviceFrom() {
+    if (this.deviceType === DirectoryTypeEnum.Dir) {
+      return this.dir.dirFrom
+    } else {
+      return this.device.device && this.device.device.deviceFrom
+    }
+  }
+
+  // 设备或目录是否为角色共享提供的
+  public get isRoleShared() {
+    if (this.deviceType === DirectoryTypeEnum.Dir) {
+      return this.dir.isRoleShared
+    } else {
+      return this.device.device && this.device.device.isRoleShared
+    }
   }
 
   // 协议类型
@@ -66,6 +88,20 @@ export default class DeviceMixin extends Vue {
       this.$alertError(e)
     } finally {
       this.deviceLoading = false
+    }
+  }
+
+  /**
+   * 获取设备详情
+   */
+   public async getDir(dirId: string) {
+    try {
+      this.dir = await getDir({
+        dirId
+      }) || {}
+      console.log(this.dir)
+    } catch (e) {
+      this.$alertError(e)
     }
   }
 

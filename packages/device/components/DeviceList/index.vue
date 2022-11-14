@@ -537,6 +537,14 @@ export default class extends Mixins(deviceMixin) {
         this.$message.error(e && e.message)
       }
       this.loading.info = false
+    } else if ([DirectoryTypeEnum.Dir].includes(this.currentDirType) && this.currentDirId) {
+      this.loading.info = isLoading
+      try {
+        await this.getDir(this.currentDirId)
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
+      this.loading.info = false
     }
     this.initTable(isLoading)
   }
@@ -622,7 +630,12 @@ export default class extends Mixins(deviceMixin) {
    * @param row 具体信息
    */
   private checkToolsVisible(prop, permissions?, row?) {
-    !row && (row = { deviceType: this.currentDirType, inProtocol: this.inProtocol })
+    !row && (row = {
+      deviceType: this.currentDirType,
+      inProtocol: this.inProtocol,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared,
+    })
     return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions)
   }
 
