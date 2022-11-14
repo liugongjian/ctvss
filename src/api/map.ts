@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export const getMaps = (params: any): Promise<any> =>
   request({
-    url: '/map/DescribeMaps',
+    url: '/map/list',
     method: 'get',
     params: {
       ...params,
@@ -50,7 +50,7 @@ export const modifyMap = (params: any): Promise<any> =>
  */
 export const getMapDevices = (params: any, cancelToken: any): Promise<any> =>
   request({
-    url: '/map/DescribeMapMarkers',
+    url: '/map/describeMarkers',
     method: 'get',
     params: {
       ...params,
@@ -64,7 +64,7 @@ export const getMapDevices = (params: any, cancelToken: any): Promise<any> =>
  */
 export const addMarkers = (params: any): Promise<any> =>
   request({
-    url: '/map/MarkOnMap',
+    url: '/map/mark',
     method: 'post',
     data: params
   })
@@ -74,7 +74,7 @@ export const addMarkers = (params: any): Promise<any> =>
  */
 export const updateMarkers = (params: any): Promise<any> =>
   request({
-    url: '/map/ReMarkOnMap',
+    url: '/map/reMark',
     method: 'post',
     data: params
   })
@@ -84,7 +84,7 @@ export const updateMarkers = (params: any): Promise<any> =>
  */
 export const deleteMarkers = (params: any): Promise<any> =>
   request({
-    url: '/map/UnMarkOnMap',
+    url: '/map/unMark',
     method: 'post',
     data: params
   })

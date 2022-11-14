@@ -30,6 +30,8 @@ class ExportExcelTemplate {
 
   public gbCertificateList: any = []
 
+  public addressList: any = []
+
   public options: any = {
     gbAccountList: [],
     availableChannels: [],
@@ -58,7 +60,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: ['"IPC,NVR,Platform"'],
+      formulae: ['"IPC,NVR"'],
       error: '请选择设备类型'
     },
     deviceVendor: {
@@ -171,7 +173,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
-            validation: null //  todo
+            validation: this.getAddressList()
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
@@ -300,7 +302,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
-            validation: null //  todo
+            validation: this.getAddressList()
           },
           {
             title: { header: '所属行业', key: 'industry', width: 16 },
@@ -416,7 +418,7 @@ class ExportExcelTemplate {
           },
           // {
           //   title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
-          //   validation: null //  todo
+          //   validation: this.getAddressList()
           // },
           // {
           //   title: { header: '所属行业', key: 'industry', width: 16 },
@@ -507,7 +509,7 @@ class ExportExcelTemplate {
           },
           // {
           //   title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
-          //   validation: null //  todo
+          //   validation: this.getAddressList()
           // },
           // {
           //   title: { header: '所属行业', key: 'industry', width: 16 },
@@ -717,6 +719,18 @@ class ExportExcelTemplate {
     }
   }
 
+  private getAddressList(){
+    return {
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: [this.joinDropdownlist(this.addressList)],
+      error: '请从选项中选择设备地址'
+    }
+    
+  }
+
   // 动态校验 formulae值 转换处理
   public joinDropdownlist = (data: any)=>{
     return data.length ? '"' + data.join(',') + '"' : '""'
@@ -819,9 +833,9 @@ class ExportExcelTemplate {
    *
    * @memberof 导出模板
    */
-  public async exportTemplate(state: any) {
+  public async exportTemplate(addressList: any) {
 
-    console.log('state---->', state.$alertHandle)
+    this.addressList = addressList
 
     await this.getRegionList()
 

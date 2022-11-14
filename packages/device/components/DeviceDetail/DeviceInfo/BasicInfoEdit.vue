@@ -9,7 +9,8 @@
     >
       <div class="two-column-wrap">
         <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="deviceEnum.DeviceName">
-          <el-input v-model="deviceForm.deviceName" />
+          <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
+          <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
@@ -44,14 +45,14 @@
           <address-cascader
             :code="deviceForm.inOrgRegion"
             :level="deviceForm.inOrgRegionLevel"
-            disabled
+            :disabled="!isPlatformDevice"
           />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业:" :prop="deviceEnum.IndustryCode">
           <el-select
             v-model="deviceForm.industryCode"
             placeholder="请选择所属行业"
-            disabled
+            :disabled="!isPlatformDevice"
           >
             <el-option
               v-for="(value, key) in industryList"
@@ -132,7 +133,7 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { updateDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice, ViidDevice, DeviceBasicForm, DeviceForm } from '@vss/device/type/Device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
@@ -230,6 +231,11 @@ export default class extends Mixins(deviceFormMixin) {
     return this.device.viids && this.device.viids.length
   }
 
+  // 是否为平台下设备
+  private get isPlatformDevice() {
+    return this.basicInfo.deviceFrom === DeviceTypeEnum.Platform
+  }
+
   // 获取是否使用设备名称
   private get isEnableCloudChannelName() {
     const enableCloudChannelName = UserModule.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
@@ -237,6 +243,12 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private async mounted() {
+    // 如果为平台下设备，“设备地址”和“所属行业”不限制必填
+    if (this.isPlatformDevice) {
+      this.rules.inOrgRegion = []
+      this.rules.industryCode = []
+    }
+
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
     this.checkIsShowMore()
