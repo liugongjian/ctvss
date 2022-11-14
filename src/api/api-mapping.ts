@@ -1,4 +1,4 @@
-// v21转换v1接口字典
+// v2转换v1接口字典
 export const ApiMapping = {
   // OpenAPI
   '/aksk/list': '/openapi/list',
