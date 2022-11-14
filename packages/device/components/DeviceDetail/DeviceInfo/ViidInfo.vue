@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button type="text" @click="edit">编辑</el-button>
+      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="edit">编辑</el-button>
       <el-dropdown v-if="hasVideo" @command="handleTools($event, basicInfo, inViidProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
+          <el-dropdown-item v-if="checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -40,6 +40,7 @@ import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
 import { DeviceEnum, ToolsEnum } from '@vss/device/enums'
+import { PolicyEnum } from '@vss/base/enums/iam'
 import { Device, DeviceBasic, ViidDevice } from '@vss/device/type/Device'
 import { checkViidVisible } from '@vss/device/utils/param'
 
@@ -52,10 +53,13 @@ import { checkViidVisible } from '@vss/device/utils/param'
 export default class extends Vue {
   @Inject('handleTools')
   private handleTools!: Function
+  @Inject('checkToolsVisible')
+  private checkToolsVisible!: Function
   @Prop() private device: Device
   private dicts = dicts
   private deviceEnum = DeviceEnum
   private toolsEnum = ToolsEnum
+  private policyEnum = PolicyEnum
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {

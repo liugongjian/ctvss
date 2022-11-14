@@ -630,7 +630,12 @@ export default class extends Mixins(deviceMixin) {
    * @param row 具体信息
    */
   private checkToolsVisible(prop, permissions?, row?) {
-    !row && (row = { deviceType: this.currentDirType, inProtocol: this.inProtocol })
+    !row && (row = {
+      deviceType: this.currentDirType,
+      inProtocol: this.inProtocol,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared,
+    })
     return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions)
   }
 

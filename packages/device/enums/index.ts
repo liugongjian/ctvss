@@ -122,7 +122,6 @@ export enum DeviceEnum {
   Video = 'video',
   Codec = 'codec',
   IsRoleShared = 'isRoleShared',
-  DeviceFrom = 'deviceFrom',
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',

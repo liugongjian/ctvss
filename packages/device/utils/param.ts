@@ -113,8 +113,29 @@ export function checkViidVisible(deviceType: DeviceTypeEnum, inViidProtocol: InV
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
-  return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop)
+export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+  let allowFlag = true
+
+  // platform下设备及目录特殊处理
+  if (data && (data.dirFrom === DeviceTypeEnum.Platform)) {
+    allowFlag = ![
+      ToolsEnum.AddDirectory,
+      ToolsEnum.EditDirectory,
+      ToolsEnum.DeleteDirectory
+    ].includes(prop)
+  }
+
+  // role分享的设备及目录特殊处理
+  if (data && data[DeviceEnum.IsRoleShared]) {
+    allowFlag = ![
+      ToolsEnum.AddDirectory,
+      ToolsEnum.SortDirectory,
+      ToolsEnum.EditDirectory,
+      ToolsEnum.DeleteDirectory,
+    ].includes(prop)
+  }
+
+  return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop) && allowFlag
 }
 
 /**
@@ -161,6 +182,7 @@ export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: an
   if (data && (data[DeviceEnum.DeviceFrom] === DeviceTypeEnum.Platform)) {
     allowFlag = ![
       ToolsEnum.AddDevice,
+      ToolsEnum.ConfigureChannels,
       ToolsEnum.Import,
       ToolsEnum.ExportTemplate,
       ToolsEnum.OperateDevices,
@@ -173,6 +195,7 @@ export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: an
   if (data && data[DeviceEnum.IsRoleShared]) {
     allowFlag = ![
       ToolsEnum.AddDevice,
+      ToolsEnum.ConfigureChannels,
       ToolsEnum.EditDevice,
       ToolsEnum.DeleteDevice,
       ToolsEnum.Import,
