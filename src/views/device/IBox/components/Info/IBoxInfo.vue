@@ -369,6 +369,16 @@ export default class extends Vue {
   line-height: 32px;
 }
 
+.info-chart {
+  overflow-x: auto;
+}
+
+.info-chart::-webkit-scrollbar {
+  /* 滚动条整体样式 */
+  width: 50px;  /* 高宽分别对应横竖滚动条的尺寸 */
+  height: 5px;
+}
+
 .ibox-bar {
   overflow-y: auto;
 }
@@ -379,14 +389,16 @@ export default class extends Vue {
   height: 10px;
 }
 
-.ibox-bar::-webkit-scrollbar-thumb {
+.ibox-bar::-webkit-scrollbar-thumb,
+.info-chart::-webkit-scrollbar-thumb {
   /* 滚动条里面小方块 */
   border-radius: 10px;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
   background: #ddd;
 }
 
-.ibox-bar::-webkit-scrollbar-track {
+.ibox-bar::-webkit-scrollbar-track,
+.info-chart::-webkit-scrollbar-thumb {
   /* 滚动条里面轨道 */
   // box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
   border-radius: 20px;
