@@ -27,7 +27,7 @@
     </div>
     <div v-else slot="footer" class="dialog-footer">
       <el-button type="primary" :loading="loading" @click="downloadCSV">下载CSV文件</el-button>
-      <el-button type="primary" :loading="loading" @click="downloadSecret">下载密钥</el-button>
+      <!-- <el-button type="primary" :loading="loading" @click="downloadSecret">下载密钥</el-button> -->
       <el-button @click="closeDialog">关闭</el-button>
     </div>
   </el-dialog>
