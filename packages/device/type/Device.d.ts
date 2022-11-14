@@ -24,6 +24,7 @@ type DeviceBasic = {
   [DeviceEnum.DeviceLocalName]?: string // 设备侧名称
   [DeviceEnum.DeviceType]?: DeviceTypeEnum
   [DeviceEnum.DeviceFrom]?: string
+  [DeviceEnum.IsRoleShared]?: string
   [DeviceEnum.DeviceLongitude]?: string
   [DeviceEnum.DeviceLatitude]?: string
   [DeviceEnum.DeviceVendor]?: string

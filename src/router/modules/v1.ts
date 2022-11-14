@@ -3,27 +3,6 @@ import Layout from '@/layout/index.vue'
 
 export const v1Router: RouteConfig[] = [
   {
-    path: '/1/changePassword',
-    component: Layout,
-    meta: {
-      title: '修改密码',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
-        meta: {
-          title: '修改密码',
-          icon: 'tree',
-          breadcrumb: false
-        }
-      }
-    ]
-  },
-  {
     path: '/1/dashboard',
     component: Layout,
     meta: {
@@ -1071,4 +1050,26 @@ export const v1Router: RouteConfig[] = [
       }
     ]
   },
+  {
+    path: '/1/changePassword',
+    component: Layout,
+    meta: {
+      title: '修改密码',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      version: 1
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
+        meta: {
+          title: '修改密码',
+          icon: 'tree',
+          breadcrumb: false
+        }
+      }
+    ]
+  }
 ]

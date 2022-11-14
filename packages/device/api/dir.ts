@@ -1,5 +1,10 @@
 import request from '@/utils/request'
 
+/**
+ * 创建目录
+ * @param params
+ * @returns 
+ */
 export const createDir = (params: any): Promise<any> =>
   request({
     url: '/dir/create',
@@ -7,6 +12,11 @@ export const createDir = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+ * 编辑目录
+ * @param params
+ * @returns 
+ */
 export const updateDir = (params: any): Promise<any> =>
   request({
     url: '/dir/update',
@@ -14,6 +24,23 @@ export const updateDir = (params: any): Promise<any> =>
     data: params
   })
 
+/**
+ * 查询目录
+ * @param params
+ * @returns 
+ */
+ export const getDir = (params: any): Promise<any> =>
+ request({
+   url: '/dir/describe',
+   method: 'get',
+   params
+ })
+
+/**
+ * 删除目录
+ * @param params
+ * @returns 
+ */
 export const deleteDir = (params: any): Promise<any> =>
   request({
     url: '/dir/delete',

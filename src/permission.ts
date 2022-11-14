@@ -70,9 +70,16 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         PermissionModule.GenerateRoutes({ tags, perms, iamUserId, version })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+        let path = to.path
+        if (path === '/dashboard') {
+          // redirect=%2Fdashboard在v1下的统一处理
+          if (UserModule.version === 1) {
+            path = '/1/dashboard'
+          }
+          let dashBoardIndex = PermissionModule.dynamicRoutes.findIndex((route: any) => route.path === path)
+          dashBoardIndex = dashBoardIndex === -1 ? 0 : dashBoardIndex
           // @ts-ignore
-          to = PermissionModule.dynamicRoutes[0]
+          to = PermissionModule.dynamicRoutes[dashBoardIndex]
         }
         // 单点登录菜单高亮
         UserModule.casLoginId && casService.activeCasMenu(to)
