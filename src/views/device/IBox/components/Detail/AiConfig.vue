@@ -223,7 +223,7 @@ export default class AiAppList extends Mixins(AlgoMixin) {
     try {
       await bindIboxApps({ appIds, iboxId, deviceId })
       this.getAppList()
-      this.$message.success('绑定成功')
+      this.$message.success('操作成功')
     } catch (e) {
       this.$message.error(e)
     }

@@ -17,7 +17,7 @@
           <el-table-column type="selection" width="55" />
           <el-table-column prop="name" label="应用名称" />
           <el-table-column prop="algorithmName" label="算法类型" />
-          <el-table-column prop="description" label="描述" />
+          <el-table-column prop="description" label="描述" show-overflow-tooltip />
         </el-table>
       </el-tab-pane>
     </el-tabs>
