@@ -12,6 +12,7 @@ export enum DeviceEnum {
   DirId = 'dirId',
   ParentDeviceId = 'parentDeviceId',
   DeviceType = 'deviceType',
+  DeviceFrom = 'deviceFrom',
   DeviceVendor = 'deviceVendor',
   DeviceId = 'deviceId',
   DeviceName = 'deviceName',

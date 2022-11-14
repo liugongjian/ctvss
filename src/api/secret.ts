@@ -2,21 +2,21 @@ import request from '@/utils/request'
 
 export const getSecretList = (params: any = {}): Promise<any> =>
   request({
-    url: '/openapi/list',
+    url: '/aksk/list',
     method: 'get',
     params
   })
 
 export const createSecret = (data: any = undefined): Promise<any> =>
   request({
-    url: '/openapi/create',
+    url: '/aksk/create',
     method: 'post',
     data
   })
 
 export const deleteSecret = (params: number, type = undefined): Promise<any> =>
   request({
-    url: '/openapi/delete',
+    url: '/aksk/delete',
     method: 'post',
     data: {
       id: params,
@@ -26,14 +26,14 @@ export const deleteSecret = (params: number, type = undefined): Promise<any> =>
 
 export const updateSecret = (data: any = undefined): Promise<any> =>
   request({
-    url: '/openapi/update',
+    url: '/aksk/update',
     method: 'post',
     data
   })
 
 export const enableSecret = (params: number): Promise<any> =>
   request({
-    url: '/openapi/start',
+    url: '/aksk/start',
     method: 'post',
     data: {
       id: params
@@ -42,7 +42,7 @@ export const enableSecret = (params: number): Promise<any> =>
 
 export const disableSecret = (params: number): Promise<any> =>
   request({
-    url: '/openapi/stop',
+    url: '/aksk/stop',
     method: 'post',
     data: {
       id: params
@@ -51,14 +51,14 @@ export const disableSecret = (params: number): Promise<any> =>
 
 export const exportSecret = (data: any): Promise<any> =>
   request({
-    url: '/openapi/exportAkskOption',
+    url: '/aksk/export',
     method: 'post',
     data
   })
 
 export const exportSecretCSV = (data: any): Promise<any> =>
   request({
-    url: '/openapi/exportAkskCSV',
+    url: '/aksk/exportCSV',
     method: 'post',
     data
   })

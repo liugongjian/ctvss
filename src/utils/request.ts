@@ -59,11 +59,14 @@ service.interceptors.response.use(
 function requestTransform(config: AxiosRequestConfig) {
   const url = config.url
   if (UserModule.version === 2 && !whiteList.includes(url)) {
+    config.url = '/v2' + url
+  } else {
     const apiList = Object.keys(ApiMapping)
     if (apiList.includes(url)) {
       const mapArr = ApiMapping[url].split(':')
-      config.url = '/v2' + mapArr[0]
+      config.url = '/v1' + mapArr[0]
       if (mapArr[1] === 'get') {
+        config.method = mapArr[1]
         config.params = config.data
         config.data = undefined
       } else if (mapArr[1]) {
@@ -72,10 +75,8 @@ function requestTransform(config: AxiosRequestConfig) {
         config.params = undefined
       }
     } else {
-      config.url = '/v2' + url
+      config.url = '/v1' + url
     }
-  } else {
-    config.url = '/v1' + url
   }
   return config
 }
