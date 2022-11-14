@@ -59,7 +59,7 @@ export default class extends Vue {
   private handleTools!: Function
 
   public back() {
-    this.handleTools('back')
+    this.handleTools('goBack')
   }
 }
 </script>

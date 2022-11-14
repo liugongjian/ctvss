@@ -161,13 +161,13 @@ export default class IBoxCertificate extends Vue {
 
   &__step {
     height: 160px;
-    min-width: 1120px;
+    min-width: 1000px;
     display: flex;
     // flex-direction: row;
     justify-content: space-around;
 
     &-content {
-      width: 260px;
+      width: 240px;
       padding: 20px 10px;
       // border: 1px solid #d3d3d3;
       flex-shrink: 0;
@@ -189,7 +189,7 @@ export default class IBoxCertificate extends Vue {
           border-left: 6px solid #000;
           position: absolute;
           top: 76px;
-          right: min(-13px, calc(-1*(100vw - 1040px)/8 + 26px));
+          right: min(-13px, calc(-1*(100vw - 1040px)/8 + 34px));
         }
       }
     }

@@ -254,7 +254,6 @@ export default class IBox extends Vue {
       this.iboxes = iboxes
 
       this.setListInfo(type, iboxes, deviceId)
-      console.log('type-=-->', type)
       this.$nextTick(() => {
         this.dirTreesStatus()
       })
@@ -576,7 +575,7 @@ export default class IBox extends Vue {
   // 供@vss/device 中回调使用
   @Provide('handleTools')
   public async handleTools(type: string) {
-    if (type === 'back') {
+    if (type === 'goBack') {
       await this.goBack()
     }
   }
