@@ -478,6 +478,8 @@ export default class extends Mixins(AppMixin) {
    */
   private changeStepPrev() {
     this.$emit('update:step', this.step - 1)
+    this.$emit('update:algo-param', null)
+    this.$emit('update:algo-param-submit', null)
   }
 
   private changeStepNext() {

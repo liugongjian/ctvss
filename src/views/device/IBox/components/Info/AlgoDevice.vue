@@ -15,10 +15,12 @@
       v-if="isDevice"
       ref="deviceTree"
       v-loading="treeLoading"
+      :load="loadDirs"
       node-key="deviceId"
       show-checkbox
       :data="iboxDevice"
       :props="treeProp"
+      lazy
       @check-change="checkCallback"
     >
       <span
@@ -89,7 +91,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   private canvasDialog: boolean = false
   private treeProp = {
     label: 'deviceName',
-    children: 'deviceChannels',
+    // children: 'deviceChannels',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
 
@@ -101,7 +103,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 
   private initialCheckedNodes = []
 
-  private configAlgoInfo = { code: '10001' }
+  private configAlgoInfo = { }
   private dangerZone = null
 
   private async mounted() {
@@ -134,6 +136,27 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     this.initialCheckedNodes = nodes
   }
 
+  // 获取NVR下设备目录——只有nvr设备有子节点
+  public async loadDirs(node: any, resolve: any) {
+    const { data } = node
+    if (data.deviceType === 'nvr') {
+      const iboxNvr = data.deviceChannels.map((item: any) => ({
+        ...item,
+        deviceType: 'ipc',
+        label: item.deviceName,
+        id: item.deviceId,
+        meta: null,
+        isLeaf: true,
+        deviceStatus:
+            node.data.deviceStatus || 'off',
+        streamStatus:
+            item.streams[0].streamStatus || 'off'
+      }))
+      return resolve(iboxNvr)
+    }
+    return resolve([])
+  }
+
   public async loadIboxDevice() {
     const param = {
       ParentDeviceId: this.$route.query.deviceId,
@@ -148,6 +171,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
         if (device.device.deviceType === 'nvr') {
           return {
             ...device.device,
+            isLeaf: false,
             disabled: true,
             meta: null,
             deviceStatus:
@@ -157,6 +181,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
         return {
           ...device.device,
           meta: null,
+          isLeaf: true,
           deviceStatus:
             device.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
           streamStatus:
@@ -193,11 +218,14 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
       } catch (e) {
         this.frameImage = null
         this.setNodeOppositeChecked(data.deviceId)
-        this.$message.warning(e)
+        this.$message.warning('设备或流不在线')
         this.frameLoading = 'error'
       } finally {
         this.$forceUpdate()
       }
+    }
+    if (!isChecked) {
+      this.closeCanvasDialog() // 取消勾选，复位参数
     }
   }
 
@@ -251,7 +279,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     } catch (e) {
       this.frameImage = null
       this.setNodeOppositeChecked(data.deviceId)
-      this.$message.warning(e)
+      this.$message.warning('设备或流不在线')
       this.frameLoading = 'error'
     } finally {
       this.$forceUpdate()
@@ -263,6 +291,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     this.frameLoading = ''
     this.frameImage = null
     this.meta = null
+    this.deviceId = null
   }
 
   private setNodeOppositeChecked(deviceId) {

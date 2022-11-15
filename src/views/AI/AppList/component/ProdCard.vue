@@ -45,7 +45,6 @@ export default class extends Vue {
   @Prop() private direction!: string
 
   private onChooseProd() {
-    console.log('prod:', this.prod)
     this.$emit('changeStep', {
       step: this.step + (this.direction === 'next' ? 1 : -1),
       prod: this.prod

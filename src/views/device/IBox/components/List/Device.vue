@@ -39,7 +39,7 @@ export default class IBoxList extends Vue {
     { label: '设备列表', name: 'device-list' },
     { label: '盒子信息', name: 'ibox-info' },
     { label: '算法管理', name: 'ai-manage' },
-    { label: '人脸库管理', name: 'face-lib' },
+    // { label: '人脸库管理', name: 'face-lib' },
     { label: 'AI应用', name: 'app-list' }
   ]
 
