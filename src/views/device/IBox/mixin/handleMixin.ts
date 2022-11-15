@@ -9,13 +9,17 @@ export default class HandleMixin extends Vue {
   @Provide('handleTools')
   public async handleTools(type: string, payload: any) {
     console.log('handleTools--->', type, '--------', payload)
-    if (type === 'goBack') {
-      this.goBack()
-    } else if (type === 'deleteDevice') {
-      this.deleteIboxDevice(payload)
-    } else {
-      await this.getDirList()
-      this.goBack()
+
+    switch (type) {
+      case 'goBack':
+        return this.goBack()
+      case 'deleteDevice':
+        return this.deleteIboxDevice(payload)
+      case 'refreshDirectory':
+        await this.getDirList()
+        this.goBack()
+        break
+      default: return this.goBack()
     }
   }
 
