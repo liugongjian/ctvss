@@ -27,7 +27,7 @@
                 <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
                 <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelEdit" />
               </span>
-              <div v-if="checkedDesFalse" class="check-tip">修改不能为空</div>
+              <div v-if="checkedFalseDes" class="check-tip">修改不能为空</div>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -255,7 +255,10 @@ export default class extends Vue {
     try {
       if (!this.editDeviceName.trim()) {
         this.$nextTick(() => {
+          const input: any = this.$refs.deviceName
           this.checkedFalse = true
+          this.showChangeName()
+          input.focus()
           return
         })
       } else {
@@ -282,8 +285,13 @@ export default class extends Vue {
   private async changeDes() {
     try {
       if (!this.editDes.trim()) {
-        this.checkedDesFalse = true
-        return
+        this.$nextTick(() => {
+          const input: any = this.$refs.des
+          this.checkedFalseDes = true
+          this.showChangeDes()
+          input.focus()
+          return
+        })
       } else {
         this.loading = true
         this.checkedFalseDes = false
@@ -308,14 +316,20 @@ export default class extends Vue {
     this.editDeviceName = this.deviceName
     const refs: any = this.$refs.deviceName
     refs.blur()
-    this.isEditDeviceName = false
+    this.$nextTick(() => {
+      this.isEditDeviceName = false
+      this.checkedFalse = false
+    })
   }
 
   private cancelEdit() {
     this.editDes = this.description
     const refs: any = this.$refs.des
     refs.blur()
-    this.isEditDes = false
+    this.$nextTick(() => {
+      this.isEditDes = false
+      this.checkedFalseDes = false
+    })
   }
 
   // 用于变量大小写转换
@@ -460,12 +474,17 @@ export default class extends Vue {
 
 .check-tip {
   color: red;
-  margin-left: 60px;
+  margin-bottom: -21px;
 }
 
 .bar-chart {
   min-width: 455px;
   overflow: hidden;
+}
+
+.des-label,
+.des-content {
+  margin-bottom: 15px;
 }
 
 .des-label {
