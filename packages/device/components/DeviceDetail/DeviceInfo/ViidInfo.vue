@@ -2,12 +2,12 @@
   <div>
     <div class="detail__buttons">
       <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="edit">编辑</el-button>
-      <el-dropdown v-if="hasVideo" @command="handleTools($event, basicInfo, inViidProtocol)">
+      <!-- <el-dropdown v-if="hasVideo" @command="handleTools($event, basicInfo, inViidProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-if="checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
         </el-dropdown-menu>
-      </el-dropdown>
+      </el-dropdown> -->
     </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
