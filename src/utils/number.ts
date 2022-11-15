@@ -21,15 +21,19 @@ export const prefixZero = (num: number | number, n: number) => {
 /**
  * 格式化存储单位
  */
-export const formatStorage = (bytesize) => {
+export const formatStorage = (bytesize, index, round) => {
   let i = 0
+  // 默认到PB，并保持3位小数
+  index = index === undefined ? 5 : index
+  round = round === undefined ? 3 : round
+
   while (Math.abs(bytesize) >= 1024) {
     bytesize = bytesize / 1024
     i++
-    if (i === 5) break
+    if (i === index) break
   }
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-  const newsize = _.round(bytesize, 3)
+  const newsize = _.round(bytesize, round).toFixed(round)
   return newsize + units[i]
 }
 

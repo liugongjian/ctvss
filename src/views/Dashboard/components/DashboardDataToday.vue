@@ -72,6 +72,7 @@ export default class extends Mixins(DashboardMixin) {
     total: '',
     usage: ''
   }
+
   private get container() {
     return 'DashboardLightContainer'
   }
@@ -95,10 +96,10 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getBandwidthStates() {
     const res = await getBandwidthStates(null)
-    this.stats['realUpstreamBandwidth'] = formatBandWidth(res.realUpstreamBandwidth).toString()
-    this.stats['realDownstreamBandwidth'] = formatBandWidth(res.realDownstreamBandwidth).toString()
-    this.stats['upstreamBandwidth'] = formatBandWidth(res.upstreamBandwidth).toString()
-    this.stats['downstreamBandwidth'] = formatBandWidth(res.downstreamBandwidth).toString()
+    this.stats.realUpstreamBandwidth = formatBandWidth(res.realUpstreamBandwidth).toString()
+    this.stats.realDownstreamBandwidth = formatBandWidth(res.realDownstreamBandwidth).toString()
+    this.stats.upstreamBandwidth = formatBandWidth(res.upstreamBandwidth).toString()
+    this.stats.downstreamBandwidth = formatBandWidth(res.downstreamBandwidth).toString()
   }
 
   /**
@@ -108,14 +109,14 @@ export default class extends Mixins(DashboardMixin) {
     const res = await getDeviceStates(null)
     const sum = Math.max(parseInt(res.sum), parseInt(res.online))
     const online = Math.min(parseInt(res.sum), parseInt(res.online))
-    this.stats['sum'] = sum
-    this.stats['online'] = online
+    this.stats.sum = sum
+    this.stats.online = online
   }
 
   private async getStorage() {
     const res = await getUserStorage({})
-    this.stats['total'] = formatStorage(res.totalBytes)
-    this.stats['usage'] = formatStorage(res.totalUsage)
+    this.stats.total = formatStorage(res.totalBytes, 4, 1)
+    this.stats.usage = formatStorage(res.totalUsage, 4, 1)
   }
 
   private get storageFlag() {
