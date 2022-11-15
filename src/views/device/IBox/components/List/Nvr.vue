@@ -1,9 +1,9 @@
 <template>
   <div class="ibox-list">
     <div class="ibox-list-table">
-      <div class="ibox-list__btn-box">
+      <!-- <div class="ibox-list__btn-box">
         <el-button type="primary" @click="addIBox">添加子设备</el-button>
-      </div>
+      </div> -->
       <el-table :data="tableData" fit>
         <el-table-column
           fixed
@@ -102,7 +102,7 @@ export default class IBoxList extends Mixins(ListMixins) {
   }
 
   public async mounted() {
-    await this.getDeviceList()
+    await this.getIboxDeviceList()
   }
 
   public toDetail(row: any, to: any) {
