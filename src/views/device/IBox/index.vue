@@ -87,7 +87,6 @@
 <script lang="ts">
 import {
   Component, Provide, Mixins
-  // Mixins
 } from 'vue-property-decorator'
 import HandleMixin from './mixin/handleMixin'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
@@ -221,6 +220,7 @@ export default class IBox extends Mixins(HandleMixin) {
 
   // 获取ibox目录
   @Provide('getDirList')
+  // @ts-ignore
   public async getDirList() {
     const { query } = this.$route as any
     const {
@@ -343,6 +343,7 @@ export default class IBox extends Mixins(HandleMixin) {
             ...item
           }
         }
+        return []
       })
       : []
   }
@@ -439,7 +440,9 @@ export default class IBox extends Mixins(HandleMixin) {
       type,
       data
     }
-    IBoxModule.SetList(listInfo)
+    if (type !== 'ipc') {
+      IBoxModule.SetList(listInfo)
+    }
     let query: any = {}
     let router: any = {}
     if (deviceId) {
@@ -569,26 +572,7 @@ export default class IBox extends Mixins(HandleMixin) {
     return path
   }
 
-  // 供@vss/device 中回调使用
-  // @Provide('handleTools')
-  // public async handleTools() {
-  //   const query: any = {
-  //     deviceId: this.$route.query.deviceId,
-  //     type: this.$route.query.type
-  //   }
-  //   if (this.$route.query.type === 'ipc') {
-  //     const temp = this.breadcrumb.slice(-2, -1)[0]
-  //     this.handleNodeClick(temp)
-  //   } else {
-  //     const router: any = {
-  //       name: 'IBox',
-  //       query,
-  //       deviceId: this.$route.query.deviceId,
-  //       type: this.$route.query.type
-  //     }
-  //     this.handleNodeClick(router)
-  //   }
-  // }
+  // @ts-ignore
   public goBack() {
     const query: any = {
       deviceId: this.$route.query.deviceId,
