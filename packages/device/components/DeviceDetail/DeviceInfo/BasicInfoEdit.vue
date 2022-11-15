@@ -8,21 +8,27 @@
       label-width="165px"
     >
       <div class="two-column-wrap">
-        <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName">
-          <el-input v-model="deviceForm.deviceName" />
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="deviceEnum.DeviceName">
+          <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
+          <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
-        <el-form-item label="设备分类:">
+        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
+          <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
+          <el-input v-else v-model="deviceForm.deviceName" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备分类:">
           {{ dicts.DeviceType[basicInfo.deviceType] }}
         </el-form-item>
-        <el-form-item label="接入方式:">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceInType)" label="接入方式:">
           <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
           <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
         </el-form-item>
-        <el-form-item label="经纬度:" :prop="deviceEnum.Longlat">
-          <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceLongitude)" label="经纬度:" :prop="deviceEnum.Longlat" class="form-longitude">
+          <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" />
+          <span class="form-longitude__colon">:</span>
           <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="厂商:" :prop="deviceEnum.DeviceVendor">
           <el-select v-model="deviceForm.deviceVendor">
             <el-option
               v-for="(value, key) in deviceVendor[inVideoProtocol]"
@@ -32,22 +38,21 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
-          <region-cascader v-model="deviceForm.region" />
+        <el-form-item v-if="checkVisible(deviceEnum.Region)" v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
+          <region-cascader v-model="deviceForm.region" disabled />
         </el-form-item>
-        <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
+        <el-form-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址:" :prop="deviceEnum.InOrgRegion">
           <address-cascader
             :code="deviceForm.inOrgRegion"
             :level="deviceForm.inOrgRegionLevel"
-            :disabled="hasOutId"
-            @change="onDeviceAddressChange"
+            :disabled="!isPlatformDevice"
           />
         </el-form-item>
-        <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
+        <el-form-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业:" :prop="deviceEnum.IndustryCode">
           <el-select
             v-model="deviceForm.industryCode"
-            :disabled="hasOutId"
             placeholder="请选择所属行业"
+            :disabled="!isPlatformDevice"
           >
             <el-option
               v-for="(value, key) in industryList"
@@ -57,21 +62,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
-          <el-select
-            v-model="deviceForm.networkCode"
-            :disabled="hasOutId"
-            placeholder="请选择网络标识"
-          >
-            <el-option
-              v-for="(value, key) in networkList"
-              :key="key"
-              :label="value.name"
-              :value="value.code"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="接入网络:" :prop="deviceEnum.InNetworkType">
+        <el-form-item v-if="checkVisible(deviceEnum.InNetworkType)" label="接入网络:" :prop="deviceEnum.InNetworkType">
           <el-radio-group v-model="deviceForm.inNetworkType">
             <el-radio
               v-for="(value, key) in dicts.InNetworkType"
@@ -82,7 +73,7 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="播放网络:" :prop="deviceEnum.OutNetworkType">
+        <!-- <el-form-item label="播放网络:" :prop="deviceEnum.OutNetworkType">
           <el-radio-group v-model="deviceForm.outNetworkType">
             <el-radio
               v-for="(value, key) in dicts.OutNetworkType"
@@ -92,7 +83,7 @@
               {{ value }}
             </el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
       </div>
       <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
         <el-form-item>
@@ -103,7 +94,7 @@
             <el-input v-model="deviceForm.deviceIp" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
-            <el-input v-model="deviceForm.devicePort" />
+            <el-input v-model.number="deviceForm.devicePort" />
           </el-form-item>
           <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
             <el-input v-model="deviceForm.devicePoleId " />
@@ -120,7 +111,7 @@
         </div>
       </div>
       <div class="two-column-wrap">
-        <el-form-item label="设备描述:" :prop="deviceEnum.Description">
+        <el-form-item v-if="checkVisible(deviceEnum.Description)" label="设备描述:" :prop="deviceEnum.Description">
           <el-input
             v-model="deviceForm.description"
             type="textarea"
@@ -142,12 +133,13 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { updateDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice, ViidDevice, DeviceBasicForm, DeviceForm } from '@vss/device/type/Device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BasicInfoEdit'
@@ -239,14 +231,27 @@ export default class extends Mixins(deviceFormMixin) {
     return this.device.viids && this.device.viids.length
   }
 
-  // 是否含国标ID
-  private get hasOutId() {
-    return this.videoInfo && !!this.videoInfo.outId
+  // 是否为平台下设备
+  private get isPlatformDevice() {
+    return this.basicInfo.deviceFrom === DeviceTypeEnum.Platform
+  }
+
+  // 获取是否使用设备名称
+  private get isEnableCloudChannelName() {
+    const enableCloudChannelName = UserModule.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    return enableCloudChannelName.value === 'true'
   }
 
   private async mounted() {
+    // 如果为平台下设备，“设备地址”和“所属行业”不限制必填
+    if (this.isPlatformDevice) {
+      this.rules.inOrgRegion = []
+      this.rules.industryCode = []
+    }
+
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
+    this.checkIsShowMore()
   }
 
   private updated() {
@@ -266,7 +271,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.hasVideo) {
-      return checkVideoVisible.call(this.videoInfo, this.basicInfo.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
+      return checkVideoVisible.call({ ...this.videoInfo, ...this.basicInfo, isIbox: this.isIbox }, this.basicInfo.deviceType, this.inVideoProtocol, prop)
     } else {
       return checkViidVisible.call(this.viidInfo, this.basicInfo.deviceType, this.inViidProtocol, prop)
     }
@@ -294,7 +299,6 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.DeviceLongitude,
               DeviceEnum.DeviceLatitude,
               DeviceEnum.DeviceIp,
-              DeviceEnum.DevicePort,
               DeviceEnum.DeviceMac,
               DeviceEnum.DevicePoleId,
               DeviceEnum.DeviceSerialNumber,
@@ -304,8 +308,9 @@ export default class extends Mixins(deviceFormMixin) {
             ...pick(this.videoForm, [
               DeviceEnum.DeviceChannelSize
             ]),
+            [DeviceEnum.DevicePort]: Number(this.deviceForm.devicePort),
             // 父级设备ID
-            parentDeviceId: this.parentDeviceId
+            [DeviceEnum.ParentDeviceId]: this.parentDeviceId
           },
           industry: {
             ...pick(this.deviceForm, [

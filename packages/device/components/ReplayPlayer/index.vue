@@ -216,7 +216,7 @@ export default class extends Vue {
    */
   private onFullscreenChange(isFullscreen) {
     this.screen.isFullscreen = isFullscreen
-    ScreenModule.SetIsFullscreen(isFullscreen)
+    ScreenModule.setIsFullscreen(isFullscreen)
   }
 }
 </script>

@@ -30,20 +30,18 @@
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
-        <polling-mask v-if="false" polling-status="free" @polling-handle="handleTools" />
+        <polling-mask
+          ref="pollingMask"
+          :current-dir="currentDir"
+          :screen-manager="screenManager"
+          @polling-handle="handleTools"
+        />
       </template>
       <template slot="leftBottom">
         <!-- TODO -->
         <advanced-search
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
-        />
-      </template>
-      <template slot="rightHeader">
-        <!-- TODO -->
-        <breadcrumb
-          ref="breadcrumb"
-          @node-change="1"
         />
       </template>
       <template slot="rightBody">
@@ -66,6 +64,8 @@ import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Preview',
@@ -77,12 +77,44 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  // 分屏管理器实例
+  public screenManager: ScreenManager = null
+
+  // 视频队列执行器
+  public get queueExecutor() {
+    return this.screenManager && this.screenManager.refs.queueExecutor
+  }
+
+  // 当前选中的分屏
+  public get currentScreen() {
+    return this.screenManager && this.screenManager.currentScreen
+  }
+
+  public mounted() {
+    ScreenModule.clearPlayingScreen()
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard?.screenManager
+    window.addEventListener('beforeunload', this.saveCache)
+  }
+
+  public destroyed() {
+    window.removeEventListener('beforeunload', this.saveCache)
+  }
+
   /**
    * 树节点点击事件
-   * @param data node信息
+   * @param item node信息
    */
-  private handleTreeNode(data: any) {
-    console.log(data)
+  private handleTreeNode(item: any) {
+    this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this.screenManager.saveCache()
   }
 }
 </script>

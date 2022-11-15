@@ -169,12 +169,12 @@ export default class IBoxList extends Mixins(ListMixins) {
   }
 
   public async mounted() {
-    await this.getDeviceList()
+    await this.getIboxDeviceList()
   }
 
   @Watch('$route.query')
   public onRouterChange() {
-    this.getDeviceList()
+    this.getIboxDeviceList()
   }
 
   // public cb() {

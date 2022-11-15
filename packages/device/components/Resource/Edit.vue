@@ -10,12 +10,14 @@
     <el-form
       ref="dataForm"
       class="form"
+      :model="form"
+      :rules="rules"
       @submit.native.prevent
     >
-      <el-form-item label="" prop="resources">
+      <el-form-item label="" prop="resource">
         <resource
           ref="resourceForm"
-          v-model="resource"
+          v-model="form.resource"
           :device-id="deviceId"
           :default-resource-tab-type="defaultResourceTabType"
           @loaded="loading = false"
@@ -46,27 +48,42 @@ export default class extends Vue {
   @Prop()
   private device!: Device
   @Prop() private defaultResourceTabType?: ResourceTypeEnum
-  public resource: ResourceType = null
   private dialogVisible = true
   private submitting = false
   private loading = true
+  private form = {
+    resource: null as ResourceType
+  }
+  private rules = {
+    resource: [
+      { validator: this.validateResource, trigger: 'change' }
+    ],
+  }
 
   private get deviceId() {
     return this.device.device && this.device.device.deviceId
   }
 
   private submit() {
-    const resourceForm = this.$refs.resourceForm as Resource
-    resourceForm.beforeSubmit(this.doSubmit)
+    const form: any = this.$refs.dataForm
+    form.validate((valid) => {
+      if (valid) {
+        const resourceForm = this.$refs.resourceForm as Resource
+        resourceForm.beforeSubmit(this.doSubmit)
+      }
+    })
   }
 
+  /**
+   * 更新资源包
+   */
   private async doSubmit() {
     try {
       this.submitting = true
       const params = {
         deviceId: this.deviceId,
-        resourceIds: this.resource.resourceIds,
-        aIApps: this.resource.aIApps
+        resourceIds: this.form.resource.resourceIds,
+        aIApps: this.form.resource.aIApps
       }
       await updateDeviceResource(params)
       this.closeDialog(true)
@@ -77,9 +94,25 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 关闭弹窗
+   */
   private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
+  }
+
+  /**
+   * 校验资源包
+   */
+  public validateResource(rule: any, value: string, callback: Function) {
+    const resourceForm = this.$refs.resourceForm as Resource
+    const res = resourceForm.validate()
+    if (!res.result) {
+      callback(new Error(res.message))
+    } else {
+      callback()
+    }
   }
 }
 </script>

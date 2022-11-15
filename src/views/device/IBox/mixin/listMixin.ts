@@ -1,10 +1,11 @@
-import { Component, Vue, Inject, Provide } from 'vue-property-decorator'
-import { getDeviceList, startDevice, stopDevice, deleteDevice, getDeviceDetail } from '@/api/ibox'
+import { Component, Provide, Mixins } from 'vue-property-decorator'
+import HandleMixin from './handleMixin'
+import { getDeviceList, startDevice, stopDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
 @Component
-export default class ListMixin extends Vue {
-  @Inject('getDirList') public getDirList!: Function
+export default class ListMixin extends Mixins(HandleMixin) {
+  // @Inject('getDirList') public getDirList!: Function
 
   public tableData = []
 
@@ -37,7 +38,8 @@ export default class ListMixin extends Vue {
     this.$router.push(router)
   }
 
-  public async getDeviceList() {
+  @Provide('getIboxDeviceList')
+  public async getIboxDeviceList() {
     const { query } = (this.$route) as any
     const { deviceId = '' } = query
     const param = {
@@ -72,12 +74,12 @@ export default class ListMixin extends Vue {
 
   public async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getDeviceList()
+    await this.getIboxDeviceList()
   }
 
   public async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getDeviceList()
+    await this.getIboxDeviceList()
   }
 
   public handleMore(info: any) {
@@ -95,21 +97,21 @@ export default class ListMixin extends Vue {
     }
   }
 
-  public async deleteIboxDevice(device: any) {
-    this.$alertDelete({
-      type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${device.deviceName}"吗？`,
-      method: deleteDevice,
-      payload: {
-        deviceId: device.deviceId,
-        inProtocol: device.inProtocol
-      },
-      onSuccess: () => {
-        this.getDirList()
-        this.getDeviceList()
-      }
-    })
-  }
+  // public deleteIboxDevice(device: any) {
+  //   this.$alertDelete({
+  //     type: '设备',
+  //     msg: `删除操作不能恢复，确认删除设备"${device.deviceName}"吗？`,
+  //     method: deleteDevice,
+  //     payload: {
+  //       deviceId: device.deviceId,
+  //       inProtocol: device.inProtocol
+  //     },
+  //     onSuccess: () => {
+  //       this.getDirList()
+  //       this.getDeviceList()
+  //     }
+  //   })
+  // }
 
   public async startDevice(row: any) {
     const { deviceId, videos } = row
@@ -155,7 +157,7 @@ export default class ListMixin extends Vue {
     this.streamPolling(query).then(({ streamStatus, status }) => {
       if (streamStatus !== status) {
         this.getDirList()
-        this.getDeviceList()
+        this.getIboxDeviceList()
       }
     })
   }
@@ -184,10 +186,10 @@ export default class ListMixin extends Vue {
     }
   }
 
-  @Provide('handleTools')
-  public async handleTools(type: string, payload: any) {
-    if (type === 'deleteDevice') {
-      await this.deleteIboxDevice(payload)
-    }
-  }
+  // @Provide('handleTools')
+  // public async handleTools(type: string, payload: any) {
+  //   if (type === 'deleteDevice') {
+  //     await this.deleteIboxDevice(payload)
+  //   }
+  // }
 }

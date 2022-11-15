@@ -1,19 +1,19 @@
 <template>
-  <div class="device-container">
+  <div v-loading="deviceLoading" class="device-container">
     <div class="detail-wrap">
       <div class="detail-wrap__header">
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
-          <el-tab-pane label="基本信息" name="DeviceInfo" />
-          <el-tab-pane label="配置信息" name="DeviceConfig" />
-          <el-tab-pane label="设备事件" name="DeviceEvents" />
-          <el-tab-pane label="实时预览" name="DevicePreview" />
-          <el-tab-pane label="录像回放" name="DeviceReplay" />
-          <el-tab-pane label="AI分析" name="DeviceAi" />
-          <el-tab-pane label="视图数据" name="DeviceViid" />
+          <el-tab-pane label="基本信息" :name="DeviceDetailTab.DeviceInfo" />
+          <el-tab-pane v-if="hasVideo" label="配置信息" :name="DeviceDetailTab.DeviceConfig" />
+          <el-tab-pane v-if="hasVideo" label="设备事件" :name="DeviceDetailTab.DeviceEvents" />
+          <el-tab-pane v-if="hasVideo" label="实时预览" :name="DeviceDetailTab.DevicePreview" />
+          <el-tab-pane v-if="hasVideo" label="录像回放" :name="DeviceDetailTab.DeviceReplay" />
+          <el-tab-pane v-if="hasVideo" label="AI分析" :name="DeviceDetailTab.DeviceAi" />
+          <el-tab-pane v-if="hasViid" label="视图数据" :name="DeviceDetailTab.DeviceViid" />
         </el-tabs>
       </div>
-      <div class="detail-wrap__body">
+      <div v-if="device.device" class="detail-wrap__body">
         <div class="detail-wrap__body__content">
           <router-view />
         </div>
@@ -23,39 +23,55 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { ToolsEnum, DeviceTypeEnum } from '@vss/device/enums/index'
+import { Component, Mixins, Watch, Inject } from 'vue-property-decorator'
+import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
+import { Device } from '@vss/device/type/Device'
+import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
   name: 'DeviceDetail'
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   @Inject('handleTools')
   private handleTools!: Function
-  private activeRouteName = 'DeviceInfo'
-
-  private get deviceId() {
-    return this.$route.query.deviceId.toString()
-  }
-
-  private get type() {
-    return this.$route.query.type
-  }
-
-  private handleClick(tab) {
-    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
-  }
+  private activeRouteName = DeviceDetailTab.DeviceInfo
+  private DeviceDetailTab = DeviceDetailTab
 
   @Watch('$route.name', { immediate: true })
-  private routeChange(activeRouteName: string) {
+  private routeChange(activeRouteName: DeviceDetailTab) {
     this.activeRouteName = activeRouteName
   }
 
+  @Watch('$route.query.deviceId', {
+    immediate: true
+  })
+  public async deviceIdChange(deviceId) {
+    this.device = {} as Device
+    this.getDevice(deviceId)
+  }
+
+  public destroyed() {
+    this.clearDevice()
+  }
+
+  /**
+   * 切换TAB
+   */
+  private handleClick(tab) {
+    if (tab.name === DeviceDetailTab.DeviceInfo) {
+      this.getDevice(this.deviceId, true)
+    }
+    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
+  }
+
+  /**
+   * 返回
+   */
   private back() {
-    if (this.type === DeviceTypeEnum.Ipc) {
-      this.handleTools([ToolsEnum.GoBack], 1)
+    if (this.deviceType === DeviceTypeEnum.Ipc) {
+      this.handleTools(ToolsEnum.GoBack, 1)
     } else {
-      this.handleTools([ToolsEnum.GoBack], 0)
+      this.handleTools(ToolsEnum.GoBack, 0)
     }
   }
 }

@@ -12,6 +12,7 @@ export enum DeviceEnum {
   DirId = 'dirId',
   ParentDeviceId = 'parentDeviceId',
   DeviceType = 'deviceType',
+  DeviceFrom = 'deviceFrom',
   DeviceVendor = 'deviceVendor',
   DeviceId = 'deviceId',
   DeviceName = 'deviceName',
@@ -33,6 +34,7 @@ export enum DeviceEnum {
   DeviceStreamSize = 'deviceStreamSize',
   DeviceStreamAutoPull = 'deviceStreamAutoPull',
   DeviceStreamPullIndex = 'deviceStreamPullIndex',
+  RecordTaskId = 'recordTaskId',
   Description = 'description',
   DeviceInType = 'deviceInType',
   DeviceInTypeRadio = 'deviceInTypeRadio',
@@ -119,6 +121,7 @@ export enum DeviceEnum {
   OnvifDevicevice = 'onvifDevicevice',
   Video = 'video',
   Codec = 'codec',
+  IsRoleShared = 'isRoleShared',
   // 列表相关
   VideoStatus = 'videoStatus',
   ViidStatus = 'viidStatus',
@@ -127,7 +130,8 @@ export enum DeviceEnum {
   PageNum = 'pageNum',
   PageSize = 'pageSize',
   TotalNum = 'totalNum',
-  DeviceTotalSize = 'deviceTotalSize'
+  DeviceTotalSize = 'deviceTotalSize',
+  ChannelName = 'channelName'
 }
 
 /**
@@ -245,8 +249,9 @@ export enum ToolsEnum {
   EditDevice = 'editDevice',
   SyncDevice = 'syncDevice',
   SyncDeviceStatus = 'syncDeviceStatus',
-  RefreshDeviceList = 'refreshDeviceList',
+  RefreshRouterView = 'refreshRouterView',
   ViewChannels = 'viewChannels',
+  ConfigureChannels = 'ConfigureChannels',
   Export = 'export',
   ExportAll = 'exportAll',
   ExportCurrentPage = 'exportCurrentPage',
@@ -279,5 +284,29 @@ export enum DirectoryTypeEnum {
   Ipc = 'ipc',
   Dir = 'dir',
   Nvr = 'nvr',
-  Platform = 'platform'
+  Platform = 'platform',
+  Role = 'role'
+}
+
+
+/**
+ * 轮巡状态
+ */
+export enum PollingStatusEnum {
+  Free = 'free',
+  Working = 'working',
+  Pause = 'pause'
+}
+
+/**
+ * 设备基本信息Tab
+ */
+export enum DeviceDetailTab {
+  DeviceInfo = 'DeviceInfo',
+  DeviceConfig = 'DeviceConfig',
+  DeviceEvents = 'DeviceEvents',
+  DevicePreview = 'DevicePreview',
+  DeviceReplay = 'DeviceReplay',
+  DeviceAi = 'DeviceAi',
+  DeviceViid = 'DeviceViid'
 }

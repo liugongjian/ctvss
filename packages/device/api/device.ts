@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { toUpperCase } from '@vss/base/utils/param'
 import { UserModule } from '@/store/modules/user'
 import { DeviceEnum, DeviceInTypeEnum, DeviceTypeEnum, StatusEnum } from '../enums/index'
 import { DeviceInType, InVideoProtocolModelMapping, InViidProtocolModelMapping, InVideoProtocol, InViidProtocol } from '../dicts/index'
@@ -9,7 +8,7 @@ export const getDevices = (params: any): Promise<any> => {
     request({
       url: '/device/list',
       method: 'get',
-      params: toUpperCase(params)
+      params
     }).then((res: any) => {
       res.devices = res.devices.map(item => {
         const data = {
@@ -24,7 +23,9 @@ export const getDevices = (params: any): Promise<any> => {
           [DeviceEnum.ViidStatus]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceType] === DeviceTypeEnum.Nvr ? item.device[DeviceEnum.DeviceChannelSize] : '',
           [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
-          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor],
+          [DeviceEnum.IsRoleShared]: item.device[DeviceEnum.IsRoleShared],
+          [DeviceEnum.DeviceFrom]: item.device[DeviceEnum.DeviceFrom],
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
@@ -41,6 +42,7 @@ export const getDevices = (params: any): Promise<any> => {
           ) : {}
           data[DeviceEnum.StreamStatus] = streamInfo[DeviceEnum.StreamStatus]
           data[DeviceEnum.RecordStatus] = streamInfo[DeviceEnum.RecordStatus]
+          data[DeviceEnum.RecordTaskId] = streamInfo[DeviceEnum.RecordTaskId]
         }
 
         if (inViidProtocol) {
@@ -61,7 +63,7 @@ export const getDevicesIbox = (params: any): Promise<any> => {
     request({
       url: '/ibox/devicelist',
       method: 'get',
-      params: toUpperCase(params)
+      params
     }).then((res: any) => {
       res.devices = res.devices.map(item => {
         const data: any = {
@@ -76,7 +78,8 @@ export const getDevicesIbox = (params: any): Promise<any> => {
           [DeviceEnum.ViidStatus]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceChannelSize],
           [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
-          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor]
+          [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor],
+          [DeviceEnum.IsRoleShared]: item.device[DeviceEnum.IsRoleShared]
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
@@ -110,7 +113,7 @@ export const exportDevicesExcel = (params: any): Promise<any> =>
   request({
     url: '/new/device',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })
 
 /* ----------------------------------------------- */
@@ -121,7 +124,7 @@ export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/describe',
     method: 'get',
-    params: toUpperCase(params),
+    params,
     cancelToken
   })
 
@@ -129,7 +132,7 @@ export const getDeviceIbox = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/ibox/device',
     method: 'get',
-    params: toUpperCase(params),
+    params,
     cancelToken
   })
 
@@ -169,14 +172,14 @@ export const createDevice = (params: any): Promise<any> =>
   request({
     url: '/device/create',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const createDeviceIbox = (params: any): Promise<any> =>
   request({
     url: '/ibox/device',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -186,7 +189,7 @@ export const updateDevice = (params: any): Promise<any> =>
   request({
     url: '/device/update',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -196,7 +199,7 @@ export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**

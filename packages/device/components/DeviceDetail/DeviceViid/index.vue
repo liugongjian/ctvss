@@ -109,7 +109,7 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                <div :column="1" label-class-name="desc" :label-style="{ 'font-weight': 'bold', color: 'black' }">
                   <div v-for="(val,key) in objectInfos" :key="key">
                     <div v-if="detailPic[key]" class="dialogue-right__section__item">
                       <span class="dialogue-right__section__item__key">{{ val }}:</span>
@@ -134,10 +134,10 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
-import debounce from '@/utils/debounce'
+import debounce from '@vss/base/utils/debounce'
 import { ViewTypes } from '@vss/ai/dics/contants'
-import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@/dics/ga1400'
-import { getViewsList, getViewDetail } from '@/api/device'
+import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@vss/device/dicts/ga1400'
+import { getViewsList, getViewDetail } from '@vss/device/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
 @Component({
@@ -180,19 +180,16 @@ export default class extends Vue {
   private queryLoading: any = {
     pic: false
   }
-
   private pager = {
     pageNum: 1,
     pageSize: 12,
     total: 0
   }
-
   private queryParam: any = {
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
     viewType: '0'
   }
-
   private visibile = false
   private activeIndex = 0
 
@@ -208,7 +205,6 @@ export default class extends Vue {
         return NonMotorInfos
     }
   }
-
   // get filters() {
   //   switch (this.currentPic.type) {
   //     case 1 :
@@ -222,7 +218,7 @@ export default class extends Vue {
   //   }
   // }
   // 防抖
-  private debounceHandle = debounce(async() => {
+  private debounceHandle = debounce(async () => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
     await this.getViewsList()
     // this.isCarFlowCode && this.getAlarmsList()
@@ -254,26 +250,26 @@ export default class extends Vue {
     }
   }
 
-  private mounted() {
-    this.getViewsList()
+  private async mounted() {
+    this.debounceHandle()
   }
 
   private async getViewsList() {
     try {
-      const res = await getViewsList({
-        deviceId: this.$route.query.deviceId || '',
-        startTime: this.getTimeStamp(this.queryParam.period[0]),
-        endTime: this.getTimeStamp(this.queryParam.period[1]),
-        type: this.queryParam.viewType,
-        ...this.pager
-      })
+    const res = await getViewsList({
+      deviceId: this.$route.query.deviceId || '',
+      startTime: this.getTimeStamp(this.queryParam.period[0]),
+      endTime: this.getTimeStamp(this.queryParam.period[1]),
+      type: this.queryParam.viewType,
+      ...this.pager
+    })
       this.picInfos = res.list.map(x => ({
         ...x,
         recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
       }))
       const { pageNum, pageSize, total } = res
       this.pager = { pageNum, pageSize, total }
-    } catch (e) {
+    } catch (e){
       console.log(e)
     }
   }
@@ -301,7 +297,6 @@ export default class extends Vue {
   private handleChange() {
     this.debounceHandle()
   }
-
   /**
      * 分页操作
      */
@@ -309,7 +304,6 @@ export default class extends Vue {
     this.pager.pageSize = val
     this.getViewsList()
   }
-
   /**
      * 分页操作
      */
@@ -328,7 +322,6 @@ export default class extends Vue {
   private dialogueOprate() {
     this.visibile = !this.visibile
   }
-
   private async showDialogue(pic) {
     this.currentPic = pic
     try {
@@ -337,7 +330,7 @@ export default class extends Vue {
         type: pic.type,
         id: pic.id
       })
-      this.detailPic = res
+      this.detailPic = res.detail
       this.$nextTick(() => {
       // TODO   这里得问下雪萍两个图片得关联ID如何做
         this.detailPic.subImageList.length > 0 && this.detailPic.subImageList.forEach((item, index) => {
@@ -352,16 +345,13 @@ export default class extends Vue {
     }
     this.visibile = true
   }
-
   private async refresh() {
     this.debounceHandle()
   }
-
   private scrollPicList(e) {
     // @ts-ignore
     this.$refs.picList.scrollLeft += e.deltaY > 0 ? 100 : -100
   }
-
   private active(index) {
     this.activeIndex = index
     // @ts-ignore

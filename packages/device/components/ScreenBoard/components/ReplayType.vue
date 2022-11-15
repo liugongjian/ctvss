@@ -6,8 +6,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { Screen } from '@/views/device/services/Screen/Screen'
-import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import { Screen } from '@vss/device/services/Screen/Screen'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 
 @Component({
   name: 'ReplayType'

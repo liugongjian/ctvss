@@ -1,25 +1,51 @@
 import request from '@/utils/request'
-import { toUpperCase } from '@vss/base/utils/param'
 
+/**
+ * 创建目录
+ * @param params
+ * @returns 
+ */
 export const createDir = (params: any): Promise<any> =>
   request({
     url: '/dir/create',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
+/**
+ * 编辑目录
+ * @param params
+ * @returns 
+ */
 export const updateDir = (params: any): Promise<any> =>
   request({
     url: '/dir/update',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
+/**
+ * 查询目录
+ * @param params
+ * @returns 
+ */
+ export const getDir = (params: any): Promise<any> =>
+ request({
+   url: '/dir/describe',
+   method: 'get',
+   params
+ })
+
+/**
+ * 删除目录
+ * @param params
+ * @returns 
+ */
 export const deleteDir = (params: any): Promise<any> =>
   request({
     url: '/dir/delete',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 /**
@@ -29,8 +55,18 @@ export const getNodeInfo = (params: any): Promise<any> =>
  request({
    url: '/dir/list/status',
    method: 'get',
-   params: toUpperCase(params)
+   params
  })
+
+/**
+ * 获取目录下所有设备
+ */
+export const getDirDevices = (params: any): Promise<any> =>
+request({
+  url: '/dir/device/list',
+  method: 'get',
+  params
+})
 
 export const getDeviceTree = (params): Promise<any> => {
  console.log(params)
@@ -113,7 +149,7 @@ export const getDeviceTree = (params): Promise<any> => {
  request({
    url: '/dir/path',
    method: 'get',
-   params: toUpperCase(params)
+   params
  })
 
 /**
@@ -125,12 +161,12 @@ export const getDeviceTree = (params): Promise<any> => {
  request({
    url: '/location/move',
    method: 'post',
-   data: toUpperCase(params)
+   data: params
  })
 
 export const bindDir = (params: any): Promise<any> =>
   request({
     url: '/dir/bind',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
