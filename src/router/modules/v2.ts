@@ -749,7 +749,6 @@ export const v2Router: RouteConfig[] = [
       perms: ['*'],
       alwaysShow: false,
       only: true,
-      groupSelector: true,
       version: 2
     },
     children: [
@@ -761,8 +760,7 @@ export const v2Router: RouteConfig[] = [
           title: '告警管理',
           icon: 'menu-alarm',
           breadcrumb: false,
-          perms: ['*'],
-          groupSelector: true
+          perms: ['*']
         },
         children: [
           {
@@ -773,8 +771,7 @@ export const v2Router: RouteConfig[] = [
               title: '告警信息列表',
               breadcrumb: false,
               perms: ['*'],
-              activeMenu: '/alarm',
-              groupSelector: true
+              activeMenu: '/alarm'
             }
           }
         ]
