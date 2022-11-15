@@ -149,7 +149,14 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: ['"是,否"'],
+      formulae: ['"是,否"']
+    },
+    networkTypeExternal: {
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: ['"互联网,专线网络"'],
     }
   }
 
@@ -165,7 +172,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
-            validation: null
+            validation: this.validation.networkTypeExternal
           },
           {
             title: { header: '接入区域', key: 'region', width: 16 },
@@ -294,7 +301,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
-            validation: null
+            validation: this.validation.networkTypeExternal
           },
           {
             title: { header: '接入区域', key: 'region', width: 16 },
@@ -410,7 +417,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
-            validation: null
+            validation: this.validation.networkTypeExternal
           },
           {
             title: { header: '接入区域', key: 'region', width: 16 },
@@ -501,7 +508,7 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
-            validation: null
+            validation: this.validation.networkTypeExternal
           },
           {
             title: { header: '接入区域', key: 'region', width: 16 },
