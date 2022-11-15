@@ -6,7 +6,7 @@
           <span>设备信息</span>
         </div>
         <div class="info">
-          <el-descriptions :column="2">
+          <el-descriptions label-class-name="des-label" content-class-name="des-content" :column="2">
             <el-descriptions-item label="设备状态"><span class="register-status" :style="statusStyle">{{ registerStatus }}</span></el-descriptions-item>
             <el-descriptions-item label="设备名称">
               <span v-if="!isEditDeviceName">{{ deviceName }}<i class="el-icon-edit-outline" style="color: #f59a23;font-size: 15px;" @click="showChangeName" /></span>
@@ -462,4 +462,13 @@ export default class extends Vue {
   overflow: hidden;
 }
 
+.des-label {
+  white-space: nowrap;
+}
+
+.des-content {
+  word-break: break-all;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
 </style>
