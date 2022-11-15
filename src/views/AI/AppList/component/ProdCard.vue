@@ -15,12 +15,11 @@
         >
           选择
         </el-button>
-        <!-- :disabled="true" -->
         <el-button
           v-if="prod.isIbox && !prod.isLoaded"
           type="primary"
           class="prod__buttons--select"
-          :disabled="false"
+          :disabled="true"
           @click="onChooseProd"
         >
           下发
