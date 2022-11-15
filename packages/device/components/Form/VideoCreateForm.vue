@@ -6,13 +6,13 @@
     label-position="right"
     label-width="165px"
   >
-    <el-form-item class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
+    <el-form-item v-if="checkVisible(deviceEnum.InVideoProtocol)" class="full-row" label="接入协议:" :prop="deviceEnum.InVideoProtocol">
       <el-radio
         v-for="(value, key) in inVideoProtocolByDeviceType[deviceForm.deviceType]"
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
-        :disabled="checkDisable(deviceEnum.InVideoProtocol)"
+        :disabled="checkInVideoProtocolDisabled(key)"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -35,29 +35,31 @@
           :key="key"
           :label="value"
           :value="key"
-          :disabled="checkDisable(deviceEnum.InVersion)"
         />
       </el-radio-group>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
       <el-input-number
-        v-model="videoForm.deviceChannelSize"
+        v-model.number="videoForm.deviceChannelSize"
         :min="minChannelSize"
         type="number"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-      <certificate-select v-model="videoForm.inUserName" :disabled="checkDisable(deviceEnum.InUserName)" :type="inVideoProtocolEnum.Gb28181" />
+      <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
-      <el-radio
+      <!-- <el-radio
         v-for="(value, key) in inType"
         :key="key"
         v-model="videoForm.inType"
         :label="key"
       >
         {{ value }}
-      </el-radio>
+      </el-radio> -->
+      <!-- Temp Commit -->
+      <el-radio v-model="videoForm.inType" label="push" :disabled="videoForm.inVideoProtocol === 'rtsp'">推流</el-radio>
+      <el-radio v-model="videoForm.inType" label="pull" :disabled="videoForm.inVideoProtocol === 'rtmp'">拉流</el-radio>
     </el-form-item>
     <template v-if="videoForm[deviceEnum.VideoVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
       <el-form-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址:" :prop="deviceEnum.PullUrl">
@@ -85,7 +87,7 @@
         <el-input v-model="videoForm.deviceIp" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.DevicePort">
-        <el-input v-model="videoForm.devicePort" />
+        <el-input v-model.number="videoForm.devicePort" />
       </el-form-item>
     </template>
     <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">
@@ -134,7 +136,6 @@
         v-model="videoForm.deviceStreamAutoPull"
         :active-value="1"
         :inactive-value="2"
-        :disabled="checkDisable(deviceEnum.DeviceStreamAutoPull)"
       />
     </el-form-item>
     <el-form-item
@@ -190,7 +191,6 @@
         v-model="videoForm.streamTransProtocol"
         active-value="tcp"
         inactive-value="udp"
-        :disabled="checkDisable(deviceEnum.StreamTransProtocol)"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.OutId)" label="自定义国标ID:" :prop="deviceEnum.OutId">
@@ -222,7 +222,7 @@ import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor,
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '@vss/device/dicts/tips'
 import { validGbId } from '@vss/device/api/device'
-import { checkVideoVisible, checkFormDisable } from '@vss/device/utils/param'
+import { checkVideoVisible } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
@@ -263,7 +263,8 @@ export default class extends Vue {
       { required: true, message: '请选择厂商', trigger: 'change' }
     ],
     [DeviceEnum.DeviceChannelSize]: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
+      { required: true, message: '请填写子设备数量', trigger: 'blur' },
+      { validator: this.validateDeviceChannelSize, trigger: 'blur' }
     ],
     [DeviceEnum.InUserName]: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -349,6 +350,11 @@ export default class extends Vue {
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
     }
+
+    // 编辑模式下RTSP密码不必填
+    if (this.isEdit) {
+      this.rules.password = []
+    }
   }
 
   /**
@@ -393,6 +399,18 @@ export default class extends Vue {
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+    // Temp Commit
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
+      this.videoForm.inType = 'push'
+    }
+
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+      this.videoForm.inType = 'pull'
+    }
+
+    // 重置验证
+    const videoForm: any = this.$refs.videoForm
+    videoForm.clearValidate()
   }
 
   /**
@@ -417,14 +435,28 @@ export default class extends Vue {
    * 判断是否显示form-item
    */
   private checkVisible(prop) {
-    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop, { isIbox: this.isIbox, isEdit: this.isEdit })
+    return checkVideoVisible.call(
+      {
+        ...this.videoForm,
+        ...this.basicInfo,
+        isEdit: this.isEdit,
+        isIbox: this.isIbox
+      }, 
+      this.deviceForm.deviceType,
+      this.videoForm.inVideoProtocol,
+      prop
+    )
   }
 
   /**
-   * 判断表单项是否可以编辑
+   * 判断需要禁用的协议类型
+   * EHOME暂不支持RTMP, EHOME协议
    */
-  private checkDisable(prop) {
-    return this.basicInfo && checkFormDisable.call(this.basicInfo, prop, { isEdit: this.isEdit })
+  private checkInVideoProtocolDisabled(value) {
+    if (this.isIbox) {
+      return [InVideoProtocolEnum.Rtmp, InVideoProtocolEnum.Ehome].includes(value)
+    }
+    return false
   }
 
   /**
@@ -505,6 +537,19 @@ export default class extends Vue {
       } catch (e) {
         console.log(e)
       }
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验子设备数量
+   */
+  public validateDeviceChannelSize(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
+      callback(new Error('子设备数量仅支持整数'))
+    } else if (this.isIbox && value > 16) {
+      callback(new Error('子设备数量仅支持16路及以下'))
     } else {
       callback()
     }

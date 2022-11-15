@@ -43,7 +43,7 @@ import { AIApp } from '@vss/device/type/Resource'
 })
 export default class extends Vue {
   // 所选AI应用
-  @VModel() private selectedAppCollection: { [resourceId: string ]: AIApp[] }
+  @VModel() private savedAppCollection: { [resourceId: string ]: AIApp[] }
   // 当前AI资源包ID
   @Prop() private resourceId: string
   // 当前AI资源包算力
@@ -60,9 +60,12 @@ export default class extends Vue {
   private selectionCollection = {}
   // 克隆列表用于切换算法类型后恢复所勾选的数据
   private cloneSelectionCollection = {}
+  // 上一次所选的resourceId
+  private lastResourceId = null
+
 
   @Watch('resourceId')
-  private onResourceIdChange() {
+  private onResourceIdChange(resourceId) {
     this.initSelection()
   }
 
@@ -88,11 +91,11 @@ export default class extends Vue {
    * 初始化数据
    */
   private initSelection() {
-    if (this.selectedAppCollection[this.resourceId]) {
+    if (this.savedAppCollection[this.resourceId].length) {
       if (!this.selectionCollection[this.resourceId]) {
         this.selectionCollection[this.resourceId] = {}
         const apps = flatten(Object.values(this.appCollection))      
-        this.selectedAppCollection[this.resourceId].forEach(app => {
+        this.savedAppCollection[this.resourceId].forEach(app => {
           // 找出AI应用源数据  
           const selectedApp: any = apps.find((sourceApp: any) => app.aIAppId === sourceApp.id)
           if (selectedApp) {
@@ -107,8 +110,28 @@ export default class extends Vue {
         })
       }
     } else {
-      this.selectionCollection[this.resourceId] = {}
+      // 切换AI资源包后保持原来AI应用的勾选，但是不符合算力类型的应用需要排除
+      const removeAITypes = new Set()
+      let removeCount = 0
+      const collection = cloneDeep(this.selectionCollection)
+      const lastResourceCollection = collection[this.lastResourceId]
+      for (const abilityId in lastResourceCollection) {
+        lastResourceCollection[abilityId].forEach((app, index) => {
+          if (app.analyseType > this.resourceAiType) {
+            removeAITypes.add(app.analyseType)
+            removeCount++
+            lastResourceCollection[abilityId][index] = null
+          }
+        })
+        lastResourceCollection[abilityId] = lastResourceCollection[abilityId].filter(app => app)
+      }
+      this.selectionCollection[this.resourceId] = lastResourceCollection
+      if (removeCount > 0) {
+        const typesString = Array.from(removeAITypes).map((type: string) => ResourceAiType[type])
+        this.$message.info(`${ResourceAiType[this.resourceAiType]}的资源包不能绑定${typesString.join('、')}的应用，已取消${removeCount}个应用的勾选`)
+      }
     }
+    this.lastResourceId = this.resourceId
     this.cloneSelectionCollection = cloneDeep(this.selectionCollection)
     this.recoverSelection()
   }
@@ -130,7 +153,7 @@ export default class extends Vue {
   private async getAppList(abilityId) {
     try {
       this.loading = true
-      const res = await getAppList({ abilityId })
+      const res = await getAppList({ abilityId, pageSize: 9999 })
       this.$set(this.appCollection, abilityId, res.aiApps)
     } catch (e) {
       this.$alertError(e.message)
@@ -169,7 +192,7 @@ export default class extends Vue {
       this.selectionCollection[this.resourceId] = {}
     }
     this.selectionCollection[this.resourceId][this.currentAbilityId] = val
-    this.selectedAppCollection[this.resourceId] = this.generateSelectedAppCollection()
+    this.savedAppCollection[this.resourceId] = this.generateSelectedAppCollection()
   }
 
   /**

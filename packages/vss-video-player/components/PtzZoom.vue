@@ -1,14 +1,14 @@
 <!--云台局部缩放-->
 <template>
   <el-tooltip :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'" placement="top">
-    <div class="control__btn control__snapshot" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
+    <div class="control__btn control__snapshot" :class="{ 'selected': showCanvasBox }" @click.stop.prevent="changeScaleCanvas">
       <svg-icon name="screenscale" />
     </div>
   </el-tooltip>
 </template>
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
-import { dragCanvasZoom } from '@/api/device'
+import { dragCanvasZoom } from '@vss/device/api/device'
 import { StreamInfo, DeviceInfo } from '../types/VssPlayer'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'

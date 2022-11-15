@@ -134,6 +134,16 @@ export const deviceRouter = {
             perms: ['DescribeDevice'],
             activeMenu: '/device-refactor'
           }
+        },
+        {
+          path: 'configureChannels',
+          component: () => import(/* webpackChunkName: "device" */ './components/ConfigureChannels/index.vue'),
+          name: 'ConfigureChannels',
+          meta: {
+            title: '配置子通道',
+            perms: ['DescribeDevice'],
+            activeMenu: '/device-refactor'
+          }
         }
       ]
     }
@@ -149,7 +159,8 @@ export const videoRouter = {
     icon: 'menu-live',
     perms: ['DescribeDevice'],
     alwaysShow: true,
-    breadcrumb: true
+    breadcrumb: true,
+    version: 2
   },
   children: [
     {

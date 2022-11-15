@@ -1,9 +1,9 @@
 <template>
-  <div class="polling-mask">
+  <div v-show="pollingStatus !== pollingStatusEnum.Free" class="polling-mask">
     <div class="polling-mask__tools">
       <div class="polling-mask__tools__status">
-        <span v-if="pollingStatus === 'pause'">轮巡已暂停</span>
-        <span v-else>{{ polling.isLoading ? '查询设备中...' : '当前轮巡中...' }}</span>
+        <span v-if="pollingStatus === pollingStatusEnum.Pause">轮巡已暂停</span>
+        <span v-else>{{ isLoading ? '查询设备中...' : '当前轮巡中...' }}</span>
       </div>
       <div class="polling-mask__tools__item">
         <svg-icon
@@ -13,33 +13,33 @@
           height="16px"
         />
         <el-select
-          v-model="polling.interval"
+          v-model="pollingInterval"
           class="polling-mask__tools__select"
           size="mini"
           placeholder="请选择"
-          :disabled="polling.isLoading"
+          :disabled="isLoading"
           @change="intervalChange"
         >
           <el-option
-            v-for="item in pollingInterval"
+            v-for="item in pollingIntervalList"
             :key="item.value"
             :label="item.label"
             :value="item.value"
           />
         </el-select>
       </div>
-      <div v-if="pollingStatus === 'working'" class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="polling.isLoading" @click="pollingHandle('pausePolling')">
+      <div v-if="pollingStatus === pollingStatusEnum.Working" class="polling-mask__tools__item">
+        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.PausePolling)">
           <svg-icon name="pause" />暂停
         </el-button>
       </div>
-      <div v-if="pollingStatus === 'pause'" class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="polling.isLoading" @click="pollingHandle('resumePolling')">
+      <div v-if="pollingStatus === pollingStatusEnum.Pause" class="polling-mask__tools__item">
+        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.ResumePolling)">
           <svg-icon name="play" />继续
         </el-button>
       </div>
       <div class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="polling.isLoading" @click="pollingHandle('stopPolling')">
+        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.StopPolling)">
           <svg-icon name="stop" />结束
         </el-button>
       </div>
@@ -49,65 +49,56 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { PollingStatusEnum, ToolsEnum } from '@vss/device/enums/index'
+
 @Component({
   name: 'PollingMask'
 })
 export default class extends Vue {
+  pollingStatusEnum = PollingStatusEnum
+  toolsEnum = ToolsEnum
+
+  @Prop()
+  private currentDir
+
   /* 轮巡及一键播放 */
-  @Prop({ default: 'free' })
-  private pollingStatus: string
+  @Prop({ default: {} })
+  private screenManager
 
-  private pollingInterval = [
-    {
-      value: 5,
-      label: '5秒'
-    },
-    {
-      value: 10,
-      label: '10秒'
-    },
-    {
-      value: 20,
-      label: '20秒'
-    },
-    {
-      value: 40,
-      label: '40秒'
-    },
-    {
-      value: 60,
-      label: '1分钟'
-    },
-    {
-      value: 180,
-      label: '3分钟'
-    },
-    {
-      value: 300,
-      label: '5分钟'
-    },
-    {
-      value: 600,
-      label: '10分钟'
-    },
-    {
-      value: 1800,
-      label: '30分钟'
-    }
-  ]
-
-  /* 轮询配置 */
-  private polling = {
-    interval: 20,
-    isLoading: false
+  /* 轮巡状态 */
+  private get pollingStatus() {
+    return this.screenManager ? this.screenManager.executeQueueConfig.status : PollingStatusEnum.Free
   }
 
+  /* 轮巡间隔 */
+  private get pollingInterval() {
+    return this.screenManager ? this.screenManager.executeQueueConfig.interval : 20
+  }
+
+  private isLoading = false
+
+  private pollingIntervalList = [
+    { value: 5, label: '5秒' },
+    { value: 10, label: '10秒' },
+    { value: 20, label: '20秒' },
+    { value: 40, label: '40秒' },
+    { value: 60, label: '1分钟' },
+    { value: 180, label: '3分钟' },
+    { value: 300, label: '5分钟' },
+    { value: 600, label: '10分钟' },
+    { value: 1800, label: '30分钟' }
+  ]
+
   private pollingHandle(val) {
-    this.$emit('polling-handle', val)
+    this.$emit('polling-handle', val, this.currentDir)
   }
 
   private intervalChange(val: number) {
-    this.$emit('polling-handle', 'intervalChange', val)
+    this.$emit('polling-handle', ToolsEnum.IntervalChange, val)
+  }
+
+  private beforeDestroy() {
+    this.$emit('polling-handle', ToolsEnum.StopPolling, this.currentDir)
   }
 }
 </script>

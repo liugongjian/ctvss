@@ -168,7 +168,6 @@ export default class extends Vue {
             [DeviceEnum.DeviceId]: this.device[DeviceEnum.DeviceId]
           })
         }
-        this.initDirs()
         this.$message.success('移动设备成功！')
       } catch (e) {
         console.log(e)

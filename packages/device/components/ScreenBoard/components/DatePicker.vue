@@ -22,9 +22,9 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { prefixZero } from '@/utils/number'
-import { getDateByTime } from '@/utils/date'
-import { Screen } from '@/views/device/services/Screen/Screen'
+import { prefixZero } from '@vss/base/utils/number'
+import { getDateByTime } from '@vss/base/utils/date'
+import { Screen } from '@vss/device/services/Screen/Screen'
 import DatePanel from './DatePanel.vue'
 
 @Component({

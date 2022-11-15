@@ -24,19 +24,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { importDevice } from '../api/device'
-import excelMixin from '../mixin/excelMixin'
+import ExportExcelTemplate from '@vss/device/services/Device/DeviceExportTemplate'
 
 @Component({
   name: 'upload-excel'
 })
-export default class extends Mixins(excelMixin) {
+export default class extends Vue {
   @Prop()
   private file: any
   @Prop()
   private data: any
-  private isLoading: boolean = false
+  private isLoading = false
   private dialogVisible = true
   private process: any = {
     message: '开始转码',
@@ -57,19 +57,18 @@ export default class extends Mixins(excelMixin) {
   private importExcel() {
     this.process.status = 'loading'
     this.process.message = '转码中...'
-    this.fileToBase64(this.file, this.reader).then(async(fileString: any) => {
+    console.log('this.file, this.reader--->', this.file, this.data)
+    ExportExcelTemplate.fileToBase64(this.file, this.reader).then(async(fileString: any) => {
       this.process.message = '转码成功！'
       fileString = fileString.split(',')[1]
       try {
-        let params: any = {
-          groupId: this.data.groupId,
-          inProtocol: this.data.inProtocol,
+        const params: any = {
           dirId: this.data.dirId,
           importFile: fileString
         }
         this.data.parentDeviceId && (params.parentDeviceId = this.data.parentDeviceId)
         this.process.message = '导入设备中...'
-        let res = await importDevice(params)
+        const res = await importDevice(params)
         if (!res.code) {
           this.process = {
             message: '导入设备完成',
@@ -92,7 +91,7 @@ export default class extends Mixins(excelMixin) {
   }
 
   private exportFailedExcel() {
-    this.downloadFileUrl(this.data.fileName + 'fail', this.process.importFileFail)
+    ExportExcelTemplate.downloadFileUrl(this.data.fileName + 'fail', this.process.importFileFail)
   }
 
   private closeDialog(isRefresh: boolean) {

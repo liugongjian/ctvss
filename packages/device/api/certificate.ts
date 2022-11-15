@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { toUpperCase } from '@vss/base/utils/param'
 
 /**
  * =============================
@@ -50,33 +49,33 @@ export const getGa1400CertificateList = (params: any): Promise<any> =>
   request({
     url: '/certificate/ga1400/list',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })
 
 export const createGa1400Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/ga1400/create',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const deleteGa1400Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/ga1400/delete',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const updateGa1400Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/ga1400/update',
     method: 'post',
-    data: toUpperCase(params)
+    data: params
   })
 
 export const getGa1400Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/ga1400/describe',
     method: 'get',
-    params: toUpperCase(params)
+    params
   })

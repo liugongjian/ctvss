@@ -86,11 +86,10 @@
 </template>
 <script lang="ts">
 import {
-  Component, Provide, Vue
+  Component, Provide, Mixins
   // Mixins
 } from 'vue-property-decorator'
-// import treeMixin from '@vss/device/components/Tree/treeMixin'
-// import CommonTree from '@vss/base/components/CommonTree/index.vue'
+import HandleMixin from './mixin/handleMixin'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import { getIBoxList, getDeviceList } from '@/api/ibox'
 import { IBoxModule } from '@/store/modules/ibox'
@@ -102,7 +101,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
     StatusBadge
   }
 })
-export default class IBox extends Vue {
+export default class IBox extends Mixins(HandleMixin) {
   public loading = {
     dirTree: false,
     iboxTable: false
@@ -188,7 +187,6 @@ export default class IBox extends Vue {
       await IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
       const { deviceId } = _node?.data
       this.treeIboxId = deviceId
-      console.log('_node.level---->', _node.level)
       switch (_node.level) {
         case 1:
           this.setListInfo('device', this.iboxDevice, deviceId)
@@ -230,7 +228,7 @@ export default class IBox extends Vue {
       type = 'rootlist'
     }: { deviceId: string; type: string } = query
 
-    await IBoxModule.ResetBreadcrumb()
+    // await IBoxModule.ResetBreadcrumb()
 
     const param = {
       pageNum: 1,
@@ -442,7 +440,6 @@ export default class IBox extends Vue {
       data
     }
     IBoxModule.SetList(listInfo)
-
     let query: any = {}
     let router: any = {}
     if (deviceId) {
@@ -573,8 +570,26 @@ export default class IBox extends Vue {
   }
 
   // 供@vss/device 中回调使用
-  @Provide('handleTools')
-  public async handleTools() {
+  // @Provide('handleTools')
+  // public async handleTools() {
+  //   const query: any = {
+  //     deviceId: this.$route.query.deviceId,
+  //     type: this.$route.query.type
+  //   }
+  //   if (this.$route.query.type === 'ipc') {
+  //     const temp = this.breadcrumb.slice(-2, -1)[0]
+  //     this.handleNodeClick(temp)
+  //   } else {
+  //     const router: any = {
+  //       name: 'IBox',
+  //       query,
+  //       deviceId: this.$route.query.deviceId,
+  //       type: this.$route.query.type
+  //     }
+  //     this.handleNodeClick(router)
+  //   }
+  // }
+  public goBack() {
     const query: any = {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type

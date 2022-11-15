@@ -10,6 +10,7 @@ import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, To
  */
 export const InVideoProtocolCreateParams = {
   [InVideoProtocolEnum.Gb28181]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
     DeviceEnum.InUserName,
     DeviceEnum.DeviceStreamAutoPull,
@@ -21,6 +22,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.OutId
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
@@ -29,6 +31,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.DeviceMac
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InType,
     DeviceEnum.PullUrl,
     DeviceEnum.UserName,
@@ -44,6 +47,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.StreamTransProtocol
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
+    DeviceEnum.InVideoProtocol,
     DeviceEnum.InType,
     DeviceEnum.PullUrl,
     DeviceEnum.DeviceStreamAutoPull,
@@ -71,6 +75,16 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Gb28181SipInfo,
     DeviceEnum.Viids,
     DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
     DeviceEnum.PlatformName,
     DeviceEnum.VideoStatus,
     DeviceEnum.CreatedTime
@@ -87,6 +101,16 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.EhomeSipInfo,
     DeviceEnum.Viids,
     DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
     DeviceEnum.VideoStatus,
     DeviceEnum.CreatedTime
   ]),
@@ -100,7 +124,18 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.VideoVendor,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
@@ -110,7 +145,56 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.OnlyPullUrl,
-    DeviceEnum.Viids
+    DeviceEnum.Viids,
+    DeviceEnum.PushUrl,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+  ])
+}
+
+/**
+ * 根据接入协议显示子通道需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+ export const ChannelAllowParams = {
+  [InVideoProtocolEnum.Gb28181]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.DeviceSerialNumber,
+    DeviceEnum.DeviceModel,
+    DeviceEnum.DevicePoleId,
+    DeviceEnum.Description,
+    DeviceEnum.Resource
+  ]),
+  [InVideoProtocolEnum.Ehome]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+    DeviceEnum.Resource
+  ]),
+  [InVideoProtocolEnum.Rtsp]: new Set([
+    DeviceEnum.ChannelName,
+    DeviceEnum.DeviceChannelNum,
+    DeviceEnum.DeviceId,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+    DeviceEnum.Resource
   ])
 }
 
@@ -185,12 +269,22 @@ export const InViidProtocolCreateParams = {
 export const InViidProtocolAllowParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
     ...InViidProtocolCreateParams[InViidProtocolEnum.Ga1400],
+    DeviceEnum.DeviceName,
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
-    DeviceEnum.InVersion,
-    DeviceEnum.InUserName,
-    DeviceEnum.DeviceStreamAutoPull,
-    DeviceEnum.StreamTransProtocol,
+    DeviceEnum.DeviceName,
+    DeviceEnum.DeviceType,
+    DeviceEnum.DeviceId,
+    DeviceEnum.InNetworkType,
+    DeviceEnum.DeviceLongitude,
+    DeviceEnum.Region,
+    DeviceEnum.IndustryCode,
+    DeviceEnum.NetworkCode,
+    DeviceEnum.InOrgRegion,
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.Description,
+    DeviceEnum.PlatformName,
+    DeviceEnum.CreatedTime
   ])
 }
 
@@ -216,17 +310,6 @@ export const DeviceTypeDenyParamsForViid = {
   ])
 }
 
-
-/**
- * 子通道不能编辑的字段
- */
-export const ChannelDenyEditableParams = new Set([
-  DeviceEnum.InVideoProtocol,
-  DeviceEnum.InVersion,
-  DeviceEnum.InUserName,
-  DeviceEnum.DeviceStreamAutoPull,
-  DeviceEnum.StreamTransProtocol
-])
 
 /**
  * ==============================================================================================================================
@@ -305,7 +388,8 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
-    ToolsEnum.ReplayVideo
+    ToolsEnum.ReplayVideo,
+    ToolsEnum.PreviewViid
   ]),
   [DirectoryTypeEnum.Nvr]: new Set([
     ToolsEnum.ShowDeviceInfo,
@@ -314,6 +398,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.DeleteDevice,
     ToolsEnum.SyncDeviceStatus,
     ToolsEnum.ViewChannels,
+    ToolsEnum.ConfigureChannels,
     ToolsEnum.Export,
     ToolsEnum.ExportAll,
     ToolsEnum.ExportCurrentPage,
@@ -340,6 +425,12 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
     ToolsEnum.UpdateResource
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
+    ToolsEnum.SyncDeviceStatus,
+    ToolsEnum.Export,
+    ToolsEnum.ExportAll,
+    ToolsEnum.ExportCurrentPage
   ])
 }
 
@@ -365,6 +456,18 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.DeviceVendor
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
+    DeviceEnum.DeviceInType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.DeviceType,
+    DeviceEnum.InProtocol,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.ViidStatus,
+    DeviceEnum.DeviceChannelSize,
+    DeviceEnum.DeviceVendor
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
     DeviceEnum.DeviceInType,
     DeviceEnum.InProtocol,
     DeviceEnum.DeviceType,
