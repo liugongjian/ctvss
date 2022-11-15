@@ -156,6 +156,14 @@
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="addRoleDeviceDialog" class="dialog-text" :before-close="cancelAddMark">
+              <div>
+                <h3>本设备是其他用户通过角色分享的设备，并且未设置经纬度，无法添加到地图中。</h3>
+              </div>
+              <h3>
+              </h3>
+              <el-button @click="cancelAddMark">确定</el-button>
+            </el-dialog>
             <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
               <!-- ifMapDisabled -->
               <map-view
@@ -235,6 +243,7 @@ export default class extends Mixins(IndexMixin) {
   private addNoPositionDialog = false
   private addNoPositionDialogCheck = false
   private dragAddNoPositionDialog = false
+  private addRoleDeviceDialog = false // 添加虚拟目录下的无经纬度设备的提示
   private deviceInfo: any = {}
   private markerInfo: any = {}
   private dragNodeInfo: any = {}
@@ -865,6 +874,7 @@ export default class extends Mixins(IndexMixin) {
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialog = false
     this.dragAddNoPositionDialogCheck = false
+    this.addRoleDeviceDialog = false
   }
 
   addMarker(marker) {
@@ -889,12 +899,14 @@ export default class extends Mixins(IndexMixin) {
   private async handleMarkerOn(marker) {
     this.marker = marker
     await this.getDeviceInfo()
-    if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      if (!this.addPositionDialogCheck) {
+    if (Number(this.deviceInfo.device.deviceLongitude) && Number(this.deviceInfo.device.deviceLatitude)) {
+      if (!this.addPositionDialogCheck && !this.deviceInfo.device.isRoleShared) {
         this.addPositionDialog = true
       } else {
         this.confirmAddMarker(this.uselnglat)
       }
+    } else if (this.deviceInfo.device.isRoleShared) {
+      this.addRoleDeviceDialog = true
     } else {
       if (this.ifDragging) {
         if (!this.dragAddNoPositionDialogCheck) {
@@ -949,8 +961,8 @@ export default class extends Mixins(IndexMixin) {
   private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
-        const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
+      if (uselnglat && this.deviceInfo.device.deviceLongitude && this.deviceInfo.device.deviceLatitude) {
+        const checklnglat = this.checklng(this.deviceInfo.device.deviceLongitude) && this.checklat(this.deviceInfo.device.deviceLatitude)
         if (!checklnglat) {
           this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
             confirmButtonText: '确认',
@@ -964,8 +976,8 @@ export default class extends Mixins(IndexMixin) {
             console.log('cancel')
           })
         } else {
-          this.markerInfo.longitude = this.deviceInfo.deviceLongitude
-          this.markerInfo.latitude = this.deviceInfo.deviceLatitude
+          this.markerInfo.longitude = this.deviceInfo.device.deviceLongitude
+          this.markerInfo.latitude = this.deviceInfo.device.deviceLatitude
           this.$refs.mapview.addMarker(this.markerInfo)
         }
       } else {
