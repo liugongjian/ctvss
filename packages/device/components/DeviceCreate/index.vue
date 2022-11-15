@@ -187,7 +187,7 @@
                 />
               </el-select>
             </el-form-item>
-            <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+            <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
@@ -261,6 +261,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 export default class extends Mixins(deviceFormMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+
   @Prop({ default: () => createDevice }) private createDeviceApi: Function
   @Prop({ default: false }) private isIbox: boolean
   private tips = DeviceTips
@@ -308,6 +309,7 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.DeviceSerialNumber]: '',
     [DeviceEnum.DeviceModel]: ''
   }
+
   private videoForm: VideoDeviceForm = {}
   private viidForm: ViidDeviceForm = {}
 
@@ -499,7 +501,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         // 删除视频中的Resource
         delete videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]].resource
-        params.videos = [ videoDevice ]
+        params.videos = [videoDevice]
       }
       // 补充视图接入信息
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
@@ -512,14 +514,14 @@ export default class extends Mixins(deviceFormMixin) {
         viidDevice[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
           ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
         }
-        params.viids = [ viidDevice ]
+        params.viids = [viidDevice]
       }
 
       try {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.$message.success('添加设备成功')
-        this.handleTools([ToolsEnum.RefreshDirectory])
+        this.handleTools(ToolsEnum.RefreshDirectory)
         this.handleTools(ToolsEnum.GoBack, 0)
       } catch (e) {
         this.$alertError(e.message)
