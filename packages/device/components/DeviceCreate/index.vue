@@ -138,7 +138,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
+            <el-form-item :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -187,7 +187,7 @@
                 />
               </el-select>
             </el-form-item>
-            <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
+            <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
@@ -225,10 +225,10 @@
       </div>
       <div class="create-wrap__footer">
         <div class="create-wrap__footer__tools">
-          <el-button v-if="activeStep === 1" size="medium" type="primary" @click="stepChange(0)">上一步</el-button>
-          <el-button v-if="activeStep === 0" size="medium" type="primary" @click="stepChange(1)">下一步</el-button>
+          <el-button v-if="activeStep === 1 && !loading.submit" size="medium" type="primary" @click="stepChange(0)">上一步</el-button>
+          <el-button v-if="activeStep === 0 && !loading.submit" size="medium" type="primary" @click="stepChange(1)">下一步</el-button>
           <el-button v-if="activeStep === 1" size="medium" type="primary" :loading="loading.submit" @click="submit">确 定</el-button>
-          <el-button size="medium" @click="back">取 消</el-button>
+          <el-button v-if="!loading.submit" size="medium" @click="back">取 消</el-button>
         </div>
       </div>
     </div>
@@ -308,6 +308,9 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.DeviceMac]: '',
     [DeviceEnum.DeviceSerialNumber]: '',
     [DeviceEnum.DeviceModel]: ''
+  }
+  private loading = {
+    submit: false
   }
 
   private videoForm: VideoDeviceForm = {}
@@ -516,7 +519,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         params.viids = [viidDevice]
       }
-
+      this.loading.submit = true
       try {
         // 提交创建表单
         await this.createDeviceApi(params)
@@ -526,6 +529,7 @@ export default class extends Mixins(deviceFormMixin) {
       } catch (e) {
         this.$alertError(e.message)
       }
+      this.loading.submit = false
     }
   }
 
