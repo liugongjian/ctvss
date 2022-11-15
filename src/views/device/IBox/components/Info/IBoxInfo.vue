@@ -66,7 +66,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import BarChart from './components/BarChart.vue'
 import { getIBoxDetail, updateIBox } from '@/api/ibox'
 
@@ -157,9 +157,6 @@ export default class extends Vue {
   private checkedFalseDes = false
   private editDes: string = ''
 
-  private get deviceId() {
-    return this.$route.query && this.$route.query.deviceId
-  }
 
   private customColor_usage = {
     mainColor: '#9FCD54',
@@ -174,6 +171,12 @@ export default class extends Vue {
   private customColor_app = {
     mainColor: '#F19E4B',
     subColor: '#F7CC8B'
+  }
+
+  @Inject('handleTools') private updateTree!: Function
+  
+  private get deviceId() {
+    return this.$route.query && this.$route.query.deviceId
   }
 
   private async mounted() {
@@ -261,6 +264,7 @@ export default class extends Vue {
           deviceName: this.editDeviceName
         }
         await updateIBox(params)
+        await this.updateTree('refreshDirectory')
         const res = await getIBoxDetail({ deviceId: this.deviceId })
         this.renderInfo(res)
       }
