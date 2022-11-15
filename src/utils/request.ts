@@ -84,7 +84,7 @@ function requestTransform(config: AxiosRequestConfig) {
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     // TODO: 后续删除灰度判断
-    const resData = UserModule.version === 2 ? response.data.data : response.data
+    const resData = UserModule.version === 2 ? response.data.data : response.data.data
     return resData as AxiosResponse
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {

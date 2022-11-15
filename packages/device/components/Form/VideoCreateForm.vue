@@ -12,6 +12,7 @@
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
+        :disabled="checkInVideoProtocolDisabled(key)"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -349,6 +350,11 @@ export default class extends Vue {
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
     }
+
+    // 编辑模式下RTSP密码不必填
+    if (this.isEdit) {
+      this.rules.password = []
+    }
   }
 
   /**
@@ -440,6 +446,17 @@ export default class extends Vue {
       this.videoForm.inVideoProtocol,
       prop
     )
+  }
+
+  /**
+   * 判断需要禁用的协议类型
+   * EHOME暂不支持RTMP, EHOME协议
+   */
+  private checkInVideoProtocolDisabled(value) {
+    if (this.isIbox) {
+      return [InVideoProtocolEnum.Rtmp, InVideoProtocolEnum.Ehome].includes(value)
+    }
+    return false
   }
 
   /**

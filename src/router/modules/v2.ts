@@ -4,27 +4,6 @@ import { deviceRouter, videoRouter } from '@vss/device/router'
 
 export const v2Router: RouteConfig[] = [
   {
-    path: '/changePassword',
-    component: Layout,
-    meta: {
-      title: '修改密码',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
-        meta: {
-          title: '修改密码',
-          icon: 'tree',
-          breadcrumb: false
-        }
-      }
-    ]
-  },
-  {
     path: '/dashboard',
     component: Layout,
     meta: {
@@ -76,6 +55,86 @@ export const v2Router: RouteConfig[] = [
   deviceRouter,
   videoRouter,
   {
+    path: '/viid',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '视图服务',
+      icon: 'menu-ga1400',
+      alwaysShow: true,
+      // tags: ['ga1400'],
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'up-platform',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
+        name: 'ViidUpPlatform',
+        meta: {
+          title: '向上级联',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/create',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformCreate',
+        meta: {
+          title: '新建平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/update/:id?',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformUpdate',
+        meta: {
+          title: '编辑平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'subscribe',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+        name: 'ViidSubscribe',
+        meta: {
+          title: '订阅通知',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
+      {
+        path: 'subscribe/create',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
+        name: 'ViidSubscribeCreate',
+        meta: {
+          title: '添加订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
+      {
+        path: 'subscribe/cancel',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'),
+        name: 'ViidSubscribeCancel',
+        meta: {
+          title: '取消订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      }
+    ]
+  },
+  {
     path: '/map',
     component: Layout,
     meta: {
@@ -102,54 +161,54 @@ export const v2Router: RouteConfig[] = [
       }
     ]
   },
-  {
-    path: '/up-platform',
-    component: Layout,
-    redirect: 'noredirect',
-    meta: {
-      title: '向上级联',
-      icon: 'menu-up-platform',
-      alwaysShow: true,
-      breadcrumb: true,
-      perms: ['*'],
-      version: 2
-    },
-    children: [
-      {
-        path: 'gb28121',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
-        name: 'up-platform',
-        meta: {
-          title: '国标级联',
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/up-platform/gb28121'
-        }
-      },
-      {
-        path: 'gb28121-create',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
-        name: 'up-platform-gb28121-create',
-        meta: {
-          title: '新建国标级联',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/up-platform/gb28121'
-        }
-      },
-      {
-        path: 'gb28121-update',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
-        name: 'up-platform-gb28121-update',
-        meta: {
-          title: '编辑国标级联',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/up-platform/gb28121'
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/up-platform',
+  //   component: Layout,
+  //   redirect: 'noredirect',
+  //   meta: {
+  //     title: '向上级联',
+  //     icon: 'menu-up-platform',
+  //     alwaysShow: true,
+  //     breadcrumb: true,
+  //     perms: ['*'],
+  //     version: 2
+  //   },
+  //   children: [
+  //     {
+  //       path: 'gb28121',
+  //       component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+  //       name: 'up-platform',
+  //       meta: {
+  //         title: '国标级联',
+  //         icon: 'dot',
+  //         perms: ['*'],
+  //         activeMenu: '/up-platform/gb28121'
+  //       }
+  //     },
+  //     {
+  //       path: 'gb28121-create',
+  //       component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+  //       name: 'up-platform-gb28121-create',
+  //       meta: {
+  //         title: '新建国标级联',
+  //         hidden: true,
+  //         perms: ['*'],
+  //         activeMenu: '/up-platform/gb28121'
+  //       }
+  //     },
+  //     {
+  //       path: 'gb28121-update',
+  //       component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+  //       name: 'up-platform-gb28121-update',
+  //       meta: {
+  //         title: '编辑国标级联',
+  //         hidden: true,
+  //         perms: ['*'],
+  //         activeMenu: '/up-platform/gb28121'
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/certificate',
     component: Layout,
@@ -830,6 +889,28 @@ export const v2Router: RouteConfig[] = [
           breadcrumb: false,
           icon: 'menu-system',
           perms: ['*']
+        }
+      }
+    ]
+  },
+  {
+    path: '/changePassword',
+    component: Layout,
+    meta: {
+      title: '修改密码',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      version: 2
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
+        meta: {
+          title: '修改密码',
+          icon: 'tree',
+          breadcrumb: false
         }
       }
     ]
