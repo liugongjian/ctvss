@@ -25,19 +25,15 @@
         />
       </template>
       <template slot="rightBody">
-        <router-view  :max-height="maxHeight" />
+        <router-view :max-height="maxHeight" />
       </template>
     </common-layout>
-   
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Mixins, Provide } from 'vue-property-decorator'
+import { Component, Mixins, Provide } from 'vue-property-decorator'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
-import { DeviceModule } from '@/store/modules/device'
-import { deleteDir } from '@/api/dir'
-import { checkPermission } from '@/utils/permission'
 import AlarmTree from '@vss/device/components/Tree/AlarmTree.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 
@@ -49,6 +45,7 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
   }
 })
 export default class extends Mixins(IndexMixin, layoutMxin) {
+  private filterVideoProtocolArr = ['gb28181']
   public parentDir = null
   public currentDir = null
   public dialog: any = {
@@ -69,8 +66,8 @@ export default class extends Mixins(IndexMixin, layoutMxin) {
    * @param data node信息
    */
   @Provide('handleTreeNode')
-  private async handleTreeNode(data: any, node: any) {
-    const { id, type } = data || {}
+  private async handleTreeNode(data: any) {
+    const { id } = data || {}
     const router = {
       name: 'AlarmList',
       query: {

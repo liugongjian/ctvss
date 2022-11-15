@@ -50,6 +50,8 @@ export default class extends Mixins(layoutMxin) {
 
   private resourceList = []
   private dirList: any = []
+  private filterTypeArr = ['dir', 'nvr', 'ipc']
+  private filterInProtocolArr = ['video']
   // public loading = false
   private treeProp = {
     label: 'label',
