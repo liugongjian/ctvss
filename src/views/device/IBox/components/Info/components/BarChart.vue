@@ -172,10 +172,9 @@ export default class extends Vue {
     } else if (this.type === 'cpu' || this.type === 'gpu') {
       const usageRate = chartData.usageRate
       const showUsageRate = (usageRate * 100).toFixed(2)
-
       // chartData.usageRate = +(chartData.usageRate).toFixed(2)
       // const unuse = +(1 - chartData.usageRate).toFixed(2)
-      const unuse = (1 - usageRate).toFixed(2)
+      const unuse = (100 - usageRate * 100).toFixed(2)
       // this.title = '' + chartData.usageRate * 100
       this.title = showUsageRate
       this.subtitle = this.type === 'cpu' ? 'CPU使用率' : 'GPU使用率'
@@ -189,6 +188,7 @@ export default class extends Vue {
         },
         {
           value: unuse,
+          name: '',
           label: { show: false },
           labelLine: { show: false },
           emphasis: {
@@ -200,24 +200,27 @@ export default class extends Vue {
     // } else if (this.type === 'device' || this.type === 'calculate' || this.type === 'analysis') {
       const unuse = +(chartData.total - chartData.usage).toFixed(2)
       this.title = chartData.usage
+      const total = chartData.total
       let name1, name2
       switch (this.type + '') {
         case 'stream':
           this.unit = '路'
           this.subtitle = '视频接入'
-          name1 = '总量: '
+          name1 = '未接入: '
           name2 = '已接入: '
           break
         case 'aiAlgo':
           this.unit = '个'
           this.subtitle = 'AI算法'
-          name1 = '上限: '
+          name1 = '未部署: '
           name2 = '已部署: '
           break
         case 'aiApp':
-          this.unit = '个'
-          this.subtitle = '分析路数'
-          name1 = '并行上限: '
+          // this.unit = '个'
+          // this.subtitle = '分析路数'
+          this.unit = '路'
+          this.subtitle = 'AI分析'
+          name1 = '未启用: '
           name2 = '运行中: '
           break
         case 'aiAlarm':
@@ -232,11 +235,13 @@ export default class extends Vue {
       this.seriesData = [
         {
           value: unuse,
-          name: name1 + unuse + this.unit
+          // name: name1 + unuse + this.unit
+          name: name2 + unuse + this.unit
         },
         {
           value: chartData.usage,
-          name: name2 + chartData.usage + this.unit,
+          // name: name2 + chartData.usage + this.unit,
+          name: name1 + chartData.usage + this.unit,
           label: { show: false },
           labelLine: { show: false },
           emphasis: {
