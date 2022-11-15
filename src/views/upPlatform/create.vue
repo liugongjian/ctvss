@@ -290,7 +290,7 @@ export default class extends Vue {
     })
   }
   private get isUpdate() {
-    return this.$route.name === 'up-platform-gb28121-update'
+    return this.$route.name === 'VideoUpPlatformUpdate'
   }
 
   private async mounted() {
@@ -352,7 +352,9 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push('/up-platform/gb28121')
+    this.$router.push({
+      name: 'VideoUpPlatform'
+    })
   }
 
   private submit() {
@@ -392,7 +394,7 @@ export default class extends Vue {
    * 递归查找目标区域的所在路径
    */
   private getRegionPath(regions: any, target: string) {
-    let path: Array<any> = []
+    const path: Array<any> = []
     try {
       const _find: any = function(path: Array<string>, children: any, parentValue: any) {
         for (let i = 0; i < children.length; i++) {
