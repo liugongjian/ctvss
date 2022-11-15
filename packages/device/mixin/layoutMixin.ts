@@ -140,7 +140,8 @@ export default class LayoutMixin extends Vue {
         if (typeof this.initResourceStatus === 'function') {
           this.$nextTick(() => this.initResourceStatus())
         } else {
-          const pathList = this.$route.query.path ? this.$route.query.path.split(',') : []
+          const pathStr =  this.$route.query.path as string
+          const pathList = pathStr ? pathStr.split(',') : []
           this.deviceTree.loadChildren(pathList)
         }
         this.deviceTree.rootSums.onlineSize = res.onlineSize
