@@ -27,7 +27,7 @@
                 <i class="el-icon-success" style="margin-left: 5px;color: #fa8334;font-size: 18px;" @click="changeDes" />
                 <i class="el-icon-error" style="margin-left: 5px;color: #c8c8c8;font-size: 18px;" @click="cancelEdit" />
               </span>
-              <div v-if="checkedFalse" class="check-tip">修改不能为空</div>
+              <div v-if="checkedDesFalse" class="check-tip">修改不能为空</div>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -253,9 +253,11 @@ export default class extends Vue {
 
   private async changeName() {
     try {
-      if (!this.editDeviceName) {
-        this.checkedFalse = true
-        return
+      if (!this.editDeviceName.trim()) {
+        this.$nextTick(() => {
+          this.checkedFalse = true
+          return
+        })
       } else {
         this.loading = true
         this.checkedFalse = false
@@ -279,8 +281,8 @@ export default class extends Vue {
 
   private async changeDes() {
     try {
-      if (!this.editDes) {
-        this.checkedFalseDes = true
+      if (!this.editDes.trim()) {
+        this.checkedDesFalse = true
         return
       } else {
         this.loading = true
