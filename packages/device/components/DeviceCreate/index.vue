@@ -309,9 +309,6 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.DeviceSerialNumber]: '',
     [DeviceEnum.DeviceModel]: ''
   }
-  private loading = {
-    submit: false
-  }
 
   private videoForm: VideoDeviceForm = {}
   private viidForm: ViidDeviceForm = {}
