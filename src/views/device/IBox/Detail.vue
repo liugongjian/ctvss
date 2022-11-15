@@ -59,7 +59,7 @@ export default class extends Vue {
   private handleTools!: Function
 
   public back() {
-    this.handleTools('goBack')
+    this.handleTools('refreshDirectory')
   }
 }
 </script>
