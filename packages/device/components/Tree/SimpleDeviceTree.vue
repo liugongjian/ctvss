@@ -1,30 +1,17 @@
 <template>
   <common-tree
     ref="commonTree"
+    v-loading="loading"
     :node-key="nodeKey"
     :root-key="rootKey"
     :default-key="defaultKey"
     :data="data"
     :lazy="lazy"
-    :load="load"
+    :load="defaultLoad"
     :props="defaultProps"
     :empty-text="emptyText"
     @handle-node="handleNode"
   >
-    <template slot="rootLabelPrefix">
-      <svg-icon name="component" />
-    </template>
-    <template slot="rootLabel">
-      {{ rootLabel }}
-    </template>
-    <template slot="rootLabelSuffix">
-      <span>{{ `(${rootSums.onlineSize}/${rootSums.totalSize})` }}</span>
-    </template>
-    <template slot="rootTools" slot-scope="{ data }">
-      <el-tooltip effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
-        <el-button type="text" @click.stop="handleTools(toolsEnum.ExportSearchResult, data)"><svg-icon name="export" /></el-button>
-      </el-tooltip>
-    </template>
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
@@ -42,11 +29,31 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import { DirectoryTypeEnum } from '@vss/device/enums/index'
+import { getNodeInfo } from '@vss/device/api/dir'
 
 @Component({
   name: 'SimpleDeviceTree'
 })
 export default class extends Mixins(treeMixin) {
+  private loading = false
+  private async defaultLoad(node) {
+    try {
+      let res
+      if (node.level === 0) {
+        this.loading = true
+        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+        this.rootSums.onlineSize = res.onlineSize
+        this.rootSums.totalSize = res.totalSize
+        this.loading = false
+      } else {
+        res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+      }
+      return res.dirs
+    } catch (e) {
+      console.log(e)
+    }
+  }
 }
 </script>
 
