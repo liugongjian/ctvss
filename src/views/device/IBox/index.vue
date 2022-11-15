@@ -187,7 +187,6 @@ export default class IBox extends Mixins(HandleMixin) {
       await IBoxModule.SetBreadcrumb(this.getDirPath(_node).reverse())
       const { deviceId } = _node?.data
       this.treeIboxId = deviceId
-      console.log('_node.level---->', _node.level)
       switch (_node.level) {
         case 1:
           this.setListInfo('device', this.iboxDevice, deviceId)
@@ -229,7 +228,7 @@ export default class IBox extends Mixins(HandleMixin) {
       type = 'rootlist'
     }: { deviceId: string; type: string } = query
 
-    await IBoxModule.ResetBreadcrumb()
+    // await IBoxModule.ResetBreadcrumb()
 
     const param = {
       pageNum: 1,
@@ -441,7 +440,6 @@ export default class IBox extends Mixins(HandleMixin) {
       data
     }
     IBoxModule.SetList(listInfo)
-
     let query: any = {}
     let router: any = {}
     if (deviceId) {

@@ -1,6 +1,6 @@
-import { Component, Inject, Provide, Mixins } from 'vue-property-decorator'
+import { Component, Provide, Mixins } from 'vue-property-decorator'
 import HandleMixin from './handleMixin'
-import { getDeviceList, startDevice, stopDevice, deleteDevice, getDeviceDetail } from '@/api/ibox'
+import { getDeviceList, startDevice, stopDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
 @Component
@@ -157,7 +157,7 @@ export default class ListMixin extends Mixins(HandleMixin) {
     this.streamPolling(query).then(({ streamStatus, status }) => {
       if (streamStatus !== status) {
         this.getDirList()
-        this.getDeviceList()
+        this.getIboxDeviceList()
       }
     })
   }

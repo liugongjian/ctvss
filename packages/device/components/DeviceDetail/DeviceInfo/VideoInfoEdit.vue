@@ -67,7 +67,8 @@ export default class extends Vue {
       device: {
         deviceId: this.basicInfo.deviceId,
         ...pick(form.videoForm, [
-          DeviceEnum.DeviceChannelSize
+          DeviceEnum.DeviceChannelSize,
+          DeviceEnum.VideoVendor
         ])
       }
     }
