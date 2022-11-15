@@ -519,7 +519,7 @@ export default class extends Mixins(deviceFormMixin) {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.$message.success('添加设备成功')
-        this.handleTools([ToolsEnum.RefreshDirectory])
+        this.handleTools(ToolsEnum.RefreshDirectory)
         this.handleTools(ToolsEnum.GoBack, 0)
       } catch (e) {
         this.$alertError(e.message)
