@@ -24,21 +24,29 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
 export default class extends Mixins(detailMixin) {
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
+  @Prop() private readonly deviceIdCar?: any
 
   private height = 'auto'
 
   public screenManager: ScreenManager = null
 
-  public mounted() {
+  // 视频接入协议
+  private get inVideoProtocol() {
+    return this.device.videos && this.device.videos.length && this.device.videos[0]?.inVideoProtocol
+  }
+
+  public async mounted() {
+    this.deviceIdSecondary = this.deviceIdCar
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
-    this.screenManager = screenBoard!.screenManager
+    this.screenManager = screenBoard?.screenManager
     this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId
-    screen.inProtocol = this.inProtocol
+    screen.deviceId = this.deviceId || this.deviceIdSecondary
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
+    await this.getDevice()
+    screen.inProtocol = this.inVideoProtocol
     screen.init()
   }
 }

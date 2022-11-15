@@ -123,7 +123,7 @@ export default class extends Vue {
     this.screen.isLive = false
     this.screen.init()
     if (this.screen.isFullscreen) {
-      ScreenModule.SetIsFullscreen(this.screen.isFullscreen)
+      ScreenModule.setIsFullscreen(this.screen.isFullscreen)
     }
   }
 

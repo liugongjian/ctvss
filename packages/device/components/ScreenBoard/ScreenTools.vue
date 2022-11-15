@@ -21,7 +21,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
@@ -141,7 +141,7 @@ export default class extends Vue {
    * 全屏操作
    */
   private onFullscreenChange(isFullscreen) {
-    ScreenModule.SetIsFullscreen(isFullscreen)
+    ScreenModule.setIsFullscreen(isFullscreen)
   }
 }
 </script>

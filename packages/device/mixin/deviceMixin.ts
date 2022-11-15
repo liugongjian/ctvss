@@ -1,7 +1,8 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
+import { getDir } from '@vss/device/api/dir'
 import { DeviceEnum, DirectoryTypeEnum } from '../enums/index'
 
 @Component
@@ -9,8 +10,15 @@ export default class DeviceMixin extends Vue {
   @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
+
+  // 如果无法从路由获取deviceId
+  public deviceIdSecondary
+
   // 设备详情
   public device: Device = {} as Device
+
+  // 目录详情
+  public dir: any = {}
 
   // 设备详情加载状态
   public deviceLoading = false
@@ -22,7 +30,7 @@ export default class DeviceMixin extends Vue {
 
   // 设备类型
   public get deviceType() {
-    return this.device.device && this.device.device.deviceType as DirectoryTypeEnum
+    return this.$route.query.type || this.device.device && this.device.device.deviceType
   }
 
   // 是否含视频
@@ -35,6 +43,24 @@ export default class DeviceMixin extends Vue {
     return this.device.viids && this.device.viids.length
   }
 
+  // 设备或目录来源
+  public get deviceFrom() {
+    if (this.deviceType === DirectoryTypeEnum.Dir) {
+      return this.dir.dirFrom
+    } else {
+      return this.device.device && this.device.device.deviceFrom
+    }
+  }
+
+  // 设备或目录是否为角色共享提供的
+  public get isRoleShared() {
+    if (this.deviceType === DirectoryTypeEnum.Dir) {
+      return this.dir.isRoleShared
+    } else {
+      return this.device.device && this.device.device.isRoleShared
+    }
+  }
+
   // 协议类型
   public get inProtocol() {
     if (this.hasVideo) {
@@ -45,19 +71,14 @@ export default class DeviceMixin extends Vue {
     return null
   }
 
-  @Watch('$route.query.deviceId', {
-    immediate: true
-  })
-  private async deviceIdChange(deviceId) {
-    [DirectoryTypeEnum.Ipc].includes(this.deviceType) && this.getDevice(deviceId)
-  }
-
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId, isForce = false) {
+  public async getDevice(deviceId: string = this.deviceId || this.deviceIdSecondary, isForce = false, hasLoading = true) {
     try {
-      this.deviceLoading = true
+      if (hasLoading) {
+        this.deviceLoading = true
+      }
       this.device = await DeviceModule.getDevice({
         deviceId,
         isForce,
@@ -68,5 +89,26 @@ export default class DeviceMixin extends Vue {
     } finally {
       this.deviceLoading = false
     }
+  }
+
+  /**
+   * 获取设备详情
+   */
+   public async getDir(dirId: string) {
+    try {
+      this.dir = await getDir({
+        dirId
+      }) || {}
+      console.log(this.dir)
+    } catch (e) {
+      this.$alertError(e)
+    }
+  }
+
+  /**
+   * 清空设备详情
+   */
+  public async clearDevice() {
+    DeviceModule.clearDevice()
   }
 }

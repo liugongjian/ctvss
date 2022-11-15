@@ -20,6 +20,7 @@
       {{ node.label }}
     </template>
     <template slot="itemLabelSuffix" slot-scope="{ data }">
+      <svg-icon v-if="checkTreeItemStatus(data)" :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" name="playing" class="playing" />
       <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{ node, data }">
@@ -39,12 +40,19 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
+import { DeviceTypeEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
   name: 'ReplayTree'
 })
 export default class extends Mixins(treeMixin) {
+  /**
+   * 判断item是否可拖拽
+   */
+  public checkIsDraggable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc
+  }
 }
 </script>
 

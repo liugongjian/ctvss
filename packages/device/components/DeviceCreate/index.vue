@@ -3,7 +3,7 @@
     <div class="create-wrap">
       <div class="create-wrap__header">
         <el-page-header :content="breadCrumbContent" @back="back" />
-        <div v-if="!isChannel" class="process">
+        <div class="process">
           <el-steps :active="activeStep" finish-status="success" simple>
             <el-step title="接入配置"><span slot="icon">1</span></el-step>
             <el-step title="设备配置"><span slot="icon">2</span></el-step>
@@ -83,7 +83,7 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item :prop="deviceEnum.OutNetworkType">
+            <!-- <el-form-item :prop="deviceEnum.OutNetworkType">
               <template slot="label">
                 播放网络:
                 <el-popover
@@ -105,7 +105,7 @@
                   {{ value }}
                 </el-radio>
               </el-radio-group>
-            </el-form-item>
+            </el-form-item> -->
             <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Video)">
               <div class="form-title">视频接入信息</div>
               <video-create-form
@@ -196,7 +196,7 @@
                   <el-input v-model="deviceForm.deviceIp" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
-                  <el-input v-model="deviceForm.devicePort" />
+                  <el-input v-model.number="deviceForm.devicePort" />
                 </el-form-item>
                 <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
                   <el-input v-model="deviceForm.devicePoleId " />
@@ -287,7 +287,7 @@ export default class extends Mixins(deviceFormMixin) {
     // step0
     [DeviceEnum.DeviceName]: '',
     [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
-    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video, DeviceInTypeEnum.Viid],
+    [DeviceEnum.DeviceInType]: [DeviceInTypeEnum.Video],
     [DeviceEnum.InNetworkType]: InNetworkTypeEnum.Public,
     [DeviceEnum.OutNetworkType]: OutNetworkTypeEnum.Public,
     // step1
@@ -351,7 +351,7 @@ export default class extends Mixins(deviceFormMixin) {
    */
   private checkVisible(prop) {
     if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
-      return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop, { isIbox: this.isIbox })
+      return checkVideoVisible.call({ ...this.videoForm, isIbox: this.isIbox }, this.deviceForm.deviceType, this.inVideoProtocol, prop)
     } else {
       return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
     }
@@ -461,7 +461,6 @@ export default class extends Mixins(deviceFormMixin) {
             DeviceEnum.DeviceLongitude,
             DeviceEnum.DeviceLatitude,
             DeviceEnum.DeviceIp,
-            DeviceEnum.DevicePort,
             DeviceEnum.DeviceMac,
             DeviceEnum.DevicePoleId,
             DeviceEnum.DeviceSerialNumber,
@@ -471,6 +470,7 @@ export default class extends Mixins(deviceFormMixin) {
           ...pick(this.videoForm, [
             DeviceEnum.DeviceChannelSize
           ]),
+          [DeviceEnum.DevicePort]: Number(this.deviceForm.devicePort),
           // 父级dirId
           [DeviceEnum.DirId]: this.currentDirId,
           // 父级设备ID
@@ -518,8 +518,9 @@ export default class extends Mixins(deviceFormMixin) {
       try {
         // 提交创建表单
         await this.createDeviceApi(params)
+        this.$message.success('添加设备成功')
         this.handleTools([ToolsEnum.RefreshDirectory])
-        this.handleTools([ToolsEnum.GoBack], 0)
+        this.handleTools(ToolsEnum.GoBack, 0)
       } catch (e) {
         this.$alertError(e.message)
       }
@@ -527,7 +528,7 @@ export default class extends Mixins(deviceFormMixin) {
   }
 
   private back() {
-    this.handleTools([ToolsEnum.GoBack], 0)
+    this.handleTools(ToolsEnum.GoBack, 0)
   }
 }
 </script>

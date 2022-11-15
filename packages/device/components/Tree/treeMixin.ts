@@ -1,7 +1,10 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum } from '../../enums/index'
+import { PolicyEnum } from '@vss/base/enums/iam'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import StreamSelector from '../StreamSelector.vue'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   components: {
@@ -23,6 +26,7 @@ export default class TreeMixin extends Vue {
   public statusEnum = StatusEnum
   public deviceTypeEnum = DeviceTypeEnum
   public directoryTypeEnum = DirectoryTypeEnum
+  public policyEnum = PolicyEnum
   public rootKey = ''
   public nodeKey = 'id'
   public rootLabel = '根目录'
@@ -45,6 +49,10 @@ export default class TreeMixin extends Vue {
     return this.$route.query.dirId
   }
 
+  public get playingScreens() {
+    return ScreenModule ? ScreenModule.playingScreens : []
+  }
+
   public initCommonTree() {
     this.commonTree.initTree()
   }
@@ -57,18 +65,44 @@ export default class TreeMixin extends Vue {
     window.setImmediate(async() => {
       if (Array.isArray(payload)) {
         // 展开路径列表
-        const key = Array.isArray(payload) ? payload.shift() : payload
+        const key = payload.shift()
         if (payload.length) {
           await this.commonTree.loadChildren(key)
           this.loadChildren(payload)
         } else {
           this.setCurrentKey(key || this.rootKey)
+          // this.$nextTick(() => {
+          //   const currentNodeDom = document.getElementsByClassName('current-node')[0]
+          //   console.log((currentNodeDom.parentNode as any).scrollTop)
+          // })
         }
+        
       } else {
         // 展开目录
         this.commonTree.loadChildren(payload)
       }
     })
+  }
+
+  public async asyncLoadChildren(payload) {
+    if (Array.isArray(payload)) {
+      // 展开路径列表
+      const key = Array.isArray(payload) ? payload.shift() : payload
+      if (payload.length) {
+        await this.commonTree.loadChildren(key)
+        await this.asyncLoadChildren(payload)
+      } else {
+        this.setCurrentKey(key || this.rootKey)
+        // this.$nextTick(() => {
+        //   const currentNodeDom = document.getElementsByClassName('current-node')[0]
+        //   console.log((currentNodeDom.parentNode as any).scrollTop)
+        // })
+      }
+      
+    } else {
+      // 展开目录
+      this.commonTree.loadChildren(payload)
+    }
   }
 
   private setCurrentKey(payload) {
@@ -80,15 +114,22 @@ export default class TreeMixin extends Vue {
    * @param data node信息
    */
   public handleNode(data: any) {
-    console.log('getCheckedNodes', this.commonTree.getCheckedNodes())
     this.$emit('handle-node', data)
+  }
+
+  /**
+   * 判断设备状态
+   * @param data 设备信息
+   */
+  public checkTreeItemStatus(data: any) {
+    return data.type === DirectoryTypeEnum.Ipc && this.playingScreens.includes(data.id)
   }
 
   /**
    * 判断是否显示form-item
    */
-  public checkVisible(type, prop) {
-    return checkTreeToolsVisible(type, prop)
+  public checkVisible(type, prop, permission?, data?) {
+    return checkTreeToolsVisible(type, prop, data) && checkPermission(permission)
   }
 
   /**
@@ -98,13 +139,5 @@ export default class TreeMixin extends Vue {
    */
   public handleTools(type: any, ...payload) {
     this.$emit('handle-tools', type, ...payload)
-  }
-
-  /**
-   * 判断item是否可拖拽
-   */
-  public checkIsDraggable(node) {
-    return node.data.type === DeviceTypeEnum.Ipc
-    // if (isLive && node.data.deviceStatus !== 'on') return
   }
 }

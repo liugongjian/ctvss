@@ -1,6 +1,6 @@
 import { ToolsEnum } from '../../enums/index'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { deleteDir as deleteDirApi, sortDir } from '../../api/dir'
+import { deleteDir as deleteDirApi } from '../../api/dir'
 import { exportSearchResult as exportSearchResultApi } from '../../api/device'
 import { getDeviceTree } from '../../api/dir'
 import { downloadFileUrl } from '@vss/base/utils/excel'
@@ -202,7 +202,8 @@ const closeDirectoryDialog = function (
     sortDir?: any
     deviceTree?: any
     loadDirChildren?: any,
-    handleTreeNode: any
+    handleTreeNode: any,
+    handleTools: any
   } = getVueComponent()
   // @ts-ignore
   state.dialog[type] = false
@@ -217,6 +218,7 @@ const closeDirectoryDialog = function (
         }
       }
       state.handleTreeNode({ id: state.sortDir.id, type: state.sortDir.type })
+      state.handleTools(ToolsEnum.RefreshRouterView)
       state.sortDir = null
       break
     case ToolsEnum.AddDirectory:

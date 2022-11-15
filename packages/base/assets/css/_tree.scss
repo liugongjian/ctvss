@@ -76,7 +76,6 @@
     flex: 1;
     display: flex;
     align-items: center;
-    position: relative;
     user-select: none;
 
     &__label {
@@ -125,6 +124,10 @@
     .svg-icon {
       color: $color-grey-15;
     }
+  }
+
+  .node-disable {
+    cursor: not-allowed;
   }
 
   .el-tree-node > .el-tree-node__children {

@@ -23,7 +23,7 @@ import ExportExcelTemplate from './DeviceExportTemplate'
  * @param state.$router 路由
  * @param dirId 目录id
  */
-const addDevice = function(state, dirId) {
+const addDevice = function (state, dirId) {
   state.$router.push({
     name: 'DeviceCreate',
     query: {
@@ -39,13 +39,13 @@ const addDevice = function(state, dirId) {
  * @param id 设备id
  * @param type 设备类型
  */
-const viewDevice = function(state, id, type) {
+const viewDevice = function (state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
       ...state.$route.query,
       [DeviceEnum.DeviceId]: id,
-      [DeviceEnum.DirId]: id,
+      [DeviceEnum.DirId]: '',
       type
     }
   })
@@ -57,16 +57,17 @@ const viewDevice = function(state, id, type) {
  * @param id 设备id
  * @param type 设备类型
  */
-const editDevice = function(state, id, type) {
+const editDevice = function (state, id, type) {
   state.$router.push({
     name: 'DeviceInfo',
     query: {
       ...state.$route.query,
       deviceId: id,
+      dirId: '',
       type
     },
     params: {
-      isEdit: 'true'
+      isEdit: 'true',
     }
   })
 }
@@ -75,10 +76,10 @@ const editDevice = function(state, id, type) {
  * 删除设备
  * @param state.$alertDelete 提示框工具函数
  * @param state.handleTools layout工能回调函数
- * @param row 设备信息
+ * @param data 设备信息
+ * @param inProtocol 删除协议
  */
-const deleteDevice = function(state, data?) {
-  console.log(data, 111111)
+const deleteDevice = function (state, data?, inProtocol?: string) {
   if (data instanceof Array) {
     // 批量操作
     const h: Function = state.$createElement
@@ -107,27 +108,34 @@ const deleteDevice = function(state, data?) {
       payload: null,
       onSuccess: () => {
         state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        state.handleTools(ToolsEnum.RefreshRouterView)
       }
     })
   } else {
     // 单个操作
+    let msg = ''
+    if (inProtocol) {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"的${inProtocol.toUpperCase()}协议吗？`
+    } else {
+      msg = `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`
+    }
     state.$alertDelete({
       type: '设备',
-      msg: `删除操作不能恢复，确认删除设备"${data[DeviceEnum.DeviceName]}"吗？`,
-      method: () => {
-        return deleteDeviceApi({
-          [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-          [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
-        })
-      },
+      msg,
+      method: deleteDeviceApi,
       payload: {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId],
-        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId]
+        [DeviceEnum.ParentDeviceId]: data[DeviceEnum.ParentDeviceId],
+        [DeviceEnum.InProtocol]: inProtocol
       },
       onSuccess: () => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshDeviceList)
+        // 判断是否完全删除
+        // if (inProtocol && data[DeviceEnum.InProtocol].length < 2) {
+        //   state.handleTools(ToolsEnum.GoBack, 1)
+        // } else {
+          state.handleTools(ToolsEnum.RefreshDirectory)
+          state.handleTools(ToolsEnum.RefreshRouterView)
+        // }
       }
     })
   }
@@ -137,13 +145,13 @@ const deleteDevice = function(state, data?) {
  * 刷新设备列表
  * @param state.$router 页面路由实例
  * @param state.$route 页面路由对象
- * @param flag 刷新标志
+ * @param count 刷新次数
  */
-const refreshDeviceList = function(state, flag = 'true') {
+const refreshRouterView = function (state, count = 1) {
   state.$router.replace({
     query: {
       ...state.$route.query,
-      deviceListRefreshFlag: flag
+      refreshFlag: count
     }
   })
 }
@@ -155,7 +163,7 @@ const refreshDeviceList = function(state, flag = 'true') {
  * @param state.pollingTimes 轮询次数
  * @param state.$message 信息提示工具函数
  */
-const syncDevice = function(state, id) {
+const syncDevice = function (state, id) {
   state.loading.syncDevice = true
   const param = {
     [DeviceEnum.DeviceId]: id
@@ -178,7 +186,7 @@ const syncDevice = function(state, id) {
  * 轮询同步设备状态
  * @param param 请求体 Object
  */
-const statusPolling = function(state, param: any) {
+const statusPolling = function (state, param: any) {
   if (state.pollingTimes < 8) {
     state.pollingTimes += 1
   } else {
@@ -202,7 +210,8 @@ const statusPolling = function(state, param: any) {
 /**
  * 同步设备状态
  */
-const syncDeviceStatus = async function(state, id, type) {
+const syncDeviceStatus = async function (getVueComponent, id, type) {
+  const state = getVueComponent()
   let deviceIdAndTypes = []
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -230,6 +239,7 @@ const syncDeviceStatus = async function(state, id, type) {
       deviceIdAndTypes
     })
     state.handleTools(ToolsEnum.RefreshDirectory)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   } catch (e) {
     state.$message.error(e && e.message)
   } finally {
@@ -240,30 +250,28 @@ const syncDeviceStatus = async function(state, id, type) {
 /**
  * 查看通道
  */
-const viewChannels = function(state, row) {
+const viewChannels = function (state, row) {
   state.handleTreeNode({ id: row[DeviceEnum.DeviceId], type: row[DeviceEnum.DeviceType] })
 }
 
 // 导出设备
-const exportDeviceExcel = async function(state, policy, data) {
+const exportDeviceExcel = async function (state, policy, data) {
   state.loading.export = true
   try {
-    const params: any = {}
+    let params: any = {}
     if (policy === ToolsEnum.ExportAll) {
-      params.command = 'all'
-    } else {
-      params.command = 'selected'
-      let deviceArr: any = []
-      if (policy === ToolsEnum.ExportCurrentPage) {
-        deviceArr = data.deviceList
-      } else if (policy === ToolsEnum.ExportSelected) {
-        deviceArr = data.selectedDeviceList
+      params = {
+        command: 'all',
+        ...data
       }
-      params.deviceIds = deviceArr.map((device: any) => {
-        return { [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId] }
-      })
+    } else {
+      params = {
+        command: 'selected',
+        policy,
+        ...data
+      }
     }
-    await exportDevicesExcel(params)
+    await exportDeviceFile(state, params)
   } catch (e) {
     state.$message.error('导出失败')
     console.log(e)
@@ -271,69 +279,90 @@ const exportDeviceExcel = async function(state, policy, data) {
   state.loading.export = false
 }
 
-// 导出设备实体方法
-async function exportDevicesExcel(data: any) {
-  const params: any = {
-    groupId: data.groupId,
-    inProtocol: data.inProtocol,
-    dirId: data.dirId.toString(),
-    parentDeviceId: data.parentDeviceId
-  }
-  // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
-  let res
+const exportDeviceFile = async function (state, data: any) {
   try {
-    if (data.command === 'all') {
-      const query = this.$route.query
-      params.deviceStatusKeys = query.deviceStatusKeys || undefined
-      params.streamStatusKeys = query.streamStatusKeys || undefined
-      params.deviceAddresses = query.deviceAddresses || undefined
-      params.matchKeys = query.matchKeys
-      params.searchKey = query.searchKey || undefined
-      params.pageSize = 5000
-      params.pageNum = 1
-      res = await exportDeviceAll(params)
-    } else if (data.command === 'selected') {
-      params.deviceIds = data.deviceIds
-      res = await exportDeviceOption(params)
+    let res: any = {}
+    if (data.command === 'all'){
+      const param: any = {
+        sortBy: '',
+        sortDirection: 'desc',
+        pageNum: 1,
+        pageSize: 9999
+      }
+      const { query } = state.$route
+
+       if (query.type === 'nvr'){
+        param.parentDeviceId = data.currentDirId
+      } else {
+        param.dirId = query.dirId
+      }
+      
+      res = await exportDeviceAll(param)
+    } else {
+      let deviceArr: any = []
+      if (data.policy === ToolsEnum.ExportCurrentPage) {
+        deviceArr = data.deviceList
+      } else if (data.policy === ToolsEnum.ExportSelected) {
+        deviceArr = data.selectedDeviceList
+      }
+      const deviceIds = deviceArr.map((device: any) =>  device[DeviceEnum.DeviceId]  )
+      const param = {
+        deviceIds
+      }
+      res = await exportDeviceOption(param)
     }
-    this.downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
-  } catch (e) {
-    console.log(e)
+    ExportExcelTemplate.downloadFileUrl('设备表格', res.exportFile)
+  } catch (error) {
+    console.log(error)
   }
+
+}
+
+/**
+ * 配置子通道
+ * @param state.$router 路由
+ * @param dirId 目录id
+ */
+ const configureChannels = function (state, data) {
+  state.$router.push({
+    name: 'ConfigureChannels',
+    query: {
+      ...state.$route.query,
+      channelNumList: data.length ? data.map(item => item.deviceChannelNum).join(',') : ''
+    }
+  })
 }
 
 /**
  * 导入设备表
  */
-const uploadExcel = function(state, data: any) {
-  console.log(data)
-  // if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
-  // state.dialog.uploadExcel = true
-  //   state.selectedFile = data.file
-  //   state.fileData = {
-  //     groupId: this.groupId,
-  //     inProtocol: this.inProtocol,
-  //     dirId: this.dirId,
-  //     fileName: data.file.name
-  //   }
-  //   if (this.isNVR) {
-  //     this.fileData.parentDeviceId = this.deviceInfo.deviceId
-  //     delete this.fileData.dirId
-  //   }
-  // } else {
-  //   this.$message.error('导入文件必须为表格')
-  // }
+const uploadExcel = function (getVueComponent, data: any, dirId) {
+  const state = getVueComponent()
+  if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+    state.selectedFile = data.file
+    state.fileData = {
+      dirId: dirId,
+      fileName: data.file.name
+    }
+    state.dialog[ToolsEnum.Import] = true
+    if (this.isNVR) {
+      state.fileData.parentDeviceId = state.deviceInfo.deviceId
+      delete state.fileData.dirId
+    }
+  } else {
+    state.$message.error('导入文件必须为表格')
+  }
 }
 
 /**
  * 导出模板
  */
-const exportTemplate = function(state) {
-  ExportExcelTemplate.exportTemplate(state)
+const exportTemplate = function (state) {
+  state.dialog[ToolsEnum.ExportTemplate] = true
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal
-  // this.exelName = `${currentInProtocal}导入模板`
+  // this.exelName = `${currentInProtocal}导入模板` 
   // this.regionName = this.groupData?.regionName || ''
   // this.excelGroupDate = this.groupData
   // if (this.isNVR) {
@@ -348,24 +377,12 @@ const exportTemplate = function(state) {
 /**
  * 启用/停用设备
  */
-const startOrStopDevice = async function(state, type, row?) {
+const startOrStopDevice = async function (state, type, data?) {
   const method = type === ToolsEnum.StartDevice ? startDevice : stopDevice
   const methodStr = type === ToolsEnum.StartDevice ? '启用' : '停用'
-  if (row) {
-    // 单个操作
-    try {
-      const params: any = {
-        [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
-      }
-      await method(params)
-      state.$message.success(`已通知${methodStr}设备`)
-      state.handleTools(ToolsEnum.RefreshDirectory)
-    } catch (e) {
-      state.$message.error(e && e.message)
-    }
-  } else {
+  if (data instanceof Array) {
     // 批量操作
-    const deviceList = state.selectedDeviceList.filter(device => {
+    const deviceList = data.filter(device => {
       return device[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc
     })
     const h: Function = state.$createElement
@@ -384,7 +401,7 @@ const startOrStopDevice = async function(state, type, row?) {
         showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        beforeClose: async(action: any, instance: any, done: Function) => {
+        beforeClose: async (action: any, instance: any, done: Function) => {
           if (action === 'confirm') {
             instance.confirmButtonLoading = true
             instance.confirmButtonText = '...'
@@ -392,7 +409,7 @@ const startOrStopDevice = async function(state, type, row?) {
               await Promise.all(
                 deviceList.map(device => {
                   return method({
-                    [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+                    [DeviceEnum.DeviceId]: device.deviceId
                   })
                 })
               )
@@ -411,27 +428,48 @@ const startOrStopDevice = async function(state, type, row?) {
       .then(() => {
         state.$message.success(`已通知${methodStr}设备`)
         state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
       })
       .catch(e => {
         if (e === 'cancel' || e === 'close') return
         state.$message.error(e && e.message)
       })
+  } else {
+    // 单个操作
+    try {
+      const params: any = {
+        [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId]
+      }
+      await method(params)
+      state.$message.success(`已通知${methodStr}设备`)
+      // 启停操作为异步操作，过3秒后刷新目录和当前视图
+      setTimeout(() => {
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView, 5)
+      }, 3000)
+    } catch (e) {
+      state.$message.error(e && e.message)
+    }
   }
 }
 
 /**
  * 开始/停止录像
  */
-const startOrStopRecord = async function(state, type, row) {
+const startOrStopRecord = async function (state, type, row) {
   const method = type === ToolsEnum.StartRecord ? startRecord : stopRecord
   const methodStr = type === ToolsEnum.StartRecord ? '开始' : '停止'
   try {
     const params: any = {
-      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId]
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.RecordTaskId]: row[DeviceEnum.RecordTaskId]
     }
     await method(params)
     state.$message.success(`已通知${methodStr}录制`)
-    state.handleTools(ToolsEnum.RefreshDirectory)
+    // 启停操作为异步操作，过3秒后当前视图
+    setTimeout(() => {
+      state.handleTools(ToolsEnum.RefreshRouterView, 5)
+    }, 3000)
   } catch (e) {
     state.$message.error(e && e.message)
     console.error(e)
@@ -447,7 +485,7 @@ const startOrStopRecord = async function(state, type, row) {
  * @param type 触发打开窗口的事件类型
  * @param row 设备信息
  */
-const openListDialog = function(getVueComponent, type: string, row?: any) {
+const openListDialog = function (getVueComponent, type: string, row?: any) {
   const state = getVueComponent()
   switch (type) {
     case ToolsEnum.MoveDevice:
@@ -470,7 +508,7 @@ const openListDialog = function(getVueComponent, type: string, row?: any) {
  * @param type 触发关闭窗口的事件类型
  * @param isRefresh 是否更新列表
  */
-const closeListDialog = function(state, type: string, isfresh: any) {
+const closeListDialog = function (state, type: string, isfresh: any) {
   state.dialog[type] = false
   switch (type) {
     case ToolsEnum.MoveDevice:
@@ -479,7 +517,7 @@ const closeListDialog = function(state, type: string, isfresh: any) {
   }
   if (isfresh === true) {
     state.handleTools(ToolsEnum.RefreshDirectory)
-    state.handleTools(ToolsEnum.RefreshDeviceList)
+    state.handleTools(ToolsEnum.RefreshRouterView)
   }
 }
 
@@ -488,7 +526,7 @@ const closeListDialog = function(state, type: string, isfresh: any) {
  * @param getVueComponent 获取Vue实例函数
  * @param level 返回层级数（0/1/2...）
  */
-const goBack = function(
+const goBack = function (
   getVueComponent: any,
   level: number
 ) {
@@ -502,14 +540,16 @@ const goBack = function(
 /**
  * 查看设备事件
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewEvents = function(state, id) {
+const previewEvents = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceEvents',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -517,14 +557,16 @@ const previewEvents = function(state, id) {
 /**
  * 实时预览
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewVideo = function(state, id) {
+const previewVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DevicePreview',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -532,14 +574,16 @@ const previewVideo = function(state, id) {
 /**
  * 录像回放
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const replayVideo = function(state, id) {
+const replayVideo = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceReplay',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -547,14 +591,16 @@ const replayVideo = function(state, id) {
 /**
  * 视图查看
  * @param state.$router 路由
- * @param id 设备id
+ * @param row 设备信息
  */
-const previewViid = function(state, id) {
+const previewViid = function (state, row?: any) {
   state.$router.push({
     name: 'DeviceViid',
     query: {
       ...state.$route.query,
-      [DeviceEnum.DeviceId]: id
+      [DeviceEnum.DeviceId]: row[DeviceEnum.DeviceId],
+      [DeviceEnum.DirId]: '',
+      type: row[DeviceEnum.DeviceType]
     }
   })
 }
@@ -568,8 +614,9 @@ export default {
   syncDevice,
   syncDeviceStatus,
   statusPolling,
-  refreshDeviceList,
+  refreshRouterView,
   viewChannels,
+  configureChannels,
   exportDeviceExcel,
   uploadExcel,
   exportTemplate,

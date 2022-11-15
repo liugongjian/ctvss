@@ -4,12 +4,12 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="子目录排序" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.SortDirectory)">
+          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.SortDirectory)">
             <svg-icon name="sort" />
           </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="添加目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)">
+          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.AddDirectory)">
             <svg-icon name="plus" />
           </el-button>
         </el-tooltip>
@@ -89,13 +89,12 @@ export default class extends Mixins(layoutMxin) {
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     const { id, type } = data || {}
-    // 若同一目录要主动触发列表刷新
-    const refreshFlag = this.$route.query.dirId === id
     this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {
+          ...this.$route.query,
           type: type,
           deviceId: id,
           dirId: ''
@@ -111,7 +110,6 @@ export default class extends Mixins(layoutMxin) {
           deviceId: id
         }
       })
-      refreshFlag && this.handleTools(this.toolsEnum.RefreshDeviceList)
     }
   }
 }

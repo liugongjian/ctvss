@@ -5,7 +5,8 @@
         <div class="detail__title">
           设备信息
           <div class="detail__buttons">
-            <el-button v-if="!isEdit.basicInfo" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" type="text" @click="deleteDevice">删除</el-button>
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" @updateDevice="updateDevice()" />
@@ -41,15 +42,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Provide, Inject, Watch } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
 import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
-import { DeviceInTypeEnum } from '@vss/device/enums'
+import { DeviceInTypeEnum, ToolsEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { checkDeviceToolsVisible } from '@vss/device/utils/param'
+import { checkPermission } from '@vss/base/utils/permission'
+import { PolicyEnum } from '@vss/base/enums/iam'
 
 @Component({
   name: 'DeviceInfo',
@@ -63,27 +67,122 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Inject('handleTools')
+  private handleTools!: Function
+
   @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
   private deviceInTypeEnum = DeviceInTypeEnum
+  private policyEnum = PolicyEnum
+  private toolsEnum = ToolsEnum
   private activeTab = DeviceInTypeEnum.Video
   private isEdit = {
     basicInfo: false,
     videoInfo: false,
     viidInfo: false
   }
+  // 定时刷新
+  private refreshCount = {
+    target: 0, // 目标总的刷新次数
+    index: 0 // 当前刷新的次数
+  }
+  private refreshTimeout = null
+
+  @Watch('$route.query.refreshFlag', { deep: true, immediate: true })
+  private async refreshFlagChange(val) {
+    if (val > 0) {
+      this.refreshCount.target = val
+      this.refreshCount.index = 0
+      this.updateDevice()
+      this.handleTools(ToolsEnum.RefreshRouterView, 0)
+    }
+  }
+
+  @Watch('$route.query.deviceId')
+  public async deviceIdChange() {
+    await this.getDevice()
+    this.setTab()
+  }
 
   public async mounted() {
     await this.getDevice()
 
-    // 只有viid设备时tab默认选中viid
-    if (this.hasViid && !this.hasVideo) {
-      this.activeTab = DeviceInTypeEnum.Viid
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
+
+    this.setTab()
+
+    // 编辑模式打开所有编辑状态
+    if (this.$route.params.isEdit) {
+      this.isEdit = {
+        basicInfo: true,
+        videoInfo: true,
+        viidInfo: true
+      }
     }
   }
 
-  public updateDevice() {
-    this.getDevice(this.deviceId, true)
+  private destroyed() {
+    clearTimeout(this.refreshTimeout)
+  }
+
+  /**
+   * 刷新设备
+   */
+  public async updateDevice() {
+    // 如果在编辑模式中，则不刷新
+    const isEdit = Object.values(this.isEdit).some(val => val)
+    if (isEdit) return
+    
+    await this.getDevice(this.deviceId, true, false)
+    this.setTab()
+    // 如果设备不存在直接跳出当前目录
+    if (!(this.device.device && this.device.device.deviceId)) {
+      this.handleTools(ToolsEnum.GoBack, 1)
+    }
+    // 进行多次刷新，保证设备相关状态的更新
+    if (this.refreshCount.index < this.refreshCount.target) {
+      this.refreshTimeout = setTimeout(this.updateDevice, 5000)
+      this.refreshCount.index++
+    }
+  }
+
+  /**
+   * 删除设备
+   */
+  private deleteDevice() {
+    this.handleTools(ToolsEnum.DeleteDevice, this.device.device)
+  }
+
+  /**
+   * 设置Tab
+   */
+  private setTab() {
+    // 只有viid设备时tab默认选中viid
+    if (this.hasViid && !this.hasVideo) {
+      this.activeTab = DeviceInTypeEnum.Viid
+    } else {
+      this.activeTab = DeviceInTypeEnum.Video
+    }
+  }
+
+  /**
+   * 判断是否显示tools
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  @Provide('checkToolsVisible')
+  private checkToolsVisible(prop, permissions?) {
+    const data = {
+      deviceType: this.deviceType,
+      inProtocol: this.inProtocol,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared,
+    }
+    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
   }
 }
 </script>
