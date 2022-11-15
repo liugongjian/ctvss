@@ -130,7 +130,7 @@ export default class LayoutMixin extends Vue {
    * 懒加载时加载节点方法
    * @param node 节点信息
    */
-  public treeLoad = async function (node) {
+  public async treeLoad(node) {
     let res
     // 增加 层级关系
     if (node.level === 0) {
@@ -167,8 +167,19 @@ export default class LayoutMixin extends Vue {
         }])
       })
     }
+    // 节点过滤
+    if (Array.isArray(this.filterTypeArr) && this.filterTypeArr.length) {
+      res.dirs = res.dirs.filter((dir: any) => this.filterTypeArr.includes(dir.type))
+    }
+    if (Array.isArray(this.filterInProtocolArr) && this.filterInProtocolArr.length) {
+      res.dirs = res.dirs.filter((dir: any) => !dir.inProtocol || this.filterInProtocolArr.includes(dir.inProtocol))
+    }
+    if (Array.isArray(this.filterVideoProtocolArr) && this.filterVideoProtocolArr.length) {
+      res.dirs = res.dirs.filter((dir: any) => !dir.inVideoProtocol || this.filterVideoProtocolArr.includes(dir.inVideoProtocol))
+    }
+    
     return res.dirs
-  }.bind(this)
+  }
 
   /**
    * 左侧功能触发回调
