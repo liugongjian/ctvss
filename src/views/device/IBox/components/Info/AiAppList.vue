@@ -127,12 +127,12 @@ export default class AiAppList extends Vue {
     this.alarms = []
     const promiseArray = []
     this.tableData.forEach((app) => {
-      const deviceIds = JSON.parse(app.deviceIds)
-      if (deviceIds) {
-        deviceIds.forEach(deviceId => promiseArray.push(this.getAlarm(app.appId, deviceId)))
-      }
-    }
-    )
+      // const deviceIds = JSON.parse(app.deviceIds)
+      // if (deviceIds) {
+      //   deviceIds.forEach(deviceId => promiseArray.push(this.getAlarm(app.appId, deviceId)))
+      // }
+      promiseArray.push(this.getAlarm(app.appId))
+    })
     await Promise.all(promiseArray)
     const alarms = {}
     this.alarms.forEach(item => {
@@ -141,10 +141,16 @@ export default class AiAppList extends Vue {
     this.tableData = this.tableData.map(item => ({ ...item, count: alarms[item.appId] || 0 }))
   }
 
-  public async getAlarm(appId, deviceId) {
+  // public async getAlarm(appId, deviceId) {
+  //   const res = await getAiAlarm({
+  //     appId,
+  //     deviceId
+  //   })
+  //   this.alarms.push(res)
+  // }
+  public async getAlarm(appId) {
     const res = await getAiAlarm({
-      appId,
-      deviceId
+      appId
     })
     this.alarms.push(res)
   }
@@ -223,7 +229,7 @@ export default class AiAppList extends Vue {
 
 <style lang="scss" scoped>
 .algo-container {
-  height: calc(100% - 40px);
+  height: calc(100% - 70px);
   overflow-y: auto;
 }
 </style>

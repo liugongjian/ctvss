@@ -9,7 +9,7 @@
       top="7vh"
       @close="cancel"
     >
-      <div v-if="frameLoading==='error'" class="loadingFailed">图像加载失败</div>
+      <div v-if="frameLoading==='error'" class="loadingFailed">设备不在线</div>
       <div v-else v-loading="loading.frameImage" class="configureInfo">
         <!-- <div class="configureDetail">
           <span class="configureName">应用名称：</span>
