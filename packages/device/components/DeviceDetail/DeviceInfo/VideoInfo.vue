@@ -14,7 +14,7 @@
             <el-dropdown-item v-if="recordStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
           </div>
-          <el-dropdown-item v-if="hasViid && checkToolsVisible(toolsEnum.DeleteDevice)" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
+          <!-- <el-dropdown-item v-if="hasViid && checkToolsVisible(toolsEnum.DeleteDevice)" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item> -->
         </el-dropdown-menu>
       </el-dropdown>
     </div>
