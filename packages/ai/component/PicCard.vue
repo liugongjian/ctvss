@@ -35,7 +35,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
-import Locations from '@/views/Dashboard/AI/components/Locations.vue'
+import Locations from './Locations.vue'
 import Attributes from '@/views/Dashboard/AI/components/Attributes.vue'
 import { transformLocationAi } from '@/utils/ai'
 import AlgoConfigs from './AlgoConfig'
