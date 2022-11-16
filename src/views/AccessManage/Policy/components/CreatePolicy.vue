@@ -93,6 +93,7 @@ import layoutMxin from '@vss/device/mixin/layoutMixin'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  private filterTypeArr = ['dir']
   public hasCheckbox = true
   private breadCrumbContent = ''
   private systemActionList = [
@@ -219,7 +220,7 @@ export default class extends Mixins(layoutMxin) {
   private get isUpdate() {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
-  public async mounted() {
+  public async created() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
       ? this.$route.meta.title
@@ -346,7 +347,7 @@ export default class extends Mixins(layoutMxin) {
    * 初始化资源选中状态
    */
   public async initResourceStatus() {
-    this.policyPromise.then( async(policy: any) => {
+    this.policyPromise && this.policyPromise.then( async(policy: any) => {
       const resourceList = JSON.parse(policy.policyDocument).Statement[0].Resource
       if (resourceList.length) {
         const pathList = resourceList.map((resource: any) => resource.split(':')[2].split('/'))

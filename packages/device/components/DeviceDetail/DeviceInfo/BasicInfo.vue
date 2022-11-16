@@ -9,8 +9,8 @@
         <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
         <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
         <span class="device-in-type__buttons">
-          <el-button v-if="!hasVideo" type="text" @click="openDialog(deviceInTypeEnum.Video)">添加视频</el-button>
-          <el-button v-if="!hasViid && !isIbox" type="text" @click="openDialog(deviceInTypeEnum.Viid)">添加视图</el-button>
+          <el-button v-if="!hasVideo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="openDialog(deviceInTypeEnum.Video)">添加视频</el-button>
+          <el-button v-if="!hasViid && !isIbox && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="openDialog(deviceInTypeEnum.Viid)">添加视图</el-button>
         </span>
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
@@ -23,7 +23,7 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址">{{ orgRegionTxt }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP">{{ basicInfo.deviceIp || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.devicePort)" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号">{{ basicInfo.devicePoleId || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址">{{ basicInfo.deviceMac || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceSerialNumber)" label="设备SN码">{{ basicInfo.deviceSerialNumber || '-' }}</el-descriptions-item>
@@ -35,9 +35,10 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, DeviceInTypeEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceInTypeEnum, ToolsEnum } from '@vss/device/enums'
+import { PolicyEnum } from '@vss/base/enums/iam'
 import { Device, DeviceBasic, VideoDevice, Industry } from '@vss/device/type/Device'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { translateIndustry, translateNetwork, translateOrgRegion, translateResourceRegion } from '@vss/device/api/dict'
@@ -52,12 +53,16 @@ import ViidInfoDialog from './ViidInfoDialog.vue'
   }
 })
 export default class extends Vue {
+  @Inject('checkToolsVisible')
+  private checkToolsVisible!: Function
   @Prop() private device: Device
   @Prop({ default: false }) public isIbox: boolean
 
   private dicts = dicts
   private deviceInTypeEnum = DeviceInTypeEnum
   private deviceEnum = DeviceEnum
+  private toolsEnum = ToolsEnum
+  private policyEnum = PolicyEnum
   private dialog = {
     [DeviceInTypeEnum.Video]: false,
     [DeviceInTypeEnum.Viid]: false

@@ -373,7 +373,7 @@ export default class extends Vue {
    */
   private editPlatform(platform: any) {
     this.$router.push({
-      path: '/up-platform/gb28121-update',
+      name: 'VideoUpPlatformUpdate',
       query: {
         platformId: platform.platformId
       }
@@ -515,7 +515,9 @@ export default class extends Vue {
   }
 
   private handleCreate() {
-    this.$router.push('/up-platform/gb28121-create')
+    this.$router.push({
+      name: 'VideoUpPlatformCreate'
+    })
   }
 
   private addDevices() {

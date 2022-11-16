@@ -23,7 +23,7 @@ const SCREEN_CACHE_KEY = {
 const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
 const SCREEN_CACHE_PARAMS = [
   'isLive',
-  // 'inProtocol',
+  'inProtocol',
   'deviceId',
   'deviceName',
   // 'roleId',
@@ -157,7 +157,7 @@ export class ScreenManager {
     this.transformDeviceParams(screen, item, streamNum)
     screen.streams = this.fillStreams(screen)
     screen.isLive = this.isLive
-    screen.inProtocol = item.inProtocol
+    screen.inProtocol = item.inVideoProtocol
     // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
     if (this.isSync) {
       const currentRecordDatetime = this.findRecordCurrentDatetime()

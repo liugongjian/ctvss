@@ -254,7 +254,10 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private async mounted() {
-    this.hasGroupSelector && GroupModule.GetGroupList()
+    
+    if (UserModule.version !== 2) {
+      GroupModule.GetGroupList()
+    }
     this.aiInfos = await this.getAiApps()
 
     // TODO: Hardcode 300015

@@ -113,8 +113,29 @@ export function checkViidVisible(deviceType: DeviceTypeEnum, inViidProtocol: InV
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkTreeToolsVisible(type: string, prop: DeviceEnum): boolean {
-  return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop)
+export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+  let allowFlag = true
+
+  // platform下设备及目录特殊处理
+  if (data && (data.dirFrom === DeviceTypeEnum.Platform)) {
+    allowFlag = ![
+      ToolsEnum.AddDirectory,
+      ToolsEnum.EditDirectory,
+      ToolsEnum.DeleteDirectory
+    ].includes(prop)
+  }
+
+  // role分享的设备及目录特殊处理
+  if (data && data[DeviceEnum.IsRoleShared]) {
+    allowFlag = ![
+      ToolsEnum.AddDirectory,
+      ToolsEnum.SortDirectory,
+      ToolsEnum.EditDirectory,
+      ToolsEnum.DeleteDirectory,
+    ].includes(prop)
+  }
+
+  return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop) && allowFlag
 }
 
 /**
@@ -157,29 +178,41 @@ export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: an
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
   }
 
-  // platform特殊处理
-  if (type === DeviceTypeEnum.Platform) {
-    allowFlag = ![ToolsEnum.DeleteDevices, ToolsEnum.MoveDevices].includes(prop)
+  // platform下设备及目录特殊处理
+  if (data && (data[DeviceEnum.DeviceFrom] === DeviceTypeEnum.Platform)) {
+    allowFlag = ![
+      ToolsEnum.AddDevice,
+      ToolsEnum.ConfigureChannels,
+      ToolsEnum.Import,
+      ToolsEnum.ExportTemplate,
+      ToolsEnum.OperateDevices,
+      ToolsEnum.MoveDevice,
+      ToolsEnum.MoveDevices
+    ].includes(prop)
+  }
+
+  // role分享的设备及目录特殊处理
+  if (data && data[DeviceEnum.IsRoleShared]) {
+    allowFlag = ![
+      ToolsEnum.AddDevice,
+      ToolsEnum.ConfigureChannels,
+      ToolsEnum.EditDevice,
+      ToolsEnum.DeleteDevice,
+      ToolsEnum.Import,
+      ToolsEnum.ExportTemplate,
+      ToolsEnum.OperateDevices,
+      ToolsEnum.StartDevice,
+      ToolsEnum.StopDevice,
+      ToolsEnum.StartRecord,
+      ToolsEnum.StopRecord,
+      ToolsEnum.MoveDevice,
+      ToolsEnum.UpdateResource
+    ].includes(prop)
   }
 
   // ConfigureChannels仅供ehome使用
   if (prop === ToolsEnum.ConfigureChannels && type === DeviceTypeEnum.Nvr) {
     return data && data[DeviceEnum.InProtocol] === InVideoProtocolEnum.Ehome
-  }
-
-  // role分享的设备及目录特殊处理
-  if (data && data[DeviceEnum.IsRoleShared]) {
-    allowFlag = [
-      ToolsEnum.ViewDevice,
-      ToolsEnum.SyncDeviceStatus,
-      ToolsEnum.Export,
-      ToolsEnum.ExportAll,
-      ToolsEnum.ExportCurrentPage,
-      ToolsEnum.PreviewEvents,
-      ToolsEnum.PreviewVideo,
-      ToolsEnum.ReplayVideo,
-      ToolsEnum.PreviewViid
-    ].includes(prop)
   }
 
 

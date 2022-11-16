@@ -1,3 +1,4 @@
+/**TODO: 待删除V1接口 */
 import request from '@/utils/request'
 
 /**
@@ -37,6 +38,17 @@ export const getPlatforms = (params: any): Promise<any> =>
   request({
     // url: '/platform/platforms/describe',
     url: '/platform/describeList',
+    method: 'get',
+    params
+  })
+
+/**
+ * 查询上级平台列表
+ */
+export const getPlatformsV1 = (params: any): Promise<any> =>
+  request({
+    url: '/platform/platforms/describe',
+    // url: '/platform/describeList',
     method: 'get',
     params
   })
@@ -82,6 +94,17 @@ export const describeShareDirs = (params: any): Promise<any> =>
     params
   })
 
+  /**
+ * 共享设备目录查询
+ */
+export const describeShareDirsV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/describeShareDirs',
+    // url: '/shareDir/describeList',
+    method: 'get',
+    params
+  })
+
 /**
  * 共享设备列表查询
  */
@@ -89,6 +112,17 @@ export const describeShareDevices = (params: any): Promise<any> =>
   request({
     // url: '/device/platform/describeShareDevices',
     url: '/shareDevice/describeList',
+    method: 'get',
+    params
+  })
+
+/**
+ * 共享设备列表查询
+ */
+export const describeShareDevicesV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/describeShareDevices',
+    // url: '/shareDevice/describeList',
     method: 'get',
     params
   })
@@ -104,6 +138,17 @@ export const shareDevice = (params: any): Promise<any> =>
     data: params
   })
 
+  /**
+ * 共享设备
+ */
+export const shareDeviceV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/shareDevice',
+    // url: '/platform/shareDevice',
+    method: 'post',
+    data: params
+  })
+
 /**
  * 取消共享设备
  */
@@ -115,6 +160,17 @@ export const cancleShareDevice = (params: any): Promise<any> =>
     data: params
   })
 
+  /**
+ * 取消共享设备
+ */
+export const cancleShareDeviceV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/cancleShareDevice',
+    // url: '/shareDevice/cancel',
+    method: 'post',
+    data: params
+  })
+
 /**
  * 取消共享设备
  */
@@ -122,6 +178,17 @@ export const cancleShareDir = (params: any): Promise<any> =>
   request({
     // url: '/device/platform/cancleShareDir',
     url: '/shareDir/cancel',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 取消共享设备
+ */
+export const cancleShareDirV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/cancleShareDir',
+    // url: '/shareDir/cancel',
     method: 'post',
     data: params
   })
@@ -194,6 +261,22 @@ export const validateShareDirs = (params: any): Promise<any> =>
   request({
     // url: '/device/platform/validateShareDirs',
     url: '/shareDir/validate',
+    method: 'post',
+    data: params
+  })
+
+export const validateShareDevicesV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDevices',
+    // url: '/shareDevice/validate',
+    method: 'post',
+    data: params
+  })
+
+export const validateShareDirsV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDirs',
+    // url: '/shareDir/validate',
     method: 'post',
     data: params
   })

@@ -242,7 +242,8 @@ export default class extends Mixins(Validate) {
           id: group.id,
           groupId: group.groupId,
           label: group.name,
-          inProtocol: group.inProtocol,
+          // inProtocol: group.inProtocol,
+          inProtocol: group.inVideoProtocol,
           gbId: group.outId || '',
           type: group.type,
           disabled: false,
@@ -250,7 +251,8 @@ export default class extends Mixins(Validate) {
             id: group.id,
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            inProtocol: group.inProtocol || '',
+            // inProtocol: group.inProtocol || '',
+            inProtocol: group.inVideoProtocol || '',
             upGbId: group.outId || '',
             upGbIdOrigin: group.outId || ''
           }],
@@ -626,14 +628,16 @@ export default class extends Mixins(Validate) {
           groupId: node.data.groupId,
           groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
           label: dir.name,
-          inProtocol: dir.inProtocol || node.data.inProtocol,
+          // inProtocol: dir.inProtocol || node.data.inProtocol,
+          inProtocol: dir.inVideoProtocol || '', // 共享设备时，参数取值变化，因此，此处去字段变化
           channelNum: dir.channelNum + '' || '0',
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag && !isDeleteFlag,
-          path: node.data.path.concat([{ ...dir, upGbId: dir.outId || '', upGbIdOrigin: dir.outId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
+          // path: node.data.path.concat([{ ...dir, upGbId: dir.outId || '', upGbIdOrigin: dir.outId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
+          path: node.data.path.concat([{ ...dir, upGbId: dir.outId || '', upGbIdOrigin: dir.outId || '', inProtocol: dir.inVideoProtocol || '' }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
@@ -731,9 +735,6 @@ export default class extends Mixins(Validate) {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
-    console.log('this.deleteNodes:', this.deleteNodes)
-    console.log('selectSharedDevice  node:', node)
     this.selectedNode = node
   }
 
@@ -751,7 +752,6 @@ export default class extends Mixins(Validate) {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    debugger
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
         const draggingData = _.cloneDeep(draggingNode.data)

@@ -8,8 +8,12 @@
     center
     @close="closeDialog"
   >
-    <div v-loading="loading.dir" class="tree-wrap">
-      <el-tree
+    <div class="tree-wrap">
+      <simple-device-tree
+        ref="deviceTree"
+        @handle-node="selectDevice"
+      />
+      <!-- <el-tree
         v-if="!outerSearch.revertSearchFlag"
         key="device-dir-el-tree-original"
         ref="dirTree"
@@ -57,79 +61,30 @@
             <span class="sum-icon">{{ getSums(data) }}</span>
           </span>
         </span>
-      </el-tree>
+      </el-tree> -->
     </div>
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
-import { GroupModule } from '@/store/modules/group'
-import { Device } from '@/type/Device'
-import { getDeviceTree } from '@/api/device'
-import { VGroupModule } from '@/store/modules/vgroup'
-import { getSums } from '@/utils/device'
-import StatusBadge from '@/components/StatusBadge/index.vue'
+import { Component, Vue } from 'vue-property-decorator'
+import SimpleDeviceTree from '@vss/device/components/Tree/SimpleDeviceTree.vue'
+import { DirectoryTypeEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceDir',
   components: {
-    StatusBadge
+    SimpleDeviceTree
   }
 })
 export default class extends Vue {
-  @Inject('outerSearch') private outerSearch?: any
-  @Prop()
-  private device!: Device
   private dialogVisible = true
-  private submitting = false
-  public dirList = []
-  private currentDir: any = null
-  private getSums = getSums
-
-  /**
-   * 当前业务组ID
-   */
-  private get groupId() {
-    return GroupModule.group!.groupId
-  }
-
-  private async mounted() {
-    await this.initDirs()
-  }
-
-  public async initDirs() {
-    try {
-      VGroupModule.resetVGroupInfo()
-      this.loading.dir = true
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        deviceStatusKeys: this.outerSearch.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.outerSearch.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.outerSearch.matchKeys.join(',') || undefined,
-        searchKey: this.outerSearch.searchKey || undefined,
-        id: 0
-      })
-      this.dirList = this.setDirsStreamStatus(res.dirs)
-
-      // 根据搜索结果 组装 目录树（柳州搜索新增功能）
-      if (this.outerSearch.revertSearchFlag) {
-        this.dirList = this.transformDirList(this.dirList)
-      }
-    } catch (e) {
-      this.dirList = []
-      console.log(e)
-    } finally {
-      this.loading.dir = false
-    }
-  }
-
   private selectDevice(dir: any) {
-    if (dir.type === 'ipc') {
+    if (dir.type === DirectoryTypeEnum.Ipc) {
       this.closeDialog(dir)
     }
   }
 
-  private closeDialog(device: Device) {
+  private closeDialog(device) {
     this.dialogVisible = false
     this.$emit('on-close', device)
   }
@@ -139,38 +94,6 @@ export default class extends Vue {
   .tree-wrap {
     height: 300px;
     overflow: auto;
-
-    .svg-icon {
-      margin-right: 5px;
-      color: #6e7c89;
-    }
-
-    .node-name {
-      position: relative;
-    }
-
-    .custom-tree-node.online .node-name {
-      .svg-icon {
-        color: #65c465;
-      }
-    }
-
-    .custom-tree-node .sum-icon {
-      color: $textGrey;
-    }
-
-    .status-badge {
-      position: absolute;
-      top: -1px;
-      left: -3px;
-      width: 6px;
-      height: 6px;
-      opacity: 0.7;
-      display: none;
-
-      &--on {
-        display: block;
-      }
-    }
+    display: flex;
   }
 </style>

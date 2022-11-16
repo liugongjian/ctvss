@@ -311,23 +311,33 @@ export default class extends Vue {
   }
 
   private async deletePreset(presetId: number) {
-    await ptzControlApi.deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
-    // this.$set(this.presets, presetId - 1, {
-    //   'setFlag': false,
-    //   'name': `预置位 ${presetId}`,
-    //   'editNameFlag': false
-    // })
-    this.getPresets()
+    try {
+      await ptzControlApi.deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    } catch (e) {
+      this.$message.error(`删除预置位失败，原因：${e && e.message}`)
+    } finally {
+      this.getPresets()
+    }
   }
+
   private async setPreset(presetId: number, presetName: string) {
-    await ptzControlApi.setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
-    // this.$set(this.presets, presetId - 1, {
-    //   'setFlag': true,
-    //   'name': presetName,
-    //   'editNameFlag': false
-    // })
-    this.getPresets()
+    try {
+      await ptzControlApi.setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
+    } catch (e) {
+      this.$message.error(`设置预置位失败，原因：${e && e.message}`)
+    } finally {
+      this.getPresets()
+    }
   }
+
+  private async gotoPreset(presetId: number) {
+    try {
+      await ptzControlApi.gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    } catch (e) {
+      this.$message.error(`调用预置位失败，原因：${e && e.message}`)
+    }
+  }
+
   private enterEdit(preset: any, index: number) {
     preset.editNameFlag = true
     this.$nextTick(() => {
@@ -335,15 +345,14 @@ export default class extends Vue {
       $nameinput[0].focus()
     })
   }
+
   private closeEdit(preset: any, index: number) {
     if (!preset.name) {
       preset.name = `预置位 ${index + 1}`
     }
     preset.editNameFlag = false
   }
-  private async gotoPreset(presetId: number) {
-    await ptzControlApi.gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
-  }
+
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
       deviceId: this.deviceId

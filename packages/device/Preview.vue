@@ -99,6 +99,7 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public destroyed() {
+    this.saveCache()
     window.removeEventListener('beforeunload', this.saveCache)
   }
 

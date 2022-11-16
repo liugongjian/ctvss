@@ -9,22 +9,10 @@
   >
     <el-form v-if="step" label-width="10px" size="mini">
       <el-form-item>
-        <span>{{ 'AccessKeyId: ' + data.accessKey }}</span>
-        <el-button v-clipboard:copy="data.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
-          <svg-icon name="copy" />
-        </el-button>
-      </el-form-item>
-      <el-form-item>
-        <span>{{ 'SecretAccessKey: ' + data.secretKey }}</span>
-        <el-button v-clipboard:copy="data.secretKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
-          <svg-icon name="copy" />
-        </el-button>
-      </el-form-item>
-      <el-form-item>
         <el-alert
           type="error"
           :closable="false"
-          title="SecretAccessKey仅在本次弹窗显示一次，关闭后将无法找回。密钥信息是您的重要资产，请妥善保存。"
+          title="请及时下载保存密钥信息，弹窗关闭后将无法再次获取该密钥信息。密钥信息是您的重要资产，请妥善保存。"
         />
       </el-form-item>
     </el-form>
@@ -38,8 +26,8 @@
       <el-button @click="closeDialog">取消</el-button>
     </div>
     <div v-else slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="loading" @click="downloadCSV">下载CSV文件</el-button>
-      <el-button type="primary" :loading="loading" @click="downloadSecret">下载密钥</el-button>
+      <el-button type="primary" :loading="loading" @click="downloadCSV">立即下载密钥</el-button>
+      <!-- <el-button type="primary" :loading="loading" @click="downloadSecret">下载密钥</el-button> -->
       <el-button @click="closeDialog">关闭</el-button>
     </div>
   </el-dialog>
@@ -91,7 +79,7 @@ export default class extends Mixins(ExcelMixin) {
     this.$emit('loading-change', true)
     try {
       const res = await exportSecretCSV({ ids: [this.data.id] })
-      this.downloadFileUrl(`${this.data.type === 'api' ? 'API密钥' : 'OpenAPI授权'}`, res.exportFile)
+      this.downloadFileUrl('API密钥', res.exportFile)
     } catch (e){
       console.log(e)
     } finally {

@@ -23,6 +23,8 @@ type DeviceBasic = {
   [DeviceEnum.DeviceName]?: string
   [DeviceEnum.DeviceLocalName]?: string // 设备侧名称
   [DeviceEnum.DeviceType]?: DeviceTypeEnum
+  [DeviceEnum.DeviceFrom]?: string
+  [DeviceEnum.IsRoleShared]?: string
   [DeviceEnum.DeviceLongitude]?: string
   [DeviceEnum.DeviceLatitude]?: string
   [DeviceEnum.DeviceVendor]?: string
@@ -80,7 +82,7 @@ type VideoDevice = {
   [DeviceEnum.SipTcpPort]?: string
   [DeviceEnum.SipUdpPort]?: string
   [DeviceEnum.InType]?: string // 视频流接入方式，取值: push, pull
-  [DeviceEnum.PushType]?: number // 是否启用自动激活推流地址，InType设置为push，该字段才有效。
+  [DeviceEnum.PushType]?: string // 是否启用自动激活推流地址，InType设置为push，该字段才有效。
   [DeviceEnum.PushUrl]?: string
   [DeviceEnum.PullUrl]?: string
   [DeviceEnum.UserName]?: string

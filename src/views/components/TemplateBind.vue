@@ -6,12 +6,12 @@
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
           <el-table-column prop="recordType" label="是否启用自动录制">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.recordType === 1 ? '是':'否' }}
             </template>
           </el-table-column>
           <el-table-column prop="storeType" label="录制格式">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.flvParam.enable ? 'flv': '' }}
               {{ row.hlsParam.enable ? 'hls': '' }}
               {{ row.mpParam.enable ? 'mp4': '' }}
@@ -26,7 +26,7 @@
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定回调模板">
           <el-table-column prop="templateName" label="模板名称" min-width="50" />
           <el-table-column label="回调URL">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <div v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</div>
               <div v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</div>
               <div v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</div>
@@ -58,7 +58,7 @@
           <el-table-column prop="templateName" label="模板名称" />
           <el-table-column prop="description" label="模板概要" />
           <el-table-column prop="enableType" label="启动方式">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.enableType === 1 ? '自动开启' : '手动开启' }}
             </template>
           </el-table-column>
@@ -98,7 +98,7 @@ import SetAlertTemplate from './dialogs/SetAlertTemplate.vue'
 import { RecordTemplate } from '@/type/Template'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
-import { getAlertBind } from '@/api/template'
+import { getAlertBind } from '@vss/device/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
   name: 'TemplateBind',

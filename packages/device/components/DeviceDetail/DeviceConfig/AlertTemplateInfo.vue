@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { getAlertBind } from '@/api/template'
+import { getAlertBind } from '@vss/device/api/template'
 import SetAlertTemplate from '@vss/device/components/TemplateDialog/SetAlertTemplate.vue'
 import { checkPermission } from '@/utils/permission'
 

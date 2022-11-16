@@ -12,6 +12,7 @@
         :key="key"
         v-model="videoForm.inVideoProtocol"
         :label="key"
+        :disabled="checkInVideoProtocolDisabled(key)"
         @change="inVideoProtocolChange"
       >
         {{ value }}
@@ -167,9 +168,9 @@
         </el-popover>
       </template>
       <el-switch
-        v-model="videoForm[deviceEnum.PushType]"
-        :active-value="1"
-        :inactive-value="2"
+        v-model="videoForm.pushType"
+        :active-value="'1'"
+        :inactive-value="'2'"
       />
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.StreamTransProtocol)" :prop="deviceEnum.StreamTransProtocol">
@@ -343,11 +344,16 @@ export default class extends Vue {
       [DeviceEnum.DeviceStreamSize]: this.videoInfo.deviceStreamSize || 1,
       [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.deviceStreamAutoPull || 1,
       [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.deviceStreamPullIndex || 1,
-      [DeviceEnum.PushType]: this.videoInfo.pushType || 1,
+      [DeviceEnum.PushType]: this.videoInfo.pushType || '1',
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
+    }
+
+    // 编辑模式下RTSP密码不必填
+    if (this.isEdit) {
+      this.rules.password = []
     }
   }
 
@@ -440,6 +446,17 @@ export default class extends Vue {
       this.videoForm.inVideoProtocol,
       prop
     )
+  }
+
+  /**
+   * 判断需要禁用的协议类型
+   * EHOME暂不支持RTMP, EHOME协议
+   */
+  private checkInVideoProtocolDisabled(value) {
+    if (this.isIbox) {
+      return [InVideoProtocolEnum.Rtmp, InVideoProtocolEnum.Ehome].includes(value)
+    }
+    return false
   }
 
   /**

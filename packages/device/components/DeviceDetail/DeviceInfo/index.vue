@@ -5,8 +5,8 @@
         <div class="detail__title">
           设备信息
           <div class="detail__buttons">
-            <el-button v-if="!isEdit.basicInfo" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
-            <el-button v-if="!isEdit.basicInfo" type="text" @click="deleteDevice">删除</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" type="text" @click="deleteDevice">删除</el-button>
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" @updateDevice="updateDevice()" />
@@ -42,16 +42,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Inject, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Provide, Inject, Watch } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
 import VideoInfoEdit from './VideoInfoEdit.vue'
 import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
-import { DeviceInTypeEnum } from '@vss/device/enums'
+import { DeviceInTypeEnum, ToolsEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
-import { ToolsEnum } from '@vss/device/enums/index'
+import { checkDeviceToolsVisible } from '@vss/device/utils/param'
+import { checkPermission } from '@vss/base/utils/permission'
+import { PolicyEnum } from '@vss/base/enums/iam'
 
 @Component({
   name: 'DeviceInfo',
@@ -71,6 +73,8 @@ export default class extends Mixins(detailMixin) {
   @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
   private deviceInTypeEnum = DeviceInTypeEnum
+  private policyEnum = PolicyEnum
+  private toolsEnum = ToolsEnum
   private activeTab = DeviceInTypeEnum.Video
   private isEdit = {
     basicInfo: false,
@@ -162,6 +166,23 @@ export default class extends Mixins(detailMixin) {
     } else {
       this.activeTab = DeviceInTypeEnum.Video
     }
+  }
+
+  /**
+   * 判断是否显示tools
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  @Provide('checkToolsVisible')
+  private checkToolsVisible(prop, permissions?) {
+    const data = {
+      deviceType: this.deviceType,
+      inProtocol: this.inProtocol,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared,
+    }
+    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
   }
 }
 </script>

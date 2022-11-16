@@ -7,12 +7,12 @@ type Unit = 's' | 'ms'
 export const dateFormat = (date: Date | number | string, formatString = 'yyyy-MM-dd HH:mm:ss') => {
   if (!date) return ''
   let _date: Date | number
-  if (!isNaN(date as number)) {
+  if (typeof date === 'object') {
+    _date = date as Date
+  } else if (!isNaN(date as number)) {
     _date = parseInt(date as string)
   } else if (typeof date === 'string') {
     _date = new Date(date)
-  } else {
-    _date = date as Date
   }
   return format(_date, formatString)
 }

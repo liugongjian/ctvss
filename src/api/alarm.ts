@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export const getAlarmRules = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/describeAlarms',
+    url: '/alarm/info/list',
     method: 'get',
     params
   })
 
-export const deleteAlarmInfo = (params: any): Promise<any> =>
+export const deleteAlarmInfo = (data: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/deleteAlarmInfo',
-    method: 'get',
-    params
+    url: '/alarm/info/delete',
+    method: 'post',
+    data
   })
