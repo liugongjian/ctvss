@@ -3,7 +3,7 @@ import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
 import { getDir } from '@vss/device/api/dir'
-import { DeviceEnum, DirectoryTypeEnum } from '../enums/index'
+import { DeviceEnum, DeviceTypeEnum, DirectoryTypeEnum } from '../enums/index'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -29,7 +29,7 @@ export default class DeviceMixin extends Vue {
 
   // 设备类型
   public get deviceType() {
-    return this.$route.query.type || this.device.device && this.device.device.deviceType
+    return this.$route.query.type as DeviceTypeEnum | DirectoryTypeEnum || this.device.device && this.device.device.deviceType as DeviceTypeEnum
   }
 
   // 是否含视频

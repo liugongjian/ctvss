@@ -142,6 +142,7 @@ type Industry = {
   [DeviceEnum.NetworkCode]?: string // 设备的网络标识, 取值如下： 0、1、2、3、4 为监控报警专网，5为公安信息网，6为政务网，7为Internet网，8为社会资源接入网，9预留
 }
 
+
 /**
  * 设备地址
  */
@@ -170,15 +171,15 @@ type Device = {
  * 设备基本信息表单
  */
 type DeviceBasicForm = DeviceBasic &
-Industry & {
-  [DeviceEnum.ParentDeviceId]?: string
-  [DeviceEnum.DirId]?: string
-  [DeviceEnum.InNetworkType]?: string
-  [DeviceEnum.OutNetworkType]?: string
-  [DeviceEnum.Region]?: string
-  [DeviceEnum.DeviceInType]?: string[]
-  [DeviceEnum.Longlat]?: string
-}
+  Industry & {
+    [DeviceEnum.ParentDeviceId]?: string
+    [DeviceEnum.DirId]?: string
+    [DeviceEnum.InNetworkType]?: string
+    [DeviceEnum.OutNetworkType]?: string
+    [DeviceEnum.Region]?: string
+    [DeviceEnum.DeviceInType]?: string[]
+    [DeviceEnum.Longlat]?: string
+  }
 
 /**
  * 设备基本信息表单

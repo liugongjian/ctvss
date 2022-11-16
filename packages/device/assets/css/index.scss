@@ -314,8 +314,7 @@
       /* 接入方式 */
       .device-in-type + .device-in-type {
         &:before {
-          content: ',';
-          margin-right: $margin-small;
+          content: '、';
         }
       }
     }
