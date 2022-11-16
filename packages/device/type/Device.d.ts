@@ -1,4 +1,4 @@
-import { DeviceEnum, StatusEnum, Codec } from '../enums'
+import { DeviceEnum, StatusEnum, DeviceTypeEnum, Codec } from '../enums'
 import { Resource } from './Resource'
 
 /**

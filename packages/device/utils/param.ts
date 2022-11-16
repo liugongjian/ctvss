@@ -9,7 +9,7 @@ import {
   DeviceTypeDenyParamsForIbox,
   ChannelAllowParams
 } from '@vss/device/settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DirectoryTypeEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
 import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
@@ -150,7 +150,7 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
  * @param data 具体数据
  * @returns 判断结果
  */
-export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+export function checkDeviceToolsVisible(type: DeviceTypeEnum | DirectoryTypeEnum, prop: ToolsEnum, data?: any): boolean {
   let allowFlag = true
   // 不同inProtocol特殊处理
   if (data) {
