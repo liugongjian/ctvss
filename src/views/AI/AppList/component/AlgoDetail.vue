@@ -100,8 +100,8 @@
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
-      <el-divider content-position="left">告警配置</el-divider>
-      <el-form-item>
+      <el-divider v-if="!isSelectDevice" content-position="left">告警配置</el-divider>
+      <el-form-item v-if="!isSelectDevice">
         <template slot="label">
           告警配置:
           <el-popover
@@ -122,7 +122,7 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034') && !isSelectDevice"
         prop="alertPeriod"
         class="inline-form-item"
       >
@@ -142,7 +142,7 @@
         <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
       <el-select
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034') && !isSelectDevice"
         v-model="interval.alertPeriod"
         class="interval-unit"
       >
@@ -152,7 +152,7 @@
       </el-select>
       <br>
       <el-form-item
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034') && !isSelectDevice"
         prop="alertTriggerThreshold"
         class="inline-form-item"
       >
@@ -172,12 +172,12 @@
         <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
       <span
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034') && !isSelectDevice"
         style="margin-left: 16px;"
       >个</span>
       <br>
       <el-form-item
-        v-if="alertDisabled"
+        v-if="alertDisabled && !isSelectDevice"
         prop="alertSilencePeriod"
         class="inline-form-item"
       >
@@ -197,7 +197,7 @@
         <el-input v-model="form.alertSilencePeriod" class="alarm" />
       </el-form-item>
       <el-select
-        v-if="alertDisabled"
+        v-if="alertDisabled && !isSelectDevice"
         v-model="interval.alertSilencePeriod"
         class="interval-unit"
       >
