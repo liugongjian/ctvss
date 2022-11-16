@@ -35,8 +35,7 @@ export default class DeviceFormMixin extends Vue {
   }
 
   public loading = {
-    submit: false,
-    region: false
+    submit: false
   }
 
   /**

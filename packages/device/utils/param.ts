@@ -9,7 +9,7 @@ import {
   DeviceTypeDenyParamsForIbox,
   ChannelAllowParams
 } from '@vss/device/settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
 import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
@@ -133,6 +133,14 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
       ToolsEnum.EditDirectory,
       ToolsEnum.DeleteDirectory,
     ].includes(prop)
+  }
+
+  if (prop === ToolsEnum.StreamStatus) {
+    console.log(data)
+  }
+  // 流状态绿点特殊处理
+  if (data && (data[DeviceEnum.StreamStatus] !== StatusEnum.On) && (prop === ToolsEnum.StreamStatus)) {
+    return false
   }
 
   return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop) && allowFlag

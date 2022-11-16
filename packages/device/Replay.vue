@@ -25,6 +25,12 @@
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
+        <polling-mask
+          ref="pollingMask"
+          :current-dir="currentDir"
+          :screen-manager="screenManager"
+          @polling-handle="handleTools"
+        />
       </template>
       <template slot="leftBottom">
         <!-- TODO -->
@@ -119,7 +125,7 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public destroyed() {
-    this.screenManager.saveCache()
+    this.saveCache()
     window.removeEventListener('beforeunload', this.saveCache)
   }
 

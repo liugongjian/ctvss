@@ -1,11 +1,11 @@
 <template>
-  <div v-show="pollingStatus !== pollingStatusEnum.Free" class="polling-mask">
+  <div v-show="isShow" class="polling-mask">
     <div class="polling-mask__tools">
       <div class="polling-mask__tools__status">
         <span v-if="pollingStatus === pollingStatusEnum.Pause">轮巡已暂停</span>
         <span v-else>{{ isLoading ? '查询设备中...' : '当前轮巡中...' }}</span>
       </div>
-      <div class="polling-mask__tools__item">
+      <div v-if="policy === 'polling'" class="polling-mask__tools__item">
         <svg-icon
           name="clock"
           class="polling-mask__tools__clock"
@@ -28,20 +28,22 @@
           />
         </el-select>
       </div>
-      <div v-if="pollingStatus === pollingStatusEnum.Working" class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.PausePolling)">
-          <svg-icon name="pause" />暂停
-        </el-button>
-      </div>
-      <div v-if="pollingStatus === pollingStatusEnum.Pause" class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.ResumePolling)">
-          <svg-icon name="play" />继续
-        </el-button>
-      </div>
-      <div class="polling-mask__tools__item">
-        <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.StopPolling)">
-          <svg-icon name="stop" />结束
-        </el-button>
+      <div v-if="policy === 'polling'">
+        <div v-if="pollingStatus === pollingStatusEnum.Working" class="polling-mask__tools__item">
+          <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.PausePolling)">
+            <svg-icon name="pause" />暂停
+          </el-button>
+        </div>
+        <div v-if="pollingStatus === pollingStatusEnum.Pause" class="polling-mask__tools__item">
+          <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.ResumePolling)">
+            <svg-icon name="play" />继续
+          </el-button>
+        </div>
+        <div class="polling-mask__tools__item">
+          <el-button size="mini" :disabled="isLoading" @click="pollingHandle(toolsEnum.StopPolling)">
+            <svg-icon name="stop" />结束
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -75,7 +77,13 @@ export default class extends Vue {
     return this.screenManager ? this.screenManager.executeQueueConfig.interval : 20
   }
 
+  private get isShow() {
+    return this.pollingStatus !== PollingStatusEnum.Free || this.isLoading
+  } 
+
   private isLoading = false
+
+  private policy = 'polling'
 
   private pollingIntervalList = [
     { value: 5, label: '5秒' },

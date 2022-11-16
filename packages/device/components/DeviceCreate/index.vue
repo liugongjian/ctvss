@@ -138,7 +138,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
+            <el-form-item :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -225,10 +225,10 @@
       </div>
       <div class="create-wrap__footer">
         <div class="create-wrap__footer__tools">
-          <el-button v-if="activeStep === 1" size="medium" type="primary" @click="stepChange(0)">上一步</el-button>
-          <el-button v-if="activeStep === 0" size="medium" type="primary" @click="stepChange(1)">下一步</el-button>
+          <el-button v-if="activeStep === 1 && !loading.submit" size="medium" type="primary" @click="stepChange(0)">上一步</el-button>
+          <el-button v-if="activeStep === 0 && !loading.submit" size="medium" type="primary" @click="stepChange(1)">下一步</el-button>
           <el-button v-if="activeStep === 1" size="medium" type="primary" :loading="loading.submit" @click="submit">确 定</el-button>
-          <el-button size="medium" @click="back">取 消</el-button>
+          <el-button v-if="!loading.submit" size="medium" @click="back">取 消</el-button>
         </div>
       </div>
     </div>
@@ -261,6 +261,7 @@ import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
 export default class extends Mixins(deviceFormMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+
   @Prop({ default: () => createDevice }) private createDeviceApi: Function
   @Prop({ default: false }) private isIbox: boolean
   private tips = DeviceTips
@@ -308,6 +309,7 @@ export default class extends Mixins(deviceFormMixin) {
     [DeviceEnum.DeviceSerialNumber]: '',
     [DeviceEnum.DeviceModel]: ''
   }
+
   private videoForm: VideoDeviceForm = {}
   private viidForm: ViidDeviceForm = {}
 
@@ -499,7 +501,7 @@ export default class extends Mixins(deviceFormMixin) {
         }
         // 删除视频中的Resource
         delete videoDevice[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]].resource
-        params.videos = [ videoDevice ]
+        params.videos = [videoDevice]
       }
       // 补充视图接入信息
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Viid)) {
@@ -512,18 +514,19 @@ export default class extends Mixins(deviceFormMixin) {
         viidDevice[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
           ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
         }
-        params.viids = [ viidDevice ]
+        params.viids = [viidDevice]
       }
-
+      this.loading.submit = true
       try {
         // 提交创建表单
         await this.createDeviceApi(params)
         this.$message.success('添加设备成功')
-        this.handleTools([ToolsEnum.RefreshDirectory])
+        this.handleTools(ToolsEnum.RefreshDirectory)
         this.handleTools(ToolsEnum.GoBack, 0)
       } catch (e) {
         this.$alertError(e.message)
       }
+      this.loading.submit = false
     }
   }
 

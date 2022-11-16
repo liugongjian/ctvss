@@ -18,7 +18,7 @@ export default class TreeMixin extends Vue {
   @Prop({ default: () => [] })
   public data
 
-  @Prop({ default: {} })
+  @Prop({ default: () => {} })
   public load
 
   public toolsEnum = ToolsEnum
