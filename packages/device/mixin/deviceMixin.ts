@@ -10,7 +10,6 @@ export default class DeviceMixin extends Vue {
   @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
-
   // 如果无法从路由获取deviceId
   public deviceIdSecondary
 
@@ -94,7 +93,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-   public async getDir(dirId: string) {
+  public async getDir(dirId: string) {
     try {
       this.dir = await getDir({
         dirId
