@@ -112,7 +112,7 @@
         :key="key"
         v-model="videoForm.deviceStreamSize"
         :label="+key"
-        :disabled="deviceForm.deviceType === deviceTypeEnum.Nvr && +key === 3 "
+        :disabled="checkDeviceStreamDisabled(key)"
         @change="onDeviceStreamSizeChange"
       >
         {{ value }}
@@ -387,6 +387,26 @@ export default class extends Vue {
   private checkIsShwoMore() {
     const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
     this.showMoreVisable = showMoreForm.children.length !== 0
+  }
+
+  /**
+   * 多码流特殊处理
+   */
+  private checkDeviceStreamDisabled(key) {
+    let checkFlag = false
+    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
+      checkFlag = true
+    }
+
+    // 在选择厂商类型为“其他”的时候，没有多码流的拼接规则
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+      console.log(this.videoForm[DeviceEnum.VideoVendor], +key)
+      if (this.videoForm[DeviceEnum.VideoVendor] === '其他' && +key > 1) {
+        checkFlag = true
+      }
+    }
+
+    return checkFlag
   }
 
   /**
