@@ -275,18 +275,19 @@ export class RecordManager {
           }
         } else {
           // 本地录像
-          try {
-            this.screen.isLoading = true
-            const res = await this.getLocalUrl(time)
-            this.screen.codec = res.codec
-            this.screen.url = res.url
-          } catch (e) {
-            if (e.code !== -2 && e.code !== -1) {
-              this.screen.errorMsg = e.message
-            }
-          } finally {
-            this.screen.isLoading = false
-          }
+          // try {
+          //   this.screen.isLoading = true
+          //   const res = await this.getLocalUrl(time)
+          //   this.screen.codec = res.codec
+          //   this.screen.url = res.url
+          // } catch (e) {
+          //   if (e.code !== -2 && e.code !== -1) {
+          //     this.screen.errorMsg = e.message
+          //   }
+          // } finally {
+          //   this.screen.isLoading = false
+          // }
+          this.updateLocalUrl(time)
         }
       } else {
         this.screen.currentRecordDatetime = time
@@ -318,11 +319,22 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
-    const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
+    // const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
+    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
-      this.currentRecord = nextRecord
-      const date = getDateByTime(this.currentRecord.startTime, 's')
-      this.currentDate = date
+      // this.currentRecord = nextRecord
+      // const date = getDateByTime(this.currentRecord.startTime, 's')
+      // this.currentDate = date
+      if (this.currentRecord) {
+        //云端
+        this.currentRecord = nextRecord
+        const date = getDateByTime(this.currentRecord.startTime, 's')
+        this.currentDate = date
+      } else {
+        // 本地
+        this.updateLocalUrl(nextRecord.startTime)
+      }
+
     }
   }
 
@@ -542,6 +554,25 @@ export class RecordManager {
    * 本地录像相关操作
    * ================================
    */
+  /**
+   * 加载、更新 本地播放源
+   * time: 秒
+   */
+  private async updateLocalUrl(time: number) {
+    try {
+      this.screen.isLoading = true
+      const res = await this.getLocalUrl(time)
+      this.screen.codec = res.codec
+      this.screen.url = res.url
+    } catch (e) {
+      if (e.code !== -2 && e.code !== -1) {
+        this.screen.errorMsg = e.message
+      }
+    } finally {
+      this.screen.isLoading = false
+    }
+  }
+
   /**
    * 设置播放速率
    */

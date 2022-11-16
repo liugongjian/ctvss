@@ -17,7 +17,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
-        <el-table-column prop="createTime" label="创建时间" min-width="160" />
+        <el-table-column prop="createTime" label="创建时间" min-width="160" :formatter="dateFormatInTable" />
         <el-table-column prop="action" label="操作" width="150" fixed="right">
           <template slot-scope="{ row }">
             <el-button type="text" @click="edit(row)">编辑</el-button>
@@ -39,6 +39,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { dateFormatInTable } from '@vss/base/utils/date'
 import { getGa1400CertificateList, deleteGa1400Certificate } from '@vss/device/api/certificate'
 import { GA1400 } from '@vss/device/type/Certificate'
 
@@ -54,6 +55,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+  private dateFormatInTable = dateFormatInTable
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
