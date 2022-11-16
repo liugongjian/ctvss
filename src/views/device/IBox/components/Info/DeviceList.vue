@@ -37,6 +37,14 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="inVideoProtocol"
+          label="接入协议"
+        >
+          <template slot-scope="{row}">
+            {{ row.inVideoProtocol || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="deviceStatus"
           label="流状态"
           width="120"
@@ -59,7 +67,7 @@
           label="当前码率"
         >
           <template slot-scope="{row}">
-            {{ row.streams.length ? row.streams[0].birate : '-' }}
+            {{ row.streams.length ? row.streams[0].bitrate : '-' }}
           </template>
         </el-table-column>
         <el-table-column

@@ -58,9 +58,11 @@ export default class ListMixin extends Mixins(HandleMixin) {
             ...item.device,
             ...item.industry,
             ...videosInfo,
+            ...item.videos[0],
             ...item
           }
         })
+        console.log('this.tableData--->', this.tableData)
         this.pager = {
           total: Number(res.totalNum),
           pageNum: Number(res.pageNum),
