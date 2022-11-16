@@ -199,7 +199,7 @@ export default class extends Vue {
     } else if (this.type === 'stream' || this.type === 'aiAlgo' || this.type === 'aiApp' || this.type === 'aiAlarm') {
     // } else if (this.type === 'device' || this.type === 'calculate' || this.type === 'analysis') {
       const unuse = +(chartData.total - chartData.usage).toFixed(2)
-      this.title = chartData.usage
+      this.title = chartData.total
       const total = chartData.total
       let name1, name2
       switch (this.type + '') {
