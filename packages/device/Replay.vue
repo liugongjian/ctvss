@@ -125,7 +125,7 @@ export default class extends Mixins(layoutMxin) {
   }
 
   public destroyed() {
-    this.screenManager.saveCache()
+    this.saveCache()
     window.removeEventListener('beforeunload', this.saveCache)
   }
 

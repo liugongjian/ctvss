@@ -912,4 +912,28 @@ export const v2Router: RouteConfig[] = [
       }
     ]
   },
+  {
+    path: '/player-debug',
+    component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
+    name: 'PlayerDebug',
+    meta: {
+      title: '播放器调试',
+      icon: 'menu-replay',
+      hidden: true,
+      perms: ['*'],
+      version: 2
+    }
+  },
+  {
+    path: '/replay-debug2',
+    component: () => import(/* webpackChunkName: "debug" */ '@vss/device/components/ReplayPlayer/Debug3.vue'),
+    name: 'ReplayDebug2',
+    meta: {
+      title: '录像调试',
+      icon: 'menu-replay',
+      hidden: true,
+      perms: ['*'],
+      version: 2
+    }
+  },
 ]

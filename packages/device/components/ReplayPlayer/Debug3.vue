@@ -64,7 +64,7 @@
           <th>缺失时长</th>
           <th>缺失数量</th>
         </tr>
-        <tr v-for="({totalSec, totalMissing}, key) in nvrStat" :key="key">
+        <tr v-for="({ totalSec, totalMissing }, key) in nvrStat" :key="key">
           <td><strong>{{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</strong></td>
           <td>{{ totalSec }} s</td>
           <td>{{ durationFormat(totalSec) }}</td>
@@ -79,7 +79,7 @@
         <h4>发现通道下缺失片段总数: {{ channel.totalMissing }}</h4>
         <h4 v-if="channel.finish">通道录像完整率: {{ calChannelPercent(channel.totalSec) }}</h4>
         <h4 v-if="channel.finish">通道总缺失时长: {{ channel.totalSec }}s <span v-if="channel.totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(channel.totalSec) }})</span></h4>
-        <div v-for="({list, totalSec}, key) in channel.dateList" :key="key" class="missing-date">
+        <div v-for="({ list, totalSec }, key) in channel.dateList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
             <strong>日期: {{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</strong>
@@ -109,8 +109,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getDeviceRecords, getDevice } from '@/api/device'
-import { getTimestamp, dateFormat, getDateByTime, durationFormat } from '@/utils/date'
+import { getDeviceRecords, getDevice } from '@vss/device/api/device'
+import { getTimestamp, dateFormat, getDateByTime, durationFormat } from '@vss/base/utils/date'
 import { trim } from 'lodash'
 
 @Component({

@@ -23,7 +23,7 @@ const SCREEN_CACHE_KEY = {
 const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
 const SCREEN_CACHE_PARAMS = [
   'isLive',
-  // 'inProtocol',
+  'inProtocol',
   'deviceId',
   'deviceName',
   // 'roleId',
