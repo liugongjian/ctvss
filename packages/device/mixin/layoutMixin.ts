@@ -4,13 +4,15 @@ import { PolicyEnum } from '@vss/base/enums/iam'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
+import PollingMask from '@vss/device/components/PollingMask.vue'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   components: {
-    AdvancedSearch
+    AdvancedSearch,
+    PollingMask
   }
 })
 export default class LayoutMixin extends Vue {
@@ -120,6 +122,12 @@ export default class LayoutMixin extends Vue {
     return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
       param => !this.$route.query[param]
     )
+  }
+
+  /* 判断tools是否被禁用 */
+  private get toolsForbidden() {
+    console.log(this.pollingMask && this.pollingMask.isShow)
+    return this.pollingMask && this.pollingMask.isShow
   }
 
   public mounted() {

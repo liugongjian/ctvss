@@ -4,17 +4,17 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.Polling)">
+          <el-button type="text" :disabled="toolsForbidden" @click="handleTools(toolsEnum.Polling)">
             <svg-icon name="polling-play" />
           </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)">
+          <el-button type="text" :disabled="toolsForbidden" @click="handleTools(toolsEnum.AutoPlay)">
             <svg-icon name="auto-play" />
           </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.RefreshDirectory)">
+          <el-button type="text" :disabled="toolsForbidden" @click="handleTools(toolsEnum.RefreshDirectory)">
             <svg-icon name="refresh" />
           </el-button>
         </el-tooltip>
@@ -40,6 +40,7 @@
       <template slot="leftBottom">
         <!-- TODO -->
         <advanced-search
+          :disabled="toolsForbidden" 
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
@@ -62,7 +63,6 @@ import { Component, Mixins } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
-import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@vss/device/store/modules/screen'
@@ -71,7 +71,6 @@ import { ScreenModule } from '@vss/device/store/modules/screen'
   name: 'Preview',
   components: {
     PreviewTree,
-    PollingMask,
     ScreenBoard,
     Breadcrumb
   }
