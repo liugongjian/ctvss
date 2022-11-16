@@ -1,3 +1,11 @@
+<!--
+ * @Author: liugongjian liugongjianxin@163.com
+ * @Date: 2022-11-16 14:07:33
+ * @LastEditors: liugongjian liugongjianxin@163.com
+ * @LastEditTime: 2022-11-16 15:22:54
+ * @FilePath: \vss-user-web\src\views\device\IBox\Detail.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div class="device-container">
     <div class="detail-wrap">
@@ -9,7 +17,7 @@
           <!-- <el-tab-pane label="设备事件" name="IBoxDeviceEvents" /> -->
           <el-tab-pane label="AI配置" name="IBoxDeviceAiConfig" />
           <el-tab-pane label="AI分析" name="IBoxDeviceAi" />
-          <el-tab-pane label="其他配置" name="IBoxDeviceConfig" />
+          <!-- <el-tab-pane label="其他配置" name="IBoxDeviceConfig" /> -->
         </el-tabs>
       </div>
       <div class="detail-wrap__body">
