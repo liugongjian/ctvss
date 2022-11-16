@@ -74,7 +74,7 @@ export const register = (data: any) =>
 
 export const changeIAMPassword = (data: any) =>
   request({
-    url: 'iam/user/directReset',
+    url: '/iam/user/directReset',
     method: 'post',
     data
   })
