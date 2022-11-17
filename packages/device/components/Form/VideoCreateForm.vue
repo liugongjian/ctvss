@@ -402,7 +402,6 @@ export default class extends Vue {
 
     // 在选择厂商类型为“其他”的时候，仅能使用单码流
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
-      console.log(this.videoForm[DeviceEnum.VideoVendor], +key)
       if (this.videoForm[DeviceEnum.VideoVendor] === '其他' && +key > 1) {
         checkFlag = true
       }
@@ -550,7 +549,6 @@ export default class extends Vue {
           // [DeviceEnum.OutId]: this.videoForm.outId
           gbId: this.videoForm.outId
         })
-        console.log(validInfo)
         if (validInfo && !validInfo.isValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {

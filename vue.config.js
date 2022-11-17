@@ -8,6 +8,7 @@ const serverAddressMapping = {
   dev: 'http://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9067', // 开发环境dev-1
   devrefactor: 'http://182.43.127.35:9062', // 开发环境dev-refactor
+  testrefactor: 'http://182.43.127.36:9060',
   test: 'http://182.43.127.35:9080', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9061', // 测试环境test-2

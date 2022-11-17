@@ -172,7 +172,6 @@ export default class extends Vue {
    * 初始化树
    */
   private initTree() {
-    console.log('init')
     this.currentKey = this.rootKey
     // const node = this.tree.getNode(this.currentKey)
     // const data = node && node.data

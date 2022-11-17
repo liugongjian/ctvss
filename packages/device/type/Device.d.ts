@@ -119,6 +119,7 @@ type ViidDevice = {
   [DeviceEnum.LowerApsId]?: string
   [DeviceEnum.DeviceType]?: string
   [DeviceEnum.InUserName]?: string
+  [DeviceEnum.InUserId]?: string
   [DeviceEnum.Ip]?: string
   [DeviceEnum.Port]?: string
   [DeviceEnum.DeviceStatus]?: DeviceStatus

@@ -73,7 +73,7 @@ export default class extends Mixins(deviceMixin) {
 
   public async mounted() {
     await this.getDevice()
-    // await this.getChannels()
+    await this.getChannels()
   }
 
   // 获取子通道列表

@@ -42,6 +42,7 @@ export enum DeviceEnum {
   InViidProtocol = 'inViidProtocol',
   InVersion = 'inVersion',
   InUserName = 'inUserName',
+  InUserId = 'inUserId',
   OutProtocol = 'outProtocol',
   SipTransProtocol = 'sipTransProtocol',
   StreamTransProtocol = 'streamTransProtocol',

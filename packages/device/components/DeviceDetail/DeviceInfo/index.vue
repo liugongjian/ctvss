@@ -28,12 +28,12 @@
               :device-form="device.Device"
               :update-device-api="updateDeviceApi"
               @cancel="isEdit.videoInfo = false"
-              @updateDevice="updateDevice()"
+              @updateDevice="refreshInfo"
             />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
             <viid-info v-if="!isEdit.viidInfo" :device="device" :update-device-api="updateDeviceApi" @edit="isEdit.viidInfo = true" />
-            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="updateDevice()" />
+            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="refreshInfo" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -149,6 +149,10 @@ export default class extends Mixins(detailMixin) {
     }
   }
 
+  private refreshInfo() {
+    this.handleTools(ToolsEnum.RefreshRouterView, 5)
+  }
+
   /**
    * 删除设备
    */
@@ -163,7 +167,7 @@ export default class extends Mixins(detailMixin) {
     // 只有viid设备时tab默认选中viid
     if (this.hasViid && !this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Viid
-    } else {
+    } else if (!this.hasViid && this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Video
     }
   }

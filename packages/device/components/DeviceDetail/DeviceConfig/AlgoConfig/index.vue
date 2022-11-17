@@ -276,7 +276,6 @@ export default class extends Vue {
     } else {
       pointsInfo = []
     }
-    console.log('pointsInfo==>', pointsInfo)
     const perPoints = pointsInfo.map((item: any) => {
       const [x, y] = item
       return [Math.floor(x * this.ratio / this.imageWidth * 100), Math.floor(y * this.ratio / this.imageHeight * 100)]
