@@ -126,5 +126,13 @@ export default class extends Vue {
   .interval-unit {
     width: 65px;
   }
+
+  .city-gov-type {
+    width: 500px;
+
+    ::v-deep .el-tag {
+      margin-right: 8px;
+    }
+  }
 }
 </style>
