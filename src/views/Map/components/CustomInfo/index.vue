@@ -40,7 +40,7 @@ export default class CustomInfo extends Vue {
     font: 'Font'
   }
 
-  private predefineColor = ['#1e78e0', '#007f1b', '#eab809', '#ee5007', '#b22727', '#a85cf9', '#5534a5', '#4b7be5']
+  private predefineColor = ['#FA8334', '#007f1b', '#eab809', '#ee5007', '#b22727', '#a85cf9', '#5534a5', '#4b7be5']
 
   private mounted() {
     this.showComponent = this.componentMap[this.customInfoType]
