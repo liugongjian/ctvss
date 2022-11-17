@@ -11,7 +11,7 @@
       <li
         v-for="(label, key) in types"
         :key="key"
-        :class="{'selected': type === key}"
+        :class="{ 'selected': type === key }"
         @click.stop.prevent="changeType(key)"
       >
         {{ label }}
@@ -45,6 +45,9 @@ export default class extends ComponentMixin {
     this.$emit('dispatch', {
       eventType: 'typeChange',
       payload: type
+    })
+    this.$emit('dispatch', {
+      eventType: 'enableZoom'
     })
   }
 }
