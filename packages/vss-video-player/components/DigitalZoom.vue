@@ -1,7 +1,7 @@
 <!-- 电子缩放 -->
 <template>
   <el-tooltip :content="isZoom ? '关闭电子缩放' : '开启电子缩放'" placement="top">
-    <div class="control__btn control__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
+    <div class="control__btn control__zoom" :class="{ 'selected': isZoom }" @click.stop.prevent="toggleZoom">
       <svg-icon name="zoom" />
     </div>
   </el-tooltip>
@@ -11,11 +11,11 @@ import { Component, Watch } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Snapshot'
+  name: 'DigtalZoom'
 })
 export default class extends ComponentMixin {
-  private isZoom: boolean = false
-  private isDragging: boolean = false
+  private isZoom = false
+  private isDragging = false
   private containerMoveData = {
     x: null,
     y: null
@@ -111,8 +111,8 @@ export default class extends ComponentMixin {
     const playerContainer = this.playerContainer
     const playerWrapSize = playerWrap.getBoundingClientRect()
     const playerSize = playerContainer.getBoundingClientRect()
-    let moveLeft = event.pageX - this.containerMoveData.x
-    let moveTop = event.pageY - this.containerMoveData.y
+    const moveLeft = event.pageX - this.containerMoveData.x
+    const moveTop = event.pageY - this.containerMoveData.y
     // 左右拖拽判断
     if (playerWrap.clientWidth < playerContainer.clientWidth) {
       if (moveLeft > 0) {
