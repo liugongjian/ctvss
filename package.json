@@ -40,6 +40,7 @@
     "@easydarwin/easywasmplayer": "^4.0.13",
     "axios": "^0.19.2",
     "clipboard": "^2.0.4",
+    "color": "^4.2.3",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.6.4",
     "cors": "^2.8.5",
