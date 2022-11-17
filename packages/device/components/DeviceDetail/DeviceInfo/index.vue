@@ -28,12 +28,12 @@
               :device-form="device.Device"
               :update-device-api="updateDeviceApi"
               @cancel="isEdit.videoInfo = false"
-              @updateDevice="updateDevice()"
+              @updateDevice="refreshInfo"
             />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
             <viid-info v-if="!isEdit.viidInfo" :device="device" :update-device-api="updateDeviceApi" @edit="isEdit.viidInfo = true" />
-            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="updateDevice()" />
+            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="refreshInfo" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -147,6 +147,10 @@ export default class extends Mixins(detailMixin) {
       this.refreshTimeout = setTimeout(this.updateDevice, 5000)
       this.refreshCount.index++
     }
+  }
+
+  private refreshInfo() {
+    this.handleTools(ToolsEnum.RefreshRouterView, 5)
   }
 
   /**
