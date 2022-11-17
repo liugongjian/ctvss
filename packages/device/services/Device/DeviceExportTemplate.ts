@@ -413,7 +413,13 @@ class ExportExcelTemplate {
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
-            validation: this.validation.inType
+            validation: {
+              type: 'list',
+              allowBlank: false,
+              showErrorMessage: true,
+              formulae: ['"推流"'],
+              error: '请选择视频流接入方式'
+            },
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
@@ -504,7 +510,13 @@ class ExportExcelTemplate {
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
-            validation: this.validation.inType
+            validation: {
+              type: 'list',
+              allowBlank: false,
+              showErrorMessage: true,
+              formulae: ['"拉流"'],
+              error: '请选择视频流接入方式'
+            },
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },

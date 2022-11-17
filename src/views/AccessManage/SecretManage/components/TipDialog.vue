@@ -18,7 +18,7 @@
     </el-form>
     <el-form v-else label-width="80px" label-position="left">
       <el-form-item label="描述">
-        <el-input v-model="description" type="textarea" rows="5"></el-input>
+        <el-input v-model="description" type="textarea" rows="5" placeholder="请输入API密钥描述"></el-input>
       </el-form-item>
     </el-form>
     <div v-if="!step" slot="footer" class="dialog-footer">
