@@ -2,7 +2,7 @@ import Layout from '@/layout/index.vue'
 import { createDeviceIbox, getDevicesIbox, getDeviceIbox } from './api/device'
 
 export const deviceRouter = {
-  path: '/device-refactor',
+  path: '/device',
   component: Layout,
   meta: {
     title: '设备管理',
@@ -17,7 +17,7 @@ export const deviceRouter = {
     {
       path: '',
       component: () => import(/* webpackChunkName: "device" */ './Device.vue'),
-      name: 'device-refactor',
+      name: 'device',
       meta: {
         title: '设备管理',
         icon: 'menu-device',
@@ -33,7 +33,7 @@ export const deviceRouter = {
           meta: {
             title: '设备列表',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor'
+            activeMenu: '/device'
           }
         },
         {
@@ -43,7 +43,7 @@ export const deviceRouter = {
           meta: {
             title: '设备详情',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor'
+            activeMenu: '/device'
           },
           children: [
             {
@@ -54,7 +54,7 @@ export const deviceRouter = {
                 title: '基本信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -65,7 +65,7 @@ export const deviceRouter = {
                 title: '设备/流信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -76,7 +76,7 @@ export const deviceRouter = {
                 title: '配置信息',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -87,7 +87,7 @@ export const deviceRouter = {
                 title: '实时预览',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -98,7 +98,7 @@ export const deviceRouter = {
                 title: '录像回放',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -109,7 +109,7 @@ export const deviceRouter = {
                 title: 'AI分析',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             },
             {
@@ -120,7 +120,7 @@ export const deviceRouter = {
                 title: '视图库',
                 breadcrumb: false,
                 perms: ['DescribeDevice'],
-                activeMenu: '/device-detail'
+                activeMenu: '/device'
               }
             }
           ]
@@ -132,7 +132,7 @@ export const deviceRouter = {
           meta: {
             title: '创建设备',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor'
+            activeMenu: '/device'
           }
         },
         {
@@ -142,7 +142,7 @@ export const deviceRouter = {
           meta: {
             title: '配置子通道',
             perms: ['DescribeDevice'],
-            activeMenu: '/device-refactor'
+            activeMenu: '/device'
           }
         }
       ]
