@@ -167,7 +167,7 @@ export default class extends Mixins(detailMixin) {
     // 只有viid设备时tab默认选中viid
     if (this.hasViid && !this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Viid
-    } else {
+    } else if (!this.hasViid && this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Video
     }
   }

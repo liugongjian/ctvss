@@ -256,7 +256,7 @@ export const InViidProtocolCreateParams = {
     DeviceEnum.Viids,
     DeviceEnum.OutId,
     DeviceEnum.DeviceType,
-    DeviceEnum.InUserName,
+    DeviceEnum.InUserId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ])
