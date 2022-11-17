@@ -22,6 +22,9 @@
           <h2>{{ captcha }}</h2>
           <el-button type="text" icon="el-icon-refresh" @click="changeDialog">点击更换凭证</el-button>
         </div>
+        <div v-if="showWarnning" class="certificate-ibox__number-waring">
+          已过期
+        </div>
       </div>
       <div class="certificate-ibox__step">
         <div class="certificate-ibox__step-content">
@@ -83,6 +86,8 @@ import { getIBoxCertificates, freshIBoxCertificates } from '@/api/ibox'
 export default class IBoxCertificate extends Vue {
   public captcha = '828 368 287'
   public ifShowDialog = false
+  public expireTime: string = ''
+  public showWarnning = false
 
   public async mounted() {
     await this.getCaptcha()
@@ -92,6 +97,11 @@ export default class IBoxCertificate extends Vue {
     try {
       const res: any = await getIBoxCertificates()
       this.captcha = (res.captcha || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1 ')
+      this.expireTime = res.expireTime
+      // console.log('this.expireTime---->', Number(this.expireTime), Date.now(), Date.now() >= Number(this.expireTime))
+      if (Date.now() >= Number(this.expireTime)) {
+        this.showWarnning = true
+      }
     } catch (error) {
       console.log(error)
     }
@@ -113,6 +123,7 @@ export default class IBoxCertificate extends Vue {
   public async changeCaptcha() {
     await this.freshCaptcha()
     this.ifShowDialog = false
+    this.showWarnning = false
   }
 }
 </script>
@@ -134,7 +145,7 @@ export default class IBoxCertificate extends Vue {
     height: calc(100vh - 316px);
 
     &-box {
-      width: 600px;
+      width: 500px;
       height: 200px;
       position: absolute;
       top: 50%;
@@ -156,6 +167,20 @@ export default class IBoxCertificate extends Vue {
         margin-top: 0;
         margin-bottom: 10px;
       }
+    }
+
+    &-waring {
+      width: 80px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      color: #e67979;
+      border: 1px solid #e67979;
+      border-radius: 5px;
+      position: absolute;
+      top: 50%;
+      left: calc(50% + 300px);
+      transform: translate(-50%, -55%);
     }
   }
 

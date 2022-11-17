@@ -39,6 +39,7 @@
         <el-table-column
           prop="inVideoProtocol"
           label="接入协议"
+          width="100"
         >
           <template slot-scope="{row}">
             {{ row.inVideoProtocol || '-' }}
@@ -63,11 +64,12 @@
           </template>
         </el-table-column>
         <el-table-column
+          width="120"
           prop="ip"
           label="当前码率"
         >
           <template slot-scope="{row}">
-            {{ row.streams.length ? row.streams[0].bitrate : '-' }}
+            {{ row.streams.length ? `${row.streams[0].bitrate}Mbps` : '-' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -83,6 +85,7 @@
           label="厂商"
         />
         <el-table-column
+          width="180"
           prop="outId"
           label="国标ID"
         />
@@ -107,6 +110,7 @@
         />
         <el-table-column
           prop="deviceIp"
+          width="140"
           label="设备IP"
         />
         <el-table-column

@@ -5,6 +5,7 @@
         ref="deviceRef"
         :style="`height:${height}px`"
         class="ibox-container__tree-box"
+        :class="{'ibox-container__collapsed': !isExpanded}"
       >
         <div class="ibox-container__left" :style="`width: ${dirDrag.width}px`">
           <div class="ibox-container__btnbox">
@@ -611,6 +612,7 @@ export default class IBox extends Mixins(HandleMixin) {
     display: flex;
     flex-direction: column;
     height: 100%;
+    transition: width 0.2s;
   }
 
   &__handle {
@@ -647,6 +649,25 @@ export default class IBox extends Mixins(HandleMixin) {
   &__tree-box {
     display: flex;
     position: relative;
+
+    &.ibox-container__collapsed {
+      .ibox-container__tree-content {
+        width: 0 !important;
+      }
+
+      .ibox-container__left {
+        width: 0 !important;
+      }
+
+      .ibox-container__handle,
+      .ibox-container__refresh {
+        display: none;
+      }
+
+      .breadcrumb {
+        padding-left: 70px;
+      }
+    }
   }
 
   &__tree-content {
@@ -702,6 +723,7 @@ export default class IBox extends Mixins(HandleMixin) {
     border-radius: 0;
     position: absolute;
     right: 0;
+    z-index: 20;
   }
 
   &__list {
