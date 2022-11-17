@@ -40,7 +40,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { AiMaskType, AnimalType } from '@/dics'
+import { AiMaskType } from '@/dics'
+import {  AnimalType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'DashboardAILocation'

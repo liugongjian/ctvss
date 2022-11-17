@@ -63,7 +63,7 @@ export default class extends Vue {
   private RecordStatus = RecordStatus
 
   get markerInfo() {
-    this.color = MapModule.markerInfo.appearance.color || '#1e78e0'
+    this.color = MapModule.markerInfo.appearance.color || '#FA8334'
     return MapModule.markerInfo
   }
 

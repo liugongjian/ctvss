@@ -54,14 +54,14 @@ export const logout = () =>
 
 export const changePassword = (data: any) =>
   request({
-    url: 'iam/user/changePwd',
+    url: '/iam/user/changePwd',
     method: 'post',
     data
   })
 
 export const resetIAMPassword = (data: any) =>
   request({
-    url: 'iam/user/reset',
+    url: '/iam/user/reset',
     method: 'post',
     data
   })

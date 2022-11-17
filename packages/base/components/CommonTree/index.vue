@@ -190,10 +190,10 @@ export default class extends Vue {
       payload = this.tree.getNode(payload)
     }
     // 如果已经加载过，则提前返回，不重新请求接口
-    if (payload && payload.loaded) {
-      payload.parent.expanded = true
-      return
-    }
+    // if (payload && payload.loaded) {
+    //   payload.parent.expanded = true
+    //   return
+    // }
     // 未传则使用自定义resolve
     if (!resolve) {
       resolve = this.resolveChildren.bind(this, payload)
