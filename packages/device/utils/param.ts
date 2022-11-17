@@ -119,9 +119,7 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
   // platform下设备及目录特殊处理
   if (data && (data.dirFrom === DeviceTypeEnum.Platform)) {
     allowFlag = ![
-      ToolsEnum.AddDirectory,
-      ToolsEnum.EditDirectory,
-      ToolsEnum.DeleteDirectory
+      ToolsEnum.AddDirectory
     ].includes(prop)
   }
 
