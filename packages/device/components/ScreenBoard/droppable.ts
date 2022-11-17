@@ -10,7 +10,6 @@ function ondragover(e) {
 function ondrop(dropCallbalck, e) {
   const nodeData = JSON.parse(e.dataTransfer.getData('deviceTreeNode'))
   dropCallbalck(nodeData)
-  console.log(nodeData)
   removeClass(this, 'drag-hover')
 }
 
