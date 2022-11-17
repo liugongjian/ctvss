@@ -2,7 +2,7 @@ import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
 import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
-import { DirectoryTypeEnum } from '@vss/device/enums'
+import { DirectoryTypeEnum, ToolsEnum } from '@vss/device/enums'
 
 /**
  * ===============================================================================================
@@ -46,7 +46,7 @@ const executeQueue = async function (
     screenManager?: ScreenManager
     queueExecutor?: any
     deviceTree?: any
-    currentNode?: any
+    handleTools?: any
     pollingMask?: any
     policy?: 'polling' | 'autoPlay'
     pollingStatus?: string
@@ -54,6 +54,7 @@ const executeQueue = async function (
     advancedSearchForm?: AdvancedSearch
     $refs?: any
   } = getVueComponent()
+  state.handleTools(ToolsEnum.StopPolling)
   let devicesQueue: Device[] = []
   state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node
   const pollingMask = state.$refs.pollingMask

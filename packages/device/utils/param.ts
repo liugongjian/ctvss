@@ -135,9 +135,6 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
     ].includes(prop)
   }
 
-  if (prop === ToolsEnum.StreamStatus) {
-    console.log(data)
-  }
   // 流状态绿点特殊处理
   if (data && (data[DeviceEnum.StreamStatus] !== StatusEnum.On) && (prop === ToolsEnum.StreamStatus)) {
     return false

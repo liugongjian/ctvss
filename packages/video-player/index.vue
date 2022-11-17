@@ -1,7 +1,7 @@
 <template>
   <div
     class="player__wrap"
-    :class="[{'player__wrap--live': isLive, 'player__wrap--replay': !isLive}]"
+    :class="[{ 'player__wrap--live': isLive, 'player__wrap--replay': !isLive }]"
   >
     <div class="header">
       <div class="header__left">
@@ -15,7 +15,7 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div v-if="hasControl" id="control" class="control" :class="{'control--large': hasProgress}">
+    <div v-if="hasControl" id="control" class="control" :class="{ 'control--large': hasProgress }">
       <slot name="controlBody" />
       <Progress v-if="player && hasProgress" />
       <div class="control__left">
@@ -166,7 +166,7 @@ export default class extends Vue {
 
   private mounted() {
     this.url && this.createPlayer()
-    document.addEventListener('visibilitychange', this.onVisibilitychange)
+    if (this.isLive) document.addEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**
@@ -175,7 +175,7 @@ export default class extends Vue {
   private beforeDestroy() {
     this.isDebug && console.log('销毁播放器')
     this.player && this.player.disposePlayer()
-    document.removeEventListener('visibilitychange', this.onVisibilitychange)
+    if (this.isLive) document.removeEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**

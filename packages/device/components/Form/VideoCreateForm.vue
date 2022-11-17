@@ -112,7 +112,7 @@
         :key="key"
         v-model="videoForm.deviceStreamSize"
         :label="+key"
-        :disabled="deviceForm.deviceType === deviceTypeEnum.Nvr && +key === 3 "
+        :disabled="checkDeviceStreamDisabled(key)"
         @change="onDeviceStreamSizeChange"
       >
         {{ value }}
@@ -350,10 +350,12 @@ export default class extends Vue {
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
     }
-
-    // 编辑模式下RTSP密码不必填
+    
     if (this.isEdit) {
+      // 编辑模式下RTSP密码不必填
       this.rules.password = []
+      // 编辑模式下，最小子通道为编辑前通道数
+      this.minChannelSize = this.basicInfo.deviceChannelSize
     }
   }
 
@@ -387,6 +389,26 @@ export default class extends Vue {
   private checkIsShwoMore() {
     const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
     this.showMoreVisable = showMoreForm.children.length !== 0
+  }
+
+  /**
+   * 多码流特殊处理
+   */
+  private checkDeviceStreamDisabled(key) {
+    let checkFlag = false
+    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
+      checkFlag = true
+    }
+
+    // 在选择厂商类型为“其他”的时候，仅能使用单码流
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+      console.log(this.videoForm[DeviceEnum.VideoVendor], +key)
+      if (this.videoForm[DeviceEnum.VideoVendor] === '其他' && +key > 1) {
+        checkFlag = true
+      }
+    }
+
+    return checkFlag
   }
 
   /**
