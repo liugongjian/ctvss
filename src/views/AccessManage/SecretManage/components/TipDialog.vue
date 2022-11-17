@@ -114,6 +114,14 @@ export default class extends Mixins(ExcelMixin) {
   .el-form {
     .el-form-item {
       margin-bottom: 2px;
+
+      .el-textarea {
+        width: 560px;
+      }
+
+      .el-form-item__label {
+        text-align: right !important;
+      }
     }
   }
 }
