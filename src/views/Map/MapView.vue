@@ -249,7 +249,7 @@ export default class MapView extends Vue {
         devices: [this.handleDevice(marker)]
       }
       await updateMarkers(data)
-      const appearance = marker.appearance || { color: '#1e78e0' }
+      const appearance = marker.appearance || { color: '#FA8334' }
       const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
       MapModule.SetMarkerInfo(mapMarker)
       this.markerlist = this.markerlist.map((item) => {
@@ -281,7 +281,7 @@ export default class MapView extends Vue {
 
   public async interestChange(type, interest) {
     try {
-      const appearance = interest.appearance || { color: '#1e78e0' }
+      const appearance = interest.appearance || { color: '#FA8334' }
       const data = {
         ...interest,
         mapId: this.mapId,
@@ -459,7 +459,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
-    const appearance = device.appearance || { color: '#1e78e0' }
+    const appearance = device.appearance || { color: '#FA8334' }
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,

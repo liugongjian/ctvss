@@ -476,7 +476,7 @@ export default class VMap {
         context.marker.setContent(' ')
       } else {
         const div = document.createElement('div')
-        const bgColor = 'rgba(0, 157, 217, 0.8)'
+        const bgColor = '#fa8334'
         const fontColor = '#fff'
         div.style.backgroundColor = bgColor
         const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
