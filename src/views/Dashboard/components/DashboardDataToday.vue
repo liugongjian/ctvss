@@ -115,8 +115,8 @@ export default class extends Mixins(DashboardMixin) {
 
   private async getStorage() {
     const res = await getUserStorage({})
-    this.stats.total = formatStorage(res.totalBytes, 4, 1)
-    this.stats.usage = formatStorage(res.totalUsage, 4, 1)
+    this.stats.total = formatStorage(res.totalBytes)
+    this.stats.usage = formatStorage(res.totalUsage)
   }
 
   private get storageFlag() {

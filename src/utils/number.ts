@@ -21,11 +21,8 @@ export const prefixZero = (num: number | number, n: number) => {
 /**
  * 格式化存储单位
  */
-export const formatStorage = (bytesize, index, round) => {
+export const formatStorage = (bytesize, index = 5, round = 3) => {
   let i = 0
-  // 默认到PB，并保持3位小数
-  index = index === undefined ? 5 : index
-  round = round === undefined ? 3 : round
 
   while (Math.abs(bytesize) >= 1024) {
     bytesize = bytesize / 1024
