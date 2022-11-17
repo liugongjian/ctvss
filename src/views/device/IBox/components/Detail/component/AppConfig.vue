@@ -46,6 +46,11 @@ export default class AiAppList extends Vue {
   private loading = {
     table: false
   }
+  private pager = {
+    pageSize: 1000,
+    pageNum: 1,
+    totalNum: 0
+  }
 
   private isIboxEdit = false
   private appDetailId = ''

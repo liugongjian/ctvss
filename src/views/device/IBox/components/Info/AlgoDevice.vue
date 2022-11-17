@@ -148,9 +148,9 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
         meta: null,
         isLeaf: true,
         deviceStatus:
-            node.data.deviceStatus || 'off',
+            node.data?.deviceStatus || 'off',
         streamStatus:
-            item.streams[0].streamStatus || 'off'
+            item.streams[0]?.streamStatus || 'off'
       }))
       return resolve(iboxNvr)
     }

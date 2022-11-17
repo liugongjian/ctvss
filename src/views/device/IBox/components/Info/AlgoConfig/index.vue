@@ -327,7 +327,7 @@ export default class extends Vue {
       algorithmMetadata: metaData(),
       deviceId: this.deviceId
     }
-
+    console.log('param:', param)
     this.$emit('add-meta', param)
     this.closeThis()
     // sendAppDescribeLine(param).then((res) => {
