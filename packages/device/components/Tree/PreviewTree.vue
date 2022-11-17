@@ -10,6 +10,7 @@
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"
     :is-node-disabled="checkIsDisable"
+    :expand-on-click-node="false"
     @handle-node="handleNode"
   >
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">

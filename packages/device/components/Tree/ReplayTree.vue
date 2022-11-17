@@ -9,6 +9,7 @@
     :props="defaultProps"
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"
+    :expand-on-click-node="false"
     @handle-node="handleNode"
   >
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">

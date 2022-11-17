@@ -101,6 +101,7 @@ export default class extends Mixins(layoutMxin) {
         }
       })
     } else {
+      this.deviceTree.loadChildren(id)
       this.$router.push({
         name: 'DeviceList',
         query: {
