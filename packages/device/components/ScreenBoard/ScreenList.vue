@@ -111,6 +111,7 @@ import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
+import ResizeObserver from 'resize-observer-polyfill'
 import DeviceDir from '../DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 
