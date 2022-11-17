@@ -1,7 +1,7 @@
 <template>
   <div>
     <DashboardContainer v-if="!isLight" title="网络带宽统计">
-      <template v-slot:header>
+      <template #header>
         <el-select
           v-model="userType"
           size="small"
@@ -246,5 +246,3 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
-<style lang="scss" scoped>
-</style>

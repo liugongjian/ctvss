@@ -19,7 +19,7 @@
           v-if="prod.isIbox && !prod.isLoaded"
           type="primary"
           class="prod__buttons--select"
-          :disabled="true"
+          :disabled="false"
           @click="onChooseProd"
         >
           下发

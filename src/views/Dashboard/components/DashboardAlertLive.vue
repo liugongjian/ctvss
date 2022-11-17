@@ -70,7 +70,7 @@ export default class extends Mixins(DashboardMixin) {
       const res = await getAuditList({
         limit: 6
       })
-      this.list = res.Result
+      this.list = res.result
       this.list.forEach((item: any) => {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
@@ -118,58 +118,65 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.widder-padding{
-  padding: 2.7vh 4vw 4vh 4vw !important;
+.widder-padding {
+  padding: 2.7vh 4vw 4vh !important;
 }
-  .alert-list {
-    min-height: 180px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+
+.alert-list {
+  min-height: 180px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  // justify-content: space-between;
+  justify-content: flex-start;
+
+  li {
+    // flex: 1;
+    height: 16.6%;
     display: flex;
-    flex-direction: column;
-    // justify-content: space-between;
-    justify-content: flex-start;
+    align-items: center;
+    padding: 0.4rem;
+    color: #d8d8d8;
+    cursor: pointer;
 
+    &:hover {
+      background: #052777;
+    }
+  }
+
+  &__level {
+    width: 30%;
+
+    &--normal {
+      color: #f4c46c;
+    }
+
+    &--serious {
+      color: #ff4949;
+    }
+  }
+
+  &__datetime {
+    flex: 1;
+    text-align: right;
+  }
+
+  .new-alert {
+    animation: shining 2s;
+    border-radius: 5px;
+  }
+
+  &.light {
     li {
-      // flex: 1;
-      height: 16.6%;
-      display: flex;
-      align-items: center;
-      padding: .4rem;
-      color: #d8d8d8;
-      cursor: pointer;
+      height: 30px;
+      color: $text;
+
       &:hover {
-        background: #052777;
-      }
-    }
-    &__level {
-      width: 30%;
-      &--normal {
-        color: #F4C46C;
-      }
-      &--serious {
-        color: #FF4949;
-      }
-    }
-    &__datetime {
-      flex: 1;
-      text-align: right;
-    }
-
-    .new-alert {
-      animation: shining 2s;
-      border-radius: 5px;
-    }
-
-    &.light {
-      li {
-        height: 30px;
-        color: $text;
-        &:hover {
-          background: #F5F7FA;
-        }
+        background: #f5f7fa;
       }
     }
   }
+}
 </style>

@@ -10,6 +10,7 @@
         <el-table
           v-if="activeName===tab.id"
           ref="appTable"
+          v-loading="loading.table"
           :data="tableData"
           style="width: 100%;"
           @selection-change="handleSelectionChange"
@@ -53,9 +54,16 @@ export default class AiAppList extends Vue {
   private selectedApps = []
 
   private async mounted() {
-    await this.getAbilityList()
-    await this.getAppList()
-    await this.getLoadedAppList()
+    this.loading.table = true
+    try {
+      await this.getAbilityList()
+      await this.getAppList()
+      await this.getLoadedAppList()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.table = false
+    }
   }
 
   public async getAbilityList() {
@@ -75,10 +83,8 @@ export default class AiAppList extends Vue {
       ...this.pager,
       iboxId,
       deviceId,
-      abilityId: this.activeName
+      aiAbilityId: this.activeName
     })
-    console.log('iboxApps:', iboxApps)
-    console.log('this.$refs:', this.$refs.appTable)
     const tableRef: any = this.$refs.appTable[0]
     if (iboxApps.length > 0) {
       const selectedIds = iboxApps.map(app => app.appId)
@@ -98,15 +104,23 @@ export default class AiAppList extends Vue {
         ...this.pager,
         iboxId,
         // deviceId,
-        abilityId: this.activeName
+        aiAbilityId: this.activeName
       })
     this.pager = { pageSize, pageNum, totalNum }
     this.tableData = iboxApps
     this.loading.table = false
   }
 
-  private handleTabType() {
-    this.getAppList()
+  private async handleTabType() {
+    this.loading.table = true
+    try {
+      await this.getAppList()
+      await this.getLoadedAppList()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.table = false
+    }
   }
 
   private handleSelectionChange(val) {
