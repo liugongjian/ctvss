@@ -61,7 +61,7 @@
       width="30%"
       center
     >
-      <span>确定更换AI_BOX接入凭证吗？确定更换后，已接入平台的AI_BOX不受影响；新的AI_BOX配置接入时，需使用新的凭证，旧的凭证将失效。</span>
+      <span>确定更换BOX接入凭证吗？确定更换后，已接入平台的BOX不受影响；新的BOX配置接入时，需使用新的凭证，旧的凭证将失效。</span>
       <span slot="footer" class="dialog-footer">
 
         <el-button type="primary" @click="changeCaptcha">确 定</el-button>
