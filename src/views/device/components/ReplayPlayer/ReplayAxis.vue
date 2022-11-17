@@ -120,7 +120,7 @@ export default class extends Vue {
   /* 尺寸监听器 */
   private resizeObserver: ResizeObserver = null
   /* 当前时间 */
-  private currentTime: number = getDateByTime(new Date().getTime()) / 1000
+  public currentTime: number = getDateByTime(new Date().getTime()) / 1000
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */

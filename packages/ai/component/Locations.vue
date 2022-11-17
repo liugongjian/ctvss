@@ -11,9 +11,9 @@
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['4', '10001', '34', '10034','19','10016'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
-          <span v-if="['4', '10001', '34', '10034'].includes(type)">姓名:{{ location.name }}</span>
+          <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
         </div>
         <div v-if="['29', '10026', '35', '10035'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}
@@ -28,20 +28,17 @@
         </svg>
       </div>
     </div>
-    <div v-if="(type === '8' || type === '10005') && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
-    <div v-if="(type === '13' || type === '10010') && img.locations[0].beeDensity" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
-    <div v-if="(type === '25' || type === '10022') && img.locations && img.locations.JamCount" class="ai-recognation__images__item__count">实际车辆数: {{ img.locations.JamCount || 0 }}, 检测阈值: {{ img.locations.JamThreshold || 0 }}</div>
-    <div v-if="(type === '27' || type === '10024') && img.locations && (img.locations.IsOffDuty || img.locations.IsSleepOnDuty)" class="ai-recognation__images__item__count">{{ img && img.locations && `${img.locations.IsOffDuty ? '脱岗' : ''}${img.locations.IsSleepOnDuty ? '睡岗' : ''}告警` }}</div>
-    <div v-if="(type === '26' || type === '10023') && img.locations && img.locations.PersonNum" class="ai-recognation__images__item__count">人群聚集：{{ img && img.locations && img.locations.PersonNum }}</div>
-    <div v-if="(type === '33' || type === '10033') && img.locations && img.locations.counts" class="ai-recognation__images__item__count">
-      <div v-for="type in animalType" :key="type.label">{{ type.cname }}数量：{{ img && img.locations && img.locations.counts[type.label] }}只</div>
+    <div v-if="img.locations && img.locations.info" class="ai-recognation__images__item__count">
+      <span v-for="(item,index) in img.locations.info" v-if="item" :key="index">
+        {{ item }}
+      </span>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { AiMaskType } from '@/dics'
-import {  AnimalType } from '@vss/ai/dics/contants'
+import { AnimalType } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'DashboardAILocation'
@@ -49,16 +46,13 @@ import {  AnimalType } from '@vss/ai/dics/contants'
 export default class extends Vue {
   @Prop()
   private img!: any
-
   @Prop()
   private type!: string
-
   @Prop()
   private clickable?: boolean
-
   private aiMaskType = AiMaskType
   private animalType = AnimalType
-  private currentIndex: number = -1
+  private currentIndex = -1
 
   @Watch('img', {
     immediate: true

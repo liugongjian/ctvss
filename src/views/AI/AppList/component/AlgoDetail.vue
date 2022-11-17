@@ -122,7 +122,7 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         prop="alertPeriod"
         class="inline-form-item"
       >
@@ -142,7 +142,7 @@
         <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
       <el-select
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         v-model="interval.alertPeriod"
         class="interval-unit"
       >
@@ -152,7 +152,7 @@
       </el-select>
       <br>
       <el-form-item
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         prop="alertTriggerThreshold"
         class="inline-form-item"
       >
@@ -172,7 +172,7 @@
         <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
       <span
-        v-if="alertDisabled && !ifShow('10001', '10034')"
+        v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         style="margin-left: 16px;"
       >个</span>
       <br>
@@ -238,6 +238,7 @@ export default class extends Mixins(AppMixin) {
   private form: any = {
     algorithmMetadata: {
       trashRecycleType: [],
+      cityGovType: [],
       helmetReflectiveType: [],
       animalDetectType: ['Bear']
     },

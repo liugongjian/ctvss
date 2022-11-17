@@ -9,7 +9,7 @@ import {
   DeviceTypeDenyParamsForIbox,
   ChannelAllowParams
 } from '@vss/device/settings'
-import { DeviceEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DirectoryTypeEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
 import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
@@ -119,9 +119,7 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
   // platform下设备及目录特殊处理
   if (data && (data.dirFrom === DeviceTypeEnum.Platform)) {
     allowFlag = ![
-      ToolsEnum.AddDirectory,
-      ToolsEnum.EditDirectory,
-      ToolsEnum.DeleteDirectory
+      ToolsEnum.AddDirectory
     ].includes(prop)
   }
 
@@ -135,6 +133,11 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
     ].includes(prop)
   }
 
+  // 流状态绿点特殊处理
+  if (data && (data[DeviceEnum.StreamStatus] !== StatusEnum.On) && (prop === ToolsEnum.StreamStatus)) {
+    return false
+  }
+
   return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop) && allowFlag
 }
 
@@ -145,7 +148,7 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
  * @param data 具体数据
  * @returns 判断结果
  */
-export function checkDeviceToolsVisible(type: string, prop: ToolsEnum, data?: any): boolean {
+export function checkDeviceToolsVisible(type: DeviceTypeEnum | DirectoryTypeEnum, prop: ToolsEnum, data?: any): boolean {
   let allowFlag = true
   // 不同inProtocol特殊处理
   if (data) {

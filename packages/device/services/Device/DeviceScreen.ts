@@ -2,7 +2,7 @@ import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
 import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
-import { DirectoryTypeEnum } from '@vss/device/enums'
+import { DirectoryTypeEnum, ToolsEnum } from '@vss/device/enums'
 
 /**
  * ===============================================================================================
@@ -46,18 +46,20 @@ const executeQueue = async function (
     screenManager?: ScreenManager
     queueExecutor?: any
     deviceTree?: any
-    currentNode?: any
+    handleTools?: any
     pollingMask?: any
+    policy?: 'polling' | 'autoPlay'
     pollingStatus?: string
     maxSize?: number
     advancedSearchForm?: AdvancedSearch
-    setDirsStreamStatus?: Function
+    $refs?: any
   } = getVueComponent()
+  state.handleTools(ToolsEnum.StopPolling)
   let devicesQueue: Device[] = []
-  // const deviceTree: any = state.deviceTree
-  state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node 
-  policy === 'polling' && (state.pollingMask.isLoading = true)
-  // await deepDispatchTree(state, deviceTree, node, devicesQueue, policy)
+  state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node
+  const pollingMask = state.$refs.pollingMask
+  pollingMask.policy = policy
+  pollingMask.isLoading = true
   try {
     const res = await getDirDevices({
       id: state.currentDir.id,
@@ -67,83 +69,13 @@ const executeQueue = async function (
   } catch (e) {
     console.log(e)
   }
-  policy === 'polling' && (state.pollingMask.isLoading = false)
+  pollingMask.isLoading = false
   if (state.queueExecutor) {
     state.screenManager.devicesQueue = devicesQueue
     console.log('screenManager', state.screenManager.devicesQueue)
     state.queueExecutor.executeDevicesQueue(policy)
   }
 }
-
-// /**
-//  * 深度优先遍历目录树
-//  * @param state.screenManager Screen Manager
-//  * @param state.maxSize 最大轮询数量
-//  * @param state.advancedSearchForm 搜索表单
-//  * @param state.setDirsStreamStatus 设置流状态
-//  * @param deviceTree 目录树DOM
-//  * @param node 当前node节点
-//  * @param deviceArr 存储有效设备的数组
-//  * @param policy 播放事件策略（一键播放/轮巡）
-//  * @param playType 播放视频类型（实时预览/录像回放）
-//  */
-// const deepDispatchTree = async function (
-//   state: {
-//     screenManager?: ScreenManager
-//     advancedSearchForm?: AdvancedSearch
-//     setDirsStreamStatus?: Function
-//     maxSize?: number
-//   },
-//   deviceTree: any,
-//   node: any,
-//   deviceArr: any[],
-//   policy?: 'polling' | 'autoPlay'
-// ) {
-//   // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-//   if (policy === 'autoPlay' && deviceArr.length >= state.maxSize) return
-//   if (node.data.type === 'ipc') {
-//     // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
-//     if (node.data.deviceStatus === 'on' || !state.screenManager.isLive) {
-//       // node.data.inProtocol = this.currentGroupInProtocol
-//       deviceArr.push(node.data)
-//     }
-//   } else {
-//     // 不为搜索树时需要调接口添加node的children
-//     if (!state.advancedSearchForm.revertSearchFlag) {
-//       const data = await getDeviceTree({
-//         // groupId: this.currentGroupId,
-//         id: node!.data.id,
-//         type: node!.data.type
-//         // 'self-defined-headers': {
-//         //   'role-id': node!.data.roleId || '',
-//         //   'real-group-id': node!.data.realGroupId || ''
-//         // }
-//       })
-//       const dirs = state.setDirsStreamStatus(data.dirs)
-//       deviceTree.updateKeyChildren(node.data.id, dirs)
-//       node.expanded = true
-//       node.loaded = true
-//     }
-//     if (node.data.children && node.data.children.length) {
-//       for (let i = 0, len = node.data.children.length; i < len; i++) {
-//         const item = node.data.children[i]
-//         // 子节点继承node的虚拟业务组信息
-//         // if (node!.data.type === 'group') {
-//         //   item.roleId = node.data.roleId
-//         //   item.realGroupId = node.data.id
-//         //   item.realGroupInProtocol = node.data.inProtocol
-//         // } else {
-//         //   item.roleId = node.data.roleId
-//         //   item.realGroupId = node.data.realGroupId
-//         //   item.realGroupInProtocol = node.data.realGroupInProtocol
-//         // }
-//         await deepDispatchTree(state, deviceTree, deviceTree.getNode(item.id), deviceArr, policy)
-//         // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-//         if (policy === 'autoPlay' && deviceArr.length >= state.maxSize) return
-//       }
-//     }
-//   }
-// }
 
 /**
  * 改变轮巡时间
@@ -191,7 +123,6 @@ const resumePolling = function (getVueComponent) {
 export default {
   openScreen,
   executeQueue,
-  // deepDispatchTree,
   intervalChange,
   stopPolling,
   pausePolling,

@@ -10,7 +10,7 @@
           </el-steps>
         </div>
       </div>
-      <div class="create-wrap__body">
+      <div ref="formContainer" class="create-wrap__body">
         <el-form
           ref="deviceForm"
           class="create-wrap__body__form"
@@ -331,6 +331,10 @@ export default class extends Mixins(deviceFormMixin) {
     return this.$route.query.dirId as string
   }
 
+  private get formContainer() {
+    return this.$refs.formContainer as any
+  }
+
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
@@ -391,6 +395,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 切换创建步骤
    */
   private async stepChange(val: number) {
+    this.formContainer.scrollTop = 0
     if (val === 0) {
       this.activeStep = val
     } else {

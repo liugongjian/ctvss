@@ -4,13 +4,15 @@ import { PolicyEnum } from '@vss/base/enums/iam'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
+import PollingMask from '@vss/device/components/PollingMask.vue'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   components: {
-    AdvancedSearch
+    AdvancedSearch,
+    PollingMask
   }
 })
 export default class LayoutMixin extends Vue {
@@ -55,12 +57,6 @@ export default class LayoutMixin extends Vue {
     tree: false
   }
 
-  // public treeNodeInfo: any = {}
-
-  // public get getTreeNodeInfo() {
-  //   return this.treeNodeInfo
-  // }
-
   public getVueComponent() {
     return this
   }
@@ -68,7 +64,10 @@ export default class LayoutMixin extends Vue {
   // 功能回调字典
   public handleToolsMap = {
     // 设备树相关
-    [ToolsEnum.RefreshDirectory]: () => DeviceManager.advanceSearch(this),
+    [ToolsEnum.RefreshDirectory]: () => {
+      DeviceScreen.stopPolling(this.getVueComponent)
+      DeviceManager.advanceSearch(this)
+    },
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
     [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
     [ToolsEnum.EditDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.EditDirectory, data),
@@ -108,11 +107,6 @@ export default class LayoutMixin extends Vue {
   /* 面包屑 */
   public get breadcrumb() {
     return this.$refs.breadcrumb as any
-  }
-
-  /* 轮询遮罩 */
-  public get pollingMask() {
-    return this.$refs.pollingMask as any
   }
 
   /* 设备目录树是否懒加载依据 */

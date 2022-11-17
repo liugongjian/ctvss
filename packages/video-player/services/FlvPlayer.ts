@@ -117,8 +117,9 @@ export class FlvPlayer extends Player {
    * 重新加载视频
    */
   public reloadPlayer() {
-    this.disposePlayer()
-    this.init()
+    this.flv.unload()
+    this.flv.load()
+    this.flv.play()
   }
 
   /**

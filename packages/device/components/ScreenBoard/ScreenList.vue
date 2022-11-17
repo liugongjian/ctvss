@@ -1,5 +1,5 @@
 <template>
-  <div class="screen-list">
+  <div ref="tableContainer" class="screen-list">
     <div v-if="currentScreen.deviceId">
       <div class="device-name">
         设备名称：{{ currentScreen.deviceName }}
@@ -7,6 +7,7 @@
       <div class="replay-time-list">
         <el-table
           v-loading="isLoading"
+          :height="tableMaxHeight"
           :data="recordList"
           empty-text="所选日期暂无录像"
         >
@@ -110,6 +111,7 @@ import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
+import ResizeObserver from 'resize-observer-polyfill'
 import DeviceDir from '../DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 
@@ -135,6 +137,7 @@ export default class extends Vue {
     play: false
   }
 
+  private tableMaxHeight: any = null
   private currentListRecord: any = null
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
@@ -162,6 +165,10 @@ export default class extends Vue {
     return this.currentScreen.isLoading
   }
 
+  private get tableContainer() {
+    return this.$refs.tableContainer as any
+  }
+
   /**
    * 切换不同设备/切换日期
    */
@@ -185,7 +192,31 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.initTableSize()
     this.getRecordListByPage()
+  }
+
+  private beforeDestroy() {
+    this.tableContainer && this.observer.unobserve(this.tableContainer)
+    clearTimeout(this.refreshTimeout)
+  }
+
+  /**
+   * table样式初始化
+   */
+  private initTableSize() {
+    this.calTableMaxHeight()
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    this.tableContainer && this.observer.observe(this.tableContainer)
+  }
+
+  /**
+   * 计算表格高度
+   */
+  private calTableMaxHeight() {
+    this.tableMaxHeight = this.tableContainer && this.tableContainer.offsetHeight ? this.tableContainer.offsetHeight - 130 : null
   }
 
   /**

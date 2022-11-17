@@ -62,7 +62,6 @@ import { Component, Mixins } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import ScreenBoard from '@vss/device/components/ScreenBoard/index.vue'
 import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
-import PollingMask from '@vss/device/components/PollingMask.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@vss/device/store/modules/screen'
@@ -71,7 +70,6 @@ import { ScreenModule } from '@vss/device/store/modules/screen'
   name: 'Preview',
   components: {
     PreviewTree,
-    PollingMask,
     ScreenBoard,
     Breadcrumb
   }
