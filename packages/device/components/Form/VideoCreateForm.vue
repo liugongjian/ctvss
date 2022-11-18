@@ -340,7 +340,7 @@ export default class extends Vue {
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
-      [DeviceEnum.DevicePort]: this.videoInfo.devicePort,
+      [DeviceEnum.DevicePort]: +this.videoInfo.devicePort === 0 ? null : this.videoInfo.devicePort,
       [DeviceEnum.DeviceStreamSize]: this.videoInfo.deviceStreamSize || 1,
       [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.deviceStreamAutoPull || 1,
       [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.deviceStreamPullIndex || 1,
@@ -529,6 +529,8 @@ export default class extends Vue {
   public validateDevicePort(rule: any, value: string, callback: Function) {
     if (value && !/^[0-9]+$/.test(value)) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (+value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }

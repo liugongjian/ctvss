@@ -119,7 +119,7 @@ export default class extends Vue {
       [DeviceEnum.DeviceType]: this.viidInfo.deviceType,
       [DeviceEnum.InUserId]: this.viidInfo.inUserId,
       [DeviceEnum.Ip]: this.viidInfo.ip,
-      [DeviceEnum.Port]: this.viidInfo.port
+      [DeviceEnum.Port]: +this.viidInfo.port === 0 ? null : this.viidInfo.port
     }
   }
 
@@ -173,6 +173,8 @@ export default class extends Vue {
   private validateDevicePort(rule: any, value: string, callback: Function) {
     if (value && !/^[0-9]+$/.test(value)) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (+value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }

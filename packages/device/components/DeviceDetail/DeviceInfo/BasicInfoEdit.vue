@@ -178,7 +178,7 @@ export default class extends Mixins(deviceFormMixin) {
       deviceVendor: basicInfo.deviceVendor,
       description: basicInfo.description,
       deviceIp: basicInfo.deviceIp,
-      devicePort: basicInfo.devicePort,
+      devicePort: +basicInfo.devicePort === 0 ? null : basicInfo.devicePort,
       devicePoleId: basicInfo.devicePoleId,
       deviceMac: basicInfo.deviceMac,
       deviceSerialNumber: basicInfo.deviceSerialNumber,
