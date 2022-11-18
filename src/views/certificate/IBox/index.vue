@@ -64,7 +64,7 @@
       width="30%"
       center
     >
-      <span>确定更换IBOX接入凭证吗？确定更换后，已接入平台的IBOX不受影响；新的IBOX配置接入时，需使用新的凭证，旧的凭证将失效。</span>
+      <span>确定更换iBox接入凭证吗？确定更换后，已接入平台的iBox不受影响；新的iBox配置接入时，需使用新的凭证，旧的凭证将失效。</span>
       <span slot="footer" class="dialog-footer">
 
         <el-button type="primary" @click="changeCaptcha">确 定</el-button>

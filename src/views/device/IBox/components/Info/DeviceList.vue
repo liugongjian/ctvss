@@ -69,7 +69,7 @@
           label="当前码率"
         >
           <template slot-scope="{row}">
-            {{ row.streams.length ? `${row.streams[0].bitrate}Mbps` : '-' }}
+            {{ row.streams.length ? `${(row.streams[0].bitrate/1024).toFixed(2)}Mbps` : '-' }}
           </template>
         </el-table-column>
         <el-table-column
