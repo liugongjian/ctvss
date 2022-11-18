@@ -298,6 +298,8 @@ const exportDeviceFile = async function (state, data: any) {
       }
       
       res = await exportDeviceAll(param)
+      // console.log('res----->',res)
+      // ExportExcelTemplate.downloadFileWithBlob('设备表格', res)
     } else {
       let deviceArr: any = []
       if (data.policy === ToolsEnum.ExportCurrentPage) {
@@ -307,11 +309,13 @@ const exportDeviceFile = async function (state, data: any) {
       }
       const deviceIds = deviceArr.map((device: any) =>  device[DeviceEnum.DeviceId]  )
       const param = {
-        deviceIds
+        deviceIds:deviceIds.join(',')
       }
+      console.log(param)
       res = await exportDeviceOption(param)
     }
-    ExportExcelTemplate.downloadFileUrl('设备表格', res.exportFile)
+    // ExportExcelTemplate.downloadFileWithBlob('设备表格', res.exportFile)
+    ExportExcelTemplate.downloadFileWithBlob('设备表格', res)
   } catch (error) {
     console.log(error)
   }

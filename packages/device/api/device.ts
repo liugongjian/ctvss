@@ -424,8 +424,9 @@ export const exportSearchResult = (data: any): Promise<any> =>
 export const exportDeviceAll = (params: any): Promise<any> =>
   request({
     url: '/device/exportDeviceAll',
-    method: 'post',
-    data: params
+    method: 'get',
+    params,
+    responseType: 'blob'
   })
 
 /**
@@ -434,8 +435,9 @@ export const exportDeviceAll = (params: any): Promise<any> =>
 export const exportDeviceOption = (params: any): Promise<any> =>
   request({
     url: '/device/exportDeviceOption',
-    method: 'post',
-    data: params
+    method: 'get',
+    params,
+    responseType: 'blob'
   })
 
 /**

@@ -7,12 +7,16 @@ import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 import { ApiMapping } from '@/api/api-mapping'
 import { whiteList } from '@/api/v1-whitelist'
+import { indexOf } from 'lodash'
+import e from 'cors'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
   timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
+
+const ifExport = (config:any)=>{return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption')}
 
 // Request interceptors
 service.interceptors.request.use(
@@ -84,7 +88,14 @@ function requestTransform(config: AxiosRequestConfig) {
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     // TODO: 后续删除灰度判断
-    const resData = UserModule.version === 2 ? response.data.data : response.data.data
+    // const resData = UserModule.version === 2 ? response.data.data : response.data.data
+    let resData:AxiosResponse
+    // 过滤 导出接口 返回
+    if(ifExport(response.config)){
+      resData = response
+    }else{
+      resData = UserModule.version === 2 ? response.data.data : response.data.data
+    }
     return resData as AxiosResponse
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
@@ -118,5 +129,7 @@ function responseHandler(response: AxiosResponse) {
     return Promise.reject(new VSSError(code, message, requestId))
   }
 }
+
+
 
 export default service
