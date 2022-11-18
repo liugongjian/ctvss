@@ -19,7 +19,10 @@
       </el-radio>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
-      <el-select v-model="videoForm.videoVendor">
+      <el-select
+        v-model="videoForm.videoVendor"
+        @change="videoVendorChange"
+      >
         <el-option
           v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
           :key="key"
@@ -411,12 +414,26 @@ export default class extends Vue {
   }
 
   /**
+   * 厂商变化
+   */
+  private videoVendorChange() {
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
+  }
+
+  /**
    * 视频接入协议变化
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
     // 重置vendor
     this.videoForm.videoVendor = ''
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
@@ -526,10 +543,10 @@ export default class extends Vue {
   /**
    * 校验端口号
    */
-  public validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
+  public validateDevicePort(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
       callback(new Error('设备端口仅支持数字'))
-    } else if (+value === 0) {
+    } else if (value === 0) {
       callback(new Error('设备端口号不能为0'))
     } else {
       callback()
