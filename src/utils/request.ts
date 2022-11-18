@@ -6,7 +6,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 
-import { toLowerCase } from '@/utils/param'
+import { toLowerCase, toUpperCase } from '@/utils/param'
 import { whitelist } from '@/api/v2-whitelist'
 
 let timeoutPromise: Promise<any>
@@ -98,12 +98,18 @@ function responseHandler(response: AxiosResponse) {
 }
 
 // 转换 ibox 中所需v2 或者 v1 请求地址
+// 转换 部分请求参数大小写
 function requestTransform(config: AxiosRequestConfig) {
+  console.log('config---->', config)
   const url = config.url
   if (whitelist.includes(url)) {
     config.url = '/v2' + url
   } else {
     config.url = '/v1' + url
+  }
+
+  if (config.url.includes('/v1/gbcode/') && config.method === 'get') {
+    config.params = toUpperCase(config.params)
   }
   return config
 }
