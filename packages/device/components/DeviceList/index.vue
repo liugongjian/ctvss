@@ -17,7 +17,7 @@
           </info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ device.createdTime }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceChannelSize)" label="通道数量:">{{ basicInfo.deviceChannelSize }}</info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats ? basicInfo.deviceStats.onlineChannels : '-' }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>

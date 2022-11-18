@@ -8,11 +8,11 @@
       label-width="165px"
     >
       <div class="two-column-wrap">
-        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="deviceEnum.DeviceName">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="isEnableCloudChannelName && isPlatformDevice ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
+        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="isEnableCloudChannelName ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
