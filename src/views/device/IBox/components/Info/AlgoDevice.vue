@@ -261,7 +261,6 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     const deviceTree: any = this.$refs.deviceTree
     const algoMeta = JSON.parse(meta.algorithmMetadata)
     const node = deviceTree.getNode(meta.deviceId)
-
     if (algoMeta.DangerZone.length > 0) {
       this.$set(node.data, 'meta', meta)
     } else {
@@ -276,6 +275,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
     try {
       await this.initFrameAndDialog(data.deviceId)
       this.frameLoading = 'correct'
+      this.deviceId = data.deviceId
     } catch (e) {
       this.frameImage = null
       this.setNodeOppositeChecked(data.deviceId)
