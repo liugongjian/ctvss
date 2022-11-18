@@ -100,7 +100,6 @@ function responseHandler(response: AxiosResponse) {
 // 转换 ibox 中所需v2 或者 v1 请求地址
 // 转换 部分请求参数大小写
 function requestTransform(config: AxiosRequestConfig) {
-  console.log('config---->', config)
   const url = config.url
   if (whitelist.includes(url)) {
     config.url = '/v2' + url
