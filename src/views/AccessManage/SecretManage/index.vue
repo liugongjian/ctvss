@@ -30,8 +30,8 @@
         <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{ row }">
-            <status-badge :status="row.status ? 'on' : 'warning'" />
-            {{ secretStatus[row.status] || "已启用" }}
+            <status-badge :status="row.status" />
+            {{ secretStatus[row.status === 'on'] || "已启用" }}
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
