@@ -1,12 +1,14 @@
-import { Component, Provide, Mixins } from 'vue-property-decorator'
+import { Component, Provide, Mixins, Inject } from 'vue-property-decorator'
 import HandleMixin from './handleMixin'
 import { getDeviceList, startDevice, stopDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 
 @Component
 export default class ListMixin extends Mixins(HandleMixin) {
-  // @Inject('getDirList') public getDirList!: Function
-
+  // @ts-ignore
+  @Inject('getDirList') public getDirList!: Function
+  // @ts-ignore
+  @Inject({ from: 'goback', default: () => {} }) public goback!: Function
   public tableData = []
 
   public statusMap = {

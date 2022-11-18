@@ -1,4 +1,4 @@
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Provide, Inject } from 'vue-property-decorator'
 import { deleteDevice } from '@/api/ibox'
 @Component
 export default class HandleMixin extends Vue {
@@ -9,19 +9,19 @@ export default class HandleMixin extends Vue {
     switch (type) {
       case 'goBack':
         // await this.getDirList()
-        this.goBack()
+        this.goback()
         break
       case 'deleteDevice':
         return this.deleteIboxDevice(payload)
       case 'refreshDirectory':
         await this.getDirList()
-        this.goBack()
+        this.goback()
         break
-      default: return this.goBack()
+      default: return this.goback()
     }
   }
 
-  public goBack: Function // 会被子类改写
+  public goback: Function // 会被子类改写
 
   public getDirList: Function // 会被子类改写
 
@@ -36,7 +36,7 @@ export default class HandleMixin extends Vue {
       },
       onSuccess: async() => {
         await this.getDirList()
-        this.goBack()
+        this.goback()
       }
     })
   }

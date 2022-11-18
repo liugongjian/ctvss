@@ -573,8 +573,9 @@ export default class IBox extends Mixins(HandleMixin) {
     return path
   }
 
+  @Provide('goback')
   // @ts-ignore
-  public goBack() {
+  public goback() {
     const query: any = {
       deviceId: this.$route.query.deviceId,
       type: this.$route.query.type
