@@ -16,7 +16,7 @@ const service = axios.create({
   // withCredentials: true // send cookies when cross-domain requests
 })
 
-const ifExport = (config:any)=>{return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption')}
+
 
 // Request interceptors
 service.interceptors.request.use(
@@ -91,6 +91,7 @@ function responseHandler(response: AxiosResponse) {
     // const resData = UserModule.version === 2 ? response.data.data : response.data.data
     let resData:AxiosResponse
     // 过滤 导出接口 返回
+    const ifExport = (config:any)=>{return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice')}
     if(ifExport(response.config)){
       resData = response
     }else{

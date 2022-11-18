@@ -922,7 +922,7 @@ class ExportExcelTemplate {
     link.click()
   }
 
-  // 下载 字节流格式 表格
+  // 下载 文件流格式 表格
   public downloadFileWithBlob(fileName: string, file: any) {
     console.log('file.type ----->', file.headers['content-type'] )
     const blob = new Blob([file.data], { type:file.headers['content-type'] })

@@ -440,6 +440,14 @@ export const exportDeviceOption = (params: any): Promise<any> =>
     responseType: 'blob'
   })
 
+  export const exportFailDevice = (params:any):Promise<any>=>
+  request({
+    url:'/device/exportFailedDevice',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+
 /**
  * 获取子地址列表，返回Promise
  */
