@@ -29,7 +29,10 @@
           <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="厂商:" :prop="deviceEnum.DeviceVendor">
-          <el-select v-model="deviceForm.deviceVendor">
+          <el-select
+            v-model="deviceForm.deviceVendor"
+            :disabled="inVideoProtocol === inVideoProtocolEnum.Rtsp"
+          >
             <el-option
               v-for="(value, key) in deviceVendor[inVideoProtocol]"
               :key="key"
@@ -133,7 +136,7 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { updateDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum, InVideoProtocolEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice, ViidDevice, DeviceBasicForm, DeviceForm } from '@vss/device/type/Device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
@@ -153,6 +156,7 @@ export default class extends Mixins(deviceFormMixin) {
   private deviceInTypeEnum = DeviceInTypeEnum
   private inNetworkTypeEnum = InNetworkTypeEnum
   private outNetworkTypeEnum = OutNetworkTypeEnum
+  private inVideoProtocolEnum = InVideoProtocolEnum
   private deviceVendor = dicts.DeviceVendor
   private industryList = []
   private networkList = []
