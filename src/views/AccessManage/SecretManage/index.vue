@@ -15,27 +15,13 @@
     <el-card>
       <div class="filter-container">
         <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
+        <span class="hint">您还可以添加<span class="num">{{2 - dataList.length}}</span>个API密钥</span>
       </div>
       <el-table :data="dataList" fit>
-        <el-table-column label="密钥" min-width="300">
+        <el-table-column label="API密钥ID" min-width="300">
           <template slot-scope="{ row }">
             <div>
-              <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
-              <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
-                <svg-icon name="copy" />
-              </el-button>
-            </div>
-            <div>
-              <span>{{ 'SecretAccessKey: ****** ' }}</span>
-              <el-popover
-                placement="right"
-                width="400"
-                trigger="hover"
-                :open-delay="300"
-                content="若SecretAccessKey遗失，请删除该密钥并重新创建"
-              >
-                <svg-icon slot="reference" class="form-question" name="help" />
-              </el-popover>
+              <span>{{ row.accessKey }}</span>
             </div>
           </template>
         </el-table-column>
@@ -44,20 +30,20 @@
         <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{ row }">
-            <status-badge :status="row.status ? 'on' : 'warning'" />
-            {{ secretStatus[row.status] || "已启用" }}
+            <status-badge :status="row.status" />
+            {{ secretStatus[row.status === 'on'] || "已启用" }}
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
           <template slot-scope="scope">
-            <template v-if="scope.row.status">
+            <template v-if="scope.row.status === 'on'">
               <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
-              <el-button type="text" disabled @click="disableSecret(scope.row)">禁用</el-button>
+              <el-button type="text" :disabled="canDisable" @click="disableSecret(scope.row)">禁用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
             <template v-else>
               <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
-              <el-button type="text" disabled @click="enableSecret(scope.row)">启用</el-button>
+              <el-button type="text" @click="enableSecret(scope.row)">启用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
           </template>
@@ -86,6 +72,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import TipDialog from './components/TipDialog.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret, updateSecret } from '@/api/secret'
 import { UserModule } from '@/store/modules/user'
+import format from 'date-fns/format'
 
 @Component({
   name: 'secret-manage',
@@ -126,6 +113,14 @@ export default class extends Vue {
     return !this.loading && this.dataList.length < 2
   }
 
+  private get canDisable(){
+    let count = 0
+    this.dataList.forEach(data => {
+      data.status === 'on' && count++
+    })
+    return count < 2
+  }
+
   private get isPrivate() {
     return UserModule.isPrivate
   }
@@ -133,8 +128,12 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      const res = await getSecretList()
-      this.dataList = res.keys
+      const { keys } = await getSecretList()
+      this.dataList = keys.map(key => ({
+        ...key,
+        createdTime: format(new Date(+key.createdTime), 'yyyy-dd-MM HH:mm:ss'),
+        updatedTime: format(new Date(+key.updatedTime), 'yyyy-dd-MM HH:mm:ss'),
+      }))
       this.dialogStep = 1
     } catch (e) {
       // TODO
@@ -168,8 +167,11 @@ export default class extends Vue {
       })
       this.getList()
     } catch (e) {
-      // TODO
-      // 错误处理
+      this.$message({
+        message: e,
+        type: 'error'
+      })
+      console.log(e)
     } finally {
       this.loading = false
     }
@@ -211,8 +213,11 @@ export default class extends Vue {
       })
       this.getList()
     } catch (e) {
-      // TODO
-      // 错误处理
+      this.$message({
+        message: e,
+        type: 'error'
+      })
+      console.log(e)
     } finally {
       this.loading = false
     }
@@ -303,6 +308,14 @@ ul.alert-desc {
 
   .el-alert__title {
     line-height: 16px !important;
+  }
+}
+
+.hint {
+  margin-left: 20px;
+
+  .num {
+    color: red;
   }
 }
 </style>

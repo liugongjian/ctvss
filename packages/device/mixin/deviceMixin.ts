@@ -99,7 +99,6 @@ export default class DeviceMixin extends Vue {
       this.dir = await getDir({
         dirId
       }) || {}
-      console.log(this.dir)
     } catch (e) {
       this.$alertError(e)
     }

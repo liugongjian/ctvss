@@ -72,7 +72,6 @@ const executeQueue = async function (
   pollingMask.isLoading = false
   if (state.queueExecutor) {
     state.screenManager.devicesQueue = devicesQueue
-    console.log('screenManager', state.screenManager.devicesQueue)
     state.queueExecutor.executeDevicesQueue(policy)
   }
 }

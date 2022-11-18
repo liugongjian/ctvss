@@ -70,7 +70,7 @@
         <el-descriptions-item v-if="checkVisible(deviceEnum.UserName)" label="用户名">{{ videoInfo.userName }}</el-descriptions-item>
         <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceDomain)" label="设备域名">{{ videoInfo.deviceDomain }}</el-descriptions-item>
         <el-descriptions-item v-if="checkVisible(deviceEnum.Ip)" label="接入IP">{{ videoInfo.deviceIp }}</el-descriptions-item>
-        <el-descriptions-item v-if="checkVisible(deviceEnum.Port)" label="端口">{{ videoInfo.devicePort }}</el-descriptions-item>
+        <el-descriptions-item v-if="checkVisible(deviceEnum.Port)" label="端口">{{ +videoInfo.devicePort === 0 ? '-' : videoInfo.devicePort }}</el-descriptions-item>
       </template>
     </el-descriptions>
 

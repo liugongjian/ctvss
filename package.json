@@ -9,6 +9,7 @@
     "serve:dev": "vue-cli-service serve --env dev",
     "serve:dev1": "vue-cli-service serve --env dev1",
     "serve:dev-refactor": "vue-cli-service serve --env devrefactor",
+    "serve:test-refactor": "vue-cli-service serve --env testrefactor",
     "serve:test": "vue-cli-service serve --env test",
     "serve:test1": "vue-cli-service serve --env test1",
     "serve:test2": "vue-cli-service serve --env test2",

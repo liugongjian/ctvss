@@ -490,7 +490,7 @@ const openListDialog = function (getVueComponent, type: string, row?: any) {
   switch (type) {
     case ToolsEnum.MoveDevice:
       state.currentDevice = row
-      state.isBatchMoveDir = !row
+      state.isBatchMoveDir = row instanceof Array
       state.dialog[ToolsEnum.MoveDevice] = true
       break
     case ToolsEnum.UpdateResource:

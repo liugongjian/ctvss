@@ -19,7 +19,10 @@
       </el-radio>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
-      <el-select v-model="videoForm.videoVendor">
+      <el-select
+        v-model="videoForm.videoVendor"
+        @change="videoVendorChange"
+      >
         <el-option
           v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
           :key="key"
@@ -340,7 +343,7 @@ export default class extends Vue {
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
-      [DeviceEnum.DevicePort]: this.videoInfo.devicePort,
+      [DeviceEnum.DevicePort]: +this.videoInfo.devicePort === 0 ? null : this.videoInfo.devicePort,
       [DeviceEnum.DeviceStreamSize]: this.videoInfo.deviceStreamSize || 1,
       [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.deviceStreamAutoPull || 1,
       [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.deviceStreamPullIndex || 1,
@@ -402,7 +405,6 @@ export default class extends Vue {
 
     // 在选择厂商类型为“其他”的时候，仅能使用单码流
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
-      console.log(this.videoForm[DeviceEnum.VideoVendor], +key)
       if (this.videoForm[DeviceEnum.VideoVendor] === '其他' && +key > 1) {
         checkFlag = true
       }
@@ -412,12 +414,26 @@ export default class extends Vue {
   }
 
   /**
+   * 厂商变化
+   */
+  private videoVendorChange() {
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
+  }
+
+  /**
    * 视频接入协议变化
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
     // 重置vendor
     this.videoForm.videoVendor = ''
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
@@ -527,9 +543,11 @@ export default class extends Vue {
   /**
    * 校验端口号
    */
-  public validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
+  public validateDevicePort(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }
@@ -550,7 +568,6 @@ export default class extends Vue {
           // [DeviceEnum.OutId]: this.videoForm.outId
           gbId: this.videoForm.outId
         })
-        console.log(validInfo)
         if (validInfo && !validInfo.isValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {

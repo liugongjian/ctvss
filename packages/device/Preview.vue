@@ -106,6 +106,9 @@ export default class extends Mixins(layoutMxin) {
    * @param item node信息
    */
   private handleTreeNode(item: any) {
+    if (item.type !== this.deviceTypeEnum.Ipc) {
+      this.deviceTree.loadChildren(item.id)
+    }
     this.screenManager.openTreeItem(item, item.deviceStreamPullIndex)
   }
 

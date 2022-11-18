@@ -855,7 +855,8 @@ export default class extends Mixins(IndexMixin) {
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
     this.changeToolState('pointer')
-    this.$refs.mapview.changeMapClickEvent('pointer')
+    const mapview = this.$refs.mapview
+    mapview && mapview.changeMapClickEvent('pointer')
     if (!this.isEdit) {
       const interType = ['interest', 'font', 'polygon']
       if (interType.includes(this.customInfoType)) {

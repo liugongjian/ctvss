@@ -56,7 +56,6 @@ export default class extends Vue {
   }
 
   private mounted() {
-    console.log(this.currentDir, this.parentDir)
     if (this.currentDir) {
       this.form.dirId = this.currentDir.id
       this.form.dirName = this.currentDir.name

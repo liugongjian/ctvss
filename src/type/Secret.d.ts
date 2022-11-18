@@ -4,7 +4,7 @@ export interface Secret {
   secretKey: string;
   createdTime: string;
   updatedTime: string;
-  status: boolean;
+  status: string;
   hidden?: boolean;
   description: string;
 }

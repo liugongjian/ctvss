@@ -61,7 +61,6 @@ export default class extends ComponentMixin {
       const video = this.player.video || this.player.canvas
       const width = video.clientWidth
       const height = video.clientHeight
-      console.log('showCanvasBox--Info', width, video.clientWidth)
       this.$nextTick(() => {
         // 监听播放器容器大小变化，触发比例缩放
         const canvasEle = document.createElement('canvas')
