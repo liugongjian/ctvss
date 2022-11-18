@@ -399,8 +399,11 @@ export default class extends Vue {
    */
   private checkDeviceStreamDisabled(key) {
     let checkFlag = false
-    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
-      checkFlag = true
+    // 在选择视频接入协议为“ehome”的时候，不使用三码流
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Ehome) {
+      if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
+        checkFlag = true
+      }
     }
 
     // 在选择厂商类型为“其他”的时候，仅能使用单码流
