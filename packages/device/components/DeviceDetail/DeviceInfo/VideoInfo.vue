@@ -32,7 +32,6 @@
         <status-badge :status="recordStatus" />
         {{ dicts.RecordStatus[recordStatus] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats && basicInfo.deviceStats.onlineChannels || '-' }}</el-descriptions-item>
       <el-descriptions-item label="当前码率">{{ streamInfo.bitrate ? (streamInfo.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
       <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg || '-' }}</el-descriptions-item>
     </el-descriptions>
@@ -44,6 +43,7 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OnlineChannels)" label="在线流数量">{{ basicInfo.deviceStats && basicInfo.deviceStats.onlineChannels || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamAutoPull)" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo.deviceStreamAutoPull] }}</el-descriptions-item>
