@@ -924,7 +924,6 @@ class ExportExcelTemplate {
 
   // 下载 文件流格式 表格
   public downloadFileWithBlob(fileName: string, file: any) {
-    console.log('file.type ----->', file.headers['content-type'] )
     const blob = new Blob([file.data], { type:file.headers['content-type'] })
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
