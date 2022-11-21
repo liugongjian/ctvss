@@ -1,5 +1,6 @@
 import CdnCas from './CdnCas'
 import CtyunCas from './CtyunCas'
+import { loadJs, loadCss } from '@/utils/load-resource'
 
 /**
  * 创建Cas
@@ -14,23 +15,33 @@ const casUrl = {
   type_cn: ''
 }
 
-const createCas = () => {
-  const host = location.hostname.split('.').slice(-2)
-  switch (host[0]) {
-    case 'ctcdn':
-      cas = CdnCas.getInstance()
-      casUrl.login = CdnCas.LOGIN_URL
-      casUrl.logout = CdnCas.LOGOUT_URL
-      casUrl.type = CdnCas.TYPE
-      casUrl.type_cn = CdnCas.TYPE_CN
-      break
-    default:
-      cas = CtyunCas.getInstance()
-      casUrl.login = CtyunCas.LOGIN_URL
-      casUrl.logout = CtyunCas.LOGOUT_URL
-      casUrl.type = CtyunCas.TYPE
-      casUrl.type_cn = CtyunCas.TYPE_CN
-      break
+const createCas = async() => {
+  try {
+    const host = location.hostname.split('.').slice(-2)
+    switch (host[0]) {
+      case 'ctcdn':
+        loadCss('/iam/layout/alogic-layout.css')
+        await loadJs('/iam/layout/alogic-layout.js')
+        cas = CdnCas.getInstance()
+        casUrl.login = CdnCas.LOGIN_URL
+        casUrl.logout = CdnCas.LOGOUT_URL
+        casUrl.type = CdnCas.TYPE
+        casUrl.type_cn = CdnCas.TYPE_CN
+        break
+      case 'ctyun':
+        loadCss('/layout/static/css/app.css')
+        await loadJs('/layout/ctcloud-layout.min.js')
+        cas = CtyunCas.getInstance()
+        casUrl.login = CtyunCas.LOGIN_URL
+        casUrl.logout = CtyunCas.LOGOUT_URL
+        casUrl.type = CtyunCas.TYPE
+        casUrl.type_cn = CtyunCas.TYPE_CN
+        break
+      default:
+        throw new Error('单点登录域名未命中')
+    }
+  } catch (e) {
+    throw new Error(e)
   }
 }
 
@@ -41,12 +52,12 @@ const createCas = () => {
 const authCas = async() => {
   try {
     if (!cas) {
-      createCas()
+      await createCas()
     }
     return await cas.auth()
   } catch (e) {
     // todo
-    console.log('cas.auth e: ', e)
+    // console.log('cas.auth e: ', e)
   }
 }
 
