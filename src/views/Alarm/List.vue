@@ -289,7 +289,7 @@ export default class extends Vue {
   }
 
   private async getList(forbitLoading?: boolean) {
-    const params = {
+    const params: any = {
       // inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
       startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
@@ -299,14 +299,16 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    if (this.$route.query.deviceId) {
-      this.$set(params, 'deviceId', this.$route.query.deviceId)
-    } else if (this.$route.query.dirId) {
-      if (this.$route.query.dirId === '0') {
-        this.$set(params, 'groupId', this.groupId)
-      } else {
-        this.$set(params, 'dirId', this.$route.query.dirId)
+    if (this.$route.query.type !== 'ipc') {
+      // 目录级别
+      params.dirId = this.$route.query.dirId
+      if (typeof(this.$route.query.type) === 'undefined') {
+        // 根目录
+        params.dirId = 'root'
       }
+    } else {
+      // 设备级别
+        params.deviceId = this.$route.query.deviceId
     }
     try {
       !forbitLoading && (this.loading = true) && (this.alarmList = [])
