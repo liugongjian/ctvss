@@ -95,7 +95,7 @@ export default class extends Vue {
       await this.updateDeviceApi(params)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
-        this.$emit('updateDevice')
+      this.$emit('updateDevice')
     } catch (e) {
       this.$alertError(e.message)
     }
