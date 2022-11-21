@@ -1,4 +1,4 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { asyncRoutes, constantRoutes, resetRouter } from '@/router'
 import casService from '@/services/casService'
 import store from '@/store'
 import { getLocalStorage } from '@/utils/storage'
@@ -23,6 +23,13 @@ const hasTags: IMatchFn = (tags, route) => {
   return true
 }
 
+const hasPlugins: IMatchFn = (plugins, route) => {
+  if (route.meta && route.meta.plugins) {
+    return route.meta.plugins.every(neededPlugin => plugins.indexOf(neededPlugin) !== -1)
+  }
+  return true
+}
+
 const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
@@ -39,6 +46,7 @@ const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: stri
 
 export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
 export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
+export const filterAsyncRoutesByPlugins = filterAsyncRoutes.bind(null, hasPlugins)
 
 export interface IPermissionState {
   routes: RouteConfig[]
@@ -57,7 +65,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { tags: string[], plugins: string[], perms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
@@ -66,6 +74,13 @@ class Permission extends VuexModule implements IPermissionState {
 
     // 根据route.meta.tags及用户tags过滤路由
     filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tags)
+    // 根据route.meta.plugins及用户plugins过滤路由
+    filteredRoutes = filterAsyncRoutesByPlugins(filteredRoutes, params.plugins)
+    filteredRoutes.forEach((route: any) => {
+      if (route.path === '/device' && route.children && route.children.length === 1) {
+        route.children[0].meta.title = '设备管理'
+      }
+    })
 
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
