@@ -58,7 +58,7 @@
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                    v-show="!showMapConfig"
+                    v-show="curMap && !showMapConfig"
                     class="node-option"
                     @click.stop.prevent="addMarker(data)"
                   >+</span>
@@ -1229,9 +1229,13 @@ export default class extends Mixins(IndexMixin) {
       payload: { mapId: map.mapId },
       onSuccess: () => {
         this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
-        if (this.curMap.mapId === map.mapId) {
+        if (this.mapList.length && this.curMap.mapId === map.mapId) {
           // this.curMap = this.mapList[0] || null
           this.handleChooseMap(this.mapList[0])
+        }
+        if (!this.mapList.length) {
+          this.markerList = []
+          this.curMap = null
         }
       }
     })
