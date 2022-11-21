@@ -12,6 +12,11 @@ import HoverSelector from './components/HoverSelector/index.vue'
 import Pagination from './components/Pagination/index.vue'
 import StatusBadge from './components/StatusBadge/index.vue'
 
+/**
+ * 指令清单
+ */
+import adaptiveHiding from './directives/adaptiveHiding'
+
 const componentsList = [
   CommonLayout,
   CommonTree,
@@ -21,11 +26,18 @@ const componentsList = [
   StatusBadge
 ]
 
+const directivesList = [
+  adaptiveHiding
+]
+
 export default {
   install(Vue) {
     Vue.use(ElementUI, { size: 'medium' })
-    componentsList.map((component: any) => {
+    componentsList.forEach((component: any) => {
       Vue.component(component.options.name, component)
+    })
+    directivesList.forEach((directive: any) => {
+      Vue.directive(directive.name, directive)
     })
   }
 }

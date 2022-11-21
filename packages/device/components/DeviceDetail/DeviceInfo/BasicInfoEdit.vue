@@ -88,11 +88,11 @@
           </el-radio-group>
         </el-form-item> -->
       </div>
-      <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+      <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
-        <div ref="showMoreForm" class="two-column-wrap show-more--form">
+        <div class="two-column-wrap show-more--form" :class="{ adaptiveHideTag }">
           <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
             <el-input v-model="deviceForm.deviceIp" />
           </el-form-item>
@@ -161,7 +161,7 @@ export default class extends Mixins(deviceFormMixin) {
   private industryList = []
   private networkList = []
   private showMore = false
-  private showMoreVisable = false
+  private adaptiveHideTag = 'adaptiveHideTag'
   public deviceForm: DeviceBasicForm = {}
 
   @Watch('device', {
@@ -256,18 +256,6 @@ export default class extends Mixins(deviceFormMixin) {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
     this.checkIsShowMore()
-  }
-
-  private updated() {
-    this.checkIsShowMore()
-  }
-
-  /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShowMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**
