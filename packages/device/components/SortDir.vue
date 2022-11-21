@@ -36,6 +36,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getNodeInfo, sortDir } from '@vss/device/api/dir'
+import { DirectoryTypeEnum } from '@vss/device/enums'
 
 @Component({
   name: 'SortDir',
@@ -73,7 +74,7 @@ export default class extends Vue {
         id: sortDir.id,
         type: sortDir.type
       })
-      this.dirData = res.dirs
+      this.dirData = res.dirs.filter(dir => ![DirectoryTypeEnum.Role].includes(dir.type))
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
