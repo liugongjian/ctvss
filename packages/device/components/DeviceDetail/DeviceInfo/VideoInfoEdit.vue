@@ -66,9 +66,9 @@ export default class extends Vue {
     const params: DeviceForm = {
       device: {
         deviceId: this.basicInfo.deviceId,
+        deviceVendor: form.videoForm.videoVendor,
         ...pick(form.videoForm, [
-          DeviceEnum.DeviceChannelSize,
-          DeviceEnum.VideoVendor
+          DeviceEnum.DeviceChannelSize
         ])
       }
     }
@@ -95,7 +95,7 @@ export default class extends Vue {
       await this.updateDeviceApi(params)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
-        this.$emit('updateDevice')
+      this.$emit('updateDevice')
     } catch (e) {
       this.$alertError(e.message)
     }

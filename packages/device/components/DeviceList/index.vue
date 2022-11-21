@@ -38,7 +38,7 @@
           >
             查看详情
           </el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice)">编辑</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice, basicInfo)">编辑</el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList,currentDirId })">
             <el-button :loading="loading.export">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>

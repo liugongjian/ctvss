@@ -234,6 +234,7 @@ const syncDeviceStatus = async function (getVueComponent, id, type) {
     })
   }
   try {
+    if (!deviceIdAndTypes.length) return
     state.loading.syncDeviceStatus = true
     await syncDeviceStatusApi({
       deviceIdAndTypes
