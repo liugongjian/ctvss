@@ -1,11 +1,14 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="edit">编辑</el-button>
+      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice]) && !(isChannel && isIbox)" type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources) && checkToolsVisible(toolsEnum.UpdateResource, [policyEnum.AdminDevice])" type="text">配置资源包</el-button>
-      <el-dropdown @command="handleTools($event, handleData, inVideoProtocol)">
+      <el-dropdown
+        v-adaptive-hiding="adaptiveHideTag"
+        @command="handleTools($event, handleData, inVideoProtocol)"
+      >
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
-        <el-dropdown-menu slot="dropdown">
+        <el-dropdown-menu slot="dropdown" :class="{ adaptiveHideTag }">
           <div v-if="checkToolsVisible(toolsEnum.StopDevice)">
             <el-dropdown-item v-if="streamStatus === statusEnum.On && checkToolsVisible(toolsEnum.StopDevice)" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
@@ -119,6 +122,7 @@ export default class extends Vue {
   private statusEnum = StatusEnum
   private toolsEnum = ToolsEnum
   private policyEnum = PolicyEnum
+  private adaptiveHideTag = 'adaptiveHideTag'
 
   // 设备基本信息
   private get basicInfo() {
@@ -158,6 +162,11 @@ export default class extends Vue {
   // 是否含视图库
   private get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 是否为通道
+  private get isChannel() {
+    return this.basicInfo.deviceChannelNum > -1
   }
 
   // 操作所需的数据

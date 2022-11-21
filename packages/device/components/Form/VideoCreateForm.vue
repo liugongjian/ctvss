@@ -71,10 +71,10 @@
     </template>
     <template v-else>
       <el-form-item v-if="checkVisible(deviceEnum.UserName)" label="用户名:" :prop="deviceEnum.UserName">
-        <el-input v-model="videoForm.userName" />
+        <el-input v-model="videoForm.userName" autocomplete="off" />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-        <el-input v-model="videoForm.password" type="password" />
+      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password" class="is-required">
+        <el-input v-model="videoForm.password" type="password" autocomplete="off" :placeholder="passwordPlaceholder" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
         <el-switch
@@ -205,11 +205,11 @@
     <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
       <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
     </el-form-item>
-    <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+    <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
         <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
       </el-form-item>
-      <div ref="showMoreForm" class="show-more--form">
+      <div class="show-more--form" :class="{ adaptiveHideTag }">
         <el-form-item v-if="checkVisible(deviceEnum.Tags)" label="视频标签:" :prop="deviceEnum.Tags">
           <tags v-model="videoForm.tags" class="tags" />
         </el-form-item>
@@ -256,8 +256,9 @@ export default class extends Vue {
   private deviceStreamPullIndex = DeviceStreamPullIndex
   private versionByInVideoProtocol = VersionByInVideoProtocol
   private showMore = false
-  private showMoreVisable = false
+  private adaptiveHideTag = 'adaptiveHideTag'
   private minChannelSize = 1
+  private passwordPlaceholder = ''
   private rules = {
     [DeviceEnum.InVideoProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
@@ -357,6 +358,7 @@ export default class extends Vue {
     if (this.isEdit) {
       // 编辑模式下RTSP密码不必填
       this.rules.password = []
+      this.passwordPlaceholder = '••••••'
       // 编辑模式下，最小子通道为编辑前通道数
       this.minChannelSize = this.basicInfo.deviceChannelSize
     }
@@ -370,10 +372,6 @@ export default class extends Vue {
     this.videoForm.inVideoProtocol = InVideoProtocolEnum.Gb28181
   }
 
-  private updated() {
-    this.checkIsShwoMore()
-  }
-
   /**
    * 校验video表单
    */
@@ -384,14 +382,6 @@ export default class extends Vue {
         resolve(valid)
       })
     })
-  }
-
-  /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShwoMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**
