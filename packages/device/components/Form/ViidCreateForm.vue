@@ -33,8 +33,8 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GA1400凭证:" :prop="deviceEnum.InUserName">
-        <certificate-select v-model="viidForm.inUserName" :type="inViidProtocolEnum.Ga1400" />
+      <el-form-item v-if="checkVisible(deviceEnum.InUserId)" label="GA1400凭证:" :prop="deviceEnum.InUserId">
+        <certificate-select v-model="viidForm.inUserId" :type="inViidProtocolEnum.Ga1400" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP:" :prop="deviceEnum.Ip">
         <el-input v-model="viidForm.ip" placeholder="请输入平台IP" />
@@ -82,7 +82,7 @@ export default class extends Vue {
     [DeviceEnum.DeviceType]: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
-    [DeviceEnum.InUserName]: [
+    [DeviceEnum.InUserId]: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
     [DeviceEnum.Ip]: [
@@ -117,9 +117,9 @@ export default class extends Vue {
       [DeviceEnum.InViidProtocol]: this.inProtocol || InViidProtocolEnum.Ga1400,
       [DeviceEnum.OutId]: this.viidInfo.outId,
       [DeviceEnum.DeviceType]: this.viidInfo.deviceType,
-      [DeviceEnum.InUserName]: this.viidInfo.inUserName,
+      [DeviceEnum.InUserId]: this.viidInfo.inUserId,
       [DeviceEnum.Ip]: this.viidInfo.ip,
-      [DeviceEnum.Port]: this.viidInfo.port
+      [DeviceEnum.Port]: +this.viidInfo.port === 0 ? null : this.viidInfo.port
     }
   }
 
@@ -170,9 +170,11 @@ export default class extends Vue {
   /**
    * 校验端口号
    */
-  private validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
+  private validateDevicePort(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }

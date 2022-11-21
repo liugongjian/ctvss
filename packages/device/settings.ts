@@ -1,4 +1,5 @@
 import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, ToolsEnum, DirectoryTypeEnum } from './enums'
+
 /**
  * ==============================================================================================================================
  * DEVICE-CREATE-VIDEO
@@ -87,7 +88,12 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Description,
     DeviceEnum.PlatformName,
     DeviceEnum.VideoStatus,
-    DeviceEnum.CreatedTime
+    DeviceEnum.CreatedTime,
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Ehome],
@@ -112,15 +118,21 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceVendor,
     DeviceEnum.Description,
     DeviceEnum.VideoStatus,
-    DeviceEnum.CreatedTime
+    DeviceEnum.CreatedTime,
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtsp],
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceInTypeRadio,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.Resource,
+    DeviceEnum.OnlineChannels,
     DeviceEnum.DeviceStreamSize,
+    DeviceEnum.Resource,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     DeviceEnum.VideoVendor,
@@ -136,6 +148,11 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.InOrgRegion,
     DeviceEnum.DeviceVendor,
     DeviceEnum.Description,
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
@@ -158,6 +175,11 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.InOrgRegion,
     DeviceEnum.DeviceVendor,
     DeviceEnum.Description,
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg
   ])
 }
 
@@ -165,7 +187,7 @@ export const InVideoProtocolAllowParams = {
  * 根据接入协议显示子通道需要显示的字段
  * 注意下面是显示的字段(ALLOW)
  */
- export const ChannelAllowParams = {
+export const ChannelEditAllowParams = {
   [InVideoProtocolEnum.Gb28181]: new Set([
     DeviceEnum.ChannelName,
     DeviceEnum.DeviceChannelNum,
@@ -199,6 +221,53 @@ export const InVideoProtocolAllowParams = {
 }
 
 /**
+ * 根据接入协议显示子通道需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+export const ChannelAllowParams = {
+  [InVideoProtocolEnum.Gb28181]: new Set([
+    ...ChannelEditAllowParams[InVideoProtocolEnum.Gb28181],
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg,
+    DeviceEnum.OutId,
+    DeviceEnum.InUserName,
+    DeviceEnum.DeviceStreamAutoPull,
+    DeviceEnum.SipTransType,
+    DeviceEnum.StreamTransProtocol,
+    DeviceEnum.StreamTransType,
+    DeviceEnum.Gb28181SipInfo
+  ]),
+  [InVideoProtocolEnum.Ehome]: new Set([
+    ...ChannelEditAllowParams[InVideoProtocolEnum.Ehome],
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg,
+    DeviceEnum.DeviceStreamAutoPull,
+    DeviceEnum.DeviceStreamSize,
+    DeviceEnum.DeviceStreamPullIndex,
+    DeviceEnum.EhomeSipInfo
+  ]),
+  [InVideoProtocolEnum.Rtsp]: new Set([
+    ...ChannelEditAllowParams[InVideoProtocolEnum.Rtsp],
+    DeviceEnum.DeviceStatus,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate,
+    DeviceEnum.ErrorMsg,
+    DeviceEnum.DeviceStreamAutoPull,
+    DeviceEnum.DeviceStreamSize,
+    DeviceEnum.DeviceStreamPullIndex,
+    DeviceEnum.StreamTransProtocol,
+    DeviceEnum.StreamTransType
+  ])
+}
+
+/**
  * 根据设备类型视频接入需要隐藏的字段
  * 注意下面是不显示的字段(DENY)
  */
@@ -215,7 +284,10 @@ export const DeviceTypeDenyParamsForVideo = {
     DeviceEnum.DeviceInType,
     DeviceEnum.DevicePoleId,
     DeviceEnum.DeviceSerialNumber,
-    DeviceEnum.DeviceModel
+    DeviceEnum.DeviceModel,
+    DeviceEnum.StreamStatus,
+    DeviceEnum.RecordStatus,
+    DeviceEnum.Bitrate
   ]),
   [DeviceTypeEnum.Platform]: new Set([
     DeviceEnum.DeviceName,
@@ -256,7 +328,7 @@ export const InViidProtocolCreateParams = {
     DeviceEnum.Viids,
     DeviceEnum.OutId,
     DeviceEnum.DeviceType,
-    DeviceEnum.InUserName,
+    DeviceEnum.InUserId,
     DeviceEnum.Ip,
     DeviceEnum.Port
   ])

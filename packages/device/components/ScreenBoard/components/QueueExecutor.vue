@@ -2,8 +2,6 @@
   <div />
 </template>
 <script lang="ts">
-import { Screen } from '@vss/device/services/Screen/Screen'
-import { pick } from 'lodash'
 import { Component } from 'vue-property-decorator'
 import { PollingStatusEnum } from '@vss/device/enums'
 import ComponentMixin from './mixin'
@@ -87,39 +85,11 @@ export default class extends ComponentMixin {
   private doPolling() {
     // 轮巡初始化
     this.timer && clearTimeout(this.timer)
-    console.log('this.devicesQueue', this.devicesQueue)
     if (this.devicesQueue.length - 1 < this.maxSize) {
       this.doAutoPlay()
     } else {
       // 刷新
       this.pollingVideos()
-      // 间隔时间大于预加载时间则执行预加载策略
-      // let preLoadDelay = 5
-      // if (this.pollingInterval <= preLoadDelay) {
-      //   preLoadDelay = 0
-      // }
-      // const intervalPolling = () => {
-      //   this.timer = setTimeout(
-      //     () => {
-      //       this.timer && clearTimeout(this.timer)
-      //       if (preLoadDelay) {
-      //         this.preLoadPollingVideos()
-      //         this.timer = setTimeout(
-      //           () => {
-      //             this.timer && clearTimeout(this.timer)
-      //             this.pollingVideos()
-      //             intervalPolling()
-      //           },
-      //           preLoadDelay * 1000
-      //         )
-      //       } else {
-      //         this.pollingVideos()
-      //         intervalPolling()
-      //       }
-      //     },
-      //     (this.pollingInterval - preLoadDelay) * 1000
-      //   )
-      // }
       const intervalPolling = () => {
         this.timer = setTimeout(
           () => {
@@ -156,34 +126,6 @@ export default class extends ComponentMixin {
     }
     this.currentExecuteIndex = this.currentExecuteIndex + this.maxSize
   }
-
-  // /**
-  //  * 轮巡预加载
-  //  */
-  // private async preLoadPollingVideos() {
-  //   console.log('轮巡预加载')
-  //   const length = this.devicesQueue.length
-  //   const currentExecuteIndex = this.currentExecuteIndex % length
-  //   let currentIndex = 0
-  //   let preLoadScreen = new Screen()
-  //   for (let i = 0; i < this.maxSize; i++) {
-  //     const pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
-  //     preLoadScreen.destroy()
-  //     preLoadScreen.deviceId = pollingDeviceInfo.id
-  //     preLoadScreen.deviceName = pollingDeviceInfo.label
-  //     preLoadScreen.inProtocol = pollingDeviceInfo.inProtocol
-  //     preLoadScreen.isLive = true
-  //     await preLoadScreen.init()
-  //     pollingDeviceInfo.url = preLoadScreen.url
-  //     pollingDeviceInfo.codec = preLoadScreen.codec
-  //     if (currentIndex < this.maxSize - 1) {
-  //       currentIndex++
-  //     } else {
-  //       currentIndex = 0
-  //     }
-  //   }
-  //   preLoadScreen = null
-  // }
 
   /**
    * 停止轮巡

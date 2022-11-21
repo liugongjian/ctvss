@@ -5,6 +5,7 @@ import { getGa1400CertificateList } from '../../api/certificate'
 
 import { ResourceAiType } from '../../dicts/resource'
 import { getIndustryList } from '../../api/dict'
+import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
 class ExportExcelTemplate {
   private excelName = ''
   private workbook: any
@@ -156,7 +157,7 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: ['"互联网,专线网络"'],
+      formulae: ['"互联网,专线网络"']
     }
   }
 
@@ -413,7 +414,13 @@ class ExportExcelTemplate {
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
-            validation: this.validation.inType
+            validation: {
+              type: 'list',
+              allowBlank: false,
+              showErrorMessage: true,
+              formulae: ['"推流"'],
+              error: '请选择视频流接入方式'
+            }
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
@@ -504,7 +511,13 @@ class ExportExcelTemplate {
         content: [
           {
             title: { header: '*视频流接入方式', key: 'inType', width: 24 },
-            validation: this.validation.inType
+            validation: {
+              type: 'list',
+              allowBlank: false,
+              showErrorMessage: true,
+              formulae: ['"拉流"'],
+              error: '请选择视频流接入方式'
+            }
           },
           {
             title: { header: '接入网络类型', key: 'inNetworkType', width: 16 },
@@ -715,7 +728,7 @@ class ExportExcelTemplate {
     }
   }
 
-  private getIndustryList(){
+  private getIndustryList() {
     return {
       type: 'list',
       allowBlank: false,
@@ -726,7 +739,7 @@ class ExportExcelTemplate {
     }
   }
 
-  private getAddressList(){
+  private getAddressList() {
     return {
       type: 'list',
       allowBlank: false,
@@ -735,11 +748,10 @@ class ExportExcelTemplate {
       formulae: [this.joinDropdownlist(this.addressList)],
       error: '请从选项中选择设备地址'
     }
-    
   }
 
   // 动态校验 formulae值 转换处理
-  public joinDropdownlist = (data: any)=>{
+  public joinDropdownlist = (data: any) => {
     return data.length ? '"' + data.join(',') + '"' : '""'
   }
 
@@ -747,21 +759,23 @@ class ExportExcelTemplate {
   private async getRegionList() {
     try {
       const regionList = await getRegions()
-      this.regionList = regionList?.map((item: any)=>{
-        return item.children.map((val: any)=>{
-          return `${item.value}/${val.label}`
+      this.regionList = regionList
+        ?.map((item: any) => {
+          return item.children.map((val: any) => {
+            return `${item.value}/${val.label}`
+          })
         })
-      }).flat()
+        .flat()
     } catch (e) {
       console.error(e)
     }
   }
 
-  private async getIndustry(){
+  private async getIndustry() {
     try {
       const industryList = await getIndustryList()
-      this.industryList  = industryList.data.map((item: any)=>item.name)
-    } catch (e){
+      this.industryList = industryList.data.map((item: any) => item.name)
+    } catch (e) {
       console.error(e)
     }
   }
@@ -796,34 +810,34 @@ class ExportExcelTemplate {
     } catch (e) {
       console.error(e)
     }
-      // 获取设备用户选项
-      try {
-        const res = await getGa1400CertificateList({
-          pageSize: 1000
-        })
-        res.data.forEach((account: any) => {
-          this.options.gbAccountList.push(account.username)
-        })
-      } catch (e) {
-        console.error(e)
-      }
+    // 获取设备用户选项
+    try {
+      const res = await getGa1400CertificateList({
+        pageSize: 1000
+      })
+      res.data.forEach((account: any) => {
+        this.options.gbAccountList.push(account.username)
+      })
+    } catch (e) {
+      console.error(e)
+    }
 
-      // todo   通道 构建可选择的通道，排除已选择通道
-      // const info = await getDevice({
-      //   deviceId: this.parentDeviceId,
-      //   inProtocol: this.excelInProtocol
-      // })
-      // const usedChannelNum = info.deviceChannels.map((channel: any) => {
-      //   return channel.channelNum
-      // })
-      // const channelSize = info.deviceStats.maxChannelSize
-      // this.options.availableChannels = []
-      // for (let i = 1; i <= channelSize; i++) {
-      //   if (!~usedChannelNum.indexOf(i)) {
-      //     this.availableChannels.push(`D${i}`)
-      //   }
-      // }
-    
+    // todo   通道 构建可选择的通道，排除已选择通道
+    // const info = await getDevice({
+    //   deviceId: this.parentDeviceId,
+    //   inProtocol: this.excelInProtocol
+    // })
+    // const usedChannelNum = info.deviceChannels.map((channel: any) => {
+    //   return channel.channelNum
+    // })
+    // const channelSize = info.deviceStats.maxChannelSize
+    // this.options.availableChannels = []
+    // for (let i = 1; i <= channelSize; i++) {
+    //   if (!~usedChannelNum.indexOf(i)) {
+    //     this.availableChannels.push(`D${i}`)
+    //   }
+    // }
+
     // 生成额外sheet存储动态选项  暂时关闭
     // for (const key in this.options) {
     //   if (this.options[key].length) {
@@ -835,19 +849,16 @@ class ExportExcelTemplate {
   }
   // 调接口获取下拉数据 --- end ---
 
-
   /**
    *
    * @memberof 导出模板
    */
   public async exportTemplate(addressList: any) {
-
     this.addressList = addressList
 
     await this.getRegionList()
 
     await this.getIndustry()
-
 
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
@@ -855,7 +866,7 @@ class ExportExcelTemplate {
     this.workbook = new ExcelJS.Workbook()
     this.workbook.views = this.excelViews
 
-    await this.getOptions()  // todo 待完善
+    await this.getOptions() // todo 待完善
 
     this.excelTemplateSheet.forEach((item: any) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
@@ -863,8 +874,8 @@ class ExportExcelTemplate {
       worksheet.columns = item.content.map((val: any) => val.title)
 
       //增加校验规则
-      item.content.forEach((val: any, idx)=>{
-        const columnIndex = String.fromCharCode(65 + idx) 
+      item.content.forEach((val: any, idx) => {
+        const columnIndex = String.fromCharCode(65 + idx)
         worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, val.validation)
       })
 
@@ -909,6 +920,16 @@ class ExportExcelTemplate {
     link.href = window.URL.createObjectURL(blob)
     link.download = `${excelName}.xlsx`
     link.click()
+  }
+
+  // 下载 文件流格式 表格
+  public downloadFileWithBlob(fileName: string, file: any) {
+    const blob = new Blob([file.data], { type:file.headers['content-type'] })
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `${fileName}.xlsx`
+    link.click()
+    link.remove()
   }
 
   // 下载表格

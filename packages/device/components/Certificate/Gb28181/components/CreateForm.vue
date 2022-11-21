@@ -41,10 +41,10 @@
 import { encrypt } from '@/utils/encrypt'
 import { Component, Vue } from 'vue-property-decorator'
 import {
-  createCertificate,
-  queryCertificate,
-  updateCertificate
-} from '@/api/certificate/gb28181'
+  createGb28181Certificate,
+  getGb28181Certificate,
+  updateGb28181Certificate
+} from '@vss/device/api/certificate'
 import { GB28181 } from '@/type/Certificate'
 
 @Component({
@@ -59,9 +59,18 @@ export default class extends Vue {
       { required: true, message: '请输入用户名', trigger: 'blur' },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
-    newPassword: [{ validator: this.validatePass, trigger: 'blur' }],
-    confirmPassword: [{ validator: this.validatePass2, trigger: 'blur' }],
-    password: [{ validator: this.validateOldPass, trigger: 'blur' }]
+    newPassword: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { validator: this.validatePass, trigger: 'blur' }
+    ],
+    confirmPassword: [
+      { required: true, message: '请再次输入密码', trigger: 'blur' },
+      { validator: this.validatePass2, trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入旧密码', trigger: 'blur' },
+      { validator: this.validateOldPass, trigger: 'blur' }
+    ]
   }
   private form: GB28181 = {
     userName: '',
@@ -124,7 +133,7 @@ export default class extends Vue {
               newPassword: encrypt(this.form.newPassword),
               version: '2.0'
             }
-            await updateCertificate(data)
+            await updateGb28181Certificate(data)
           } else {
             this.form.password = this.form.newPassword
             data = {
@@ -133,7 +142,7 @@ export default class extends Vue {
               password: encrypt(this.form.password),
               version: '2.0'
             }
-            await createCertificate(data)
+            await createGb28181Certificate(data)
           }
           onSuccess()
           if (this.disabled) {
@@ -161,7 +170,7 @@ export default class extends Vue {
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
       try {
-        const res = await queryCertificate({ userName: this.form.userName })
+        const res = await getGb28181Certificate({ userName: this.form.userName })
         this.$set(this.form, 'description', res.description)
       } catch (e) {
         this.$message.error(e && e.message)

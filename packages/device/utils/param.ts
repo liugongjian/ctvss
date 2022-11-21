@@ -7,6 +7,7 @@ import {
   DeviceListToolsAllowParams,
   DeviceTableColumnAllowParams,
   DeviceTypeDenyParamsForIbox,
+  ChannelEditAllowParams,
   ChannelAllowParams
 } from '@vss/device/settings'
 import { DeviceEnum, DirectoryTypeEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
@@ -87,8 +88,13 @@ export function checkVideoVisible(
 
   // 过滤出子通道需要显示的字段
   if (this.deviceChannelNum > -1) {
-    return (ChannelAllowParams[inVideoProtocol] && ChannelAllowParams[inVideoProtocol].has(prop)) && // 根据接入协议显示子通道字段列表中包含的
-    (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+    if (this.isEdit) {
+      return (ChannelEditAllowParams[inVideoProtocol] && ChannelEditAllowParams[inVideoProtocol].has(prop)) && // 根据接入协议显示子通道字段列表中包含的
+      (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+    } else {
+      return (ChannelAllowParams[inVideoProtocol] && ChannelAllowParams[inVideoProtocol].has(prop)) && // 根据接入协议显示子通道字段列表中包含的
+      (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+    }
   }
 
   // 默认使用字典过滤
@@ -119,9 +125,7 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
   // platform下设备及目录特殊处理
   if (data && (data.dirFrom === DeviceTypeEnum.Platform)) {
     allowFlag = ![
-      ToolsEnum.AddDirectory,
-      ToolsEnum.EditDirectory,
-      ToolsEnum.DeleteDirectory
+      ToolsEnum.AddDirectory
     ].includes(prop)
   }
 

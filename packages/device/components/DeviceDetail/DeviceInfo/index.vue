@@ -28,12 +28,12 @@
               :device-form="device.Device"
               :update-device-api="updateDeviceApi"
               @cancel="isEdit.videoInfo = false"
-              @updateDevice="updateDevice()"
+              @updateDevice="refreshInfo"
             />
           </el-tab-pane>
           <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
             <viid-info v-if="!isEdit.viidInfo" :device="device" :update-device-api="updateDeviceApi" @edit="isEdit.viidInfo = true" />
-            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="updateDevice()" />
+            <viid-info-edit v-else :device="device" :device-form="device.Device" @cancel="isEdit.viidInfo = false" @updateDevice="refreshInfo" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -116,11 +116,9 @@ export default class extends Mixins(detailMixin) {
 
     // 编辑模式打开所有编辑状态
     if (this.$route.params.isEdit) {
-      this.isEdit = {
-        basicInfo: true,
-        videoInfo: true,
-        viidInfo: true
-      }
+      this.isEdit.basicInfo = true
+      this.isEdit.videoInfo = true
+      this.isEdit.viidInfo = true
     }
   }
 
@@ -131,12 +129,8 @@ export default class extends Mixins(detailMixin) {
   /**
    * 刷新设备
    */
-  public async updateDevice() {
-    // 如果在编辑模式中，则不刷新
-    const isEdit = Object.values(this.isEdit).some(val => val)
-    if (isEdit) return
-    
-    await this.getDevice(this.deviceId, true, false)
+  public async updateDevice() {   
+    await this.getDevice(this.deviceId, true, false, this.isEdit)
     this.setTab()
     // 如果设备不存在直接跳出当前目录
     if (!(this.device.device && this.device.device.deviceId)) {
@@ -147,6 +141,10 @@ export default class extends Mixins(detailMixin) {
       this.refreshTimeout = setTimeout(this.updateDevice, 5000)
       this.refreshCount.index++
     }
+  }
+
+  private refreshInfo() {
+    this.handleTools(ToolsEnum.RefreshRouterView, 5)
   }
 
   /**
@@ -163,7 +161,7 @@ export default class extends Mixins(detailMixin) {
     // 只有viid设备时tab默认选中viid
     if (this.hasViid && !this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Viid
-    } else {
+    } else if (!this.hasViid && this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Video
     }
   }

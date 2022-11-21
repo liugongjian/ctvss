@@ -19,7 +19,10 @@
       </el-radio>
     </el-form-item>
     <el-form-item v-if="checkVisible(deviceEnum.VideoVendor)" label="厂商:" :prop="deviceEnum.VideoVendor">
-      <el-select v-model="videoForm.videoVendor">
+      <el-select
+        v-model="videoForm.videoVendor"
+        @change="videoVendorChange"
+      >
         <el-option
           v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
           :key="key"
@@ -68,10 +71,10 @@
     </template>
     <template v-else>
       <el-form-item v-if="checkVisible(deviceEnum.UserName)" label="用户名:" :prop="deviceEnum.UserName">
-        <el-input v-model="videoForm.userName" />
+        <el-input v-model="videoForm.userName" autocomplete="off" />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-        <el-input v-model="videoForm.password" type="password" />
+      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password" class="is-required">
+        <el-input v-model="videoForm.password" type="password" autocomplete="off" :placeholder="passwordPlaceholder" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
         <el-switch
@@ -202,11 +205,11 @@
     <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
       <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
     </el-form-item>
-    <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+    <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
         <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
       </el-form-item>
-      <div ref="showMoreForm" class="show-more--form">
+      <div class="show-more--form" :class="{ adaptiveHideTag }">
         <el-form-item v-if="checkVisible(deviceEnum.Tags)" label="视频标签:" :prop="deviceEnum.Tags">
           <tags v-model="videoForm.tags" class="tags" />
         </el-form-item>
@@ -253,8 +256,9 @@ export default class extends Vue {
   private deviceStreamPullIndex = DeviceStreamPullIndex
   private versionByInVideoProtocol = VersionByInVideoProtocol
   private showMore = false
-  private showMoreVisable = false
+  private adaptiveHideTag = 'adaptiveHideTag'
   private minChannelSize = 1
+  private passwordPlaceholder = ''
   private rules = {
     [DeviceEnum.InVideoProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
@@ -340,7 +344,7 @@ export default class extends Vue {
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
-      [DeviceEnum.DevicePort]: this.videoInfo.devicePort,
+      [DeviceEnum.DevicePort]: +this.videoInfo.devicePort === 0 ? null : this.videoInfo.devicePort,
       [DeviceEnum.DeviceStreamSize]: this.videoInfo.deviceStreamSize || 1,
       [DeviceEnum.DeviceStreamAutoPull]: this.videoInfo.deviceStreamAutoPull || 1,
       [DeviceEnum.DeviceStreamPullIndex]: this.videoInfo.deviceStreamPullIndex || 1,
@@ -354,6 +358,7 @@ export default class extends Vue {
     if (this.isEdit) {
       // 编辑模式下RTSP密码不必填
       this.rules.password = []
+      this.passwordPlaceholder = '••••••'
       // 编辑模式下，最小子通道为编辑前通道数
       this.minChannelSize = this.basicInfo.deviceChannelSize
     }
@@ -365,10 +370,6 @@ export default class extends Vue {
   @Watch('deviceForm.deviceType')
   private deviceTypeChange() {
     this.videoForm.inVideoProtocol = InVideoProtocolEnum.Gb28181
-  }
-
-  private updated() {
-    this.checkIsShwoMore()
   }
 
   /**
@@ -384,25 +385,19 @@ export default class extends Vue {
   }
 
   /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShwoMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
-  }
-
-  /**
    * 多码流特殊处理
    */
   private checkDeviceStreamDisabled(key) {
     let checkFlag = false
-    if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
-      checkFlag = true
+    // 在选择视频接入协议为“ehome”的时候，不使用三码流
+    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Ehome) {
+      if (this.deviceForm.deviceType === DeviceTypeEnum.Nvr && +key === 3) {
+        checkFlag = true
+      }
     }
 
     // 在选择厂商类型为“其他”的时候，仅能使用单码流
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
-      console.log(this.videoForm[DeviceEnum.VideoVendor], +key)
       if (this.videoForm[DeviceEnum.VideoVendor] === '其他' && +key > 1) {
         checkFlag = true
       }
@@ -412,12 +407,26 @@ export default class extends Vue {
   }
 
   /**
+   * 厂商变化
+   */
+  private videoVendorChange() {
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
+  }
+
+  /**
    * 视频接入协议变化
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
     // 重置vendor
     this.videoForm.videoVendor = ''
+    // 重置主子码流数量
+    this.videoForm.deviceStreamSize = 1
+    // 重置自动拉取码流
+    this.videoForm.deviceStreamPullIndex = 1
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
@@ -527,9 +536,11 @@ export default class extends Vue {
   /**
    * 校验端口号
    */
-  public validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
+  public validateDevicePort(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }
@@ -550,7 +561,6 @@ export default class extends Vue {
           // [DeviceEnum.OutId]: this.videoForm.outId
           gbId: this.videoForm.outId
         })
-        console.log(validInfo)
         if (validInfo && !validInfo.isValidGbId) {
           callback(new Error('存在重复国标ID'))
         } else {

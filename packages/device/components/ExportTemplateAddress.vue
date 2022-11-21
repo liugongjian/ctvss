@@ -1,12 +1,15 @@
 <template>
   <el-dialog
-    title="设备地址"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="500px"
-    center
+    class="export-address-dialog"
     @close="closeDialog(false)"
   >
+    <div slot="title" class="export-adddress-dialog__title">
+      <span>设备地址</span><p>最多同时添加五个设备地址</p>
+    </div>
+    
     <el-form
       ref="exportAddressForm"
       :model="exportAddressForm"
@@ -224,12 +227,52 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.export-address-form {
-  ::v-deep .el-cascader {
-    width: 70%;
+.export-address-dialog {
+  ::v-deep .el-dialog {
+    &__header {
+      border-bottom: 1px solid #c3c3c3;
+      padding: 0;
 
-    .el-input {
-      width: 100%;
+      span {
+        font-size: 16px;
+        height: 42px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      p {
+        display: inline-block;
+        font-size: 12px;
+        padding-left: 10px;
+        height: 42px;
+        padding-top: 20px;
+        margin: 0;
+      }
+    }
+
+    &__headerbtn {
+      top: 15px;
+    }
+
+    .export-adddress-dialog__title {
+      // padding: 15px 0 0 20px;
+      padding-left: 20px;
+      height: 44px;
+      line-height: 26px;
+    }
+
+    .el-dialog__body {
+      padding: 10px 25px 30px;
+    }
+  }
+
+  .export-address-form {
+    ::v-deep .el-cascader {
+      width: 70%;
+
+      .el-input {
+        width: 100%;
+      }
     }
   }
 }

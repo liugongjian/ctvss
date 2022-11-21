@@ -96,9 +96,11 @@ export default class DeviceFormMixin extends Vue {
   /**
    * 校验端口号
    */
-  public validateDevicePort(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]+$/.test(value)) {
+  public validateDevicePort(rule: any, value: number, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value.toString())) {
       callback(new Error('设备端口仅支持数字'))
+    } else if (value === 0) {
+      callback(new Error('设备端口号不能为0'))
     } else {
       callback()
     }

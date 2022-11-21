@@ -352,7 +352,6 @@ export class RecordManager {
       const interval = await this.getRecordInterval()
       if (interval) {
         this.recordInterval = setInterval(async () => {
-          console.log('定时轮询新录像', this.screen.deviceId)
           if (this.currentDate < getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60

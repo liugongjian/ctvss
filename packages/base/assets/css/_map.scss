@@ -1,16 +1,18 @@
 .marker-containt {
   position: relative;
+
   .marker-options {
     position: absolute;
     display: flex;
     flex-direction: row;
     align-items: center;
     top: 0;
-    left: 40px;
+    left: 61px;
     box-sizing: border-box;
     background-color: #fff;
     height: 40px;
     padding: 12px 18px;
+
     :after {
       content: '';
       position: absolute;
@@ -26,17 +28,18 @@
     }
   }
 
-    .marker-options .icon {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
+  .marker-options .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
 
   .marker-options .icon_delete {
     background: url('~@/icons/svg/delete.svg') no-repeat;
     background-size: contain;
   }
+
   .marker-label {
     display: block;
     position: absolute;
@@ -52,21 +55,23 @@
 
 // 摄像头标记点样式
 .marker-camera {
-  width: 40px;
+  width: 65px;
   height: 65px;
-  background: url('~@/icons/svg/camera_blue_bg.svg') no-repeat;
-  background-size: contain;
+  text-align: center;
+  padding: $padding-small;
+  box-sizing: content-box;
 
   &.selected {
-    background: url('~@/icons/svg/camera_orange_bg.svg') no-repeat;
-    background-size: contain;
+    border: 1px solid $color-master-1;
+    background-color: rgba(250, 131, 52, 35%);
+    border-radius: 100%;
   }
 
   .icon-camera {
     display: inline-block;
     position: absolute;
-    top: 8px;
-    left: 11px;
+    top: 16px;
+    left: 30px;
     width: 24px;
   }
 
@@ -77,22 +82,27 @@
     overflow: hidden;
     margin-right: 12px;
   }
+
   .marker-options .icon-wrap:last-child {
     margin-right: 0;
   }
+
   .marker-options .icon {
     width: 16px;
     height: 16px;
   }
+
   .marker-options .off .icon {
     position: relative;
     left: -16px;
     filter: drop-shadow(#ccc 16px 0);
   }
+
   .marker-options .icon_preview {
     background: url('~@/icons/svg/camera-play.svg') no-repeat;
     background-size: contain;
   }
+
   .marker-options .icon_replay {
     background: url('~@/icons/svg/camera-back.svg') no-repeat;
     background-size: contain;
@@ -106,26 +116,31 @@
   align-items: center;
   height: 40px;
   width: 40px;
+
   .marker-options {
     top: 0;
-    left: 32px;
+    left: 67px;
     display: none;
   }
-  .icon-interest{
+
+  .icon-interest {
     display: inline-block;
     width: 30px;
     height: 30px;
   }
+
   &.selected {
-    background: rgba(250,131,52,0.48);
-    border: 1px solid #FA8334;
+    background: rgba(250, 131, 52, 48%);
+    border: 1px solid #fa8334;
     border-radius: 50%;
+
     .marker-options {
       display: block;
     }
   }
+
   .marker-label {
-    display: block!important;
+    display: block !important;
   }
 }
 
@@ -136,6 +151,7 @@
   color: #333;
   width: 180px;
   text-align: center;
+
   .text-wrap {
     display: inline-block;
     height: 100%;
@@ -147,19 +163,22 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    text-shadow:2px 2px 5px #fff;
+    text-shadow: 2px 2px 5px #fff;
   }
+
   .marker-options {
     display: none;
     top: 6px;
     left: auto;
   }
-  &.selected .text-wrap{
-    background: rgba(250,131,52,0.48);
-    border: 1px solid #FA8334;
+
+  &.selected .text-wrap {
+    background: rgba(250, 131, 52, 48%);
+    border: 1px solid #fa8334;
     border-radius: 25px;
     text-shadow: none;
   }
+
   &.selected .marker-options {
     display: inline-block;
   }
@@ -170,8 +189,7 @@
 }
 
 .in-add .marker-bubblePoint.selected .marker-options,
-.in-add .marker-textPoint.selected .marker-options
-{
+.in-add .marker-textPoint.selected .marker-options {
   display: none;
 }
 
@@ -180,6 +198,7 @@
   background-color: #fff;
   border: none;
 }
+
 .amap-marker:hover .amap-marker-label {
   visibility: visible;
 }
@@ -187,6 +206,7 @@
 .amap-marker.selected {
   z-index: 13 !important;
 }
+
 .marker-icon {
   width: 20px;
 }
@@ -196,7 +216,7 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  background: rgba(17, 118, 191, 65%);
+  background: $color-master-1;
   color: #fff;
   border-radius: 100%;
   text-align: center;

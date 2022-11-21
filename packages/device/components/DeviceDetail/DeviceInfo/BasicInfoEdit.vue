@@ -8,11 +8,11 @@
       label-width="165px"
     >
       <div class="two-column-wrap">
-        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="deviceEnum.DeviceName">
+        <el-form-item v-if="checkVisible(deviceEnum.DeviceName)" label="设备名称:" :prop="isEnableCloudChannelName && isPlatformDevice ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="deviceEnum.DeviceName">
+        <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="isEnableCloudChannelName ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
@@ -29,7 +29,10 @@
           <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.DeviceVendor)" label="厂商:" :prop="deviceEnum.DeviceVendor">
-          <el-select v-model="deviceForm.deviceVendor">
+          <el-select
+            v-model="deviceForm.deviceVendor"
+            :disabled="inVideoProtocol === inVideoProtocolEnum.Rtsp"
+          >
             <el-option
               v-for="(value, key) in deviceVendor[inVideoProtocol]"
               :key="key"
@@ -85,11 +88,11 @@
           </el-radio-group>
         </el-form-item> -->
       </div>
-      <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+      <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
-        <div ref="showMoreForm" class="two-column-wrap show-more--form">
+        <div class="two-column-wrap show-more--form" :class="{ adaptiveHideTag }">
           <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
             <el-input v-model="deviceForm.deviceIp" />
           </el-form-item>
@@ -133,7 +136,7 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { updateDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
 import * as dicts from '@vss/device/dicts'
-import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum, InVideoProtocolEnum } from '@vss/device/enums'
 import { Device, DeviceBasic, Industry, VideoDevice, ViidDevice, DeviceBasicForm, DeviceForm } from '@vss/device/type/Device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { DeviceModule } from '@vss/device/store/modules/device'
@@ -153,11 +156,12 @@ export default class extends Mixins(deviceFormMixin) {
   private deviceInTypeEnum = DeviceInTypeEnum
   private inNetworkTypeEnum = InNetworkTypeEnum
   private outNetworkTypeEnum = OutNetworkTypeEnum
+  private inVideoProtocolEnum = InVideoProtocolEnum
   private deviceVendor = dicts.DeviceVendor
   private industryList = []
   private networkList = []
   private showMore = false
-  private showMoreVisable = false
+  private adaptiveHideTag = 'adaptiveHideTag'
   public deviceForm: DeviceBasicForm = {}
 
   @Watch('device', {
@@ -178,7 +182,7 @@ export default class extends Mixins(deviceFormMixin) {
       deviceVendor: basicInfo.deviceVendor,
       description: basicInfo.description,
       deviceIp: basicInfo.deviceIp,
-      devicePort: basicInfo.devicePort,
+      devicePort: +basicInfo.devicePort === 0 ? null : basicInfo.devicePort,
       devicePoleId: basicInfo.devicePoleId,
       deviceMac: basicInfo.deviceMac,
       deviceSerialNumber: basicInfo.deviceSerialNumber,
@@ -252,18 +256,6 @@ export default class extends Mixins(deviceFormMixin) {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
     this.checkIsShowMore()
-  }
-
-  private updated() {
-    this.checkIsShowMore()
-  }
-
-  /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShowMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**

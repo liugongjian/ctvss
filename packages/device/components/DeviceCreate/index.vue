@@ -10,7 +10,7 @@
           </el-steps>
         </div>
       </div>
-      <div class="create-wrap__body">
+      <div ref="formContainer" class="create-wrap__body">
         <el-form
           ref="deviceForm"
           class="create-wrap__body__form"
@@ -187,11 +187,11 @@
                 />
               </el-select>
             </el-form-item>
-            <div v-show="showMoreVisable" class="show-more" :class="{ 'show-more--expanded': showMore }">
+            <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
-              <div ref="showMoreForm" class="show-more--form">
+              <div :class="{ adaptiveHideTag }" class="show-more--form">
                 <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
                   <el-input v-model="deviceForm.deviceIp" />
                 </el-form-item>
@@ -283,7 +283,7 @@ export default class extends Mixins(deviceFormMixin) {
   private inViidProtocol = InViidProtocolEnum.Ga1400
   private activeStep = 0
   private showMore = false
-  private showMoreVisable = false
+  private adaptiveHideTag = 'adaptiveHideTag'
   public deviceForm: DeviceBasicForm = {
     // step0
     [DeviceEnum.DeviceName]: '',
@@ -331,6 +331,10 @@ export default class extends Mixins(deviceFormMixin) {
     return this.$route.query.dirId as string
   }
 
+  private get formContainer() {
+    return this.$refs.formContainer as any
+  }
+
   @Watch('videoForm.videoVendor')
   private vendorChange(val) {
     this.deviceForm.deviceVendor = val
@@ -344,10 +348,6 @@ export default class extends Mixins(deviceFormMixin) {
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
   }
 
-  private updated() {
-    this.checkIsShowMore()
-  }
-
   /**
    * 判断是否显示form-item
    */
@@ -357,14 +357,6 @@ export default class extends Mixins(deviceFormMixin) {
     } else {
       return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.inViidProtocol, prop)
     }
-  }
-
-  /**
-   * 判断是否显示更多下拉框
-   */
-  private checkIsShowMore() {
-    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
-    this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**
@@ -391,6 +383,7 @@ export default class extends Mixins(deviceFormMixin) {
    * 切换创建步骤
    */
   private async stepChange(val: number) {
+    this.formContainer.scrollTop = 0
     if (val === 0) {
       this.activeStep = val
     } else {
