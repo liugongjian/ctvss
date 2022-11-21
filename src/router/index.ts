@@ -213,10 +213,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-device',
       perms: ['DescribeDevice'],
       breadcrumb: false,
-      alwaysShow: true
-      // alwaysShow: false,
-      // only: true,
-      // groupSelector: true
+      alwaysShow: false
     },
     children: [
       {
@@ -225,6 +222,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'device',
         meta: {
           title: '通用设备',
+          icon: 'menu-device',
           breadcrumb: true,
           perms: ['DescribeDevice'],
           groupSelector: true
@@ -292,13 +290,15 @@ export const asyncRoutes: RouteConfig[] = [
             }
           }
         ]
-      }, {
+      },
+      {
         path: 'ibox',
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/index.vue'),
         name: 'IBox',
         meta: {
           title: 'iBox',
           breadcrumb: true,
+          plugins: ['ibox'],
           perms: ['DescribeDevice']
           // groupSelector: true
         },

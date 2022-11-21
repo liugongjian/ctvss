@@ -20,6 +20,7 @@ export interface IUserState {
   mainUserID: string,
   mainUserAddress: string,
   tags: any,
+  plugins: string[],
   casLoginId: string
   settings: any
 }
@@ -36,10 +37,12 @@ class User extends VuexModule implements IUserState {
   public mainUserID = ''
   public mainUserAddress = ''
   public tags: any = null
+  public plugins = []
   public casLoginId = getLocalStorage('casLoginId') || ''
   public settings: any = {
     screenCache: {}
   }
+
   public userConfigInfo: any = []
   public outNetwork: 'internet' | 'vpn' = 'internet'
   public isPrivate: boolean = false
@@ -88,6 +91,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_MAIN_USER_TAGS(tags: any) {
     this.tags = tags
+  }
+
+  @Mutation
+  private SET_MAIN_USER_PLUGINS(plugins: string[]) {
+    this.plugins = plugins
   }
 
   @Mutation
@@ -144,17 +152,17 @@ class User extends VuexModule implements IUserState {
   @Action({ rawError: true })
   public async getUserConfigInfo() {
     // 前后端参数不一致，设置转换字典
-    let dic = {
+    const dic = {
       live: 'screen',
       record: 'replay'
     }
     try {
-      let defaultConfig = {
+      const defaultConfig = {
         screen: 'false',
         replay: 'false'
       }
 
-      let res = await getUserConfig()
+      const res = await getUserConfig()
       this.SET_USER_CONFIG(res.userConfig) // 设置vuex属性
 
       res.userConfig && res.userConfig.forEach(config => {
@@ -207,7 +215,7 @@ class User extends VuexModule implements IUserState {
       screenCache: screenCacheSettings
     })
     if (!getLocalStorage('screenCache')) {
-      let screenCache = {
+      const screenCache = {
         mainUserID: null,
         currentGroupId: null,
         screen: {
@@ -237,11 +245,12 @@ class User extends VuexModule implements IUserState {
       this.SET_OUTER_NETWORK('vpn')
     }
 
-    let userInfo: any = await getMainUserInfo()
+    const userInfo: any = await getMainUserInfo()
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
+      this.SET_MAIN_USER_PLUGINS(userInfo.plugins || [])
     }
 
     let data: any = null
@@ -301,7 +310,7 @@ class User extends VuexModule implements IUserState {
 
   @Action({ rawError: true })
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
-    let { originalPwd, newPwd } = form
+    const { originalPwd, newPwd } = form
     await changePassword({
       oldPassword: encrypt(originalPwd),
       newPassword: encrypt(newPwd),
@@ -311,7 +320,7 @@ class User extends VuexModule implements IUserState {
 
   @Action({ rawError: true })
   public async ResetIAMPassword(form: { mainUserID: string, subUserName: string, originalPwd: string, newPwd: string }) {
-    let { mainUserID, subUserName, originalPwd, newPwd } = form
+    const { mainUserID, subUserName, originalPwd, newPwd } = form
     const data = await resetIAMPassword({
       mainUserID,
       subUserName: encrypt(subUserName),
