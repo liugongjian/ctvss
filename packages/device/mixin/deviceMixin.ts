@@ -74,16 +74,30 @@ export default class DeviceMixin extends Vue {
   /**
    * 获取设备详情
    */
-  public async getDevice(deviceId: string = this.deviceId || this.deviceIdSecondary, isForce = false, hasLoading = true) {
+  public async getDevice(deviceId: string = this.deviceId || this.deviceIdSecondary, isForce = false, hasLoading = true, editSections: any = null) {
     try {
       if (hasLoading) {
         this.deviceLoading = true
       }
-      this.device = await DeviceModule.getDevice({
+      const res = await DeviceModule.getDevice({
         deviceId,
         isForce,
         fetch: this.getDeviceApi
       }) || {}
+
+      if (!editSections) {
+        this.device = res
+      }
+      // 部分内容更新, 如果区域不在编辑中的状态，则允许更新这部分内容
+      if (editSections && !editSections.basicInfo) {
+        this.device.device = res.device
+      }
+      if (editSections && !editSections.videoInfo) {
+        this.device.videos = res.videos
+      }
+      if (editSections && !editSections.viidInfo) {
+        this.device.viids = res.viids
+      }
     } catch (e) {
       this.$alertError(e)
     } finally {

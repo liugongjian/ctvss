@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { importDevice } from '../api/device'
+import { importDevice, exportFailDevice } from '../api/device'
 import ExportExcelTemplate from '@vss/device/services/Device/DeviceExportTemplate'
 
 @Component({
@@ -76,7 +76,7 @@ export default class extends Vue {
             fail: res.fail,
             success: res.success,
             total: res.total,
-            importFileFail: res.importFileFail
+            // importFileFail: res.importFileFail
           }
         } else {
           this.process.message = '导入设备失败！'
@@ -90,8 +90,15 @@ export default class extends Vue {
     })
   }
 
-  private exportFailedExcel() {
-    ExportExcelTemplate.downloadFileUrl(this.data.fileName + 'fail', this.process.importFileFail)
+  private async exportFailedExcel() {
+    try {
+      const param = { dirId: this.data.dirId }
+      const res  = await exportFailDevice(param)
+      ExportExcelTemplate.downloadFileWithBlob(this.data.fileName + 'fail', res)
+    } catch (error) {
+      console.log(error)
+    }
+    
   }
 
   private closeDialog(isRefresh: boolean) {

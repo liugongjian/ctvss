@@ -10,6 +10,7 @@
         </template>
       </div>
       <div class="screen-tools__bar__right">
+        <el-button v-if="inspectionFlag" class="screen-tools__bar__right_inspection" type="primary" size="mini" @click="gotoInspection">巡检考核</el-button>
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
@@ -57,6 +58,10 @@ export default class extends Vue {
 
   private get currentScreen() {
     return this.screenManager.currentScreen
+  }
+  
+  private get inspectionFlag() {
+    return this.$store.state.user.tags.showInspection === 'Y'
   }
 
   /* 是否为实时预览 */
@@ -143,5 +148,19 @@ export default class extends Vue {
   private onFullscreenChange(isFullscreen) {
     ScreenModule.setIsFullscreen(isFullscreen)
   }
+
+  /**
+   * 大连烟草‘巡检考核’跳转
+   */
+  private gotoInspection() {
+    window.open('https://server.deepmatrix.cn/login?redirect=/app/custom/b302b8c5-bd98-4ff2-98d9-26b3196ca53a', '_blank')
+  }
 }
 </script>
+<style lang="scss" scoped>
+  .screen-tools__bar__right_inspection {
+    margin-right: 3px;
+    height: 27px;
+    margin-top: 3px;
+  }
+</style>
