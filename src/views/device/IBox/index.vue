@@ -590,6 +590,7 @@ export default class IBox extends Mixins(HandleMixin) {
         deviceId: this.$route.query.deviceId,
         type: this.$route.query.type
       }
+      this.$router.push(router)
       this.handleNodeClick(router)
     }
   }

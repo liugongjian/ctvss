@@ -8,7 +8,8 @@ export default class ListMixin extends Mixins(HandleMixin) {
   // @ts-ignore
   @Inject('getDirList') public getDirList!: Function
   // @ts-ignore
-  @Inject({ from: 'goback', default: () => {} }) public goback!: Function
+  // @Inject({ from: 'goback', default: () => {} }) public goback!: Function
+  @Inject('goback') public goback!: Function
   public tableData = []
 
   public statusMap = {
