@@ -353,8 +353,7 @@ export const asyncRoutes: RouteConfig[] = [
               title: '设备详情',
               hidden: true,
               perms: ['DescribeDevice'],
-              activeMenu: '/device/ibox',
-              groupSelector: true
+              activeMenu: '/device/ibox'
             },
             children: [
               {
@@ -370,8 +369,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: '基本信息',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               },
               {
@@ -385,8 +383,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: '设备/流信息',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               },
               {
@@ -401,8 +398,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: '配置信息',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               },
               {
@@ -417,8 +413,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: '实时预览',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               },
               {
@@ -432,8 +427,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: 'AI分析',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               },
               {
@@ -444,8 +438,7 @@ export const asyncRoutes: RouteConfig[] = [
                   title: 'AI配置',
                   breadcrumb: false,
                   perms: ['DescribeDevice'],
-                  activeMenu: '/device/ibox',
-                  groupSelector: true
+                  activeMenu: '/device/ibox'
                 }
               }
             ]
