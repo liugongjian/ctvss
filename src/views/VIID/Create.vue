@@ -57,9 +57,6 @@
         <el-form-item label="心跳周期:" prop="keepaliveInterval">
           <el-input v-model.number="form.keepaliveInterval" class="short-width" /> 秒
         </el-form-item>
-        <el-form-item label="最大心跳超时次数:">
-          <el-input v-model.number="form.maxKeepaliveTimeoutTimes" class="short-width" /> 次
-        </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" />
         </el-form-item>
@@ -92,7 +89,6 @@ export default class extends Vue {
     ipAddr: '',
     port: '',
     keepaliveInterval: 60,
-    maxKeepaliveTimeoutTimes: '',
     description: null
   }
   private cascadeViidId = ''
@@ -198,7 +194,7 @@ export default class extends Vue {
    * 递归查找目标区域的所在路径
    */
   private getRegionPath(regions: any, target: string) {
-    let path: Array<any> = []
+    const path: Array<any> = []
     try {
       const _find: any = function(path: Array<string>, children: any, parentValue: any) {
         for (let i = 0; i < children.length; i++) {
