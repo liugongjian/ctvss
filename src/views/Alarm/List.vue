@@ -307,7 +307,7 @@ export default class extends Vue {
       params.dirId = this.$route.query.dirId
       if (typeof(this.$route.query.type) === 'undefined') {
         // 根目录
-        params.dirId = 'root'
+        params.dirId = '0'
       }
     } else {
       // 设备级别
