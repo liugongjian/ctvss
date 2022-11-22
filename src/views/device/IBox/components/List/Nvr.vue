@@ -19,8 +19,21 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="deviceChannelNum"
+          label="通道号"
+          width="120"
+        />
+        <el-table-column
+          prop="inVideoProtocol"
+          label="接入协议"
+        >
+          <template slot-scope="{row}">
+            {{ row.inVideoProtocol || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="deviceStatus"
-          label="状态"
+          label="设备状态"
           width="120"
         >
           <template slot-scope="scope">
@@ -28,25 +41,35 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="deviceStatus"
+          label="流状态"
+          width="120"
+        >
+          <template slot-scope="{row}">
+            {{ row.streams.length ? statusMap[row.streams[0].streamStatus] : '-' }}
+          </template>
+        </el-table-column>
+        <!-- <el-table-column
           prop="deviceIp"
           label="IP地址"
         />
         <el-table-column
           prop="zip"
           label="序列号"
-        />
+        /> -->
         <el-table-column
           prop="registerTime"
-          label="接入时间"
+          label="创建时间"
+          width="180"
         >
           <template slot-scope="{row}">
             {{ dateFormat(Number(row.deviceStatus.registerTime)) }}
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="channelSize"
           label="通道总数"
-        />
+        /> -->
         <el-table-column
           label="操作"
         >

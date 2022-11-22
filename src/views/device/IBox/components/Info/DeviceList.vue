@@ -28,21 +28,21 @@
           </template> -->
         </el-table-column>
         <el-table-column
-          prop="deviceStatus"
-          label="设备状态"
-          width="120"
-        >
-          <template slot-scope="scope">
-            {{ statusMap[scope.row.deviceStatus.isOnline] || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column
           prop="inVideoProtocol"
           label="接入协议"
           width="100"
         >
           <template slot-scope="{row}">
             {{ row.inVideoProtocol || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="deviceStatus"
+          label="设备状态"
+          width="120"
+        >
+          <template slot-scope="scope">
+            {{ statusMap[scope.row.deviceStatus.isOnline] || '-' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -54,7 +54,7 @@
             {{ row.streams.length ? statusMap[row.streams[0].streamStatus] : '-' }}
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="deviceStatus"
           label="录制状态"
           width="120"
@@ -62,8 +62,8 @@
           <template slot-scope="{row}">
             {{ row.streams.length ? statusMap[row.streams[0].recordStatus] : '-' }}
           </template>
-        </el-table-column>
-        <el-table-column
+        </el-table-column> -->
+        <!-- <el-table-column
           width="120"
           prop="ip"
           label="当前码率"
@@ -71,16 +71,16 @@
           <template slot-scope="{row}">
             {{ row.streams.length ? `${(row.streams[0].bitrate/1024).toFixed(2)}Mbps` : '-' }}
           </template>
-        </el-table-column>
-        <el-table-column
+        </el-table-column> -->
+        <!-- <el-table-column
           prop="errorMsg"
           label="异常提示"
         >
           <template slot-scope="scope">
             {{ scope.row.errorMsg }}
           </template>
-        </el-table-column>
-        <el-table-column
+        </el-table-column> -->
+        <!-- <el-table-column
           prop="deviceVendor"
           label="厂商"
         />
@@ -103,12 +103,16 @@
           prop="streamTransProtocol"
           label="优先TCP传输"
           width="120"
-        />
+        /> -->
         <el-table-column
           prop="deviceChannelSize"
           label="通道数"
-        />
-        <el-table-column
+        >
+          <template slot-scope="{row}">
+            {{ row.deviceType === 'nvr' ? row.deviceChannelSize : '-' }}
+          </template>
+        </el-table-column>
+        <!-- <el-table-column
           prop="deviceIp"
           width="140"
           label="设备IP"
@@ -116,7 +120,7 @@
         <el-table-column
           prop="devicePort"
           label="设备端口"
-        />
+        /> -->
         <el-table-column
           prop="registerTime"
           label="创建时间"
