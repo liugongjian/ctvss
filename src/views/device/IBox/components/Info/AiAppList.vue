@@ -5,22 +5,22 @@
         <el-button type="primary" @click="addApp">添加AI应用</el-button>
       </div>
       <el-table v-loading="loading.table" :data="tableData" fit>
-        <el-table-column prop="name" label="应用名称" width="120" />
-        <el-table-column prop="algorithmName" label="算法类型" width="120" />
-        <el-table-column prop="description" label="描述" show-overflow-tooltip width="120" />
-        <el-table-column label="当前算法版本" width="120">
+        <el-table-column prop="name" label="应用名称" min-width="120" />
+        <el-table-column prop="algorithmName" label="算法类型" min-width="120" />
+        <el-table-column prop="description" label="描述" show-overflow-tooltip min-width="120" />
+        <el-table-column label="当前算法版本" min-width="120">
           <template slot-scope="">
             <span>1.0.0</span>
           </template>
         </el-table-column>
-        <el-table-column label="最新版本" width="120">
+        <el-table-column label="最新版本" min-width="120">
           <template slot-scope="">
             <span>1.0.0</span>
           </template>
         </el-table-column>
-        <el-table-column prop="count" label="告警次数" width="120" />
-        <el-table-column prop="deviceNum" label="关联设备" width="120" />
-        <el-table-column prop="analyseType" label="分析类型" width="120">
+        <el-table-column prop="count" label="告警次数" min-width="120" />
+        <el-table-column prop="deviceNum" label="关联设备" min-width="120" />
+        <el-table-column prop="analyseType" label="分析类型" min-width="120">
           <template slot-scope="scope">
             <span>{{ ResourceAiType[scope.row.analyseType] }}</span>
           </template>
@@ -28,7 +28,7 @@
         <!-- <el-table-column label="当前算法版本" /> -->
         <!-- <el-table-column label="告警次数" /> -->
         <!-- <el-table-column prop="deviceIds" label="关联设备" /> -->
-        <el-table-column label="操作" fixed="right" width="120">
+        <el-table-column label="操作" fixed="right" min-width="120">
           <template slot-scope="scope">
             <el-button type="text" @click="appDetail(scope.row)">
               查看分析结果
