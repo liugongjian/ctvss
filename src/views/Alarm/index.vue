@@ -74,6 +74,7 @@ export default class extends Mixins(IndexMixin, layoutMxin) {
         dirId: data.id,
         deviceId: data.id,
         type: data.type,
+        inProtocol: data.inVideoProtocol
       }
     }
     this.deviceTree.setCurrentKey(id)
