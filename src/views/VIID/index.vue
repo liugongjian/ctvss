@@ -11,7 +11,7 @@
       </div>
       <el-table v-loading="loading" :data="dataList" fit @row-click="viewDetails">
         <el-table-column label="平台ID/名称" min-width="200">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="device-list__device-name">
               <div class="device-list__device-id">{{ row.cascadeViidId }}</div>
               <div>{{ row.name }}</div>
@@ -20,7 +20,7 @@
         </el-table-column>
         <el-table-column prop="apsId" label="视图编码" min-width="250" />
         <el-table-column prop="isOnline" label="级联状态" min-width="160">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="row.isOnline ? 'on' : 'off'" />
             {{ row.isOnline ? '在线' : '离线' }}
           </template>
@@ -28,7 +28,7 @@
         <el-table-column prop="ipAddr" label="IP" min-width="160" />
         <el-table-column prop="port" label="端口" min-width="160" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <el-button v-if="row.isActive" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
             <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
             <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
@@ -100,7 +100,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       pageNum: this.pager.pageNum - 1,
       pageSize: this.pager.pageSize
     }
