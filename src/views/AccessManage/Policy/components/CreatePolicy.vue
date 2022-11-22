@@ -40,10 +40,8 @@
             <div class="device-wrap">
               <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
               <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
-                <!-- <el-table-column key="label" prop="label" width="180" label="业务组/目录名称"> -->
                 <el-table-column key="name" prop="name" width="220" label="业务组/目录名称">
                   <template slot-scope="{ row }">
-                    <!-- {{ row.label || '-' }} -->
                     {{ row.name || '-' }}
                   </template>
                 </el-table-column>
@@ -79,7 +77,6 @@
 
 <script lang="ts">
 import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
-import { getDeviceTree } from '@/api/device'
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
@@ -97,16 +94,6 @@ export default class extends Mixins(layoutMxin) {
   public hasCheckbox = true
   private breadCrumbContent = ''
   private systemActionList = [
-    {
-      actionName: '查看业务组',
-      actionValue: 'DescribeGroup',
-      actionDesc: '拥有业务组的查看权限，可以展示业务组管理菜单'
-    },
-    {
-      actionName: '管理业务组',
-      actionValue: 'AdminGroup',
-      actionDesc: '拥有业务组的管理权限，可对业务组进行管理操作'
-    },
     {
       actionName: '查询设备',
       actionValue: 'DescribeDevice',
@@ -243,20 +230,14 @@ export default class extends Mixins(layoutMxin) {
   private handleSelectionChange(actions: any) {
     const actionTable: any = this.$refs.actionTable
     actions.forEach((action: any) => {
-      if (action.actionValue === 'AdminGroup') {
+      if (action.actionValue === 'AdminDevice') {
         actionTable.toggleRowSelection(this.systemActionList[0], true)
       }
-      if (action.actionValue === 'AdminDevice') {
-        actionTable.toggleRowSelection(this.systemActionList[2], true)
-      }
       if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
+        actionTable.toggleRowSelection(this.systemActionList[3], true)
       }
       if (action.actionValue === 'AdminAi') {
-        actionTable.toggleRowSelection(this.systemActionList[7], true)
+        actionTable.toggleRowSelection(this.systemActionList[5], true)
       }
     })
     this.form.actionList = actions.map((action: any) => action.actionValue)
@@ -292,7 +273,6 @@ export default class extends Mixins(layoutMxin) {
         this.actionType = 'selected'
         if (this.form.actionList[0] === 'vss:Get*') {
           this.form.actionList = [
-            'DescribeGroup',
             'DescribeDevice',
             'ScreenPreview',
             'ReplayRecord',
@@ -333,8 +313,6 @@ export default class extends Mixins(layoutMxin) {
     const actionList = this.form.actionList
     return !(
       this.isCtyunPolicy ||
-      (row.actionValue === 'DescribeGroup' &&
-        actionList.indexOf('AdminGroup') !== -1) ||
       (row.actionValue === 'DescribeDevice' &&
         actionList.indexOf('AdminDevice') !== -1) ||
       (row.actionValue === 'ReplayRecord' &&
@@ -360,44 +338,6 @@ export default class extends Mixins(layoutMxin) {
         this.onCheckDevice(this.getTreeCheckedNodes(tree))
       }
     })
-  }
-
-  /**
-   * 加载子目录
-   */
-  public async loadDirChildren(key: string, node: any) {
-    if (node.loaded) {
-      node.parent.expanded = true
-      return
-    }
-    try {
-      const deviceTree: any = this.$refs.deviceTree
-      const data = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
-      if (data.dirs) {
-        const dirs = data.dirs
-          .filter((dir: any) => dir.type === 'dir')
-          .map((dir: any) => ({
-            id: dir.id,
-            groupId: node.data.groupId,
-            label: dir.label,
-            inProtocol: node.data.inProtocol,
-            isLeaf: dir.isLeaf,
-            type: dir.type,
-            path: node.data.path.concat([dir]),
-            parentId: node.data.id
-          }))
-        deviceTree.updateKeyChildren(key, dirs)
-      }
-      node.expanded = true
-      node.loaded = true
-    } catch (e) {
-      console.log(e)
-    }
   }
 
   /**
@@ -437,11 +377,6 @@ export default class extends Mixins(layoutMxin) {
     } else {
       return ''
     }
-    // const dirPath = path.slice(0, -1)
-    // const dirPathName = dirPath.map((dir: any) => {
-    //   return dir.label
-    // })
-    // return dirPathName.join('/')
   }
 
   private upload() {
@@ -455,7 +390,7 @@ export default class extends Mixins(layoutMxin) {
             desc: this.form.desc,
             scope: 'local',
             policyDocument: JSON.stringify({
-              Version: '2022-11-08',
+              Version: '2022-11-22',
               Statement: [
                 {
                   Effect: 'Allow',
@@ -488,7 +423,6 @@ export default class extends Mixins(layoutMxin) {
     })
   }
   private back() {
-    // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)
   }
 }
