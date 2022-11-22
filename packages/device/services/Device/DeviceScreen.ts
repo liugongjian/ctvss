@@ -2,7 +2,7 @@ import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
 import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
-import { DirectoryTypeEnum, ToolsEnum } from '@vss/device/enums'
+import { DirectoryTypeEnum, StatusEnum, ToolsEnum } from '@vss/device/enums'
 
 /**
  * ===============================================================================================
@@ -45,34 +45,31 @@ const executeQueue = async function (
     currentDir?: any,
     screenManager?: ScreenManager
     queueExecutor?: any
-    deviceTree?: any
     handleTools?: any
-    pollingMask?: any
-    policy?: 'polling' | 'autoPlay'
-    pollingStatus?: string
-    maxSize?: number
     advancedSearchForm?: AdvancedSearch
     $refs?: any
   } = getVueComponent()
   state.handleTools(ToolsEnum.StopPolling)
-  let devicesQueue: Device[] = []
   state.currentDir = isRoot ? { id: '', type: DirectoryTypeEnum.Dir } : node
   const pollingMask = state.$refs.pollingMask
   pollingMask.policy = policy
-  pollingMask.isLoading = true
-  try {
-    const res = await getDirDevices({
-      id: state.currentDir.id,
-      type: state.currentDir.type
-    })
-    devicesQueue = res.devices
-  } catch (e) {
-    console.log(e)
-  }
-  pollingMask.isLoading = false
+  
   if (state.queueExecutor) {
-    state.screenManager.devicesQueue = devicesQueue
-    state.queueExecutor.executeDevicesQueue(policy)
+    try {
+      state.screenManager.executeQueueConfig.query = {
+        id: state.currentDir.id,
+        type: state.currentDir.type,
+        deviceStatus: policy === 'polling' ? StatusEnum.On : StatusEnum.Off
+      }
+      state.screenManager.executeQueueConfig.pageNum = 1
+      state.screenManager.devicesQueue = []
+      pollingMask.isLoading = true
+      await state.queueExecutor.getDevices()
+      pollingMask.isLoading = false
+      state.queueExecutor.executeDevicesQueue(policy)
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 
@@ -82,8 +79,12 @@ const executeQueue = async function (
  * @param val 时间
  */
 const intervalChange = function (getVueComponent, interval: number) {
-  const state: { screenManager } = getVueComponent() 
-  state.screenManager.executeQueueConfig.interval = interval
+  const state: { screenManager, queueExecutor: any } = getVueComponent()
+  if (state.queueExecutor) {
+    state.queueExecutor.pausePolling()
+    state.screenManager.executeQueueConfig.interval = interval
+    state.queueExecutor.resumePolling()
+  }
 }
 
 /**

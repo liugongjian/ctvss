@@ -61,9 +61,9 @@ export const getNodeInfo = (params: any): Promise<any> =>
 /**
  * 获取目录下所有设备
  */
-export const getDirDevices = (params: any): Promise<any> =>
+export const getPollList = (params: any): Promise<any> =>
 request({
-  url: '/dir/device/list',
+  url: '/dir/list/poll',
   method: 'get',
   params
 })
