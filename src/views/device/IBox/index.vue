@@ -645,6 +645,16 @@ export default class IBox extends Mixins(HandleMixin) {
       &__item {
         cursor: pointer;
       }
+
+      &__item:after {
+        content: '/';
+        color: $textGrey;
+        margin: 0 10px;
+      }
+
+      &__item:last-child:after {
+        content: '';
+      }
     }
   }
 
