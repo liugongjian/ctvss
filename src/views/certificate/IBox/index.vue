@@ -39,7 +39,7 @@
             <svg-icon name="step2" />
             第二步：填写平台地址
           </h3>
-          <p>共有云地址：http://vcn.ctyun.cn</p>
+          <p>公有云地址：http://vcn.ctyun.cn</p>
           <p>私有云地址：服务器[IP]:端口号[Port]</p>
         </div>
         <div class="certificate-ibox__step-content">
