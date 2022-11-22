@@ -1,6 +1,4 @@
-import { Device } from '../../type/Device'
 import { AdvancedSearch } from '../../type/AdvancedSearch'
-import { getDirDevices } from '@vss/device/api/dir'
 import { ScreenManager } from '../Screen/ScreenManager'
 import { DirectoryTypeEnum, StatusEnum, ToolsEnum } from '@vss/device/enums'
 
