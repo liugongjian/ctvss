@@ -66,9 +66,9 @@ export default class extends Vue {
     const params: DeviceForm = {
       device: {
         deviceId: this.basicInfo.deviceId,
+        deviceVendor: form.videoForm.videoVendor,
         ...pick(form.videoForm, [
-          DeviceEnum.DeviceChannelSize,
-          DeviceEnum.VideoVendor
+          DeviceEnum.DeviceChannelSize
         ])
       }
     }

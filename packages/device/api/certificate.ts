@@ -35,7 +35,7 @@ export const updateGb28181Certificate = (params: any): Promise<any> =>
 
 export const getGb28181Certificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181',
+    url: '/certificate/gb28181/describe',
     method: 'get',
     params
   })

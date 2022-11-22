@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="45px" height="60px" viewBox="0 0 45 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>console-hover</title>
+    <defs>
+        <path d="M125.315056,11.5771335 L148.45695,65.1908757 L148.438764,65.2399935 L93.4839869,43.408203 C100.406065,28.5744541 111.334901,17.6456185 125.315056,11.5771335 Z" id="path-1"></path>
+        <filter x="-10.9%" y="-11.2%" width="121.8%" height="122.4%" filterUnits="objectBoundingBox" id="filter-2">
+            <feGaussianBlur stdDeviation="4" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="4" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.6   0 0 0 0 0.6   0 0 0 0 0.6  0 0 0 0.521033654 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.653808594">
+        <g id="Artboard" transform="translate(-496.000000, -42.000000)">
+            <g id="console1-" transform="translate(398.000000, 24.492035)">
+                <g id="console-hover" transform="translate(120.970468, 38.408563) rotate(45.000000) translate(-120.970468, -38.408563) ">
+                    <use fill="#EDEDED" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

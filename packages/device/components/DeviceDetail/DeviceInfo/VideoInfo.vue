@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="edit">编辑</el-button>
+      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice]) && !(isChannel && isIbox)" type="text" @click="edit">编辑</el-button>
       <el-button v-if="checkVisible(deviceEnum.Resources) && checkToolsVisible(toolsEnum.UpdateResource, [policyEnum.AdminDevice])" type="text">配置资源包</el-button>
       <el-dropdown
         v-adaptive-hiding="adaptiveHideTag"
@@ -162,6 +162,11 @@ export default class extends Vue {
   // 是否含视图库
   private get hasViid() {
     return this.device.viids && this.device.viids.length
+  }
+
+  // 是否为通道
+  private get isChannel() {
+    return this.basicInfo.deviceChannelNum > -1
   }
 
   // 操作所需的数据
