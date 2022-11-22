@@ -259,7 +259,10 @@ export default class extends Vue {
     tableDom.clearSort()
     tableDom.clearFilter()
     // this.$route.query.inProtocol && this.getList()
+    // this.getList()
+    this.timer && clearInterval(this.timer)
     this.getList()
+    this.setTimer()
   }
 
   private mounted() {
