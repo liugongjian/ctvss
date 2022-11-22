@@ -71,10 +71,10 @@
     </template>
     <template v-else>
       <el-form-item v-if="checkVisible(deviceEnum.UserName)" label="用户名:" :prop="deviceEnum.UserName">
-        <el-input v-model="videoForm.userName" />
+        <el-input v-model="videoForm.userName" autocomplete="off" />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password">
-        <el-input v-model="videoForm.password" type="password" />
+      <el-form-item v-if="checkVisible(deviceEnum.Password)" label="密码:" :prop="deviceEnum.Password" class="is-required">
+        <el-input v-model="videoForm.password" type="password" autocomplete="off" :placeholder="passwordPlaceholder" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.EnableDomain)" label="是否启用域名:" :prop="deviceEnum.EnableDomain">
         <el-switch
@@ -258,6 +258,7 @@ export default class extends Vue {
   private showMore = false
   private adaptiveHideTag = 'adaptiveHideTag'
   private minChannelSize = 1
+  private passwordPlaceholder = ''
   private rules = {
     [DeviceEnum.InVideoProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
@@ -357,6 +358,7 @@ export default class extends Vue {
     if (this.isEdit) {
       // 编辑模式下RTSP密码不必填
       this.rules.password = []
+      this.passwordPlaceholder = '••••••'
       // 编辑模式下，最小子通道为编辑前通道数
       this.minChannelSize = this.basicInfo.deviceChannelSize
     }

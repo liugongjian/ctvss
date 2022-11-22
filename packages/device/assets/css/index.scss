@@ -374,6 +374,16 @@
         }
       }
 
+      .el-input__inner[type='password'] {
+        &::placeholder {
+          color: $text-color-primary;
+        }
+
+        &:focus::placeholder {
+          color: transparent;
+        }
+      }
+
       .show-more {
         @include show-more();
       }
