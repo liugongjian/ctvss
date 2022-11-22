@@ -880,6 +880,16 @@ export default class extends Mixins(Validate) {
     Object.keys(this.dragInNodes).forEach(label => {
       this.dragInNodes[label].forEach(data => {
         data.upGbId = data.upGbIdOrigin
+        if (data.channels && data.channels.length > 0) {
+          data.channels.forEach(channel => {
+            channel.upGbId = channel.upGbIdOrigin
+          })
+        }
+        if (data.children && data.children.length > 0) {
+          data.children.forEach(child => {
+            child.upGbId = child.upGbIdOrigin
+          })
+        }
       })
     })
   }
