@@ -331,7 +331,7 @@ export default class extends Mixins(layoutMxin) {
         const pathList = resourceList.map((resource: any) => resource.split(':')[2].split('/'))
         const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
         for (let idx = 0, len = pathList.length; idx < len; idx++) {
-            await this.deviceTree.asyncLoadChildren(pathList[idx])
+            await this.deviceTree.asyncLoadChildren(pathList[idx], true)
           }
         const tree = this.deviceTree.$refs.commonTree
         tree.setCheckedKeys(checkedKeys)
