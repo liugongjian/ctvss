@@ -23,7 +23,7 @@
           {{ platformDetails.regionName || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="最大心跳超时次数">
-          {{ platformDetails.maxKeepaliveTimeoutTimes.toString() || '-' }}
+          {{ platformDetails.maxKeepaliveTimeoutTimes || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="心跳周期">
           {{ platformDetails.keepaliveInterval || '-' }}
@@ -87,6 +87,7 @@ export default class extends Vue {
   padding: 0 15px;
   overflow: hidden;
 }
+
 ::v-deep .el-descriptions {
   &__header {
     margin: 10px 0;
@@ -114,6 +115,7 @@ export default class extends Vue {
     margin-left: 10px;
   }
 }
+
 .dialog-footer {
   margin-top: 30px;
   text-align: center;

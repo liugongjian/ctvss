@@ -4,7 +4,7 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import { PollingStatusEnum } from '@vss/device/enums'
-import ComponentMixin from './mixin'
+import ComponentMixin from '@vss/device/components/ScreenBoard/components/mixin'
 
 @Component({
   name: 'QueueExecutor'
@@ -41,6 +41,28 @@ export default class extends ComponentMixin {
   /* 分屏数量 */
   private get maxSize() {
     return this.screenManager.size
+  }
+
+  /* 配置对象 */
+  private get executeQueueConfig() {
+    return this.screenManager.executeQueueConfig
+  }
+
+  /**
+   * 更新设备列表
+   */
+  public async getDevices() {
+    if (this.devicesQueue.length < this.executeQueueConfig.total) {
+      console.log(this.executeQueueConfig.method)
+      const res = await this.executeQueueConfig.method({
+        ...this.executeQueueConfig.query,
+        pageNum: this.executeQueueConfig.pageNum,
+        pageSize: this.executeQueueConfig.pageSize
+      }) || {}
+      this.screenManager.devicesQueue.push(...res.devices)
+      this.executeQueueConfig.total = res.totalSize
+      this.executeQueueConfig.pageNum++
+    }
   }
 
   /**
@@ -92,9 +114,12 @@ export default class extends ComponentMixin {
       this.pollingVideos()
       const intervalPolling = () => {
         this.timer = setTimeout(
-          () => {
-            this.timer && clearTimeout(this.timer) 
+          async () => {
+            this.timer && clearTimeout(this.timer)
             this.pollingVideos()
+            if (this.devicesQueue.length - this.currentExecuteIndex - 1 <= this.maxSize) {
+              await this.getDevices()
+            }
             intervalPolling()
           },
           this.pollingInterval * 1000
