@@ -183,16 +183,17 @@ export default class extends Vue {
   /**
    * 懒加载时加载子目录
    */
-  public async loadChildren(payload: any, resolve?: Function) {
+  public async loadChildren(payload: any, resolve?: Function, enableCache?: boolean) {
     // 判断为key则获取node
     if (typeof payload === 'string') {
       payload = this.tree.getNode(payload)
     }
-    // 如果已经加载过，则提前返回，不重新请求接口
-    // if (payload && payload.loaded) {
-    //   payload.parent.expanded = true
-    //   return
-    // }
+    // 启用树节点缓存时：如果已经加载过，则提前返回，不重新请求接口
+    if (enableCache && payload && payload.loaded) {
+      payload.parent.expanded = true
+      return
+    }
+
     // 未传则使用自定义resolve
     if (!resolve) {
       resolve = this.resolveChildren.bind(this, payload)

@@ -148,6 +148,8 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.InOrgRegion,
     DeviceEnum.DeviceVendor,
     DeviceEnum.Description,
+    DeviceEnum.VideoStatus,
+    DeviceEnum.CreatedTime,
     DeviceEnum.DeviceStatus,
     DeviceEnum.StreamStatus,
     DeviceEnum.RecordStatus,
