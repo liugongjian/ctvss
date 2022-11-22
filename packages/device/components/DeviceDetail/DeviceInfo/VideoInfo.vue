@@ -13,7 +13,7 @@
             <el-dropdown-item v-if="streamStatus === statusEnum.On && checkToolsVisible(toolsEnum.StopDevice)" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
           </div>
-          <div v-if="checkToolsVisible(toolsEnum.StartRecord)">
+          <div v-if="checkToolsVisible(toolsEnum.StartRecord) && !isIbox">
             <el-dropdown-item v-if="recordStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
           </div>
