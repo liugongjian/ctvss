@@ -7,6 +7,7 @@ import { UserModule } from '@/store/modules/user'
 import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
 import { pick } from 'lodash'
+import { getPollList } from '@vss/device/api/dir'
 
 interface ScreenManagerConfig {
   // inProtocol: string
@@ -42,6 +43,11 @@ export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling'
   interval: number
   status: 'pause' | 'working' | 'free'
+  pageNum: number
+  pageSize: number
+  total: number
+  query: any
+  method: Function
 }
 
 export class ScreenManager {
@@ -79,7 +85,12 @@ export class ScreenManager {
     this.executeQueueConfig = {
       policy: 'autoPlay',
       interval: 20,
-      status: 'free'
+      status: 'free',
+      pageNum: 1,
+      pageSize: 10,
+      total: Infinity,
+      query: null,
+      method: getPollList
     }
     this._size = config.size
     this.initScreenList()
