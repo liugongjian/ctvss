@@ -10,7 +10,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts/index'
-import { InVideoProtocolAllowParams } from '@vss/device/settings'
+import { InVideoProtocolCreateParams } from '@vss/device/settings'
 import { updateDevice } from '@vss/device/api/device'
 import { updateDeviceResource } from '@vss/device/api/billing'
 import { pick } from 'lodash'
@@ -80,7 +80,7 @@ export default class extends Vue {
     }
     // 补充协议信息
     videoDevice[InVideoProtocolModelMapping[form.videoForm.inVideoProtocol]] = {
-      ...pick(form.videoForm, [...InVideoProtocolAllowParams[form.videoForm.inVideoProtocol]])
+      ...pick(form.videoForm, [...InVideoProtocolCreateParams[form.videoForm.inVideoProtocol]])
     }
     params.videos = [ videoDevice ]
     

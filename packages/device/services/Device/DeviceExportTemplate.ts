@@ -617,7 +617,7 @@ class ExportExcelTemplate {
             validation: this.validation.multiStreamSize
           },
           {
-            title: { header: '是否启用自动拉流', key: 'pullType', width: 24 },
+            title: { header: '*是否启用自动拉流', key: 'pullType', width: 24 },
             validation: this.validation.pullType
           },
           {
@@ -636,7 +636,7 @@ class ExportExcelTemplate {
             validation: this.validation.pushType
           },
           {
-            title: { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
+            title: { header: '*设备视频流优先传输协议', key: 'transPriority', width: 30 },
             validation: this.validation.transPriority
           },
           // {

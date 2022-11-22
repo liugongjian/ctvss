@@ -15,7 +15,7 @@
             <status-badge :status="viidInfo.deviceStatus.isOnline" />
             {{ dicts.DeviceStatus[viidInfo.deviceStatus.isOnline] || '-' }}
           </info-list-item>
-          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ device.createdTime }}</info-list-item>
+          <info-list-item v-if="checkInfoVisible(deviceEnum.CreatedTime)" label="创建时间:">{{ dateFormat(device.createdTime) }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceChannelSize)" label="通道数量:">{{ basicInfo.deviceChannelSize }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.OnlineChannels)" label="在线通道数量:">{{ basicInfo.deviceStats ? basicInfo.deviceStats.onlineChannels : '-' }}</info-list-item>
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
@@ -308,6 +308,7 @@ import { DeviceType as DeviceTypeDic, DeviceFiltersLabel, VideoStatus, StreamSta
 import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceToolsVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { getDevices } from '@vss/device/api/device'
+import { dateFormat } from '@vss/base/utils/date'
 import * as dicts from '@vss/device/dicts'
 import deviceMixin from '@vss/device/mixin/deviceMixin'
 import DeviceManager from '@vss/device/services/Device/DeviceManager'
@@ -347,6 +348,7 @@ export default class extends Mixins(deviceMixin) {
   private recordStatus = RecordStatus
   private viidStatus = ViidStatus
   private dicts = dicts
+  private dateFormat = dateFormat
 
   private deviceList: Array<Device> = []
   private selectedDeviceList: Array<Device> = []

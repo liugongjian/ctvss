@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <el-form
-      ref="viidForm"
-      :rules="rules"
-      :model="viidForm"
-      label-position="right"
-      label-width="165px"
-    >
+  <el-form
+    ref="viidForm"
+    :rules="rules"
+    :model="viidForm"
+    label-position="right"
+    label-width="165px"
+  >
+    <div class="two-column-wrap">
       <el-form-item label="接入协议:" :prop="deviceEnum.InViidProtocol">
         <el-radio
           v-for="(value, key) in inViidProtocol"
@@ -42,8 +42,8 @@
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.Port">
         <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
       </el-form-item>
-    </el-form>
-  </div>
+    </div>
+  </el-form>
 </template>
 
 <script lang="ts">
