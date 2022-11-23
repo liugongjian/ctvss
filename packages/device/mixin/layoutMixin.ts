@@ -1,5 +1,5 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum } from '../enums/index'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum, StatusEnum } from '../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
@@ -20,6 +20,7 @@ export default class LayoutMixin extends Vue {
   public toolsEnum = ToolsEnum
   public deviceTypeEnum = DeviceTypeEnum
   public policyEnum = PolicyEnum
+  public statusEnum = StatusEnum
   public checkPermission = checkPermission
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
@@ -75,8 +76,8 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.CloseDialog]: (type, isfresh) => DeviceManager.closeDirectoryDialog(this.getVueComponent, type, isfresh),
     [ToolsEnum.DeleteDirectory]: data => DeviceManager.deleteDir(this.getVueComponent, data),
     [ToolsEnum.SetStreamNum]: (data, streamNum) => DeviceManager.openScreen(this.getVueComponent, data, streamNum),
-    [ToolsEnum.Polling]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'polling'),
-    [ToolsEnum.AutoPlay]: node => DeviceScreen.executeQueue(this.getVueComponent, node, !node, 'autoPlay'),
+    [ToolsEnum.Polling]: (data, status) => DeviceScreen.executeQueue(this.getVueComponent, data, !data, 'polling', status),
+    [ToolsEnum.AutoPlay]: (data, status) => DeviceScreen.executeQueue(this.getVueComponent, data, !data, 'autoPlay', status),
     [ToolsEnum.IntervalChange]: interval => DeviceScreen.intervalChange(this.getVueComponent, interval),
     [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
     [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),

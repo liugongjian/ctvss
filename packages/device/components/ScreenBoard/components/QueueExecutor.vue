@@ -4,6 +4,7 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import { PollingStatusEnum } from '@vss/device/enums'
+import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import ComponentMixin from '@vss/device/components/ScreenBoard/components/mixin'
 
 @Component({
@@ -51,14 +52,19 @@ export default class extends ComponentMixin {
   /**
    * 更新设备列表
    */
-  public async getDevices() {
+  public async getDevices(policy: 'polling' | 'autoPlay') {
     if (this.devicesQueue.length < this.executeQueueConfig.total) {
-      console.log(this.executeQueueConfig.method)
-      const res = await this.executeQueueConfig.method({
+      const params = policy === 'polling' ?
+      {
         ...this.executeQueueConfig.query,
         pageNum: this.executeQueueConfig.pageNum,
         pageSize: this.executeQueueConfig.pageSize
-      }) || {}
+      } :
+      {
+        ...this.executeQueueConfig.query,
+        playNum: this.maxSize
+      }
+      const res = await this.executeQueueConfig.method(params) || {}
       this.screenManager.devicesQueue.push(...res.devices)
       this.executeQueueConfig.total = res.totalSize
       this.executeQueueConfig.pageNum++
@@ -117,8 +123,9 @@ export default class extends ComponentMixin {
           async () => {
             this.timer && clearTimeout(this.timer)
             this.pollingVideos()
+            // 当队列中剩余视频数小于分屏数时，获取更多视频设备
             if (this.devicesQueue.length - this.currentExecuteIndex - 1 <= this.maxSize) {
-              await this.getDevices()
+              await this.getDevices('polling')
             }
             intervalPolling()
           },
@@ -150,6 +157,45 @@ export default class extends ComponentMixin {
       }
     }
     this.currentExecuteIndex = this.currentExecuteIndex + this.maxSize
+    // this.preloadFrameShot(this.maxSize)
+    this.preloadFrameShot(this.maxSize)
+  }
+
+  /**
+   * 预加载分屏数相等数量的视频截图作为封面
+   * @param size 分屏数
+   */
+  private async preloadFrameShot(size: number) {
+    let cur = this.currentExecuteIndex
+    const params = {
+      frames: []
+    }
+    for (let i = 0; i < size; i++) {
+      console.log(this.devicesQueue[cur + i], size)
+      // 如果剩余视频不够分屏数，则从头开始
+      if (!this.devicesQueue[cur + i]) {
+        cur = -i
+      }
+      const { id, inProtocol } = this.devicesQueue[cur + i]
+      params.frames.push({
+        stream: id,
+        inProtocol
+      })
+    }
+    try {
+      const res = await getAlgoStreamFrameShot(params) || {}
+      if (res.frames) {
+        const frames = res.frames
+        let index = this.currentExecuteIndex
+        while (frames.length) {
+          this.devicesQueue[index].poster = frames.shift().frame
+          index++
+        }
+        console.log(this.devicesQueue)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
