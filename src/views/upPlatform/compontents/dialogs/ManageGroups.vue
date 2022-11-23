@@ -331,7 +331,7 @@ export default class extends Mixins(Validate) {
     this.setDirChecked(groups, 'dir')
 
     // this.tagNvrUnchecked(node, dirs)
-    this.resetNvrStatus(node)
+    this.resetDirStatus(node)
     this.loading.dir = false
   }
 
@@ -920,6 +920,11 @@ export default class extends Mixins(Validate) {
   }
 
   private async submit() {
+    const isOnlyNumber = this.checkNumberOnly(this.sharedDirList)
+    if (isOnlyNumber) {
+      this.$message.error('级联国标ID只能为数字，请修改')
+      return
+    }
     const isDuplicate = this.checkGbIdDuplicated(this.sharedDirList)
     if (isDuplicate) {
       this.$message.error('级联国标ID重复，请修改')
@@ -1111,8 +1116,8 @@ export default class extends Mixins(Validate) {
   }
 
   // 根据nvr节点的checked状态改变disabled
-  private resetNvrStatus(node) {
-    if (node.data.type === 'nvr') {
+  private resetDirStatus(node) {
+    if (node.data.type === 'nvr' || node.data.type === 'dir' || node.data.type === 'platform' || node.data.type === 'platformDir') {
       node.childNodes.forEach(child => {
         child.checked = child.data.disabled
       })
@@ -1165,6 +1170,7 @@ export default class extends Mixins(Validate) {
 
   // 目前只操作设备的删除，ipc & nvr
   private deleteNode(node) {
+    debugger
     const dirTree: any = this.$refs.dirTree
     const parentDirId = node.parent.data.type === 'nvr' ? node.parent.parent.data.dirId : node.parent.data.dirId
     if (node.data.sharedFlag) {
@@ -1220,18 +1226,22 @@ export default class extends Mixins(Validate) {
       }
     }
     if (node.data.type === 'nvr') {
-      this.uncheckedNvrNode(node.data.id)
+      this.uncheckedNvrNode(node)
     }
   }
 
-  private uncheckedNvrNode(id) {
+  private uncheckedNvrNode(node) {
+    const id = node.data.id
     const dirTree: any = this.$refs.dirTree
     const nvrNode = dirTree.getNode(id)
     this.$nextTick(() => {
       if (nvrNode && nvrNode.childNodes) {
         nvrNode.childNodes.forEach(child => {
-          child.data.disabled = false
-          child.checked = false
+          const isChildUnchecked = node.childNodes.filter(n => n.data.id === child.data.id)
+          if (isChildUnchecked.length > 0) {
+            child.data.disabled = false
+            child.checked = false
+          }
         })
       }
     })
