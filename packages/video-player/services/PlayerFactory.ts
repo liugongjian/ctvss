@@ -5,6 +5,7 @@ import { H265Player } from './H265Player'
 import { FlvH265Player } from './FlvH265Player'
 import { RtcPlayer } from './RtcPlayer'
 import { TypeEnum, CodecEnum } from '../enums'
+import { isSupportH265 } from '@vss/base/utils/video'
 
 export const createPlayer = (config: PlayerConfig) => {
   const wrapElement: HTMLDivElement = config.container
@@ -54,6 +55,3 @@ const initPlayer = (config: PlayerConfig) => {
   }
 }
 
-const isSupportH265 = () => {
-  return window.MediaSource.isTypeSupported('video/mp4; codecs="hvc1.1.6.L93.B0"')
-}

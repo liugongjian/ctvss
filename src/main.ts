@@ -21,7 +21,8 @@ import * as filters from '@/filters'
 import { initLogin } from '@/services/loginService'
 import VssBase from '@vss/base'
 import VssDevice from '@vss/device'
-import { loadJs } from '@/utils/load-resource'
+import { loadJs } from '@vss/base/utils/load-resource'
+import { isSupportH265 } from '@vss/base/utils/video'
 
 // @ts-ignore
 window._typeof = (e: any) => {
@@ -59,6 +60,8 @@ if (isIE()) {
 }
 
 // 加载h.265播放器插件
-loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
+if (!isSupportH265()) {
+  loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
+}
 
 initLogin()
