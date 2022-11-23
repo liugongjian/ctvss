@@ -200,6 +200,10 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   display: flex;
 }
 
+.app-container {
+  min-width: 1160px;
+}
+
 .app-container__result {
   position: relative;
   width: 100%;
