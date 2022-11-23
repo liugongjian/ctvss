@@ -49,6 +49,10 @@
             {{ row.streams.length ? statusMap[row.streams[0].streamStatus] : '-' }}
           </template>
         </el-table-column>
+        <el-table-column
+          prop="deviceVendor"
+          label="厂商"
+        />
         <!-- <el-table-column
           prop="deviceIp"
           label="IP地址"

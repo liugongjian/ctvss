@@ -54,6 +54,10 @@
             {{ row.streams.length ? statusMap[row.streams[0].streamStatus] : '-' }}
           </template>
         </el-table-column>
+        <el-table-column
+          prop="deviceVendor"
+          label="厂商"
+        />
         <!-- <el-table-column
           prop="deviceStatus"
           label="录制状态"
@@ -80,10 +84,7 @@
             {{ scope.row.errorMsg }}
           </template>
         </el-table-column> -->
-        <!-- <el-table-column
-          prop="deviceVendor"
-          label="厂商"
-        />
+        <!--
         <el-table-column
           width="180"
           prop="outId"
