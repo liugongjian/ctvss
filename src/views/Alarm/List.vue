@@ -300,7 +300,8 @@ export default class extends Vue {
       sortBy: this.searchFrom.sortBy,
       sortDirection: this.searchFrom.sortDirection,
       pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize
+      pageSize: this.pager.pageSize,
+      inProtocol: this.$route.query.inVideoProtocol || 'gb28181'
     }
     if (this.$route.query.type !== 'ipc') {
       // 目录级别
@@ -316,8 +317,10 @@ export default class extends Vue {
     try {
       !forbitLoading && (this.loading = true) && (this.alarmList = [])
       const res: any = await getAlarmRules(params)
-      this.alarmList = res.alarms
-      this.pager.total = res.totalNum
+      this.$nextTick(() => {
+        this.alarmList = res.alarms
+        this.pager.total = res.totalNum
+      }) 
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
     } finally {

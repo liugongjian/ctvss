@@ -80,7 +80,9 @@ export default class extends Vue {
     }
     // 补充协议信息
     videoDevice[InVideoProtocolModelMapping[form.videoForm.inVideoProtocol]] = {
-      ...pick(form.videoForm, [...InVideoProtocolCreateParams[form.videoForm.inVideoProtocol]])
+      ...pick(form.videoForm, [...InVideoProtocolCreateParams[form.videoForm.inVideoProtocol]]),
+      deviceIp: form.videoForm.deviceIp,
+      devicePort: form.videoForm.devicePort
     }
     params.videos = [ videoDevice ]
     

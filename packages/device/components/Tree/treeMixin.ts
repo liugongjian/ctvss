@@ -80,13 +80,13 @@ export default class TreeMixin extends Vue {
     })
   }
 
-  public async asyncLoadChildren(payload) {
+  public async asyncLoadChildren(payload, enableCache) {
     if (Array.isArray(payload)) {
       // 展开路径列表
       const key = Array.isArray(payload) ? payload.shift() : payload
       if (payload.length) {
-        await this.commonTree.loadChildren(key)
-        await this.asyncLoadChildren(payload)
+        await this.commonTree.loadChildren(key, null, enableCache)
+        await this.asyncLoadChildren(payload, enableCache)
       } else {
         this.setCurrentKey(key || this.rootKey)
       }
