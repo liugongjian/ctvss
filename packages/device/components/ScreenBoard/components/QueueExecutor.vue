@@ -148,6 +148,7 @@ export default class extends ComponentMixin {
       const deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
       this.screenList[i].inProtocol = deviceInfo.inProtocol
+      this.screenList[i].poster = deviceInfo.poster
       this.screenList[i].isLive = this.screenManager.isLive
       this.screenList[i].init()
       if (currentIndex < this.maxSize - 1) {
@@ -188,7 +189,7 @@ export default class extends ComponentMixin {
         const frames = res.frames
         let index = this.currentExecuteIndex
         while (frames.length) {
-          this.devicesQueue[index].poster = frames.shift().frame
+          this.devicesQueue[index].poster = 'data:image/png;base64,' + frames.shift().frame
           index++
         }
         console.log(this.devicesQueue)

@@ -57,10 +57,10 @@ function checkIsVideo(dom: EventTarget) {
 function hiddenTools() {
   addClass(this, 'player__wrap--hidden cursor--hidden')
   // 去除tooltip（可能出现tooltip隐藏不了）
-  let tooltipDoms = document.getElementsByClassName('el-tooltip__popper')
-  Array.from(tooltipDoms).forEach((dom: any) => {
-    dom.style.display = 'none'
-  })
+  // const tooltipDoms = document.getElementsByClassName('el-tooltip__popper')
+  // Array.from(tooltipDoms).forEach((dom: any) => {
+  //   dom.style.display = 'none'
+  // })
 }
 
 /**
