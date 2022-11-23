@@ -114,13 +114,17 @@ export default class AiAppList extends Vue {
   private async mounted() {
     try {
       this.loading.table = true
-      await this.getAppList()
-      await this.getAlarms()
+      await this.getData()
     } catch (e) {
       console.log(e)
     } finally {
       this.loading.table = false
     }
+  }
+
+  public async getData() {
+    await this.getAppList()
+    await this.getAlarms()
   }
 
   public async getAlarms() {
@@ -201,16 +205,16 @@ export default class AiAppList extends Vue {
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.getAppList()
+    this.getData()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.getAppList()
+    this.getData()
   }
 
-  private backToList() {
-    this.getAppList()
+  private async backToList() {
+    await this.getData()
     this.resetStatus()
   }
 
