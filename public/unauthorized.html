@@ -37,14 +37,29 @@
         font-size: 14px;
         margin-bottom: 15px;
     }
+    .open{
+      color: rgb(255, 255, 255);
+      padding: 10px 20px;
+      font-size: 14px;
+      background-color: rgb(250, 131, 52);
+      border-color: rgb(250, 131, 52);
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 400;
+      line-height: 1;
+    }
+    .open, .open:focus{
+      border-style:none;
+    }
     </style>
 </head>
 <body>
     <div id="ctcloud-console">
         <div class="error-page">
             <div class="error-code">对不起，您的服务尚未开通</div>
-            <div class="error-desc">您尚未开通<span id="productType"></span>产品，请联系云公司业务受理岗开通！</div>
-            <div class="error-desc">当前登陆邮箱<span id="email"></span></div>
+            <!-- <div class="error-desc">您尚未开通<span id="productType"></span>产品，请联系云公司业务受理岗开通！</div>
+            <div class="error-desc">当前登陆邮箱<span id="email"></span></div> -->
+            <button class="open" onClick="toConsole()">立即开通</button>
         </div>
     </div>
     <script type="text/javascript" src="/layout/ctcloud-layout.min.js"></script>
@@ -62,6 +77,9 @@
             if (!data || !data.property) return
             document.getElementById('email').innerHTML = data.property.email;
         })
+        function toConsole(){
+          window.open('https://www.ctyun.cn/products/vss')
+        }
     </script>
 </body>
 </html>
