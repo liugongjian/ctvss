@@ -36,6 +36,9 @@
         <el-form-item label="设备名称">
           <el-input v-model="form.videoName" />
         </el-form-item>
+        <el-form-item label="视频封面">
+          <el-input v-model="form.poster" />
+        </el-form-item>
         <el-button type="primary" @click="generate">生成</el-button>
       </el-form>
     </div>
@@ -52,6 +55,7 @@
         :is-auto-play="true"
         :is-live="form.isLive"
         :is-ws="form.isWs"
+        :poster="form.poster"
         @dispatch="onPlayerDispatch"
       />
       <!-- <Player
@@ -83,6 +87,7 @@ export default class extends Vue {
     videoName: 'TestVideo',
     isLive: false,
     isWs: false,
+    poster: '',
     deviceInfo: {
       deviceName: 'TestVideo',
       deviceId: '123',

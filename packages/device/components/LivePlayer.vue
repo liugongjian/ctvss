@@ -17,6 +17,7 @@
     :has-close="hasClose"
     :has-live-replay-selector="hasLiveReplaySelector"
     :scale="screen.scale"
+    :poster="screen.poster"
     :is-debug="isDebug"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"

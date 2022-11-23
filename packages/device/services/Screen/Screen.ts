@@ -55,6 +55,7 @@ export class Screen {
   public videoWidth: number
   public videoHeight: number
   public codec: Codec
+  public poster: string
 
   /**
    * ----------------
@@ -114,6 +115,7 @@ export class Screen {
     this.videoWidth = null
     this.videoHeight = null
     this.codec = null
+    this.poster = ''
     this.url = ''
     this.hasRtc = false
     this.recordType = 0
