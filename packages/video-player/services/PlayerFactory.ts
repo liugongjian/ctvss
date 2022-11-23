@@ -43,7 +43,7 @@ const initPlayer = (config: PlayerConfig) => {
   } else {
     switch (config.type) {
       case TypeEnum.FLV:
-        if (isSupportH265) {
+        if (isSupportH265()) {
           return new FlvH265Player(config)
         } else {
           return new H265Player(config)
