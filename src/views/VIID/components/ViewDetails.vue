@@ -22,9 +22,6 @@
         <el-descriptions-item label="级联区域">
           {{ platformDetails.regionName || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="最大心跳超时次数">
-          {{ platformDetails.maxKeepaliveTimeoutTimes || '-' }}
-        </el-descriptions-item>
         <el-descriptions-item label="心跳周期">
           {{ platformDetails.keepaliveInterval || '-' }}
         </el-descriptions-item>

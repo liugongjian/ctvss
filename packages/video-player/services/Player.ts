@@ -45,6 +45,8 @@ export class Player {
   public isLoading: boolean
   /* 缩放比例 */
   public scale: string
+  /* 封面 */
+  public poster: string
 
   constructor(config: PlayerConfig) {
     this.config = config
@@ -65,6 +67,7 @@ export class Player {
     this.bufferedTime = 0
     this.isLoading = true
     this.scale = ''
+    this.poster = config.poster
   }
 
   /**
