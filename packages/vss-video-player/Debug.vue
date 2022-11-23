@@ -56,7 +56,6 @@
         :is-live="form.isLive"
         :is-ws="form.isWs"
         :poster="form.poster"
-        @dispatch="onPlayerDispatch"
       />
       <!-- <Player
         ref="player"
@@ -82,18 +81,18 @@ import Player from '@vss/video-player/index.vue'
 })
 export default class extends Vue {
   private form: any = {
-    codec: 'h264',
+    codec: 'h265',
     type: 'flv',
     videoName: 'TestVideo',
     isLive: false,
-    isWs: false,
+    isWs: true,
     poster: '',
     deviceInfo: {
       deviceName: 'TestVideo',
       deviceId: '123',
       inProtocol: 'gb28181'
     },
-    url: 'https://liveplay.lanzhou.vcn.ctyun.cn/live/29942067077591243_101.flv'
+    url: 'wss://liveplay.haerbin.vcn.ctyun.cn/live/29941903868861669.flv'
   }
   private url = ''
 

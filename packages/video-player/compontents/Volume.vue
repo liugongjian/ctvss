@@ -55,21 +55,21 @@ export default class extends ComponentMixin {
   }
 
   private get isH265() {
-    return this.player && this.player.codec === CodecEnum.H265
+    return this.player && this.player.codec === CodecEnum.H265 && this.player.type !== 'flv'
   }
 
   /**
    * 控制音量
    */
   private setVolume(volume: number) {
-    this.player!.setVolume(volume)
+    this.player?.setVolume(volume)
   }
 
   /***
    * 切换静音状态
    */
   private toggleMuteStatus() {
-    this.player!.toggleMuteStatus(!this.isMuted)
+    this.player?.toggleMuteStatus(!this.isMuted)
   }
 }
 </script>
