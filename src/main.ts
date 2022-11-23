@@ -60,8 +60,6 @@ if (isIE()) {
 }
 
 // 加载h.265播放器插件
-if (!isSupportH265()) {
-  loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
-}
+loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
 
 initLogin()
