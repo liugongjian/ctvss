@@ -176,19 +176,19 @@ class ExportExcelTemplate {
             validation: this.validation.networkTypeExternal
           },
           {
-            title: { header: '接入区域', key: 'region', width: 16 },
+            title: { header: '*接入区域', key: 'region', width: 16 },
             validation: this.getRegionValidation()
           },
           {
-            title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+            title: { header: '*设备地址', key: 'deviceAddresses', width: 16 },
             validation: this.getAddressList()
           },
           {
-            title: { header: '所属行业', key: 'industry', width: 16 },
+            title: { header: '*所属行业', key: 'industry', width: 16 },
             validation: this.getIndustryList()
           },
           {
-            title: { header: '网络标识', key: 'network', width: 16 },
+            title: { header: '*网络标识', key: 'network', width: 16 },
             validation: this.validation.network
           },
           {
@@ -305,19 +305,19 @@ class ExportExcelTemplate {
             validation: this.validation.networkTypeExternal
           },
           {
-            title: { header: '接入区域', key: 'region', width: 16 },
+            title: { header: '*接入区域', key: 'region', width: 16 },
             validation: this.getRegionValidation()
           },
           {
-            title: { header: '设备地址', key: 'deviceAddresses', width: 16 },
+            title: { header: '*设备地址', key: 'deviceAddresses', width: 16 },
             validation: this.getAddressList()
           },
           {
-            title: { header: '所属行业', key: 'industry', width: 16 },
+            title: { header: '*所属行业', key: 'industry', width: 16 },
             validation: this.getIndustryList()
           },
           {
-            title: { header: '网络标识', key: 'network', width: 16 },
+            title: { header: '*网络标识', key: 'network', width: 16 },
             validation: this.validation.network
           },
           {
@@ -722,6 +722,7 @@ class ExportExcelTemplate {
     return {
       type: 'list',
       allowBlank: false,
+      showInputMessage: true,
       showErrorMessage: true,
       formulae: [this.joinDropdownlist(this.regionList)],
       error: '请选择接入区域'
