@@ -2,6 +2,7 @@ import { PlayerConfig } from '../types/Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
+import { FlvH265Player } from './FlvH265Player'
 import { RtcPlayer } from './RtcPlayer'
 import { TypeEnum, CodecEnum } from '../enums'
 
@@ -40,6 +41,19 @@ const initPlayer = (config: PlayerConfig) => {
         return new RtcPlayer(config)
     }
   } else {
-    return new H265Player(config)
+    switch (config.type) {
+      case TypeEnum.FLV:
+        if (isSupportH265) {
+          return new FlvH265Player(config)
+        } else {
+          return new H265Player(config)
+        }
+      default:
+        return new H265Player(config)
+    }
   }
+}
+
+const isSupportH265 = () => {
+  return window.MediaSource.isTypeSupported('video/mp4; codecs="hvc1.1.6.L93.B0"')
 }

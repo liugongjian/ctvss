@@ -7,9 +7,10 @@ import FlvJS from 'flv.js/src/flv.js'
  * 基于flv.js
  */
 export class FlvPlayer extends Player {
-  private flv?: any
-  private mseError = false
-  private mseErrorCount = 0
+  public FlvJS = FlvJS
+  public flv?: any
+  public mseError = false
+  public mseErrorCount = 0
 
   constructor(config: PlayerConfig) {
     super(config)
@@ -21,18 +22,18 @@ export class FlvPlayer extends Player {
   /**
    * 初始化
    */
-  protected init() {
-    if (!FlvJS.isSupported()) {
+  public init() {
+    if (!this.FlvJS.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')
     }
-    FlvJS.LoggingControl.enableError = false
-    FlvJS.LoggingControl.enableWarn = false
+    this.FlvJS.LoggingControl.enableError = false
+    this.FlvJS.LoggingControl.enableWarn = false
     const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
     videoElement.controls = false
     videoElement.poster = this.poster
     this.container.innerHTML = ''
     this.container.append(videoElement)
-    const flvPlayer = FlvJS.createPlayer({
+    const flvPlayer = this.FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
       url: this.url,
@@ -41,14 +42,14 @@ export class FlvPlayer extends Player {
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
     flvPlayer.play()
-    flvPlayer.on(FlvJS.Events.ERROR, (e: any) => {
+    flvPlayer.on(this.FlvJS.Events.ERROR, (e: any) => {
       // 网络错误
-      if (e === FlvJS.ErrorTypes.NETWORK_ERROR) {
+      if (e === this.FlvJS.ErrorTypes.NETWORK_ERROR) {
         this.isDebug && console.log('NETWORK_ERROR', e)
         this.onRetry()
       }
       // 视频解码错误
-      if (e === FlvJS.ErrorTypes.MSE_ERROR && !this.mseError) {
+      if (e === this.FlvJS.ErrorTypes.MSE_ERROR && !this.mseError) {
         this.isDebug && console.log('MSE_ERROR', e, this.mseErrorCount)
         this.mseError = true
         this.mseErrorCount++
@@ -62,17 +63,17 @@ export class FlvPlayer extends Player {
         }
       }
     })
-    flvPlayer.on(FlvJS.Events.METADATA_ARRIVED, (e: any) => {
+    flvPlayer.on(this.FlvJS.Events.METADATA_ARRIVED, (e: any) => {
       this.isDebug && console.log('METADATA_ARRIVED', e)
     })
-    flvPlayer.on(FlvJS.Events.SCRIPTDATA_ARRIVED, (e: any) => {
+    flvPlayer.on(this.FlvJS.Events.SCRIPTDATA_ARRIVED, (e: any) => {
       this.isDebug && console.log('SCRIPTDATA_ARRIVED', e)
       this.mseError = false
     })
-    flvPlayer.on(FlvJS.Events.METADATA_ARRIVED, (e: any) => {
+    flvPlayer.on(this.FlvJS.Events.METADATA_ARRIVED, (e: any) => {
       this.isDebug && console.log('LOADING_COMPLETE', e)
     })
-    flvPlayer.on(FlvJS.Events.MEDIA_ENDED, () => {
+    flvPlayer.on(this.FlvJS.Events.MEDIA_ENDED, () => {
       this.onRetry()
     })
     this.flv = flvPlayer
@@ -82,7 +83,7 @@ export class FlvPlayer extends Player {
   /**
    * 绑定事件
    */
-  protected bindEvent() {
+  public bindEvent() {
     this.video.addEventListener('play', this.onPlay.bind(this))
     this.video.addEventListener('pause', this.onPause.bind(this))
     this.video.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
@@ -127,7 +128,7 @@ export class FlvPlayer extends Player {
    * 回调事件
    * 当进行预加载
    */
-  protected onBuffered() {
+  public onBuffered() {
     if (this.video.buffered.length) {
       this.bufferedTime = this.video.buffered.end(this.video.buffered.length - 1)
       this.config.onBuffered && this.config.onBuffered(this.bufferedTime)
@@ -138,7 +139,7 @@ export class FlvPlayer extends Player {
   /**
    * 解决直播延时累加，进行追帧设置
    */
-  private catchTime() {
+  public catchTime() {
     const delta = this.bufferedTime - this.currentTime
 
     // 延迟过大，通过跳帧的方式更新视频
