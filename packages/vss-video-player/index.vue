@@ -13,6 +13,7 @@
       :has-fullscreen="false"
       :is-live="isLive"
       :is-debug="true"
+      :poster="poster"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
       @onLoadStart="onLoadStart"
@@ -200,6 +201,10 @@ export default class extends Vue {
     default: false
   })
   private hasAxis: boolean
+
+  /* 视频封面 */
+  @Prop()
+  private poster: string
 
   /* 播放器实例 */
   private player: PlayerModel = null

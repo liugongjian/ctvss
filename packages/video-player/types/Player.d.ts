@@ -21,6 +21,7 @@ export interface PlayerConfig {
   playbackRate?: number;
   volume: number;
   isMuted: boolean;
+  poster: string;
   onPlay?: () => void;
   onPause?: () => void;
   onEnded?: () => void;

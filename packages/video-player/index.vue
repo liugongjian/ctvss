@@ -127,6 +127,10 @@ export default class extends Vue {
   })
   private hasFullscreen: boolean
 
+  /* 视频封面 */
+  @Prop()
+  private poster: string
+
   /* 播放器实例 */
   public player: Player = null
   private CodecEnum = CodecEnum
@@ -194,6 +198,7 @@ export default class extends Vue {
         playbackRate: this.playbackRate,
         volume: this.volume,
         isMuted: this.isMuted,
+        poster: this.poster,
         onPlay: this.onPlay,
         onPause: this.onPause,
         onEnded: this.onEnded,
