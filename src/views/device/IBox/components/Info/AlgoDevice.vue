@@ -47,9 +47,9 @@
       </span>
     </el-tree>
     <div class="btns">
-      <el-button @click="changeStepPrev">上一步</el-button>
-      <el-button type="primary" @click="onSubmit">确定</el-button>
-      <el-button @click="cancel">取消</el-button>
+      <el-button :disabled="submitting" @click="changeStepPrev">上一步</el-button>
+      <el-button :disabled="submitting" type="primary" @click="onSubmit">确定</el-button>
+      <el-button :disabled="submitting" @click="cancel">取消</el-button>
     </div>
     <algo-config
       v-if="canvasDialog"
@@ -86,6 +86,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 
   @Prop() private step!: number
   @Prop() private prod!: any
+  @Prop() private submitting!: boolean
   private iboxDevice = []
   private isDevice: boolean = true
   private canvasDialog: boolean = false
@@ -235,6 +236,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   }
 
   private onSubmit() {
+    this.$emit('update:submitting', true)
     let param: any = {
       deviceIds: [],
       detectZones: []
@@ -322,6 +324,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   padding: 10px 0;
   width: 40%;
   min-height: 550px;
+  overflow: auto;
 
   .online .node-name {
     .svg-icon {
