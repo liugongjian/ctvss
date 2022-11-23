@@ -141,9 +141,14 @@
             <el-dropdown @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if=" row.streams.length && row.streams[0].streamStatus === 'on'" :command="{type: 'stop', device: row}">停用流</el-dropdown-item>
-                <el-dropdown-item v-else :command="{type: 'start', device: row}">启用流</el-dropdown-item>
+                <template v-if="row.deviceType !== 'nvr'">
+                  <el-dropdown-item v-if=" row.streams.length && row.streams[0].streamStatus === 'on'" :command="{type: 'stop', device: row}">停用流</el-dropdown-item>
+                  <el-dropdown-item v-else :command="{type: 'start', device: row}">启用流</el-dropdown-item>
+                </template>
                 <el-dropdown-item :command="{type: 'delete', device: row}">删除</el-dropdown-item>
+                <template v-if="row.deviceType === 'nvr'">
+                  <el-dropdown-item @click.native="toDetail(row,'')">查看通道</el-dropdown-item>
+                </template>
               </el-dropdown-menu>
             </el-dropdown>
           </template>

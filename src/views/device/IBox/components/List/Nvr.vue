@@ -1,5 +1,41 @@
 <template>
   <div class="ibox-list">
+    <div v-if="nvrDetail && nvrDetail.device" class="ibox-list-info">
+      <el-row type="flex" class="row-bg" justify="space-around">
+        <el-col :span="6">
+          <div class="grid-content bg-purple">
+            设备名称：{{ nvrDetail.device.deviceName || '-' }}
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="grid-content bg-purple-light">
+            国标Id：{{ nvrDetail.outId || '-' }}
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="grid-content bg-purple">
+            视频接入：{{ nvrDetail.streams[0] ? statusMap[nvrDetail.streams[0].streamStatus]: '-' }}
+          </div>
+        </el-col>
+      </el-row>
+      <el-row type="flex" class="row-bg" justify="space-around">
+        <el-col :span="6">
+          <div class="grid-content bg-purple">
+            创建时间:{{ dateFormat(Number(nvrDetail.createdTime)) }}
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="grid-content bg-purple-light">
+            通道数量：{{ nvrDetail.device.deviceStats.channelSize }}
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="grid-content bg-purple">
+            在线通道数量：{{ nvrDetail.device.deviceStats.onlineChannels }}
+          </div>
+        </el-col>
+      </el-row>
+    </div>
     <div class="ibox-list-table">
       <!-- <div class="ibox-list__btn-box">
         <el-button type="primary" @click="addIBox">添加子设备</el-button>
@@ -106,7 +142,9 @@
 </template>
 <script lang="ts">
 import { Component, Inject, Mixins } from 'vue-property-decorator'
+import { InVideoProtocolModelMapping } from '@vss/device/dicts'
 import ListMixins from '../../mixin/listMixin'
+import { getDeviceDetail } from '@/api/ibox'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -119,8 +157,10 @@ export default class IBoxList extends Mixins(ListMixins) {
   @Inject('handleNodeClick')
   public handleNodeClick!: Function
 
+  public InVideoProtocolModelMapping = InVideoProtocolModelMapping
   public tableData = []
   public dateFormat = dateFormat
+  public nvrDetail: any = {}
 
   public statusMap = {
     on: '在线',
@@ -130,27 +170,40 @@ export default class IBoxList extends Mixins(ListMixins) {
 
   public async mounted() {
     await this.getIboxDeviceList()
+    await this.getDetail()
   }
 
   public toDetail(row: any, to: any) {
-    // const query: any = {
-    //   deviceId: row.deviceId,
-    //   type: this.$route.query.type
-    // }
-    // const router: any = {
-    //   name: 'IBoxDeviceInfo',
-    //   query
-    // }
-
     const info = {
       deviceId: row.deviceId,
       type: this.$route.query.type,
       tab: to === 'preview' ? 'preview' : ''
     }
 
-    // this.$router.push(router)
-
     this.handleNodeClick(info)
+  }
+
+  private async getDetail() {
+    const { query } = (this.$route) as any
+    const { deviceId = '', type = '' } = query
+    if (type === 'nvrlist') {
+      const param = {
+        deviceId,
+        includeDeviceStats: 1
+      }
+      try {
+        const nvrDetail: any = await getDeviceDetail(param)
+        let videosInfo = nvrDetail?.videos[0]
+        videosInfo = videosInfo[InVideoProtocolModelMapping[videosInfo.inVideoProtocol]]
+        this.nvrDetail = {
+          ...nvrDetail,
+          ...videosInfo
+        }
+        console.log('nvrDetail--==--->', this.nvrDetail, videosInfo)
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 }
 </script>
@@ -158,9 +211,20 @@ export default class IBoxList extends Mixins(ListMixins) {
 .ibox-list {
   width: 100%;
 
+  .ibox-list-info {
+    height: 70px;
+    padding-top: 15px;
+    margin-bottom: 10px;
+    background: #f4f4f4;
+
+    ::v-deep.el-row {
+      margin-bottom: 10px;
+    }
+  }
+
   .ibox-list-table {
     overflow: auto;
-    height: calc(100% - 40px);
+    height: calc(100% - 140px);
 
     &--text {
       cursor: pointer;

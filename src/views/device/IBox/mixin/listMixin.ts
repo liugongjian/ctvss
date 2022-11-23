@@ -80,8 +80,8 @@ export default class ListMixin extends Mixins(HandleMixin) {
     await this.getIboxDeviceList()
   }
 
-  public handleMore(info: any) {
-    const { type, device } = info
+  public handleMore(info: any = {}) {
+    const { type, device = {} } = info
     const { videos } = device
     switch (type) {
       case 'start':
