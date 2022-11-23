@@ -62,7 +62,7 @@
           :style="`left: ${dirDrag.width}px`"
           @mousedown="changeWidthStart($event)"
         />
-        <div class="ibox-container__right">
+        <div class="ibox-container__right" :class="{'ibox-container__isdragging': dirDrag.isDragging}">
           <div class="breadcrumb">
             <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
             <span
@@ -658,6 +658,10 @@ export default class IBox extends Mixins(HandleMixin) {
     }
   }
 
+  &__isdragging {
+    user-select: none;
+  }
+
   &__tree-box {
     display: flex;
     position: relative;
@@ -711,6 +715,9 @@ export default class IBox extends Mixins(HandleMixin) {
 
   &__tree-text {
     position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   &__btnbox {
