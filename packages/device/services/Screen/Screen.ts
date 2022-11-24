@@ -331,6 +331,14 @@ export class Screen {
   }
 
   /**
+   * 截图
+   * @return BASE64图片
+   */
+  private snapshot() {
+    return this.player && this.player.snapshot()
+  }
+
+  /**
    * ================================
    * 录像回放相关操作
    * ================================
