@@ -37,6 +37,7 @@
       <AlgoDevice
         :step.sync="step"
         :prod.sync="prod"
+        :submitting.sync="submitting"
         @back="backToList"
         @submit="onSubmit"
       />
@@ -71,6 +72,7 @@ export default class extends Mixins(AppMixin) {
   private isLoading: boolean = false
   private algoParam: any = null
   private algoParamSubmit: any = null
+  private submitting = false
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }
@@ -96,6 +98,7 @@ export default class extends Mixins(AppMixin) {
       this.$message.success('操作成功')
     } catch (e) {
       this.$message.error(e)
+      this.submitting = false
     }
   }
 
