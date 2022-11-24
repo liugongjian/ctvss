@@ -1,6 +1,7 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { deleteDevice, getDeviceList, startDevice, stopDevice, getDeviceDetail } from '@/api/ibox'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts'
+
 @Component
 export default class HandleMixin extends Vue {
   public goback: Function // 会被子类改写
@@ -38,6 +39,14 @@ export default class HandleMixin extends Vue {
         this.stopDevice(payload, inProtocol)
         break
       case 'startRecord':
+        break
+      case 'refreshRouterView':
+        (this.$router as any).replace({
+          query: {
+            ...this.$route.query,
+            refreshFlag: payload
+          }
+        })
         break
       default: return this.goback()
     }
