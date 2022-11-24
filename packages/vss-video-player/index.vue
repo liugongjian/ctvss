@@ -33,7 +33,7 @@
             @dispatch="dispatch"
           />
         </ErrorMsg>
-        <Poster v-if="loading" :scale="currentScale" :poster="poster" />
+        <Poster v-show="loading" :scale="currentScale" :poster="poster" />
         <slot name="container" />
       </template>
       <template slot="controlBody">
