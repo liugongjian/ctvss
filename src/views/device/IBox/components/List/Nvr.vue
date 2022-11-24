@@ -9,7 +9,7 @@
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple-light">
-            国标Id：{{ nvrDetail.outId || '-' }}
+            国标ID：{{ nvrDetail.outId || '-' }}
           </div>
         </el-col>
         <el-col :span="6">
