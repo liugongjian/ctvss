@@ -29,7 +29,7 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 })
 export default class extends Vue {
   public activeRouteName: string = 'IBoxDeviceInfo'
-
+  public refreshCount = -1
   private tabToName = {
     preview: 'IBoxDevicePreview'
   }
