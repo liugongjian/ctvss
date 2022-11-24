@@ -228,10 +228,8 @@ export default class extends Mixins(AppMixin) {
     this.$router.push({
       name: 'device-detail',
       query: {
-        inProtocol: row.inProtocol,
+        ...this.$route.query,
         deviceId: row.deviceId,
-        type: row.deviceType,
-        path: row.deviceDir
       }
     })
   }

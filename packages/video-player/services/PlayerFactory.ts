@@ -2,8 +2,10 @@ import { PlayerConfig } from '../types/Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
+import { FlvH265Player } from './FlvH265Player'
 import { RtcPlayer } from './RtcPlayer'
 import { TypeEnum, CodecEnum } from '../enums'
+import { isSupportH265 } from '@vss/base/utils/video'
 
 export const createPlayer = (config: PlayerConfig) => {
   const wrapElement: HTMLDivElement = config.container
@@ -40,6 +42,16 @@ const initPlayer = (config: PlayerConfig) => {
         return new RtcPlayer(config)
     }
   } else {
-    return new H265Player(config)
+    switch (config.type) {
+      case TypeEnum.FLV:
+        if (isSupportH265()) {
+          return new FlvH265Player(config)
+        } else {
+          return new H265Player(config)
+        }
+      default:
+        return new H265Player(config)
+    }
   }
 }
+

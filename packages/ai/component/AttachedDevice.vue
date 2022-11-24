@@ -226,17 +226,11 @@ export default class extends Mixins(AppMixin) {
     })
   }
   private rowClick(row: any) {
-    // const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
-    // GroupModule.SetGroupList(this.groups)
-    // GroupModule.SetGroupListIndex(Math.ceil(this.groups.length / 20))
-    // GroupModule.SetGroup(this.groups[curGroupIndex])
     this.$router.push({
-      name: 'device-detail',
+      name: 'DeviceInfo',
       query: {
-        // inProtocol: row.inProtocol,
         deviceId: row.deviceId,
-        type: row.deviceType,
-        path: row.deviceDir
+        type: row.deviceType
       }
     })
   }
@@ -296,10 +290,6 @@ export default class extends Mixins(AppMixin) {
   }
 
   flex: 1 1 auto;
-
-  .svg-icon {
-    // margin: 0 8px;
-  }
 
   .alarm-container {
     display: flex;

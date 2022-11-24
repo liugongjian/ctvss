@@ -35,8 +35,8 @@
             <el-button type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data)">轮巡</el-button>
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data)">一键播放</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data, statusEnum.On)">轮巡</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data, statusEnum.On)">一键播放</el-button>
           </template>
         </hover-selector>
       </el-tooltip>
