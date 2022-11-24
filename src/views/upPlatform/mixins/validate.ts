@@ -77,7 +77,7 @@ export default class Validate extends Vue {
       res.push(...this.flatTree(item))
     })
     let errorDirNodeData = []
-    const regx = /^\+?[1-9][0-9]*$/
+    const regx = /^\+?[0-9][0-9]*$/
     res.forEach(x => {
       const isNumber = regx.test(x.upGbId)
       if (!isNumber) {

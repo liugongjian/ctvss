@@ -387,9 +387,10 @@ export default class extends Mixins(Validate) {
     } catch (e) {
       resolve([])
     } finally {
+      this.removeDeleteNodes(node)
       this.appendDragInNodes(node)
-      this.removeDeleteNodes()
       this.tagNvrUnloaded(node)
+      debugger
     }
   }
 
@@ -667,8 +668,8 @@ export default class extends Mixins(Validate) {
         } else {
           dirs = await this.loadAll(node)
           dirTree.updateKeyChildren(node.data.id, dirs)
+          this.removeDeleteNodes(node)
           this.appendDragInNodes(node)
-          this.removeDeleteNodes()
           node.expanded = true
           node.loaded = true
         }
@@ -693,9 +694,6 @@ export default class extends Mixins(Validate) {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
-    console.log('this.deleteNodes:', this.deleteNodes)
-    console.log('selectSharedDevice  node:', node)
     this.selectedNode = node
   }
 
@@ -761,7 +759,7 @@ export default class extends Mixins(Validate) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
-    // // // 插入一个空节点用于占位
+    // 插入一个空节点用于占位
     let emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
@@ -947,10 +945,6 @@ export default class extends Mixins(Validate) {
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
     try {
-      await shareDevice({
-        platformId: this.platformId,
-        dirs: param
-      })
       this.deleteNodes.forEach(async dnode => {
         await cancleShareDevice({
           platformId: this.platformId,
@@ -960,6 +954,11 @@ export default class extends Mixins(Validate) {
           }))
         })
       })
+      await shareDevice({
+        platformId: this.platformId,
+        dirs: param
+      })
+
       this.$message.success('修改成功！')
       this.closeDialog(true)
     } catch (e) {
@@ -1147,30 +1146,37 @@ export default class extends Mixins(Validate) {
     }
   }
 
-  private removeDeleteNodes() {
+  private removeDeleteNodes(node) {
     const vgroupTree: any = this.$refs.vgroupTree
     const dirTree: any = this.$refs.dirTree
     this.deleteNodes.forEach(dir => {
-      dir.devices.forEach(device => {
-        const node = vgroupTree.getNode(device)
-        if (node) {
-          const parentDir = node.parent.data.type === 'nvr' ? node.parent.parent : node.parent
-          if (node && parentDir.data.id === dir.dirId) {
-            vgroupTree.remove(device)
-            const removedNode = dirTree.getNode(device)
-            if (removedNode) {
-              removedNode.data.disabled = false
-              removedNode.checked = false
+      if (node && node.data.id === dir.dirId) {
+        dir.devices.forEach(device => {
+          const node = vgroupTree.getNode(device)
+          if (node) {
+            const parentDir = node.parent.data.type === 'nvr' ? node.parent.parent : node.parent
+            if (node && parentDir.data.id === dir.dirId) {
+              if (node.data.type === 'nvr') {
+                node.data.channels.forEach(channel => {
+                  const cnode = vgroupTree.getNode(channel.deviceId)
+                  cnode && vgroupTree.remove(cnode)
+                })
+              }
+              vgroupTree.remove(device)
+              const removedNode = dirTree.getNode(device)
+              if (removedNode) {
+                removedNode.data.disabled = false
+                removedNode.checked = false
+              }
             }
           }
-        }
-      })
+        })
+      }
     })
   }
 
   // 目前只操作设备的删除，ipc & nvr
   private deleteNode(node) {
-    debugger
     const dirTree: any = this.$refs.dirTree
     const parentDirId = node.parent.data.type === 'nvr' ? node.parent.parent.data.dirId : node.parent.data.dirId
     if (node.data.sharedFlag) {
@@ -1216,13 +1222,14 @@ export default class extends Mixins(Validate) {
       }
       // remove之后，树竟然不清除节点，真他妈坑
       const vgroupTree: any = this.$refs.vgroupTree
+
       if (vgroupTree.store.nodesMap[node.data.id]) {
-        this.$delete(vgroupTree.store.nodesMap, node.data.id)
         if (node.data.type === 'nvr') {
           node.childNodes.forEach(child => {
             this.$delete(vgroupTree.store.nodesMap, child.data.id)
           })
         }
+        this.$delete(vgroupTree.store.nodesMap, node.data.id)
       }
     }
     if (node.data.type === 'nvr') {
