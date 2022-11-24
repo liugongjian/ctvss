@@ -693,7 +693,7 @@ export default class IBox extends Mixins(HandleMixin) {
   }
 
   &__tree-status {
-    margin-right: 5px;
+    margin: 2px 5px 0;
 
     &__off {
       color: #6e7c89;
@@ -705,8 +705,8 @@ export default class IBox extends Mixins(HandleMixin) {
 
     &__stream {
       position: absolute;
-      top: -1px;
-      left: -3px;
+      top: 0;
+      left: 2px;
       width: 6px;
       height: 6px;
       opacity: 0.7;
