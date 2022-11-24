@@ -179,6 +179,7 @@ export default class extends Mixins(detailMixin) {
       inProtocol: this.inProtocol,
       deviceFrom: this.deviceFrom,
       isRoleShared: this.isRoleShared,
+      deviceChannelNum: this.deviceChannelNum
     }
     return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
   }

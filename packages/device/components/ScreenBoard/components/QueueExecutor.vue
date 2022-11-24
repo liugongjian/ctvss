@@ -140,15 +140,18 @@ export default class extends ComponentMixin {
    * 轮巡视频
    */
   private pollingVideos() {
+    const frameShotList = this.preloadFrameShot()
+    console.log(frameShotList)
     const length = this.devicesQueue.length
     this.currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
       const deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
+      // const deviceInfo = this.devicesQueue[0]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
       this.screenList[i].inProtocol = deviceInfo.inProtocol
-      this.screenList[i].poster = deviceInfo.poster
+      this.screenList[i].poster = frameShotList[i]
       this.screenList[i].isLive = this.screenManager.isLive
       this.screenList[i].init()
       if (currentIndex < this.maxSize - 1) {
@@ -159,44 +162,13 @@ export default class extends ComponentMixin {
     }
     this.currentExecuteIndex = this.currentExecuteIndex + this.maxSize
     // this.preloadFrameShot(this.maxSize)
-    this.preloadFrameShot(this.maxSize)
   }
 
   /**
    * 预加载分屏数相等数量的视频截图作为封面
-   * @param size 分屏数
    */
-  private async preloadFrameShot(size: number) {
-    let cur = this.currentExecuteIndex
-    const params = {
-      frames: []
-    }
-    for (let i = 0; i < size; i++) {
-      console.log(this.devicesQueue[cur + i], size)
-      // 如果剩余视频不够分屏数，则从头开始
-      if (!this.devicesQueue[cur + i]) {
-        cur = -i
-      }
-      const { id, inProtocol } = this.devicesQueue[cur + i]
-      params.frames.push({
-        stream: id,
-        inProtocol
-      })
-    }
-    try {
-      const res = await getAlgoStreamFrameShot(params) || {}
-      if (res.frames) {
-        const frames = res.frames
-        let index = this.currentExecuteIndex
-        while (frames.length) {
-          this.devicesQueue[index].poster = 'data:image/png;base64,' + frames.shift().frame
-          index++
-        }
-        console.log(this.devicesQueue)
-      }
-    } catch (e) {
-      console.log(e)
-    }
+  private preloadFrameShot() {
+    return this.screenList.map(screen => screen.snapshot())
   }
 
   /**

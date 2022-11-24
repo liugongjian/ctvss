@@ -182,6 +182,7 @@ export function checkDeviceToolsVisible(type: DeviceTypeEnum | DirectoryTypeEnum
     }
   }
 
+  console.log(data)
   // nvr通道特殊处理
   if (data && data[DeviceEnum.DeviceChannelNum] > 0) {
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
