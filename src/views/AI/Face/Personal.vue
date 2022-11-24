@@ -39,7 +39,7 @@
         <el-table-column prop="imgString" label="头像">
           <template slot-scope="{row}">
             <div class="image-container">
-              <el-image :src="row.faceCropUrls[0]"></el-image>
+              <el-image :src="row.faceCropUrls[0]" />
             </div>
           </template>
         </el-table-column>
@@ -119,7 +119,7 @@ export default class extends Vue {
     }
     try {
       const res = await listPerson(params)
-      this.dataList = res.data
+      this.dataList = res.persons
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
