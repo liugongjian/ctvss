@@ -329,5 +329,22 @@
     @include fullscreen();
 
     height: 100% !important;
+
+    .screen-grid-wrap {
+      position: fixed;
+      z-index: 2002;
+      right: 0;
+      left: 0;
+      top: 0;
+      height: calc(100% - 108px)
+    }
+
+    .screen-tools {
+      position: fixed;
+      z-index: 2002;
+      right: 0;
+      left: 0;
+      bottom: 0;
+    }
   }
 }
