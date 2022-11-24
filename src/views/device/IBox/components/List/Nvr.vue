@@ -122,7 +122,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-if=" row.streams.length && row.streams[0].streamStatus === 'on'" :command="{type: 'stop', device: row}">停用流</el-dropdown-item>
                 <el-dropdown-item v-else :command="{type: 'start', device: row}">启用流</el-dropdown-item>
-                <el-dropdown-item :command="{type: 'delete', device: row}">删除</el-dropdown-item>
+                <!-- <el-dropdown-item :command="{type: 'delete', device: row}">删除</el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
           </template>
