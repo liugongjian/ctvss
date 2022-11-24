@@ -145,34 +145,6 @@ export class Player {
   }
 
   /**
-   * 截图
-   */
-  public snapshot() {
-    const getCanvas = (): HTMLCanvasElement => {
-      let canvas: HTMLCanvasElement
-      // WASM播放器直接返回Canvas对象
-      if (this.canvas) {
-        /**
-         * 需要修改EasyWasmPlayer.js
-         * 在getContext webgl 增加 preserveDrawingBuffer: true
-         */
-        canvas = this.canvas
-      } else {
-        const $video = this.video
-        if (!$video) return
-        canvas = document.createElement('canvas')
-        canvas.width = $video.videoWidth
-        canvas.height = $video.videoHeight
-        canvas?.getContext('2d').drawImage($video, 0, 0, canvas.width, canvas.height)
-      }
-      return canvas
-    }
-
-    const canvas = getCanvas()
-    return canvas.toDataURL('image/png')
-  }
-
-  /**
    * 设置默认值
    */
   protected setDefault() {
@@ -239,6 +211,34 @@ export class Player {
         this.isDebug && console.log(e)
       }
     }
+  }
+
+  /**
+   * 截图
+   */
+  public snapshot() {
+    const getCanvas = (): HTMLCanvasElement => {
+      let canvas: HTMLCanvasElement
+      // WASM播放器直接返回Canvas对象
+      if (this.canvas) {
+        /**
+         * 需要修改EasyWasmPlayer.js
+         * 在getContext webgl 增加 preserveDrawingBuffer: true
+         */
+        canvas = this.canvas
+      } else {
+        const $video = this.video
+        if (!$video) return
+        canvas = document.createElement('canvas')
+        canvas.width = $video.videoWidth
+        canvas.height = $video.videoHeight
+        canvas?.getContext('2d').drawImage($video, 0, 0, canvas.width, canvas.height)
+      }
+      return canvas
+    }
+
+    const canvas = getCanvas()
+    return canvas.toDataURL('image/png')
   }
 
   /**
