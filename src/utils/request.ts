@@ -111,6 +111,10 @@ function requestTransform(config: AxiosRequestConfig) {
   if (config.url.includes('/v1/gbcode/') && config.method === 'get') {
     config.params = toUpperCase(config.params)
   }
+
+  if (config.url.includes('/v1/device/customGbId') && config.method === 'get') {
+    config.params = JSON.parse(JSON.stringify(config.params).replace('inVideoProtocol', 'inProtocol'))
+  }
   return config
 }
 
