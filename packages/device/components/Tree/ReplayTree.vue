@@ -24,14 +24,14 @@
       <svg-icon v-if="checkTreeItemStatus(data)" :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" name="playing" class="playing" />
       <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
-    <template slot="itemTools" slot-scope="{ node, data }">
+    <template slot="itemTools" slot-scope="{ data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
           <template slot="tooltipBase">
             <el-button type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
-            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, node)">一键播放</el-button>
+            <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.AutoPlay, data)">一键播放</el-button>
           </template>
         </hover-selector>
       </el-tooltip>

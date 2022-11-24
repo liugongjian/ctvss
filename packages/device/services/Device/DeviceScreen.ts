@@ -37,7 +37,8 @@ const executeQueue = async function (
   getVueComponent,
   node: any,
   isRoot: boolean,
-  policy: 'polling' | 'autoPlay'
+  policy: 'polling' | 'autoPlay',
+  status: StatusEnum
 ) {
   const state: {
     currentDir?: any,
@@ -57,12 +58,13 @@ const executeQueue = async function (
       state.screenManager.executeQueueConfig.query = {
         id: state.currentDir.id,
         type: state.currentDir.type,
-        deviceStatus: policy === 'polling' ? StatusEnum.On : StatusEnum.Off
+        deviceStatus: status,
+        pollThreshold: 1000
       }
       state.screenManager.executeQueueConfig.pageNum = 1
       state.screenManager.devicesQueue = []
       pollingMask.isLoading = true
-      await state.queueExecutor.getDevices()
+      await state.queueExecutor.getDevices(policy)
       pollingMask.isLoading = false
       state.queueExecutor.executeDevicesQueue(policy)
     } catch (e) {

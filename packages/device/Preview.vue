@@ -4,12 +4,12 @@
       <template slot="leftHeader">
         <!-- TODO -->
         <el-tooltip effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.Polling)">
+          <el-button type="text" @click="handleTools(toolsEnum.Polling, null, statusEnum.On)">
             <svg-icon name="polling-play" />
           </el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
-          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)">
+          <el-button type="text" @click="handleTools(toolsEnum.AutoPlay, null, statusEnum.On)">
             <svg-icon name="auto-play" />
           </el-button>
         </el-tooltip>

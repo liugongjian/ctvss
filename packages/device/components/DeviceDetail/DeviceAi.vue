@@ -1,5 +1,5 @@
 <template>
-  <div class="device-ai">
+  <div>
     <div v-if="!noapp">
       <div class="select">
         应用名称：
@@ -134,10 +134,6 @@ export default class extends Mixins(detailMixin) {
 //     min-width: 160px;
 //   }
 // }
-.device-ai {
-  min-width: 1100px;
-}
-
 .select {
   float: left;
   padding: 6px 20px 0 0;
