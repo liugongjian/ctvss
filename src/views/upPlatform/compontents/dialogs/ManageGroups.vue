@@ -328,6 +328,7 @@ export default class extends Mixins(Validate) {
       }]
     })
     resolve(dirs)
+    debugger
     this.setDirChecked(groups, 'dir')
 
     // this.tagNvrUnchecked(node, dirs)
@@ -1116,7 +1117,7 @@ export default class extends Mixins(Validate) {
 
   // 根据nvr节点的checked状态改变disabled
   private resetDirStatus(node) {
-    if (node.data.type === 'nvr' || node.data.type === 'dir' || node.data.type === 'platform' || node.data.type === 'platformDir') {
+    if (node.data.type === 'nvr' || node.data.type === 'dir' || node.data.type === 'platform' || node.data.type === 'platformDir' || node.data.type === 'top-group') {
       node.childNodes.forEach(child => {
         child.checked = child.data.disabled
       })
