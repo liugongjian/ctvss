@@ -33,6 +33,7 @@
             @dispatch="dispatch"
           />
         </ErrorMsg>
+        <Poster v-if="loading" :scale="currentScale" :poster="poster" />
         <slot name="container" />
       </template>
       <template slot="controlBody">
@@ -47,7 +48,7 @@
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
-        <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
+        <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <slot name="controlRight" />
       </template>
@@ -69,6 +70,7 @@ import H265Icon from './components/H265Icon.vue'
 import ErrorMsg from './components/ErrorMsg.vue'
 import Snapshot from './components/Snapshot.vue'
 import Scale from './components/Scale.vue'
+import Poster from './components/Poster.vue'
 import DigitalZoom from './components/DigitalZoom.vue'
 import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
@@ -85,6 +87,7 @@ import More from './components/More.vue'
     H265Icon,
     ErrorMsg,
     Scale,
+    Poster,
     Snapshot,
     DigitalZoom,
     Close,
@@ -149,6 +152,9 @@ export default class extends Vue {
   /* 默认缩放比例 */
   @Prop()
   private scale: string
+
+  /* 当前缩放比例 */
+  private currentScale: string = null
 
   /* 是否为直播 */
   @Prop({
@@ -281,6 +287,13 @@ export default class extends Vue {
     this.$emit('dispatch', {
       eventType: 'canplay'
     })
+  }
+
+  /**
+   * 切换画面比例
+   */
+  private onScaleChange(scale) {
+    this.currentScale = scale
   }
 
   /**

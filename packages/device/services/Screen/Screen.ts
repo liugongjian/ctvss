@@ -285,7 +285,7 @@ export class Screen {
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
-        this.poster = ''
+        this.player && this.player.disposePlayer()
         this.log.previewError = e.message
         this.log.previewRequestId = e.requestId
         this.log.previewEndTimestamp = new Date().getTime()
@@ -336,7 +336,7 @@ export class Screen {
    * @return BASE64图片
    */
   public snapshot() {
-    return this.player && this.player.snapshot()
+    return this.player && this.player.snapshot() || ''
   }
 
   /**

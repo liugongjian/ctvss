@@ -65,7 +65,57 @@ export default class extends ComponentMixin {
         playNum: this.maxSize
       }
       const res = await this.executeQueueConfig.method(params) || {}
-      this.screenManager.devicesQueue.push(...res.devices)
+      // this.screenManager.devicesQueue.push(...res.devices)
+      this.screenManager.devicesQueue = [{
+	'id': '594529078441541632',
+	'name': '级联',
+	'type': 'ipc',
+	'deviceStreamSize': 1,
+	'deviceStreamPullIndex': 1,
+	'deviceStatus': 'on',
+	'inProtocol': 'gb28181',
+	'deviceFrom': '',
+	'isRoleShared': false,
+	'orderSequence': '0',
+	'streams': [{
+		'streamNum': '1',
+		'streamStatus': 'on',
+		'streamTransType': 'ps_rtp_tcp'
+	}]
+}, {
+	'id': '603510198655123456',
+	'name': '级联',
+	'type': 'ipc',
+	'deviceStreamSize': 1,
+	'deviceStreamPullIndex': 1,
+	'deviceStatus': 'on',
+	'inProtocol': 'gb28181',
+	'deviceFrom': '',
+	'isRoleShared': false,
+	'orderSequence': '0',
+	'streams': [{
+		'streamNum': '1',
+		'streamStatus': 'on',
+		'streamTransType': 'ps_rtp_tcp'
+	}]
+}, {
+	'id': '597399611241447424',
+	'name': '级联',
+	'type': 'ipc',
+	'deviceStreamSize': 1,
+	'deviceStreamPullIndex': 1,
+	'deviceStatus': 'on',
+	'inProtocol': 'gb28181',
+	'deviceFrom': '',
+	'isRoleShared': false,
+	'orderSequence': '0',
+	'streams': [{
+		'streamNum': '1',
+		'streamStatus': 'on',
+		'streamTransType': 'ps_rtp_tcp'
+	}]
+}
+]
       this.executeQueueConfig.total = res.totalSize
       this.executeQueueConfig.pageNum++
     }
@@ -146,7 +196,7 @@ export default class extends ComponentMixin {
     this.currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].destroy()
+      // this.screenList[i].destroy()
       const deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       // const deviceInfo = this.devicesQueue[0]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
