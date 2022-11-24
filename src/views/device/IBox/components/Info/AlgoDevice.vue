@@ -29,7 +29,7 @@
         :class="{online: data.deviceStatus === 'on'}"
       >
         <span class="node-name">
-          <status-badge v-if="data.deviceType==='ipc'" :status="data.streamStatus" />
+          <status-badge v-if="data.deviceType==='ipc' && data.streamStatus==='on'" :status="data.streamStatus" />
           <svg-icon
             :name="data.deviceType || 'ipc'"
             width="15"
