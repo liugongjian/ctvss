@@ -718,6 +718,7 @@ export default class IBox extends Mixins(HandleMixin) {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    height: 20px;
   }
 
   &__btnbox {
