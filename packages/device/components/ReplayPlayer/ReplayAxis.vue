@@ -31,6 +31,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@vss/base/utils/date'
 import { prefixZero } from '@vss/base/utils/number'
 import { Screen } from '@vss/device/services/Screen/Screen'
+import { RecordType } from '@vss/device/enums'
 import { throttle } from 'lodash'
 import TimeEditer from './TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -152,11 +153,11 @@ export default class extends Vue {
     if (new Date().getTime() - this.lastUpdateTime < 1000) return
     if (this.screen && this.screen.player && this.screen.player.currentTime) {
       const recordCurrentTime = this.screen.player.currentTime
-      if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
+      if (this.screen.recordType === RecordType.Cloud && this.recordManager.currentRecord) {
         const offsetTime = this.recordManager.currentRecord.offsetTime || 0
         const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
         this.currentTime = this.recordManager.currentRecord.startTime + duration
-      } else if (this.screen.recordType === 1) {
+      } else if (this.screen.recordType === RecordType.Device) {
         this.currentTime = this.recordManager.localStartTime + recordCurrentTime
       }
       this.lastUpdateTime = new Date().getTime()

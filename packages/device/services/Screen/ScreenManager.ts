@@ -2,7 +2,7 @@
  * 分屏管理器
  */
 import { Screen } from './Screen'
-import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
+import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@vss/base/utils/storage'
 import { UserModule } from '@/store/modules/user'
 import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
