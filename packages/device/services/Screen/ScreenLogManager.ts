@@ -1,7 +1,7 @@
-import { getLocalStorage, setLocalStorage } from '@/utils/storage'
+import { getLocalStorage, setLocalStorage } from '@vss/base/utils/storage'
 import { UserModule } from '@/store/modules/user'
-import { msFormate } from '@/utils/date'
-import { saveLogs } from '@/api/log'
+import { msFormate } from '@vss/base/utils/date'
+import { saveLogs } from '@vss/device/api/log'
 
 const SCREEN_LOGS_KEY = 'screenLogs'
 

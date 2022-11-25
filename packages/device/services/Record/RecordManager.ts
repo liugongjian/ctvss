@@ -4,7 +4,7 @@
 import axios, { CancelTokenSource } from 'axios'
 import { Record } from './Record'
 import { Screen } from '../Screen/Screen'
-import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
+import { getTimestamp, getLocaleDate, getDateByTime } from '@vss/base/utils/date'
 import {
   getDeviceRecords,
   getDeviceRecordStatistic,
@@ -12,9 +12,10 @@ import {
   describeHeatMap,
   getDevicePreview,
   setRecordScale
-} from '@/api/device'
+} from '@vss/device/api/device'
+import { RecordType } from '@vss/device/enums'
 import { UserModule } from '@/store/modules/user'
-import { VSSError } from '@/utils/error'
+import { VSSError } from '@vss/base/utils/error'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -179,7 +180,7 @@ export class RecordManager {
            * 0云端：获取第一段录像
            * 1本地：获取URL
            */
-          if (this.screen.recordType === 0) {
+          if (this.screen.recordType === RecordType.Cloud) {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
@@ -264,7 +265,7 @@ export class RecordManager {
       }
 
       if (record) {
-        if (this.screen.recordType === 0) {
+        if (this.screen.recordType === RecordType.Cloud) {
           // 云端录像
           if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
             this.currentRecord = record
@@ -275,18 +276,6 @@ export class RecordManager {
           }
         } else {
           // 本地录像
-          // try {
-          //   this.screen.isLoading = true
-          //   const res = await this.getLocalUrl(time)
-          //   this.screen.codec = res.codec
-          //   this.screen.url = res.url
-          // } catch (e) {
-          //   if (e.code !== -2 && e.code !== -1) {
-          //     this.screen.errorMsg = e.message
-          //   }
-          // } finally {
-          //   this.screen.isLoading = false
-          // }
           this.updateLocalUrl(time)
         }
       } else {
@@ -295,6 +284,8 @@ export class RecordManager {
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
         this.screen.isLoading = false
+        this.screen.url = null
+        this.currentRecord = null
         if (!this.isLoading) {
           // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
           throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
@@ -312,6 +303,7 @@ export class RecordManager {
       this.screen.player = null
       this.screen.isLoading = false
       this.screen.url = ''
+      this.currentRecord = null
     }
   }
 
@@ -319,12 +311,10 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
-    // const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
-    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    const nextRecord = this.currentRecord ? 
+                        this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
+                        : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
-      // this.currentRecord = nextRecord
-      // const date = getDateByTime(this.currentRecord.startTime, 's')
-      // this.currentDate = date
       if (this.currentRecord) {
         //云端
         this.currentRecord = nextRecord
@@ -421,7 +411,7 @@ export class RecordManager {
    */
   public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
-      if (this.screen.recordType === 1) {
+      if (this.screen.recordType === RecordType.Device) {
         this.recordStatistic = new Set()
         return
       }
