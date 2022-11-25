@@ -96,6 +96,7 @@
         <div ref="tableContainer" class="list-wrap__body__table">
           <el-table
             ref="deviceTable"
+            :key="tableKey"
             v-loading="loading.table"
             :height="tableMaxHeight"
             :data="deviceList"
@@ -360,6 +361,7 @@ export default class extends Mixins(deviceMixin) {
   private dicts = dicts
   private dateFormat = dateFormat
 
+  private tableKey: string = 'ct' + new Date().getTime()
   private deviceList: Array<Device> = []
   private selectedDeviceList: Array<Device> = []
   private tableMaxHeight: any = null
@@ -479,7 +481,8 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get deviceTable() {
-    return this.$refs.deviceTable as any
+    // table与tableKey实现数据响应关联
+    return this.tableKey && this.$refs.deviceTable as any
   }
 
   private get currentDirId() {
@@ -595,6 +598,8 @@ export default class extends Mixins(deviceMixin) {
     this.deviceList = res.devices
     this.pager.totalNum = +res.totalNum
     this.loading.table = false
+    // 更新table组件key值以保证组件重新渲染
+    this.tableKey = 'ct' + new Date().getTime()
   }
 
   /**
