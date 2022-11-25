@@ -227,6 +227,16 @@
                 {{ row[deviceEnum.DeviceVendor] || '-' }}
               </template>
             </el-table-column>
+            <el-table-column v-if="checkColumnsVisible(deviceEnum.OutId)" :key="deviceEnum.OutId" :prop="deviceEnum.OutId" label="国标ID" min-width="200">
+              <template slot-scope="{ row }">
+                {{ row[deviceEnum.OutId] || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column v-if="checkColumnsVisible(deviceEnum.CreatedTime)" :key="deviceEnum.DeviCreatedTimeceVendor" :prop="deviceEnum.CreatedTime" label="创建时间" min-width="200">
+              <template slot-scope="{ row }">
+                {{ dateFormat(row[deviceEnum.CreatedTime]) || '-' }}
+              </template>
+            </el-table-column>
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
               <template slot-scope="{ row }">
                 <el-button type="text" :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, [policyEnum.ScreenPreview], row)" @click="handleListTools(toolsEnum.PreviewVideo, row)">实时预览</el-button>
@@ -647,7 +657,7 @@ export default class extends Mixins(deviceMixin) {
    * @param type 目录类型
    */
   private checkColumnsVisible(prop, type = this.currentDirType) {
-    return checkDeviceColumnsVisible(type, prop)
+    return checkDeviceColumnsVisible(type, prop, this.inProtocol)
   }
 
   /**
