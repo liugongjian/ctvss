@@ -10,7 +10,6 @@
 import { Component, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@vss/base/utils/date'
 import { isIE } from '@vss/base/utils/browser'
-import { CodecEnum } from '@vss/video-player/enums'
 import ComponentMixin from './mixin'
 
 @Component({

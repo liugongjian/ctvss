@@ -3,9 +3,9 @@ import screenLogManager from './ScreenLogManager'
 import { DeviceInfo, StreamInfo } from '@vss/vss-video-player/types/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
 import { Player } from '@vss/video-player/services/Player'
-import { getDevicePreview } from '@/api/device'
+import { getDevicePreview } from '@vss/device/api/device'
 import { Stream } from '@vss/device/type/Device'
-import { Codec, StatusEnum } from '@vss/device/enums/index'
+import { Codec, StatusEnum, RecordType } from '@vss/device/enums'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 
 export class Screen {
@@ -65,7 +65,7 @@ export class Screen {
   /* 录像管理器实例 */
   public recordManager: RecordManager
   /* 录像类型 0-云端，1-本地 */
-  public recordType: 0 | 1
+  public recordType: RecordType
   /* 当前时间（时间戳/秒），用于缓存恢复和同步向相邻录像时间 */
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
@@ -118,7 +118,7 @@ export class Screen {
     this.poster = ''
     this.url = ''
     this.hasRtc = false
-    this.recordType = 0
+    this.recordType = RecordType.Cloud
     this.currentRecordDatetime = null
     this._volume = null
     this._isMuted = null
@@ -285,6 +285,7 @@ export class Screen {
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
+        this.player && this.player.disposePlayer()
         this.log.previewError = e.message
         this.log.previewRequestId = e.requestId
         this.log.previewEndTimestamp = new Date().getTime()
@@ -334,8 +335,8 @@ export class Screen {
    * 截图
    * @return BASE64图片
    */
-  private snapshot() {
-    return this.player && this.player.snapshot()
+  public snapshot() {
+    return this.player && this.player.snapshot() || ''
   }
 
   /**

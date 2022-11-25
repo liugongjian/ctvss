@@ -11,7 +11,7 @@
       <li
         v-for="item in scaleKind"
         :key="item.kind"
-        :class="{'selected': scale === item.kind}"
+        :class="{ 'selected': scale === item.kind }"
         @click.stop.prevent="scaleVideo(item.kind)"
       >
         {{ item.label }}
@@ -120,6 +120,7 @@ export default class extends ComponentMixin {
         video.style.objectFit = 'fill'
         break
     }
+    this.$emit('change', this.scale)
   }
 
   /**

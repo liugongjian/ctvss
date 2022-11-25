@@ -58,6 +58,7 @@ import { checkPermission } from '@/utils/permission'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { Screen } from '@vss/device/services/Screen/Screen'
+import { RecordType } from '@vss/device/enums'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
@@ -121,7 +122,7 @@ export default class extends Vue {
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
-    if (this.screen.recordType === 0) {
+    if (this.screen.recordType === RecordType.Cloud) {
       this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
       this.type = 'hls'
       this.codec = this.recordManager.currentRecord && this.recordManager.currentRecord.codec
@@ -177,7 +178,7 @@ export default class extends Vue {
    * 本地录像设置倍速播放
    */
   private setPlaybackRate(playbackRate: number) {
-    if (this.screen.recordType === 1) {
+    if (this.screen.recordType === RecordType.Device) {
       this.recordManager.setPlaybackRate(playbackRate)
     }
   }

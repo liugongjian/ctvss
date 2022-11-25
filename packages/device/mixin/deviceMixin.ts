@@ -43,6 +43,11 @@ export default class DeviceMixin extends Vue {
     return this.device.viids && this.device.viids.length
   }
 
+  // 设备通道号
+  public get deviceChannelNum() {
+    return this.device.device && this.device.device.deviceChannelNum
+  }
+
   // 设备或目录来源
   public get deviceFrom() {
     if (this.deviceType === DirectoryTypeEnum.Dir) {
