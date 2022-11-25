@@ -1,7 +1,7 @@
 <!-- 比例 -->
 <template>
   <div class="poster-container">
-    <div ref="poster" class="poster" :style="`background: url(${poster}) no-repeat;`" />
+    <div ref="poster" class="poster" :style="`background-image: url(${poster});`" />
   </div>
 </template>
 <script lang="ts">
@@ -18,9 +18,8 @@ export default class extends ComponentMixin {
   @Prop()
   private scale
 
-  @Watch('scale', {
-    immediate: true
-  })
+  @Watch('scale', { immediate: true })
+  @Watch('poster')
   private onScaleChange() {
     this.scalePoster(this.scale)
   }
@@ -80,5 +79,9 @@ export default class extends ComponentMixin {
     top: 0;
     display: flex;
     align-items: center;
+
+    .poster {
+      background-size: 100% 100%;
+    }
   }
 </style>

@@ -33,7 +33,7 @@
             @dispatch="dispatch"
           />
         </ErrorMsg>
-        <Poster v-if="loading" :scale="currentScale" :poster="poster" />
+        <Poster v-show="loading" :scale="currentScale" :poster="poster" />
         <slot name="container" />
       </template>
       <template slot="controlBody">
@@ -43,7 +43,7 @@
       </template>
       <template slot="controlRight">
         <StreamSelector :stream-info="player && streamInfo" @dispatch="dispatch" />
-        <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
+        <TypeSelector v-if="hasTypeSelector && codec !== CodecEnum.H265" :type="type" @dispatch="dispatch" />
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
@@ -58,9 +58,9 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import Player from '@vss/video-player/index.vue'
-import { PlayerType } from '@/components/Player/types/Player.d'
-import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
-import { Player as PlayerModel } from '@/components/Player/services/Player'
+import { TypeEnum, CodecEnum } from '@vss/video-player/enums/index'
+import { PlayerEvent, DeviceInfo, StreamInfo } from './types/VssPlayer'
+import { Player as PlayerModel } from '@vss/video-player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 import './styles/index.scss'
 /**
@@ -106,7 +106,7 @@ import More from './components/More.vue'
 export default class extends Vue {
   /* 播放器类型 */
   @Prop()
-  private type!: PlayerType
+  private type!: TypeEnum
 
   /* 播放流地址 */
   @Prop()
@@ -215,10 +215,8 @@ export default class extends Vue {
   /* 播放器实例 */
   private player: PlayerModel = null
 
-  /* 如视频编码为H265，播放器类型变为h265 */
-  // private get playerType() {
-  //   return this.codec === 'h265' ? 'h265' : this.type
-  // }
+  /* 编码方式 */
+  private CodecEnum = CodecEnum
 
   /* 获取转换协议后的URL */
   private get videoUrl() {

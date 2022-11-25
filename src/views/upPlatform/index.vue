@@ -456,8 +456,10 @@ export default class extends Vue {
       const res = await describeShareDevices(params)
       this.dataList = res.devices
       this.pager.total = res.totalNum
+      const dirTree: any = this.$refs.dirTree
+      const dirNode = dirTree.getNode(this.currentNodeData)
       // 是否删除目录
-      if (isDelete && node.dirId && this.dataList.length === 0) {
+      if (isDelete && node.dirId && this.dataList.length === 0 && dirNode.childNodes.length === 0) {
         try {
           await cancleShareDir({
             platformId: this.currentPlatform.platformId,
