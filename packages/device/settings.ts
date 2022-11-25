@@ -312,6 +312,7 @@ export const DeviceTypeDenyParamsForVideo = {
 export const DeviceTypeDenyParamsForIbox = new Set([
   DeviceEnum.DeviceInType,
   DeviceEnum.DeviceInTypeRadio,
+  DeviceEnum.Region,
   DeviceEnum.Resource,
   DeviceEnum.Viids
 ])

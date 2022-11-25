@@ -138,7 +138,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item :prop="deviceEnum.Region" class="form-with-tip">
+            <el-form-item v-if="checkVisible(deviceEnum.Region)" :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
