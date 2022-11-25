@@ -78,6 +78,9 @@ export function checkVideoVisible(
   }
 
   // 过滤IBOX的字段
+  if (this.isIbox) {
+    console.log(DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum), prop)
+  }
   if (this.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
   // 编辑状态下不显示视频接入协议
