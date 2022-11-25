@@ -11,6 +11,7 @@ import Hamburger from './components/Hamburger/index.vue'
 import HoverSelector from './components/HoverSelector/index.vue'
 import Pagination from './components/Pagination/index.vue'
 import StatusBadge from './components/StatusBadge/index.vue'
+import CopyTip from './components/CopyTip/index.vue'
 
 /**
  * 指令清单
@@ -23,7 +24,8 @@ const componentsList = [
   Hamburger,
   HoverSelector,
   Pagination,
-  StatusBadge
+  StatusBadge,
+  CopyTip
 ]
 
 const directivesList = [

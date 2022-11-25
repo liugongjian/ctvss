@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="[{'is-active': isActive}]"
+    :class="[{ 'is-active': isActive }]"
     @click="toggleClick"
   >
     <svg-icon
