@@ -121,6 +121,7 @@ export default class HandleMixin extends Vue {
       this.syncDeviceStream(query)
     } catch (error) {
       console.log(error)
+      this.$message.error(error || '设备的流状态已经下线，请勿重复操作')
     }
   }
 
@@ -141,6 +142,7 @@ export default class HandleMixin extends Vue {
       this.syncDeviceStream(query)
     } catch (error) {
       console.log(error)
+      this.$message.error(error || '设备的流状态已经下线，请勿重复操作')
     }
   }
 
