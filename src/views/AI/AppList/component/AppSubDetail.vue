@@ -50,7 +50,7 @@
             </el-select>
           </div>
         </span>
-        <span>
+        <span class="refresh-button">
           <el-button
             class="el-button-rect"
             :disabled="dataLoading"
@@ -541,6 +541,10 @@ export default class extends Vue {
   // height: 36px;
   margin-bottom: 20px;
   line-height: 52px;
+  display: flex;
+  .refresh-button{
+    margin-left: auto;
+  }
 
   & > span {
     margin-right: 20px;
