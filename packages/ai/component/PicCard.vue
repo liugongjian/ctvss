@@ -67,6 +67,7 @@ export default class extends Vue {
       // 老算法code，则转为新算法的code
       this.type = EventTypeToCode[this.type]
     }
+    debugger
     if (AlgoConfigs.algos[this.type]?.getData) {
       locations = AlgoConfigs.algos[this.type].getData(metaData)
     } else {
