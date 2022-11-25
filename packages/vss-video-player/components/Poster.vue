@@ -21,7 +21,7 @@ export default class extends ComponentMixin {
   @Watch('scale', { immediate: true })
   @Watch('poster')
   private onScaleChange() {
-    this.scalePoster(this.scale)
+    this.player && this.scalePoster(this.scale)
   }
 
   /**

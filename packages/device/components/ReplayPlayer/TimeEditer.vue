@@ -273,7 +273,14 @@ export default class extends Vue {
   private isDayUnfocus(val: any) {
     if (+this.timeEditer[1]['val'] === 2) {
       return !(+val <= 0 || +val > 28)
-    } else if (+this.timeEditer[1]['val'] === 1 || +this.timeEditer[1]['val'] === 3 || +this.timeEditer[1]['val'] === 5 || +this.timeEditer[1]['val'] === 7 || +this.timeEditer[1]['val'] === 8 || +this.timeEditer[1]['val'] === 10 || +this.timeEditer[1]['val'] === 12) {
+    } else if (+this.timeEditer[1]['val'] === 1 
+              || +this.timeEditer[1]['val'] === 3 
+              || +this.timeEditer[1]['val'] === 5 
+              || +this.timeEditer[1]['val'] === 7 
+              || +this.timeEditer[1]['val'] === 8 
+              || +this.timeEditer[1]['val'] === 10 
+              || +this.timeEditer[1]['val'] === 12) 
+    {
       return !(+val <= 0 || +val > 31)
     } else {
       return !(+val <= 0 || +val > 30)
@@ -323,7 +330,9 @@ export default class extends Vue {
 
   /* 将 inputs 提交的时间转换为毫秒 */
   private calcTimeReverse() {
-    const formatTime = this.timeEditer[0]['val'] + '-' + this.timeEditer[1]['val'] + '-' + this.timeEditer[2]['val'] + ' ' + this.timeEditer[3]['val'] + ':' + this.timeEditer[4]['val'] + ':' + this.timeEditer[5]['val']
+    const formatTime = this.timeEditer[0]['val'] + '-' + this.timeEditer[1]['val']
+                        + '-' + this.timeEditer[2]['val'] + ' ' + this.timeEditer[3]['val']
+                        + ':' + this.timeEditer[4]['val'] + ':' + this.timeEditer[5]['val']
     return new Date(formatTime).getTime()
   }
 
