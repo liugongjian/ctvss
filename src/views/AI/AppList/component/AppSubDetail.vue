@@ -542,9 +542,9 @@ export default class extends Vue {
   margin-bottom: 20px;
   line-height: 52px;
   display: flex;
-  .refresh-button{
-    margin-left: auto;
-  }
+  // .refresh-button{
+  //   margin-left: auto;
+  // }
 
   & > span {
     margin-right: 20px;
