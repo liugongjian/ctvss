@@ -573,8 +573,8 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
       [DeviceEnum.StreamStatus]: this.filterForm[DeviceEnum.StreamStatus],
-      // [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
-      // [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
+      [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.ViidStatus],
       [DeviceEnum.PageNum]: this.pager.pageNum,
       [DeviceEnum.PageSize]: this.pager.pageSize
     }
