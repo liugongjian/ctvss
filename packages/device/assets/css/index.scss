@@ -29,7 +29,7 @@
 .device-container {
   flex: 1;
   display: flex;
-
+  min-width: 1105px;
   /* device-list */
   .list-wrap {
     flex: 1;
