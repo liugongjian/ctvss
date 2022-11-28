@@ -89,13 +89,13 @@ function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     // TODO: 后续删除灰度判断
     // const resData = UserModule.version === 2 ? response.data.data : response.data.data
-    let resData:AxiosResponse
+    let resData: AxiosResponse
     // 过滤 导出接口 返回
-    const ifExport = (config:any)=>{return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice')}
-    if(ifExport(response.config)){
+    const ifExport = (config: any)=>{ return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice') }
+    if (ifExport(response.config)){
       resData = response
-    }else{
-      resData = UserModule.version === 2 ? response.data.data : response.data.data
+    } else {
+      resData = UserModule.version === 2 ? response.data.data : response.data
     }
     return resData as AxiosResponse
   } else {
