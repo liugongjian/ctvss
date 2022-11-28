@@ -12,6 +12,8 @@
 </template>
 <script lang="ts">
 import { Component, Watch, Prop, Vue } from 'vue-property-decorator'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Fullscreen'
@@ -19,6 +21,9 @@ import { Component, Watch, Prop, Vue } from 'vue-property-decorator'
 export default class extends Vue {
   @Prop()
   public isFullscreen
+
+  @Prop()
+  public type: FullscreenTypeEnum
 
   private currentFullscreen = false
 
@@ -46,6 +51,9 @@ export default class extends Vue {
    * 全屏
    */
   public fullscreen() {
+    if (this.type) {
+      ScreenModule.pushFullscreenStack(this.type)
+    }
     const element: any = document.documentElement
     if (element.requestFullscreen) {
       element.requestFullscreen()
@@ -61,8 +69,20 @@ export default class extends Vue {
 
   /**
    * 退出全屏
+   * 进入全屏时在全屏栈中存入当前分屏类型，退出后pop栈，如果剩下的栈不为空则只将当前分屏全屏模式设为false，不真正退出全屏。
+   * 此逻辑为了满足此种场景：先进入Screen Board工具栏的全屏，然后再进入单个分屏全屏，然后再退出单个分屏全屏。 
    */
   public exitFullscreen() {
+    if (this.type === FullscreenTypeEnum.Screen) {
+      ScreenModule.popFullscreenStack()
+      if (ScreenModule.fullscreenStack.length) {
+        this.currentFullscreen = false
+        return false
+      }
+    } else {
+      ScreenModule.resetFullscreenStack()
+    }
+
     const doc: any = document
     if (doc.exitFullscreen) {
       doc.exitFullscreen()
@@ -81,6 +101,8 @@ export default class extends Vue {
   public checkFullscreen() {
     if (!document.fullscreenElement) {
       this.currentFullscreen = false
+      // 按ESC退出全屏时直接清空栈
+      ScreenModule.resetFullscreenStack()
     }
   }
 }
