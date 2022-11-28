@@ -18,8 +18,9 @@ export const drawCamera = (markerOptions: markerObject, options) => {
     mColor = '#FA8334'
   }
   const cameraBg = createNode(drawCameraBg(mColor))
+  // eslint-disable-next-line max-len
   const marker = createNode('<svg class="icon-camera" style="fill:#fff; enable-background:new 0 0 198.7 179.4;" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" viewBox="0 0 198.7 179.4" xml:space="preserve"> <path d="M41.9,123.8H20.6V96.9L0,93.1v86.3l20.6-6.9v-30h33.1l18.1-24.4l-23.8-12.5L41.9,123.8z M149.4,129.4l48.1-30.6L47.5,0H30 L6.2,37.5V50l131.9,80h11.2L149.4,129.4L149.4,129.4z M131.3,135.6L17.5,61.9L5.6,74.4l131.9,80h11.9l6.2-6.2l6.2-18.1 c0,0-17.5,12.5-18.1,12.5C136.9,138.1,131.3,135.6,131.3,135.6z"/> </svg>')
-  const label = createNode(`<div class="marker-label">${mColor}, ${markerOptions.deviceLabel}</div>`)
+  const label = createNode(`<div class="marker-label">${markerOptions.deviceLabel}</div>`)
   markerContent.append(cameraBg, marker, label)
   if (markerOptions.selected) {
     let optionDiv
