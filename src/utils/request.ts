@@ -60,7 +60,8 @@ service.interceptors.response.use(
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     const resData = toLowerCase(response.data) as AxiosResponse
-    if (Array.isArray(resData)) {
+
+    if (Array.isArray(resData.data)) {
       return resData
     } else if (resData.data) {
       return resData.data
