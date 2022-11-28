@@ -62,6 +62,11 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_VERSION(version: number) {
+    this.version = version
+  }
+
+  @Mutation
   private SET_PERMS(perms: string[]) {
     this.perms = perms
   }
@@ -243,6 +248,7 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
+      this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
 
     let data: any = null

@@ -238,7 +238,6 @@ export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum, inProt
   let allowFlag = true
   // nvr列表国标ID特殊处理
   if (type === DeviceTypeEnum.Nvr && prop === DeviceEnum.OutId) {
-    console.log(inProtocol)
     allowFlag = ([InVideoProtocolEnum.Gb28181] as any).includes(inProtocol)
   }
 
