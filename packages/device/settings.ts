@@ -312,6 +312,7 @@ export const DeviceTypeDenyParamsForVideo = {
 export const DeviceTypeDenyParamsForIbox = new Set([
   DeviceEnum.DeviceInType,
   DeviceEnum.DeviceInTypeRadio,
+  DeviceEnum.Region,
   DeviceEnum.Resource,
   DeviceEnum.Viids
 ])
@@ -525,7 +526,8 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.RecordStatus,
     DeviceEnum.ViidStatus,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.DeviceVendor
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.CreatedTime
   ]),
   [DirectoryTypeEnum.Nvr]: new Set([
     DeviceEnum.DeviceChannelNum,
@@ -533,7 +535,9 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.VideoStatus,
     DeviceEnum.StreamStatus,
     DeviceEnum.RecordStatus,
-    DeviceEnum.DeviceVendor
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.OutId,
+    DeviceEnum.CreatedTime
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
     DeviceEnum.DeviceInType,
@@ -545,7 +549,8 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.RecordStatus,
     DeviceEnum.ViidStatus,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.DeviceVendor
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.CreatedTime
   ]),
   [DirectoryTypeEnum.Role]: new Set([
     DeviceEnum.DeviceInType,
@@ -557,6 +562,7 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.RecordStatus,
     DeviceEnum.ViidStatus,
     DeviceEnum.DeviceChannelSize,
-    DeviceEnum.DeviceVendor
+    DeviceEnum.DeviceVendor,
+    DeviceEnum.CreatedTime
   ])
 }

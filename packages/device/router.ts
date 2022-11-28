@@ -86,7 +86,7 @@ export const deviceRouter = {
               meta: {
                 title: '实时预览',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ScreenPreview'],
                 activeMenu: '/device'
               }
             },
@@ -97,7 +97,7 @@ export const deviceRouter = {
               meta: {
                 title: '录像回放',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ReplayRecord'],
                 activeMenu: '/device'
               }
             },
@@ -131,7 +131,7 @@ export const deviceRouter = {
           name: 'DeviceCreate',
           meta: {
             title: '创建设备',
-            perms: ['DescribeDevice'],
+            perms: ['AdminDevice'],
             activeMenu: '/device'
           }
         },
@@ -141,7 +141,7 @@ export const deviceRouter = {
           name: 'ConfigureChannels',
           meta: {
             title: '配置子通道',
-            perms: ['DescribeDevice'],
+            perms: ['AdminDevice'],
             activeMenu: '/device'
           }
         }
@@ -170,7 +170,7 @@ export const videoRouter = {
       meta: {
         title: '实时预览',
         breadcrumb: false,
-        perms: ['DescribeDevice']
+        perms: ['ScreenPreview']
       },
       children: [
         {
@@ -180,7 +180,7 @@ export const videoRouter = {
           meta: {
             title: '实时预览',
             icon: 'dot',
-            perms: ['DescribeDevice'],
+            perms: ['ScreenPreview'],
             activeMenu: '/video/preview'
           }
         }
@@ -193,7 +193,7 @@ export const videoRouter = {
       meta: {
         title: '录像回放',
         breadcrumb: false,
-        perms: ['DescribeDevice']
+        perms: ['ReplayRecord']
       },
       children: [
         {
@@ -203,7 +203,7 @@ export const videoRouter = {
           meta: {
             title: '录像回放',
             icon: 'dot',
-            perms: ['DescribeDevice'],
+            perms: ['ReplayRecord'],
             activeMenu: '/video/replay'
           }
         }
@@ -359,7 +359,7 @@ export const iboxRouter = {
               meta: {
                 title: '实时预览',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ScreenPreview'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -371,7 +371,7 @@ export const iboxRouter = {
               meta: {
                 title: '录像回放',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ReplayRecord'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -400,7 +400,7 @@ export const iboxRouter = {
           },
           meta: {
             title: '创建设备',
-            perms: ['DescribeDevice'],
+            perms: ['AdminDevice'],
             activeMenu: '/ibox',
             groupSelector: true
           }

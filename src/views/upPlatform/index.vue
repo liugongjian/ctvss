@@ -195,7 +195,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, deleteCascadeDir, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -456,13 +456,13 @@ export default class extends Vue {
       const res = await describeShareDevices(params)
       this.dataList = res.devices
       this.pager.total = res.totalNum
+      const dirTree: any = this.$refs.dirTree
+      const dirNode = dirTree.getNode(this.currentNodeData)
       // 是否删除目录
-      if (isDelete && node.dirId && this.dataList.length === 0) {
+      if (isDelete && node.dirId && this.dataList.length === 0 && dirNode.childNodes.length === 0) {
         try {
-          await cancleShareDir({
+          await deleteCascadeDir({
             platformId: this.currentPlatform.platformId,
-            inProtocol: node.inProtocol,
-            groupId: node.groupId,
             dirId: node.dirId
           })
           this.initDirs()

@@ -311,3 +311,11 @@ export enum DeviceDetailTab {
   DeviceAi = 'DeviceAi',
   DeviceViid = 'DeviceViid'
 }
+
+/**
+ * 录像类型
+ */
+export enum RecordType {
+  Cloud = '0', // 云端
+  Device = '1' // 设备本地
+}

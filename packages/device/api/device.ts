@@ -21,11 +21,13 @@ export const getDevices = (params: any): Promise<any> => {
           [DeviceEnum.StreamStatus]: '',
           [DeviceEnum.RecordStatus]: '',
           [DeviceEnum.ViidStatus]: '',
+          [DeviceEnum.OutId]: '',
           [DeviceEnum.DeviceChannelSize]: item.device[DeviceEnum.DeviceType] === DeviceTypeEnum.Nvr ? item.device[DeviceEnum.DeviceChannelSize] : '',
           [DeviceEnum.DeviceChannelNum]: item.device[DeviceEnum.DeviceChannelNum],
           [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor],
           [DeviceEnum.IsRoleShared]: item.device[DeviceEnum.IsRoleShared],
           [DeviceEnum.DeviceFrom]: item.device[DeviceEnum.DeviceFrom],
+          [DeviceEnum.CreatedTime]: item.device[DeviceEnum.CreatedTime]
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
@@ -33,6 +35,7 @@ export const getDevices = (params: any): Promise<any> => {
         if (inVideoProtocol) {
           const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
           const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
+          data[DeviceEnum.OutId] = videoInfo[DeviceEnum.OutId]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
           data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
           data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus] && videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
@@ -440,9 +443,9 @@ export const exportDeviceOption = (params: any): Promise<any> =>
     responseType: 'blob'
   })
 
-  export const exportFailDevice = (params:any):Promise<any>=>
+  export const exportFailDevice = (params: any): Promise<any>=>
   request({
-    url:'/device/exportFailedDevice',
+    url: '/device/exportFailedDevice',
     method: 'get',
     params,
     responseType: 'blob'

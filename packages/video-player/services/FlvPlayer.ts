@@ -30,7 +30,6 @@ export class FlvPlayer extends Player {
     this.FlvJS.LoggingControl.enableWarn = false
     const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
     videoElement.controls = false
-    videoElement.poster = this.poster
     this.container.innerHTML = ''
     this.container.append(videoElement)
     const flvPlayer = this.FlvJS.createPlayer({
