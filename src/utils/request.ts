@@ -7,8 +7,6 @@ import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 import { ApiMapping } from '@/api/api-mapping'
 import { whiteList } from '@/api/v1-whitelist'
-import { indexOf } from 'lodash'
-import e from 'cors'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -62,7 +60,7 @@ service.interceptors.response.use(
 // 根据用户tag转换请求url
 function requestTransform(config: AxiosRequestConfig) {
   const url = config.url
-  if (UserModule.version === 2 && !whiteList.includes(url)) {
+  if (UserModule.version === 2 || whiteList.includes(url)) {
     config.url = '/v2' + url
   } else {
     const apiList = Object.keys(ApiMapping)
