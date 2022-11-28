@@ -44,7 +44,10 @@
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVideoProtocol)" label="协议类型">{{ dicts.InVideoProtocol[inVideoProtocol] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.OutId]">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.OutId]">
+        {{ videoInfo.outId || '-' }}
+        <copy-tip :copy-value="videoInfo.outId" />
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>

@@ -125,7 +125,8 @@ class User extends VuexModule implements IUserState {
 
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string }) {
-    let { mainUserID, userName, password } = userInfo
+    const { mainUserID, password } = userInfo
+    let { userName } = userInfo
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
