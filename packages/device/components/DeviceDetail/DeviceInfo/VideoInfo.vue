@@ -44,7 +44,10 @@
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVideoProtocol)" label="协议类型">{{ dicts.InVideoProtocol[inVideoProtocol] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.OutId]">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.OutId)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.OutId]">
+        {{ videoInfo.outId || '-' }}
+        <copy-tip :copy-value="videoInfo.outId" />
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
@@ -57,16 +60,12 @@
       <el-descriptions-item v-if="checkVisible(deviceEnum.PushType)" label="自动激活推流地址">{{ dicts.PushType[videoInfo.pushType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.PushUrl)" label="推流地址">
         {{ videoInfo.pushUrl }}
-        <el-tooltip v-if="videoInfo.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
-          <el-button class="copy-button" type="text" @click="copyUrl(videoInfo.pushUrl)"><svg-icon name="copy" /></el-button>
-        </el-tooltip>
+        <copy-tip :copy-value="videoInfo.pushUrl" content="复制链接" />
       </el-descriptions-item>
       <template v-if="basicInfo[deviceEnum.DeviceVendor] === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
         <el-descriptions-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址">
           {{ videoInfo.pullUrl }}
-          <el-tooltip v-if="videoInfo.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
-            <el-button class="copy-button" type="text" @click="copyUrl(videoInfo.pullUrl)"><svg-icon name="copy" /></el-button>
-          </el-tooltip>
+          <copy-tip :copy-value="videoInfo.pullUrl" content="复制链接" />
         </el-descriptions-item>
       </template>
       <template v-else>

@@ -96,6 +96,7 @@
         <div ref="tableContainer" class="list-wrap__body__table">
           <el-table
             ref="deviceTable"
+            :key="tableKey"
             v-loading="loading.table"
             :height="tableMaxHeight"
             :data="deviceList"
@@ -227,6 +228,16 @@
                 {{ row[deviceEnum.DeviceVendor] || '-' }}
               </template>
             </el-table-column>
+            <el-table-column v-if="checkColumnsVisible(deviceEnum.OutId)" :key="deviceEnum.OutId" :prop="deviceEnum.OutId" label="国标ID" min-width="200">
+              <template slot-scope="{ row }">
+                {{ row[deviceEnum.OutId] || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column v-if="checkColumnsVisible(deviceEnum.CreatedTime)" :key="deviceEnum.DeviCreatedTimeceVendor" :prop="deviceEnum.CreatedTime" label="创建时间" min-width="200">
+              <template slot-scope="{ row }">
+                {{ dateFormat(row[deviceEnum.CreatedTime]) || '-' }}
+              </template>
+            </el-table-column>
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
               <template slot-scope="{ row }">
                 <el-button type="text" :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, [policyEnum.ScreenPreview], row)" @click="handleListTools(toolsEnum.PreviewVideo, row)">实时预览</el-button>
@@ -350,6 +361,7 @@ export default class extends Mixins(deviceMixin) {
   private dicts = dicts
   private dateFormat = dateFormat
 
+  private tableKey: string = 'ct' + new Date().getTime()
   private deviceList: Array<Device> = []
   private selectedDeviceList: Array<Device> = []
   private tableMaxHeight: any = null
@@ -469,7 +481,8 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private get deviceTable() {
-    return this.$refs.deviceTable as any
+    // table与tableKey实现数据响应关联
+    return this.tableKey && this.$refs.deviceTable as any
   }
 
   private get currentDirId() {
@@ -585,6 +598,8 @@ export default class extends Mixins(deviceMixin) {
     this.deviceList = res.devices
     this.pager.totalNum = +res.totalNum
     this.loading.table = false
+    // 更新table组件key值以保证组件重新渲染
+    this.tableKey = 'ct' + new Date().getTime()
   }
 
   /**
@@ -647,7 +662,7 @@ export default class extends Mixins(deviceMixin) {
    * @param type 目录类型
    */
   private checkColumnsVisible(prop, type = this.currentDirType) {
-    return checkDeviceColumnsVisible(type, prop)
+    return checkDeviceColumnsVisible(type, prop, this.inProtocol)
   }
 
   /**

@@ -127,7 +127,6 @@ export default class extends Vue {
         pageSize: this.pager.pageSize
       }
       const res = await getNotificationPolicyList(params)
-      console.log('res------>', res)
       this.dataList = res.data
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum

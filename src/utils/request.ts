@@ -68,8 +68,6 @@ function responseHandler(response: AxiosResponse) {
     } else {
       return resData
     }
-    // const resData: AxiosResponse = (toLowerCase(response.data) as AxiosResponse).data ? (toLowerCase(response.data) as AxiosResponse).data : response.data
-    // return resData
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(

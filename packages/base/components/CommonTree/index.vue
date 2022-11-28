@@ -143,9 +143,8 @@ export default class extends Vue {
   public currentKey = null
 
   private get tree() {
-    // 利用log使得tree与treeKey实现数据响应关联
-    console.log(this.treeKey)
-    return this.$refs.Tree as any
+    // tree与treeKey实现数据响应关联
+    return this.treeKey && this.$refs.Tree as any
   }
 
   private get currentNodeKey() {

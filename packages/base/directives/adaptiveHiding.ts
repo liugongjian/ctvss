@@ -8,7 +8,6 @@ function checkIsHidden(content: HTMLDivElement): boolean {
 export default {
   name: 'adaptiveHiding',
   bind(el: any, binding) {
-    console.log(el.$refs)
     const content: HTMLDivElement = el.getElementsByClassName(binding.value)[0]
     if (checkIsHidden(content)) {
       el.style.display = 'none'
