@@ -13,7 +13,7 @@
         <el-button v-if="inspectionFlag" class="screen-tools__bar__right_inspection" type="primary" size="mini" @click="gotoInspection">巡检考核</el-button>
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
-        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" :type="FullscreenTypeEnum.Board" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1 && !isCarTask" :screen="currentScreen" />
       </div>
     </div>
@@ -24,6 +24,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@vss/device/store/modules/screen'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
 import DatePicker from './components/DatePicker.vue'
@@ -51,6 +52,8 @@ import ViewSelector from './components/ViewSelector.vue'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  private FullscreenTypeEnum = FullscreenTypeEnum
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
