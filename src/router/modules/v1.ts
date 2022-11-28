@@ -3,7 +3,7 @@ import Layout from '@/layout/index.vue'
 
 export const v1Router: RouteConfig[] = [
   {
-    path: '/1/dashboard',
+    path: '/dashboard',
     component: Layout,
     meta: {
       title: '概览',
@@ -52,7 +52,7 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/1/group',
+    path: '/group',
     component: Layout,
     meta: {
       title: '业务组管理',
@@ -71,7 +71,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-group',
           breadcrumb: false,
           perms: ['DescribeGroup'],
-          activeMenu: '/1/group'
+          activeMenu: '/group'
         }
       },
       {
@@ -83,7 +83,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-group',
           hidden: true,
           perms: ['AdminGroup'],
-          activeMenu: '/1/group'
+          activeMenu: '/group'
         }
       },
       {
@@ -95,7 +95,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-group',
           hidden: true,
           perms: ['AdminGroup'],
-          activeMenu: '/1/group'
+          activeMenu: '/group'
         }
       },
       {
@@ -107,13 +107,13 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-group',
           hidden: true,
           perms: ['DescribeGroup'],
-          activeMenu: '/1/group'
+          activeMenu: '/group'
         }
       }
     ]
   },
   {
-    path: '/1/device',
+    path: '/device',
     component: Layout,
     meta: {
       title: '设备管理',
@@ -145,7 +145,7 @@ export const v1Router: RouteConfig[] = [
               title: '设备列表',
               breadcrumb: false,
               perms: ['DescribeDevice'],
-              activeMenu: '/1/device',
+              activeMenu: '/device',
               groupSelector: true
             }
           },
@@ -157,7 +157,7 @@ export const v1Router: RouteConfig[] = [
               title: '添加设备',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/1/device',
+              activeMenu: '/device',
               groupSelector: true
             }
           },
@@ -169,7 +169,7 @@ export const v1Router: RouteConfig[] = [
               title: '编辑设备',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/1/device',
+              activeMenu: '/device',
               groupSelector: true
             }
           },
@@ -181,7 +181,7 @@ export const v1Router: RouteConfig[] = [
               title: '设备详情',
               hidden: true,
               perms: ['DescribeDevice'],
-              activeMenu: '/1/device',
+              activeMenu: '/device',
               groupSelector: true
             }
           },
@@ -193,7 +193,7 @@ export const v1Router: RouteConfig[] = [
               title: '配置子通道',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/1/device',
+              activeMenu: '/device',
               groupSelector: true
             }
           }
@@ -202,7 +202,7 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/1/screen',
+    path: '/screen',
     component: Layout,
     meta: {
       title: '实时预览',
@@ -222,14 +222,14 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-live',
           breadcrumb: false,
           perms: ['ScreenPreview'],
-          activeMenu: '/1/screen',
+          activeMenu: '/screen',
           groupSelector: true
         }
       }
     ]
   },
   {
-    path: '/1/player-debug',
+    path: '/player-debug',
     component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
     name: 'device-debug',
     meta: {
@@ -241,7 +241,7 @@ export const v1Router: RouteConfig[] = [
     }
   },
   {
-    path: '/1/replay-debug',
+    path: '/replay-debug',
     component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug.vue'),
     name: 'replay-debug',
     meta: {
@@ -253,7 +253,7 @@ export const v1Router: RouteConfig[] = [
     }
   },
   {
-    path: '/1/replay-debug2',
+    path: '/replay-debug2',
     component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
     name: 'replay-debug2',
     meta: {
@@ -265,7 +265,7 @@ export const v1Router: RouteConfig[] = [
     }
   },
   {
-    path: '/1/replay',
+    path: '/replay',
     component: Layout,
     meta: {
       title: '录像回放',
@@ -285,14 +285,14 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-replay',
           breadcrumb: false,
           perms: ['ReplayRecord'],
-          activeMenu: '/1/replay',
+          activeMenu: '/replay',
           groupSelector: true
         }
       }
     ]
   },
   {
-    path: '/1/map',
+    path: '/map',
     component: Layout,
     meta: {
       title: '电子地图',
@@ -313,13 +313,13 @@ export const v1Router: RouteConfig[] = [
           icon: 'menu-map',
           breadcrumb: false,
           perms: ['DescribeMap'],
-          activeMenu: '/1/map'
+          activeMenu: '/map'
         }
       }
     ]
   },
   {
-    path: '/1/up-platform',
+    path: '/up-platform',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -339,7 +339,7 @@ export const v1Router: RouteConfig[] = [
           title: '国标级联',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/1/up-platform/gb28121'
+          activeMenu: '/up-platform/gb28121'
         }
       },
       {
@@ -350,7 +350,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建国标级联',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/up-platform/gb28121'
+          activeMenu: '/up-platform/gb28121'
         }
       },
       {
@@ -361,13 +361,13 @@ export const v1Router: RouteConfig[] = [
           title: '编辑国标级联',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/up-platform/gb28121'
+          activeMenu: '/up-platform/gb28121'
         }
       }
     ]
   },
   {
-    path: '/1/certificate',
+    path: '/certificate',
     component: Layout,
     name: 'certificate',
     redirect: 'noredirect',
@@ -388,7 +388,7 @@ export const v1Router: RouteConfig[] = [
           title: 'GB28181凭证',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/1/certificate/gb28181'
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -399,7 +399,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建GB28181凭证',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/certificate/gb28181'
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -410,7 +410,7 @@ export const v1Router: RouteConfig[] = [
           title: '编辑GB28181凭证',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/certificate/gb28181'
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -424,7 +424,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           perms: ['*'],
           // tags: ['ga1400'],
-          activeMenu: '/1/certificate/ga1400'
+          activeMenu: '/certificate/ga1400'
         }
       },
       {
@@ -437,7 +437,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           // tags: ['ga1400'],
-          activeMenu: '/1/certificate/ga1400'
+          activeMenu: '/certificate/ga1400'
         }
       },
       {
@@ -450,13 +450,13 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           // tags: ['ga1400'],
-          activeMenu: '/1/certificate/ga1400'
+          activeMenu: '/certificate/ga1400'
         }
       }
     ]
   },
   {
-    path: '/1/template',
+    path: '/template',
     component: Layout,
     redirect: 'noredirect',
     name: 'Template',
@@ -477,7 +477,7 @@ export const v1Router: RouteConfig[] = [
           title: '录制模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/1/template/record'
+          activeMenu: '/template/record'
         }
       },
       {
@@ -488,7 +488,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建录制模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/record'
+          activeMenu: '/template/record'
         }
       },
       {
@@ -499,7 +499,7 @@ export const v1Router: RouteConfig[] = [
           title: '编辑录制模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/record'
+          activeMenu: '/template/record'
         }
       },
       {
@@ -510,7 +510,7 @@ export const v1Router: RouteConfig[] = [
           title: '回调模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/1/template/callback'
+          activeMenu: '/template/callback'
         }
       },
       {
@@ -521,7 +521,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建回调模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/callback'
+          activeMenu: '/template/callback'
         }
       },
       {
@@ -532,7 +532,7 @@ export const v1Router: RouteConfig[] = [
           title: '编辑回调模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/callback'
+          activeMenu: '/template/callback'
         }
       },
       {
@@ -543,7 +543,7 @@ export const v1Router: RouteConfig[] = [
           title: '告警模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/1/template/alert'
+          activeMenu: '/template/alert'
         }
       },
       {
@@ -554,7 +554,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建告警模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/alert'
+          activeMenu: '/template/alert'
         }
       },
       {
@@ -565,7 +565,7 @@ export const v1Router: RouteConfig[] = [
           title: '编辑告警模板',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/alert'
+          activeMenu: '/template/alert'
         }
       },
       {
@@ -576,13 +576,13 @@ export const v1Router: RouteConfig[] = [
           title: '模板详情',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/1/template/alert'
+          activeMenu: '/template/alert'
         }
       }
     ]
   },
   {
-    path: '/1/ai',
+    path: '/ai',
     component: Layout,
     redirect: 'noredirect',
     name: 'AI',
@@ -603,7 +603,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/1/ai',
+          activeMenu: '/ai',
           perms: ['DescribeAi']
         }
       },
@@ -617,7 +617,7 @@ export const v1Router: RouteConfig[] = [
           hidden: false,
           breadcrumb: true,
           only: true,
-          activeMenu: '/1/ai/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['DescribeAi']
         }
       },
@@ -630,7 +630,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/1/ai/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['AdminAi']
         }
       },
@@ -643,7 +643,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/1/ai/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['AdminAi']
         }
       },
@@ -656,7 +656,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/1/ai/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['DescribeAi']
         }
       },
@@ -669,7 +669,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/1/ai/config',
+          activeMenu: '/ai/config',
           perms: ['AdminAi']
         }
       },
@@ -681,7 +681,7 @@ export const v1Router: RouteConfig[] = [
           title: '人脸库',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/ai/facelib',
+          activeMenu: '/ai/facelib',
           perms: ['AdminAi']
         }
       },
@@ -693,14 +693,14 @@ export const v1Router: RouteConfig[] = [
           title: '人脸库详情',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/ai/facelib',
+          activeMenu: '/ai/facelib',
           perms: ['AdminAi']
         }
       }
     ]
   },
   {
-    path: '/1/access-manage',
+    path: '/access-manage',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -720,7 +720,7 @@ export const v1Router: RouteConfig[] = [
           title: '概览',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/access-manage/dashboard',
+          activeMenu: '/access-manage/dashboard',
           perms: ['*']
         }
       },
@@ -732,7 +732,7 @@ export const v1Router: RouteConfig[] = [
           title: '用户',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/access-manage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -744,7 +744,7 @@ export const v1Router: RouteConfig[] = [
           title: '创建用户',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/access-manage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -756,7 +756,7 @@ export const v1Router: RouteConfig[] = [
           title: '成员详情',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/access-manage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -768,7 +768,7 @@ export const v1Router: RouteConfig[] = [
           title: '策略',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/access-manage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -780,7 +780,7 @@ export const v1Router: RouteConfig[] = [
           title: '创建策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/access-manage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -792,7 +792,7 @@ export const v1Router: RouteConfig[] = [
           title: '查看&编辑策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/access-manage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -804,7 +804,7 @@ export const v1Router: RouteConfig[] = [
           title: '角色',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/access-manage/role',
+          activeMenu: '/access-manage/role',
           perms: ['*']
         }
       },
@@ -816,7 +816,7 @@ export const v1Router: RouteConfig[] = [
           title: '创建角色',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/access-manage/role',
+          activeMenu: '/access-manage/role',
           perms: ['*']
         }
       },
@@ -828,14 +828,14 @@ export const v1Router: RouteConfig[] = [
           title: 'API密钥',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/access-manage/secretManage',
+          activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
       }
     ]
   },
   {
-    path: '/1/notification',
+    path: '/notification',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -855,7 +855,7 @@ export const v1Router: RouteConfig[] = [
           title: '推送历史',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/notification/history',
+          activeMenu: '/notification/history',
           perms: ['*']
         }
       },
@@ -867,7 +867,7 @@ export const v1Router: RouteConfig[] = [
           title: '推送策略',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/1/notification/policy',
+          activeMenu: '/notification/policy',
           perms: ['*']
         }
       },
@@ -879,7 +879,7 @@ export const v1Router: RouteConfig[] = [
           title: '创建推送策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/notification/policy',
+          activeMenu: '/notification/policy',
           perms: ['*']
         }
       },
@@ -891,14 +891,14 @@ export const v1Router: RouteConfig[] = [
           title: '编辑推送策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/notification/policy',
+          activeMenu: '/notification/policy',
           perms: ['*']
         }
       }
     ]
   },
   {
-    path: '/1/alarm',
+    path: '/alarm',
     component: Layout,
     meta: {
       title: '告警管理',
@@ -930,7 +930,7 @@ export const v1Router: RouteConfig[] = [
               title: '告警信息列表',
               breadcrumb: false,
               perms: ['*'],
-              activeMenu: '/1/alarm',
+              activeMenu: '/alarm',
               groupSelector: true
             }
           }
@@ -939,7 +939,7 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/1/car',
+    path: '/car',
     component: Layout,
     meta: {
       id: '20210515200901013321',
@@ -965,7 +965,7 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/1/billing',
+    path: '/billing',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -994,14 +994,14 @@ export const v1Router: RouteConfig[] = [
           title: '资源包管理',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/1/billing/resource',
+          activeMenu: '/billing/resource',
           perms: ['*']
         }
       }
     ]
   },
   {
-    path: '/1/exportDevices',
+    path: '/exportDevices',
     component: Layout,
     meta: {
       title: '批量导出设备信息',
@@ -1021,13 +1021,13 @@ export const v1Router: RouteConfig[] = [
           icon: 'download',
           breadcrumb: false,
           perms: ['*'],
-          activeMenu: '/1/exportDevices'
+          activeMenu: '/exportDevices'
         }
       }
     ]
   },
   {
-    path: '/1/sysconfig',
+    path: '/sysconfig',
     component: Layout,
     meta: {
       title: '系统设置',
@@ -1051,7 +1051,7 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/1/changePassword',
+    path: '/changePassword',
     component: Layout,
     meta: {
       title: '修改密码',
