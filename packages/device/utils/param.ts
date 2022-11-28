@@ -78,9 +78,6 @@ export function checkVideoVisible(
   }
 
   // 过滤IBOX的字段
-  if (this.isIbox) {
-    console.log(DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum), prop)
-  }
   if (this.isIbox && DeviceTypeDenyParamsForIbox.has(prop as DeviceEnum)) return false
 
   // 编辑状态下不显示视频接入协议
@@ -185,7 +182,6 @@ export function checkDeviceToolsVisible(type: DeviceTypeEnum | DirectoryTypeEnum
     }
   }
 
-  console.log(data)
   // nvr通道特殊处理
   if (data && data[DeviceEnum.DeviceChannelNum] > 0) {
     allowFlag = ![ToolsEnum.DeleteDevice, ToolsEnum.MoveDevice].includes(prop)
@@ -238,7 +234,13 @@ export function checkDeviceToolsVisible(type: DeviceTypeEnum | DirectoryTypeEnum
  * @param prop 参数名
  * @returns 判断结果
  */
-export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum): boolean {
-  return DeviceTableColumnAllowParams[type] && DeviceTableColumnAllowParams[type].has(prop)
+export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum, inProtocol: string): boolean {
+  let allowFlag = true
+  // nvr列表国标ID特殊处理
+  if (type === DeviceTypeEnum.Nvr && prop === DeviceEnum.OutId) {
+    allowFlag = ([InVideoProtocolEnum.Gb28181] as any).includes(inProtocol)
+  }
+
+  return DeviceTableColumnAllowParams[type] && DeviceTableColumnAllowParams[type].has(prop) && allowFlag
 }
 

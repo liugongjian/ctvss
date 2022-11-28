@@ -53,15 +53,15 @@ export default class extends Vue {
    * 退出全屏
    */
   public exitFullscreen() {
-    const doc: any = document
-    if (doc.exitFullscreen) {
-      doc.exitFullscreen()
-    } else if (doc.msExitFullscreen) {
-      doc.msExitFullscreen()
-    } else if (doc.mozCancelFullScreen) {
-      doc.mozCancelFullScreen()
-    } else if (doc.webkitCancelFullScreen) {
-      doc.webkitCancelFullScreen()
+    const element: any = this.$parent.$el
+    if (element.exitFullscreen) {
+      element.exitFullscreen()
+    } else if (element.msExitFullscreen) {
+      element.msExitFullscreen()
+    } else if (element.mozCancelFullScreen) {
+      element.mozCancelFullScreen()
+    } else if (element.webkitCancelFullScreen) {
+      element.webkitCancelFullScreen()
     }
   }
 

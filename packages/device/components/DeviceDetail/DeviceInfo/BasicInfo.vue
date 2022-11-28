@@ -14,7 +14,9 @@
         </span>
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceId)" label="设备ID">{{ basicInfo.deviceId }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceId)" label="设备ID">
+        {{ basicInfo.deviceId }}
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InNetworkType)" label="接入网络">{{ dicts.InNetworkType[device.inNetworkType] }}</el-descriptions-item>
       <!-- <el-descriptions-item label="播放网络">{{ dicts.OutNetworkType[device.outNetworkType] }}</el-descriptions-item> -->
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceLongitude)" label="经纬度">{{ basicInfo.deviceLongitude }} : {{ basicInfo.deviceLatitude }}</el-descriptions-item>
