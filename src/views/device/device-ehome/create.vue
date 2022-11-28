@@ -449,6 +449,7 @@ export default class extends Mixins(createMixin) {
       await this.getDeviceInfo()
     } else {
       this.form.dirId = this.dirId
+      this.form.deviceVendor = this.deviceVendorList[0]
     }
     this.form.inProtocol = this.inProtocol
     this.onGroupChange()

@@ -659,8 +659,10 @@ export default class extends Mixins(createMixin) {
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.isChannel && !this.isUpdate && (this.form.deviceVendor = this.deviceVendorList[0])
     } else {
       this.form.dirId = this.dirId
+      this.form.deviceVendor = this.deviceVendorList[0]
     }
     this.form.inProtocol = this.inProtocol
     this.getGbAccounts()
