@@ -121,6 +121,7 @@ function requestTransform(config: AxiosRequestConfig) {
   }
 
   if (config.url.includes('/v1/device/customGbId') && config.method === 'get') {
+    config.url = '/v1/ibox/device/verifyGbId'
     config.params = JSON.parse(JSON.stringify(config.params).replace('inVideoProtocol', 'inProtocol'))
   }
   return config
