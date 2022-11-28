@@ -59,8 +59,16 @@ service.interceptors.response.use(
 
 function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    const resData: AxiosResponse = (toLowerCase(response.data) as AxiosResponse).data ? (toLowerCase(response.data) as AxiosResponse).data : response.data
-    return resData
+    const resData = toLowerCase(response.data) as AxiosResponse
+    if (Array.isArray(resData)) {
+      return resData
+    } else if (resData.data) {
+      return resData.data
+    } else {
+      return resData
+    }
+    // const resData: AxiosResponse = (toLowerCase(response.data) as AxiosResponse).data ? (toLowerCase(response.data) as AxiosResponse).data : response.data
+    // return resData
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
