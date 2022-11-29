@@ -30,6 +30,7 @@
   flex: 1;
   display: flex;
   min-width: 1105px;
+
   /* device-list */
   .list-wrap {
     flex: 1;
@@ -162,6 +163,10 @@
 
         .device-id {
           color: $primary;
+        }
+
+        .el-table th > .cell.highlight {
+          color: $color-grey-4;
         }
       }
 

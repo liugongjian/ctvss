@@ -140,6 +140,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.DeviceType]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.DeviceType]]"
             >
               <template slot="header">
                 <span class="filtersArrayDeviceStatus&quot;filter&quot;">设备类型</span>
@@ -156,6 +157,7 @@
               :min-width="110"
               :filters="filtersArray[deviceEnum.VideoStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.VideoStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频接入</span>
@@ -174,6 +176,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.StreamStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.StreamStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频流</span>
@@ -192,6 +195,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.RecordStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.RecordStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频录制</span>
