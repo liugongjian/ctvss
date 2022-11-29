@@ -115,10 +115,6 @@ export default class extends Vue {
     ]
   }
 
-  private get isEdit() {
-    return !!this.currentDir
-  }
-
   private mounted() {
     this.init()
   }

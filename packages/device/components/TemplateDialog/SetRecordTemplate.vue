@@ -105,10 +105,8 @@ export default class extends Vue {
    */
   private async unbind(row: any) {
     const params = {
-      groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
+      templateId: row.templateId
     }
     try {
       this.loading = true

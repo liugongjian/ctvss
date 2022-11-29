@@ -34,6 +34,7 @@ export default class extends ComponentMixin {
   private ctxDrawState: boolean = null
   private iShape = null
   private oShape = null
+  private resizeObserver = null
 
 
   public close() {

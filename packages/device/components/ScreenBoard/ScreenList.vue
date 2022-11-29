@@ -139,6 +139,7 @@ export default class extends Vue {
 
   private tableMaxHeight: any = null
   private currentListRecord: any = null
+  private observer: ResizeObserver = null
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
@@ -198,7 +199,6 @@ export default class extends Vue {
 
   private beforeDestroy() {
     this.tableContainer && this.observer.unobserve(this.tableContainer)
-    clearTimeout(this.refreshTimeout)
   }
 
   /**
@@ -273,7 +273,7 @@ export default class extends Vue {
    */
   private async saveEdit(row: any) {
     try {
-      this.loading = true
+      row.loading = true
       await editRecordName({
         deviceId: this.currentScreen.deviceId,
         inProtocol: this.currentScreen.inProtocol,
@@ -285,7 +285,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.loading = false
+      row.loading = false
     }
   }
 

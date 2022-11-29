@@ -203,12 +203,27 @@ export const startShareDevice = (params: any): Promise<any> =>
     params
   })
 
+export const startShareDeviceV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/startShareDevice',
+    method: 'get',
+    params
+  })
+
+
 /**
  * 停止级联
  */
 export const stopShareDevice = (params: any): Promise<any> =>
   request({
     url: '/shareDevice/stop',
+    method: 'get',
+    params
+  })
+
+export const stopShareDeviceV1 = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/stopShareDevice',
     method: 'get',
     params
   })

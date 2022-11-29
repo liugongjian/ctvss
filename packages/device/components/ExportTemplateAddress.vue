@@ -96,6 +96,8 @@ export default class extends Vue {
 
   public selectedRegionList: any = []
 
+  public axiosSource: any = null
+
   public prop: any = {
     value: 'code',
     label: 'name',

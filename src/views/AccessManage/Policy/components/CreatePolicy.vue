@@ -90,7 +90,7 @@ import layoutMxin from '@vss/device/mixin/layoutMixin'
   }
 })
 export default class extends Mixins(layoutMxin) {
-  private filterTypeArr = ['dir']
+  public filterTypeArr = ['dir']
   public hasCheckbox = true
   private breadCrumbContent = ''
   private systemActionList = [
