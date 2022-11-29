@@ -302,6 +302,27 @@ export const InType = {
   'pull': '拉流'
 }
 
+
+/**
+ *  设备事件级别
+ */
+ export const ErrorLevel = {
+  '0': '全部',
+  '1': '异常',
+  '2': '正常'
+}
+
+/**
+ *  设备事件类型
+ */
+export const EventsType = {
+  'all': '全部',
+  'device': '设备事件',
+  'stream': '流事件',
+  'record': '录制事件',
+  'coderate_overflow': '超码率'
+}
+
 /**
  * ==================
  * 旧，待整理删除
@@ -497,25 +518,6 @@ export const ResultTimeInterval = {
   '10分钟': 600
 }
 
-/**
- *  设备事件级别
- */
-export const errorLevel = {
-  '0': '全部',
-  '1': '异常',
-  '2': '正常'
-}
-
-/**
- *  设备事件类型
- */
-export const eventsType = {
-  'all': '全部',
-  'device': '设备事件',
-  'stream': '流事件',
-  'record': '录制事件',
-  'coderate_overflow': '超码率'
-}
 
 /**
  * 视频播放比例

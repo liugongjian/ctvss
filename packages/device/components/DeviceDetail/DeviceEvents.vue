@@ -52,7 +52,7 @@
 <script lang='ts'>
 import { Component, Mixins } from 'vue-property-decorator'
 import { getDeviceEvents } from '@vss/device/api/device'
-import { errorLevel, eventsType } from '@/dics/index'
+import { ErrorLevel, EventsType } from '@vss/device/dicts/index'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -65,15 +65,15 @@ export default class extends Mixins(detailMixin) {
     errorLevel: '1',
     eventType: 'all'
   }
-  private errorLevelList: Array<any> = Object.keys(errorLevel).map(error => {
+  private errorLevelList: Array<any> = Object.keys(ErrorLevel).map(error => {
     return {
-      label: errorLevel[error],
+      label: ErrorLevel[error],
       value: error
     }
   })
-  private eventsTypeList: Array<any> = Object.keys(eventsType).map(event => {
+  private eventsTypeList: Array<any> = Object.keys(EventsType).map(event => {
     return {
-      label: eventsType[event],
+      label: EventsType[event],
       value: event
     }
   })

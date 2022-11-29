@@ -14,7 +14,7 @@
 <script lang='ts'>
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { getChildAddress, getAddressAreaDir } from '../api/region'
-import { suffixZero } from '@/utils/number'
+import { suffixZero } from '@vss/base/utils/number'
 import axios from 'axios'
 
 @Component({
@@ -131,7 +131,7 @@ export default class extends Vue {
       }
       this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
-      let list = await getChildAddress(node.data && node.data.code, node.level + 1, this.axiosSource.token)
+      const list = await getChildAddress(node.data && node.data.code, node.level + 1, this.axiosSource.token)
       resolve(list)
     } catch (e) {
       node.loading = false
