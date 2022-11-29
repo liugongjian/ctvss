@@ -70,12 +70,12 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         PermissionModule.GenerateRoutes({ tags, perms, iamUserId, version })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        let path = to.path
+        const path = to.path
         if (path === '/dashboard') {
           // redirect=%2Fdashboard在v1下的统一处理
-          if (UserModule.version === 1) {
-            path = '/1/dashboard'
-          }
+          // if (UserModule.version === 1) {
+          //   path = '/1/dashboard'
+          // }
           let dashBoardIndex = PermissionModule.dynamicRoutes.findIndex((route: any) => route.path === path)
           dashBoardIndex = dashBoardIndex === -1 ? 0 : dashBoardIndex
           // @ts-ignore

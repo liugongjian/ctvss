@@ -7,8 +7,6 @@ import * as loginService from '@/services/loginService'
 import { VSSError } from '@/utils/error'
 import { ApiMapping } from '@/api/api-mapping'
 import { whiteList } from '@/api/v1-whitelist'
-import { indexOf } from 'lodash'
-import e from 'cors'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -62,7 +60,7 @@ service.interceptors.response.use(
 // 根据用户tag转换请求url
 function requestTransform(config: AxiosRequestConfig) {
   const url = config.url
-  if (UserModule.version === 2 && !whiteList.includes(url)) {
+  if (UserModule.version === 2 || whiteList.includes(url)) {
     config.url = '/v2' + url
   } else {
     const apiList = Object.keys(ApiMapping)
@@ -89,13 +87,13 @@ function responseHandler(response: AxiosResponse) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     // TODO: 后续删除灰度判断
     // const resData = UserModule.version === 2 ? response.data.data : response.data.data
-    let resData:AxiosResponse
+    let resData: AxiosResponse
     // 过滤 导出接口 返回
-    const ifExport = (config:any)=>{return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice')}
-    if(ifExport(response.config)){
+    const ifExport = (config: any)=>{ return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice') }
+    if (ifExport(response.config)){
       resData = response
-    }else{
-      resData = UserModule.version === 2 ? response.data.data : response.data.data
+    } else {
+      resData = UserModule.version === 2 ? response.data.data : response.data
     }
     return resData as AxiosResponse
   } else {

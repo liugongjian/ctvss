@@ -62,6 +62,11 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_VERSION(version: number) {
+    this.version = version
+  }
+
+  @Mutation
   private SET_PERMS(perms: string[]) {
     this.perms = perms
   }
@@ -120,7 +125,8 @@ class User extends VuexModule implements IUserState {
 
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string }) {
-    let { mainUserID, userName, password } = userInfo
+    const { mainUserID, password } = userInfo
+    let { userName } = userInfo
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
@@ -243,6 +249,7 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
+      this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
 
     let data: any = null

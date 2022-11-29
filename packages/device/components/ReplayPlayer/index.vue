@@ -48,7 +48,7 @@
     </template>
     <template slot="controlRight">
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
-      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" :type="FullscreenTypeEnum.Screen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -59,6 +59,7 @@ import { ScreenModule } from '@vss/device/store/modules/screen'
 import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import { RecordType } from '@vss/device/enums'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
@@ -100,6 +101,8 @@ export default class extends Vue {
   private url: string = null
   private type: string = null
   private codec: string = null
+
+  private FullscreenTypeEnum = FullscreenTypeEnum
 
   private get recordManager() {
     return this.screen.recordManager
@@ -217,7 +220,7 @@ export default class extends Vue {
    */
   private onFullscreenChange(isFullscreen) {
     this.screen.isFullscreen = isFullscreen
-    ScreenModule.setIsFullscreen(isFullscreen)
+    isFullscreen && ScreenModule.setIsFullscreen(isFullscreen)
   }
 }
 </script>

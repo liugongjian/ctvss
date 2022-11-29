@@ -1,9 +1,11 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
 import store from '@vss/device/store'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 
 export interface IScreenState {
   isMutedAll?: boolean
   isFullscreen?: boolean
+  fullscreenStack?: FullscreenTypeEnum[]
   playingScreens?: string[]
 }
 
@@ -11,6 +13,7 @@ export interface IScreenState {
 export class Screen extends VuexModule implements IScreenState {
   isMutedAll = false
   isFullscreen = false
+  fullscreenStack = []
   playingScreens = []
 
   @Mutation
@@ -33,15 +36,49 @@ export class Screen extends VuexModule implements IScreenState {
     this.SET_IS_FULLSCREEN(payload)
   }
 
+  /**
+   * 设置全屏栈
+   * @param payload 
+   */
   @Mutation
-  public SET_PLAYING_SCREENS(payload: string[]) {
-    this.playingScreens = payload
+  public PUSH_FULLSCREEN_STACK(payload: FullscreenTypeEnum) {
+    this.fullscreenStack.push(payload)
+  }
+
+  @Action
+  public pushFullscreenStack(payload: FullscreenTypeEnum) {
+    this.PUSH_FULLSCREEN_STACK(payload)
+  }
+
+  @Mutation
+  public POP_FULLSCREEN_STACK(): FullscreenTypeEnum {
+    return this.fullscreenStack.pop()
+  }
+
+  @Action
+  public popFullscreenStack(): FullscreenTypeEnum {
+    return this.POP_FULLSCREEN_STACK()
+  }
+
+  @Mutation
+  public RESET_FULLSCREEN_STACK() {
+    return this.fullscreenStack = []
+  }
+
+  @Action
+  public resetFullscreenStack() {
+    return this.RESET_FULLSCREEN_STACK()
   }
 
   /**
    * 添加正在播放中的设备
    * @param deviceId 设备ID
    */
+  @Mutation
+  public SET_PLAYING_SCREENS(payload: string[]) {
+    this.playingScreens = payload
+  }
+
   @Action
   public addPlayingScreen(deviceId: string) {
     if (!this.playingScreens.includes(deviceId)) {
