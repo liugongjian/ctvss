@@ -199,6 +199,7 @@ class User extends VuexModule implements IUserState {
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
     this.SET_MAIN_USER_ID('')
+    this.SET_VERSION(2)
     this.SetCASLoginId('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
@@ -353,6 +354,7 @@ class User extends VuexModule implements IUserState {
     this.SET_PERMS([])
     this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_NAME('')
+    this.SET_VERSION(2)
 
     const result = {
       mainUserID: this.mainUserID,

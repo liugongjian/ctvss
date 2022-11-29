@@ -316,6 +316,6 @@ export enum DeviceDetailTab {
  * 录像类型
  */
 export enum RecordType {
-  Cloud = '0', // 云端
-  Device = '1' // 设备本地
+  Cloud = 0, // 云端
+  Device = 1 // 设备本地
 }

@@ -232,6 +232,9 @@ export class ScreenManager {
    */
   public saveCache() {
     try {
+      if (!UserModule.settings) {
+        return
+      }
       /* 判断用户是否开启缓存功能 */
       if (
         (this.isLive && UserModule.settings.screenCache.screen === 'true') ||
@@ -262,6 +265,9 @@ export class ScreenManager {
    */
   public loadCache(): boolean {
     try {
+      if (!UserModule.mainUserID) {
+        return
+      }
       const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
       const screenCacheStr = getLocalStorage(screenCacheKey)
       if (!screenCacheStr) return false

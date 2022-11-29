@@ -1,10 +1,11 @@
 {
   "name": "@vss/vss-video-player",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@vss/video-player": "^0.0.5"
+    "@vss/video-player": "^0.0.5",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {},
   "scripts": {

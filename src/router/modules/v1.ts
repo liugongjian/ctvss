@@ -333,7 +333,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'gb28121',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/index.vue'),
         name: 'up-platform',
         meta: {
           title: '国标级联',
@@ -344,7 +344,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-create',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
         name: 'up-platform-gb28121-create',
         meta: {
           title: '新建国标级联',
@@ -355,7 +355,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-update',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
         name: 'up-platform-gb28121-update',
         meta: {
           title: '编辑国标级联',
@@ -849,7 +849,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'history',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/History/index.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/History/index.vue'),
         name: 'NotificationHistory',
         meta: {
           title: '推送历史',
@@ -861,7 +861,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/index.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/index.vue'),
         name: 'NotificationPolicy',
         meta: {
           title: '推送策略',
@@ -873,7 +873,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
         name: 'NotificationPolicyCreate',
         meta: {
           title: '创建推送策略',
@@ -885,7 +885,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
         name: 'NotificationPolicyEdit',
         meta: {
           title: '编辑推送策略',
