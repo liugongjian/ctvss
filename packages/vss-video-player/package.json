@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@vss/video-player": "^0.0.5"
+    "@vss/video-player": "^0.0.5",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {},
   "scripts": {
