@@ -141,8 +141,6 @@ export default class extends Vue {
 
   private destroyed() {
     screenLogManager.flushLogs()
-    window.removeEventListener('resize', this.calMaxHeight)
-    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   /**

@@ -172,8 +172,7 @@ export default class extends Vue {
     const params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId,
-      inProtocol: this.inProtocol
+      templateId: row.templateId
     }
     try {
       this.loading = true

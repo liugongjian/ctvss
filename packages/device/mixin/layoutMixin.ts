@@ -57,6 +57,13 @@ export default class LayoutMixin extends Vue {
   public loading = {
     tree: false
   }
+  public filterVideoProtocolArr: any
+  public filterInProtocolArr: any
+  public filterTypeArr: any
+
+  public initResourceStatus(): any {
+    // TODO
+  }å
 
   public getVueComponent() {
     return this
