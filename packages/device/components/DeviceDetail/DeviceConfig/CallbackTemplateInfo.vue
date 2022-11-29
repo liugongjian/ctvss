@@ -32,7 +32,6 @@
     </div>
     <set-callback-template
       v-if="setCallbackTemplateDialog"
-      :in-protocol="inProtocol"
       :device-id="deviceId"
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
@@ -60,10 +59,6 @@ export default class extends Vue {
   private setCallbackTemplateDialog = false
   private callbackTemplateId = ''
 
-  public get isVGroup() {
-    return this.$route.query.inProtocol === 'vgroup'
-  }
-
   /**
    * 初始化
    */
@@ -78,7 +73,7 @@ export default class extends Vue {
     try {
       this.loading = true
       this.template = null
-      const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
+      const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId })
       this.template = res
     } catch (e) {
       if (e && e.code !== 5) {

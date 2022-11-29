@@ -46,7 +46,7 @@
 <script lang='ts'>
 import { Component, Mixins, Inject } from 'vue-property-decorator'
 import { ToolsEnum } from '@vss/device/enums/index'
-import { getChannelList, configChannels } from '@/api/device'
+import { getChannelList, configChannels } from '@vss/device/api/device'
 import deviceMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -70,6 +70,8 @@ export default class extends Mixins(deviceMixin) {
   private selectChannels: any = []
 
   private deviceChannelSize = 0
+
+  private channelSize = null
 
   public async mounted() {
     await this.getDevice()
