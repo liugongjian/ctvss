@@ -15,18 +15,21 @@
         prop="name"
         label="业务组/设备名称"
       >
-        <template slot-scope="{ row }">
+        <template slot-scope="{row}">
           {{ row.name || row.id }}
         </template>
       </el-table-column>
       <el-table-column
+        :filters="filtersArray"
+        :filter-method="filterHandler"
         prop="type"
         label="类别"
       >
         <template slot="header">
           <span>类别</span>
+          <svg-icon name="filter" width="15" height="15" />
         </template>
-        <template slot-scope="{ row }">
+        <template slot-scope="{row}">
           {{ row.type === 'device' || row.type === 'stream' ? "设备" : "业务组" }}
         </template>
       </el-table-column>
@@ -43,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getCallbackBind } from '@vss/device/api/template'
+import { getRecordBind } from '@vss/device/api/template'
 
 @Component({
   name: 'ViewBind'
@@ -58,6 +61,7 @@ export default class extends Vue {
   }
   private loading = false
   private bindData = []
+  private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
 
   @Watch('bindData.length')
   private onBindDataChange(data: any) {
@@ -65,17 +69,21 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.getCallbackBindMethod()
+    this.getRecordBindMethod()
   }
-  private async getCallbackBindMethod() {
+  private filterHandler(value: string, row: any, column: any) {
+    const prop = column['property']
+    return row[prop] === value
+  }
+  private async getRecordBindMethod() {
     try {
       this.loading = true
-      const params = {
+      let params = {
         templateId: this.templateId,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      const res = await getCallbackBind(params)
+      const res = await getRecordBind(params)
       this.loading = false
       this.bindData = res.bind
       this.pager.total = res.totalNum
@@ -89,12 +97,12 @@ export default class extends Vue {
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getCallbackBindMethod()
+    await this.getRecordBindMethod()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getCallbackBindMethod()
+    await this.getRecordBindMethod()
   }
 
   private closeDialog() {

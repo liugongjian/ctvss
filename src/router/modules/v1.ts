@@ -471,7 +471,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -482,7 +482,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
         name: 'recordCreate',
         meta: {
           title: '新建录制模板',
@@ -493,7 +493,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
         name: 'recordUpdate',
         meta: {
           title: '编辑录制模板',
@@ -504,7 +504,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/index.vue'),
         name: 'Callback',
         meta: {
           title: '回调模板',
@@ -515,7 +515,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
         name: 'CallbackCreate',
         meta: {
           title: '新建回调模板',
@@ -526,7 +526,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
         name: 'CallbackUpdate',
         meta: {
           title: '编辑回调模板',
@@ -537,7 +537,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/index.vue'),
         name: 'Alert',
         meta: {
           title: '告警模板',
@@ -548,7 +548,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
         name: 'AlertCreate',
         meta: {
           title: '新建告警模板',
@@ -559,7 +559,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
         name: 'AlertUpdate',
         meta: {
           title: '编辑告警模板',
@@ -570,7 +570,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/details/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/Details.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/Details.vue'),
         name: 'AlertDetails',
         meta: {
           title: '模板详情',
