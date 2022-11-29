@@ -257,7 +257,7 @@ export default class IndexMixin extends Vue {
         VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
       }
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: this.currentGroupId,
         id: node.data.id,
         type: node.data.type
@@ -285,13 +285,13 @@ export default class IndexMixin extends Vue {
    */
   @Provide('getDirPath')
   public getDirPath(node: any) {
-    let path: any = []
+    const path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node.data
       if (data && data.id) {
         path.push({
           id: data.id,
-          label: data.name,
+          label: data.label,
           type: data.type
         })
       }
