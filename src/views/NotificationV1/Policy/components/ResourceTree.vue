@@ -1,9 +1,8 @@
 <template>
   <div class="dialog-wrap">
     <div v-loading="loading" class="tree-wrap">
-    <div class="tree-wrap">
       <el-tree
-        ref="deviceTree"
+        ref="dirTree"
         node-key="id"
         lazy
         show-checkbox
@@ -75,7 +74,7 @@ export default class extends Vue {
    */
   public async initResourceStatus(checkedList: any) {
     this.loading = true
-    const deviceTree: any = this.deviceTree.$refs.commonTree
+    const dirTree: any = this.$refs.dirTree
     const checkedKeys = []
     for (let index = 0, len = checkedList.length; index < len; index++) {
       const resource = checkedList[index]
@@ -87,7 +86,7 @@ export default class extends Vue {
         if (keyPath && keyPath.length) {
           for (let i = 0; i < keyPath.length - 1; i++) {
             const _key = keyPath[i]
-            const node = deviceTree && deviceTree.getNode(_key)
+            const node = dirTree && dirTree.getNode(_key)
             if (node) {
               await this.loadDirChildren(_key, node)
             }
@@ -96,7 +95,7 @@ export default class extends Vue {
         }
       }
     }
-    deviceTree && deviceTree.setCheckedKeys(checkedKeys)
+    dirTree && dirTree.setCheckedKeys(checkedKeys)
     this.loading = false
   }
 
@@ -144,7 +143,7 @@ export default class extends Vue {
       return
     }
     try {
-      const deviceTree: any = this.$refs.deviceTree
+      const dirTree: any = this.$refs.dirTree
       let data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -162,7 +161,7 @@ export default class extends Vue {
           path: node.data.path.concat([dir]),
           parentId: node.data.id
         }))
-        deviceTree && deviceTree.updateKeyChildren(key, dirs)
+        dirTree && dirTree.updateKeyChildren(key, dirs)
       }
       node.expanded = true
       node.loaded = true
@@ -214,8 +213,8 @@ export default class extends Vue {
    * 当设备被选中时回调，将选中的设备列出
    */
   private onCheckDevice() {
-    const deviceTree: any = this.$refs.deviceTree
-    const nodes = deviceTree.getCheckedNodes()
+    const dirTree: any = this.$refs.dirTree
+    const nodes = dirTree.getCheckedNodes()
     this.resourceList = nodes.filter((node: any) => {
       const nodeIdsList = nodes.map((node: any) => node.id)
       return nodeIdsList.indexOf(node.parentId) === -1
@@ -244,8 +243,8 @@ export default class extends Vue {
    * 移除设备
    */
   private removeDevice(device: any) {
-    const tree: any = this.$refs.deviceTree
-    tree.setChecked(device.id, false)
+    const dirTree: any = this.$refs.dirTree
+    dirTree.setChecked(device.id, false)
   }
 
   /**
