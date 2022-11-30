@@ -6,7 +6,7 @@ export interface Secret {
   updatedTime: string;
   status: string;
   hidden?: boolean;
-  description: string;
+  description?: string;
 }
 
 export interface SecretTip {
@@ -15,5 +15,5 @@ export interface SecretTip {
   id: string;
   accessKey: string;
   secretKey: string;
-  description: string;
+  description?: string;
 }
