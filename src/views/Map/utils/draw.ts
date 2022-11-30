@@ -13,7 +13,6 @@ export const drawCamera = (markerOptions: markerObject, options) => {
   markerContent.setAttribute('class', 'marker-containt marker-camera')
   const appearance = markerOptions.appearance || '{}'
   let mColor = JSON.parse(appearance).color || '#FA8334'
-  console.log(appearance, JSON.parse(appearance).color)
   if (mColor === '0') {
     mColor = '#FA8334'
   }
