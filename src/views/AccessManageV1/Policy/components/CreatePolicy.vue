@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="policyLoading.resource">
+    <el-card v-loading="loading.resource">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="policyId">
           <el-input v-model="form.policyId" class="form__input" :disabled="isUpdate" />
@@ -62,7 +62,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" :loading="policyLoading.dir || policyLoading.resource" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="loading.dir || loading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -80,19 +80,15 @@ import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import TemplateBind from '@/views/components/TemplateBind.vue'
-import { Component, Mixins } from 'vue-property-decorator'
-import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
-import layoutMxin from '@vss/device/mixin/layoutMixin'
+import { Component, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'CreatePolicy',
+  name: 'AddDevices',
   components: {
-    TemplateBind,
-    IAMResourceTree
+    TemplateBind
   }
 })
-export default class extends Mixins(layoutMxin) {
-  public hasCheckbox = true
+export default class extends Vue {
   private breadCrumbContent = ''
   private systemActionList = [
     {
@@ -157,7 +153,7 @@ export default class extends Mixins(layoutMxin) {
     }
   ]
   private dirList: any = []
-  public policyLoading = {
+  public loading = {
     dir: false,
     resource: false
   }
@@ -218,7 +214,7 @@ export default class extends Mixins(layoutMxin) {
   private get isUpdate() {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
-  public async mounted() {
+  private async mounted() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
       ? this.$route.meta.title
@@ -241,23 +237,25 @@ export default class extends Mixins(layoutMxin) {
 
   private handleSelectionChange(actions: any) {
     const actionTable: any = this.$refs.actionTable
-    actions.forEach((action: any) => {
-      if (action.actionValue === 'AdminGroup') {
-        actionTable.toggleRowSelection(this.systemActionList[0], true)
-      }
-      if (action.actionValue === 'AdminDevice') {
-        actionTable.toggleRowSelection(this.systemActionList[2], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
-      if (action.actionValue === 'AdminAi') {
-        actionTable.toggleRowSelection(this.systemActionList[7], true)
-      }
-    })
+    this.$nextTick(() => {
+      actions.forEach((action: any) => {
+        if (action.actionValue === 'AdminGroup') {
+          actionTable.toggleRowSelection(this.systemActionList[0], true)
+        }
+        if (action.actionValue === 'AdminDevice') {
+          actionTable.toggleRowSelection(this.systemActionList[2], true)
+        }
+        if (action.actionValue === 'AdminRecord') {
+          actionTable.toggleRowSelection(this.systemActionList[5], true)
+        }
+        if (action.actionValue === 'AdminRecord') {
+          actionTable.toggleRowSelection(this.systemActionList[5], true)
+        }
+        if (action.actionValue === 'AdminAi') {
+          actionTable.toggleRowSelection(this.systemActionList[7], true)
+        }
+      })
+    }) 
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
@@ -276,7 +274,7 @@ export default class extends Mixins(layoutMxin) {
    */
   private async getPolicyInfo() {
     try {
-      this.policyLoading.resource = true
+      this.loading.resource = true
       const res: any = await getPolicyInfo({
         policyId: this.form.policyId
       })
@@ -323,7 +321,7 @@ export default class extends Mixins(layoutMxin) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
     } finally {
-      this.policyLoading.resource = false
+      this.loading.resource = false
     }
   }
   /**
@@ -347,7 +345,7 @@ export default class extends Mixins(layoutMxin) {
    */
   public async initResourceStatus(resourceList: any) {
     try {
-      this.policyLoading.dir = true
+      this.loading.dir = true
       const dirTree: any = this.$refs.dirTree
       const checkedKeys = []
       for (let index = 0, len = resourceList.length; index < len; index++) {
@@ -373,7 +371,7 @@ export default class extends Mixins(layoutMxin) {
     } catch (e) {
       console.log('e: ', e)
     } finally {
-      this.policyLoading.dir = false
+      this.loading.dir = false
     }
   }
 
@@ -420,7 +418,7 @@ export default class extends Mixins(layoutMxin) {
    */
   public async initDirs() {
     try {
-      this.policyLoading.dir = true
+      this.loading.dir = true
       const res = await getGroups({
         pageSize: 1000
       })
@@ -446,7 +444,7 @@ export default class extends Mixins(layoutMxin) {
     } catch (e) {
       this.dirList = []
     } finally {
-      this.policyLoading.dir = false
+      this.loading.dir = false
     }
   }
 
@@ -465,6 +463,7 @@ export default class extends Mixins(layoutMxin) {
   private async getTree(node: any) {
     try {
       let shareDeviceIds: any = []
+
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,

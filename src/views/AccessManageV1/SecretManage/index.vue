@@ -144,8 +144,7 @@ export default class extends Vue {
       headline: '',
       id: '',
       accessKey: '',
-      secretKey: '',
-      description: ''
+      secretKey: ''
     }
     this.showTipDialog = false
   }
@@ -249,8 +248,7 @@ export default class extends Vue {
         headline: '新建密钥成功',
         id: res.id,
         accessKey: res.accessKey,
-        secretKey: res.secretKey,
-        description: ''
+        secretKey: res.secretKey
       }
       this.showTipDialog = true
     } catch (e) {
@@ -312,8 +310,7 @@ export default class extends Vue {
             headline: 'OpenAPI授权成功',
             id: res.id,
             accessKey: res.accessKey,
-            secretKey: res.secretKey,
-            description: ''
+            secretKey: res.secretKey
           }
           this.showTipDialog = true
         }
