@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-detail">
     <div v-if="!noapp">
       <div class="select">
         应用名称：
@@ -115,13 +115,10 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-// .el-radio-group{
-//   margin-bottom: 20px;
-//   ::v-deep .el-radio-button__inner {
-//     display: inline-block;
-//     min-width: 160px;
-//   }
-// }
+.app-detail{
+  min-width: 1500px;
+  overflow: auto;
+}
 .select {
   float: left;
   padding: 6px 20px 0 0;
