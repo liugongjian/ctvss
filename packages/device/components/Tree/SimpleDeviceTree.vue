@@ -27,27 +27,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
-import { DirectoryTypeEnum } from '@vss/device/enums/index'
+import { DirectoryTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
 import { getNodeInfo } from '@vss/device/api/dir'
 
 @Component({
   name: 'SimpleDeviceTree'
 })
 export default class extends Mixins(treeMixin) {
+  @Prop()
+  private deviceInType: DeviceInTypeEnum
   private loading = false
   private async defaultLoad(node) {
     try {
       let res
       if (node.level === 0) {
         this.loading = true
-        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir, inProtocol: this.deviceInType })
         this.rootSums.onlineSize = res.onlineSize
         this.rootSums.totalSize = res.totalSize
         this.loading = false
       } else {
-        res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+        res = await getNodeInfo({ id: node.data.id, type: node.data.type, inProtocol: this.deviceInType })
       }
       return res.dirs
     } catch (e) {

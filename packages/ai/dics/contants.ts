@@ -43,3 +43,27 @@ export const HelmetClothType = [
   { label: 'helmet', cname: '未带安全帽告警' },
   { label: 'reflective', cname: '未穿反光服告警' }
 ]
+
+export const AiAttribute: any = {
+  'gender': '性别',
+  'facemask': '是否戴口罩',
+  'attachment': '附属物',
+  'age': '年龄',
+  'direction': '方向',
+  'upperwear': '上身服饰',
+  'lowerwear': '下身服饰',
+  'uppercolor': '上身服饰颜色',
+  'lowercolor': '下身服饰颜色'
+}
+
+// AI分析频率
+export const ResultTimeInterval = {
+  '1秒': 1,
+  '5秒': 5,
+  '10秒': 10,
+  '20秒': 20,
+  '30秒': 30,
+  '1分钟': 60,
+  '5分钟': 300,
+  '10分钟': 600
+}

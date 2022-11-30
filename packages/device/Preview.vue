@@ -65,6 +65,7 @@ import PreviewTree from '@vss/device/components/Tree/PreviewTree.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@vss/device/store/modules/screen'
+import { DeviceInTypeEnum } from '@vss/device/enums'
 
 @Component({
   name: 'Preview',
@@ -75,6 +76,7 @@ import { ScreenModule } from '@vss/device/store/modules/screen'
   }
 })
 export default class extends Mixins(layoutMxin) {
+  public deviceInType = DeviceInTypeEnum.Video
   // 分屏管理器实例
   public screenManager: ScreenManager = null
 

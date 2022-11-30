@@ -1,5 +1,5 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum, StatusEnum } from '../enums/index'
+import { DeviceTypeEnum, DirectoryTypeEnum, ToolsEnum, PollingStatusEnum, StatusEnum, DeviceInTypeEnum } from '../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { AdvancedSearch as AdvancedSearchType } from '../type/AdvancedSearch'
 import DeviceManager from '../services/Device/DeviceManager'
@@ -16,6 +16,7 @@ import { checkPermission } from '@vss/base/utils/permission'
   }
 })
 export default class LayoutMixin extends Vue {
+  public deviceInType: DeviceInTypeEnum
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
   public deviceTypeEnum = DeviceTypeEnum
@@ -138,7 +139,11 @@ export default class LayoutMixin extends Vue {
     if (node.level === 0) {
       this.loading.tree = true
       try {
-        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir })
+        res = await getNodeInfo({
+          id: '',
+          type: DirectoryTypeEnum.Dir,
+          inProtocol: this.deviceInType
+        })
         if (typeof this.initResourceStatus === 'function') {
           this.$nextTick(() => this.initResourceStatus())
         } else {
@@ -161,7 +166,11 @@ export default class LayoutMixin extends Vue {
       this.loading.tree = false
     } else {
       // 增加 path 属性
-      res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+      res = await getNodeInfo({
+        id: node.data.id,
+        type: node.data.type,
+        inProtocol: this.deviceInType
+      })
       const parentPath = this.concatPath(node)
       res.dirs.map((item: any) => {
         item.path = node.data.path.concat([{

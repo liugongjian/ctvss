@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
-import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
+import AppSubDetail from '@vss/ai/component/AppSubDetail.vue'
 import { getAppList } from '@vss/device/api/ai-app'
 // import { describeIboxApps } from '@/api/ibox'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
