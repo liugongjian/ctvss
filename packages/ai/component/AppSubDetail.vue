@@ -173,17 +173,17 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
-import PicCard from '@vss/ai/component/PicCard.vue'
+import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
 import CarFlowChart from './CarFlowChart.vue'
-import Locations from '@/views/Dashboard/AI/components/Locations.vue'
-import Attributes from '@/views/Dashboard/AI/components/Attributes.vue'
-import { parseMetaData, transformLocationAi } from '@/utils/ai'
-import { getAppScreenShot, getVehiclesAlarmStatic } from '@/api/ai-app'
-import { getGroupPersonAlready } from '@/api/aiConfig'
-import { decodeBase64 } from '@/utils/base64'
-import debounce from '@/utils/debounce'
-import { ResultTimeInterval } from '@/dics/index'
+import Locations from './Locations.vue'
+import Attributes from './Attributes.vue'
+import { parseMetaData, transformLocationAi } from '@vss/ai/util/ai'
+import { getAppScreenShot, getVehiclesAlarmStatic } from '@vss/device/api/ai-app'
+import debounce from '@vss/ai/util/debounce'
+import { getGroupPersonAlready } from '@vss/device/api/aiConfig'
+import { decodeBase64 } from '@vss/ai/util/base64'
+import { ResultTimeInterval } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'AppSubDetail',

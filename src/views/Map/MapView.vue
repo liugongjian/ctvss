@@ -42,6 +42,7 @@ import {
   editInterestPoint,
   delInterestPoint
 } from '@/api/map'
+import { getDevice } from '@vss/device/api/device'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import LivePlayer from '@vss/device/components/LivePlayer.vue'
 import ReplayView from '@vss/device/components/ReplayPlayer/index.vue'
@@ -243,14 +244,14 @@ export default class MapView extends Vue {
   }
 
   public async markerChange(marker) {
+    const appearance = marker.appearance || { color: '#FA8334' }
+    const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
     try {
       const data = {
         mapId: this.mapId,
         devices: [this.handleDevice(marker)]
       }
       await updateMarkers(data)
-      const appearance = marker.appearance || { color: '#FA8334' }
-      const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
       MapModule.SetMarkerInfo(mapMarker)
       this.markerlist = this.markerlist.map((item) => {
         if (marker.deviceId === item.deviceId) {
@@ -265,8 +266,18 @@ export default class MapView extends Vue {
       this.vmap.updateMarkerList(this.markerlist)
       this.cancleInterest()
     } catch (e) {
-      this.$alertError(e)
-      console.log('修改标记点失败')
+      this.$alertError(e.message)
+      console.log('修改标记点失败', e)
+      // 没有修改权限，恢复原先的坐标
+      if (e.code === 3) {
+        const deviceInfo = await getDevice({
+          deviceId: marker.deviceId
+        })
+        mapMarker.latitude = deviceInfo.device.deviceLatitude
+        mapMarker.longitude = deviceInfo.device.deviceLongitude
+        MapModule.SetMarkerInfo(mapMarker)
+        this.vmap.updateMarkerList(this.markerlist)
+      }
     }
   }
 

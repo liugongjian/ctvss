@@ -60,7 +60,7 @@ import { listGroup } from '@/api/face'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import { Component, Mixins } from 'vue-property-decorator'
 import AppMixin from '../mixin/app-mixin'
-import AppSubDetail from './component/AppSubDetail.vue'
+import AppSubDetail from '@vss/ai/component/AppSubDetail.vue'
 import AttachedDevice from '@vss/ai/component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 @Component({
