@@ -2,6 +2,45 @@ import { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 import { deviceRouter, videoRouter } from '@vss/device/router'
 
+const upPlatformRouter: RouteConfig[] = [
+  {
+    path: 'up-platform',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/index.vue'),
+    name: 'VideoUpPlatform',
+    meta: {
+      title: '向上级联',
+      icon: 'dot',
+      perms: ['*'],
+      activeMenu: '/video/up-platform'
+    }
+  },
+  {
+    path: 'up-platform/create',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/create.vue'),
+    name: 'VideoUpPlatformCreate',
+    meta: {
+      title: '新建国标级联',
+      hidden: true,
+      perms: ['*'],
+      activeMenu: '/video/up-platform'
+    }
+  },
+  {
+    path: 'up-platform/update',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/create.vue'),
+    name: 'VideoUpPlatformUpdate',
+    meta: {
+      title: '编辑国标级联',
+      hidden: true,
+      perms: ['*'],
+      activeMenu: '/video/up-platform'
+    }
+  }
+]
+
+const vssVideoRouter = videoRouter
+vssVideoRouter.children = videoRouter.children.concat(upPlatformRouter)
+
 export const v2Router: RouteConfig[] = [
   {
     path: '/dashboard',
@@ -53,7 +92,7 @@ export const v2Router: RouteConfig[] = [
     ]
   },
   deviceRouter,
-  videoRouter,
+  vssVideoRouter,
   {
     path: '/viid',
     component: Layout,

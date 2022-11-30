@@ -11,6 +11,7 @@
     <div class="tree-wrap">
       <simple-device-tree
         ref="deviceTree"
+        :device-in-type="deviceInTypeEnum.Video"
         @handle-node="selectDevice"
       />
       <!-- <el-tree
@@ -68,7 +69,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import SimpleDeviceTree from '@vss/device/components/Tree/SimpleDeviceTree.vue'
-import { DirectoryTypeEnum } from '@vss/device/enums/index'
+import { DirectoryTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
 
 @Component({
   name: 'DeviceDir',
@@ -77,6 +78,7 @@ import { DirectoryTypeEnum } from '@vss/device/enums/index'
   }
 })
 export default class extends Vue {
+  private deviceInTypeEnum = DeviceInTypeEnum
   private dialogVisible = true
   private selectDevice(dir: any) {
     if (dir.type === DirectoryTypeEnum.Ipc) {
