@@ -158,7 +158,6 @@ export const videoRouter: RouteConfig = {
   meta: {
     title: '视频服务',
     icon: 'menu-live',
-    perms: ['DescribeDevice'],
     alwaysShow: true,
     breadcrumb: true,
     version: 2
