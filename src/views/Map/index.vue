@@ -526,11 +526,11 @@ export default class extends Mixins(IndexMixin) {
       let res
       if (node.level === 0) {
         this.loading.dir = true
-        res = await getNodeInfo({ type: DirectoryTypeEnum.Dir })
+        res = await getNodeInfo({ type: DirectoryTypeEnum.Dir, inProtocol: 'video' })
         // this.deviceTree.loadChildren('01')
         this.loading.dir = false
       } else {
-        res = await getNodeInfo({ id: node.data.id, type: node.data.type })
+        res = await getNodeInfo({ id: node.data.id, type: node.data.type, inProtocol: 'video' })
       }
       resolve(res.dirs)
     } catch (e) {
