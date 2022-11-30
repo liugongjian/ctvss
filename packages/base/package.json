@@ -1,6 +1,6 @@
 {
   "name": "@vss/base",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "element-ui": "2.15.5",
-    "svg-icon": "^0.8.2"
+    "svg-icon": "^0.8.2",
+    "resize-observer-polyfill": "^1.5.1"
   }
 }

@@ -312,13 +312,6 @@ export default class extends Vue {
     this.getViewsList()
   }
 
-  /**
-     * 分页操作
-     */
-  private handleChartTableCurrentChange(val: number) {
-    this.chartPager.pageNum = val
-  }
-
   private dialogueOprate() {
     this.visibile = !this.visibile
   }

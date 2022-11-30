@@ -333,7 +333,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'gb28121',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/index.vue'),
         name: 'up-platform',
         meta: {
           title: '国标级联',
@@ -344,7 +344,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-create',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
         name: 'up-platform-gb28121-create',
         meta: {
           title: '新建国标级联',
@@ -355,7 +355,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-update',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
         name: 'up-platform-gb28121-update',
         meta: {
           title: '编辑国标级联',
@@ -471,7 +471,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -482,7 +482,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
         name: 'recordCreate',
         meta: {
           title: '新建录制模板',
@@ -493,7 +493,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
         name: 'recordUpdate',
         meta: {
           title: '编辑录制模板',
@@ -504,7 +504,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/index.vue'),
         name: 'Callback',
         meta: {
           title: '回调模板',
@@ -515,7 +515,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
         name: 'CallbackCreate',
         meta: {
           title: '新建回调模板',
@@ -526,7 +526,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
         name: 'CallbackUpdate',
         meta: {
           title: '编辑回调模板',
@@ -537,7 +537,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/index.vue'),
         name: 'Alert',
         meta: {
           title: '告警模板',
@@ -548,7 +548,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
         name: 'AlertCreate',
         meta: {
           title: '新建告警模板',
@@ -559,7 +559,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
         name: 'AlertUpdate',
         meta: {
           title: '编辑告警模板',
@@ -570,7 +570,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/details/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/Details.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/Details.vue'),
         name: 'AlertDetails',
         meta: {
           title: '模板详情',
@@ -849,7 +849,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'history',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/History/index.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/History/index.vue'),
         name: 'NotificationHistory',
         meta: {
           title: '推送历史',
@@ -861,7 +861,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/index.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/index.vue'),
         name: 'NotificationPolicy',
         meta: {
           title: '推送策略',
@@ -873,7 +873,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
         name: 'NotificationPolicyCreate',
         meta: {
           title: '创建推送策略',
@@ -885,7 +885,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
         name: 'NotificationPolicyEdit',
         meta: {
           title: '编辑推送策略',

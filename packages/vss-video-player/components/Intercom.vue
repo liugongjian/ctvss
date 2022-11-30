@@ -57,7 +57,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
-import { startTalk, stopTalk } from '@/api/intercom'
+import { startTalk, stopTalk } from '../api/intercom'
 import { StreamInfo, DeviceInfo } from '../types/VssPlayer'
 import Player from '@vss/video-player/index.vue'
 import { ScreenModule } from '@vss/device/store/modules/screen'
@@ -213,8 +213,6 @@ export default class extends ComponentMixin {
     if (!this.cannotStop) {
       const nowTime = Date.now()
       if (!this.last || nowTime - this.last > 1000) {
-        // this.last = Date.now()
-        this.isClick = false
         this.last = nowTime
         const param = {
           deviceId: this.intercomInfo.deviceId,

@@ -150,6 +150,7 @@ import { UserModule } from '@/store/modules/user'
 export default class extends Mixins(deviceFormMixin) {
   @Prop() private device: Device
   @Prop({ default: () => updateDevice }) private updateDeviceApi: (params: any) => Promise<any>
+  @Prop({ default: false }) public isIbox: boolean
 
   private dicts = dicts
   private deviceEnum = DeviceEnum
@@ -255,7 +256,6 @@ export default class extends Mixins(deviceFormMixin) {
 
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
-    this.checkIsShowMore()
   }
 
   /**
@@ -297,12 +297,9 @@ export default class extends Mixins(deviceFormMixin) {
               DeviceEnum.DeviceModel,
               DeviceEnum.Description
             ]),
-            ...pick(this.videoForm, [
-              DeviceEnum.DeviceChannelSize
-            ]),
             [DeviceEnum.DevicePort]: Number(this.deviceForm.devicePort),
             // 父级设备ID
-            [DeviceEnum.ParentDeviceId]: this.parentDeviceId
+            // [DeviceEnum.ParentDeviceId]: this.parentDeviceId
           },
           industry: {
             ...pick(this.deviceForm, [

@@ -45,7 +45,7 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
   }
 })
 export default class extends Mixins(IndexMixin, layoutMxin) {
-  private filterVideoProtocolArr = ['gb28181']
+  public filterVideoProtocolArr = ['gb28181']
   public parentDir = null
   public currentDir = null
   public dialog: any = {

@@ -47,6 +47,9 @@ export default class extends ComponentMixin {
   private resizeObserver: ResizeObserver
 
   private get globalScale() {
+    if (!UserModule.settings) {
+      return null
+    }
     const num = UserModule.settings.screenCache.videoScale
     const scale = this.scaleKind.find(_scale => {
       return _scale.num === num

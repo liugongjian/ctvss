@@ -27,6 +27,15 @@ export default class extends ComponentMixin {
   }) private streamInfo: StreamInfo
 
   private showCanvasBox = false
+  private oCanvas: any = null
+  private oCanvasWidth = null
+  private oCanvasHeight = null
+  private ctxShape: any = null
+  private ctxDrawState: boolean = null
+  private iShape = null
+  private oShape = null
+  private resizeObserver = null
+
 
   public close() {
     this.showCanvasBox = false

@@ -51,10 +51,6 @@ export default class extends Vue {
   private setRecordTemplateDialog = false
   private recordTemplateId = ''
 
-  public get isVGroup() {
-    return this.$route.query.inProtocol === 'vgroup'
-  }
-
   /**
    * 初始化
    */

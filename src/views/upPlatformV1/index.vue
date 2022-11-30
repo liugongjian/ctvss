@@ -195,7 +195,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareDirsV1, describeShareDevicesV1, deletePlatform, cancleShareDeviceV1, getPlatformsV1, cancleShareDirV1, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { describeShareDirsV1, describeShareDevicesV1, deletePlatform, cancleShareDeviceV1, getPlatformsV1, cancleShareDirV1, startShareDeviceV1, stopShareDeviceV1 } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -402,7 +402,7 @@ export default class extends Vue {
   private async startShare() {
     try {
       this.loading.startStop = true
-      await startShareDevice({
+      await startShareDeviceV1({
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知启动级联')
@@ -421,7 +421,7 @@ export default class extends Vue {
   private async stopShare() {
     try {
       this.loading.startStop = true
-      await stopShareDevice({
+      await stopShareDeviceV1({
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知停用级联')

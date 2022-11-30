@@ -140,6 +140,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.DeviceType]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.DeviceType]]"
             >
               <template slot="header">
                 <span class="filtersArrayDeviceStatus&quot;filter&quot;">设备类型</span>
@@ -156,6 +157,7 @@
               :min-width="110"
               :filters="filtersArray[deviceEnum.VideoStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.VideoStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频接入</span>
@@ -174,6 +176,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.StreamStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.StreamStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频流</span>
@@ -192,6 +195,7 @@
               min-width="110"
               :filters="filtersArray[deviceEnum.RecordStatus]"
               :filter-multiple="false"
+              :filtered-value="[filterForm[deviceEnum.RecordStatus]]"
             >
               <template slot="header">
                 <span class="filter">视频录制</span>
@@ -207,12 +211,10 @@
               :column-key="deviceEnum.ViidStatus"
               :prop="deviceEnum.ViidStatus"
               min-width="110"
-              :filters="filtersArray[deviceEnum.ViidStatus]"
-              :filter-multiple="false"
             >
               <template slot="header">
                 <span class="filter">视图接入</span>
-                <svg-icon class="filter" name="filter" width="15" height="15" />
+                <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
               </template>
               <template slot-scope="{ row }">
                 <span><status-badge :status="row[deviceEnum.ViidStatus]" />{{ viidStatus[row[deviceEnum.ViidStatus]] || '-' }}</span>
@@ -574,7 +576,7 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
       [DeviceEnum.StreamStatus]: this.filterForm[DeviceEnum.StreamStatus],
       [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
-      [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.ViidStatus],
+      // [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.ViidStatus],
       [DeviceEnum.PageNum]: this.pager.pageNum,
       [DeviceEnum.PageSize]: this.pager.pageSize
     }

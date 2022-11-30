@@ -272,7 +272,7 @@ export class RecordManager {
             this.currentRecord.offsetTime = time - record.startTime
           } else {
             this.currentRecord.offsetTime = null
-            this.screen.player.seek(time - this.currentRecord.startTime)
+            this.screen.player && this.screen.player.seek(time - this.currentRecord.startTime)
           }
         } else {
           // 本地录像

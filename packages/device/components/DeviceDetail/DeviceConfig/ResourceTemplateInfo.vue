@@ -255,6 +255,8 @@ export default class extends Vue {
   private loading = {
     AITable: false
   }
+  // 封面
+  private frameImage = null
 
   // 是否为虚拟目录下的设备
   public get isVGroup() {
@@ -410,7 +412,6 @@ export default class extends Vue {
    */
   private closeResourceDialog(isRefresh: boolean) {
     this.showResourceDialog = false
-    this.algoTabTypeDefault = ''
     if (isRefresh) {
       this.getDeviceResource()
       this.getAIAppList()

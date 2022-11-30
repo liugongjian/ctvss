@@ -32,6 +32,15 @@ const directivesList = [
   adaptiveHiding
 ]
 
+// ElementUI配置
+Object.defineProperties((ElementUI.Dialog as any).props, {
+  'closeOnClickModal': {
+    value: { default: false, type: Boolean }
+  }
+})
+
+
+
 export default {
   install(Vue) {
     Vue.use(ElementUI, { size: 'medium' })

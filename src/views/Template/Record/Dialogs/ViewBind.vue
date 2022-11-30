@@ -15,21 +15,18 @@
         prop="name"
         label="业务组/设备名称"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.name || row.id }}
         </template>
       </el-table-column>
       <el-table-column
-        :filters="filtersArray"
-        :filter-method="filterHandler"
         prop="type"
         label="类别"
       >
         <template slot="header">
           <span>类别</span>
-          <svg-icon name="filter" width="15" height="15" />
         </template>
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.type === 'device' || row.type === 'stream' ? "设备" : "业务组" }}
         </template>
       </el-table-column>
@@ -61,7 +58,6 @@ export default class extends Vue {
   }
   private loading = false
   private bindData = []
-  private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
 
   @Watch('bindData.length')
   private onBindDataChange(data: any) {
@@ -71,14 +67,10 @@ export default class extends Vue {
   private async mounted() {
     this.getRecordBindMethod()
   }
-  private filterHandler(value: string, row: any, column: any) {
-    const prop = column['property']
-    return row[prop] === value
-  }
   private async getRecordBindMethod() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         templateId: this.templateId,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize

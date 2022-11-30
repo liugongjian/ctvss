@@ -107,7 +107,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@vss/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
-import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
@@ -139,6 +139,7 @@ export default class extends Vue {
 
   private tableMaxHeight: any = null
   private currentListRecord: any = null
+  private observer: ResizeObserver = null
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
@@ -198,7 +199,6 @@ export default class extends Vue {
 
   private beforeDestroy() {
     this.tableContainer && this.observer.unobserve(this.tableContainer)
-    clearTimeout(this.refreshTimeout)
   }
 
   /**
@@ -237,7 +237,6 @@ export default class extends Vue {
     const records = this.currentScreen.recordManager.getRecordListByPage(this.pager, this.screenManager.currentScreen.currentRecordDatetime)
     this.recordList = records.recordList
     this.pager.total = records.length
-    this.secToMs(this.recordList)
   }
   /**
    * 选择视频
@@ -273,7 +272,7 @@ export default class extends Vue {
    */
   private async saveEdit(row: any) {
     try {
-      this.loading = true
+      row.loading = true
       await editRecordName({
         deviceId: this.currentScreen.deviceId,
         inProtocol: this.currentScreen.inProtocol,
@@ -285,7 +284,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.loading = false
+      row.loading = false
     }
   }
 
@@ -337,15 +336,6 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = false
     this.currentListRecord = null
-  }
-
-  /**
-   * startTime 秒转毫秒
-   */
-  private secToMs(records: any) {
-    this.records = records.map((record: any) => {
-      record.startTime = record.startTime * 1000
-    })
   }
 
   /**

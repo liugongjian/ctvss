@@ -453,16 +453,7 @@ export default class extends Vue {
     if (this.videoForm.deviceStreamSize < this.videoForm.deviceStreamPullIndex) {
       this.videoForm.deviceStreamPullIndex = this.videoForm.deviceStreamSize
     }
-  }
-
-  /**
-   * 当资源包改变时获取资源包详情（包含接入剩余设备数）
-   */
-  private onResourceChange(payload: any) {
-    this.resourcesMapping = payload.mapping
-    const videoForm: any = this.$refs.videoForm
-    !payload.isInit && videoForm.validateField(DeviceEnum.Resources)
-  }
+  }å
 
   /**
    * 判断是否显示form-item

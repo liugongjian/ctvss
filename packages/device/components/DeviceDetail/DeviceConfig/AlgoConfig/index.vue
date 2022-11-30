@@ -96,6 +96,12 @@ export default class extends Vue {
   private ratio = 1
   private cannotDraw = false
   private direction = false
+  private canvas: any = null
+  private canvasDom: any = null
+  private imageWidth: any = null
+  private imageHeight: any = null
+  private imgSrc: any = null
+
 
   private mounted() {
     // this.$nextTick(() => {
@@ -177,7 +183,8 @@ export default class extends Vue {
   private initCanvas() {
     // this.frameImage
     this.imgSrc = this.frameImage
-    const that = this
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that: any = this
     const img = new Image()
     img.src = `data:image/png;base64,${this.imgSrc}`
     // let img = new Image()
@@ -227,7 +234,8 @@ export default class extends Vue {
 
   private img2Base64(img: any) {
     const imag = new Image()
-    const that = this
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that: any = this
     imag.src = img
     imag.onload = function() {
       const canvas = document.createElement('canvas') as HTMLCanvasElement
@@ -252,7 +260,7 @@ export default class extends Vue {
   }
 
   private closeThis() {
-    this.$parent.closeCanvasDialog()
+    (this.$parent as any).closeCanvasDialog()
   }
 
   private sureThis() {
@@ -301,8 +309,8 @@ export default class extends Vue {
     }
     sendAppDescribeLine(param).then((res) => {
       if (res) {
-        this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
-        this.$parent.closeCanvasDialog()
+        this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`);
+        (this.$parent as any).closeCanvasDialog()
       }
     }).catch(e => {
       this.$message.error(e && e.message)
