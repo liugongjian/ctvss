@@ -1,7 +1,8 @@
+import { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 import { createDeviceIbox, getDevicesIbox, getDeviceIbox } from './api/device'
 
-export const deviceRouter = {
+export const deviceRouter: RouteConfig = {
   path: '/device',
   component: Layout,
   meta: {
@@ -150,7 +151,7 @@ export const deviceRouter = {
   ]
 }
 
-export const videoRouter = {
+export const videoRouter: RouteConfig = {
   path: '/video',
   component: Layout,
   redirect: 'noredirect',
@@ -208,40 +209,7 @@ export const videoRouter = {
           }
         }
       ]
-    },
-    {
-        path: 'up-platform',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/index.vue'),
-        name: 'VideoUpPlatform',
-        meta: {
-          title: '向上级联',
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/video/up-platform'
-        }
-      },
-      {
-        path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/create.vue'),
-        name: 'VideoUpPlatformCreate',
-        meta: {
-          title: '新建国标级联',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/video/up-platform'
-        }
-      },
-      {
-        path: 'up-platform/update',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/upPlatform/create.vue'),
-        name: 'VideoUpPlatformUpdate',
-        meta: {
-          title: '编辑国标级联',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/video/up-platform'
-        }
-      }
+    }
   ]
 }
 
