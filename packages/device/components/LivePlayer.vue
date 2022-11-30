@@ -26,7 +26,7 @@
       <slot name="default" />
     </template>
     <template slot="controlRight">
-      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" :type="FullscreenTypeEnum.Screen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -35,6 +35,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import { Screen } from '@vss/device/services/Screen/Screen'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 
@@ -57,6 +58,8 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  private FullscreenTypeEnum = FullscreenTypeEnum
 
   /* 当前全屏状态 */
   private get isFullscreen() {

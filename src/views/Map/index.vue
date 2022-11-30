@@ -207,6 +207,8 @@ import { getNodeInfo } from '@vss/device/api/dir'
 import { DirectoryTypeEnum } from '@vss/device/enums/index'
 import { VideoDevice } from '@vss/device/type/Device'
 import * as dicts from '@vss/device/dicts'
+import { FullscreenTypeEnum } from '@vss/device/enums/screen'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'Map',
@@ -586,6 +588,7 @@ export default class extends Mixins(IndexMixin) {
   private fullscreenMap() {
     const mapwrap: any = document.querySelector('.mapwrap')
     const docEle: any = document.documentElement
+    ScreenModule.pushFullscreenStack(FullscreenTypeEnum.Board)
     if (docEle.requestFullscreen) {
       docEle.requestFullscreen()
     } else if (docEle.webkitRequestFullScreen) {
