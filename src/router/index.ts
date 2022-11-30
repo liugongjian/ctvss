@@ -1,7 +1,7 @@
 import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import { getDeviceDetail, createDevice, editDeviceInfo, getPreviewUrl } from '@/api/ibox'
+import { getDeviceDetail, createDevice, editDeviceInfo, getPreviewUrl, describeIboxApps } from '@/api/ibox'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -421,7 +421,9 @@ export const asyncRoutes: RouteConfig[] = [
                 component: () => import(/* webpackChunkName: "device" */ '@vss/device/components/DeviceDetail/DeviceAi.vue'),
                 name: 'IBoxDeviceAi',
                 props: {
-                  getDeviceApi: getDeviceDetail
+                  isIbox: true,
+                  getDeviceApi: getDeviceDetail,
+                  describeIboxApps
                 },
                 meta: {
                   title: 'AI分析',

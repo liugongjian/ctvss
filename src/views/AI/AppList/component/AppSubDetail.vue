@@ -541,7 +541,7 @@ export default class extends Vue {
   // height: 36px;
   margin-bottom: 20px;
   line-height: 52px;
-  display: flex;
+  min-width: 1298px;
   // .refresh-button{
   //   margin-left: auto;
   // }
