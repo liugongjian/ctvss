@@ -13,7 +13,7 @@
     >
       <el-table-column
         prop="name"
-        label="业务组/设备名称"
+        label="设备名称"
       >
         <template slot-scope="{ row }">
           {{ row.name || row.id }}
