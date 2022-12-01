@@ -62,9 +62,7 @@ export default class LayoutMixin extends Vue {
   public filterInProtocolArr: any
   public filterTypeArr: any
 
-  public initResourceStatus(): any {
-    // TODO
-  }å
+  public initResourceStatus: Function = null
 
   public getVueComponent() {
     return this
@@ -145,6 +143,7 @@ export default class LayoutMixin extends Vue {
           inProtocol: this.deviceInType
         })
         if (typeof this.initResourceStatus === 'function') {
+          debugger
           this.$nextTick(() => this.initResourceStatus())
         } else {
           const pathStr =  this.$route.query.path as string

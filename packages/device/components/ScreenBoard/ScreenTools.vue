@@ -64,7 +64,7 @@ export default class extends Vue {
   }
   
   private get inspectionFlag() {
-    return this.$store.state.user.tags.showInspection === 'Y'
+    return this.$store?.state?.user?.tags?.showInspection === 'Y'
   }
 
   /* 是否为实时预览 */

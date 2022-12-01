@@ -27,7 +27,7 @@
     </template>
     <template slot="itemTools" slot-scope="{ data }">
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.SetStreamNum)" effect="dark" content="切换主子码流" placement="top" :open-delay="500">
-        <stream-selector :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="handleTools(toolsEnum.SetStreamNum, data, $event)" />
+        <stream-selector :stream-size="data.deviceStreamSize" :streams="data.streams" @onSetStreamNum="handleTools(toolsEnum.SetStreamNum, data, $event)" />
       </el-tooltip>
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
