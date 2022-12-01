@@ -131,6 +131,13 @@ export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
     cancelToken
   })
 
+
+export const getDeviceRecentlyUsed = (): Promise<any> =>
+  request({
+    url: '/device/describe/recentlyUsed',
+    method: 'get'
+  })
+
 export const getDeviceIbox = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/ibox/device',
