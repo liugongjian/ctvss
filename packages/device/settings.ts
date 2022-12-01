@@ -1,4 +1,4 @@
-import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, ToolsEnum, DirectoryTypeEnum } from './enums'
+import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, ToolsEnum, DeviceDetailTab, DirectoryTypeEnum } from './enums'
 
 /**
  * ==============================================================================================================================
@@ -564,5 +564,36 @@ export const DeviceTableColumnAllowParams = {
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.DeviceVendor,
     DeviceEnum.CreatedTime
+  ])
+}
+
+/**
+ * ==============================================================================================================================
+ * DEVICE-DETAIL
+ */
+ export const DeviceDetailTabsAllowParams = {
+  [DirectoryTypeEnum.Ipc]: new Set([
+    DeviceDetailTab.DeviceInfo,
+    DeviceDetailTab.DeviceConfig,
+    DeviceDetailTab.DeviceEvents,
+    DeviceDetailTab.DevicePreview,
+    DeviceDetailTab.DeviceReplay,
+    DeviceDetailTab.DeviceAi,
+    DeviceDetailTab.DeviceViid
+  ]),
+  [DirectoryTypeEnum.Nvr]: new Set([
+    DeviceDetailTab.DeviceInfo,
+    DeviceDetailTab.DeviceConfig,
+    DeviceDetailTab.DeviceEvents,
+    DeviceDetailTab.DeviceAi
+  ]),
+  [DirectoryTypeEnum.Platform]: new Set([
+    DeviceDetailTab.DeviceInfo,
+    DeviceDetailTab.DeviceConfig,
+    DeviceDetailTab.DeviceEvents
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
+    DeviceDetailTab.DeviceInfo,
+    DeviceDetailTab.DeviceEvents
   ])
 }

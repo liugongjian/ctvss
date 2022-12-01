@@ -4,13 +4,13 @@
       <div class="detail-wrap__header">
         <el-page-header content="设备详情" @back="back" />
         <el-tabs v-model="activeRouteName" @tab-click="handleClick">
-          <el-tab-pane label="基本信息" :name="DeviceDetailTab.DeviceInfo" />
-          <el-tab-pane v-if="hasVideo" label="配置信息" :name="DeviceDetailTab.DeviceConfig" />
-          <el-tab-pane v-if="hasVideo" label="设备事件" :name="DeviceDetailTab.DeviceEvents" />
-          <el-tab-pane v-if="hasVideo" label="实时预览" :name="DeviceDetailTab.DevicePreview" />
-          <el-tab-pane v-if="hasVideo" label="录像回放" :name="DeviceDetailTab.DeviceReplay" />
-          <el-tab-pane v-if="hasVideo" label="AI分析" :name="DeviceDetailTab.DeviceAi" />
-          <el-tab-pane v-if="hasViid" label="视图数据" :name="DeviceDetailTab.DeviceViid" />
+          <el-tab-pane label="基本信息" :name="deviceDetailTab.DeviceInfo" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceConfig)" label="配置信息" :name="deviceDetailTab.DeviceConfig" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceEvents)" label="设备事件" :name="deviceDetailTab.DeviceEvents" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DevicePreview)" label="实时预览" :name="deviceDetailTab.DevicePreview" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceReplay)" label="录像回放" :name="deviceDetailTab.DeviceReplay" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceAi)" label="AI分析" :name="deviceDetailTab.DeviceAi" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceViid)" label="视图数据" :name="deviceDetailTab.DeviceViid" />
         </el-tabs>
       </div>
       <div v-if="device.device" class="detail-wrap__body">
@@ -23,9 +23,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Inject, Provide } from 'vue-property-decorator'
 import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
 import { Device } from '@vss/device/type/Device'
+import { checkDeviceToolsVisible, checkDeviceTabsVisible } from '@vss/device/utils/param'
+import { checkPermission } from '@vss/base/utils/permission'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -35,7 +37,7 @@ export default class extends Mixins(detailMixin) {
   @Inject('handleTools')
   private handleTools!: Function
   private activeRouteName = DeviceDetailTab.DeviceInfo
-  private DeviceDetailTab = DeviceDetailTab
+  private deviceDetailTab = DeviceDetailTab
 
   @Watch('$route.name', { immediate: true })
   private routeChange(activeRouteName: DeviceDetailTab) {
@@ -73,6 +75,41 @@ export default class extends Mixins(detailMixin) {
     } else {
       this.handleTools(ToolsEnum.GoBack, 0)
     }
+  }
+
+  /**
+   * 判断是否显示tools
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  @Provide('checkToolsVisible')
+  private checkToolsVisible(prop, permissions?) {
+    const data = {
+      deviceType: this.deviceType,
+      inProtocol: this.inProtocol,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared,
+      deviceChannelNum: this.deviceChannelNum
+    }
+    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
+  }
+
+  /**
+   * 判断是否显示tabs
+   * @param prop 字段名
+   * @param permissions 策略名
+   * @param row 具体信息
+   */
+  private checkTabsVisible(prop, permissions?) {
+    const data = {
+      deviceType: this.deviceType,
+      hasVideo: this.hasVideo,
+      hasViid: this.hasViid,
+      deviceFrom: this.deviceFrom,
+      isRoleShared: this.isRoleShared
+    }
+    return checkDeviceTabsVisible(this.deviceType, prop, data) && checkPermission(permissions)
   }
 }
 </script>

@@ -51,8 +51,6 @@ import ViidInfo from './ViidInfo.vue'
 import ViidInfoEdit from './ViidInfoEdit.vue'
 import { DeviceInTypeEnum, ToolsEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/deviceMixin'
-import { checkDeviceToolsVisible } from '@vss/device/utils/param'
-import { checkPermission } from '@vss/base/utils/permission'
 import { PolicyEnum } from '@vss/base/enums/iam'
 
 @Component({
@@ -69,6 +67,8 @@ import { PolicyEnum } from '@vss/base/enums/iam'
 export default class extends Mixins(detailMixin) {
   @Inject('handleTools')
   private handleTools!: Function
+  @Inject('checkToolsVisible')
+  private checkToolsVisible!: Function
 
   @Prop() private updateDeviceApi: (params: any) => Promise<any>
 
@@ -164,24 +164,6 @@ export default class extends Mixins(detailMixin) {
     } else if (!this.hasViid && this.hasVideo) {
       this.activeTab = DeviceInTypeEnum.Video
     }
-  }
-
-  /**
-   * 判断是否显示tools
-   * @param prop 字段名
-   * @param permissions 策略名
-   * @param row 具体信息
-   */
-  @Provide('checkToolsVisible')
-  private checkToolsVisible(prop, permissions?) {
-    const data = {
-      deviceType: this.deviceType,
-      inProtocol: this.inProtocol,
-      deviceFrom: this.deviceFrom,
-      isRoleShared: this.isRoleShared,
-      deviceChannelNum: this.deviceChannelNum
-    }
-    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
   }
 }
 </script>
