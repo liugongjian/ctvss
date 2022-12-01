@@ -324,7 +324,7 @@ export default class extends Mixins(layoutMxin) {
   /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus() {
+  public initResourceStatus = async () => {
     this.policyPromise && this.policyPromise.then( async(policy: any) => {
       const resourceList = JSON.parse(policy.policyDocument).Statement[0].Resource
       if (resourceList.length) {

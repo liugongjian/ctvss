@@ -66,7 +66,7 @@ export default class extends Mixins(layoutMxin) {
     /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus() {
+  public initResourceStatus = async () => {
     Promise.resolve(this.checkedList).then(async(checkedList: any) => {
       if (checkedList.length) {
         const pathList = checkedList.map((resource: any) => resource.split(':')[2].split('/'))

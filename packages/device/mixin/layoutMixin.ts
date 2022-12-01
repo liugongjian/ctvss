@@ -143,7 +143,6 @@ export default class LayoutMixin extends Vue {
           inProtocol: this.deviceInType
         })
         if (typeof this.initResourceStatus === 'function') {
-          debugger
           this.$nextTick(() => this.initResourceStatus())
         } else {
           const pathStr =  this.$route.query.path as string
