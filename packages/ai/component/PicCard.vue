@@ -34,10 +34,10 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { decodeBase64 } from '@/utils/base64'
+import { decodeBase64 } from '@vss/ai/util/base64'
 import Locations from './Locations.vue'
-import Attributes from '@/views/Dashboard/AI/components/Attributes.vue'
-import { transformLocationAi } from '@/utils/ai'
+import Attributes from './Attributes.vue'
+import { transformLocationAi } from '@vss/ai/util/ai'
 import AlgoConfigs from './AlgoConfig'
 import { MetaRef, EventTypeToCode } from '../dics/index'
 
@@ -82,7 +82,7 @@ export default class extends Vue {
   private nopic() {
     const img: any = this.$refs.img
     this.isPicLoaded = false
-    img.src = require('@/assets/dashboard/image-placeholder.png')
+    img.src = require('@vss/ai/assets/image-placeholder.png')
     img.onerror = null // 防止闪图
   }
   private viewDetail() {
