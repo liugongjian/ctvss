@@ -63,9 +63,12 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
         const iamUserId = UserModule.iamUserId
-        const tags = Object.keys(UserModule.tags || ({})).filter(key => UserModule.tags[key] === 'Y')
-        // Generate accessible routes map based on tags and perms
-        PermissionModule.GenerateRoutes({ tags, perms, iamUserId })
+        const tagObject = UserModule.tags || ({})
+        const tags = Object.keys(tagObject).filter(key => UserModule.tags[key] === 'Y')
+        const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
+        console.log('denyPerms: ', denyPerms)
+        // Generate accessible routes map based on tags and perms and denyPerms
+        PermissionModule.GenerateRoutes({ tags, perms, denyPerms, iamUserId })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
         if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
