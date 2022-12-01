@@ -20,7 +20,7 @@
           {{ Network[platformDetails.network] || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="级联区域">
-          {{ platformDetails.regionName || '-' }}
+          {{ regionTxt || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="心跳周期">
           {{ platformDetails.keepaliveInterval || '-' }}
@@ -62,8 +62,9 @@
   </el-dialog>
 </template>
 <script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Network } from '@/dics'
+import { translateResourceRegion } from '@vss/device/api/dict'
 
 @Component({
   name: 'ViewDetails'
@@ -76,6 +77,24 @@ export default class extends Vue {
     this.$emit('on-close')
   }
   private Network = Network
+  private regionTxt = '-'
+
+  @Watch('platformDetails', { immediate: true })
+  private onDeviceChange() {
+    this.getRegionTxt()
+  }
+
+  private async getRegionTxt() {
+    try {
+      if (!this.platformDetails.regionCode) {
+        throw null
+      }
+      const res = await translateResourceRegion({ code: this.platformDetails.regionCode })
+      this.regionTxt = res.name
+    } catch (e) {
+      this.regionTxt = '-'
+    }
+  }
 }
 </script>
 
