@@ -16,7 +16,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                  v-if="checkPermission(['AdminRecord'])"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -64,7 +64,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{ row }">
               <el-button
-                v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                v-if="checkPermission(['AdminRecord'])"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"
@@ -148,11 +148,6 @@ export default class extends Vue {
 
   /* 当前分页后的录像列表 */
   private recordList: Record[] = null
-
-  /* 是否为虚拟业务组 */
-  private get isVGroup() {
-    return GroupModule.group?.inProtocol === 'vgroup'
-  }
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()

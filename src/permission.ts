@@ -18,7 +18,10 @@ const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
 }
 
-router.beforeEach(async(to: Route, from: Route, next: any) => {
+interface VssRoute extends Route {
+  children?: VssRoute[]
+}
+router.beforeEach(async(to: VssRoute, from: VssRoute, next: any) => {
   // Start progress bar
   NProgress.start()
 
@@ -80,6 +83,9 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           dashBoardIndex = dashBoardIndex === -1 ? 0 : dashBoardIndex
           // @ts-ignore
           to = PermissionModule.dynamicRoutes[dashBoardIndex]
+          while (to.children && to.children.length) {
+            to = to.children[0]
+          }
         }
         // 单点登录菜单高亮
         UserModule.casLoginId && casService.activeCasMenu(to)

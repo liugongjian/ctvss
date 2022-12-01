@@ -5,6 +5,7 @@ import { createDeviceIbox, getDevicesIbox, getDeviceIbox } from './api/device'
 export const deviceRouter: RouteConfig = {
   path: '/device',
   component: Layout,
+  redirect: 'noredirect',
   meta: {
     title: '设备管理',
     icon: 'menu-device',
@@ -158,9 +159,9 @@ export const videoRouter: RouteConfig = {
   meta: {
     title: '视频服务',
     icon: 'menu-live',
-    perms: ['DescribeDevice'],
     alwaysShow: true,
     breadcrumb: true,
+    perms: ['ScreenPreview', 'ReplayRecord'],
     version: 2
   },
   children: [

@@ -232,7 +232,7 @@ export default class extends Mixins(Validate) {
       // const res = await getGroups({
       //   pageSize: 1000
       // })
-      const res = await getNodeInfo({ type: 'dir' })
+      const res = await getNodeInfo({ type: 'dir', inProtocol: 'video' })
       this.dirList = []
       res.dirs.forEach((group: any) => {
         // 放开rtsp rtmp
@@ -589,7 +589,7 @@ export default class extends Mixins(Validate) {
       //     'real-group-id': node.data.realGroupId
       //   }
       // })
-      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id })
+      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id , inProtocol: 'video' })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
