@@ -324,7 +324,7 @@ export default class extends Vue {
   private async getAIAppList() {
     try {
       this.loading.AITable = true
-      const algoListResult = await getAppList({ deviceId: this.deviceId })
+      const algoListResult = await getAppList({ deviceId: this.deviceId, pageSize: 9999 })
       this.appList = algoListResult.aiApps
     } catch (e) {
       this.$alertError(e.message)
