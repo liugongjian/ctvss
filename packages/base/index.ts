@@ -42,8 +42,8 @@ Object.defineProperties((ElementUI.Dialog as any).props, {
 
 
 export default {
-  install(Vue) {
-    Vue.use(ElementUI, { size: 'medium' })
+  install(Vue, options: any = {}) {
+    Vue.use(ElementUI, { size: 'medium', ...options.element })
     componentsList.forEach((component: any) => {
       Vue.component(component.options.name, component)
     })

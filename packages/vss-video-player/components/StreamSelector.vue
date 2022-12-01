@@ -11,7 +11,7 @@
       <li
         v-for="(stream, index) in subStreamList"
         :key="index"
-        :class="{'selected': stream.streamNum === streamNum}"
+        :class="{ 'selected': stream.streamNum === streamNum }"
         @click.stop.prevent="setStreamNum(stream.streamNum)"
       >
         <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />

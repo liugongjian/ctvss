@@ -96,7 +96,7 @@ export default class extends Mixins(layoutMxin) {
     this.$emit('resourceListChange', this.resourceList.map((resource: any) => {
       const mainUserID = this.$store.state.user.mainUserID
       const pathIds = resource.path.map((obj: any) => obj.id)
-      return `${mainUserID}:${'type-' + resource.type}:${pathIds.join('/')}`
+      return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
     }))
   }
 
