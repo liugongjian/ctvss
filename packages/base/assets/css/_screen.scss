@@ -12,8 +12,8 @@
 /* 分屏 */
 .screen-container {
   flex: 1;
-  // display: flex;
-  // flex-direction: column;
+  display: flex;
+  flex-direction: column;
   position: relative;
 
   .screen-grid-wrap {
@@ -282,7 +282,7 @@
     }
   }
   
-  .screen-list + .screen-tools.hidden-axis {
+  .screen-tools.hidden-axis {
     position: absolute;
     bottom: 0;
     width: 100%;
