@@ -8,8 +8,8 @@ import ShowAlert from '@/components/ShowAlert'
 
 import 'normalize.css'
 import 'vue2-timepicker/dist/VueTimepicker.css'
-import '@/styles/element-variables.scss'
-import '@/styles/index.scss'
+// import '@/styles/element-variables.scss'
+// import '@/styles/index.scss'
 
 import '@/icons/components'
 import '@/permission'

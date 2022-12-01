@@ -9,7 +9,6 @@
         :key="stream.value"
         size="mini"
         type="text"
-        :class="{ 'selected': stream.value === streamNum }"
         @click.stop="setStreamNum(stream.value)"
       >
         <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
@@ -34,8 +33,6 @@ export default class extends Vue {
   })
   private streamSize?: number
   @Prop()
-  private streamNum?: number
-  @Prop()
   private streams?: Array<any>
   private streamList = [
     {
@@ -57,13 +54,6 @@ export default class extends Vue {
     return this.streamList.slice(0, this.streamSize)
   }
 
-  private get streamName() {
-    if (this.streamNum) {
-      return this.streamList[this.streamNum - 1].label
-    }
-    return ''
-  }
-
   @Watch('streams', {
     immediate: true
   })
@@ -74,6 +64,7 @@ export default class extends Vue {
   }
 
   private setStreamNum(streamNum: number) {
+    this.streamNum = streamNum
     this.$emit('onSetStreamNum', streamNum)
   }
 }

@@ -18,7 +18,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { listGroup } from '@/api/face'
+import { listGroup } from '@vss/device/api/face'
 
 @Component({
   name: 'form',

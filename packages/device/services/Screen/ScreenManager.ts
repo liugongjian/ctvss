@@ -356,6 +356,12 @@ export class ScreenManager {
     if (this.isSync) {
       this.screenList.forEach(screen => {
         screen.recordManager && screen.recordManager.getRecordListByDate(date)
+        // 当日期切换成功后将当前分屏的时间同步到其他分屏上
+        screen.recordManager.onReplayDateChange = () => {
+          if (screen.deviceId === this.currentScreen.deviceId) {
+            this.changeReplayTime(this.currentScreen.currentRecordDatetime)
+          }
+        }
       })
     } else {
       this.currentScreen.recordManager.getRecordListByDate(date)

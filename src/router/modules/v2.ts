@@ -101,6 +101,7 @@ export const v2Router: RouteConfig[] = [
       title: '视图服务',
       icon: 'menu-ga1400',
       alwaysShow: true,
+      version: 2,
       // tags: ['ga1400'],
       perms: ['*']
     },
@@ -257,6 +258,7 @@ export const v2Router: RouteConfig[] = [
       title: '凭证管理',
       icon: 'menu-certificate',
       alwaysShow: true,
+      version: 2,
       perms: ['*']
     },
     children: [

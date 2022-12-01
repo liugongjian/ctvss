@@ -246,7 +246,7 @@ import { DeviceTips } from '@vss/device/dicts/tips'
 import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '@vss/device/enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '@vss/device/settings'
 import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
-import { createDevice } from '@vss/device/api/device'
+import { createDevice, getDeviceRecentlyUsed } from '@vss/device/api/device'
 import VideoCreateForm from '@vss/device/components/Form/VideoCreateForm.vue'
 import ViidCreateForm from '@vss/device/components/Form/ViidCreateForm.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
@@ -346,6 +346,23 @@ export default class extends Mixins(deviceFormMixin) {
     }
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
+    this.getLastDeviceBasicInfo()
+  }
+
+  /**
+   * 获取最后一次新建的设备基本信息
+   */
+  private async getLastDeviceBasicInfo() {
+    const { device, region, industry } = await getDeviceRecentlyUsed()
+    this.deviceForm = {
+      ...this.deviceForm,
+      [DeviceEnum.DeviceVendor]: device.deviceVendor,
+      [DeviceEnum.Region]: region,
+      [DeviceEnum.IndustryCode]: industry.industryCode,
+      [DeviceEnum.NetworkCode]: industry.networkCode,
+      [DeviceEnum.InOrgRegion]: industry.inOrgRegion,
+      [DeviceEnum.InOrgRegionLevel]: industry.inOrgRegionLevel,
+    }
   }
 
   /**
