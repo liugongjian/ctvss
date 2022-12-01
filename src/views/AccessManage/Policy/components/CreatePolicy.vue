@@ -324,7 +324,7 @@ export default class extends Mixins(layoutMxin) {
   /**
    * 初始化资源选中状态
    */
-  public initResourceStatus = async () => {
+  public async initResourceStatus() {
     this.policyPromise && this.policyPromise.then( async(policy: any) => {
       const resourceList = JSON.parse(policy.policyDocument).Statement[0].Resource
       if (resourceList.length) {
@@ -401,7 +401,7 @@ export default class extends Mixins(layoutMxin) {
                       : this.form.resourceList.map((resource: any) => {
                         const mainUserID = this.$store.state.user.mainUserID
                         const pathIds = resource.path.map((obj: any) => obj.id)
-                        return `${mainUserID}:${'type-' + resource.type}:${pathIds.join('/')}`
+                        return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
                       })
                 }
               ]

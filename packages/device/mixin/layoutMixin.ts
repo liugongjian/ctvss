@@ -61,9 +61,6 @@ export default class LayoutMixin extends Vue {
   public filterVideoProtocolArr: any
   public filterInProtocolArr: any
   public filterTypeArr: any
-
-  public initResourceStatus: Function = null
-
   public getVueComponent() {
     return this
   }
@@ -142,8 +139,9 @@ export default class LayoutMixin extends Vue {
           type: DirectoryTypeEnum.Dir,
           inProtocol: this.deviceInType
         })
-        if (typeof this.initResourceStatus === 'function') {
-          this.$nextTick(() => this.initResourceStatus())
+
+        if (typeof (this as any).initResourceStatus === 'function') {
+          this.$nextTick(() => (this as any).initResourceStatus())
         } else {
           const pathStr =  this.$route.query.path as string
           const pathList = pathStr ? pathStr.split(',') : []

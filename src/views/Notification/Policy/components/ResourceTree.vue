@@ -66,7 +66,7 @@ export default class extends Mixins(layoutMxin) {
     /**
    * 初始化资源选中状态
    */
-  public initResourceStatus = async () => {
+  public async initResourceStatus() {
     Promise.resolve(this.checkedList).then(async(checkedList: any) => {
       if (checkedList.length) {
         const pathList = checkedList.map((resource: any) => resource.split(':')[2].split('/'))
@@ -96,7 +96,7 @@ export default class extends Mixins(layoutMxin) {
     this.$emit('resourceListChange', this.resourceList.map((resource: any) => {
       const mainUserID = this.$store.state.user.mainUserID
       const pathIds = resource.path.map((obj: any) => obj.id)
-      return `${mainUserID}:${'type-' + resource.type}:${pathIds.join('/')}`
+      return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
     }))
   }
 
