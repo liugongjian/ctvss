@@ -118,8 +118,11 @@ export default class extends Mixins(layoutMxin) {
     return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || (this.screenManager && this.screenManager.isSync)
   }
 
-  public mounted() {
+  public created() {
     ScreenModule.clearPlayingScreen()
+  }
+
+  public mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager

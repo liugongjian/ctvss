@@ -90,8 +90,11 @@ export default class extends Mixins(layoutMxin) {
     return this.screenManager && this.screenManager.currentScreen
   }
 
-  public mounted() {
+  public created() {
     ScreenModule.clearPlayingScreen()
+  }
+
+  public mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
