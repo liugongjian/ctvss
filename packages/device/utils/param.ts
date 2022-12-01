@@ -8,9 +8,10 @@ import {
   DeviceTableColumnAllowParams,
   DeviceTypeDenyParamsForIbox,
   ChannelEditAllowParams,
-  ChannelAllowParams
+  ChannelAllowParams,
+  DeviceDetailTabsAllowParams
 } from '@vss/device/settings'
-import { DeviceEnum, DirectoryTypeEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, StatusEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DirectoryTypeEnum, DeviceInTypeEnum, InTypeEnum, DeviceTypeEnum, InVideoProtocolEnum, InViidProtocolEnum, ToolsEnum, DeviceDetailTab, StatusEnum } from '@vss/device/enums/index'
 import { InVideoProtocol as InVideoProtocolDict, InViidProtocol as InViidProtocolDict } from '@vss/device/dicts/index'
 
 /**
@@ -242,5 +243,42 @@ export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum, inProt
   }
 
   return DeviceTableColumnAllowParams[type] && DeviceTableColumnAllowParams[type].has(prop) && allowFlag
+}
+
+/**
+ * 判断设备列表及详情按钮显隐
+ * @param type 目录类型
+ * @param prop 参数名
+ * @param data 具体数据
+ * @returns 判断结果
+ */
+export function checkDeviceTabsVisible(type: DeviceTypeEnum | DirectoryTypeEnum, prop: DeviceDetailTab, data?: any): boolean {
+  let allowFlag = true
+
+  // 无视频接入特殊处理
+  if (data && (!data.hasVideo)) {
+    allowFlag = ![
+      DeviceDetailTab.DevicePreview,
+      DeviceDetailTab.DeviceReplay,
+      DeviceDetailTab.DeviceAi
+    ].includes(prop)
+  }
+
+  // 无视图接入特殊处理
+  if (data && (!data.hasViid)) {
+    allowFlag = ![
+      DeviceDetailTab.DeviceViid
+    ].includes(prop)
+  }
+
+  // role分享的设备及目录特殊处理
+  if (data && data[DeviceEnum.IsRoleShared]) {
+    console.log(prop)
+    allowFlag = ![
+      DeviceDetailTab.DeviceConfig
+    ].includes(prop)
+  }
+
+  return DeviceDetailTabsAllowParams[type] && DeviceDetailTabsAllowParams[type].has(prop) && allowFlag
 }
 
