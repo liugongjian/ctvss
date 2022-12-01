@@ -40,9 +40,11 @@ export class RecordManager {
   public pageSize?: string
   /* 录像列表加载状态（不在UI中显示转圈，只用于逻辑判断） */
   public isLoading: boolean
+  /* 当改变录像日期后触发的回调事件 */
+  public onReplayDateChange?: Function
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
-
+  
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
@@ -205,6 +207,7 @@ export class RecordManager {
       } else {
         this.heatmapList = heatmaps.concat(this.heatmapList)
       }
+      this.onReplayDateChange && this.onReplayDateChange()
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
