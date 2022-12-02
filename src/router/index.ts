@@ -553,7 +553,7 @@ export const asyncRoutes: RouteConfig[] = [
           name: 'certificate',
           title: 'GA1400凭证',
           icon: 'dot',
-          perms: ['*'],
+          perms: ['DescribeViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
@@ -566,7 +566,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007005',
           title: '新建GA1400凭证',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
@@ -579,7 +579,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007006',
           title: '编辑GA1400凭证',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
