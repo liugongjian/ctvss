@@ -4,7 +4,6 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import { PollingStatusEnum } from '@vss/device/enums'
-import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import ComponentMixin from '@vss/device/components/ScreenBoard/components/mixin'
 
 @Component({
@@ -105,6 +104,7 @@ export default class extends ComponentMixin {
       }
       this.screenList[i].init()
     }
+    this.resetConfig()
   }
 
   /**
@@ -177,7 +177,7 @@ export default class extends ComponentMixin {
   private stopPolling() {
     if (this.pollingStatus !== PollingStatusEnum.Free) {
       clearTimeout(this.timer)
-      this.pollingStatus = PollingStatusEnum.Free
+      this.resetConfig()
     }
   }
 
@@ -199,6 +199,18 @@ export default class extends ComponentMixin {
       this.doPolling()
       this.pollingStatus = PollingStatusEnum.Working
     }
+  }
+
+  /**
+   * 重置配置项
+   */
+  private resetConfig() {
+    this.pollingStatus = PollingStatusEnum.Free
+    this.executeQueueConfig.interval = 20
+    this.executeQueueConfig.pageNum = 1
+    this.executeQueueConfig.pageSize = 10
+    this.executeQueueConfig.total = Infinity
+    this.executeQueueConfig.query = null
   }
 }
 
