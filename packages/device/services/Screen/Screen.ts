@@ -98,6 +98,10 @@ export class Screen {
   }
 
   constructor() {
+    this.reset()
+  }
+
+  private reset() {
     this.type = 'flv'
     this.player = null
     this.deviceId = null
@@ -234,7 +238,7 @@ export class Screen {
     ScreenModule.removePlayingScreen(this.deviceId)
     this.recordManager && this.recordManager.destroy()
     this.axiosSource && this.axiosSource.cancel()
-    this.constructor()
+    this.reset()
   }
 
   /**

@@ -67,3 +67,9 @@ export const ResultTimeInterval = {
   '5分钟': 300,
   '10分钟': 600
 }
+
+export const AiMaskType: any = {
+  0: '未戴口罩',
+  1: '戴口罩',
+  2: '佩戴不规范'
+}

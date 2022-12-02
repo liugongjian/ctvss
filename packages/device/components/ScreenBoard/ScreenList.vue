@@ -54,8 +54,11 @@
             label="开始时间"
             prop="startTime"
             min-width="180"
-            :formatter="dateFormatInTable"
-          />
+          >
+            <template slot-scope="{ row }">
+              {{ dateFormat(row.startTime * 1000) }}
+            </template>
+          </el-table-column>
           <el-table-column
             label="时长"
             prop="duration"
@@ -106,10 +109,9 @@
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@vss/device/services/Record/Record'
-import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
+import { durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
-import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import ResizeObserver from 'resize-observer-polyfill'
 import DeviceDir from '../DeviceDir.vue'
@@ -141,7 +143,6 @@ export default class extends Vue {
   private currentListRecord: any = null
   private observer: ResizeObserver = null
   private recordName = ''
-  private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private checkPermission = checkPermission
