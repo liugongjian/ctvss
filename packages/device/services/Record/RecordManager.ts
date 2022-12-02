@@ -46,6 +46,10 @@ export class RecordManager {
   private axiosSourceList: CancelTokenSource[]
   
   constructor(params: any) {
+    this.reset(params)
+  }
+
+  public reset(params: any) {
     this.screen = params.screen
     this.recordList = []
     this.heatmapList = []
@@ -75,7 +79,7 @@ export class RecordManager {
   public destroy() {
     clearInterval(this.recordInterval)
     this.cancelAxiosSource()
-    this.constructor({
+    this.reset({
       screen: this.screen
     })
   }
