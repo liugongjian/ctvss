@@ -69,6 +69,25 @@ export default class Validate extends Vue {
     return this.errorNodesData.length > 0
   }
 
+  public checkNumberOnly(treeList) {
+    this.errorNodesData = []
+    let res = []
+    treeList.forEach(item => {
+      res.push(item)
+      res.push(...this.flatTree(item))
+    })
+    let errorDirNodeData = []
+    const regx = /^\+?[0-9][0-9]*$/
+    res.forEach(x => {
+      const isNumber = regx.test(x.upGbId)
+      if (!isNumber) {
+        errorDirNodeData.push(x)
+      }
+    })
+    this.errorNodesData = errorDirNodeData
+    return this.errorNodesData.length > 0
+  }
+
   public generatePrefixVal(cur, origin) {
     let index = -1
     for (let i = cur.length - 1; i >= 0; i--) {

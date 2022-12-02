@@ -173,6 +173,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
+          <div v-if="form.enableLocalChannelName" class="cname-tip">该功能仅限GB28181协议、EHOME协议，按钮开启时，其他协议无法获取到设备侧的实际名称</div>
         </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -495,6 +496,10 @@ export default class extends Vue {
   ::v-deep .el-input,
   ::v-deep .el-textarea {
     width: 400px;
+  }
+  .cname-tip{
+      font-size: 14px;
+      color: #888888;
   }
 }
 </style>
