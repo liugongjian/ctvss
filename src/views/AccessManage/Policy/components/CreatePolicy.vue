@@ -229,18 +229,20 @@ export default class extends Mixins(layoutMxin) {
 
   private handleSelectionChange(actions: any) {
     const actionTable: any = this.$refs.actionTable
-    actions.forEach((action: any) => {
-      if (action.actionValue === 'AdminDevice') {
-        actionTable.toggleRowSelection(this.systemActionList[0], true)
-      }
-      if (action.actionValue === 'AdminRecord') {
-        actionTable.toggleRowSelection(this.systemActionList[3], true)
-      }
-      if (action.actionValue === 'AdminAi') {
-        actionTable.toggleRowSelection(this.systemActionList[5], true)
-      }
+    this.$nextTick(() => {
+      actions.forEach((action: any) => {
+        if (action.actionValue === 'AdminDevice') {
+          actionTable.toggleRowSelection(this.systemActionList[0], true)
+        }
+        if (action.actionValue === 'AdminRecord') {
+          actionTable.toggleRowSelection(this.systemActionList[3], true)
+        }
+        if (action.actionValue === 'AdminAi') {
+          actionTable.toggleRowSelection(this.systemActionList[5], true)
+        }
+      })
+      this.form.actionList = actions.map((action: any) => action.actionValue)
     })
-    this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
   private handleRowClick(row: any) {
