@@ -64,7 +64,6 @@ export default class extends Vue {
   }
 
   private setStreamNum(streamNum: number) {
-    this.streamNum = streamNum
     this.$emit('onSetStreamNum', streamNum)
   }
 }

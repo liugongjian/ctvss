@@ -596,7 +596,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'mask-recognation',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/MaskRecognation/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/MaskRecognation/index.vue'),
         name: 'AIMaskRecognation',
         meta: {
           title: '口罩识别',
@@ -609,7 +609,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai-app-list',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/index.vue'),
         name: 'AIAppList',
         meta: {
           title: 'AI应用',
@@ -623,7 +623,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
         name: 'AIAddApp',
         meta: {
           title: '添加应用',
@@ -636,7 +636,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'edit',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
         name: 'AIEditApp',
         meta: {
           title: '编辑应用',
@@ -649,7 +649,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'detail',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AppDetail.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AppDetail.vue'),
         name: 'AIAppDetail',
         meta: {
           title: '应用详情',
@@ -662,7 +662,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Config/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/Config/index.vue'),
         name: 'AIConfig',
         meta: {
           title: '人脸库',
@@ -675,7 +675,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'facelib',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/index.vue'),
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/index.vue'),
         name: 'facelib',
         meta: {
           title: '人脸库',
@@ -687,7 +687,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'facelib/detail',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/Personal.vue'),
         name: 'facelib-detail',
         meta: {
           title: '人脸库详情',

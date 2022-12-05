@@ -26,8 +26,6 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import AppSubDetail from '@vss/ai/component/AppSubDetail.vue'
 import { getAppList } from '@vss/device/api/ai-app'
-// import { describeIboxApps } from '@/api/ibox'
-// import { getAIConfigGroupData } from '@/api/aiConfig'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 
 @Component({
@@ -115,10 +113,11 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.app-detail{
+.app-detail {
   min-width: 1500px;
   overflow: auto;
 }
+
 .select {
   float: left;
   padding: 6px 20px 0 0;
