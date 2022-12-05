@@ -61,7 +61,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
-import Resource from '@vss/device/components/Resource/Edit.vue'
+import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
@@ -78,7 +78,7 @@ export default class extends Vue {
   private dialog = {
     resource: false
   }
-  private currentDevice = {}
+  private currentDevice = ''
   private breadCrumbContent = ''
   private dataList: Array<object> = []
   private pager: any = {
@@ -103,11 +103,7 @@ export default class extends Vue {
   }
 
   public updateResource(row: any) {
-    this.currentDevice = {
-      device: {
-        deviceId: row.deviceId
-      }
-    }
+    this.currentDevice = row
     this.dialog.resource = true
   }
 

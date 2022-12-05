@@ -978,7 +978,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'resource',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'),
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/index.vue'),
         name: 'BillingResource',
         meta: {
           title: '资源包管理',
@@ -988,7 +988,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'resource/management',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'),
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/Manage.vue'),
         name: 'BillingResourceManagement',
         meta: {
           title: '资源包管理',
