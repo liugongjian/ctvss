@@ -122,37 +122,49 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 
   private getinitialCheckedNodes() {
     const app = this.appInfo()
-    const deviceIds = JSON.parse(app.deviceIds)
-    const detectZones = JSON.parse(app.detectZones)
-    const nodes = []
-    for (let i = 0; i < deviceIds.length; i++) {
-      const detectZone = JSON.parse(detectZones[i])
-      nodes.push({
-        deviceId: deviceIds[i] + '',
-        algorithmMetadata: JSON.stringify({
-          DangerZone: detectZone.map((zone) => zone + '')
+    if (app && app.deviceIds) {
+      const deviceIds = JSON.parse(app.deviceIds)
+      const detectZones = JSON.parse(app.detectZones)
+      const nodes = []
+      for (let i = 0; i < deviceIds.length; i++) {
+        const detectZone = JSON.parse(detectZones[i])
+        nodes.push({
+          deviceId: deviceIds[i] + '',
+          algorithmMetadata: JSON.stringify({
+            DangerZone: detectZone.map((zone) => zone + '')
+          })
         })
-      })
+      }
+      this.initialCheckedNodes = nodes
     }
-    this.initialCheckedNodes = nodes
   }
 
   // 获取NVR下设备目录——只有nvr设备有子节点
   public async loadDirs(node: any, resolve: any) {
     const { data } = node
+    const param = {
+      ParentDeviceId: node.data.deviceId,
+      pageNum: 1,
+      pageSize: 1000
+    }
+    const { devices } = await getDeviceList(param)
     if (data.deviceType === 'nvr') {
-      const iboxNvr = data.deviceChannels.map((item: any) => ({
-        ...item,
-        deviceType: 'ipc',
-        label: item.deviceName,
-        id: item.deviceId,
-        meta: null,
-        isLeaf: true,
-        deviceStatus:
-            node.data?.deviceStatus || 'off',
-        streamStatus:
-            item.streams[0]?.streamStatus || 'off'
-      }))
+      const iboxNvr = devices.map((item: any) => {
+        const inProtocal = item.videos[0]?.inVideoProtocol
+        return {
+          ...item,
+          deviceType: 'ipc',
+          label: item.device.deviceName,
+          deviceName: item.device.deviceName,
+          id: item.device.deviceId,
+          meta: null,
+          isLeaf: true,
+          deviceStatus:
+            item.videos[0][inProtocal + 'Device']?.deviceStatus?.isOnline || 'off',
+          streamStatus:
+            item.videos[0][inProtocal + 'Device']?.streams[0]?.streamStatus || 'off'
+        }
+      })
       return resolve(iboxNvr)
     }
     return resolve([])
@@ -193,8 +205,6 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
       console.log(error)
     }
   }
-
-  private checkTreeNodes() {}
 
   private changeStepPrev() {
     this.$emit('update:step', this.step - 1)
