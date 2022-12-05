@@ -534,3 +534,34 @@ export const getViewDetail = (params: any): Promise<any> =>
     url: '/viid/videoImages/' + `${params.deviceId}/${params.type}/${params.id}`,
     method: 'get'
   })
+
+  
+/**
+*  提交录像锁定时段
+*/
+export const setLock = (data: any): Promise<any> =>
+request({
+  url: '/record/lock',
+  method: 'post',
+  data
+})
+
+/**
+* 提交解锁录像
+*/
+export const unLock = (data: any): Promise<any> =>
+request({
+  url: '/record/unlock',
+  method: 'post',
+  data
+})
+
+/**
+* 获取录像锁列表
+*/
+export const getLockList = (data?: any) =>
+request({
+url: '/record/lock/list',
+method: 'post',
+data
+})
