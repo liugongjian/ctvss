@@ -419,6 +419,9 @@ export const DirectoryTypeAllowParams = {
   [DirectoryTypeEnum.Platform]: new Set([
     ToolsEnum.SortDirectory,
     ToolsEnum.ShowMore
+  ]),
+  [DirectoryTypeEnum.Role]: new Set([
+    ToolsEnum.ShowMore
   ])
 }
 
