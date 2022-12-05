@@ -272,7 +272,7 @@ export default class extends Vue {
       await editRecordName({
         deviceId: this.currentScreen.deviceId,
         inProtocol: this.currentScreen.inProtocol,
-        startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
+        startTime: row.startTime,
         customName: this.recordName
       })
       await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
@@ -300,7 +300,7 @@ export default class extends Vue {
       record.loading = true
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
-        startTime: record.startTime / 1000,
+        startTime: record.startTime,
         fileFormat: 'mp4',
         inProtocol: this.currentScreen.inProtocol
       })
