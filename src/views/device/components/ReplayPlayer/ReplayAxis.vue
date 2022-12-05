@@ -649,7 +649,6 @@ export default class extends Vue {
    *  点击锁，解绑
    */
   private onClickLock(e: any) {
-    console.log('gudgudugudugud dudududdadada', this.notClick, this.role)
     if (!this.notClick) {
       if (this.role === 'sub-role') return
       this.axisData.locks.map((item: any) => {
@@ -669,10 +668,11 @@ export default class extends Vue {
    */
   private moveAxisStart(e: MouseEvent) {
     e.stopPropagation()
+    this.notClick = false
     this.axisDrag.isDragging = true
     this.axisDrag.startX = e.x
     this.axisDrag.startTime = this.currentTime
-    window.addEventListener('mousemove', this.onAxisMove)
+    // window.addEventListener('mousemove', this.onAxisMove)
     window.addEventListener('mouseup', this.onAxisMouseup)
   }
 
