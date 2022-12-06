@@ -22,7 +22,7 @@
             <el-button type="text" @click="algoConfig(scope.row)">
               算法配置
             </el-button>
-            <el-button type="text" @click="unbind(scope.row)"> 解绑 </el-button>
+            <el-button type="text" :disabled="scope.row.status !== '[0]'" @click="unbind(scope.row)"> 解绑 </el-button>
             <el-button type="text" @click="startOrStop(scope.row)">
               {{ scope.row.status === '[0]' ? '启用' : '停用' }}
             </el-button>
