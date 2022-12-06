@@ -46,6 +46,7 @@ export default class AiAppList extends Vue {
   private loading = {
     table: false
   }
+
   private pager = {
     pageSize: 1000,
     pageNum: 1,

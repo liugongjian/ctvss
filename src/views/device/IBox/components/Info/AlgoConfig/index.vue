@@ -54,6 +54,7 @@
           />
         </div>
       </div>
+
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sureThis">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
@@ -93,6 +94,8 @@ export default class extends Vue {
   @Prop() private frameImage?: any
   @Prop() private frameLoading?: any
   @Prop() private meta!: any
+  // 是否必须配置才能提交
+  @Prop({ default: false }) private needConfig!: boolean
 
   private loading = {
     frameImage: true
@@ -269,7 +272,9 @@ export default class extends Vue {
 
   private cancel() {
     this.closeThis()
-    this.$parent.setNodeOppositeChecked(this.deviceId)
+    if (!this.needConfig) {
+      this.$parent.setNodeOppositeChecked(this.deviceId)
+    }
   }
 
   private sureThis() {
@@ -328,6 +333,13 @@ export default class extends Vue {
       deviceId: this.deviceId
     }
     console.log('param:', param)
+    // 需要提示+阻断：未配置安全区域
+    debugger
+    console.log(this.needConfig)
+    if (this.needConfig && perPoints.length === 0) {
+      this.$message.warning('未指定危险区域，请配置后提交')
+      return
+    }
     this.$emit('add-meta', param)
     this.closeThis()
     // sendAppDescribeLine(param).then((res) => {
@@ -338,6 +350,10 @@ export default class extends Vue {
     // }).catch(e => {
     //   this.$message.error(e && e.message)
     // })
+  }
+
+  private mounted() {
+    console.log('this.needConfig:', this.needConfig)
   }
 
   private clear() {

@@ -22,6 +22,7 @@
       :props="treeProp"
       lazy
       @check-change="checkCallback"
+      @node-click="nodeClick"
     >
       <span
         slot-scope="{node, data}"
@@ -157,6 +158,7 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
           label: item.device.deviceName,
           deviceName: item.device.deviceName,
           id: item.device.deviceId,
+          deviceId: item.device.deviceId,
           meta: null,
           isLeaf: true,
           deviceStatus:
@@ -314,6 +316,11 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
 
   private back() {
     this.backToAppList()
+  }
+
+  private nodeClick(node, data) {
+    console.log(node)
+    console.log(data)
   }
 }
 </script>
