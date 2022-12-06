@@ -6,7 +6,7 @@ import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@vss/base/
 import { UserModule } from '@/store/modules/user'
 import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
-import { pick } from 'lodash'
+import { pick, cloneDeep } from 'lodash'
 import { getPollList } from '@vss/device/api/dir'
 
 interface ScreenManagerConfig {
@@ -354,12 +354,13 @@ export class ScreenManager {
    */
   public changeReplayDate(date) {
     if (this.isSync) {
+      const current = this.currentScreen
       this.screenList.forEach(screen => {
         screen.recordManager && screen.recordManager.getRecordListByDate(date)
         // 当日期切换成功后将当前分屏的时间同步到其他分屏上
         screen.recordManager.onReplayDateChange = () => {
-          if (screen.deviceId === this.currentScreen.deviceId) {
-            this.changeReplayTime(this.currentScreen.currentRecordDatetime)
+          if (screen.deviceId === current.deviceId) {
+            this.changeReplayTime(current.currentRecordDatetime)
           }
         }
       })
