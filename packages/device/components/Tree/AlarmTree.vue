@@ -21,7 +21,7 @@
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
-      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus)" :status="data[deviceEnum.StreamStatus]" />
+      <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus, null, data)" :status="data[deviceEnum.StreamStatus]" />
     </template>
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}

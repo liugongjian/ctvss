@@ -183,7 +183,7 @@ export default class LayoutMixin extends Vue {
       res.dirs = res.dirs.filter((dir: any) => !dir.inProtocol || this.filterInProtocolArr.includes(dir.inProtocol))
     }
     if (Array.isArray(this.filterVideoProtocolArr) && this.filterVideoProtocolArr.length) {
-      res.dirs = res.dirs.filter((dir: any) => !dir.inVideoProtocol || this.filterVideoProtocolArr.includes(dir.inVideoProtocol))
+      res.dirs = res.dirs.filter((dir: any) => this.filterVideoProtocolArr.includes(dir.inVideoProtocol))
     }
     
     return res.dirs
