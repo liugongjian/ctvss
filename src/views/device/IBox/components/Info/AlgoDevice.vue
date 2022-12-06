@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject, Watch } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 import { getDeviceList } from '@/api/ibox'
@@ -108,7 +108,16 @@ export default class extends Mixins(AppMixin, AlgoMixin) {
   private configAlgoInfo = { }
   private dangerZone = null
 
-  private async mounted() {
+  @Watch('isDevice')
+  private isDeviceOn() {
+    this.isDevice && this.initTree()
+  }
+
+  private mounted() {
+    this.initTree()
+  }
+
+  private async initTree() {
     await this.loadIboxDevice()
     if (this.appInfo) {
       this.getinitialCheckedNodes()
