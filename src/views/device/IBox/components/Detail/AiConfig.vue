@@ -51,7 +51,7 @@
       :frame-image="frameImage"
       :frame-loading="frameLoading"
       :meta="meta"
-      :need-config="true"
+      need-config
       @add-meta="addMeta"
     />
   </div>

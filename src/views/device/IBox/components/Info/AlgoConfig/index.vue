@@ -95,7 +95,7 @@ export default class extends Vue {
   @Prop() private frameLoading?: any
   @Prop() private meta!: any
   // 是否必须配置才能提交
-  @Prop({ default: false }) private needConfig!: boolean
+  @Prop({ default: false, type: Boolean }) private needConfig!: Boolean
 
   private loading = {
     frameImage: true
@@ -350,10 +350,6 @@ export default class extends Vue {
     // }).catch(e => {
     //   this.$message.error(e && e.message)
     // })
-  }
-
-  private mounted() {
-    console.log('this.needConfig:', this.needConfig)
   }
 
   private clear() {
