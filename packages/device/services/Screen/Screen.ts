@@ -282,7 +282,14 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
         if (this.streamNum && this.streams.length) {
           const stream = this.streams.find(s => this.streamNum == s.streamNum)
-          if (stream) stream.streamStatus = StatusEnum.On
+          if (stream) {
+            stream.streamStatus = StatusEnum.On
+          } else {
+            this.streams.push({
+              streamNum: this.streamNum,
+              streamStatus: StatusEnum.On
+            })
+          }
         }
       }
       this.isLoading = false
