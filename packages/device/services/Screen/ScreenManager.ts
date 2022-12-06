@@ -352,16 +352,13 @@ export class ScreenManager {
   /**
    * 切换录像日期
    */
-  public changeReplayDate(date) {
+  public async changeReplayDate(date) {
     if (this.isSync) {
       const current = this.currentScreen
+      await current.recordManager.getRecordListByDate(date)
       this.screenList.forEach(screen => {
-        screen.recordManager && screen.recordManager.getRecordListByDate(date)
-        // 当日期切换成功后将当前分屏的时间同步到其他分屏上
-        screen.recordManager.onReplayDateChange = () => {
-          if (screen.deviceId === current.deviceId) {
-            this.changeReplayTime(current.currentRecordDatetime)
-          }
+        if (screen.deviceId !== current.deviceId) {
+          screen.recordManager && screen.recordManager.seek(current.currentRecordDatetime)
         }
       })
     } else {
