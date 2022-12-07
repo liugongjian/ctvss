@@ -43,6 +43,7 @@
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
+        <PtzLock v-if="player && isLive" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
@@ -72,6 +73,7 @@ import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
+import PtzLock from './components/PtzLock.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
 import More from './components/More.vue'
@@ -91,7 +93,8 @@ import More from './components/More.vue'
     PtzZoom,
     Intercom,
     LiveReplaySelector,
-    More
+    More,
+    PtzLock
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
