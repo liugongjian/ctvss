@@ -594,6 +594,7 @@ export default class extends Mixins(createMixin) {
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
+
   private gbVersionList = ['2011', '2016']
   private deviceTypeList = Object.values(DeviceGb28181Type).map((type) => {
     return {
@@ -601,10 +602,12 @@ export default class extends Mixins(createMixin) {
       value: type.toLowerCase()
     }
   })
+
   private apeTypeList = [
     // { label: '视频卡口', value: 'Tollgate' },
     { label: '视图采集设备', value: 'APE' }
   ]
+
   private gbAccountList = []
   private ga1400AccountList = []
   public form: any = {
@@ -650,6 +653,7 @@ export default class extends Mixins(createMixin) {
     createGb28181Certificate: false,
     createGa1400Certificate: false
   }
+
   private hasViewLib = false
 
   private created() {
@@ -810,6 +814,7 @@ export default class extends Mixins(createMixin) {
       this.loading.account = false
     }
   }
+
   /**
    * 获取ga1400账号
    */
@@ -837,7 +842,7 @@ export default class extends Mixins(createMixin) {
       this.rules = {
         ...this.rules,
         ...{
-          deviceName: [
+          channelName: [
             { required: true, message: '请输入设备名称', trigger: 'blur' }
           ]
         }
@@ -987,7 +992,7 @@ export default class extends Mixins(createMixin) {
    */
   private async createOrUpdateViewLib() {
     if (this.tabPaneList.length !== 1) {
-      let params = {
+      const params = {
         inProtocol: this.ga1400Form.inProtocol,
         apeType: this.ga1400Form.apeType,
         certId: this.ga1400Form.certId,
@@ -1013,6 +1018,7 @@ export default class extends Mixins(createMixin) {
       await createViewLib(params)
     }
   }
+
   /**
    * 获取视图库信息
    */
@@ -1030,8 +1036,8 @@ export default class extends Mixins(createMixin) {
    * 校验MAC地址
    */
   private async validateMacAddr(rule: any, value: string, callback: Function) {
-    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
-    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    const reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    const reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
     if (value && !reg1.test(value) && !reg2.test(value)) {
       callback(new Error('请输入规范MAC地址'))
     } else {
