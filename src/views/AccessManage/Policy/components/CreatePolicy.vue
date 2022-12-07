@@ -15,7 +15,7 @@
         </el-form-item>
         <el-form-item label="操作：" prop="actionList">
           <span v-if="actionType === 'besideSelected'" style="color: #c0c4cc;">所有操作权限</span>
-          <el-table v-else-if="actionType === 'selected'" ref="actionTable" :data="systemActionList" tooltip-effect="dark" @selection-change="handleSelectionChange">
+          <el-table v-else-if="actionType === 'selected'" ref="actionTable" :data="filteredSystemActionList" tooltip-effect="dark" @selection-change="handleSelectionChange">
             <el-table-column type="selection" :selectable="checkSelectable" :label-class-name="isCtyunPolicy ? 'is-ctyun-policy' : ''" width="55" />
             <el-table-column label="操作名称" prop="actionName" width="200" />
             <el-table-column label="操作描述" prop="actionDesc" />
@@ -79,6 +79,8 @@
 import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import settings from '@/settings'
+import { UserModule } from '@/store/modules/user'
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
@@ -90,78 +92,19 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
-  private systemActionList = [
-    {
-      actionName: '查看业务组',
-      actionValue: 'DescribeGroup',
-      actionDesc: '拥有业务组的查看权限，可以展示业务组管理菜单'
-    },
-    {
-      actionName: '管理业务组',
-      actionValue: 'AdminGroup',
-      actionDesc: '拥有业务组的管理权限，可对业务组进行管理操作'
-    },
-    {
-      actionName: '查询设备',
-      actionValue: 'DescribeDevice',
-      actionDesc: '具有设备查询的权限，可以展示设备管理菜单'
-    },
-    {
-      actionName: '管理设备',
-      actionValue: 'AdminDevice',
-      actionDesc: '拥有设备管理的权限，可对设备进行管理操作'
-    },
-    {
-      actionName: '实时预览',
-      actionValue: 'ScreenPreview',
-      actionDesc: '具备实时预览菜单'
-    },
-    {
-      actionName: '录像回放',
-      actionValue: 'ReplayRecord',
-      actionDesc: '具备录像回放菜单'
-    },
-    {
-      actionName: '管理录像',
-      actionValue: 'AdminRecord',
-      actionDesc: '拥有录像下载，录像文件改名的权限'
-    },
-    {
-      actionName: '查看AI应用',
-      actionValue: 'DescribeAi',
-      actionDesc: '拥有AI管理权限'
-    },
-    {
-      actionName: '管理AI应用',
-      actionValue: 'AdminAi',
-      actionDesc: '拥有AI管理权限'
-    },
-    {
-      actionName: '查看电子地图',
-      actionValue: 'DescribeMap',
-      actionDesc: '拥有电子地图的查看权限'
-    },
-    {
-      actionName: '查看概览页面',
-      actionValue: 'DescribeDashboard',
-      actionDesc: '拥有概览页面的查看权限'
-    },
-    {
-      actionName: '车辆管理',
-      actionValue: 'AdminCar',
-      actionDesc: '拥有车辆管理权限'
-    }
-  ]
+
   private dirList: any = []
   public loading = {
     dir: false,
     resource: false
   }
+
   private treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
   }
+
   private form: any = {
     policyId: '',
     policyName: '',
@@ -171,6 +114,7 @@ export default class extends Vue {
     actionList: [],
     resourceList: []
   }
+
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
@@ -214,6 +158,13 @@ export default class extends Vue {
   private get isUpdate() {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
+
+  private get filteredSystemActionList() {
+    const tagObject = UserModule.tags || ({})
+    const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
+    return settings.systemActionList.filter((action: any) => !denyPerms.includes(action.actionValue))
+  }
+
   private async mounted() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
@@ -239,23 +190,12 @@ export default class extends Vue {
     const actionTable: any = this.$refs.actionTable
     this.$nextTick(() => {
       actions.forEach((action: any) => {
-        if (action.actionValue === 'AdminGroup') {
-          actionTable.toggleRowSelection(this.systemActionList[0], true)
-        }
-        if (action.actionValue === 'AdminDevice') {
-          actionTable.toggleRowSelection(this.systemActionList[2], true)
-        }
-        if (action.actionValue === 'AdminRecord') {
-          actionTable.toggleRowSelection(this.systemActionList[5], true)
-        }
-        if (action.actionValue === 'AdminRecord') {
-          actionTable.toggleRowSelection(this.systemActionList[5], true)
-        }
-        if (action.actionValue === 'AdminAi') {
-          actionTable.toggleRowSelection(this.systemActionList[7], true)
+        if (action.autoSelected) {
+          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionValue === action.autoSelected)
+          autoSelectedRow && actionTable.toggleRowSelection(autoSelectedRow, true)
         }
       })
-    }) 
+    })
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
@@ -269,6 +209,7 @@ export default class extends Vue {
     const actionTable: any = this.$refs.actionTable
     actionTable.toggleRowSelection(row, index === -1)
   }
+
   /*
    * 获取策略详情
    */
@@ -287,20 +228,14 @@ export default class extends Vue {
       } else {
         this.actionType = 'selected'
         if (this.form.actionList[0] === 'vss:Get*') {
-          this.form.actionList = [
-            'DescribeGroup',
-            'DescribeDevice',
-            'ScreenPreview',
-            'ReplayRecord',
-            'DescribeAi',
-            'DescribeMap',
-            'DescribeDashboard'
-          ]
+          this.form.actionList = this.filteredSystemActionList
+            .filter((row: any) => row.actionType === 'GET')
+            .map((row: any) => row.actionValue)
         }
         this.$nextTick(() => {
           const actionTable: any = this.$refs.actionTable
           this.form.actionList.forEach((action: any) => {
-            const row = this.systemActionList.find(
+            const row = this.filteredSystemActionList.find(
               (systemAction: any) => systemAction.actionValue === action
             )
             if (row) {
@@ -324,22 +259,19 @@ export default class extends Vue {
       this.loading.resource = false
     }
   }
+
   /**
    * 检测是否禁用
    */
   private checkSelectable(row: any) {
+    if (this.isCtyunPolicy) {
+      return false
+    }
     const actionList = this.form.actionList
-    return !(
-      this.isCtyunPolicy ||
-      (row.actionValue === 'DescribeGroup' &&
-        actionList.indexOf('AdminGroup') !== -1) ||
-      (row.actionValue === 'DescribeDevice' &&
-        actionList.indexOf('AdminDevice') !== -1) ||
-      (row.actionValue === 'ReplayRecord' &&
-        actionList.indexOf('AdminRecord') !== -1) ||
-      (row.actionValue === 'DescribeAi' && actionList.indexOf('AdminAi') !== -1)
-    )
+    const relatedRow = this.filteredSystemActionList.find((action: any) => action.autoSelected === row.actionValue)
+    return !(relatedRow && actionList.includes(relatedRow.actionValue))
   }
+
   /**
    * 初始化资源选中状态
    */
@@ -385,7 +317,7 @@ export default class extends Vue {
     }
     try {
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
@@ -462,7 +394,7 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
-      let shareDeviceIds: any = []
+      const shareDeviceIds: any = []
 
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
@@ -472,8 +404,8 @@ export default class extends Vue {
       })
 
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
-      let dirs: any = devices.dirs
+      const checkedKeys = dirTree.getCheckedKeys()
+      const dirs: any = devices.dirs
         .filter((dir: any) => dir.type === 'dir')
         .map((dir: any) => {
           if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -533,7 +465,7 @@ export default class extends Vue {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
-          let data = {
+          const data = {
             policyId: this.form.policyId || undefined,
             policyName: this.form.policyName,
             desc: this.form.desc,
@@ -580,6 +512,7 @@ export default class extends Vue {
       }
     })
   }
+
   private back() {
     // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)

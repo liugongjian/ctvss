@@ -28,6 +28,7 @@ import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
+import settings from '@/settings'
 
 @Component({
   components: {
@@ -83,6 +84,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     key: '1a66a5c2317368a282ceb2b326767651',
     key2: '2a66a5c2317368a582ceb2b326767653'
   }
+
   public playConfig = {
     auth: true,
     key: '1a66a5c2317368a282ceb2b326767651',
@@ -99,26 +101,31 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       }
     }
   }
+
   public pushExpired?: number | null = null
   public template: Record<any, Array<RecordTemplate>> = {
     snapshotTemplate: [],
     recordTemplate: []
   }
+
   public dialog = {
     setAuthConfig: false,
     moveDir: false
   }
+
   public loading = {
     info: false,
     groupInfo: false,
     template: false
   }
+
   public recordTemplateId = ''
   public autoStreamNumObj = {
     1: '主码流',
     2: '子码流',
     3: '第三码流'
   }
+
   public regionList = regionList
   public lianzhouAddress: string = ''
 
@@ -216,6 +223,15 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
    * 针对ga1400标识
    */
   public get ga1400Flag() {
+    const userState = this.$store.state.user
+    const perms = userState.perms
+    const privateUserTag = userState.tags.privateUser || ''
+    const denyPerms = settings.privateDenyPerms[privateUserTag] || []
+    if (denyPerms.includes('AdminViid') ||
+        (!perms.includes('*') && !perms.includes('AdminViid'))
+    ) {
+      return false
+    }
     return true
     // return this.$store.state.user.tags.ga1400 === 'Y'
   }
@@ -290,7 +306,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     if (!statusArr) {
       return false
     }
-    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    const statusObj = statusArr.find((status: any) => status.streamNum === num)
     if (!statusObj) {
       return false
     } else {
@@ -342,21 +358,21 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       })
       this.inNetworkType = resourcesRes.inNetworkType
       const resourcesMapping: any = {
-        'VSS_VIDEO': false,
-        'VSS_UPLOAD_BW': false,
-        'VSS_AI': false
+        VSS_VIDEO: false,
+        VSS_UPLOAD_BW: false,
+        VSS_AI: false
       }
       if (this.isPrivateInNetwork) {
-        delete resourcesMapping['VSS_UPLOAD_BW']
+        delete resourcesMapping.VSS_UPLOAD_BW
       }
       if (this.info?.inProtocol !== 'gb28181') {
-        delete resourcesMapping['VSS_AI']
+        delete resourcesMapping.VSS_AI
       }
       resourcesRes.resources.forEach((resource: any) => {
         resourcesMapping[resource.resourceType] = true
       })
       const resources = []
-      for (let key in resourcesMapping) {
+      for (const key in resourcesMapping) {
         resources.push({
           label: key,
           value: resourcesMapping[key]

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">添加平台</el-button>
+        <el-button v-if="checkPermission(['AdminViid'])" type="primary" @click="handleCreate">添加平台</el-button>
         <div class="filter-container__right">
           <el-button class="el-button-rect" @click="refresh">
             <svg-icon name="refresh" />
@@ -29,10 +29,10 @@
         <el-table-column prop="port" label="端口" min-width="160" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="row.isActive" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
-            <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
+            <el-button v-if="row.isActive && checkPermission(['AdminViid'])" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
+            <el-button v-else-if="checkPermission(['AdminViid'])" type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
             <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
-            <el-button type="text" @click.stop="edit(row)">编辑</el-button>
+            <el-button v-if="checkPermission(['AdminViid'])" type="text" @click.stop="edit(row)">编辑</el-button>
             <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>
@@ -61,6 +61,7 @@ import { GB28181 } from '@/type/Certificate'
 import ViewDetails from './components/ViewDetails.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList } from '@/api/viewLib'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'CertificateGb28181List',
@@ -70,6 +71,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
+  private checkPermission = checkPermission
   private loading = false
   private dataList = []
   private pager = {
@@ -77,10 +79,12 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+
   private platformDetails = null
   private dialog = {
     viewDetails: false
   }
+
   private dateFormatInTable = dateFormatInTable
 
   @Watch('dataList.length')
@@ -100,7 +104,7 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    let params = {
+    const params = {
       pageNum: this.pager.pageNum - 1,
       pageSize: this.pager.pageSize
     }
@@ -166,6 +170,7 @@ export default class extends Vue {
     this.$message.success('启用成功！')
     this.getList()
   }
+
   /**
    * 停止
    */
