@@ -145,7 +145,7 @@ module.exports = {
     // https://webpack.js.org/configuration/devtool/#development
     config
       .when(process.env.NODE_ENV === 'development',
-        config => config.devtool('cheap-eval-source-map')
+        config => config.devtool('cheap-module-eval-source-map')
       )
 
     // remove vue-cli-service's progress output
