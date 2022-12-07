@@ -98,6 +98,7 @@
     </el-tabs>
     <ip-restriction v-if="showIpDialog" @on-close="changeIpDialog" />
     <lock-rule v-if="showCustomDialog" @on-close="changeCustomDialog" />
+    <list-drawer v-if="showListDrawer" @on-close="changeShowListDrawer" />
   </el-card>
 </template>
 <script lang="ts">
@@ -105,12 +106,14 @@ import { Component, Vue } from 'vue-property-decorator'
 
 import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
+import ListDrawer from './components/ListDrawer.vue'
 
 @Component({
   name: 'AccessRestriction',
   components: {
     IpRestriction,
-    LockRule
+    LockRule,
+    ListDrawer
   }
 })
 export default class extends Vue {
@@ -120,12 +123,18 @@ export default class extends Vue {
 
   private showCustomDialog: boolean = false
 
+  private showListDrawer: boolean = false
+
   private changeIpDialog() {
     this.showIpDialog = !this.showIpDialog
   }
 
   private changeCustomDialog() {
     this.showCustomDialog = !this.showCustomDialog
+  }
+
+  private changeShowListDrawer() {
+    this.showListDrawer = !this.showListDrawer
   }
 }
 </script>

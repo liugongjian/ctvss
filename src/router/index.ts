@@ -1205,6 +1205,29 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/statistic',
+    component: Layout,
+    meta: {
+      title: '系统设置',
+      breadcrumb: true,
+      icon: 'menu-system',
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'menu-system',
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
     path: '/sysconfig',
     component: Layout,
     meta: {
