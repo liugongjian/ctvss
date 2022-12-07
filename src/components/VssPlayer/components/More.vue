@@ -65,10 +65,13 @@ export default class extends ComponentMixin {
       this.clearClass()
       if (this.playerWrap.clientWidth >= this.sizeThreshold.small[0] && this.playerWrap.clientWidth < this.sizeThreshold.small[1]) {
         addClass(this.playerWrap, 'vss-player__wrap--small')
+        this.$emit('isShow', false)
       } else if (this.playerWrap.clientWidth < this.sizeThreshold.mini[1]) {
         addClass(this.playerWrap, 'vss-player__wrap--mini')
+        this.$emit('isShow', false)
       } else {
         this.isShowTools = false
+        this.$emit('isShow', false)
         addClass(this.playerWrap, 'vss-player__wrap--medium')
       }
     }, 300))
