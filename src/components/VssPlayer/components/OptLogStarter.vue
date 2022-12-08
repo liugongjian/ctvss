@@ -21,7 +21,6 @@ export default class extends ComponentMixin {
 
   private created() {
     console.log('what ???????????', this.optLogVisiable)
-    this.optLogVisiable = true
   }
 
   private showOptLog() {

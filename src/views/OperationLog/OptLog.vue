@@ -198,7 +198,7 @@ export default class extends Vue {
     try {
       this.loading.list = true
       let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? this.filter.timeRange[0] / 1000 : undefined
-      let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? this.filter.timeRange[0] / 1000 : undefined
+      let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? this.filter.timeRange[1] / 1000 : undefined
       const time = {
         startTime: startTime,
         endTime: endTime

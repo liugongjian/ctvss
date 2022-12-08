@@ -71,7 +71,7 @@ export default class extends ComponentMixin {
         this.$emit('isShow', false)
       } else {
         this.isShowTools = false
-        this.$emit('isShow', false)
+        this.$emit('isShow', true)
         addClass(this.playerWrap, 'vss-player__wrap--medium')
       }
     }, 300))

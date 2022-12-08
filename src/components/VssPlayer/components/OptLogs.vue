@@ -1,7 +1,7 @@
 <template>
   <div class="video-info" :class="transScale">
     <transition-group v-if="!isEmpty" class="roll-log" name="roll" mode="out-in">
-      <div v-for="(item, index) in optLogs" :key="index" class="log-info">
+      <div v-for="(item, index) in optLogs" :key="index" class="log-info" :class="index === 0 ? 'info-top' : 'info-bottom'">
         <p>{{ item.operationTime }}</p>
         <p>{{ item.operationName }}</p>
         <p>{{ item.operator }}</p>
@@ -32,7 +32,7 @@ export default class extends Vue {
   private optLogs: any = null // 最新的 操作信息
   private optLogsInterval: any
   private addLogsTimer: any
-  // private tmp = 10
+  private tmp = 10
   private resizeObserver: any
   private transScale = null
   private isEmpty = false
@@ -109,8 +109,6 @@ export default class extends Vue {
       })
       // this.tmp = this.tmp >= 50 ? 50 : this.tmp + 10
       console.log('测试 res ', res)
-      const logList = res.operationLogList.length > 0 ? res.operationLogList : null
-      this.isEmpty = !logList
       // let res = [{
       //   'requestId': 'BEA5625F-8FCF-48F4-851B-CA63946DA664',
       //   'errorCode': 0,
@@ -139,6 +137,10 @@ export default class extends Vue {
       //   'operationType': 'HTTP GET',
       //   'operationResult': 'SUC'
       // }]
+      const logList = res.operationLogList.length > 0 ? res.operationLogList : null
+      // 测试用，缺少请求
+      // const logList = res
+      this.isEmpty = !logList
       // 数据没有改变，不做替换，改变则替换
       if (this.optLogs) {
       // 从轮询开始检查，不包括第一次请求
@@ -192,8 +194,12 @@ export default class extends Vue {
   .log-info {
     transition: all 0.5s linear;
     font-size: 12px;
-    margin-bottom: 15px;
+    // margin-bottom: 15px;
     width: auto;
+    background-color: rgba(111, 111, 111, 50%);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 0;
 
     p {
       width: auto;
@@ -219,6 +225,16 @@ export default class extends Vue {
   .roll-enter-to,
   roll-leave {
     opacity: 1;
+  }
+
+  .info-top {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+  }
+
+  .info-bottom {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 
 </style>
