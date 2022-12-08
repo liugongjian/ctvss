@@ -1,24 +1,57 @@
 <!--云台局部缩放-->
 <template>
-  <el-tooltip :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'" placement="top">
-    <div class="control__btn control__snapshot" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
-      <svg-icon name="lock" />
-    </div>
-  </el-tooltip>
+  <fragment>
+    <el-tooltip :content="isLocked ? '解锁云台' : '锁定云台'" placement="top">
+      <div class="control__btn control__snapshot" :class="{'disabled': submitting}" @click.stop.prevent="lockOrUnlock">
+        <svg-icon :name="isLocked ? 'unlock' : 'lock'" />
+      </div>
+    </el-tooltip>
+    <el-dialog :title="isLocked ? '解锁云台' : '锁定云台'" :visible.sync="dialogVisible" append-to-body :custom-class="isLocked ? 'inner-wider' : 'inner'">
+      <el-form ref="pwdForm" :rules="rules" :model="form">
+        <el-form-item v-if="isLocked" label="请输入解锁密码" label-width="100" prop="lockPwd" :rules="rules.pwd">
+          <el-input v-model="form.lockPwd" autocomplete="off" show-password />
+        </el-form-item>
+        <span v-if="!isLocked" class="block-title">设置锁定时长</span>
+        <div v-if="!isLocked" class="block top" />
+        <el-form-item v-if="!isLocked" label="开始时间" label-width="300" class="first-item" required>
+          <el-input :value="form.startTime" autocomplete="new-password" disabled prefix-icon="el-icon-time" />
+        </el-form-item>
+        <el-form-item v-if="!isLocked" label="结束时间" label-width="300" prop="endTime" :rules="rules.time">
+          <el-date-picker
+            v-model="form.endTime"
+            type="datetime"
+            placeholder="选择日期时间"
+            align="right"
+            value-format="timestamp"
+          />
+        </el-form-item>
+        <span v-if="!isLocked" class="block-title">设置解锁密码</span>
+        <div v-if="!isLocked" class="block bottom" />
+        <el-form-item v-if="!isLocked" label="解锁密码" label-width="300" class="second-item" prop="unlockPwd" :rules="rules.pwd">
+          <el-input v-model="form.unlockPwd" autocomplete="new-password" show-password />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button v-loading="submitting" @click="clear">取 消</el-button>
+        <el-button v-loading="submitting" type="primary" @click="confirm">确 定</el-button>
+      </div>
+    </el-dialog>
+  </fragment>
 </template>
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator'
-import { dragCanvasZoom } from '@/api/device'
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
-import ComponentMixin from './mixin'
+import { format, parse } from 'date-fns'
 import { throttle } from 'lodash'
-import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
-  name: 'PtzLock'
+  name: 'PtzLock',
+  components: {
+    Fragment
+  }
 })
-
-export default class extends ComponentMixin {
+export default class extends Vue {
   @Prop({
     default: {}
   }) private deviceInfo: DeviceInfo
@@ -27,247 +60,173 @@ export default class extends ComponentMixin {
     default: {}
   }) private streamInfo: StreamInfo
 
-  private showCanvasBox = false
+  private isLocked = false
+
+  private form = {
+    unlockPwd: '',
+    lockPwd: '',
+    endTime: 0,
+    startTime: this.transformStampToString(new Date().getTime())
+  }
+
+  private dialogVisible = false
+
+  private nowTicker
+
+  private validateEndTime = (rule, value, callback) => {
+    const valid = value > new Date().getTime()
+    if (!valid) {
+      callback(new Error('不能晚于当前时间'))
+    } else {
+      callback()
+    }
+  }
+
+  private rules = {
+    time: [{ required: true, message: '不能为空', trigger: 'blur' }, { validator: this.validateEndTime, trigger: 'blur' }],
+    pwd: [{ required: true, message: '不能为空', trigger: 'blur' }, { min: 6, max: 6, message: '长度为6个字符', trigger: 'blur' }]
+  }
+
+  private submitting = false
 
   private mounted() {
+    this.initTime()
     console.log('this.deviceInfo:', this.deviceInfo)
     console.log('this.streamInfo:', this.streamInfo)
   }
 
-  public close() {
-    this.showCanvasBox = false
-    if (this.oCanvas) {
-      this.oCanvas.style.cursor = 'auto'
-      this.oCanvas.remove()
-      this.removeListener()
+  private initTime() {
+    this.form.endTime = new Date().getTime() + 86400000 // + 1 day
+    this.nowTicker = setInterval(() => {
+      this.form.startTime = this.transformStampToString(new Date().getTime())
+    }, 1000)
+  }
+
+  private async lockOrUnlock() {
+    this.isLocked ? await this.unlock() : await this.lock()
+  }
+
+  private async unlock() {
+    // 1. await unlock请求第一次
+    // 2. if(res.) 判断是否直接解锁成功
+    // 3.1 如果成功
+    // this.isLocked = false
+    // 3.2 如果未成功，则显示输入密码
+    this.dialogVisible = true
+  }
+
+  private async lock() {
+    this.dialogVisible = true
+  }
+
+  private resetForm() {
+    this.form = {
+      unlockPwd: '',
+      lockPwd: '',
+      endTime: 0,
+      startTime: this.transformStampToString(new Date().getTime())
     }
   }
 
-  private addResizeListener() {
-    this.resizeObserver = new ResizeObserver(throttle(() => {
-      const width = this.player.container.clientWidth
-      const height = this.player.container.clientHeight
-      this.oCanvas.width = width
-      this.oCanvas.height = height
-    }, 300))
-    this.resizeObserver.observe(this.player.container)
-  }
-
-  private changeScaleCanvas() {
-    this.showCanvasBox = !this.showCanvasBox
-
-    if (this.showCanvasBox) {
-      this.$emit('dispatch', {
-        eventType: 'enableZoom',
-        payload: 'ptz'
-      })
-    }
-
-    if (this.showCanvasBox) {
-      const video = this.player.video || this.player.canvas
-      const width = video.clientWidth
-      const height = video.clientHeight
-      console.log('showCanvasBox--Info', width, video.clientWidth)
-      this.$nextTick(() => {
-        // 监听播放器容器大小变化，触发比例缩放
-        const canvasEle = document.createElement('canvas')
-        this.player.container.appendChild(canvasEle)
-        // this.oCanvas = oDom.querySelector('canvas')
-        this.oCanvas = canvasEle
-        this.oCanvas.style.cursor = 'crosshair'
-
-        this.oCanvas.width = width
-        this.oCanvas.height = height
-
-        this.oCanvas.style.width = `${width}px`
-        this.oCanvas.style.height = `${height}px`
-
-        this.oCanvasWidth = this.player.container.clientWidth
-        this.oCanvasHeight = this.player.container.clientHeight
-
-        // this.player.container.style.position = 'relative'
-        this.addResizeListener()
-        this.oCanvas.style.position = 'absolute'
-        // this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
-        // this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
-        this.ctxShape = this.oCanvas.getContext('2d')
-        this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
-        this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
-        this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
-        this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
-        this.oCanvas.addEventListener('click', (e) => { this.canvasClickHandle(e) })
-        document.addEventListener('keydown', (e) => { this.keydownEvent(e) })
-      })
-    } else {
-      this.oCanvas.style.cursor = 'auto'
-      this.removeListener()
-      this.oCanvas && this.oCanvas.remove()
-    }
-  }
-
-  private destroyed() {
-    this.oCanvas && this.oCanvas.remove()
-    document.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
-    if (this.resizeObserver) this.resizeObserver.disconnect()
-  }
-
-  // 解绑canvas缩放事件
-  private removeListener() {
-    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
-    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
-    this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
-    this.oCanvas.removeEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
-    this.oCanvas.removeEventListener('click', (e) => { this.canvasClickHandle(e) })
-  }
-
-  // 获取canvas 点坐标
-  private getCanvasMousePos(e: any) {
-    const {
-      x: canvasClientX, y: canvasClientY, width, height, left, top
-    } = this.oCanvas?.getBoundingClientRect()
-
-    const pointX = (e.clientX - left) * this.oCanvas.width / width
-    const pointY = (e.clientY - top) * this.oCanvas.height / height
-    const curPoint = [pointX, pointY]
-    // 超出边界
-    if (pointX > canvasClientX + width || pointX < 0) {
-      return false
-    }
-    if (pointY > canvasClientY + height || pointY < 0) {
-      return false
-    }
-    return curPoint
-  }
-
-  // 画矩形
-  private drawRect() {
-    if (this.oShape && Object.keys(this.oShape).length > 0) {
-      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-      this.ctxShape.strokeStyle = '#FFFFFF'
-      // this.ctxShape.lineCap = 'square'
-      this.ctxShape.lineWidth = 2
-      this.ctxShape.beginPath()
-      // this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
-      //   Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
-      this.ctxShape.rect(Math.floor(this.oShape.startX), this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX),
-        Math.floor(this.oShape.endY - this.oShape.startY))
-      this.ctxShape.stroke()
-      this.ctxShape.closePath()
-    }
-  }
-
-  private canvasClickHandle(e: MouseEvent) {
-    const mousePos = this.getCanvasMousePos(e)
-    if (!mousePos) return
-    const [x, y] = mousePos
-    if (x === this.oShape.startX && y === this.oShape.startY) {
-      this.oShape = {}
-      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-      this.ctxDrawState = false
-      this.removeListener()
-    }
-  }
-
-  private canvasMouseDown(e: MouseEvent) {
-    e.stopPropagation()
-    const mousePos = this.getCanvasMousePos(e)
-    if (!mousePos) return
-    const [x, y] = mousePos
-    if (!this.iShape || Object.keys(this.oShape).length === 0) {
-      this.ctxDrawState = true
-      this.oShape = {
-        startX: x,
-        startY: y
+  private async confirm() {
+    const pwdForm: any = this.$refs.pwdForm
+    pwdForm.validate(valid => {
+      if (valid) {
+        console.log('this.form:', this.form)
+        // try {
+        // this.submitting = true
+        //   this.isLocked ? await unlock() : await lock()
+        //   this.$nextTick(() => {
+        //     this.isLocked = !this.isLocked
+        //   })
+        // } catch (e) {
+        //   this.$message.error(e)
+        // } finally {
+        // this.submitting = false
+        // this.clear()
+        // }
       }
+    })
+  }
+
+  private clear() {
+    this.dialogVisible = false
+    this.resetForm()
+    clearInterval(this.nowTicker)
+  }
+
+  private transformStampToString(stamp) {
+    if (stamp) {
+      return format(new Date(stamp), 'yyyy-MM-dd HH:mm:ss')
     }
   }
 
-  private canvasMouseMove(e: MouseEvent) {
-    e.stopPropagation()
-    if (this.oShape && this.ctxDrawState) {
-      const mousePos = this.getCanvasMousePos(e)
-      if (!mousePos) {
-        this.removeListener()
-        return
-      }
-      const [x, y] = mousePos
-      // 鼠标结束的位置
-      this.oShape.endX = x
-      this.oShape.endY = y
-      this.drawRect()
-    }
-  }
-
-  private canvasMouseUp(e: MouseEvent) {
-    e.stopPropagation()
-    // TODO 鼠标移入黑色区域，取消画框
-    const mousePos = this.getCanvasMousePos(e)
-    if (!mousePos) return
-    // const [x, y] = mousePos
-    const { startX, startY, endX, endY } = this.oShape
-    const { videoWidth = 0, videoHeight = 0 } = this.streamInfo
-
-    if (!endX || !endY) {
-      return
-    }
-
-    const tempRatioWidth = this.oCanvas.width / videoWidth
-    const tempRatioHeight = this.oCanvas.height / videoHeight
-
-    const lengthX = Math.round(Math.abs(endX - startX) / tempRatioWidth).toString()
-    const lengthY = Math.round(Math.abs(endY - startY) / tempRatioHeight).toString()
-    const midPointX = Math.round((endX + startX) / 2 / tempRatioWidth).toString()
-    const midPointY = Math.round((endY + startY) / 2 / tempRatioHeight).toString()
-    const command = endX > startX ? 'zoomIn' : 'zoomOut'
-
-    this.oShape = {}
-    this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-    // this.removeListener()
-    // this.oCanvas && this.oCanvas.remove()
-    // this.ctxDrawState = false
-
-    const { deviceId } = this.deviceInfo
-
-    const param = {
-      deviceId,
-      command,
-      length: videoWidth.toString(), // 信令侧要求左右为length，上下为width
-      width: videoHeight.toString(),
-      midPointX,
-      midPointY,
-      lengthX,
-      lengthY
-    }
-    if (lengthX !== '0' || lengthY !== '0') {
-      dragCanvasZoom(param).then(() => {
-        this.$message.success('请等待设备调整角度')
-        // this.showCanvasBox = false
-        // this.oCanvas.style.cursor = 'auto'
-      }).catch(err => {
-        this.$message.error(err)
-        this.showCanvasBox = false
-        this.oCanvas.style.cursor = 'auto'
-      })
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private canvasMouseleave(e: MouseEvent) {
-    if (this.oShape && Object.keys(this.oShape).length > 0) {
-      this.oShape = {}
-      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-      this.ctxDrawState = false
-    }
-    this.removeListener()
-  }
-
-  private keydownEvent(e: KeyboardEvent) {
-    if (e.keyCode === 27 && this.oShape && Object.keys(this.oShape).length > 0) {
-      this.oShape = {}
-      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-      this.ctxDrawState = false
-    }
-    this.removeListener()
-  }
+  // private transformStringToStamp(str) {
+  //   const date = parse(str, 'yyyy-MM-dd HH:mm:ss', new Date())
+  //   return date.getTime()
+  // }
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .inner{
+  width:380px;
+}
+
+::v-deep .inner, ::v-deep .inner-wider{
+  .el-input{
+    width: 220px;
+  }
+  .el-divider__text{
+    font-size: 12px;
+  }
+  .el-form {
+    position: relative;
+    overflow: hidden;
+    .first-item{
+      margin-top: 27px;
+    }
+    .second-item{
+      margin-top: 48px;
+    }
+    .el-form-item{
+      margin-left: 12px;
+    }
+    .block{
+      position:absolute;
+      width: 100%;
+
+      border: 1px solid #888888;
+      border-radius: 4px;
+    }
+    .top{
+      top: 10px;
+      height: 132px;
+    }
+    .bottom{
+      top: 160px;
+      height: 65px;
+    }
+    .block-title{
+      color: #888888;
+      position: absolute;
+      background: #fff;
+      z-index: 1000;
+      margin-left: 8px;
+    }
+    .el-form-item__error{
+      padding: 3px;
+      left:88px;
+    }
+  }
+}
+.disabled {
+  cursor: wait;
+  pointer-events:none;
+}
+::v-deep .inner-wider{
+  width:440px;
+  .el-form-item__error{
+    left:130px !important;
+  }
+}
+</style>
