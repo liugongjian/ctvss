@@ -6,7 +6,7 @@
     :before-close="handleClose"
     center
   >
-    <el-form ref="form" :model="form" label-width="130px">
+    <el-form ref="form" :model="form" label-width="130px" :rules="rules">
       <el-form-item label="访问名单类型" prop="kind">
         <el-radio-group v-model="form.kind" @input="changeRadioValue">
           <el-radio label="black">黑名单</el-radio>
@@ -28,8 +28,8 @@
           </el-popover>
         </template>
       </el-form-item>
-      <el-form-item label="是否启用" prop="delivery">
-        <el-switch v-model="form.ifUse" />
+      <el-form-item label="是否启用" prop="enabled">
+        <el-switch v-model="form.enabled" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -39,17 +39,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { setIpRules } from '@/api/accessManage'
 @Component({
   name: 'IpRestriction'
 })
 export default class extends Vue {
-  // @Prop() private
+  @Prop() private ipAccessRules?: any
 
   private form = {
     kind: 'black',
     list: '',
-    ifUse: true
+    enabled: true
   }
 
   private showList = {
@@ -57,18 +58,52 @@ export default class extends Vue {
     'black': '黑名单'
   }
 
+  private rules = {
+    list: [
+      { validator: this.validateIp, trigger: 'blur' }
+    ]
+  }
+
   private showName: string = ''
 
   mounted() {
-    // Todo 根据接口返回 修改
+    this.initState()
+  }
+
+  private initState() {
+    if (this.ipAccessRules) {
+      if (this.ipAccessRules.whiteIpList.length) {
+        this.form = {
+          kind: 'white',
+          list: this.ipAccessRules.whiteIpList,
+          enabled: this.ipAccessRules.enabled
+        }
+      } else if (this.ipAccessRules.blackIpList.length) {
+        this.form = {
+          kind: 'white',
+          list: this.ipAccessRules.whiteIpList,
+          enabled: this.ipAccessRules.enabled
+        }
+      }
+    }
     this.showName = this.showList[this.form.kind]
+  }
+
+  private validateIp(rule: any, value: string, callback: Function) {
+    const ipReg = /^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(?::(?:[0-9]|[1-9][0-9]{1,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?$/
+    const result = value.split('\n').every(item => ipReg.test(item))
+    if (result) {
+      callback()
+    } else {
+      callback(new Error('请输入正确格式的IP地址'))
+    }
   }
 
   private handleClose() {
     this.form = {
       kind: 'black',
       list: '',
-      ifUse: true
+      enabled: true
     }
     this.$emit('on-close')
   }
@@ -79,8 +114,17 @@ export default class extends Vue {
   }
 
   private saveThis() {
-    console.log('save')
+    // 过滤空数据
+    const list = this.form.list.length > 0 ? this.form.list.split('\n').filter(item => item) : []
+    const param = {
+      [`${this.form.kind}IpList`]: list,
+      type: 1,
+      enabled: this.form.enabled ? 1 : 0
+    }
+    setIpRules(param)
+    console.log('save', param)
     this.handleClose()
+    this.$emit('refresh')
   }
 }
 </script>

@@ -8,8 +8,8 @@
     </el-tooltip>
     <el-dialog :title="isLocked ? '解锁云台' : '锁定云台'" :visible.sync="dialogVisible" append-to-body :custom-class="isLocked ? 'inner-wider' : 'inner'">
       <el-form ref="pwdForm" :rules="rules" :model="form">
-        <el-form-item v-if="isLocked" label="请输入解锁密码" label-width="100" prop="lockPwd" :rules="rules.pwd">
-          <el-input v-model="form.lockPwd" autocomplete="off" show-password />
+        <el-form-item v-if="isLocked" label="请输入解锁密码" label-width="100" prop="unlockPwd" :rules="rules.pwd">
+          <el-input v-model="form.unlockPwd" autocomplete="off" show-password />
         </el-form-item>
         <span v-if="!isLocked" class="block-title">设置锁定时长</span>
         <div v-if="!isLocked" class="block top" />
@@ -27,8 +27,8 @@
         </el-form-item>
         <span v-if="!isLocked" class="block-title">设置解锁密码</span>
         <div v-if="!isLocked" class="block bottom" />
-        <el-form-item v-if="!isLocked" label="解锁密码" label-width="300" class="second-item" prop="unlockPwd" :rules="rules.pwd">
-          <el-input v-model="form.unlockPwd" autocomplete="new-password" show-password />
+        <el-form-item v-if="!isLocked" label="解锁密码" label-width="300" class="second-item" prop="lockPwd" :rules="rules.pwd">
+          <el-input v-model="form.lockPwd" autocomplete="new-password" show-password />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -43,7 +43,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import { format, parse } from 'date-fns'
-import { throttle } from 'lodash'
+import { ptzLock, ptzUnlock } from '@/api/ptz_control'
+// import { throttle } from 'lodash'
 
 @Component({
   name: 'PtzLock',
@@ -60,7 +61,7 @@ export default class extends Vue {
     default: {}
   }) private streamInfo: StreamInfo
 
-  private isLocked = false
+  private isLocked = true
 
   private form = {
     unlockPwd: '',
@@ -90,6 +91,7 @@ export default class extends Vue {
   private submitting = false
 
   private mounted() {
+    // this.isLocked = this.deviceInfo.ptzLockStatus < 2
     this.initTime()
     console.log('this.deviceInfo:', this.deviceInfo)
     console.log('this.streamInfo:', this.streamInfo)
@@ -107,12 +109,20 @@ export default class extends Vue {
   }
 
   private async unlock() {
-    // 1. await unlock请求第一次
-    // 2. if(res.) 判断是否直接解锁成功
-    // 3.1 如果成功
-    // this.isLocked = false
-    // 3.2 如果未成功，则显示输入密码
-    this.dialogVisible = true
+    try {
+      const { unlockResult } = await ptzUnlock({ deviceId: this.deviceInfo.deviceId, password: '' })
+      switch (unlockResult) {
+        case 2:
+          this.dialogVisible = true
+          break
+        case 3:
+          this.isLocked = false
+          this.$message.success('解锁成功!')
+          break
+      }
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   private async lock() {
@@ -130,21 +140,33 @@ export default class extends Vue {
 
   private async confirm() {
     const pwdForm: any = this.$refs.pwdForm
-    pwdForm.validate(valid => {
+    console.log('this.form:', this.form)
+    pwdForm.validate(async valid => {
       if (valid) {
         console.log('this.form:', this.form)
-        // try {
-        // this.submitting = true
-        //   this.isLocked ? await unlock() : await lock()
-        //   this.$nextTick(() => {
-        //     this.isLocked = !this.isLocked
-        //   })
-        // } catch (e) {
-        //   this.$message.error(e)
-        // } finally {
-        // this.submitting = false
-        // this.clear()
-        // }
+        try {
+          this.submitting = true
+          const param = this.isLocked
+            ? {
+              deviceId: this.deviceInfo.deviceId,
+              password: this.form.unlockPwd
+            }
+            : {
+              deviceId: this.deviceInfo.deviceId,
+              startTime: Math.floor(new Date().getTime() / 1000),
+              endTime: Math.floor(this.form.endTime / 1000),
+              password: this.form.lockPwd
+            }
+          this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
+          this.$nextTick(() => {
+            this.isLocked = !this.isLocked
+          })
+        } catch (e) {
+          this.$message.error(e)
+        } finally {
+          this.submitting = false
+          this.clear()
+        }
       }
     })
   }

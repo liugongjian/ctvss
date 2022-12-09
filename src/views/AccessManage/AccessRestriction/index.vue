@@ -7,23 +7,20 @@
             <div class="access-restriction__title-text">IP访问限制</div>
             <el-button type="primary" size="mini" @click="changeIpDialog">配置</el-button>
           </div>
-          <el-descriptions :column="1">
-            <el-descriptions-item label="访问名单类型">黑名单</el-descriptions-item>
-            <el-descriptions-item label="黑名单列表">
-              <p>18100000000</p>
-              <p>18100000000</p>
-              <p>18100000000</p>
-              <p>18100000000</p>
+          <el-descriptions v-if="ipAccessRules" :column="1">
+            <el-descriptions-item label="访问名单类型">{{ getAccessRestriction.name }}</el-descriptions-item>
+            <el-descriptions-item :label="`${getAccessRestriction.name}列表`">
+              <p v-for="item in getAccessRestriction.list" :key="item">{{ item }}</p>
             </el-descriptions-item>
-            <el-descriptions-item label="是否启用">启用</el-descriptions-item>
+            <el-descriptions-item label="是否启用">{{ ipAccessRules.enabled === 1 ? '是' : '否' }}</el-descriptions-item>
           </el-descriptions>
-          <!-- Todo 只有当访问名单类型 为 黑名单 才展示 临时IP访问限制 -->
+
           <div class="access-restriction__title">
             <div class="access-restriction__title-text">临时IP访问限制</div>
-            <el-button type="primary" size="mini" @click="changeCustomDialog">添加锁定规则</el-button>
+            <el-button v-if="getAccessRestriction.name === '黑名单'" type="primary" size="mini" @click="changeCustomDialog">添加锁定规则</el-button>
           </div>
           <el-table
-            :data="tableData"
+            :data="ipTableData"
             style="width: 100%;"
           >
             <el-table-column
@@ -96,13 +93,15 @@
         </div>
       </el-tab-pane>
     </el-tabs>
-    <ip-restriction v-if="showIpDialog" @on-close="changeIpDialog" />
+    <ip-restriction v-if="showIpDialog" :ip-access-rules="ipAccessRules" @on-close="changeIpDialog" @refresh="initData" />
     <lock-rule v-if="showCustomDialog" @on-close="changeCustomDialog" />
     <list-drawer v-if="showListDrawer" @on-close="changeShowListDrawer" />
   </el-card>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+
+import { getIpRules } from '@/api/accessManage'
 
 import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
@@ -118,12 +117,27 @@ import ListDrawer from './components/ListDrawer.vue'
 })
 export default class extends Vue {
   private activeName: string = 'first'
+
   private showIpDialog: boolean = false
+  private ipDataForDialog = {}
+
+  private ipTableData = []
   private tableData = []
 
   private showCustomDialog: boolean = false
 
   private showListDrawer: boolean = false
+
+  private ipAccessRules: any = {}
+
+  async mounted() {
+    await this.initData()
+  }
+
+  private async initData() {
+    await this.getIpAccessRules()
+    await this.getIpList()
+  }
 
   private changeIpDialog() {
     this.showIpDialog = !this.showIpDialog
@@ -136,10 +150,52 @@ export default class extends Vue {
   private changeShowListDrawer() {
     this.showListDrawer = !this.showListDrawer
   }
+
+  private get getAccessRestriction() {
+    if (this.ipAccessRules) {
+      if (this.ipAccessRules.whiteIpList.length) {
+        return {
+          name: '白名单',
+          list: this.ipAccessRules.whiteIpList
+        }
+      } else if (this.ipAccessRules.blackIpList.length) {
+        return {
+          name: '黑名单',
+          list: this.ipAccessRules.blackIpList
+        }
+      }
+    }
+    return {
+      name: '无',
+      list: []
+    }
+  }
+
+  private async getIpAccessRules() {
+    try {
+      const res = await getIpRules(1)
+      this.ipAccessRules = res.rules[0]
+    } catch (error) {
+      this.$message.error(error)
+    }
+  }
+
+  private async getIpList() {
+    try {
+      const res = await getIpRules(2)
+      this.ipTableData = res.rules
+    } catch (error) {
+      this.$message.error(error)
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
 .access-restriction {
+  p {
+    margin-bottom: 0;
+  }
+
   &__title {
     padding-left: 16px;
     border-left: 8px solid #fa8334;

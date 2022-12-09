@@ -53,6 +53,7 @@ export class Screen {
   public videoWidth: number
   public videoHeight: number
   public codec: string
+  public ptzLockStatus: number
 
   /**
    * ----------------
@@ -88,6 +89,7 @@ export class Screen {
     NO_STORE: 8,
     OUT_OF_RANGE: 14
   }
+
   public ERROR = {
     NO_RECORD: '该时段没有录像',
     NO_STORE: '视频资源包未包含存储',
@@ -117,6 +119,7 @@ export class Screen {
     this.hasRtc = false
     this.recordType = 0
     this.currentRecordDatetime = null
+    this.ptzLockStatus = null
     this._volume = null
     this._isMuted = null
     this._playbackRate = null
@@ -141,7 +144,8 @@ export class Screen {
       inProtocol: this.inProtocol,
       deviceName: this.deviceName,
       roleId: this.roleId,
-      realGroupId: this.realGroupId
+      realGroupId: this.realGroupId,
+      ptzLockStatus: this.ptzLockStatus
     }
   }
 
@@ -274,6 +278,7 @@ export class Screen {
         const videoInfo = this.parseVideoInfo(res.videoInfo)
         this.videoWidth = videoInfo.videoWidth
         this.videoHeight = videoInfo.videoHeight
+        this.ptzLockStatus = res.ptzLockStatus
         if (this.streamNum && this.streams.length) {
           const stream = this.streams[this.streamNum - 1]
           if (stream) stream.streamStatus = 'on'
