@@ -1,5 +1,7 @@
 <template>
-  <div ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
+  <div :id="playerId" ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
+    <!-- <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" /> -->
+    <OptLogs v-if="optLogVisiable" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
     <Player
       ref="player"
       v-adaptive-tools
@@ -35,7 +37,7 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
-        <More :has-axis="hasAxis" :player-wrap="$refs.vssPlayerWrap" />
+        <More :has-axis="hasAxis" :player-wrap="$refs.vssPlayerWrap" @isShow="visiableControl" />
         <slot name="controlBody" />
       </template>
       <template slot="controlRight">
@@ -45,9 +47,10 @@
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzLock v-if="player && isLive" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot v-if="player" :name="deviceInfo.deviceName" />
+        <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
+        <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
         <slot name="controlRight" />
       </template>
     </Player>
@@ -77,6 +80,8 @@ import PtzLock from './components/PtzLock.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
 import More from './components/More.vue'
+import OptLogs from './components/OptLogs.vue'
+import OptLogStarter from './components/OptLogStarter.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -94,7 +99,9 @@ import More from './components/More.vue'
     Intercom,
     LiveReplaySelector,
     More,
-    PtzLock
+    PtzLock,
+    OptLogs,
+    OptLogStarter
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -206,6 +213,15 @@ export default class extends Vue {
   /* 播放器实例 */
   private player: PlayerModel = null
 
+  /* 播放器标识 */
+  private playerId = null
+
+  /* 是否显示操作日志信息 */
+  private optLogVisiable = false
+
+  /* 是否显示操作日志信息功能 */
+  private optUseable = true
+
   /* 如视频编码为H265，播放器类型变为h265 */
   private get playerType() {
     return this.codec === 'h265' ? 'h265' : this.type
@@ -242,6 +258,11 @@ export default class extends Vue {
       eventType: 'setPlaybackRate',
       payload: this.player.playbackRate
     })
+  }
+
+  private created() {
+    console.log('干')
+    this.playerId = (Math.random() * 1000000).toFixed(0)
   }
 
   /**
@@ -321,6 +342,17 @@ export default class extends Vue {
       }
     }
     return _url
+  }
+
+  /* 控制是否显示实时预览操作日志功能 */
+  private visiableControl(isShow: boolean) {
+    this.optUseable = isShow
+    if (!isShow) this.optLogVisiable = false // 控件图标不显示，功能也会取消
+  }
+
+  /* 操作日志信息显示控制 */
+  private showOptLog(optLogVisiable) {
+    this.optLogVisiable = optLogVisiable
   }
 }
 </script>

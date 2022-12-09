@@ -452,6 +452,33 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/operation-log',
+    component: Layout,
+    meta: {
+      id: '20210424150201001100',
+      title: '操作日志',
+      icon: 'check-log',
+      perms: ['*'],
+      alwaysShow: false,
+      breadcrumb: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
+        name: 'operation-log',
+        meta: {
+          id: '20210424150201001101',
+          title: '操作日志',
+          icon: 'check-log',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/operation-log'
+        }
+      }
+    ]
+  },
+  {
     path: '/view-service',
     component: Layout,
     redirect: 'noredirect',

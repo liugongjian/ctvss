@@ -69,7 +69,7 @@ class Permission extends VuexModule implements IPermissionState {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
-      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log')
     }
 
     // 根据route.meta.tags及用户tags过滤路由

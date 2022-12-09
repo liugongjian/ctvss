@@ -8,7 +8,7 @@ import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { VSSError } from '@/utils/error'
-import { getLockList } from '@/api/device'
+// import { getLockList } from '@/api/device'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -202,12 +202,12 @@ export class RecordManager {
         this.heatmapList = heatmaps.concat(this.heatmapList)
       }
       // 加载录像锁列表
-      const lockList = await this.getLockList(date, date + 24 * 60 * 60)
-      if (date > this.currentDate) {
-        this.lockList = this.lockList.concat(heatmaps)
-      } else {
-        this.lockList = lockList.concat(this.lockList)
-      }
+      // const lockList = await this.getLockList(date, date + 24 * 60 * 60)
+      // if (date > this.currentDate) {
+      //   this.lockList = this.lockList.concat(heatmaps)
+      // } else {
+      //   this.lockList = lockList.concat(this.lockList)
+      // }
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
@@ -309,7 +309,7 @@ export class RecordManager {
     const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
-        //云端
+        // 云端
         this.currentRecord = nextRecord
         const date = getDateByTime(this.currentRecord.startTime, 's')
         this.currentDate = date
