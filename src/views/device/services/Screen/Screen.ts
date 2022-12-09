@@ -4,6 +4,7 @@ import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/types/Vss
 import { RecordManager } from '../Record/RecordManager'
 import { Player } from '@/components/Player/services/Player'
 import { getDevicePreview } from '@/api/device'
+import { addLog } from '@/api/operationLog'
 
 export class Screen {
   /* 播放器类型 */
@@ -279,6 +280,11 @@ export class Screen {
         }
       }
       this.isLoading = false
+      addLog({
+        deviceId: this.deviceId.toString(),
+        inProtocol: this.inProtocol,
+        operationName: '开始播放'
+      })
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
@@ -339,8 +345,11 @@ export class Screen {
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()
-    // this.recordManager = new RecordManager({
-    //   screen: this
-    // })
+    const recordTypeName = this.recordType === 0 ? '云端' : '设备'
+    addLog({
+      deviceId: this.deviceId.toString(),
+      inProtocol: this.inProtocol,
+      operationName: `开始${recordTypeName}回放`
+    })
   }
 }
