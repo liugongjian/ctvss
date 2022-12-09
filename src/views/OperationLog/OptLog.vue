@@ -280,22 +280,26 @@ export default class extends Vue {
    */
   private timeFilter(type: number) {
     const current = (new Date()).getTime() // ms
+    // 清空一下搜索条件
+    this.filter.timeRange = []
     if (type === 1) {
       console.log('1')
       this.showTimePicker = false
-      this.filter.timeRange[0] = current
-      this.filter.timeRange[1] = current - 60 * 60 * 1000
-
+      this.filter.timeRange[0] = current - 60 * 60 * 1000
+      this.filter.timeRange[1] = current
+      console.log('time range   ', this.filter)
     } else if (type === 2) {
       console.log('2')
       this.showTimePicker = false
-      this.filter.timeRange[0] = current
-      this.filter.timeRange[1] = current - 24 * 60 * 60 * 1000
+      this.filter.timeRange[0] = current - 24 * 60 * 60 * 1000
+      this.filter.timeRange[1] = current
+      console.log('time range   ', this.filter)
     } else if (type === 3) {
       console.log('3')
       this.showTimePicker = false
-      this.filter.timeRange[0] = current
-      this.filter.timeRange[1] = current - 7 * 24 * 60 * 60 * 1000
+      this.filter.timeRange[0] = current - 7 * 24 * 60 * 60 * 1000
+      this.filter.timeRange[1] = current
+      console.log('time range   ', this.filter)
     } else if (type === 4) {
       console.log('4')
       this.showTimePicker = true
@@ -309,6 +313,7 @@ export default class extends Vue {
    */
   private checkTimePicker() {
     console.log('filter.timeRange', this.filter.timeRange)
+    
     if (this.filter.timeRange.length < 1) {
       this.showTimePicker = false
     }
