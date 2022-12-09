@@ -47,7 +47,7 @@
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzLock v-if="player && isLive" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot v-if="player" :name="deviceInfo.deviceName" />
+        <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />

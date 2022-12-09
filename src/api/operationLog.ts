@@ -1,5 +1,11 @@
 import request from '@/utils/request'
 
+interface LogParams {
+  deviceId: string;
+  inProtocol: string;
+  operationName: string;
+}
+
 export const getOptLog = (params: any): Promise<any> =>
   request({
     url: '/logs',
@@ -17,5 +23,16 @@ export const getOptLogById = (params: any): Promise<any> =>
 export const getOptName = (): Promise<any> =>
   request({
     url: '/operationNames',
-    method: 'get',
+    method: 'get'
+  })
+
+/**
+ * 添加操作日志
+ * @param params LogParams
+ */
+export const addLog = (params: LogParams): Promise<any> =>
+  request({
+    url: '/log/add',
+    method: 'post',
+    data: params
   })
