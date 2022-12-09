@@ -191,3 +191,18 @@ export const detachUserPolicy = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+// 获取主账号 黑白名单
+export const getIpRules = (type: number): Promise<any> =>
+  request({
+    url: `user/iprules?type=${type}`,
+    method: 'get'
+  })
+
+// 配置IP黑白名单
+export const setIpRules = (data: any): Promise<any> =>
+  request({
+    url: '/user/iprules',
+    method: 'post',
+    data
+  })
