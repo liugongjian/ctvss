@@ -1,14 +1,14 @@
 <template>
   <div>
     <div v-loading="loading.form">
-      <el-form :inline="true" class="search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
+      <el-form :inline="true" class="form-left">
         <el-form-item>
-          <el-button-group>
-            <el-button class="btn-group" @click="timeFilter(1)">近1小时</el-button>
-            <el-button class="btn-group" @click="timeFilter(2)">近1天</el-button>
-            <el-button class="btn-group" @click="timeFilter(3)">近7天</el-button>
-            <el-button class="btn-group" v-show="!showTimePicker" @click="timeFilter(4)">自定义时间</el-button>
-          </el-button-group> 
+          <el-radio-group v-model="btnSelected">
+            <el-radio-button label="1">近1小时</el-radio-button>
+            <el-radio-button label="2">近1天</el-radio-button>
+            <el-radio-button label="3">近7天</el-radio-button>
+            <el-radio-button v-show="!showTimePicker" label="4">自定义时间</el-radio-button>
+          </el-radio-group>
         </el-form-item> 
         <el-form-item>
           <el-date-picker
@@ -28,6 +28,8 @@
             size="mini">
           </el-date-picker>
         </el-form-item>
+      </el-form>
+      <el-form :inline="true" class="form-right search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
         <el-form-item label="操作名称:" prop="operationNameId">
           <el-select v-model="filter.operationNameId" clearable size="mini" placeholder="请选择操作类型">
             <el-option
@@ -114,7 +116,7 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { getOptLog, getOptName } from '@/api/operationLog'
 import { optResultType } from '@/dics/optResultType'
 
@@ -160,18 +162,28 @@ export default class extends Vue {
       { validator: this.validateKeyWord, trigger: 'change' }
     ]
   }
+
+  private btnSelected = 1
+
+  @Watch('btnSelected',{
+    immediate: true
+  })
+  private handleBtns(val: any) {
+    console.log('?????      btnSelected', this.btnSelected)
+    this.timeFilter(+val)
+  }
+
+  private mounted() {
+    this.getOptName()
+    this.getList()
+  }
+
   private validateKeyWord(rule: any, value: string, callback: Function) {
     if (value.length > 32) {
       callback(new Error('查询关键字不超过32位'))
     } else {
       callback()
     }
-  }
-
-  private mounted() {
-    console.log('mounted')
-    this.getOptName()
-    this.getList()
   }
 
   /**
@@ -197,8 +209,8 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading.list = true
-      let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? this.filter.timeRange[0] / 1000 : undefined
-      let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? this.filter.timeRange[1] / 1000 : undefined
+      let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[0]).slice(0,-3) : undefined
+      let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[1]).slice(0,-3): undefined
       const time = {
         startTime: startTime,
         endTime: endTime
@@ -249,8 +261,16 @@ export default class extends Vue {
    * 搜索
    */
   private async handleFilter() {
-    this.pager.pageNum = 1
-    await this.getList()
+    try {
+      if (this.filter.timeRange.length < 1) {
+       throw new Error('请选择查询时间段！')
+      }
+      this.pager.pageNum = 1
+      await this.getList()
+    } catch (e) {
+      this.$message.error(e)
+    }
+    
   }
 
   private handleSizeChange(val: number) {
@@ -282,6 +302,7 @@ export default class extends Vue {
     const current = (new Date()).getTime() // ms
     // 清空一下搜索条件
     this.filter.timeRange = []
+    console.log('摩西摩西    ', type, type === 4,  type == 4)
     if (type === 1) {
       console.log('1')
       this.showTimePicker = false
@@ -313,9 +334,9 @@ export default class extends Vue {
    */
   private checkTimePicker() {
     console.log('filter.timeRange', this.filter.timeRange)
-    
     if (this.filter.timeRange.length < 1) {
       this.showTimePicker = false
+      this.btnSelected = null
     }
   }
 
@@ -334,7 +355,7 @@ export default class extends Vue {
   }
 }
 </script>
-<style scoped>
+<style>
 .el-picker-panel__footer .el-picker-panel__link-btn.el-button--text {
   display: none;
 }
@@ -344,7 +365,13 @@ export default class extends Vue {
 }
 
 .el-form-item__label {
-  padding-right: 0;
+  padding-right: 10px;
+}
+
+.el-radio-button--medium .el-radio-button__inner {
+  height: 28px;
+  line-height: 28px;
+  padding-top: 0;
 }
 </style>
 <style lang="scss" scoped>
@@ -352,15 +379,9 @@ export default class extends Vue {
   cursor: pointer;
 }
 
-.btn-group {
-  height: 28px;
-  line-height: 28px;
-  padding-top: 0;
-}
-
 .custom-time-range {
   top: 1px;
-  left: -9px;
+  left: -11px;
 }
 
 .export {
@@ -375,5 +396,13 @@ export default class extends Vue {
   &:hover {
     cursor: pointer;
   }
+}
+
+.form-left {
+  float: left;
+}
+
+.form-right {
+  float: right;
 }
 </style>

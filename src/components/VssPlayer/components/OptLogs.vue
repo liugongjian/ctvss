@@ -100,12 +100,14 @@ export default class extends Vue {
     try {
       console.log('resource id ', this.deviceId)
       // 请求来的数据是否是最新的数据？，后端数据是怎么排序的？
+      const currentTime = +(('' + (new Date()).getTime()).slice(0, -3)) // s
+      const startTime = currentTime - 10 * 60
       const res: any = await getOptLogById({
         resourceId: this.deviceId,
         pageSize: 2,
         pageNum: 1,
-        startTime: undefined, // 前十分钟
-        currentTime: undefined // 当前查询时间
+        startTime: startTime, // 前十分钟
+        endTime: currentTime // 当前查询时间
       })
       // this.tmp = this.tmp >= 50 ? 50 : this.tmp + 10
       console.log('测试 res ', res)
