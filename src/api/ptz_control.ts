@@ -106,3 +106,17 @@ export const updatePTZKeepwatch = (data: any): Promise<any> =>
     method: 'get',
     params: data
   })
+
+export const ptzLock = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/lock',
+    method: 'post',
+    data
+  })
+
+export const ptzUnlock = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/unlock',
+    method: 'post',
+    data
+  })
