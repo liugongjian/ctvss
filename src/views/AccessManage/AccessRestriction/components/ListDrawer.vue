@@ -2,10 +2,9 @@
   <el-drawer
     title="我是标题"
     :visible="true"
-    :direction="direction"
     :before-close="handleClose"
   >
-    <el-radio-group v-model="radio2" size="medium">
+    <el-radio-group v-model="radio" size="medium">
       <el-radio-button label="近一小时" value="1h" />
       <el-radio-button label="近1天" value="1d" />
       <el-radio-button label="近7天" value="7d" />
@@ -43,7 +42,7 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
   private tableData = []
-
+  private radio = '1h'
   private handleClose() {
 
   }

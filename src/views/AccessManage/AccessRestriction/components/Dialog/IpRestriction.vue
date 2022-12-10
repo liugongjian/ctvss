@@ -13,8 +13,8 @@
           <el-radio label="white">白名单</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item :label="`${showName}列表`" prop="list">
-        <el-input v-model="form.list" type="textarea" />
+      <el-form-item :label="`${showName}列表`" :prop="form.kind+'IpList'">
+        <el-input v-model="form[form.kind+'IpList']" type="textarea" />
         <template slot="label">
           {{ `${showName}列表` }}:
           <el-popover
@@ -47,9 +47,10 @@ import { setIpRules } from '@/api/accessManage'
 export default class extends Vue {
   @Prop() private ipAccessRules?: any
 
-  private form = {
+  private form: any = {
     kind: 'black',
-    list: '',
+    whiteIpList: '',
+    blackIpList: '',
     enabled: true
   }
 
@@ -59,7 +60,10 @@ export default class extends Vue {
   }
 
   private rules = {
-    list: [
+    whiteIpList: [
+      { validator: this.validateIp, trigger: 'blur' }
+    ],
+    blackIpList: [
       { validator: this.validateIp, trigger: 'blur' }
     ]
   }
@@ -67,6 +71,7 @@ export default class extends Vue {
   private showName: string = ''
 
   mounted() {
+    console.log('ipAccessRules---->', this.ipAccessRules)
     this.initState()
   }
 
@@ -75,14 +80,14 @@ export default class extends Vue {
       if (this.ipAccessRules.whiteIpList.length) {
         this.form = {
           kind: 'white',
-          list: this.ipAccessRules.whiteIpList,
-          enabled: this.ipAccessRules.enabled
+          whiteIpList: this.ipAccessRules.whiteIpList.join('\n'),
+          enabled: this.ipAccessRules.enabled === 1
         }
       } else if (this.ipAccessRules.blackIpList.length) {
         this.form = {
-          kind: 'white',
-          list: this.ipAccessRules.whiteIpList,
-          enabled: this.ipAccessRules.enabled
+          kind: 'black',
+          blackIpList: this.ipAccessRules.blackIpList.join('\n'),
+          enabled: this.ipAccessRules.enabled === 1
         }
       }
     }
@@ -108,23 +113,27 @@ export default class extends Vue {
     this.$emit('on-close')
   }
 
-  private changeRadioValue(val: string) {
-    console.log('val----->', val)
+  private changeRadioValue() {
     this.showName = this.showList[this.form.kind]
+    this.form.list = this.ipAccessRules[`${this.form.kind}IpList`].join('\n')
   }
 
   private saveThis() {
-    // 过滤空数据
-    const list = this.form.list.length > 0 ? this.form.list.split('\n').filter(item => item) : []
-    const param = {
-      [`${this.form.kind}IpList`]: list,
-      type: 1,
-      enabled: this.form.enabled ? 1 : 0
+    try {
+      const data = this.form[`${this.form.kind}IpList`]
+      // 过滤空数据
+      const list = data.length > 0 ? data.split('\n').filter(item => item) : []
+      const param = {
+        [`${this.form.kind}IpList`]: list,
+        type: 1,
+        enabled: this.form.enabled ? 1 : 0
+      }
+      setIpRules(param)
+      this.handleClose()
+      this.$emit('refresh')
+    } catch (error) {
+      this.$message.error(error && error.message)
     }
-    setIpRules(param)
-    console.log('save', param)
-    this.handleClose()
-    this.$emit('refresh')
   }
 }
 </script>
