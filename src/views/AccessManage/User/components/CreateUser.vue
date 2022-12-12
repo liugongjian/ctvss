@@ -51,6 +51,24 @@
             <el-switch v-model="form.resetPwdEnabled" active-color="#FA8334" inactive-color="#CCCCCC" />
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
+          <el-form-item prop="passwordLifeTime" label="密码有效期：">
+            <el-radio-group v-model="form.passwordLifeTime">
+              <el-radio
+                v-for="item in lifeTimeOptions"
+                :key="item.value"
+                :label="item.value"
+              >
+                {{ item.label }}
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item prop="maxOnline" label="最大登录人数：">
+            <el-input v-model="form.maxOnline" placeholder="请填写最大登录人数" />
+          </el-form-item>
+          <el-form-item prop="isMutualLogout" label="是否同端互踢：">
+            <el-switch v-model="form.isMutualLogout" active-color="#FA8334" inactive-color="#CCCCCC" />
+            <span class="item-tip">是否开启登录互踢</span>
+          </el-form-item>
           <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
             <span>{{ $route.query.subUserLoginLink }}</span>
             <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
@@ -140,6 +158,24 @@ export default class extends Vue {
   }
   private cardIndex: string = 'form'
   private breadCrumbContent: string = ''
+  private lifeTimeOptions = [
+    {
+      value: 30,
+      label: '30天'
+    },
+    {
+      value: 90,
+      label: '90天'
+    },
+    {
+      value: 180,
+      label: '180天'
+    },
+    {
+      value: 0,
+      label: '永久'
+    }
+  ]
   private form: any = {
     mainUserId: '',
     iamUserName: '',
@@ -149,7 +185,10 @@ export default class extends Vue {
     policy: null,
     email: '',
     phone: '',
-    resetPwdEnabled: true
+    resetPwdEnabled: true,
+    passwordLifeTime: 0,
+    maxOnline: 1,
+    isMutualLogout: false
   }
   private rules: any = {
     iamUserName: [
@@ -164,7 +203,17 @@ export default class extends Vue {
       { required: true, message: '请填写邮箱', trigger: 'blur' },
       { validator: this.validateEmail, trigger: 'blur' }
     ],
-    phone: [{ validator: this.validatePhone, trigger: 'blur' }]
+    phone: [{ validator: this.validatePhone, trigger: 'blur' }],
+    passwordLifeTime: [
+      { required: true, message: '请选择密码有效期', trigger: 'blur' }
+    ],
+    maxOnline: [
+      { required: true, message: '请填写最大登录人数', trigger: 'blur' },
+      { validator: this.validateMaxOnline, trigger: 'blur' }
+    ],
+    isMutualLogout: [
+      { required: true, message: '请选择是否同端互踢', trigger: 'blur' }
+    ]
   }
   private policyList: Array<object> = []
   private newUserData: Array<object> = []
@@ -281,7 +330,10 @@ export default class extends Vue {
         resetPwdEnabled: res.resetPwdEnabled === '1',
         accessType: res.apiEnabled === '1' || res.consoleEnabled === '1',
         email: res.email,
-        phone: res.phone
+        phone: res.phone,
+        passwordLifeTime: res.passwordLifeTime,
+        maxOnline: res.maxOnline,
+        isMutualLogout: res.isMutualLogout
       }
       let selectRow = this.policyList.find((policy: any) => {
         return policy.policyId === res.policyId
@@ -296,14 +348,18 @@ export default class extends Vue {
   private async operateUser(type: any) {
     const form: any = this.$refs.userForm
     form.validate(async(valid: any) => {
+      const form = this.form
       let params: any = {
-        iamUserName: this.form.iamUserName,
-        policyId: this.form.policy.policyId,
-        consoleEnabled: this.form.consoleEnabled ? '1' : '2',
-        apiEnabled: this.form.apiEnabled ? '1' : '2',
-        resetPwdEnabled: this.form.resetPwdEnabled ? '1' : '2',
-        phone: this.form.phone || undefined,
-        email: this.form.email
+        iamUserName: form.iamUserName,
+        policyId: form.policy.policyId,
+        consoleEnabled: form.consoleEnabled ? '1' : '2',
+        apiEnabled: form.apiEnabled ? '1' : '2',
+        resetPwdEnabled: form.resetPwdEnabled ? '1' : '2',
+        phone: form.phone || undefined,
+        email: form.email,
+        passwordLifeTime: form.passwordLifeTime,
+        maxOnline: form.maxOnline,
+        isMutualLogout: form.isMutualLogout
       }
       try {
         if (valid) {
@@ -402,6 +458,14 @@ export default class extends Vue {
   private validatePhone(rule: any, value: string, callback: Function) {
     if (value && !/^\d{11}$/.test(value)) {
       callback(new Error('请输入正确的手机号'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateMaxOnline(rule: any, value: string, callback: Function) {
+    if (value && !/^[1-9]\d?$/.test(value)) {
+      callback(new Error('最大登录人数只能为正整数'))
     } else {
       callback()
     }
