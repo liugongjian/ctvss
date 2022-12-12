@@ -1,4 +1,4 @@
-export type PlayerType = 'flv' | 'hls' | 'rtc' | 'h265'
+export type PlayerType = 'flv' | 'hls' | 'mp4' | 'rtc' | 'h265'
 
 export type OnRetryParams = {
   immediate: boolean;
@@ -8,6 +8,7 @@ export type OnRetryParams = {
 export interface EnhanceHTMLVideoElement extends HTMLVideoElement {
   mozHasAudio?: boolean;
   webkitAudioDecodedByteCount?: number;
+  type?: string;
 }
 
 export interface PlayerConfig {

@@ -297,7 +297,7 @@ export class RecordManager {
     const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
-        //云端
+        // 云端
         this.currentRecord = nextRecord
         const date = getDateByTime(this.currentRecord.startTime, 's')
         this.currentDate = date
@@ -357,6 +357,7 @@ export class RecordManager {
       endTime,
       pageSize: 9999
     }, axiosSource.token)
+
     return res.records.map((record: any, index: number) => {
       /**
        * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
@@ -376,7 +377,7 @@ export class RecordManager {
         startTime: getTimestamp(record.startTime) / 1000,
         endTime: getTimestamp(record.endTime) / 1000,
         duration: record.duration,
-        url: record.playUrl.hlsUrl,
+        url: record.fileFormat === 'mp4' ? record.playUrl.mp4Url : record.playUrl.hlsUrl,
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover
