@@ -206,3 +206,26 @@ export const setIpRules = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+// 解除锁定
+export const unlockIpRules = (data: any): Promise<any> =>
+  request({
+    url: '/user/ipunlock',
+    method: 'post',
+    data
+  })
+
+// 查询子账号锁定记录
+export const getIplock = (): Promise<any> =>
+  request({
+    url: '/user/iplock',
+    method: 'get'
+  })
+
+// 添加子账号锁定策略
+export const setIpLock = (data: any): Promise<any> =>
+  request({
+    url: '/user/iplock',
+    method: 'post',
+    data
+  })
