@@ -592,21 +592,21 @@ export class RecordManager {
    * 录像锁相关
    * =================================
    */
-  private async getLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
-    try {
-      const res: any = await getLockList({
-        deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
-        startTime,
-        endTime,
-        pageSize: pageSize || 9999,
-        pageNum: pageNum || 1
-      })
-      console.log('获取录像锁列表   ', res.locks, pageSize || 9999)
-      // this.lockList = res.locks
-      return res.locks
-    } catch (e) {
-      this.screen.errorMsg = e.message
-    }
-  }
+  // private async getLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
+  //   try {
+  //     const res: any = await getLockList({
+  //       deviceId: this.screen.deviceId,
+  //       inProtocol: this.screen.inProtocol,
+  //       startTime,
+  //       endTime,
+  //       pageSize: pageSize || 9999,
+  //       pageNum: pageNum || 1
+  //     })
+  //     console.log('获取录像锁列表   ', res.locks, pageSize || 9999)
+  //     // this.lockList = res.locks
+  //     return res.locks
+  //   } catch (e) {
+  //     this.screen.errorMsg = e.message
+  //   }
+  // }
 }

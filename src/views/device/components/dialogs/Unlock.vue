@@ -87,9 +87,6 @@ export default class extends Vue {
   }
 
   private created() {
-    console.log('11111    : ', this.unlockItem)
-    console.log('222222    : ', this.screen)
-    console.log('333333    : ', this.multiple)
     // 录像锁定管理
     if (this.multiple) {
       this.unlockItem.map((item: any) => {
@@ -98,7 +95,7 @@ export default class extends Vue {
         }
       })
       this.unlockNum = this.unlockItem.length
-      console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
+      // console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
     } else {
       this.deviceName = this.unlockItem[0].deviceName
       this.lockTime = [new Date(this.unlockItem[0].startTime), new Date(this.unlockItem[0].endTime)]

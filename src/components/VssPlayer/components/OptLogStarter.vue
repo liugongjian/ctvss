@@ -18,11 +18,7 @@ export default class extends ComponentMixin {
   private optLogVisiable: boolean
 
   private visiable = false
-
-  private created() {
-    console.log('what ???????????', this.optLogVisiable)
-  }
-
+  
   private showOptLog() {
     this.visiable = !this.optLogVisiable
     this.$emit('showOptLog', this.visiable)
