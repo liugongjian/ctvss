@@ -39,7 +39,7 @@
   </fragment>
 </template>
 <script lang="ts">
-import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import { format, parse } from 'date-fns'
@@ -61,12 +61,12 @@ export default class extends Vue {
     default: {}
   }) private streamInfo: StreamInfo
 
-  private isLocked = true
+  private isLocked = false
 
   private form = {
     unlockPwd: '',
     lockPwd: '',
-    endTime: 0,
+    endTime: new Date().getTime() + 86400000,
     startTime: this.transformStampToString(new Date().getTime())
   }
 
@@ -90,11 +90,14 @@ export default class extends Vue {
 
   private submitting = false
 
+  @Watch('dialogVisible', { immediate: true })
+  private initDialog() {
+    this.dialogVisible ? this.initTime() : this.clear()
+  }
+
   private mounted() {
-    // this.isLocked = this.deviceInfo.ptzLockStatus < 2
+    this.isLocked = this.deviceInfo.ptzLockStatus < 2
     this.initTime()
-    console.log('this.deviceInfo:', this.deviceInfo)
-    console.log('this.streamInfo:', this.streamInfo)
   }
 
   private initTime() {
@@ -133,17 +136,15 @@ export default class extends Vue {
     this.form = {
       unlockPwd: '',
       lockPwd: '',
-      endTime: 0,
+      endTime: new Date().getTime() + 86400000,
       startTime: this.transformStampToString(new Date().getTime())
     }
   }
 
   private async confirm() {
     const pwdForm: any = this.$refs.pwdForm
-    console.log('this.form:', this.form)
     pwdForm.validate(async valid => {
       if (valid) {
-        console.log('this.form:', this.form)
         try {
           this.submitting = true
           const param = this.isLocked
@@ -157,7 +158,14 @@ export default class extends Vue {
               endTime: Math.floor(this.form.endTime / 1000),
               password: this.form.lockPwd
             }
-          this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
+          if (this.isLocked) {
+            const { unlockResult } = await ptzUnlock(param)
+            if (unlockResult === 2) return this.$message.error('密码错误！')
+          } else {
+            await ptzLock(param)
+          }
+          this.$message.success(this.isLocked ? '解锁成功！' : '锁定成功！')
+          this.clear()
           this.$nextTick(() => {
             this.isLocked = !this.isLocked
           })
@@ -165,7 +173,6 @@ export default class extends Vue {
           this.$message.error(e)
         } finally {
           this.submitting = false
-          this.clear()
         }
       }
     })
