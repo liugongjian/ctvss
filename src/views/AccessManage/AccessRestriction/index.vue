@@ -51,7 +51,8 @@
               label="锁定结束时间"
             >
               <template slot-scope="{row}">
-                <span>{{ dateFormat(Number(row.expireTime)) }}</span>
+                <span v-if="row.expireTime === '-1'">永久</span>
+                <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -113,7 +114,8 @@
               width="180"
             >
               <template slot-scope="{row}">
-                <span>{{ dateFormat(Number(row.expireTime)) }}</span>
+                <span v-if="row.expireTime === '-1'">永久</span>
+                <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -200,7 +202,7 @@ export default class extends Vue {
           name: '白名单',
           list: this.ipAccessRules.whiteIpList
         }
-      } else if (this.ipAccessRules.whiteIpList && this.ipAccessRules.blackIpList.length) {
+      } else if (this.ipAccessRules.blackIpList && this.ipAccessRules.blackIpList.length) {
         return {
           name: '黑名单',
           list: this.ipAccessRules.blackIpList
@@ -229,6 +231,7 @@ export default class extends Vue {
       }
       await unlockIpRules(param)
       this.getIpList()
+      this.$message.success('解除成功')
     }).catch(() => { console.log() })
   }
 
@@ -237,7 +240,7 @@ export default class extends Vue {
       const res = await getIpRules(2)
       this.ipTableData = res.rules
     } catch (error) {
-      this.$message.error(error)
+      this.$message.error(error && error.message)
     }
   }
 
@@ -254,11 +257,14 @@ export default class extends Vue {
     try {
       if (this.activeName === 'ipManage') {
         await setIpRules(param)
+        this.changeCustomDialog()
         this.initData()
       } else {
         await setIpLock(param)
+        this.changeCustomDialog()
         this.getIplock()
       }
+      this.$message.success('绑定成功')
     } catch (error) {
       this.$message.error(error && error.message)
     }
