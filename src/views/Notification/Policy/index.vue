@@ -95,7 +95,8 @@ export default class extends Vue {
   private sourceMap = {
     '1': '设备消息',
     '2': '资源包消息',
-    '3': 'AI消息'
+    '3': 'AI消息',
+    '4': '平台事件消息'
   }
   private pager = {
     pageNum: 1,
