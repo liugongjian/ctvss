@@ -160,7 +160,7 @@ export default class extends Vue {
               password: this.form.lockPwd
             }
           this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
-
+          this.$message.success(`${this.isLocked ? '解锁' : '锁定'}成功！`)
           this.clear()
           this.$nextTick(() => {
             this.isLocked = !this.isLocked
