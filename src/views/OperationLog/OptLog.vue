@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-loading="loading.form">
-      <el-form :inline="true" class="form-left">
+      <el-form :inline="true" class="search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
         <el-form-item>
           <el-radio-group v-model="btnSelected">
             <el-radio-button label="1">近1小时</el-radio-button>
@@ -28,92 +28,89 @@
             size="mini">
           </el-date-picker>
         </el-form-item>
-      </el-form>
-      <el-form :inline="true" class="form-right search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
-        <el-form-item label="操作名称:" prop="operationNameId">
-          <el-select v-model="filter.operationNameId" clearable size="mini" placeholder="请选择操作类型">
+        <el-form-item style="margin-top: 1px;" label="操作名称:" prop="operationNameId">
+          <el-select v-model="filter.operationNameId" size="mini" placeholder="请选择操作类型">
             <el-option
               v-for="item in optNameList"
               :key="item.operationNameId"
               :label="item.operationName"
               :value="item.operationNameId"
+              
             />
           </el-select>
         </el-form-item>
-        <el-form-item class="search-filter__right" prop="keyWord">
+        <el-form-item style="margin-top: 1px;" class="search-filter__right" prop="keyWord">
           <el-input v-model="filter.keyWord" placeholder="请输入查询关键字" size="mini" clearable />
         </el-form-item>
-        <el-form-item>
+        <el-form-item style="margin-top: 1px;">
           <!-- <el-button type="primary" size="mini" @click="handleFilter"><svg-icon name="search" /></el-button> -->
           <svg-icon name="search" @click="handleFilter" class="search"  />
         </el-form-item>
-        <el-form-item>
+        <el-form-item style="margin-top: 1px;">
           <el-tooltip placement="top" content="导出">
             <svg-icon name="export" @click="exportClick" class="export" />
           </el-tooltip>
         </el-form-item>
       </el-form>
     </div>
-    <div v-loading="loading.list">
-      <el-table ref="list" :data="logList" fit @filter-change="optResFilter">
-        <el-table-column label="操作时间" min-width="200" prop="operationTime">
-          <template slot-scope="scope">
-            {{ scope.row.operationTime || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作名称" min-width="200" prop="operationName">
-          <template slot-scope="scope">
-            {{ scope.row.operationName || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column v-if="!isSub" label="操作者" min-width="200" prop="operator">
-          <template slot-scope="scope">
-            {{ scope.row.operator || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="资源名称" min-width="200" prop="resourceName">
-          <template slot-scope="scope">
-            {{ scope.row.resourceName || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column v-if="!isSub" label="资源路径" min-width="200" prop="resourcePath">
-          <template slot-scope="scope">
-            {{ scope.row.resourcePath || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作IP" min-width="200" prop="sourceIP">
-          <template slot-scope="scope">
-            {{ scope.row.sourceIP || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column v-if="false" min-width="200" prop="operationType">
-          <template slot="header">
-            <span class="filter">操作类型</span>
-            <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
-          </template>
-          <template slot-scope="scope">
-            {{ scope.row.operationType || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column v-if="false" min-width="200" prop="operationResult" :filters="optResTypefilterArray" :filter-method="filterHandler" :filter-multiple="false" fixed="right">
-          <template slot="header">
-            <span class="filter">操作结果</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
-          </template>
-          <template slot-scope="scope">
-            {{ scope.row.operationResult }}
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-        :current-page="pager.pageNum"
-        :page-size="pager.pageSize"
-        :total="pager.total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+    <el-table height="680px" v-loading="loading.list" ref="list" :data="logList" fit @filter-change="optResFilter">
+      <el-table-column label="操作时间" min-width="200" prop="operationTime">
+        <template slot-scope="scope">
+          {{ scope.row.operationTime || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作名称" min-width="200" prop="operationName">
+        <template slot-scope="scope">
+          {{ scope.row.operationName || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="!isSub" label="操作者" min-width="200" prop="operator">
+        <template slot-scope="scope">
+          {{ scope.row.operator || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="资源名称" min-width="200" prop="resourceName">
+        <template slot-scope="scope">
+          {{ scope.row.resourceName || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="!isSub" label="资源路径" min-width="200" prop="resourcePath">
+        <template slot-scope="scope">
+          {{ scope.row.resourcePath || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作IP" min-width="200" prop="sourceIP">
+        <template slot-scope="scope">
+          {{ scope.row.sourceIP || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="false" min-width="200" prop="operationType">
+        <template slot="header">
+          <span class="filter">操作类型</span>
+          <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
+        </template>
+        <template slot-scope="scope">
+          {{ scope.row.operationType || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="false" min-width="200" prop="operationResult" :filters="optResTypefilterArray" :filter-method="filterHandler" :filter-multiple="false" fixed="right">
+        <template slot="header">
+          <span class="filter">操作结果</span>
+          <svg-icon class="filter" name="filter" width="15" height="15" />
+        </template>
+        <template slot-scope="scope">
+          {{ scope.row.operationResult }}
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      :current-page="pager.pageNum"
+      :page-size="pager.pageSize"
+      :total="pager.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
   </div>
 </template>
 
@@ -151,7 +148,7 @@ export default class extends Vue {
   private filter = {
     timeRange: [],
     // operationType: null,
-    operationNameId: null,
+    operationNameId: 0,
     keyWord: null
   }
 
@@ -182,6 +179,14 @@ export default class extends Vue {
     this.timeFilter(+val)
   }
 
+  @Watch('filter',{
+    immediate: true,
+    deep: true
+  })
+  private handleFilters() {
+    this.getList()
+  }
+
   private created() {
     this.operatorId ? this.isSub = true : this.isSub = false
   }
@@ -207,6 +212,10 @@ export default class extends Vue {
       this.loading.form = true
       const res = await getOptName()
       this.optNameList = res.operationList
+      this.optNameList.unshift({
+        operationNameId: 0,
+        operationName: '全部'
+      })
       // this.optNameList = this.fakeList
     } catch (e) {
       this.$message.error(e)
@@ -255,7 +264,7 @@ export default class extends Vue {
       ...time,
       ...this.filter,
       keyWord: keyWord,
-      operationNameId: operationNameId,
+      operationNameId: operationNameId === 0 ? undefined : operationNameId,
       pageNum: type ? undefined : this.pager.pageNum,
       pageSize: type ? undefined : this.pager.pageSize,
       operationResult: this.optRes || undefined
@@ -408,8 +417,16 @@ export default class extends Vue {
   line-height: 28px;
   padding-top: 0;
 }
+
+.el-pagination {
+  margin-top: 35px;
+}
 </style>
 <style lang="scss" scoped>
+.search-filter__form {
+  margin-top: 0;
+}
+
 .filter {
   cursor: pointer;
 }
@@ -437,7 +454,4 @@ export default class extends Vue {
   float: left;
 }
 
-.form-right {
-  float: right;
-}
 </style>
