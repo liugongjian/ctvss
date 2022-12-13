@@ -32,8 +32,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button v-loading="submitting" @click="clear">取 消</el-button>
-        <el-button v-loading="submitting" type="primary" @click="confirm">确 定</el-button>
+        <el-button @click="clear">取 消</el-button>
+        <el-button :loading="submitting" type="primary" @click="confirm">确 定</el-button>
       </div>
     </el-dialog>
   </fragment>
@@ -42,7 +42,7 @@
 import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
-import { format, parse } from 'date-fns'
+import { format } from 'date-fns'
 import { ptzLock, ptzUnlock } from '@/api/ptz_control'
 // import { throttle } from 'lodash'
 
@@ -107,24 +107,25 @@ export default class extends Vue {
     }, 1000)
   }
 
-  private async lockOrUnlock() {
-    this.isLocked ? await this.unlock() : await this.lock()
+  private lockOrUnlock() {
+    this.isLocked ? this.unlock() : this.lock()
   }
 
   private async unlock() {
     try {
       const { unlockResult } = await ptzUnlock({ deviceId: this.deviceInfo.deviceId, password: '' })
-      switch (unlockResult) {
-        case 2:
-          this.dialogVisible = true
-          break
-        case 3:
-          this.isLocked = false
-          this.$message.success('解锁成功!')
-          break
+      if (unlockResult === 3) {
+        this.isLocked = false
+        this.$message.success('解锁成功!')
       }
     } catch (e) {
-      this.$message.error(e)
+      switch (e.message) {
+        case '云台解锁失败':
+          this.dialogVisible = true
+          break
+        default:
+          this.$message.error(e.message)
+      }
     }
   }
 
@@ -158,19 +159,14 @@ export default class extends Vue {
               endTime: Math.floor(this.form.endTime / 1000),
               password: this.form.lockPwd
             }
-          if (this.isLocked) {
-            const { unlockResult } = await ptzUnlock(param)
-            if (unlockResult === 2) return this.$message.error('密码错误！')
-          } else {
-            await ptzLock(param)
-          }
-          this.$message.success(this.isLocked ? '解锁成功！' : '锁定成功！')
+          this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
+
           this.clear()
           this.$nextTick(() => {
             this.isLocked = !this.isLocked
           })
         } catch (e) {
-          this.$message.error(e)
+          this.$message.error(e.message)
         } finally {
           this.submitting = false
         }
