@@ -13,6 +13,8 @@ export class Mp4Player extends Player {
     this.container.append(videoElement)
     videoElement.src = this.url
     videoElement.type = 'video/mp4'
+    videoElement.autoplay = true
+    videoElement.crossOrigin = 'anonymous'
     videoElement.play()
     this.video = videoElement
   }

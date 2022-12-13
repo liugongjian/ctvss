@@ -377,7 +377,7 @@ export class RecordManager {
         startTime: getTimestamp(record.startTime) / 1000,
         endTime: getTimestamp(record.endTime) / 1000,
         duration: record.duration,
-        url: record.playUrl[`${record.fileFormat}Url`],
+        url: record.playUrl.hlsUrl,
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover,
