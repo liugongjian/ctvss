@@ -261,7 +261,6 @@ export default class extends Vue {
   }
 
   private created() {
-    console.log('干')
     this.playerId = (Math.random() * 1000000).toFixed(0)
   }
 

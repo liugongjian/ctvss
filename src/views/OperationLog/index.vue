@@ -17,9 +17,6 @@ import OptLog from './OptLog.vue'
   }
 })
 export default class extends Vue {
-  private mounted() {
-    console.log('操作日志主页面 mounted')
-  }
 
 }
 </script>

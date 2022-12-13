@@ -63,7 +63,6 @@ export default class extends Vue {
 
   // 销毁定时器
   private async destroyed() {
-  // console.log('销毁轮询定时器')
     this.resizeObserver.disconnect()
     clearTimeout(this.addLogsTimer)
     clearInterval(this.optLogsInterval)
@@ -98,7 +97,6 @@ export default class extends Vue {
   // 获取操作信息
   private async getOptLog() {
     try {
-      console.log('resource id ', this.deviceId)
       // 请求来的数据是否是最新的数据？，后端数据是怎么排序的？
       const currentTime = +(('' + (new Date()).getTime()).slice(0, -3)) // s
       const startTime = currentTime - 10 * 60
@@ -109,39 +107,7 @@ export default class extends Vue {
         startTime: startTime, // 前十分钟
         endTime: currentTime // 当前查询时间
       })
-      // this.tmp = this.tmp >= 50 ? 50 : this.tmp + 10
-      console.log('测试 res ', res)
-      // let res = [{
-      //   'requestId': 'BEA5625F-8FCF-48F4-851B-CA63946DA664',
-      //   'errorCode': 0,
-      //   'errorMessage': '',
-      //   'operationTime': '2022-01-02 09:00:05' + (this.tmp - 10),
-      //   'operationName': 'login',
-      //   'operator': 'admin@test.cn',
-      //   'resourceType': 1,
-      //   'resourceName': '',
-      //   'resourcePath': '',
-      //   'sourceIP': '123.45.6.7',
-      //   'operationType': 'HTTP GET',
-      //   'operationResult': 'SUC'
-      // },
-      // {
-      //   'requestId': 'BEA5625F-8FCF-48F4-851B-CA63946DA664',
-      //   'errorCode': 0,
-      //   'errorMessage': '',
-      //   'operationTime': '2022-01-02 09:01:05' + this.tmp,
-      //   'operationName': 'login',
-      //   'operator': 'admin@test.cn',
-      //   'resourceType': 1,
-      //   'resourceName': '',
-      //   'resourcePath': '',
-      //   'sourceIP': '123.45.6.7',
-      //   'operationType': 'HTTP GET',
-      //   'operationResult': 'SUC'
-      // }]
       const logList = res.operationLogList.length > 0 ? res.operationLogList : null
-      // 测试用，缺少请求
-      // const logList = res
       this.isEmpty = !logList
       // 数据没有改变，不做替换，改变则替换
       if (this.optLogs) {

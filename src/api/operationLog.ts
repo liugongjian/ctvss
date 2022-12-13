@@ -36,3 +36,11 @@ export const addLog = (params: LogParams): Promise<any> =>
     method: 'post',
     data: params
   })
+
+
+  export const exportLog = (params: any): Promise<any> =>
+  request({
+    url: '/exportOperationLogs',
+    method: 'get',
+    params
+  })

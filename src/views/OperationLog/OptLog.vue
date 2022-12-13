@@ -48,7 +48,9 @@
           <svg-icon name="search" @click="handleFilter" class="search"  />
         </el-form-item>
         <el-form-item>
-          <svg-icon name="export" @click="exportCsv" class="export" />
+          <el-tooltip placement="top" content="导出">
+            <svg-icon name="export" @click="exportClick" class="export" />
+          </el-tooltip>
         </el-form-item>
       </el-form>
     </div>
@@ -64,7 +66,7 @@
             {{ scope.row.operationName || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作者" min-width="200" prop="operator">
+        <el-table-column v-if="!isSub" label="操作者" min-width="200" prop="operator">
           <template slot-scope="scope">
             {{ scope.row.operator || '-' }}
           </template>
@@ -74,7 +76,7 @@
             {{ scope.row.resourceName || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="资源路径" min-width="200" prop="resourcePath">
+        <el-table-column v-if="!isSub" label="资源路径" min-width="200" prop="resourcePath">
           <template slot-scope="scope">
             {{ scope.row.resourcePath || '-' }}
           </template>
@@ -116,10 +118,11 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { getOptLog, getOptName } from '@/api/operationLog'
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
+import { getOptLog, getOptName, exportLog } from '@/api/operationLog'
 import { optResultType } from '@/dics/optResultType'
-
+import settings from '@/settings'
+ 
 @Component({
   name: 'OptLog'
 })
@@ -144,6 +147,7 @@ export default class extends Vue {
     }
   }
 
+
   private filter = {
     timeRange: [],
     // operationType: null,
@@ -165,12 +169,21 @@ export default class extends Vue {
 
   private btnSelected = 1
 
+  // 子用户查询界面显示控制
+  private isSub = false
+
+  @Prop()
+  private operatorId: string
+
   @Watch('btnSelected',{
     immediate: true
   })
   private handleBtns(val: any) {
-    console.log('?????      btnSelected', this.btnSelected)
     this.timeFilter(+val)
+  }
+
+  private created() {
+    this.operatorId ? this.isSub = true : this.isSub = false
   }
 
   private mounted() {
@@ -193,7 +206,6 @@ export default class extends Vue {
     try {
       this.loading.form = true
       const res = await getOptName()
-      console.log('操作名称： ', res)
       this.optNameList = res.operationList
       // this.optNameList = this.fakeList
     } catch (e) {
@@ -208,27 +220,8 @@ export default class extends Vue {
    */
   private async getList() {
     try {
-      this.loading.list = true
-      let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[0]).slice(0,-3) : undefined
-      let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[1]).slice(0,-3): undefined
-      const time = {
-        startTime: startTime,
-        endTime: endTime
-      }
-      const operationNameId = this.filter.operationNameId || undefined
-      const keyWord = this.filter.keyWord || undefined
-      const params = {
-        ...time,
-        ...this.filter,
-        keyWord: keyWord,
-        operationNameId: operationNameId,
-        pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize,
-        operationResult: this.optRes || undefined
-      }
-      console.log('params:   ', params)
+      const params = this.initParams()
       const res = await getOptLog(params)
-      console.log('res  :  ', res)
       res.operationLogList.map((item: any) => {
         if (item.operationResult === '0') {
           item.operationResult = '失败'
@@ -245,6 +238,29 @@ export default class extends Vue {
     } finally {
       this.loading.list = false
     }
+  }
+
+  private initParams(type?: any) {
+    this.loading.list = true
+    let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[0]).slice(0,-3) : undefined
+    let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[1]).slice(0,-3): undefined
+    const time = {
+      startTime: startTime,
+      endTime: endTime
+    }
+    const operationNameId = this.filter.operationNameId || undefined
+    const keyWord = this.filter.keyWord || undefined
+    const params = {
+      operatorId: this.operatorId,
+      ...time,
+      ...this.filter,
+      keyWord: keyWord,
+      operationNameId: operationNameId,
+      pageNum: type ? undefined : this.pager.pageNum,
+      pageSize: type ? undefined : this.pager.pageSize,
+      operationResult: this.optRes || undefined
+    }
+    return params
   }
 
   private async filterHandler(value: any, row: any) {
@@ -302,27 +318,19 @@ export default class extends Vue {
     const current = (new Date()).getTime() // ms
     // 清空一下搜索条件
     this.filter.timeRange = []
-    console.log('摩西摩西    ', type, type === 4,  type == 4)
     if (type === 1) {
-      console.log('1')
       this.showTimePicker = false
       this.filter.timeRange[0] = current - 60 * 60 * 1000
       this.filter.timeRange[1] = current
-      console.log('time range   ', this.filter)
     } else if (type === 2) {
-      console.log('2')
       this.showTimePicker = false
       this.filter.timeRange[0] = current - 24 * 60 * 60 * 1000
       this.filter.timeRange[1] = current
-      console.log('time range   ', this.filter)
     } else if (type === 3) {
-      console.log('3')
       this.showTimePicker = false
       this.filter.timeRange[0] = current - 7 * 24 * 60 * 60 * 1000
       this.filter.timeRange[1] = current
-      console.log('time range   ', this.filter)
     } else if (type === 4) {
-      console.log('4')
       this.showTimePicker = true
       const customTimeRange: any = this.$refs.customTimeRange
       customTimeRange.focus()
@@ -333,7 +341,6 @@ export default class extends Vue {
    * 检查自定义时间
    */
   private checkTimePicker() {
-    console.log('filter.timeRange', this.filter.timeRange)
     if (this.filter.timeRange.length < 1) {
       this.showTimePicker = false
       this.btnSelected = null
@@ -343,15 +350,43 @@ export default class extends Vue {
   /**
    * 导出
    */
+  private exportClick() {
+    this.$msgbox({
+      title: '导出操作日志',
+      message: '确认导出当前查询条件下的全部日志吗？',
+      showCancelButton: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    }).then(() => {
+      this.exportCsv()
+    }).catch((e) => {
+      this.$message.error(e)
+    })
+    
+  }
+
   private async exportCsv() {
-    console.log('请求当前搜索条件的数据并导出')
     try {
       // 1.请求分页数据
       await this.getList()
       // 2.导出请求
+      const params = this.initParams('export')
+      const res = await exportLog(params)
+      this.exportLog(res)
     } catch (e) {
       this.$message.error(e)
+    } finally {
+      this.loading.list = false
     }
+  }
+ 
+  private exportLog(file: any) {
+    let csvData = new Blob([file])
+    const a = document.createElement('a')
+    a.href = window.URL.createObjectURL(csvData)
+    a.download = '操作日志.csv'
+    a.click()
+    a.remove()
   }
 }
 </script>
