@@ -101,6 +101,7 @@ export default class extends Vue {
       const currentTime = +(('' + (new Date()).getTime()).slice(0, -3)) // s
       const startTime = currentTime - 10 * 60
       const res: any = await getOptLogById({
+        resourceType: 3,
         resourceId: this.deviceId,
         pageSize: 2,
         pageNum: 1,
@@ -150,11 +151,13 @@ export default class extends Vue {
     &.large {
       transform: scale(1.3);
       right: 30px;
+      margin-bottom: 20px;
     }
 
     &.small {
       transform: scale(0.8);
       right: 0;
+      margin-bottom: -25px;
     }
   }
 
@@ -191,7 +194,7 @@ export default class extends Vue {
   }
 
   .roll-enter-to,
-  roll-leave {
+  .roll-leave {
     opacity: 1;
   }
 

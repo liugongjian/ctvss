@@ -229,3 +229,11 @@ export const setIpLock = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+// 查询账号列表
+export const getAcessList = (params?: any): Promise<any> =>
+  request({
+    url: '/iam/user/accessmgmt/list',
+    method: 'get',
+    params
+  })

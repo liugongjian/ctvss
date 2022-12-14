@@ -51,7 +51,8 @@
               label="锁定结束时间"
             >
               <template slot-scope="{row}">
-                <span>{{ dateFormat(Number(row.expireTime)) }}</span>
+                <span v-if="row.expireTime === '-1'">永久</span>
+                <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -65,6 +66,7 @@
           </el-table>
         </div>
       </el-tab-pane>
+      <!-- 账号管理  -->
       <el-tab-pane label="账号管理" name="accountManage">
         <div v-if="activeName === 'accountManage'">
           <el-table
@@ -72,30 +74,34 @@
             style="width: 100%;"
           >
             <el-table-column
-              prop="username"
+              prop="userName"
               label="用户名"
               width="120"
             />
             <el-table-column
-              prop="lastTime"
+              prop="lastLoginTime"
               label="最后登录时间"
               width="180"
-            />
+            >
+              <template slot-scope="{row}">
+                {{ row.lastLoginTime }}
+              </template>
+            </el-table-column>
             <el-table-column
-              prop="ip"
+              prop="lostLoginIp"
               label="最后登录IP"
               width="180"
             />
             <el-table-column
-              prop="onlineStatus"
+              prop="isOnline"
               label="在线状态"
             />
             <el-table-column
-              prop="lockStatus"
+              prop="lockState"
               label="锁定状态"
             >
               <template slot-scope="{row}">
-                {{ row.enabled === 1 ?'锁定' :'未锁定' }}
+                {{ lockStateToText[row.lockState] }}
               </template>
             </el-table-column>
             <el-table-column
@@ -113,7 +119,8 @@
               width="180"
             >
               <template slot-scope="{row}">
-                <span>{{ dateFormat(Number(row.expireTime)) }}</span>
+                <span v-if="row.expireTime === '-1'">永久</span>
+                <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -140,7 +147,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-import { getIpRules, unlockIpRules, getIplock, setIpLock, setIpRules } from '@/api/accessManage'
+import { getIpRules, unlockIpRules, getIplock, setIpLock, setIpRules, getAcessList } from '@/api/accessManage'
 
 import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
@@ -172,6 +179,12 @@ export default class extends Vue {
 
   private ipAccessRules: any = {}
 
+  private lockStateToText = {
+    0: '未锁定',
+    1: '锁定IP',
+    2: '锁定用户'
+  }
+
   async mounted() {
     await this.initData()
   }
@@ -200,7 +213,7 @@ export default class extends Vue {
           name: '白名单',
           list: this.ipAccessRules.whiteIpList
         }
-      } else if (this.ipAccessRules.whiteIpList && this.ipAccessRules.blackIpList.length) {
+      } else if (this.ipAccessRules.blackIpList && this.ipAccessRules.blackIpList.length) {
         return {
           name: '黑名单',
           list: this.ipAccessRules.blackIpList
@@ -229,6 +242,7 @@ export default class extends Vue {
       }
       await unlockIpRules(param)
       this.getIpList()
+      this.$message.success('解除成功')
     }).catch(() => { console.log() })
   }
 
@@ -237,7 +251,7 @@ export default class extends Vue {
       const res = await getIpRules(2)
       this.ipTableData = res.rules
     } catch (error) {
-      this.$message.error(error)
+      this.$message.error(error && error.message)
     }
   }
 
@@ -254,11 +268,14 @@ export default class extends Vue {
     try {
       if (this.activeName === 'ipManage') {
         await setIpRules(param)
+        this.changeCustomDialog()
         this.initData()
       } else {
         await setIpLock(param)
+        this.changeCustomDialog()
         this.getIplock()
       }
+      this.$message.success('绑定成功')
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -266,8 +283,29 @@ export default class extends Vue {
 
   private async getIplock() {
     try {
-      const res = await getIplock()
-      this.tableData = res.rules
+      // const res = await getAcessList()
+
+      const res = {
+        accessRules: [
+          {
+            userName: '111',
+            iamUserId: '3213123',
+            lastLoginTime: '1231231231', // 最后登录时间戳10位
+            lostLoginIp: '192.168.2.3',
+            isOnline: true,
+            lockState: 0, // 0 未锁定 1锁定Ip 2 锁定用户
+            lockIP: '192.168.2.4,192.168.2.5',
+            lockStartTime: '',
+            lockEndTime: '' // 0 表示永久有效，展示 -
+          }
+        ],
+        pageNum: 1,
+        pageSize: 10,
+        totalPage: 2,
+        totalNum: 15
+      }
+
+      this.tableData = res.accessRules
     } catch (error) {
       this.$message.error(error && error.message)
     }
