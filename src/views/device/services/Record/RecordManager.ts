@@ -294,7 +294,7 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
-    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
         // 云端
