@@ -246,7 +246,7 @@ export default class extends Vue {
     // eslint-disable-next-line no-template-curly-in-string
     device: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到${主类型}-${子类型}告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
     // eslint-disable-next-line no-template-curly-in-string
-    platform: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。'
+    platform: '【天翼云CDN+】尊敬的用户：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件[值:${value}]，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。'
   }
 
   private rules = {

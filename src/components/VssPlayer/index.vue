@@ -1,7 +1,6 @@
 <template>
   <div :id="playerId" ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
-    <!-- <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" /> -->
-    <OptLogs v-if="optLogVisiable" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
+    <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
     <Player
       ref="player"
       v-adaptive-tools
