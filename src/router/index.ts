@@ -1038,7 +1038,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '访问限制',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/access-manage/secretManage',
+          activeMenu: '/access-manage/accessRestriction',
           perms: ['*']
         }
       }
