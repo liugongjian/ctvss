@@ -115,7 +115,8 @@ export default class extends Vue {
   }
 
   private drawLineChart() {
-    console.log('line')
+    this.currentChart && this.currentChart.destroy()
+
     const {
       data,
       name
@@ -202,14 +203,16 @@ export default class extends Vue {
         lineWidth: 1.5
       }
     })
+    this.chart.annotation().region({
+      start: ['2022-12-12', 'min'],
+      end: ['2022-12-13', 'max']
+    })
 
     this.chart.point().position('day*usage')
 
     this.chart.render()
+
+    this.currentChart = this.chart
   }
 }
 </script>
-
-<style>
-
-</style>

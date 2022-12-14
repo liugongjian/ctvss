@@ -78,15 +78,14 @@ export default class extends Vue {
         break
       default:
         param = {}
-
-        try {
-          console.log('param----->', param)
-          // this.tableData = await getOptLog(param)
-        } catch (error) {
-          this.$message.error(error && error.message)
-        } finally {
-          this.loading = false
-        }
+    }
+    try {
+      console.log('param----->', param)
+      // this.tableData = await getOptLog(param)
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.loading = false
     }
   }
 
