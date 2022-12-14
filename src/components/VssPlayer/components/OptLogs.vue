@@ -8,9 +8,11 @@
         <p>{{ item.sourceIP }}</p>
       </div>
     </transition-group>
-    <div v-else>
-      <p>暂无操作记录</p>
-    </div>
+    <transition v-else class="roll-log" name="roll" mode="out-in">
+      <div class="log-info">
+        <p>暂无操作记录</p>
+      </div>
+    </transition>
   </div>
 </template>
 <script lang="ts">
@@ -194,7 +196,7 @@ export default class extends Vue {
   }
 
   .roll-enter-to,
-  roll-leave {
+  .roll-leave {
     opacity: 1;
   }
 
