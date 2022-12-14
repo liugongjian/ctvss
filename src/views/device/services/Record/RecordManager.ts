@@ -8,6 +8,7 @@ import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { VSSError } from '@/utils/error'
+// import { getLockList } from '@/api/device'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -34,11 +35,14 @@ export class RecordManager {
   public isLoading: boolean
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
+  /* 录像锁列表 */
+  public lockList: any
 
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
     this.heatmapList = []
+    this.lockList = []
     this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
@@ -124,6 +128,7 @@ export class RecordManager {
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.recordList = []
+        this.lockList = []
         this.heatmapList = []
         this.currentRecord = null
         this.screen.player && this.screen.player.pause()
@@ -196,6 +201,13 @@ export class RecordManager {
       } else {
         this.heatmapList = heatmaps.concat(this.heatmapList)
       }
+      // 加载录像锁列表
+      // const lockList = await this.getLockList(date, date + 24 * 60 * 60)
+      // if (date > this.currentDate) {
+      //   this.lockList = this.lockList.concat(heatmaps)
+      // } else {
+      //   this.lockList = lockList.concat(this.lockList)
+      // }
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
@@ -297,7 +309,7 @@ export class RecordManager {
     const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
-        //云端
+        // 云端
         this.currentRecord = nextRecord
         const date = getDateByTime(this.currentRecord.startTime, 's')
         this.currentDate = date
@@ -574,4 +586,27 @@ export class RecordManager {
       this.screen.isLoading = false
     }
   }
+
+  /**
+   * =================================
+   * 录像锁相关
+   * =================================
+   */
+  // private async getLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
+  //   try {
+  //     const res: any = await getLockList({
+  //       deviceId: this.screen.deviceId,
+  //       inProtocol: this.screen.inProtocol,
+  //       startTime,
+  //       endTime,
+  //       pageSize: pageSize || 9999,
+  //       pageNum: pageNum || 1
+  //     })
+  //     console.log('获取录像锁列表   ', res.locks, pageSize || 9999)
+  //     // this.lockList = res.locks
+  //     return res.locks
+  //   } catch (e) {
+  //     this.screen.errorMsg = e.message
+  //   }
+  // }
 }

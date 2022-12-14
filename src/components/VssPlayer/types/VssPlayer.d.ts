@@ -10,6 +10,7 @@ export interface DeviceInfo {
   roleId?: string;
   realGroupId?: string;
   realGroupInProtocol?: string;
+  ptzLockStatus?: number
 }
 export interface Stream {
   label?: string;

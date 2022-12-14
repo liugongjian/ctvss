@@ -191,3 +191,49 @@ export const detachUserPolicy = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+// 获取主账号 黑白名单
+export const getIpRules = (type: number): Promise<any> =>
+  request({
+    url: `user/iprules?type=${type}`,
+    method: 'get'
+  })
+
+// 配置IP黑白名单
+export const setIpRules = (data: any): Promise<any> =>
+  request({
+    url: '/user/iprules',
+    method: 'post',
+    data
+  })
+
+// 解除锁定
+export const unlockIpRules = (data: any): Promise<any> =>
+  request({
+    url: '/user/ipunlock',
+    method: 'post',
+    data
+  })
+
+// 查询子账号锁定记录
+export const getIplock = (): Promise<any> =>
+  request({
+    url: '/user/iplock',
+    method: 'get'
+  })
+
+// 添加子账号锁定策略
+export const setIpLock = (data: any): Promise<any> =>
+  request({
+    url: '/user/iplock',
+    method: 'post',
+    data
+  })
+
+// 查询账号列表
+export const getAcessList = (params?: any): Promise<any> =>
+  request({
+    url: '/iam/user/accessmgmt/list',
+    method: 'get',
+    params
+  })

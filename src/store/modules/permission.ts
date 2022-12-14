@@ -9,6 +9,13 @@ interface IMatchFn {
   (infos: string[], route: RouteConfig): boolean
 }
 
+const notInDenyPerms: IMatchFn = (denyPerms, route) => {
+  if (route.meta && route.meta.perms) {
+    return !denyPerms.some(denyPerm => route.meta.perms.includes(denyPerm))
+  }
+  return true
+}
+
 const hasPermission: IMatchFn = (perms, route) => {
   if (route.meta && route.meta.perms) {
     return perms.some(perm => route.meta.perms.includes(perm))
@@ -38,6 +45,7 @@ const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: stri
 }
 
 export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
+export const filterAsyncRoutesByDenyPerms = filterAsyncRoutes.bind(null, notInDenyPerms)
 export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
 
 export interface IPermissionState {
@@ -57,11 +65,11 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { tags: string[], perms: string[], denyPerms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
-      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log')
     }
 
     // 根据route.meta.tags及用户tags过滤路由
@@ -72,6 +80,7 @@ class Permission extends VuexModule implements IPermissionState {
     } else {
       accessedRoutes = filterAsyncRoutesByPerms(filteredRoutes, params.perms)
     }
+    accessedRoutes = filterAsyncRoutesByDenyPerms(accessedRoutes, params.denyPerms)
     this.SET_ROUTES(accessedRoutes)
     if (getLocalStorage('casLoginId')) {
       casService.renderCasMenu(this.routes)

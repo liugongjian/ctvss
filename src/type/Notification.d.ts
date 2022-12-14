@@ -1,3 +1,5 @@
+import { MESSAGE_TYPE } from '@/type/enum'
+
 export interface INotifictionPolicy {
   id?: string;
   name?: string;
@@ -27,8 +29,9 @@ export interface INotifictionPolicyForm {
   notifyChannel: string
   effectiveTime: any[]
   notifyFreq: string
-  source: string
-  sourceRules: string[]
+  source: MESSAGE_TYPE
+  sourceRules: string[],
+  sourceRulesValue?: string,
   notifyTemplate: string
   notifyResources: string[]
   notifyDestinations: string[]

@@ -8,7 +8,10 @@ const serverAddressMapping = {
   dev: 'http://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9067', // 开发环境dev-1
   test: 'http://182.43.127.35:9080', // 测试环境
-  test1: 'http://182.43.127.35:9060', // 测试环境test-1
+  // test1: 'http://182.43.127.35:9060', // 测试环境test-1
+  test1: 'http://182.43.127.36:9060', // 测试环境test-1
+  // devrefactor: 'http://182.43.127.35:9062', // 开发环境dev-refactor
+  // testrefactor: 'http://182.43.127.36:9060', // 重构-测试环境
   test2: 'http://182.43.127.35:9061', // 测试环境test-2
   test3: 'http://182.43.127.35:9062', // 测试环境test-3
   test4: 'http://182.43.127.35:9063', // 测试环境test-4
@@ -145,7 +148,7 @@ module.exports = {
     // https://webpack.js.org/configuration/devtool/#development
     config
       .when(process.env.NODE_ENV === 'development',
-        config => config.devtool('cheap-eval-source-map')
+        config => config.devtool('cheap-module-eval-source-map')
       )
 
     // remove vue-cli-service's progress output
