@@ -162,9 +162,9 @@ export default class extends Vue {
           this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
           this.$message.success(`${this.isLocked ? '解锁' : '锁定'}成功！`)
           this.clear()
-          this.$nextTick(() => {
+          setTimeout(() => {
             this.isLocked = !this.isLocked
-          })
+          }, 200)
         } catch (e) {
           this.$message.error(e.message)
         } finally {
