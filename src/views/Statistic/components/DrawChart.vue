@@ -5,7 +5,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import { getIntersectElements } from '@antv/g2/lib/interaction/action/util'
 import { TooltipItem } from '@antv/g2/lib/interface'
 
 @Component({
@@ -203,9 +202,13 @@ export default class extends Vue {
         lineWidth: 1.5
       }
     })
+
+    const minData = dataLogs.filter((item: any) => item.warn)
+    const minDataLen = minData.length
+
     this.chart.annotation().region({
-      start: ['2022-12-12', 'min'],
-      end: ['2022-12-13', 'max']
+      start: [minData[0]?.day, 'min'],
+      end: [minData[minDataLen - 1]?.day, 'max']
     })
 
     this.chart.point().position('day*usage')
