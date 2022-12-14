@@ -7,7 +7,7 @@
   </el-tooltip>
 </template>
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator'
+import { Component, Prop, Watch } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -16,6 +16,11 @@ import ComponentMixin from './mixin'
 export default class extends ComponentMixin {
   @Prop()
   private optLogVisiable: boolean
+
+  @Watch('optLogVisiable')
+  private onOptLogVisiable() {
+    this.visiable = this.optLogVisiable
+  }
 
   private visiable = false
   

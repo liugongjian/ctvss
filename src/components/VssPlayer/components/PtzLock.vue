@@ -8,8 +8,8 @@
     </el-tooltip>
     <el-dialog :title="isLocked ? '解锁云台' : '锁定云台'" :visible.sync="dialogVisible" append-to-body :custom-class="isLocked ? 'inner-wider' : 'inner'">
       <el-form ref="pwdForm" :rules="rules" :model="form">
-        <el-form-item v-if="isLocked" label="请输入解锁密码" label-width="100" prop="unlockPwd" :rules="rules.pwd">
-          <el-input v-model="form.unlockPwd" autocomplete="off" show-password />
+        <el-form-item v-if="isLocked" label="请输入解锁密码" label-width="100" prop="unlockPwd" :rules="rules.pwd" :error="unclockPwdWrongMsg">
+          <el-input v-model="form.unlockPwd" autocomplete="off" show-password placeholder="请输入6位数字" @focus="clearWrongMsg" />
         </el-form-item>
         <span v-if="!isLocked" class="block-title">设置锁定时长</span>
         <div v-if="!isLocked" class="block top" />
@@ -28,7 +28,7 @@
         <span v-if="!isLocked" class="block-title">设置解锁密码</span>
         <div v-if="!isLocked" class="block bottom" />
         <el-form-item v-if="!isLocked" label="解锁密码" label-width="300" class="second-item" prop="lockPwd" :rules="rules.pwd">
-          <el-input v-model="form.lockPwd" autocomplete="new-password" show-password />
+          <el-input v-model="form.lockPwd" autocomplete="new-password" show-password placeholder="请输入6位数字" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -74,6 +74,8 @@ export default class extends Vue {
 
   private nowTicker
 
+  private unclockPwdWrongMsg = ''
+
   private validateEndTime = (rule, value, callback) => {
     const valid = value > new Date().getTime()
     if (!valid) {
@@ -83,9 +85,19 @@ export default class extends Vue {
     }
   }
 
+  private validateNum = (rule, value, callback) => {
+    const reg = /^[0-9]*$/
+    const valid = reg.test(value)
+    if (!valid) {
+      callback(new Error('必须为数字'))
+    } else {
+      callback()
+    }
+  }
+
   private rules = {
     time: [{ required: true, message: '不能为空', trigger: 'blur' }, { validator: this.validateEndTime, trigger: 'blur' }],
-    pwd: [{ required: true, message: '不能为空', trigger: 'blur' }, { min: 6, max: 6, message: '长度为6个字符', trigger: 'blur' }]
+    pwd: [{ required: true, message: '不能为空', trigger: 'blur' }, { min: 6, max: 6, message: '长度为6个字符', trigger: 'blur' }, { validator: this.validateNum, trigger: 'blur' }]
   }
 
   private submitting = false
@@ -166,7 +178,7 @@ export default class extends Vue {
             this.isLocked = !this.isLocked
           }, 200)
         } catch (e) {
-          this.$message.error(e.message)
+          this.isLocked ? (this.unclockPwdWrongMsg = e.message) : this.$message.error(e.message)
         } finally {
           this.submitting = false
         }
@@ -186,10 +198,9 @@ export default class extends Vue {
     }
   }
 
-  // private transformStringToStamp(str) {
-  //   const date = parse(str, 'yyyy-MM-dd HH:mm:ss', new Date())
-  //   return date.getTime()
-  // }
+  private clearWrongMsg() {
+    this.unclockPwdWrongMsg = ''
+  }
 }
 </script>
 <style lang="scss" scoped>

@@ -121,7 +121,7 @@ export default class extends Vue {
     // }
     // console.log('解锁 ', data)
     try {
-      console.log('提交   ', this.unlockItem)
+      // console.log('提交   ', this.unlockItem)
       this.submitting = true
       await unLock(this.unlockItem)
       this.submitting = false
