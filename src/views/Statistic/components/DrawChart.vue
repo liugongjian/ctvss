@@ -115,7 +115,8 @@ export default class extends Vue {
   }
 
   private drawLineChart() {
-    console.log('line')
+    this.currentChart && this.currentChart.destroy()
+
     const {
       data,
       name
@@ -210,10 +211,8 @@ export default class extends Vue {
     this.chart.point().position('day*usage')
 
     this.chart.render()
+
+    this.currentChart = this.chart
   }
 }
 </script>
-
-<style>
-
-</style>
