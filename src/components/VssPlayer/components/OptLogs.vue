@@ -194,7 +194,7 @@ export default class extends Vue {
   }
 
   .roll-enter-to,
-  roll-leave {
+  .roll-leave {
     opacity: 1;
   }
 
