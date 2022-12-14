@@ -294,11 +294,17 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
+    const currentEndtime = this.currentRecord.endTime
     const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
         // 云端
         this.currentRecord = nextRecord
+        const offsetTime = currentEndtime - nextRecord.startTime
+        // 播放下段如有重复直接跳过多余部分
+        if (offsetTime > 0) {
+          this.currentRecord.offsetTime = offsetTime + 1
+        }
         const date = getDateByTime(this.currentRecord.startTime, 's')
         this.currentDate = date
       } else {
