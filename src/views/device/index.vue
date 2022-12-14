@@ -61,6 +61,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    <record-message v-if="data.type === 'ipc'" :status="data.recordStatus" />
                     {{ node.label }}
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
@@ -146,6 +147,7 @@
         </div>
       </div>
     </el-card>
+    <record-events v-if="dialog.recordEvents" :in-protocol="currentGroupInProtocol" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('recordEvents', ...arguments)" />
     <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
     <sort-children v-if="dialog.sortChildren" :in-protocol="currentGroupInProtocol" :current-dir="sortDir" :group-id="currentGroupId" @on-close="closeDialog('sortChildren', ...arguments)" />
   </div>
@@ -156,8 +158,10 @@ import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
+import RecordEvents from './components/dialogs/RecordEvents.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import RecordMessage from './components/RecordMessage.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
@@ -170,7 +174,9 @@ import { exportSearchResult } from '@/api/device'
     CreateDir,
     StatusBadge,
     SortChildren,
-    AdvancedSearch
+    AdvancedSearch,
+    RecordMessage,
+    RecordEvents
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -182,6 +188,7 @@ export default class extends Mixins(IndexMixin) {
   private sortDir: any = null
   private sortNode = null
   private dialog = {
+    recordEvents: false,
     createDir: false,
     sortChildren: false
   }
@@ -259,6 +266,12 @@ export default class extends Mixins(IndexMixin) {
         }
         this.dialog.createDir = true
         break
+      case 'recordEvents':
+        if (payload) {
+          this.currentDir = payload
+        }
+        this.dialog.recordEvents = true
+        break
       case 'sortChildren':
         if (payload) {
           this.sortDir = payload
@@ -285,6 +298,7 @@ export default class extends Mixins(IndexMixin) {
           (this.sortDir.id === this.$route.query.dirId || this.sortDir.id === this.$route.query.deviceId) && DeviceModule.SetIsSorted(true)
         }
         break
+      case 'recordEvents':
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
@@ -315,7 +329,7 @@ export default class extends Mixins(IndexMixin) {
   public async exportSearchResult() {
     try {
       const search = this.advancedSearchForm
-      let data: any = {
+      const data: any = {
         groupId: this.currentGroupId,
         inProtocol: this.currentGroupInProtocol,
         deviceStatusKeys: search.deviceStatusKeys.join(',') || undefined,
@@ -328,7 +342,7 @@ export default class extends Mixins(IndexMixin) {
         pageSize: 5000,
         pageNum: 1
       }
-      var res = await exportSearchResult(data)
+      const res = await exportSearchResult(data)
       this.downloadFileUrl(`${data.inProtocol}导出设备表格`, res.exportFile)
     } catch (e) {
       console.log(e)
@@ -338,7 +352,7 @@ export default class extends Mixins(IndexMixin) {
   // 下载表格
   public downloadFileUrl(fileName: string, file: any) {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    var link = document.createElement('a')
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`
     link.click()
@@ -346,15 +360,19 @@ export default class extends Mixins(IndexMixin) {
 
   // base64转blob
   public base64ToBlob(base64: any) {
-    var arr = base64.split(',')
-    var mime = arr[0].match(/:(.*?);/)[1]
-    var bstr = atob(arr[1])
-    var n = bstr.length
-    var u8arr = new Uint8Array(n)
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }
     return new Blob([u8arr], { type: mime })
+  }
+
+  private recordMessageEvent() {
+    console.log(111)
   }
 }
 </script>

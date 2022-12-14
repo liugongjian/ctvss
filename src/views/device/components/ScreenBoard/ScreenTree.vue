@@ -75,6 +75,7 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <record-message v-if="data.type === 'ipc'" :status="data.recordStatus" />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -385,7 +386,7 @@ export default class extends Mixins(IndexMixin) {
    * @param policy 执行策略
    */
   private async executeQueue(node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
-    let devicesQueue: Device[] = []
+    const devicesQueue: Device[] = []
     const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
@@ -429,7 +430,7 @@ export default class extends Mixins(IndexMixin) {
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        let data = await getDeviceTree({
+        const data = await getDeviceTree({
           groupId: this.currentGroupId,
           id: node!.data.id,
           type: node!.data.type,
