@@ -655,7 +655,7 @@ export default class extends Vue {
         const validX = item.x + 20
         const validY = 20
         if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
-          console.log('点击  item   ', item)
+          // console.log('点击  item   ', item)
           this.recordLockItem = [item]
           this.unlockVisable = true
         }
