@@ -58,8 +58,8 @@ function responseHandler(response: any) {
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
-        '登录超时，可以取消继续留在该页面，或者重新登录',
-        '确定登出',
+        (response.data.message || '登录超时，') + '可点击“取消”以继续留在该页面，或“重新登录”',
+        '登出确认',
         {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
@@ -71,9 +71,9 @@ function responseHandler(response: any) {
         const loginType = loginService.getLoginType()
         UserModule.ResetToken()
         if (loginType === 'sub') {
-          window.location.href = `${loginService.innerUrl.prefix}/${loginService.innerUrl.sub}?redirect=%2Fdashboard`
+          window.location.href = `${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?redirect=%2Fdashboard`
         } else if (loginType === 'main') {
-          window.location.href = `${loginService.innerUrl.prefix}/${loginService.innerUrl.main}?redirect=%2Fdashboard`
+          window.location.href = `${loginService.innerUrl.prefix}${loginService.innerUrl.main}?redirect=%2Fdashboard`
         } else {
           window.location.href = `${loginService.casUrl.login}?redirect=%2Fdashboard`
         }
