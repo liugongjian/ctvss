@@ -215,6 +215,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
+import RecordMessage from '../RecordMessage.vue'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { dropScreen } from './directives/dropScreen'
 
@@ -224,7 +225,8 @@ import { dropScreen } from './directives/dropScreen'
     StatusBadge,
     StreamSelector,
     OperateSelector,
-    AdvancedSearch
+    AdvancedSearch,
+    RecordMessage
   },
   directives: {
     'drop-screen': dropScreen
