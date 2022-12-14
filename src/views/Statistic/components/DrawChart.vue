@@ -202,6 +202,10 @@ export default class extends Vue {
         lineWidth: 1.5
       }
     })
+    this.chart.annotation().region({
+      start: ['2022-12-12', 'min'],
+      end: ['2022-12-13', 'max']
+    })
 
     this.chart.point().position('day*usage')
 
