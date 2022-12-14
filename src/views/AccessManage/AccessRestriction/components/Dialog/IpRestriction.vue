@@ -122,7 +122,7 @@ export default class extends Vue {
     try {
       const data = this.form[`${this.form.kind}IpList`]
       // 过滤空数据
-      const list = data.length > 0 ? data.split('\n').filter(item => item) : []
+      const list = data?.length > 0 ? data.split('\n').filter(item => item) : []
       const param = {
         [`${this.form.kind}IpList`]: list,
         type: 1,

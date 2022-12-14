@@ -7,7 +7,7 @@
             <div class="access-restriction__title-text">IP访问限制</div>
             <el-button type="primary" size="mini" @click="changeIpDialog">配置</el-button>
           </div>
-          <el-descriptions v-if="ipAccessRules" :column="1">
+          <el-descriptions v-if="ipAccessRules&&ipAccessRules.length" :column="1">
             <el-descriptions-item label="访问名单类型">{{ getAccessRestriction.name }}</el-descriptions-item>
             <el-descriptions-item :label="`${getAccessRestriction.name}列表`">
               <p v-for="item in getAccessRestriction.list" :key="item">{{ item }}</p>

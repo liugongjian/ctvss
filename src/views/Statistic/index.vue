@@ -129,8 +129,9 @@
             </el-col>
           </el-row>
           <div class="statistic-box__title">
-            <div class="access-restriction__title-text">近7日存储用量趋势</div>
+            <div class="astatistic-box__title-text">近7日存储用量趋势</div>
           </div>
+          <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
           <div class="statistic-box__line-content">
             <draw-chart :chart-info="recordLogInfo" />
           </div>
@@ -270,7 +271,7 @@ export default class extends Vue {
     line-height: 26px;
     font-size: 16px;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 10px 0 20px;
 
     &-text {
       width: 120px;
@@ -305,6 +306,21 @@ export default class extends Vue {
   &__line-content {
     width: 50%;
     height: 500px;
+  }
+
+  &__warning {
+    width: 240px;
+    height: 60px;
+    background-color: #ac0100;
+    color: #fff;
+    font-size: 16px;
+    line-height: 60px;
+    padding-left: 20px;
+    margin: 30px 0;
+
+    span {
+      font-size: 24px;
+    }
   }
 }
 </style>

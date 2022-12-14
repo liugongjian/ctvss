@@ -127,9 +127,9 @@ export default class extends Vue {
       height: 400
     })
 
-    // const dataLogs = data.logs.map(item => ({ ...item, usage: item.usage * 100 }))
-    // console.log('dataLogs--->', dataLogs)
-    this.chart.data(data.logs)
+    const dataLogs = data.logs.map(item => ({ ...item, usage: Number((item.usage * 100).toFixed(6)) }))
+
+    this.chart.data(dataLogs)
 
     this.chart.scale({
       day: {
@@ -138,12 +138,7 @@ export default class extends Vue {
       usage: {
         min: 0,
         max: 100,
-        // formatter: (val, item) => {
-        //   console.log(val, item)
-        // },
         nice: true
-        // tickInterval: 0.5
-        // type: 'quantize'
       }
     })
 
@@ -153,7 +148,7 @@ export default class extends Vue {
       // 自定义  https://g2-v4.antv.vision/zh/docs/api/general/tooltip#tooltipcfgcustomitems--items-tooltipitem--tooltipitem
       customItems: (originiItems: TooltipItem[]) => {
         const items: any = originiItems
-        items[0].value = (items[0].value * 100).toFixed(4) + '%'
+        items[0].value = items[0].value + '%' // (items[0].value * 100).toFixed(4) + '%'
         items[0].name = '已使用'
         return items
       }
@@ -164,26 +159,38 @@ export default class extends Vue {
         formatter: (val) => {
           return val + '%'
         }
+      },
+      line: {
+        style: {
+          lineWidth: 1, // 设置线的宽度
+          stroke: '#BFBFBF' // 设置线的颜色
+        }
       }
     })
 
     this.chart.line().position('day*usage').label(
       'usage', (value) => {
         return {
-          content: (value * 100).toFixed(4) + '%'
+          content: value + '%' // (value * 100).toFixed(4) + '%'
         }
-      }, {
-        type: 'base'
       }
-    )
+    ).color('usage', (value) => {
+      if (value > data.threshold) {
+        return 'red'
+      }
+      return '#1890ff'
+    })
+
+    // 使用 geom.color()   会有个 legend栏来 滑动选择 值， 所以关闭
+    this.chart.legend(false)
 
     // 标注   线  设置
     this.chart.annotation().line({
       top: true,
-      start: ['min', '15'],
-      end: ['max', '15'],
+      start: ['min', data.threshold],
+      end: ['max', data.threshold],
       text: {
-        content: '15%',
+        content: data.threshold + '%',
         position: 'end',
         style: {
           textAlign: 'end'
