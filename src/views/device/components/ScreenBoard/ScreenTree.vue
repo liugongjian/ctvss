@@ -75,7 +75,7 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-            <record-message v-if="data.type === 'ipc'" :status="data.recordStatus" />
+            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -120,6 +120,7 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -215,7 +216,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
-import RecordMessage from '../RecordMessage.vue'
+import AdditionalStatus from '../AdditionalStatus.vue'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { dropScreen } from './directives/dropScreen'
 
@@ -226,7 +227,7 @@ import { dropScreen } from './directives/dropScreen'
     StreamSelector,
     OperateSelector,
     AdvancedSearch,
-    RecordMessage
+    AdditionalStatus
   },
   directives: {
     'drop-screen': dropScreen
