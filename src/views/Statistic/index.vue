@@ -187,7 +187,7 @@ export default class extends Vue {
   private async getData() {
     if (this.activeName === 'statistic') {
       try {
-        // this.statisticsData = await getStatistics()
+        this.statisticsData = await getStatistics()
         this.deviceOnlineInfo = {
           kind: 'pie',
           totalDeviceNum: 100, // this.statisticsData.totalDeviceNum,

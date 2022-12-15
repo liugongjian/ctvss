@@ -259,6 +259,15 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 监听切换设备后关闭操作日志功能
+   */
+  @Watch('deviceInfo.deviceId')
+  private onDeviceChange() {
+    if (!this.optLogVisiable) return
+    this.showOptLog(!this.optLogVisiable)
+  }
+
   private created() {
     this.playerId = (Math.random() * 1000000).toFixed(0)
   }

@@ -63,7 +63,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item prop="maxOnline" label="最大登录人数：">
-            <el-input v-model="form.maxOnline" placeholder="请填写最大登录人数" />
+            <el-input v-model.number="form.maxOnline" placeholder="请填写最大登录人数" />
           </el-form-item>
           <el-form-item prop="isMutualLogout" label="是否同端互踢：">
             <el-switch v-model="form.isMutualLogout" active-color="#FA8334" inactive-color="#CCCCCC" />

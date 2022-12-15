@@ -113,13 +113,13 @@
             <el-input v-model="form.sourceRulesValue" />
             <el-popover
               placement="right"
-              width="400"
+              width="300"
               trigger="hover"
               :open-delay="300"
               content=""
             >
               <div>
-                触发事件的阈值<br>请输入1-100整数<br>
+                <ul><li>触发推送的阈值（百分数形式）</li><li>请输入1-100整数</li></ul>
               </div>
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
@@ -134,14 +134,14 @@
             disabled
           />
         </el-form-item>
-        <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
+        <el-form-item v-if="form.source !== '2' && form.source !== '4'" label="生效资源：" prop="notifyResources">
           <resource-tree
             v-if="isloading === false"
             :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
           />
         </el-form-item>
-        <el-form-item label="推送对象：" prop="notifyDestinations">
+        <el-form-item v-if="form.source !== '4'" label="推送对象：" prop="notifyDestinations">
           <destinations-tree
             v-if="isloading === false"
             :checked-list="form.notifyDestinations"
@@ -296,7 +296,7 @@ export default class extends Vue {
   }
 
   private validateResourceRuleValue(rule: any, value: string, callback: Function) {
-    if (!/^[1-9]\d?$/.test(value)) {
+    if (!/^([1-9]\d?|100)$/.test(value)) {
       callback(new Error('阈值必须在1-100之间'))
     } else {
       callback()

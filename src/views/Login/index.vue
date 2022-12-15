@@ -360,6 +360,9 @@ export default class extends Vue {
           }
           const result: any = await UserModule.Login(loginData)
           removeTicket(loginService.casUrl.type)
+          if (this.subUserLogin && result.mutualLogoutNotify) {
+            this.$message.warning(result.mutualLogoutNotify)
+          }
           if (this.subUserLogin && result.code === 8) {
             this.$router.push({
               path: '/reset-password',

@@ -20,6 +20,10 @@
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
               <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
             </div> -->
+            <record-statistics
+              :device-id="deviceId"
+              :in-protocol="inProtocol"
+            />
             <!--设备信息-->
             <div class="detail__section">
               <div class="detail__title">设备信息</div>
@@ -318,12 +322,14 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import DetailAi from '../components/DetailAi.vue'
 import DetailViewLib from '../components/DetailViewLib.vue'
+import RecordStatistics from '../components/RecordStatistics.vue'
 
 @Component({
   name: 'DeviceGb28181Detail',
   components: {
     DetailAi,
-    DetailViewLib
+    DetailViewLib,
+    RecordStatistics
   }
 })
 export default class extends Mixins(detailMixin) {
