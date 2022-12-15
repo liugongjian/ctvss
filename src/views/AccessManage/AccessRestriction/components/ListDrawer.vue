@@ -3,8 +3,9 @@
     title="我是标题"
     :visible="true"
     :before-close="handleClose"
+    size="55%"
   >
-    <el-radio-group v-model="radio" size="small" @input="radioChange">
+    <!-- <el-radio-group v-model="radio" size="small" @input="radioChange">
       <el-radio-button label="近一小时" />
       <el-radio-button label="近1天" />
       <el-radio-button label="近7天" />
@@ -32,17 +33,26 @@
         prop="IP"
         label="操作IP"
       />
-    </el-table>
+    </el-table> -->
+    <div class="drawer-box">
+      <opt-log :operator-id="1" />
+    </div>
   </el-drawer>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { getOptLog } from '@/api/operationLog'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+// import { getOptLog } from '@/api/operationLog'
+import OptLog from '@/views/OperationLog/OptLog.vue'
 @Component({
-  name: 'ListDrawer'
+  name: 'ListDrawer',
+  components: {
+    OptLog
+  }
 })
 export default class extends Vue {
+  @Prop() private operatorId?: string
+
   private tableData = []
   private radio = '近一小时'
   private loading = false
@@ -94,3 +104,14 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+.drawer-box {
+  padding: 10px;
+
+  ::v-deep .el-pagination {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+  }
+}
+</style>
