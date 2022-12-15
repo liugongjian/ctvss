@@ -129,7 +129,8 @@
             </el-col>
           </el-row>
           <div class="statistic-box__title">
-            <div class="astatistic-box__title-text">近7日存储用量趋势</div>
+            <div class="statistic-box__title-text">近7日存储用量趋势</div>
+            <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
           </div>
           <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
           <div class="statistic-box__line-content">
@@ -138,6 +139,24 @@
         </div>
       </el-tab-pane>
     </el-tabs>
+    <el-dialog
+      title="近7日存储用量趋势配置"
+      :visible="ifThresholdDialog"
+      width="35%"
+      :before-close="changeThresholdDialog"
+      center
+    >
+      <div class="statistic-box__threshold-dialog">
+        <el-input v-model="thresholdInput" placeholder="请输入告警阈值" min="0" max="100" @input="inputChange">
+          <template slot="prepend">告警阈值：</template>
+          <template slot="append">%</template>
+        </el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sureThis">确 定</el-button>
+        <el-button @click="changeThresholdDialog">取 消</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -145,7 +164,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 // import { Chart } from '@antv/g2'
-import { getStatistics, getRecord, getRecordLog } from '@/api/statistic'
+import { getStatistics, getRecord, getRecordLog, setRecordThreshold } from '@/api/statistic'
 
 @Component({
   name: 'Statistic',
@@ -172,6 +191,10 @@ export default class extends Vue {
   private bytesInfo: any = {}
   private recordInfo: any = {}
 
+  private ifThresholdDialog: boolean = false
+
+  private thresholdInput: any = ''
+
   async mounted() {
     await this.getData()
   }
@@ -182,6 +205,15 @@ export default class extends Vue {
 
   private get recordTotal() {
     return (this.recordData.storage.total / this.bytesToTB).toFixed(2)
+  }
+
+  private changeThresholdDialog() {
+    this.ifThresholdDialog = !this.ifThresholdDialog
+    if (this.ifThresholdDialog) {
+      this.thresholdInput = this.recordLog.threshold
+    } else {
+      this.thresholdInput = 0
+    }
   }
 
   private async getData() {
@@ -243,8 +275,25 @@ export default class extends Vue {
     }
   }
 
-  private drawChart() {
+  private inputChange() {
+    this.thresholdInput = Number(this.thresholdInput.replace(/[^\d]/g, ''))
+    if (this.thresholdInput > 100) {
+      this.thresholdInput = 100
+    }
+  }
 
+  private async sureThis() {
+    const param = {
+      threshold: this.thresholdInput
+    }
+    try {
+      await setRecordThreshold(param)
+      this.getData()
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.changeThresholdDialog()
+    }
   }
 
   private handleClick() {
@@ -274,7 +323,7 @@ export default class extends Vue {
     margin: 10px 0 20px;
 
     &-text {
-      width: 120px;
+      width: 160px;
       display: inline-block;
     }
   }
@@ -322,5 +371,17 @@ export default class extends Vue {
       font-size: 24px;
     }
   }
+
+  // &__threshold-dialog {
+  //   input[type='number']::-webkit-inner-spin-button,
+  //   input[type='number']::-webkit-outer-spin-button {
+  //     appearance: none;
+  //     margin: 0;
+  //   }
+
+  //   input[type='number'] {
+  //     appearance: textfield;
+  //   }
+  // }
 }
 </style>

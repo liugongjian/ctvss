@@ -171,7 +171,7 @@ export default class extends Vue {
     this.chart.line().position('day*usage').label(
       'usage', (value) => {
         return {
-          content: value + '%' // (value * 100).toFixed(4) + '%'
+          content: value + '%'
         }
       }
     ).color('usage', (value) => {
