@@ -61,7 +61,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    <record-message v-if="data.type === 'ipc'" :status="data.recordStatus" />
+                    <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
                     {{ node.label }}
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
@@ -111,6 +111,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
                     {{ node.label }}
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
@@ -161,7 +162,7 @@ import SortChildren from './components/dialogs/SortChildren.vue'
 import RecordEvents from './components/dialogs/RecordEvents.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import RecordMessage from './components/RecordMessage.vue'
+import AdditionalStatus from './components/AdditionalStatus.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
@@ -175,7 +176,7 @@ import { exportSearchResult } from '@/api/device'
     StatusBadge,
     SortChildren,
     AdvancedSearch,
-    RecordMessage,
+    AdditionalStatus,
     RecordEvents
   }
 })
