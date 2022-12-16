@@ -95,7 +95,7 @@ export default class extends Vue {
   }
 
   private validateIp(rule: any, value: string, callback: Function) {
-    const ipReg = /^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(?::(?:[0-9]|[1-9][0-9]{1,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?$/
+    const ipReg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){2}(\.(.)+)$/
     const result = value.split('\n').every(item => ipReg.test(item))
     if (result) {
       callback()
@@ -118,7 +118,7 @@ export default class extends Vue {
     this.form.list = this.ipAccessRules[`${this.form.kind}IpList`].join('\n')
   }
 
-  private saveThis() {
+  private async saveThis() {
     try {
       const data = this.form[`${this.form.kind}IpList`]
       // 过滤空数据
@@ -128,7 +128,7 @@ export default class extends Vue {
         type: 1,
         enabled: this.form.enabled ? 1 : 0
       }
-      setIpRules(param)
+      await setIpRules(param)
       this.handleClose()
       this.$emit('refresh')
     } catch (error) {

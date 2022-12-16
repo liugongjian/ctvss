@@ -10,89 +10,142 @@
             <el-col :span="7">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">设备在线数<span>(在线/总数)</span></p>
-                <p class="statistic-box__content__number"><span>3834</span>/23834</p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="deviceOnlineInfo" />
             </el-col>
             <el-col :span="7">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">流在线数<span>(在线/总数)</span></p>
-                <p class="statistic-box__content__number"><span>3834</span>/23834</p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="streamOnlineInfo" />
             </el-col>
             <el-col :span="7">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">录制数<span>(录制中/总数)</span></p>
-                <p class="statistic-box__content__number"><span>3834</span>/23834</p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="recordOnlineInfo" />
             </el-col>
           </el-row>
+
+          <el-form ref="form" :model="listQueryForm" :inline="true">
+            <el-form-item label="业务组">
+              <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
+                <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备状态">
+              <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}_${item}`" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="流状态">
+              <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
+                <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="录制状态">
+              <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
+                <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="getDeviceList">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-tooltip placement="top" content="导出">
+                <svg-icon name="export" class="export" @click="exportList" />
+              </el-tooltip>
+            </el-form-item>
+          </el-form>
+
+          <!-- 默认不展示列表，点击了查询才给展示 -->
+          <el-table
+            v-if="Array.isArray(tableData)"
+            :data="tableData"
+            style="width: 100%;"
+          >
+            <el-table-column
+              prop="dirName"
+              label="所属目录"
+              width="180"
+            >
+              <template slot-scope="{row}">
+                <span>{{ row.dirName || '_' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="deviceName"
+              label="设备名称"
+              width="180"
+            />
+            <el-table-column
+              prop="gbId"
+              label="国标ID"
+              width="180"
+            />
+            <el-table-column
+              prop="deviceId"
+              label="设备ID"
+              width="180"
+            />
+            <el-table-column
+              prop="ip"
+              label="ip"
+              width="180"
+            />
+            <el-table-column
+              prop="status"
+              label="设备状态"
+            >
+              <template slot-scope="{row}">
+                <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="流状态"
+            >
+              <template slot-scope="{row}">
+                <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="录制状态"
+            >
+              <template slot-scope="{row}">
+                <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="longitude"
+              label="经度"
+              width="120"
+            />
+            <el-table-column
+              prop="latitude"
+              label="纬度"
+              width="120"
+            />
+            <el-table-column
+              prop="createTime"
+              label="创建时间"
+              width="180"
+            >
+              <template slot-scope="{row}">
+                <span>{{ dateFormat(Number(row.createTime)) }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            v-if="Array.isArray(tableData)"
+            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.totalNum" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
         </div>
-        <el-table
-          :data="tableData"
-          style="width: 100%;"
-        >
-          <el-table-column
-            prop="dir"
-            label="所属目录"
-            width="180"
-          />
-          <el-table-column
-            prop="name"
-            label="设备名称"
-            width="180"
-          />
-          <el-table-column
-            prop="gbId"
-            label="国标ID"
-          />
-          <el-table-column
-            prop="deviceId"
-            label="设备ID"
-          />
-          <el-table-column
-            prop="ip"
-            label="ip"
-          />
-          <el-table-column
-            prop="status"
-            label="设备状态"
-          >
-            <template slot-scope="{row}">
-              <span>{{ row.status || '-' }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            label="流状态"
-          >
-            <template slot-scope="{row}">
-              <span>{{ row.status || '-' }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            label="录制状态"
-          >
-            <template slot-scope="{row}">
-              <span>{{ row.status || '-' }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="ip"
-            label="经度"
-          />
-          <el-table-column
-            prop="ip"
-            label="纬度"
-          />
-          <el-table-column
-            prop="time"
-            label="创建时间"
-          />
-        </el-table>
       </el-tab-pane>
       <el-tab-pane label="录像统计" name="record">
         <div class="statistic-box">
@@ -164,7 +217,9 @@
 import { Component, Vue } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 // import { Chart } from '@antv/g2'
-import { getStatistics, getRecord, getRecordLog, setRecordThreshold } from '@/api/statistic'
+import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList } from '@/api/statistic'
+import { getGroups } from '@/api/group'
+import { dateFormat } from '@/utils/date'
 
 @Component({
   name: 'Statistic',
@@ -177,10 +232,13 @@ export default class extends Vue {
   private bytesToTB = Math.pow(1024, 4)
   private chart: any = {}
 
-  private tableData = []
+  private dateFormat = dateFormat
+
+  private tableData: any = null
   private statisticsData: any = {}
   private recordData: any = {}
   private recordLog: any = {}
+  private deviceList: any = {}
 
   private deviceOnlineInfo: any = {}
   private streamOnlineInfo: any = {}
@@ -194,6 +252,40 @@ export default class extends Vue {
   private ifThresholdDialog: boolean = false
 
   private thresholdInput: any = ''
+
+  private listQueryForm: any = {
+    groupInfo: '',
+    deviceStatus: '',
+    recordStatus: '',
+    streamStatus: ''
+  }
+
+  private pager: any = {
+    pageSize: 10,
+    pageNum: 1,
+    totalNum: 0
+  }
+
+  private deviceStatusText = {
+    'on': '设备在线',
+    'off': '设备离线',
+    'new': '设备未注册'
+  }
+
+  private streamStatusText = {
+    'on': '流在线',
+    'off': '流离线'
+  }
+
+  private recordStatusText = {
+    'on': '录制中',
+    'off': '未录制',
+    'failed': '录制失败'
+  }
+
+  private groupList: any = []
+
+  private param: any = {}
 
   async mounted() {
     await this.getData()
@@ -220,27 +312,34 @@ export default class extends Vue {
     if (this.activeName === 'statistic') {
       try {
         this.statisticsData = await getStatistics()
+
         this.deviceOnlineInfo = {
           kind: 'pie',
-          totalDeviceNum: 100, // this.statisticsData.totalDeviceNum,
-          onlineNum: 20, // this.statisticsData.totalDeviceOnlineNum,
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalDeviceOnlineNum,
           label: '在线率',
           name: 'deviceOnline'
         }
         this.streamOnlineInfo = {
           kind: 'pie',
-          totalDeviceNum: 100, // this.statisticsData.totalDeviceNum,
-          onlineNum: 30, // this.statisticsData.totalStreamOnlineNum,
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalStreamOnlineNum,
           label: '在线率',
           name: 'streamOnline'
         }
         this.recordOnlineInfo = {
           kind: 'pie',
-          totalDeviceNum: 100, // this.statisticsData.totalDeviceNum,
-          onlineNum: 40, // this.statisticsData.toalRecordNum,
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalRecordNum,
           label: '在线率',
           name: 'recordOnline'
         }
+
+        const query = {
+          pageSize: 999
+        }
+        const res = await getGroups(query)
+        this.groupList = res.groups
       } catch (error) {
         this.$message.error(error && error.message)
       }
@@ -269,6 +368,60 @@ export default class extends Vue {
           name: 'recordLog',
           data: this.recordLog
         }
+      } catch (error) {
+        this.$message.error(error && error.message)
+      }
+    }
+  }
+
+  private handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    this.pager.pageNum = 1
+    this.getDeviceList()
+  }
+  private handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    this.getDeviceList()
+  }
+
+  private async getDeviceList() {
+    const { deviceStatus, streamStatus, recordStatus, groupInfo } = this.listQueryForm
+    const groupId = groupInfo.split('_')[0]
+    const inProtocol = groupInfo.split('_')[1]
+
+    this.param = {
+      inProtocol,
+      groupId,
+      deviceStatus,
+      streamStatus,
+      recordStatus,
+      pageSize: this.pager.pageSize,
+      pageNum: this.pager.pageNum
+    }
+
+    try {
+      const res = await getDeviceList(this.param)
+      this.tableData = res.devices
+      this.pager.totalNum = Number(res.totalNum)
+    } catch (error) {
+      this.$message.error(error && error.message)
+    }
+  }
+
+  private async exportList() {
+    if (!Array.isArray(this.tableData) || this.tableData.length === 0) {
+      this.$message.warning('请先查询出实际数据再进行导出')
+    } else {
+      try {
+        const res = await exportDeviceList(this.param)
+        const { groupInfo } = this.listQueryForm
+        const groupName = groupInfo.split('_')[2]
+        const blob = new Blob([res])
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = `${groupName}.xlsx`
+        link.click()
+        link.remove()
       } catch (error) {
         this.$message.error(error && error.message)
       }
@@ -310,6 +463,14 @@ export default class extends Vue {
       border: 1px solid #d3d3d3;
       margin: calc((100% - 29.1667%*3)/6);
       padding: 10px 0;
+    }
+  }
+
+  ::v-deep .el-form {
+    &-item {
+      &__label {
+        padding-right: 10px;
+      }
     }
   }
 
@@ -371,17 +532,5 @@ export default class extends Vue {
       font-size: 24px;
     }
   }
-
-  // &__threshold-dialog {
-  //   input[type='number']::-webkit-inner-spin-button,
-  //   input[type='number']::-webkit-outer-spin-button {
-  //     appearance: none;
-  //     margin: 0;
-  //   }
-
-  //   input[type='number'] {
-  //     appearance: textfield;
-  //   }
-  // }
 }
 </style>

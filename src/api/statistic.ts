@@ -27,3 +27,18 @@ export const setRecordThreshold = (data: any = {}): Promise<any> =>
     method: 'post',
     data
   })
+
+export const getDeviceList = (params: any = {}): Promise<any> =>
+  request({
+    url: '/statistics/deviceList',
+    method: 'get',
+    params
+  })
+
+export const exportDeviceList = (params: any = {}): Promise<any> =>
+  request({
+    url: '/statistics/deviceExport',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })

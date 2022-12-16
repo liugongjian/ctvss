@@ -49,7 +49,7 @@ export default class extends Vue {
       name
     } = this.chartInfo
 
-    const data = [{ name: '在线', value: onlineNum }, { name: '离线', value: totalDeviceNum - onlineNum }]
+    const data = [{ name: '在线', value: Number(onlineNum) }, { name: '离线', value: Number(totalDeviceNum) - Number(onlineNum) }]
 
     this.currentChart && this.currentChart.destroy()
 
@@ -92,7 +92,7 @@ export default class extends Vue {
       })
       .text({
         position: ['50%', '50%'],
-        content: `${((data[0].value / data[1].value) * 100).toFixed(2)}%`,
+        content: `${((data[0].value / totalDeviceNum) * 100).toFixed(2)}%`,
         style: {
           fontSize: 12,
           fill: '#8c8c8c',
