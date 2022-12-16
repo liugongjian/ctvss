@@ -31,7 +31,9 @@ export default class extends Vue {
 
   private drawChart() {
     const { kind, name } = this.chartInfo
+
     this.container = name
+
     this.$nextTick(() => {
       if (kind === 'pie') {
         this.drawPieChart()
@@ -206,6 +208,7 @@ export default class extends Vue {
     const minData = dataLogs.filter((item: any) => item.warn)
     const minDataLen = minData.length
 
+    // 设置阴影区域
     this.chart.annotation().region({
       start: [minData[0]?.day, 'min'],
       end: [minData[minDataLen - 1]?.day, 'max']

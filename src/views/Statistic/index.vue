@@ -64,6 +64,7 @@
           <!-- 默认不展示列表，点击了查询才给展示 -->
           <el-table
             v-if="Array.isArray(tableData)"
+            v-loading="tableLoading"
             :data="tableData"
             style="width: 100%;"
           >
@@ -216,7 +217,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
-// import { Chart } from '@antv/g2'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList } from '@/api/statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
@@ -235,6 +235,8 @@ export default class extends Vue {
   private dateFormat = dateFormat
 
   private tableData: any = null
+  private tableLoading: boolean = false
+
   private statisticsData: any = {}
   private recordData: any = {}
   private recordLog: any = {}
@@ -385,7 +387,10 @@ export default class extends Vue {
   }
 
   private async getDeviceList() {
+    this.tableLoading = true
+
     const { deviceStatus, streamStatus, recordStatus, groupInfo } = this.listQueryForm
+
     const groupId = groupInfo.split('_')[0]
     const inProtocol = groupInfo.split('_')[1]
 
@@ -405,6 +410,8 @@ export default class extends Vue {
       this.pager.totalNum = Number(res.totalNum)
     } catch (error) {
       this.$message.error(error && error.message)
+    } finally {
+      this.tableLoading = false
     }
   }
 

@@ -119,7 +119,7 @@
               width="180"
             >
               <template slot-scope="{row}">
-                <span v-if="row.expireTime === '0'">永久</span>
+                <span v-if="row.expireTime === '-1'">永久</span>
                 <span v-else>{{ dateFormat(Number(row.lockEndTime)*1000) }}</span>
               </template>
             </el-table-column>
