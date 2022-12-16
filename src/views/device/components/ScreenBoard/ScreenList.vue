@@ -304,6 +304,12 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = true
     this.currentListRecord = record
+    const recordTypeName = this.currentScreen.recordType === 0 ? '云端' : '设备'
+    addLog({
+      deviceId: this.currentScreen.deviceId.toString(),
+      inProtocol: this.currentScreen.inProtocol,
+      operationName: `播放${recordTypeName}录像`
+    })
   }
 
   /**

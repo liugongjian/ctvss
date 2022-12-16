@@ -105,22 +105,22 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="createTime"
+              prop="lockStartTime"
               label="锁定开始时间"
               width="180"
             >
               <template slot-scope="{row}">
-                <span>{{ dateFormat(Number(row.createTime)) }}</span>
+                <span>{{ dateFormat(Number(row.lockStartTime)*1000) }}</span>
               </template>
             </el-table-column>
             <el-table-column
-              prop="expireTime"
+              prop="lockEndTime"
               label="锁定结束时间"
               width="180"
             >
               <template slot-scope="{row}">
-                <span v-if="row.expireTime === '-1'">永久</span>
-                <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
+                <span v-if="row.expireTime === '0'">永久</span>
+                <span v-else>{{ dateFormat(Number(row.lockEndTime)*1000) }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -129,10 +129,9 @@
               width="220"
             >
               <template slot-scope="{row}">
-                <!-- <el-button type="text">{{ row.enabled === 1 ?'解除锁定' :'锁定' }}</el-button> -->
                 <el-button v-if="row.enabled === 1" type="text" @click.stop.prevent="relieveLock(row)">解除锁定</el-button>
                 <el-button v-else type="text" @click.stop.prevent="changeCustomDialog">锁定</el-button>
-                <el-button type="text" @click.stop.prevent="changeShowListDrawer">查看访问日志</el-button>
+                <el-button type="text" @click.stop.prevent="changeShowListDrawer(row)">查看访问日志</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -141,7 +140,7 @@
     </el-tabs>
     <ip-restriction v-if="showIpDialog" :ip-access-rules="ipAccessRules" @on-close="changeIpDialog" @refresh="initData" />
     <lock-rule v-if="showCustomDialog" @on-close="changeCustomDialog" @refresh="initData" @set-lock="setIpRules" />
-    <list-drawer v-if="showListDrawer" @on-close="changeShowListDrawer" />
+    <list-drawer v-if="showListDrawer" :operator-id="drawerOperatorId" @on-close="changeShowListDrawer" />
   </el-card>
 </template>
 <script lang="ts">
@@ -179,6 +178,8 @@ export default class extends Vue {
 
   private ipAccessRules: any = {}
 
+  private drawerOperatorId: string = ''
+
   private lockStateToText = {
     0: '未锁定',
     1: '锁定IP',
@@ -202,8 +203,9 @@ export default class extends Vue {
     this.showCustomDialog = !this.showCustomDialog
   }
 
-  private changeShowListDrawer() {
+  private changeShowListDrawer(row: any) {
     this.showListDrawer = !this.showListDrawer
+    this.drawerOperatorId = row?.iamUserId
   }
 
   private get getAccessRestriction() {

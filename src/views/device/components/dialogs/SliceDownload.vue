@@ -91,6 +91,7 @@ import { getDeviceRecord } from '@/api/device'
 import VueTimepicker from 'vue2-timepicker'
 import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import { cloneDeep } from 'lodash'
+import { addLog } from '@/api/operationLog'
 
 @Component({
   name: 'SliceDownload',
@@ -488,6 +489,11 @@ export default class extends Vue {
             link.click()
             link.remove()
           }
+          addLog({
+            deviceId: this.screen.deviceId.toString(),
+            inProtocol: this.screen.inProtocol,
+            operationName: '云端录像下载'
+          })
         } catch (e) {
           this.$message.error(e.message)
         } finally {
@@ -522,14 +528,18 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .form {
     margin: 0;
+
     ::v-deep {
-      .vue__time-picker, .vue__time-picker input.display-time {
+      .vue__time-picker,
+      .vue__time-picker input.display-time {
         width: 170px;
         z-index: 2007;
         height: 32px;
         line-height: 32px;
       }
-      .vue__time-picker .dropdown, .vue__time-picker-dropdown {
+
+      .vue__time-picker .dropdown,
+      .vue__time-picker-dropdown {
         width: 100%;
         height: 15em;
 
@@ -538,55 +548,73 @@ export default class extends Vue {
           height: 15em;
         }
       }
-      .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker-dropdown ul li:not([disabled]).active:focus {
+
+      .vue__time-picker .dropdown ul li:not([disabled]).active,
+      .vue__time-picker .dropdown ul li:not([disabled]).active:hover,
+      .vue__time-picker .dropdown ul li:not([disabled]).active:focus,
+      .vue__time-picker-dropdown ul li:not([disabled]).active,
+      .vue__time-picker-dropdown ul li:not([disabled]).active:hover,
+      .vue__time-picker-dropdown ul li:not([disabled]).active:focus {
         background: #fa8334;
       }
     }
+
     .time-range {
       margin-left: 35px;
     }
+
     .time-range-gap {
       margin: 0 10px;
     }
   }
+
   ::v-deep .dialog-footer {
     padding-top: 0;
   }
+
   .form-date {
     ::v-deep .el-date-editor {
       width: 190px;
     }
   }
+
   .floatbox {
     float: left;
     width: 300px;
     height: 15px;
   }
+
   .warning-wrap {
     padding-top: 10px;
     height: 25px;
   }
+
   .warning {
     text-align: center;
     color: red;
     font-size: 12px;
   }
+
   .timeline__box {
     position: relative;
   }
+
   .timeline__wrap {
     margin-top: -30px;
+
     * {
-      user-select:none;
+      user-select: none;
     }
   }
+
   .timeline {
     min-width: 600px;
     position: relative;
-    margin: 75px 0 15px 0;
+    margin: 75px 0 15px;
     display: flex;
     background: transparent;
     cursor: grab;
+
     &__range {
       position: absolute;
       bottom: 0;
@@ -594,6 +622,7 @@ export default class extends Vue {
       height: 7px;
       z-index: 11;
     }
+
     &__handle {
       position: absolute;
       z-index: 10;
@@ -601,11 +630,13 @@ export default class extends Vue {
       border-right: 4px solid $primary;
       height: 50px;
       cursor: move;
+
       &__plus {
         height: 76px;
         z-index: 9;
-        transition: height .3s;
+        transition: height 0.3s;
       }
+
       .timeline__start2end {
         position: absolute;
         font-size: 12px;
@@ -619,17 +650,20 @@ export default class extends Vue {
         text-align: center;
         background-color: $primary;
         color: white;
-        transition: left .2s;
+        transition: left 0.2s;
+
         &__plus {
           bottom: 55px;
-          transition: all .3s;
+          transition: all 0.3s;
         }
       }
     }
+
     &__axis {
       position: relative;
       display: flex;
       width: 100%;
+
       &__slice {
         position: absolute;
         width: 100%;
@@ -637,24 +671,28 @@ export default class extends Vue {
         display: flex;
       }
     }
+
     &__hour {
       position: relative;
       flex: 1 1 0;
       text-align: center;
-      border-right: 2px solid #E6E6E6;
-      border-bottom: 7px solid #E6E6E6;
+      border-right: 2px solid #e6e6e6;
+      border-bottom: 7px solid #e6e6e6;
       padding: 6px 0;
       font-size: 11px;
-      color: #E6E6E6;
+      color: #e6e6e6;
+
       &:first-child {
         border-left: 2px solid;
       }
+
       span {
         position: absolute;
         bottom: -25px;
         left: -40%;
         color: $textGrey;
       }
+
       &:last-child {
         span {
           left: 50%;
@@ -662,15 +700,18 @@ export default class extends Vue {
         }
       }
     }
+
     &__half__hour {
       flex: 1 1 0;
-      border-left: 1px solid #E6E6E6;
+      border-left: 1px solid #e6e6e6;
       height: 5px;
-      color: #E6E6E6;
+      color: #e6e6e6;
+
       &:first-child {
         border-left: none;
       }
     }
+
     &__bar {
       position: absolute;
       bottom: 0;
@@ -678,6 +719,7 @@ export default class extends Vue {
       height: 100%;
       cursor: pointer;
     }
+
     &.dragging * {
       cursor: grabbing;
     }

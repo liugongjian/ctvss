@@ -20,3 +20,10 @@ export const getRecordLog = (params: any = {}): Promise<any> =>
     method: 'get',
     params
   })
+
+export const setRecordThreshold = (data: any = {}): Promise<any> =>
+  request({
+    url: '/statistics/record',
+    method: 'post',
+    data
+  })

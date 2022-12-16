@@ -5,7 +5,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import { getIntersectElements } from '@antv/g2/lib/interaction/action/util'
 import { TooltipItem } from '@antv/g2/lib/interface'
 
 @Component({
@@ -115,7 +114,8 @@ export default class extends Vue {
   }
 
   private drawLineChart() {
-    console.log('line')
+    this.currentChart && this.currentChart.destroy()
+
     const {
       data,
       name
@@ -171,7 +171,7 @@ export default class extends Vue {
     this.chart.line().position('day*usage').label(
       'usage', (value) => {
         return {
-          content: value + '%' // (value * 100).toFixed(4) + '%'
+          content: value + '%'
         }
       }
     ).color('usage', (value) => {
@@ -203,13 +203,19 @@ export default class extends Vue {
       }
     })
 
+    const minData = dataLogs.filter((item: any) => item.warn)
+    const minDataLen = minData.length
+
+    this.chart.annotation().region({
+      start: [minData[0]?.day, 'min'],
+      end: [minData[minDataLen - 1]?.day, 'max']
+    })
+
     this.chart.point().position('day*usage')
 
     this.chart.render()
+
+    this.currentChart = this.chart
   }
 }
 </script>
-
-<style>
-
-</style>
