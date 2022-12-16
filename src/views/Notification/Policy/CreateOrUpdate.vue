@@ -63,6 +63,7 @@
               <template slot-scope="{row}">
                 <el-time-picker
                   v-model="row.effectiveTime"
+                  :editable="false"
                   is-range
                   range-separator="至"
                   start-placeholder="开始时间"
@@ -297,7 +298,7 @@ export default class extends Vue {
 
   private validateResourceRuleValue(rule: any, value: string, callback: Function) {
     if (!/^([1-9]\d?|100)$/.test(value)) {
-      callback(new Error('阈值必须在1-100之间'))
+      callback(new Error('请输入1-100的整数'))
     } else {
       callback()
     }

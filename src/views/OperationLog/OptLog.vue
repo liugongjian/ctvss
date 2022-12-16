@@ -390,10 +390,10 @@ export default class extends Vue {
   }
  
   private exportLog(file: any) {
-    let csvData = new Blob([file])
+    let xlsxData = new Blob([file])
     const a = document.createElement('a')
-    a.href = window.URL.createObjectURL(csvData)
-    a.download = '操作日志.csv'
+    a.href = window.URL.createObjectURL(xlsxData)
+    a.download = '操作日志.xlsx'
     a.click()
     a.remove()
   }
