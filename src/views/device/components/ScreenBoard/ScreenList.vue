@@ -272,15 +272,21 @@ export default class extends Vue {
   private async downloadReplay(record: any) {
     try {
       record.loading = true
-      const res = await getDeviceRecord({
-        deviceId: this.currentScreen.deviceId,
-        startTime: record.startTime / 1000,
-        fileFormat: 'mp4',
-        inProtocol: this.currentScreen.inProtocol
-      })
-      if (res.downloadUrl) {
+      let downloadUrl
+      if (record.fileFormat === 'hls') {
+        const res = await getDeviceRecord({
+          deviceId: this.currentScreen.deviceId,
+          startTime: record.startTime / 1000,
+          fileFormat: 'mp4',
+          inProtocol: this.currentScreen.inProtocol
+        })
+        downloadUrl = res.downloadUrl
+      } else {
+        downloadUrl = record.url
+      }
+      if (downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
-        link.setAttribute('href', res.downloadUrl)
+        link.setAttribute('href', downloadUrl)
         link.click()
         link.remove()
       }
