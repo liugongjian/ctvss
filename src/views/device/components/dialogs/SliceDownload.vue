@@ -492,7 +492,7 @@ export default class extends Vue {
           addLog({
             deviceId: this.screen.deviceId.toString(),
             inProtocol: this.screen.inProtocol,
-            operationName: '云端录像下载'
+            operationName: '下载云端录像'
           })
         } catch (e) {
           this.$message.error(e.message)
