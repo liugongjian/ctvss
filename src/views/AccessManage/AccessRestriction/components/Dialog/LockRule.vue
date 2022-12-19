@@ -2,17 +2,23 @@
   <el-dialog
     title="锁定规则"
     :visible="true"
-    width="50%"
+    width="500px"
     :before-close="handleClose"
     center
   >
     <el-form ref="form" :model="form" label-width="130px" :rules="rules">
-      <el-form-item label="IP" prop="list">
+      <el-form-item v-if="activeName === 'accountManage'" label="限制方式">
+        <el-radio-group v-model="form.limitKind" @input="changeRadioValue">
+          <el-radio label="account">限制账号</el-radio>
+          <el-radio label="ip">限制部分IP</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item v-if="activeName === 'ipManage' || form.limitKind === 'ip'" label="IP" prop="list">
         <template slot="label">
           IP:
           <el-popover
             placement="top-start"
-            width="400"
             trigger="hover"
             :open-delay="300"
             :content="contentText"
@@ -20,7 +26,7 @@
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
-        <el-input v-model="form.list" type="textarea" />
+        <el-input v-model="form.list" type="textarea" :rows="5" />
       </el-form-item>
       <el-form-item label="锁定时常">
         <el-select v-model="form.time" placeholder="请选择锁定时常">
@@ -60,7 +66,8 @@ export default class extends Vue {
   private form = {
     list: '',
     time: '0.5',
-    expireTime: this.todayStartTimeStamp + 24 * this.oneHourTimestamp
+    expireTime: this.todayStartTimeStamp + 24 * this.oneHourTimestamp,
+    limitKind: 'account'
   }
 
   private timeList = [
@@ -136,7 +143,8 @@ export default class extends Vue {
     this.form = {
       list: '',
       time: '0.5',
-      expireTime: this.todayStartTimeStamp + 24 * this.oneHourTimestamp
+      expireTime: this.todayStartTimeStamp + 24 * this.oneHourTimestamp,
+      limitKind: 'account'
     }
     this.$emit('on-close')
   }

@@ -2,7 +2,7 @@
   <el-dialog
     title="IP访问限制"
     :visible="true"
-    width="30%"
+    width="500px"
     :before-close="handleClose"
     center
   >
@@ -14,12 +14,14 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item :label="`${showName}列表`" :prop="form.kind+'IpList'">
-        <el-input v-model="form[form.kind+'IpList']" type="textarea" />
+        <el-input
+          v-model="form[form.kind+'IpList']" type="textarea"
+          :rows="5"
+        />
         <template slot="label">
           {{ `${showName}列表` }}:
           <el-popover
             placement="top-start"
-            width="400"
             trigger="hover"
             :open-delay="300"
             content="支持添加IP网段，例如192.168.0.1/24（多个IP使用回行分隔）"
@@ -71,7 +73,6 @@ export default class extends Vue {
   private showName: string = ''
 
   mounted() {
-    console.log('ipAccessRules---->', this.ipAccessRules)
     this.initState()
   }
 

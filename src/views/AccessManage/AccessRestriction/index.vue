@@ -72,12 +72,14 @@
           <el-form :inline="true">
             <el-form-item label="在线状态">
               <el-select v-model="listQueryForm.onlineStatus" placeholder="请选择在线状态">
+                <el-option label="全部" value="" />
                 <el-option label="在线" value="true" />
                 <el-option label="离线" value="false" />
               </el-select>
             </el-form-item>
             <el-form-item label="锁定状态">
               <el-select v-model="listQueryForm.lockStatus" placeholder="请选择锁定状态">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in Object.keys(lockStateToText)" :key="lockStateToText[item]" :label="lockStateToText[item]" :value="item" />
               </el-select>
             </el-form-item>
@@ -85,8 +87,8 @@
               <el-input v-model="listQueryForm.username" placeholder="请输入用户名" />
             </el-form-item>
             <el-form-item>
-              <el-button icon="el-icon-search" circle type="primary" @click="getAccountlock" />
-              <el-button icon="el-icon-refresh" circle @click="resetSearch" />
+              <el-button icon="el-icon-search" @click="getAccountlock" />
+              <!-- <el-button icon="el-icon-refresh" circle @click="resetSearch" /> -->
             </el-form-item>
           </el-form>
           <el-table
