@@ -44,7 +44,7 @@
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
-        <PtzLock v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
@@ -239,6 +239,10 @@ export default class extends Vue {
   /* 播放器容器 */
   private get vssPlayerWrap() {
     return this.$refs.vssPlayerWrap
+  }
+
+  private get showPTZLock() {
+    return this.player && this.isLive && this.deviceInfo.inProtocol === 'gb28181' && this.$store.state.user.tags.disablePTZ !== 'Y'
   }
 
   /* 获取播放器实例Provide */

@@ -369,6 +369,7 @@ export default class extends Vue {
     }).then(() => {
       this.exportCsv()
     }).catch((e) => {
+      if (e === 'cancel') return
       this.$message.error(e)
     })
     
