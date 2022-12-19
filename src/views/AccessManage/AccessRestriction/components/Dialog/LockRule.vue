@@ -15,7 +15,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content="支持添加IP网段，例如192.168.0.1/24（多个IP使用回行分隔）"
+            :content="contentText"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 
 // import { setIpRules } from '@/api/accessManage'
 
@@ -52,6 +52,8 @@ import { Component, Vue } from 'vue-property-decorator'
   name: 'LockRule'
 })
 export default class extends Vue {
+  @Prop()private activeName?: string
+
   private todayStartTimeStamp = new Date().setHours(0, 0, 0, 0)
   private oneHourTimestamp = 60 * 60 * 1000
 
@@ -110,13 +112,23 @@ export default class extends Vue {
     ]
   }
 
+  private get contentText() {
+    if (this.activeName === 'ipManage') {
+      return '支持添加IP网段，例如192.168.0.1/24（多个IP使用回行分隔）'
+    }
+    return '限制该用户来自部分IP的访问。支持添加IP网段，例如192.168.0.1/24（多个IP使用回行分隔）'
+  }
+
   private validateIp(rule: any, value: string, callback: Function) {
     const ipReg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){2}(\.(.)+)$/
     const result = value.split('\n').every(item => ipReg.test(item))
-    if (result) {
-      callback()
-    } else {
-      callback(new Error('请输入正确格式的IP地址'))
+
+    if (value) {
+      if (result) {
+        callback()
+      } else {
+        callback(new Error('请输入正确格式的IP地址'))
+      }
     }
   }
 

@@ -231,9 +231,25 @@ export const setIpLock = (data: any): Promise<any> =>
   })
 
 // 查询账号列表
-export const getAcessList = (params?: any): Promise<any> =>
+export const getAccessList = (params?: any): Promise<any> =>
   request({
     url: '/iam/user/accessmgmt/list',
     method: 'get',
     params
+  })
+
+// 解锁
+export const accountUnlock = (data: any): Promise<any> =>
+  request({
+    url: '/iam/user/unlock',
+    method: 'post',
+    data
+  })
+
+// 锁定
+export const accountLock = (data: any): Promise<any> =>
+  request({
+    url: '/iam/user/lock',
+    method: 'post',
+    data
   })

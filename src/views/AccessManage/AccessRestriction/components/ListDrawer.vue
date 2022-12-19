@@ -1,12 +1,12 @@
 <template>
   <el-drawer
-    title="我是标题"
+    :title="`${drawerInfo.userName}访问日志`"
     :visible="true"
     :before-close="handleClose"
     size="55%"
   >
     <div class="drawer-box">
-      <opt-log :operator-id="1" />
+      <opt-log :operator-id="drawerInfo.iamUserId" />
     </div>
   </el-drawer>
 </template>
@@ -21,7 +21,7 @@ import OptLog from '@/views/OperationLog/OptLog.vue'
   }
 })
 export default class extends Vue {
-  @Prop() private operatorId?: string
+  @Prop() private drawerInfo?: string
 
   private handleClose() {
     this.$emit('on-close')
