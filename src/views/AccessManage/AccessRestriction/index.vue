@@ -197,7 +197,15 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-import { getIpRules, unlockIpRules, setIpLock, setIpRules, getAccessList, accountUnlock, accountLock } from '@/api/accessManage'
+import {
+  getIpRules,
+  unlockIpRules,
+  // setIpLock,
+  setIpRules,
+  getAccessList,
+  accountUnlock,
+  accountLock
+} from '@/api/accessManage'
 
 import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
@@ -322,7 +330,7 @@ export default class extends Vue {
             iamUserId: rowInfo.iamUserId
           }
           await accountUnlock(param)
-          this.getIpList()
+          this.getAccountlock()
           this.$message.success('解除成功')
         }).catch(() => { console.log() })
       }
@@ -357,7 +365,9 @@ export default class extends Vue {
         this.initData()
       } else {
         const { blackIpList, expireTime } = param
+
         let query: any = {}
+
         if (expireTime) {
           query = {
             customLockEnd: Math.floor(expireTime / 1000),
@@ -428,16 +438,6 @@ export default class extends Vue {
     }
     this.getAccountlock()
   }
-
-  // private unlockThis(rowInfo: any) {
-  //   this.$confirm('确认解除？').then(async() => {
-  //     const param = {
-  //       ruleId: rowInfo.ruleId
-  //     }
-  //     await unlockIpRules(param)
-  //     this.getIpList()
-  //   }).catch(() => { console.log() })
-  // }
 }
 </script>
 <style lang="scss" scoped>
