@@ -1,5 +1,5 @@
 <template>
-  <div class="video-info" :class="transScale">
+  <div class="video-info" :class="!isEmpty ? transScale : transScaleNull">
     <transition-group v-if="!isEmpty" class="roll-log" name="roll" mode="out-in">
       <div v-for="(item, index) in optLogs" :key="index" class="log-info" :class="index === 0 ? 'info-top' : 'info-bottom'">
         <p>{{ item.operationTime }}</p>
@@ -37,6 +37,7 @@ export default class extends Vue {
   private tmp = 10
   private resizeObserver: any
   private transScale = null
+  private transScaleNull = null
   private isEmpty = false
 
   private async mounted() {
@@ -48,19 +49,32 @@ export default class extends Vue {
       let height = entries[0]['target']['clientHeight']
       let width = entries[0]['target']['clientWidth']
       this.$nextTick(() => {
-        if (height <= 300 || width <= 372) {
+        // 大小判断条件和分频数量不完全相关
+        if ((height <= 300 && height > 200) || (width <= 372 && width > 300)) {
           // this.transScale = 'transform:scale(0.8);right:5px'
           this.transScale = 'small'
+          this.transScaleNull = 'small-null'
         } else if (width > 800) {
           // this.transScale = 'transform:scale(1.3);right:15px;'
           this.transScale = 'large'
+          this.transScaleNull = 'large-null'
+        } else if ((width <= 300 && width > 175)) {
+          this.transScale = 'sub-small'
+          this.transScaleNull = 'sub-small-null'
+        } else if (width <= 175 && width > 125) {
+          this.transScale = 'super-small'
+          this.transScaleNull = 'super-small-null'
+        } else if (width <= 125) {
+          this.transScale = 'max-small'
+          this.transScaleNull = 'max-small-null'
         } else {
-          this.transScale = null
+          this.transScale = null       
+          this.transScaleNull = null
           // this.transScale = 'transform:scale(1);right:15px;'
         }
       })
     })
-    this.resizeObserver.observe(document.getElementById(this.playerWrap))
+    this.resizeObserver.observe(document.getElementById(this.playerWrap))                                                                                                                                                                                   
   }
 
   // 销毁定时器
@@ -111,10 +125,10 @@ export default class extends Vue {
         endTime: currentTime // 当前查询时间
       })
       const logList = res.operationLogList.length > 0 ? res.operationLogList : null
-      this.isEmpty = !logList
       // 数据没有改变，不做替换，改变则替换
       if (this.optLogs) {
       // 从轮询开始检查，不包括第一次请求
+        if(!logList) return // 日志信息被人为清空时
         const isChanged = logList.some((newitem: any, index: any) => {
           return newitem.operationTime !== this.optLogs[index].operationTime
         })
@@ -129,6 +143,7 @@ export default class extends Vue {
       // 第一次请求
         this.optLogs = logList
       }
+      this.isEmpty = !logList
     } catch (e) {
       this.$message.error(e)
     }
@@ -152,14 +167,62 @@ export default class extends Vue {
 
     &.large {
       transform: scale(1.3);
-      right: 30px;
-      margin-bottom: 20px;
+      right: 3%;
+      bottom: 15%;
     }
 
     &.small {
       transform: scale(0.8);
       right: 0;
       margin-bottom: -25px;
+    }
+
+    &.sub-small {
+      transform: scale(0.5);
+      right: -10%;
+      bottom: -10%;
+    }
+
+    &.super-small {
+      transform: scale(0.4);
+      right: -20%;
+      bottom: -15%;
+    }
+
+    &.max-small {
+      transform: scale(0.3);
+      right: -35%;
+      bottom: -35%;
+    }
+
+    &.large-null {
+      transform: scale(1.3);
+      right: 3%;
+      bottom: 15%;
+    }
+
+    &.small-null {
+      transform: scale(0.8);
+      right: 0;
+      // margin-bottom: -25px;
+    }
+
+    &.sub-small-null {
+      transform: scale(0.4);
+      right: -30px;
+      bottom: 20px;
+    }
+
+    &.super-small-null {
+      transform: scale(0.4);
+      right: -20%;
+      bottom: 10%;
+    }
+
+    &.max-small-null {
+      transform: scale(0.2);
+      right: -50%;
+      bottom: 10%;
     }
   }
 
