@@ -22,6 +22,7 @@ export default class extends ComponentMixin {
   @Prop({
     default: {}
   }) private deviceInfo: DeviceInfo
+
   @Prop({
     default: {}
   }) private streamInfo: StreamInfo
@@ -122,7 +123,7 @@ export default class extends ComponentMixin {
 
     const pointX = (e.clientX - left) * this.oCanvas.width / width
     const pointY = (e.clientY - top) * this.oCanvas.height / height
-    const curPoint = [ pointX, pointY ]
+    const curPoint = [pointX, pointY]
     // 超出边界
     if (pointX > canvasClientX + width || pointX < 0) {
       return false
@@ -191,6 +192,7 @@ export default class extends ComponentMixin {
       this.drawRect()
     }
   }
+
   private canvasMouseUp(e: MouseEvent) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
