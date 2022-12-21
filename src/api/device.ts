@@ -478,7 +478,7 @@ export const ignoreEvents = (params: any): Promise<any> =>
   request({
     url: '/device/alarm/event/ignore',
     method: 'post',
-    params
+    data: params
   })
 
 // player组件  缩放
