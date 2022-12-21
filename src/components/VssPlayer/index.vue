@@ -357,8 +357,8 @@ export default class extends Vue {
 
   /* 控制是否显示实时预览操作日志功能 */
   private visiableControl(isShow: boolean) {
-    this.optUseable = isShow
-    if (!isShow) this.optLogVisiable = false // 控件图标不显示，功能也会取消
+    // this.optUseable = isShow
+    // if (!isShow) this.optLogVisiable = false // 控件图标不显示，功能也会取消
   }
 
   /* 操作日志信息显示控制 */
