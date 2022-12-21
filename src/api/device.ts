@@ -382,11 +382,11 @@ export const getAddressArea = (params: any, cancelToken: any): Promise<any> =>
  * 获取子地址列表, 返回地址列表
  */
 export const getChildAddress = async(id: any, level: number, cancelToken: any) => {
-  let params: any = {
+  const params: any = {
     pid: id,
     level
   }
-  let res = await getAddressArea(params, cancelToken)
+  const res = await getAddressArea(params, cancelToken)
   let list = []
   if (res.areas.length) {
     list = res.areas.map((item: any) => {
@@ -471,6 +471,16 @@ export const getDeviceEvents = (params: any): Promise<any> =>
     params
   })
 
+/**
+ * 忽略设备事件
+ */
+export const ignoreEvents = (params: any): Promise<any> =>
+  request({
+    url: '/device/alarm/event/ignore',
+    method: 'post',
+    data: params
+  })
+
 // player组件  缩放
 export const dragCanvasZoom = (params: any): Promise<any> =>
   request({
@@ -535,33 +545,32 @@ export const getViewDetail = (params: any): Promise<any> =>
     method: 'get'
   })
 
-  
 /**
 *  提交录像锁定时段
 */
 export const setLock = (data: any): Promise<any> =>
-request({
-  url: '/record/lock',
-  method: 'post',
-  data
-})
+  request({
+    url: '/record/lock',
+    method: 'post',
+    data
+  })
 
 /**
 * 提交解锁录像
 */
 export const unLock = (data: any): Promise<any> =>
-request({
-  url: '/record/unlock',
-  method: 'post',
-  data
-})
+  request({
+    url: '/record/unlock',
+    method: 'post',
+    data
+  })
 
 /**
 * 获取录像锁列表
 */
 export const getLockList = (data?: any) =>
-request({
-url: '/record/lock/list',
-method: 'post',
-data
-})
+  request({
+    url: '/record/lock/list',
+    method: 'post',
+    data
+  })

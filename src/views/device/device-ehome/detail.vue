@@ -196,6 +196,9 @@
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
     </div>
     <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />

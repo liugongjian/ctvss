@@ -56,8 +56,20 @@ export default class extends Vue {
     return new Date(this.currentDate.getYear(), this.currentDate.getMonth() + 1, 0).getDate()
   }
 
-  @Watch('currentDate', { immediate: true })
-  private async currentDateChange(val) {
+  @Watch('currentDate')
+  private async currentDateChange() {
+    this.resetData()
+  }
+
+  private mounted() {
+    this.resetData()
+  }
+
+  private getMonthData() {
+    return new Date((new Date() as any).getYear() + 1900, new Date().getMonth(), 0, 24)
+  }
+
+  private async resetData() {
     const res = await getDeviceRecordStatistic({
       deviceId: this.deviceId,
       inProtocol: this.inProtocol,
@@ -68,14 +80,6 @@ export default class extends Vue {
     this.recordActive = (res.records && res.records.length) || 0
     document.getElementById('chartContainer').innerHTML = ''
     this.drawChat()
-  }
-
-  private mounted() {
-    this.drawChat()
-  }
-
-  private getMonthData() {
-    return new Date((new Date() as any).getYear() + 1900, new Date().getMonth(), 0, 24)
   }
 
   private drawChat() {
@@ -151,6 +155,7 @@ export default class extends Vue {
   display: flex;
   flex-direction: row;
   width: 350px;
+  min-height: 188px;
   border: 1px solid #dcdfe6;
   border-radius: 5px;
   padding: 8px;

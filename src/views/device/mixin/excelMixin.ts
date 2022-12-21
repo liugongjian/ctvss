@@ -27,6 +27,7 @@ export default class ExcelMixin extends Vue {
       visibility: 'visible'
     }
   ]
+
   public regionName = ''
   public excelGroupDate: any
   private gbAccountList: any = []
@@ -42,6 +43,7 @@ export default class ExcelMixin extends Vue {
     BWList: [],
     options: []
   }
+
   // 表格字段配置
   private get excelTemplate() {
     return {
@@ -447,7 +449,7 @@ export default class ExcelMixin extends Vue {
       allowBlank: false,
       showErrorMessage: true,
       // formulae: ['"海康,大华,宇视,科达,华为,其他"'],
-      formulae: ['"海康,大华,宇视,其他"'],
+      formulae: ['"海康,大华,宇视,科达,金三立,华为,其他"'],
       error: '请选择厂商'
     },
     deviceName: {
@@ -529,6 +531,7 @@ export default class ExcelMixin extends Vue {
       error: '请选择国标用户名'
     }
   }
+
   private getAvailableChannelsValidation() {
     return {
       type: 'list',
@@ -538,6 +541,7 @@ export default class ExcelMixin extends Vue {
       error: '请选择通道号'
     }
   }
+
   private getVideoPackageValidation() {
     return {
       type: 'list',
@@ -574,18 +578,24 @@ export default class ExcelMixin extends Vue {
   private async getOptions() {
     // 获取资源包选项
     try {
-      let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
-      this.options.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
-      }) : []
-      let AIRes: any = await getResources({ type: 'VSS_AI' })
-      this.options.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
-      }) : []
-      let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
-      this.options.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.bitRate}M||${item.resourceId}`
-      }) : []
+      const VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
+      this.options.VIDEOList = VIDEORes.resPkgList
+        ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
+        })
+        : []
+      const AIRes: any = await getResources({ type: 'VSS_AI' })
+      this.options.AIList = AIRes.resPkgList
+        ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
+        })
+        : []
+      const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
+      this.options.BWList = BWRes.resPkgList
+        ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.bitRate}M||${item.resourceId}`
+        })
+        : []
     } catch (e) {
       console.error(e)
     }
@@ -666,7 +676,7 @@ export default class ExcelMixin extends Vue {
    */
   private optionsInit(worksheet: any, template: any) {
     template.forEach((column, index) => {
-      let columnIndex = String.fromCharCode(65 + index)
+      const columnIndex = String.fromCharCode(65 + index)
       worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, column.validation)
     })
   }
@@ -726,8 +736,8 @@ export default class ExcelMixin extends Vue {
       }
     }
     const buffer = await this.workbook.xlsx.writeBuffer()
-    var blob = new Blob([buffer], { type: 'application/xlsx' })
-    var link = document.createElement('a')
+    const blob = new Blob([buffer], { type: 'application/xlsx' })
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${exelName}.xlsx`
     link.click()
@@ -735,7 +745,7 @@ export default class ExcelMixin extends Vue {
 
   // 导出设备表格
   public async exportDevicesExcel(data: any) {
-    let params: any = {
+    const params: any = {
       groupId: data.groupId,
       inProtocol: data.inProtocol,
       dirId: data.dirId.toString(),
@@ -766,18 +776,19 @@ export default class ExcelMixin extends Vue {
   // 下载表格
   public downloadFileUrl(fileName: string, file: any) {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    var link = document.createElement('a')
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`
     link.click()
   }
+
   // base64转blob
   public base64ToBlob(base64: any) {
-    var arr = base64.split(',')
-    var mime = arr[0].match(/:(.*?);/)[1]
-    var bstr = atob(arr[1])
-    var n = bstr.length
-    var u8arr = new Uint8Array(n)
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }

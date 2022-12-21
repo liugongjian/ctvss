@@ -20,10 +20,10 @@
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
               <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
             </div> -->
-            <record-statistics
+            <!-- <record-statistics
               :device-id="deviceId"
               :in-protocol="inProtocol"
-            />
+            /> -->
             <!--设备信息-->
             <div class="detail__section">
               <div class="detail__title">设备信息</div>
@@ -308,6 +308,9 @@
           <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
     </div>
     <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
@@ -322,14 +325,12 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import DetailAi from '../components/DetailAi.vue'
 import DetailViewLib from '../components/DetailViewLib.vue'
-import RecordStatistics from '../components/RecordStatistics.vue'
 
 @Component({
   name: 'DeviceGb28181Detail',
   components: {
     DetailAi,
-    DetailViewLib,
-    RecordStatistics
+    DetailViewLib
   }
 })
 export default class extends Mixins(detailMixin) {
