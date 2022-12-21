@@ -22,7 +22,43 @@
       </div>
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
-      哈哈
+      <div class="tree-wraper">
+        <div class="tree">
+          <el-tree
+            key="device-el-tree-original"
+            ref="dirTree"
+            empty-text="暂无目录或设备"
+            :data="dirList"
+            node-key="id"
+            highlight-current
+            lazy
+            :load="loadDirs"
+            :props="treeProp"
+            :current-node-key="defaultKey"
+            @node-click="deviceRouter"
+          >
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="{'online': data.deviceStatus === 'on'}"
+            >
+              <span class="node-name">
+                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <span v-else class="node-dir">
+                  <svg-icon name="dir" width="15" height="15" />
+                  <svg-icon name="dir-close" width="15" height="15" />
+                </span>
+                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
+                {{ node.label }}
+                <span class="sum-icon">{{ getSums(data) }}</span>
+                <span class="alert-type">{{ renderAlertType(data) }}</span>
+              </span>
+            </span>
+          </el-tree>
+        </div>
+        <div class="tree">tree2</div>
+      </div>
     </el-card>
     <Dialogue
       v-if="dialog.visible"
@@ -40,7 +76,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
+import { Component, Vue, Provide } from 'vue-property-decorator'
 import { describeShareDirs, deletePlatform, getPlatforms } from '@/api/upPlatform'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
@@ -60,56 +96,16 @@ export default class extends Vue {
     data: {}
   }
 
-  private dirList: Array<any> = []
   private treeList: Array<any> = []
-  private dataList: Array<any> = []
-  private breadcrumb: Array<any> = []
-  private selectedList: Array<any> = []
-  private hasDir: boolean = false
-  private searchDeviceName = ''
   private currentTree: any = {}
-  private currentNodeData: any = {}
-  private defaultExpandedKeys: Array<any> = []
-  private currentPlatformDetail = null
-  public isExpanded = true
   public maxHeight = null
   private tableMaxHeight = null
-  private observer: any = null
-  public dirDrag = {
-    isDragging: false,
-    start: 0,
-    offset: 0,
-    orginWidth: 200,
-    width: 250
-  }
-
-  private dirTypeMap: any = {
-    0: 'dir',
-    1: 'nvr',
-    3: 'platform',
-    4: 'platformDir'
-  }
-
-  private pager = {
-    pageNum: 1,
-    pageSize: 10,
-    total: 0
-  }
 
   public loading = {
     platform: false,
     dir: false,
     sharedDevices: false,
     startStop: false
-  }
-
-  @Watch('dataList.length')
-  private onDataListChange(data: any) {
-    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
-  }
-
-  private refresh() {
-    this.getList(this.currentNodeData, false)
   }
 
   private async mounted() {
@@ -144,21 +140,6 @@ export default class extends Vue {
     } finally {
       this.loading.platform = false
     }
-  }
-
-  // 面包屑导航
-  private goToPath(item: any) {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setCurrentKey(item.id)
-    const currentNode = dirTree.getNode(item.id)
-    this.defaultExpandedKeys = [item.id]
-    this.getList(currentNode.data, false)
-    this.currentNodeData = currentNode.data
-    this.breadcrumb = this.getNodePath(currentNode)
-  }
-
-  private handleSelectionChange(rows: any) {
-    this.selectedList = rows
   }
 
   /**
@@ -208,14 +189,6 @@ export default class extends Vue {
   private selectTree(tree: any) {
     this.currentTree = tree
     this.initDirs()
-  }
-
-  /**
-   * 查看平台详情
-   */
-  private viewPlatform(platform: any) {
-    this.dialog.platformDetail = true
-    this.currentPlatformDetail = platform
   }
 
   private handleCreate() {
@@ -312,6 +285,7 @@ export default class extends Vue {
 
   ::v-deep .el-card__body {
     padding: 0;
+    height: 100%;
   }
 
   .platform {
@@ -421,7 +395,13 @@ export default class extends Vue {
 
   .shared-devices {
     flex: 1;
-
+    .tree-wraper{
+      height: 100%;
+      display: flex;
+      .tree{
+        flex: 1;
+      }
+    }
   }
 }
 
