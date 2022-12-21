@@ -56,7 +56,7 @@
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="getDeviceList">查询</el-button>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="searchDeviceList">查询</el-button>
             </el-form-item>
             <el-form-item>
               <el-tooltip placement="top" content="导出">
@@ -378,6 +378,11 @@ export default class extends Vue {
         this.$message.error(error && error.message)
       }
     }
+  }
+
+  private searchDeviceList() {
+    this.pager.pageNum = 1
+    this.getDeviceList()
   }
 
   private handleSizeChange(val: number) {

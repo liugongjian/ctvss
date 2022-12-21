@@ -87,7 +87,7 @@
               <el-input v-model="listQueryForm.username" placeholder="请输入用户名" />
             </el-form-item>
             <el-form-item>
-              <el-button icon="el-icon-search" @click="getAccountlock" />
+              <el-button icon="el-icon-search" @click="searchAccountlock" />
               <!-- <el-button icon="el-icon-refresh" circle @click="resetSearch" /> -->
             </el-form-item>
           </el-form>
@@ -411,6 +411,11 @@ export default class extends Vue {
     } catch (error) {
       this.$message.error(error && error.message)
     }
+  }
+
+  private searchAccountlock() {
+    this.pager.pageNum = 1
+    this.getAccountlock()
   }
 
   private handleSizeChange(val: number) {
