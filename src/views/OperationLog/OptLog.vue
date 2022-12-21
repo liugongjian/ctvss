@@ -291,6 +291,7 @@ export default class extends Vue {
        throw new Error('请选择查询时间段！')
       }
       this.pager.pageNum = 1
+      this.timeFilter(this.btnSelected)
       await this.getList()
     } catch (e) {
       this.$message.error(e)
