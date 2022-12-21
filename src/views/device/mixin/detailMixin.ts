@@ -16,6 +16,7 @@ import DetailConfig from '../components/DetailConfig.vue'
 import DetailEvents from '../components/DetailEvents.vue'
 import DetailPreview from '../components/DetailPreview.vue'
 import DetailReplay from '../components/DetailReplay.vue'
+import DetailStatistics from '../components/DetailStatistics.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
@@ -37,6 +38,7 @@ import settings from '@/settings'
     DetailConfig,
     DetailPreview,
     DetailReplay,
+    DetailStatistics,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain,

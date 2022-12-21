@@ -32,11 +32,21 @@
         <el-button type="primary" @click="searchEvents">搜索</el-button>
       </div>
     </div>
-    <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
+    <div class="filter-container">
+      <el-button type="primary" @click="ignoreEvents('')">全部忽略</el-button>
+      <el-button :disabled="!selectedDeviceIdList.length" @click="ignoreEvents(selectedDeviceIdList)">批量忽略</el-button>
+    </div>
+    <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @selection-change="handleSelectionChange">
+      <el-table-column v-if="true" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
       <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
       <el-table-column prop="eventType" label="事件类型" min-width="100" />
       <el-table-column prop="errorMessage" label="异常提示" min-width="300" />
+      <el-table-column v-if="true" label="操作" prop="action" class-name="col-action" width="100" fixed="right">
+        <template slot-scope="{row}">
+          <el-button type="text" :disabled="row.deleted !== 0" @click="ignoreEvents(row.deviceId)">{{ row.deleted === 1 ? '忽略' : '已忽略' }}</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
       :current-page="pager.pageNum"
@@ -51,8 +61,9 @@
 
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getDeviceEvents } from '@/api/device'
+import { getDeviceEvents, ignoreEvents } from '@/api/device'
 import { errorLevel, eventsType } from '@/dics/index'
+import { Device } from '@/type/Device'
 
 @Component({
   name: 'DeviceEvents'
@@ -61,23 +72,27 @@ export default class extends Vue {
   @Prop() private deviceId?: String
   @Prop() private inProtocol?: String
   private loading = false
+  public selectedDeviceIdList: Array<string> = []
   private search = {
     timeRange: [],
     errorLevel: '1',
     eventType: 'all'
   }
+
   private errorLevelList: Array<any> = Object.keys(errorLevel).map(error => {
     return {
       label: errorLevel[error],
       value: error
     }
   })
+
   private eventsTypeList: Array<any> = Object.keys(eventsType).map(event => {
     return {
       label: eventsType[event],
       value: event
     }
   })
+
   private dataList = []
   private pager: any = {
     pageNum: 1,
@@ -105,7 +120,7 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         deviceId: this.deviceId,
         inProtocal: this.inProtocol,
         startTime: this.search.timeRange[0]?.getTime(),
@@ -132,6 +147,47 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 表格多选框变化
+   */
+  private handleSelectionChange(devices: Array<Device>) {
+    this.selectedDeviceIdList = []
+    devices.forEach(device => {
+      if ((device as any).deleted === 0) {
+        this.selectedDeviceIdList.push(device.deviceId.toString())
+      }
+    })
+  }
+
+  /**
+   * 检测是否可选
+   */
+  private checkSelectable(row: any) {
+    return row.deleted === 0
+  }
+
+  /**
+   * 忽略事件
+   */
+  private async ignoreEvents(paload) {
+    const params: any = {}
+    if (Array.isArray(paload)) {
+      params.ids = paload
+    } else {
+      params.deviceId = paload
+    }
+    try {
+      console.log(params)
+      // this.loading = true
+      // await ignoreEvents(params)
+      // this.$message.success('忽略成功')
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.getList()
+    }
+  }
+
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
     await this.getList()
@@ -150,20 +206,24 @@ export default class extends Vue {
     margin-left: 10px;
   }
 }
+
 .filter-container {
   > * {
     margin-right: 15px;
     margin-bottom: 10px;
   }
+
   .el-select {
     width: 150px;
   }
 }
+
 .template__table {
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
