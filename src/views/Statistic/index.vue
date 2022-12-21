@@ -65,7 +65,28 @@
             </el-form-item>
           </el-form>
 
-          <!-- 默认不展示列表，点击了查询才给展示 -->
+          <!-- 默认不展示，点击了查询才给展示 -->
+
+          <div v-if="Array.isArray(tableData)" class="statistic-box__info">
+            <el-row>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">设备在线数:<span>{{ tableInfo.totalDeviceOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">流在线数:<span>{{ tableInfo.totalStreamOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">录制数:<span>{{ tableInfo.totalRecordNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
+
           <el-table
             v-if="Array.isArray(tableData)"
             v-loading="tableLoading"
@@ -247,6 +268,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
 
   private tableData: any = null
+  private tableInfo: any = null
   private tableLoading: boolean = false
 
   private statisticsData: any = {}
@@ -425,6 +447,7 @@ export default class extends Vue {
       const res = await getDeviceList(this.param)
       this.tableData = res.devices
       this.pager.totalNum = Number(res.totalNum)
+      this.tableInfo = res
     } catch (error) {
       this.$message.error(error && error.message)
     } finally {
@@ -533,6 +556,28 @@ export default class extends Vue {
 
       span {
         color: #9bcc56;
+      }
+    }
+  }
+
+  &__info {
+    background: #f2f2f2;
+    margin: 10px 0;
+
+    ::v-deep .el-row {
+      .el-col {
+        margin: 0;
+        border: none;
+      }
+    }
+
+    .statistic-box__content {
+      &__title {
+        font-size: 14px;
+
+        span {
+          color: #a1a1a1;
+        }
       }
     }
   }
