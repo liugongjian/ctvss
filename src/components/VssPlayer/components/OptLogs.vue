@@ -125,6 +125,7 @@ export default class extends Vue {
         endTime: currentTime // 当前查询时间
       })
       const logList = res.operationLogList.length > 0 ? res.operationLogList : null
+      this.isEmpty = !logList
       // 数据没有改变，不做替换，改变则替换
       if (this.optLogs) {
       // 从轮询开始检查，不包括第一次请求
@@ -143,7 +144,6 @@ export default class extends Vue {
       // 第一次请求
         this.optLogs = logList
       }
-      this.isEmpty = !logList
     } catch (e) {
       this.$message.error(e)
     }

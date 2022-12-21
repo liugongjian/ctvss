@@ -79,7 +79,7 @@ export default class extends Vue {
   private validateEndTime = (rule, value, callback) => {
     const valid = value > new Date().getTime()
     if (!valid) {
-      callback(new Error('不能晚于当前时间'))
+      callback(new Error('不能早于开始时间'))
     } else {
       callback()
     }
