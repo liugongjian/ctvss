@@ -326,14 +326,12 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import DetailAi from '../components/DetailAi.vue'
 import DetailViewLib from '../components/DetailViewLib.vue'
-import RecordStatistics from '../components/RecordStatistics.vue'
 
 @Component({
   name: 'DeviceGb28181Detail',
   components: {
     DetailAi,
-    DetailViewLib,
-    RecordStatistics
+    DetailViewLib
   }
 })
 export default class extends Mixins(detailMixin) {
