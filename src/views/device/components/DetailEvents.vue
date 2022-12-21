@@ -32,19 +32,19 @@
         <el-button type="primary" @click="searchEvents">搜索</el-button>
       </div>
     </div>
-    <div class="filter-container">
-      <el-button type="primary" @click="ignoreEvents('')">全部忽略</el-button>
+    <div v-if="isLiuzhou" class="filter-container">
+      <el-button type="primary" @click="ignoreEvents()">全部忽略</el-button>
       <el-button :disabled="!selectedDeviceIdList.length" @click="ignoreEvents(selectedDeviceIdList)">批量忽略</el-button>
     </div>
     <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @selection-change="handleSelectionChange">
-      <el-table-column v-if="true" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
+      <el-table-column v-if="isLiuzhou" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
       <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
       <el-table-column prop="eventType" label="事件类型" min-width="100" />
       <el-table-column prop="errorMessage" label="异常提示" min-width="300" />
-      <el-table-column v-if="true" label="操作" prop="action" class-name="col-action" width="100" fixed="right">
+      <el-table-column v-if="isLiuzhou" label="操作" prop="action" class-name="col-action" width="100" fixed="right">
         <template slot-scope="{row}">
-          <el-button type="text" :disabled="row.deleted !== 0" @click="ignoreEvents(row.deviceId)">{{ row.deleted === 1 ? '忽略' : '已忽略' }}</el-button>
+          <el-button type="text" :disabled="row.deleted !== '0'" @click="ignoreEvents(row.id)">{{ row.deleted === '0' ? '忽略' : '已忽略' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,6 +64,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getDeviceEvents, ignoreEvents } from '@/api/device'
 import { errorLevel, eventsType } from '@/dics/index'
 import { Device } from '@/type/Device'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DeviceEvents'
@@ -100,6 +101,10 @@ export default class extends Vue {
     total: 0
   }
 
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   private async mounted() {
     await this.getList()
   }
@@ -134,10 +139,12 @@ export default class extends Vue {
       this.pager.total = res.totalNum
       this.dataList = res.desDeviceEvent?.map(event => {
         return {
+          id: event.id,
           createdTime: event.createdTime,
           errorLevel: this.errorLevelList.find(error => error.value === event.errorLevel)?.label,
           eventType: this.eventsTypeList.find(error => error.value === event.eventType)?.label,
-          errorMessage: event.errorMessage || '-'
+          errorMessage: event.errorMessage || '-',
+          deleted: event.deleted
         }
       })
     } catch (e) {
@@ -153,8 +160,8 @@ export default class extends Vue {
   private handleSelectionChange(devices: Array<Device>) {
     this.selectedDeviceIdList = []
     devices.forEach(device => {
-      if ((device as any).deleted === 0) {
-        this.selectedDeviceIdList.push(device.deviceId.toString())
+      if ((device as any).deleted === '0') {
+        this.selectedDeviceIdList.push((device as any).id.toString())
       }
     })
   }
@@ -163,24 +170,22 @@ export default class extends Vue {
    * 检测是否可选
    */
   private checkSelectable(row: any) {
-    return row.deleted === 0
+    return row.deleted === '0'
   }
 
   /**
    * 忽略事件
    */
   private async ignoreEvents(paload) {
-    const params: any = {}
+    const params: any = { deviceId: this.deviceId }
     if (Array.isArray(paload)) {
       params.ids = paload
-    } else {
-      params.deviceId = paload
+    } else if (paload) {
+      params.ids = [paload]
     }
     try {
-      console.log(params)
-      // this.loading = true
-      // await ignoreEvents(params)
-      // this.$message.success('忽略成功')
+      await ignoreEvents(params)
+      this.$message.success('忽略成功')
     } catch (e) {
       console.log(e)
     } finally {

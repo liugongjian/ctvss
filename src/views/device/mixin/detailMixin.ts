@@ -30,6 +30,7 @@ import { networkMap } from '@/assets/region/network'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
 import settings from '@/settings'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   components: {
@@ -189,6 +190,10 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     } else {
       return null
     }
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   public get groupSipDomain() {

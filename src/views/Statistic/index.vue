@@ -56,7 +56,7 @@
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="searchDeviceList">查询</el-button>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" :loading="tableLoading" @click="searchDeviceList">查询</el-button>
             </el-form-item>
             <el-form-item>
               <el-tooltip placement="top" content="导出">
@@ -75,7 +75,7 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
-              width="180"
+              width="210"
             >
               <template slot-scope="{row}">
                 <span>{{ row.dirName || '_' }}</span>
@@ -84,26 +84,26 @@
             <el-table-column
               prop="deviceName"
               label="设备名称"
-              width="180"
             />
             <el-table-column
               prop="gbId"
               label="国标ID"
-              width="180"
+              width="210"
             />
             <el-table-column
               prop="deviceId"
               label="设备ID"
-              width="180"
+              width="210"
             />
             <el-table-column
               prop="ip"
               label="ip"
-              width="180"
+              width="210"
             />
             <el-table-column
               prop="status"
               label="设备状态"
+              width="160"
             >
               <template slot-scope="{row}">
                 <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
@@ -128,13 +128,21 @@
             <el-table-column
               prop="longitude"
               label="经度"
-              width="120"
-            />
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.longitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="latitude"
               label="纬度"
-              width="120"
-            />
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.latitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="createTime"
               label="创建时间"
