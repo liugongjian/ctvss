@@ -79,18 +79,18 @@ export default class extends Vue {
       key: '1',
       label: '1小时'
     },
-    {
-      key: '2',
-      label: '2小时'
-    },
-    {
-      key: '6',
-      label: '6小时'
-    },
-    {
-      key: '12',
-      label: '12小时'
-    },
+    // {
+    //   key: '2',
+    //   label: '2小时'
+    // },
+    // {
+    //   key: '6',
+    //   label: '6小时'
+    // },
+    // {
+    //   key: '12',
+    //   label: '12小时'
+    // },
     {
       key: '24',
       label: '24小时'
@@ -161,9 +161,6 @@ export default class extends Vue {
         break
       case '0.5':
       case '1':
-      case '2':
-      case '6':
-      case '12':
       case '24':
       case '48':
       case '72':
