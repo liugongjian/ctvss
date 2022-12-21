@@ -72,12 +72,14 @@
           <el-form :inline="true">
             <el-form-item label="在线状态">
               <el-select v-model="listQueryForm.onlineStatus" placeholder="请选择在线状态">
+                <el-option label="全部" value="" />
                 <el-option label="在线" value="true" />
                 <el-option label="离线" value="false" />
               </el-select>
             </el-form-item>
             <el-form-item label="锁定状态">
               <el-select v-model="listQueryForm.lockStatus" placeholder="请选择锁定状态">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in Object.keys(lockStateToText)" :key="lockStateToText[item]" :label="lockStateToText[item]" :value="item" />
               </el-select>
             </el-form-item>
@@ -85,8 +87,8 @@
               <el-input v-model="listQueryForm.username" placeholder="请输入用户名" />
             </el-form-item>
             <el-form-item>
-              <el-button icon="el-icon-search" circle type="primary" @click="getAccountlock" />
-              <el-button icon="el-icon-refresh" circle @click="resetSearch" />
+              <el-button icon="el-icon-search" @click="searchAccountlock" />
+              <!-- <el-button icon="el-icon-refresh" circle @click="resetSearch" /> -->
             </el-form-item>
           </el-form>
           <el-table
@@ -195,7 +197,15 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-import { getIpRules, unlockIpRules, setIpLock, setIpRules, getAccessList, accountUnlock, accountLock } from '@/api/accessManage'
+import {
+  getIpRules,
+  unlockIpRules,
+  // setIpLock,
+  setIpRules,
+  getAccessList,
+  accountUnlock,
+  accountLock
+} from '@/api/accessManage'
 
 import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
@@ -320,7 +330,7 @@ export default class extends Vue {
             iamUserId: rowInfo.iamUserId
           }
           await accountUnlock(param)
-          this.getIpList()
+          this.getAccountlock()
           this.$message.success('解除成功')
         }).catch(() => { console.log() })
       }
@@ -355,7 +365,9 @@ export default class extends Vue {
         this.initData()
       } else {
         const { blackIpList, expireTime } = param
+
         let query: any = {}
+
         if (expireTime) {
           query = {
             customLockEnd: Math.floor(expireTime / 1000),
@@ -401,6 +413,11 @@ export default class extends Vue {
     }
   }
 
+  private searchAccountlock() {
+    this.pager.pageNum = 1
+    this.getAccountlock()
+  }
+
   private handleSizeChange(val: number) {
     this.pager.pageSize = val
     this.pager.pageNum = 1
@@ -426,16 +443,6 @@ export default class extends Vue {
     }
     this.getAccountlock()
   }
-
-  // private unlockThis(rowInfo: any) {
-  //   this.$confirm('确认解除？').then(async() => {
-  //     const param = {
-  //       ruleId: rowInfo.ruleId
-  //     }
-  //     await unlockIpRules(param)
-  //     this.getIpList()
-  //   }).catch(() => { console.log() })
-  // }
 }
 </script>
 <style lang="scss" scoped>

@@ -33,26 +33,30 @@
           <el-form ref="form" :model="listQueryForm" :inline="true">
             <el-form-item label="业务组">
               <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
               </el-select>
             </el-form-item>
             <el-form-item label="设备状态">
               <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}_${item}`" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="流状态">
               <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="录制状态">
               <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
+                <el-option label="全部" value="" />
                 <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="getDeviceList">查询</el-button>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" @click="searchDeviceList">查询</el-button>
             </el-form-item>
             <el-form-item>
               <el-tooltip placement="top" content="导出">
@@ -374,6 +378,11 @@ export default class extends Vue {
         this.$message.error(error && error.message)
       }
     }
+  }
+
+  private searchDeviceList() {
+    this.pager.pageNum = 1
+    this.getDeviceList()
   }
 
   private handleSizeChange(val: number) {
