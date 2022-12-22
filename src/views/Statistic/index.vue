@@ -96,7 +96,6 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
-              width="210"
             >
               <template slot-scope="{row}">
                 <span>{{ row.dirName || '_' }}</span>
@@ -124,7 +123,7 @@
             <el-table-column
               prop="status"
               label="设备状态"
-              width="160"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
@@ -133,6 +132,7 @@
             <el-table-column
               prop="status"
               label="流状态"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
@@ -141,6 +141,7 @@
             <el-table-column
               prop="status"
               label="录制状态"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
@@ -306,14 +307,14 @@ export default class extends Vue {
   }
 
   private deviceStatusText = {
-    'on': '设备在线',
-    'off': '设备离线',
-    'new': '设备未注册'
+    'on': '在线',
+    'off': '离线',
+    'new': '未注册'
   }
 
   private streamStatusText = {
-    'on': '流在线',
-    'off': '流离线'
+    'on': '在线',
+    'off': '离线'
   }
 
   private recordStatusText = {
