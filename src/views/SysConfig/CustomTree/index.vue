@@ -22,6 +22,7 @@
       </div>
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
+      <div class="input"><el-input /></div>
       <div class="tree-wraper">
         <div class="tree" :style="{height: treeMaxHeight + 'px'}">
           <el-tree
@@ -93,6 +94,10 @@
             </span>
           </el-tree>
         </div>
+      </div>
+      <div class="button">
+        <el-button type="primary">保存</el-button>
+        <el-button>取消</el-button>
       </div>
     </el-card>
     <Dialogue
@@ -719,8 +724,13 @@ export default class extends Vue {
   .shared-devices {
     flex: 1;
 
+    .input {
+      width: 200px;
+      padding: 20px 10px;
+    }
+
     .tree-wraper {
-      height: 100%;
+      height: calc(100% - 120px);
       display: flex;
 
       .tree {
@@ -780,6 +790,10 @@ export default class extends Vue {
           margin: 0 10px 20px !important;
         }
       }
+    }
+
+    .button {
+      padding-left: 100px;
     }
   }
 }
