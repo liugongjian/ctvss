@@ -31,9 +31,9 @@
           </el-row>
 
           <el-form ref="form" :model="listQueryForm" :inline="true">
-            <el-form-item label="业务组">
+            <el-form-item label="业务组" required>
               <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
-                <el-option label="全部" value="" />
+                <!-- <el-option label="全部" value="" /> -->
                 <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
               </el-select>
             </el-form-item>
@@ -65,7 +65,28 @@
             </el-form-item>
           </el-form>
 
-          <!-- 默认不展示列表，点击了查询才给展示 -->
+          <!-- 默认不展示，点击了查询才给展示 -->
+
+          <div v-if="Array.isArray(tableData)" class="statistic-box__info">
+            <el-row>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">设备在线数:<span>{{ tableInfo.totalDeviceOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">流在线数:<span>{{ tableInfo.totalStreamOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+              <el-col :span="7">
+                <div class="statistic-box__content">
+                  <p class="statistic-box__content__title">录制数:<span>{{ tableInfo.totalRecordNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
+
           <el-table
             v-if="Array.isArray(tableData)"
             v-loading="tableLoading"
@@ -75,7 +96,6 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
-              width="210"
             >
               <template slot-scope="{row}">
                 <span>{{ row.dirName || '_' }}</span>
@@ -103,7 +123,7 @@
             <el-table-column
               prop="status"
               label="设备状态"
-              width="160"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
@@ -112,6 +132,7 @@
             <el-table-column
               prop="status"
               label="流状态"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
@@ -120,6 +141,7 @@
             <el-table-column
               prop="status"
               label="录制状态"
+              width="80"
             >
               <template slot-scope="{row}">
                 <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
@@ -163,7 +185,7 @@
       <el-tab-pane label="录像统计" name="record">
         <div class="statistic-box">
           <el-row>
-            <el-col :span="7">
+            <el-col v-if="ifLiuzhou" :span="7">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">
                   存储容量
@@ -194,13 +216,15 @@
               <draw-chart :chart-info="recordInfo" />
             </el-col>
           </el-row>
-          <div class="statistic-box__title">
-            <div class="statistic-box__title-text">近7日存储用量趋势</div>
-            <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
-          </div>
-          <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
-          <div class="statistic-box__line-content">
-            <draw-chart :chart-info="recordLogInfo" />
+          <div v-if="ifLiuzhou">
+            <div class="statistic-box__title">
+              <div class="statistic-box__title-text">近7日存储用量趋势</div>
+              <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
+            </div>
+            <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
+            <div class="statistic-box__line-content">
+              <draw-chart :chart-info="recordLogInfo" />
+            </div>
           </div>
         </div>
       </el-tab-pane>
@@ -232,6 +256,7 @@ import DrawChart from './components/DrawChart.vue'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList } from '@/api/statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'Statistic',
@@ -247,6 +272,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
 
   private tableData: any = null
+  private tableInfo: any = null
   private tableLoading: boolean = false
 
   private statisticsData: any = {}
@@ -281,14 +307,14 @@ export default class extends Vue {
   }
 
   private deviceStatusText = {
-    'on': '设备在线',
-    'off': '设备离线',
-    'new': '设备未注册'
+    'on': '在线',
+    'off': '离线',
+    'new': '未注册'
   }
 
   private streamStatusText = {
-    'on': '流在线',
-    'off': '流离线'
+    'on': '在线',
+    'off': '离线'
   }
 
   private recordStatusText = {
@@ -303,6 +329,10 @@ export default class extends Vue {
 
   async mounted() {
     await this.getData()
+  }
+
+  public get ifLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private get recordUsage() {
@@ -425,6 +455,7 @@ export default class extends Vue {
       const res = await getDeviceList(this.param)
       this.tableData = res.devices
       this.pager.totalNum = Number(res.totalNum)
+      this.tableInfo = res
     } catch (error) {
       this.$message.error(error && error.message)
     } finally {
@@ -533,6 +564,28 @@ export default class extends Vue {
 
       span {
         color: #9bcc56;
+      }
+    }
+  }
+
+  &__info {
+    background: #f2f2f2;
+    margin: 10px 0;
+
+    ::v-deep .el-row {
+      .el-col {
+        margin: 0;
+        border: none;
+      }
+    }
+
+    .statistic-box__content {
+      &__title {
+        font-size: 14px;
+
+        span {
+          color: #a1a1a1;
+        }
       }
     }
   }
