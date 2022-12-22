@@ -31,9 +31,9 @@
           </el-row>
 
           <el-form ref="form" :model="listQueryForm" :inline="true">
-            <el-form-item label="业务组">
+            <el-form-item label="业务组" required>
               <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
-                <el-option label="全部" value="" />
+                <!-- <el-option label="全部" value="" /> -->
                 <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
               </el-select>
             </el-form-item>
