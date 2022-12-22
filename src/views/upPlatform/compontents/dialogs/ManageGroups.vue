@@ -328,7 +328,6 @@ export default class extends Mixins(Validate) {
       }]
     })
     resolve(dirs)
-    debugger
     this.setDirChecked(groups, 'dir')
 
     // this.tagNvrUnchecked(node, dirs)
