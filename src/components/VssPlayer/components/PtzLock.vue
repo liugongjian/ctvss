@@ -78,8 +78,11 @@ export default class extends Vue {
 
   private validateEndTime = (rule, value, callback) => {
     const valid = value > new Date().getTime()
+    const valid2 = value < new Date().getTime() + 1000 * 60 * 60 * 24 * 30
     if (!valid) {
       callback(new Error('不能早于开始时间'))
+    } else if (!valid2) {
+      callback(new Error('不能超过一个月'))
     } else {
       callback()
     }
@@ -204,65 +207,78 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-::v-deep .inner{
-  width:380px;
+::v-deep .inner {
+  width: 380px;
 }
 
-::v-deep .inner, ::v-deep .inner-wider{
-  .el-input{
+::v-deep .inner,
+::v-deep .inner-wider {
+  .el-input {
     width: 220px;
   }
-  .el-divider__text{
+
+  .el-divider__text {
     font-size: 12px;
   }
+
   .el-form {
     position: relative;
     overflow: hidden;
-    .first-item{
+
+    .first-item {
       margin-top: 27px;
     }
-    .second-item{
+
+    .second-item {
       margin-top: 48px;
     }
-    .el-form-item{
+
+    .el-form-item {
       margin-left: 12px;
     }
-    .block{
-      position:absolute;
-      width: 100%;
 
-      border: 1px solid #888888;
+    .block {
+      position: absolute;
+      width: 100%;
+      border: 1px solid #888;
       border-radius: 4px;
     }
-    .top{
+
+    .top {
       top: 10px;
       height: 132px;
     }
-    .bottom{
+
+    .bottom {
       top: 160px;
       height: 65px;
     }
-    .block-title{
-      color: #888888;
+
+    .block-title {
+      color: #888;
       position: absolute;
       background: #fff;
       z-index: 1000;
       margin-left: 8px;
     }
-    .el-form-item__error{
+
+    .el-form-item__error {
       padding: 3px;
-      left:88px;
+      left: 88px;
     }
   }
 }
+
 .disabled {
   cursor: wait;
-  pointer-events:none;
+  pointer-events: none;
 }
-::v-deep .inner-wider{
-  width:440px;
-  .el-form-item__error{
-    left:130px !important;
+
+::v-deep .inner-wider {
+  width: 440px;
+
+  .el-form-item__error {
+    left: 130px !important;
   }
 }
 </style>

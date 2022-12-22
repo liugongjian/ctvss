@@ -7,7 +7,7 @@
           <el-button type="primary" @click="handleCreate"><span>添加</span></el-button>
         </el-tooltip>
       </div>
-      <div v-loading="loading.platform" class="platform__list">
+      <div ref="treeWrap" v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="tree in treeList" :key="tree.platformId" :class="{'actived': currentTree && (currentTree.platformId === tree.platformId)}" @click="selectTree(tree)">
             <span><status-badge :status="tree.status" /> {{ tree.name }}</span>
@@ -18,11 +18,87 @@
             </div>
           </li>
         </ul>
-        <div v-if="treeList && !treeList.length && !loading.platform" class="empty-text">请创建向上级联平台</div>
+        <div v-if="treeList && !treeList.length && !loading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
-      哈哈
+      <div class="input"><el-input /></div>
+      <div class="tree-wraper">
+        <div class="tree" :style="{height: treeMaxHeight + 'px'}">
+          <el-tree
+            key="device-el-tree-original"
+            ref="dirTree"
+            empty-text="暂无目录或设备"
+            :data="dirList"
+            node-key="id"
+            highlight-current
+            lazy
+            show-checkbox
+            :load="loadDirs"
+            :props="treeProp"
+          >
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="{'online': data.deviceStatus === 'on'}"
+            >
+              <span class="node-name">
+                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <span v-else class="node-dir">
+                  <svg-icon name="dir" width="15" height="15" />
+                  <svg-icon name="dir-close" width="15" height="15" />
+                </span>
+                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                {{ node.label }}
+                <span class="sum-icon">{{ getSums(data) }}</span>
+                <span class="alert-type">{{ renderAlertType(data) }}</span>
+              </span>
+            </span>
+          </el-tree>
+        </div>
+        <div class="operator">
+          <el-button type="primary"><i class="el-icon-arrow-right" /></el-button>
+          <el-button><i class="el-icon-arrow-left" /></el-button>
+          <el-button><i class="el-icon-arrow-up" /></el-button>
+          <el-button><i class="el-icon-arrow-down" /></el-button>
+        </div>
+        <div class="tree" :style="{height: treeMaxHeight + 'px'}">
+          <el-tree
+            key="device-el-tree-original"
+            ref="dirTree"
+            empty-text="暂无目录或设备"
+            :data="treeDirList"
+            node-key="id"
+            highlight-current
+            lazy
+            show-checkbox
+            :load="loadTreeDirs"
+            :props="treeProp"
+          >
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="{'online': data.deviceStatus === 'on'}"
+            >
+              <span class="node-name">
+                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <span v-else class="node-dir">
+                  <svg-icon name="dir" width="15" height="15" />
+                  <svg-icon name="dir-close" width="15" height="15" />
+                </span>
+                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                {{ node.label }}
+                <span class="sum-icon">{{ getSums(data) }}</span>
+                <span class="alert-type">{{ renderAlertType(data) }}</span>
+              </span>
+            </span>
+          </el-tree>
+        </div>
+      </div>
+      <div class="button">
+        <el-button type="primary">保存</el-button>
+        <el-button>取消</el-button>
+      </div>
     </el-card>
     <Dialogue
       v-if="dialog.visible"
@@ -40,10 +116,14 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareDirs, deletePlatform, getPlatforms } from '@/api/upPlatform'
+import { Component, Vue } from 'vue-property-decorator'
+import { deletePlatform, getPlatforms, validateShareDirs, validateShareDevices } from '@/api/upPlatform'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
+import { checkPermission } from '@/utils/permission'
+import { renderAlertType, getSums, setDirsStreamStatus } from '@/utils/device'
+import { getGroups } from '@/api/group'
+import { getDeviceTree } from '@/api/device'
 
 @Component({
   name: 'UpPlatformList',
@@ -53,6 +133,22 @@ import Dialogue from './component/dialogue.vue'
   }
 })
 export default class extends Vue {
+  private checkPermission = checkPermission
+  private renderAlertType = renderAlertType
+  private getSums = getSums
+
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
+  }
+
+  private dirList = []
+  private treeDirList = []
+  private dirNodeStatus = {
+    checked: [],
+    halfChecked: []
+  }
   private dialog = {
     type: '', // 处理的是哪个操作
     visible: false,
@@ -60,41 +156,10 @@ export default class extends Vue {
     data: {}
   }
 
-  private dirList: Array<any> = []
   private treeList: Array<any> = []
-  private dataList: Array<any> = []
-  private breadcrumb: Array<any> = []
-  private selectedList: Array<any> = []
-  private hasDir: boolean = false
-  private searchDeviceName = ''
   private currentTree: any = {}
-  private currentNodeData: any = {}
-  private defaultExpandedKeys: Array<any> = []
-  private currentPlatformDetail = null
-  public isExpanded = true
   public maxHeight = null
-  private tableMaxHeight = null
-  private observer: any = null
-  public dirDrag = {
-    isDragging: false,
-    start: 0,
-    offset: 0,
-    orginWidth: 200,
-    width: 250
-  }
-
-  private dirTypeMap: any = {
-    0: 'dir',
-    1: 'nvr',
-    3: 'platform',
-    4: 'platformDir'
-  }
-
-  private pager = {
-    pageNum: 1,
-    pageSize: 10,
-    total: 0
-  }
+  private treeMaxHeight = null
 
   public loading = {
     platform: false,
@@ -103,17 +168,10 @@ export default class extends Vue {
     startStop: false
   }
 
-  @Watch('dataList.length')
-  private onDataListChange(data: any) {
-    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
-  }
-
-  private refresh() {
-    this.getList(this.currentNodeData, false)
-  }
-
   private async mounted() {
     await this.getTreeList()
+    this.initDirs()
+    this.initTreeDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -146,27 +204,318 @@ export default class extends Vue {
     }
   }
 
-  // 面包屑导航
-  private goToPath(item: any) {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setCurrentKey(item.id)
-    const currentNode = dirTree.getNode(item.id)
-    this.defaultExpandedKeys = [item.id]
-    this.getList(currentNode.data, false)
-    this.currentNodeData = currentNode.data
-    this.breadcrumb = this.getNodePath(currentNode)
-  }
-
-  private handleSelectionChange(rows: any) {
-    this.selectedList = rows
-  }
-
   /**
    * 初始化上级平台
    */
   private initPlatform() {
     if (this.treeList.length !== 0) {
       this.selectTree(this.treeList[0])
+    }
+  }
+
+  /**
+   * 设备树初始化
+   */
+  public async initDirs() {
+    try {
+      this.loading.dir = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        // 放开rtsp rtmp
+        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+        this.dirList.push({
+          id: group.groupId,
+          groupId: group.groupId,
+          label: group.groupName,
+          inProtocol: group.inProtocol,
+          gbId: group.gbId,
+          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+          disabled: false,
+          path: [{
+            id: group.groupId,
+            label: group.groupName,
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            inProtocol: group.inProtocol || '',
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
+          }],
+          upGbId: group.gbId || '',
+          upGbIdOrigin: group.gbId || ''
+        })
+      })
+      if (this.platformId) {
+        const { groups } = await validateShareDirs({
+          platformId: this.platformId,
+          groups: res.groups.map(group => ({
+            groupId: group.groupId,
+            inprotocol: group.inProtocol,
+            dirs: []
+          }))
+        })
+        this.setDirChecked(groups, 'group')
+      }
+    } catch (e) {
+      this.dirList = []
+    } finally {
+      this.loading.dir = false
+    }
+  }
+
+  /**
+   * 设备树初始化
+   */
+  public async initTreeDirs() {
+    try {
+      this.loading.dir = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.treeDirList = []
+      res.groups.forEach((group: any) => {
+        // 放开rtsp rtmp
+        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+        this.treeDirList.push({
+          id: group.groupId,
+          groupId: group.groupId,
+          label: group.groupName,
+          inProtocol: group.inProtocol,
+          gbId: group.gbId,
+          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+          disabled: false,
+          path: [{
+            id: group.groupId,
+            label: group.groupName,
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            inProtocol: group.inProtocol || '',
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
+          }],
+          upGbId: group.gbId || '',
+          upGbIdOrigin: group.gbId || ''
+        })
+      })
+      if (this.platformId) {
+        const { groups } = await validateShareDirs({
+          platformId: this.platformId,
+          groups: res.groups.map(group => ({
+            groupId: group.groupId,
+            inprotocol: group.inProtocol,
+            dirs: []
+          }))
+        })
+        this.setDirChecked(groups, 'group')
+      }
+    } catch (e) {
+      this.dirList = []
+    } finally {
+      this.loading.dir = false
+    }
+  }
+
+  private async setDirChecked(groups, type) {
+    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
+    const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
+    const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
+    const dirTree: any = this.$refs.dirTree
+
+    checkedIds.forEach(check => {
+      this.dirNodeStatus.checked.push(check[type + 'Id'])
+    })
+    halfCheckedIds.forEach(half => {
+      this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
+    })
+    if (dirTree) {
+      this.initCheckedNode(dirTree)
+      this.initIdeterminateNode(dirTree)
+    }
+  }
+
+  private initIdeterminateNode(dirTree) {
+    if (this.dirNodeStatus.halfChecked) {
+      this.dirNodeStatus.halfChecked.forEach(id => {
+        if (id) {
+          const node = dirTree.getNode(id)
+          if (node) {
+            node.indeterminate = true
+            node.checked = false
+          }
+        }
+      })
+    }
+  }
+
+  private initCheckedNode(dirTree) {
+    this.dirNodeStatus.checked.forEach(id => {
+      const node = dirTree.getNode(id)
+      if (node) {
+        node.checked = true
+        node.indeterminate = false
+        node.data.disabled = true
+      }
+    })
+  }
+
+  /**
+   * 加载业务组树
+   */
+  private async loadDirs(node: any, resolve: Function) {
+    this.loading.dir = true
+    if (node.level === 0) return resolve([])
+    const dirs = await this.getTree(node)
+
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
+    resolve(dirs)
+
+    if (this.platformId) {
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: [{
+          groupId: node.data.groupId,
+          inprotocol: node.data.inprotocol,
+          dirs: dirParam
+        }]
+      })
+
+      this.setDirChecked(groups, 'dir')
+    }
+
+    // this.tagNvrUnchecked(node, dirs)
+    this.resetDirStatus(node)
+    this.loading.dir = false
+  }
+
+  /**
+   * 加载树目录
+   */
+  private async loadTreeDirs(node: any, resolve: Function) {
+    this.loading.dir = true
+    if (node.level === 0) return resolve([])
+    const dirs = await this.getTree(node)
+
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
+    resolve(dirs)
+
+    if (this.platformId) {
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: [{
+          groupId: node.data.groupId,
+          inprotocol: node.data.inprotocol,
+          dirs: dirParam
+        }]
+      })
+
+      this.setDirChecked(groups, 'dir')
+    }
+
+    // this.tagNvrUnchecked(node, dirs)
+    this.resetDirStatus(node)
+    this.loading.dir = false
+  }
+
+  // 根据nvr节点的checked状态改变disabled
+  private resetDirStatus(node) {
+    if (node.data.type === 'nvr' || node.data.type === 'dir' || node.data.type === 'platform' || node.data.type === 'platformDir' || node.data.type === 'top-group') {
+      node.childNodes.forEach(child => {
+        child.checked = child.data.disabled
+      })
+    }
+  }
+
+  /**
+   * 获取菜单树
+   */
+  private async getTree(node: any) {
+    try {
+      if (node.data.type === 'role') {
+        node.data.roleId = node.data.id
+      } else if (node.data.type === 'group') {
+        node.data.realGroupId = node.data.id
+        node.data.realGroupInProtocol = node.data.inProtocol
+      }
+      if (node.data.type === 'ipc') {
+        return
+      }
+
+      const devices: any = await getDeviceTree({
+        groupId: node.data.groupId,
+        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+        'self-defined-headers': {
+          'role-id': node.data.roleId,
+          'real-group-id': node.data.realGroupId
+        }
+      })
+      let shareDeviceIds: any = []
+      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
+      const param = {
+        platformId: this.platformId,
+        devices: paramNoNvrDevice.map(device => ({
+          deviceId: device.id
+        }))
+      }
+      try {
+        if (this.platformId) {
+          const res = await validateShareDevices(param)
+          if (res.isUsed) {
+            shareDeviceIds = res.isUsed.map(item => item.deviceId)
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+
+      const dirTree: any = this.$refs.dirTree
+      let checkedKeys = dirTree.getCheckedKeys()
+      let dirs: any = devices.dirs.map((dir: any) => {
+        let sharedFlag = false
+        let isDeleteFlag = false
+        if (shareDeviceIds.includes(dir.id)) {
+          sharedFlag = true
+
+          isDeleteFlag = this.filterShareDeviceIds(dir.id)
+          if (!isDeleteFlag) {
+            checkedKeys.push(dir.id)
+          }
+          dirTree.setCheckedKeys(checkedKeys)
+        }
+        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
+        this.initIdeterminateNode(dirTree)
+        return {
+          ...dir,
+          id: dir.id,
+          groupId: node.data.groupId,
+          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
+          label: dir.label,
+          inProtocol: dir.inProtocol || node.data.inProtocol,
+          channelNum: dir.channelNum + '' || '0',
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          deviceStatus: dir.deviceStatus,
+          streamStatus: dir.streamStatus,
+          disabled: sharedFlag && !isDeleteFlag,
+          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
+          sharedFlag: sharedFlag,
+          roleId: node.data.roleId || '',
+          realGroupId: node.data.realGroupId || '',
+          realGroupInProtocol: node.data.realGroupInProtocol || '',
+          dragInFlag: !!node.data?.dragInFlag,
+
+          gbId: dir.gbId,
+          upGbId: dir.gbId || '',
+          upGbIdOrigin: dir.gbId || ''
+        }
+      })
+      dirs = setDirsStreamStatus(dirs)
+      return dirs
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -210,14 +559,6 @@ export default class extends Vue {
     this.initDirs()
   }
 
-  /**
-   * 查看平台详情
-   */
-  private viewPlatform(platform: any) {
-    this.dialog.platformDetail = true
-    this.currentPlatformDetail = platform
-  }
-
   private handleCreate() {
     this.dialog = {
       type: 'create',
@@ -230,55 +571,16 @@ export default class extends Vue {
     }
   }
 
-  @Provide('initDirs')
-  public async initDirs() {
-
-  }
-
-  /**
-   * 加载目录
-   */
-  public async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    try {
-      const res = await describeShareDirs({
-        // groupId: node.data.groupId,
-        // dirId: node.data.type === 'group' ? 0 : node.data.dirId,
-        // inProtocol: node.data.inProtocol,
-        // platformId: this.currentPlatform.platformId
-        dirId: node.data.dirId,
-        inProtocol: node.data.inProtocol,
-        platformId: this.currentPlatform.platformId,
-        pageSize: 1000
-      })
-
-      const dirs = res.dirs.map((dir: any) => {
-        return {
-          ...dir,
-          groupId: node.data.groupId,
-          inProtocol: node.data.inProtocol,
-          platformId: this.currentTree.platformId,
-          type: 'dir',
-          label: dir.dirName,
-          id: dir.dirId
-        }
-      })
-      resolve(dirs)
-    } catch (e) {
-      resolve([])
-    }
-  }
-
   /**
    * 计算最大高度
    */
   public calMaxHeight() {
-    const deviceWrap: any = this.$refs.deviceWrap
-    const size = deviceWrap.$el.getBoundingClientRect()
+    const treeWrap: any = this.$refs.treeWrap
+    const size = treeWrap.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - top - 90
-    this.tableMaxHeight = this.maxHeight - 160
+    this.treeMaxHeight = this.maxHeight - 160
   }
 
   private dialogSubmit() {
@@ -312,6 +614,7 @@ export default class extends Vue {
 
   ::v-deep .el-card__body {
     padding: 0;
+    height: 100%;
   }
 
   .platform {
@@ -329,7 +632,6 @@ export default class extends Vue {
         padding: 10px;
         margin-right: 10px;
       }
-
     }
 
     &__list {
@@ -422,14 +724,86 @@ export default class extends Vue {
   .shared-devices {
     flex: 1;
 
+    .input {
+      width: 200px;
+      padding: 20px 10px;
+    }
+
+    .tree-wraper {
+      height: calc(100% - 120px);
+      display: flex;
+
+      .tree {
+        flex: 1;
+        overflow: auto;
+
+        .custom-tree-node {
+          width: auto;
+
+          .node-name {
+            position: relative;
+            width: 240px;
+            overflow: hidden;
+
+            span {
+              margin-left: 3px;
+            }
+
+            .svg-icon {
+              color: $textGrey;
+            }
+          }
+
+          &.online {
+            .node-name {
+              position: relative;
+
+              .svg-icon {
+                color: #65c465;
+              }
+            }
+          }
+
+          .status-badge {
+            position: absolute;
+            top: -1px;
+            left: -3px;
+            width: 6px;
+            height: 6px;
+            opacity: 0.7;
+            display: none;
+
+            &--on {
+              display: block;
+            }
+          }
+        }
+      }
+
+      .operator {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .el-button {
+          margin: 0 10px 20px !important;
+        }
+      }
+    }
+
+    .button {
+      padding-left: 100px;
+    }
   }
 }
 
-.el-form{
+.el-form {
   .el-input {
-        width: 80%;
-    }
-  .el-form-item__error{
+    width: 80%;
+  }
+
+  .el-form-item__error {
     left: 64px;
   }
 }

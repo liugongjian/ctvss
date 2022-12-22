@@ -316,7 +316,7 @@ export default class extends Vue {
   private relieveLock(rowInfo: any) {
     try {
       if (this.activeName === 'ipManage') {
-        this.$confirm('确认解除？').then(async() => {
+        this.$confirm('是否确定解除该用户的访问限制？').then(async() => {
           const param = {
             ruleId: rowInfo.ruleId
           }
@@ -325,7 +325,7 @@ export default class extends Vue {
           this.$message.success('解除成功')
         }).catch(() => { console.log() })
       } else {
-        this.$confirm('确认解除？').then(async() => {
+        this.$confirm('是否确定解除该用户的访问限制？').then(async() => {
           const param = {
             iamUserId: rowInfo.iamUserId
           }
@@ -376,7 +376,7 @@ export default class extends Vue {
           }
         } else {
           query = {
-            customLockEnd: -1,
+            lockTimeMin: -1,
             lockIP: blackIpList.join(','),
             iamUserId: this.iamUserId
           }
@@ -400,8 +400,8 @@ export default class extends Vue {
         pageNum,
         pageSize,
         isOnlineFilter: this.listQueryForm.onlineStatus,
-        lockStateFilter: this.listQueryForm.lockStatus,
-        userName: this.listQueryForm.user
+        lockStateFilter: (this.listQueryForm.lockStatus).toString(),
+        userName: this.listQueryForm.username
       }
 
       const res = await getAccessList(param)
