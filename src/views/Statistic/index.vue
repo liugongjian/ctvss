@@ -184,7 +184,7 @@
       <el-tab-pane label="录像统计" name="record">
         <div class="statistic-box">
           <el-row>
-            <el-col :span="7">
+            <el-col v-if="ifLiuzhou" :span="7">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">
                   存储容量
@@ -215,13 +215,15 @@
               <draw-chart :chart-info="recordInfo" />
             </el-col>
           </el-row>
-          <div class="statistic-box__title">
-            <div class="statistic-box__title-text">近7日存储用量趋势</div>
-            <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
-          </div>
-          <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
-          <div class="statistic-box__line-content">
-            <draw-chart :chart-info="recordLogInfo" />
+          <div v-if="ifLiuzhou">
+            <div class="statistic-box__title">
+              <div class="statistic-box__title-text">近7日存储用量趋势</div>
+              <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
+            </div>
+            <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
+            <div class="statistic-box__line-content">
+              <draw-chart :chart-info="recordLogInfo" />
+            </div>
           </div>
         </div>
       </el-tab-pane>
@@ -253,6 +255,7 @@ import DrawChart from './components/DrawChart.vue'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList } from '@/api/statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'Statistic',
@@ -325,6 +328,10 @@ export default class extends Vue {
 
   async mounted() {
     await this.getData()
+  }
+
+  public get ifLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private get recordUsage() {
