@@ -464,7 +464,7 @@ export default class extends Vue {
   }
 
   private validateMaxOnline(rule: any, value: string, callback: Function) {
-    if (value && !/^[1-9]\d?$/.test(value)) {
+    if (!/^[1-9]\d*$/.test(value)) {
       callback(new Error('最大登录人数只能为正整数'))
     } else {
       callback()
