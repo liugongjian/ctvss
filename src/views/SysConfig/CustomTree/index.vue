@@ -36,6 +36,7 @@
             show-checkbox
             :load="loadDirs"
             :props="treeProp"
+            @check="checkCallback"
           >
             <span
               slot-scope="{node, data}"
@@ -65,7 +66,7 @@
         <div class="tree" :style="{height: treeMaxHeight + 'px'}">
           <el-tree
             key="device-el-tree-original"
-            ref="dirTree"
+            ref="dirTree2"
             empty-text="暂无目录或设备"
             :data="treeDirList"
             node-key="id"
@@ -74,6 +75,7 @@
             show-checkbox
             :load="loadTreeDirs"
             :props="treeProp"
+            @check="checkCallback2"
           >
             <span
               slot-scope="{node, data}"
@@ -124,12 +126,14 @@ import { checkPermission } from '@/utils/permission'
 import { renderAlertType, getSums, setDirsStreamStatus } from '@/utils/device'
 import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
+import ElTree from './component/tree/src/tree.vue'
 
 @Component({
   name: 'UpPlatformList',
   components: {
     StatusBadge,
-    Dialogue
+    Dialogue,
+    ElTree
   }
 })
 export default class extends Vue {
@@ -234,6 +238,7 @@ export default class extends Vue {
           gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
+          showCheckbox: false,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -285,6 +290,7 @@ export default class extends Vue {
           gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
+          showCheckbox: false,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -500,6 +506,7 @@ export default class extends Vue {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag && !isDeleteFlag,
+          showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
           path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
@@ -568,6 +575,36 @@ export default class extends Vue {
         name: '',
         rule: [{ required: true, message: '请输入名称', trigger: 'blur' }]
       }
+    }
+  }
+
+  private async checkCallback(data: any) {
+    const dirTree: any = this.$refs.dirTree
+    const node = dirTree.getNode(data.id)
+    this.checkNodes(dirTree, node)
+  }
+
+  private async checkCallback2(data: any) {
+    const dirTree2: any = this.$refs.dirTree2
+    const node = dirTree2.getNode(data.id)
+    this.checkNodes(dirTree2, node)
+  }
+  private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirs && dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
     }
   }
 
