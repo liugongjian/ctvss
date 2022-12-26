@@ -116,7 +116,7 @@
               width="210"
             />
             <el-table-column
-              prop="ip"
+              prop="deviceIp"
               label="ip"
               width="210"
             />
