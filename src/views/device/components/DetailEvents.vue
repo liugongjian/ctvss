@@ -128,8 +128,8 @@ export default class extends Vue {
       const params = {
         deviceId: this.deviceId,
         inProtocal: this.inProtocol,
-        startTime: this.search.timeRange[0]?.getTime(),
-        endTime: this.search.timeRange[1]?.getTime(),
+        startTime: this.search.timeRange && this.search.timeRange[0]?.getTime(),
+        endTime: this.search.timeRange && this.search.timeRange[1]?.getTime(),
         errorLevel: this.search.errorLevel,
         eventType: this.search.eventType,
         pageNum: this.pager.pageNum,
