@@ -30,7 +30,12 @@
             >
               <template slot-scope="{row}">
                 <span v-if="row.blackIpList.length > 1">
-                  <el-tooltip class="item" effect="dark" :content="row.blackIpList.join('/')" placement="top-start">
+                  <el-tooltip class="item" effect="dark" placement="top-start">
+                    <div slot="content">
+                      <p v-for="item in row.blackIpList" :key="item">
+                        {{ item }}
+                      </p>
+                    </div>
                     <span> {{ row.blackIpList[0] }}</span>
                   </el-tooltip>
                 </span>
