@@ -2,17 +2,23 @@
   <div class="app-container platform-container">
     <el-card class="platform">
       <div class="platform__header">
-        <span>设备树列表</span>
+        <span class="tree_title">设备树列表</span>
         <el-tooltip content="添加上级平台">
-          <el-button type="primary" @click="handleCreate"><span>添加</span></el-button>
+          <el-button @click="openDialog('createTree')"><span>+ 添加</span></el-button>
         </el-tooltip>
       </div>
       <div ref="treeWrap" v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="tree in treeList" :key="tree.platformId" :class="{'actived': currentTree && (currentTree.platformId === tree.platformId)}" @click="selectTree(tree)">
-            <span><status-badge :status="tree.status" /> {{ tree.name }}</span>
-            <div class="tools">
-              <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
+            <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.name" placement="top" :open-delay="500">
+              <span ><status-badge :status="tree.status" /> {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name}}</span>
+            </el-tooltip>
+            <span v-else @click.stop=""><el-input v-model="treeName" autofocus size="mini"/></span>
+            <div v-if="!tree.editFlag" class="tools">
+              <el-tooltip class="item" effect="dark" content="编辑设备树" placement="top" :open-delay="300">
+                <el-button type="text" @click.stop="editTree(tree)"><svg-icon name="edit" /></el-button>
+              </el-tooltip>
+              <el-tooltip class="item" effect="dark" content="删除设备树" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="deleteTree(tree)"><svg-icon name="trash" /></el-button>
               </el-tooltip>
             </div>
@@ -22,9 +28,13 @@
       </div>
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
-      <div class="input"><el-input /></div>
       <div class="tree-wraper">
-        <div class="tree" :style="{height: treeMaxHeight + 'px'}">
+        <div v-if="isEditing" class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
+          <div class="header">
+            <span class="title">全部设备</span>
+            <span class="num">全部设备</span>
+          </div>
+        <div class="tree">
           <el-tree
             key="device-el-tree-original"
             ref="dirTree"
@@ -37,6 +47,7 @@
             :load="loadDirs"
             :props="treeProp"
             @check="checkCallback"
+            @node-click="clickEvent"
           >
             <span
               slot-scope="{node, data}"
@@ -45,8 +56,7 @@
             >
               <span class="node-name">
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                <span v-else class="node-dir">
-                  <svg-icon name="dir" width="15" height="15" />
+                <span v-else-if="node.level !== 1" class="node-dir">
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -56,14 +66,20 @@
               </span>
             </span>
           </el-tree>
+          </div>
         </div>
-        <div class="operator">
-          <el-button type="primary"><i class="el-icon-arrow-right" /></el-button>
-          <el-button><i class="el-icon-arrow-left" /></el-button>
-          <el-button><i class="el-icon-arrow-up" /></el-button>
-          <el-button><i class="el-icon-arrow-down" /></el-button>
+        <div v-if="isEditing" class="operator">
+          <el-button :type="leftChecked ? 'primary' : ''" :disabled="!leftChecked" @click="addDevices"><i class="el-icon-arrow-right" /></el-button>
+          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-left" @click="removeDevices"/></el-button>
+          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-up" /></el-button>
+          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-down" /></el-button>
         </div>
-        <div class="tree" :style="{height: treeMaxHeight + 'px'}">
+        <div class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
+          <div class="header">
+            <span class="title">{{currentTree.name}}</span>
+            <span class="num">全部设备</span>
+          </div>
+        <div class="tree" :class="{'violet-bg': isEditing}">
           <el-tree
             key="device-el-tree-original"
             ref="dirTree2"
@@ -76,6 +92,7 @@
             :load="loadTreeDirs"
             :props="treeProp"
             @check="checkCallback2"
+            @node-click="selectNode"
           >
             <span
               slot-scope="{node, data}"
@@ -84,22 +101,33 @@
             >
               <span class="node-name">
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                <span v-else class="node-dir">
-                  <svg-icon name="dir" width="15" height="15" />
+                <span v-else-if="node.level !== 1" class="node-dir">
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                 {{ node.label }}
                 <span class="sum-icon">{{ getSums(data) }}</span>
                 <span class="alert-type">{{ renderAlertType(data) }}</span>
+                <template v-if="data.isSelected">
+                  <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                    <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
+                  </el-tooltip>
+                  <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                    <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
+                  </el-tooltip>
+                  <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                    <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
+                  </el-tooltip>
+                </template>
               </span>
             </span>
           </el-tree>
         </div>
+        </div>
       </div>
-      <div class="button">
-        <el-button type="primary">保存</el-button>
-        <el-button>取消</el-button>
+      <div v-if="isEditing" class="button">
+        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button>取 消</el-button>
       </div>
     </el-card>
     <Dialogue
@@ -108,7 +136,7 @@
       @dialogSubmit="dialogSubmit"
       @dialogCancel="dialogCancel"
     >
-      <el-form v-if="dialog.type === 'create'" :model="dialog.data">
+      <el-form :model="dialog.data">
         <el-form-item label="名称" prop="name" :rules="dialog.data.rule">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
@@ -118,7 +146,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { deletePlatform, getPlatforms, validateShareDirs, validateShareDevices } from '@/api/upPlatform'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
@@ -127,6 +155,15 @@ import { renderAlertType, getSums, setDirsStreamStatus } from '@/utils/device'
 import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
+import { cloneDeep } from 'lodash'
+
+const root = {
+      id: 0,
+      label: "全部",
+      type: 'dir',
+      disabled: false,
+      showCheckbox: false,
+    }
 
 @Component({
   name: 'UpPlatformList',
@@ -141,26 +178,34 @@ export default class extends Vue {
   private renderAlertType = renderAlertType
   private getSums = getSums
 
+  private dirList = []
+  private treeDirList = []
+  private treeList: Array<any> = []
+
+  private leftCheckedNodes = []
+  private rightCheckedNodes = []
+
+  private isEditing = false
+  private treeName = ''
+
   private treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
   }
 
-  private dirList = []
-  private treeDirList = []
+  private currentDirNode = null
+
   private dirNodeStatus = {
     checked: [],
     halfChecked: []
   }
   private dialog = {
-    type: '', // 处理的是哪个操作
     visible: false,
     title: '',
     data: {}
   }
 
-  private treeList: Array<any> = []
   private currentTree: any = {}
   public maxHeight = null
   private treeMaxHeight = null
@@ -172,10 +217,32 @@ export default class extends Vue {
     startStop: false
   }
 
+  private get leftChecked(){
+    return this.leftCheckedNodes.length > 0
+  }
+
+  private get rightChecked(){
+    return this.rightCheckedNodes.length > 0
+  }
+
+
+  @Watch('currentTree',{
+    deep: true
+  })
+  private currenTreeNameChange(){
+    this.treeName = this.currentTree.name
+    this.treeDirList = []
+    this.$nextTick(() => this.treeDirList.push(cloneDeep(root)))
+  }
+
+  @Watch('isEditing')
+  private isEditingChange(){
+    this.isEditing && this.$nextTick(() => this.dirList.push(cloneDeep(root)))
+    !this.isEditing && this.$nextTick(() => (this.dirList=[]))
+  }
+
   private async mounted() {
     await this.getTreeList()
-    this.initDirs()
-    this.initTreeDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -194,7 +261,7 @@ export default class extends Vue {
         pageNum: 1,
         pageSize: 1000
       })
-      this.treeList = res.platforms
+      this.treeList = res.platforms.map(item => ({...item, editFlag: false}))
       if (this.currentTree.platformId) {
         const currentTree = this.platformList.find((tree: any) => tree.platformId === this.currentTree.platformId)
         this.currentTree = currentTree
@@ -220,17 +287,18 @@ export default class extends Vue {
   /**
    * 设备树初始化
    */
-  public async initDirs() {
+  public async initDirs(resolve) {
+    const dirList = []
     try {
       this.loading.dir = true
       const res = await getGroups({
         pageSize: 1000
       })
-      this.dirList = []
+
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
         // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        this.dirList.push({
+        dirList.push({
           id: group.groupId,
           groupId: group.groupId,
           label: group.groupName,
@@ -251,6 +319,7 @@ export default class extends Vue {
           upGbIdOrigin: group.gbId || ''
         })
       })
+      resolve(dirList)
       if (this.platformId) {
         const { groups } = await validateShareDirs({
           platformId: this.platformId,
@@ -263,7 +332,8 @@ export default class extends Vue {
         this.setDirChecked(groups, 'group')
       }
     } catch (e) {
-      this.dirList = []
+      resolve([])
+      console.log(e)
     } finally {
       this.loading.dir = false
     }
@@ -272,17 +342,17 @@ export default class extends Vue {
   /**
    * 设备树初始化
    */
-  public async initTreeDirs() {
+  public async initTreeDirs(resolve) {
+    const treeDirList = []
     try {
       this.loading.dir = true
       const res = await getGroups({
         pageSize: 1000
       })
-      this.treeDirList = []
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
         // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        this.treeDirList.push({
+        treeDirList.push({
           id: group.groupId,
           groupId: group.groupId,
           label: group.groupName,
@@ -303,6 +373,7 @@ export default class extends Vue {
           upGbIdOrigin: group.gbId || ''
         })
       })
+      resolve(treeDirList)
       if (this.platformId) {
         const { groups } = await validateShareDirs({
           platformId: this.platformId,
@@ -315,7 +386,7 @@ export default class extends Vue {
         this.setDirChecked(groups, 'group')
       }
     } catch (e) {
-      this.dirList = []
+      resolve([])
     } finally {
       this.loading.dir = false
     }
@@ -370,6 +441,8 @@ export default class extends Vue {
   private async loadDirs(node: any, resolve: Function) {
     this.loading.dir = true
     if (node.level === 0) return resolve([])
+    if (node.level === 1) return this.initDirs(resolve) // 展开全部，load业务组信息
+
     const dirs = await this.getTree(node)
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
@@ -400,7 +473,8 @@ export default class extends Vue {
   private async loadTreeDirs(node: any, resolve: Function) {
     this.loading.dir = true
     if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
+    if (node.level === 1) return this.initTreeDirs(resolve) // 展开全部，load业务组信息
+    const dirs = await this.getTree2(node)
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
       .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
@@ -458,6 +532,7 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
+      console.log('devices:',devices)
       let shareDeviceIds: any = []
       let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -526,8 +601,102 @@ export default class extends Vue {
     }
   }
 
+   /**
+   * 获取菜单树
+   */
+  private async getTree2(node: any) {
+    try {
+      if (node.data.type === 'role') {
+        node.data.roleId = node.data.id
+      } else if (node.data.type === 'group') {
+        node.data.realGroupId = node.data.id
+        node.data.realGroupInProtocol = node.data.inProtocol
+      }
+      if (node.data.type === 'ipc') {
+        return
+      }
+
+      const devices: any = await getDeviceTree({
+        groupId: node.data.groupId,
+        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+        'self-defined-headers': {
+          'role-id': node.data.roleId,
+          'real-group-id': node.data.realGroupId
+        }
+      })
+      console.log('devices:',devices)
+      let shareDeviceIds: any = []
+      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
+      const param = {
+        platformId: this.platformId,
+        devices: paramNoNvrDevice.map(device => ({
+          deviceId: device.id
+        }))
+      }
+      try {
+        if (this.platformId) {
+          const res = await validateShareDevices(param)
+          if (res.isUsed) {
+            shareDeviceIds = res.isUsed.map(item => item.deviceId)
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+
+      const dirTree2: any = this.$refs.dirTree2
+      let checkedKeys = dirTree2.getCheckedKeys()
+      let dirs: any = devices.dirs.map((dir: any) => {
+        let sharedFlag = false
+        let isDeleteFlag = false
+        if (shareDeviceIds.includes(dir.id)) {
+          sharedFlag = true
+
+          isDeleteFlag = this.filterShareDeviceIds(dir.id)
+          if (!isDeleteFlag) {
+            checkedKeys.push(dir.id)
+          }
+          dirTree2.setCheckedKeys(checkedKeys)
+        }
+        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
+        this.initIdeterminateNode(dirTree2)
+        return {
+          ...dir,
+          id: dir.id,
+          groupId: node.data.groupId,
+          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
+          label: dir.label,
+          inProtocol: dir.inProtocol || node.data.inProtocol,
+          channelNum: dir.channelNum + '' || '0',
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          deviceStatus: dir.deviceStatus,
+          streamStatus: dir.streamStatus,
+          disabled: sharedFlag && !isDeleteFlag,
+          showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
+          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
+          sharedFlag: sharedFlag,
+          roleId: node.data.roleId || '',
+          realGroupId: node.data.realGroupId || '',
+          realGroupInProtocol: node.data.realGroupInProtocol || '',
+          dragInFlag: !!node.data?.dragInFlag,
+
+          gbId: dir.gbId,
+          upGbId: dir.gbId || '',
+          upGbIdOrigin: dir.gbId || ''
+        }
+      })
+      dirs = setDirsStreamStatus(dirs)
+      return dirs
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   /**
-   * 删除上级平台
+   * 删除树
    */
   private deleteTree(tree: any) {
     this.$alertDelete({
@@ -541,6 +710,26 @@ export default class extends Vue {
         if (tree.platformId === this.currentTree.platformId) {
           this.currentTree = {}
         }
+        await this.getTreeList()
+      }
+    })
+  }
+
+  /**
+   * 删除树
+   */
+  private deleteDir(dir: any) {
+    this.$alertDelete({
+      type: '目录',
+      msg: `是否确认删除目录"${dir.label}"`,
+      method: deletePlatform,
+      payload: {
+        platformId: dir.platformId
+      },
+      onSuccess: async() => {
+
+          this.currentDirNode = {}
+
         await this.getTreeList()
       }
     })
@@ -563,16 +752,23 @@ export default class extends Vue {
    */
   private selectTree(tree: any) {
     this.currentTree = tree
-    this.initDirs()
+    this.isEditing = false
+    this.treeList.forEach(t => {
+      t.editFlag = false
+    })
   }
 
-  private handleCreate() {
+  private openDialog(type , node) {
+    const dic = {
+      'createTree' : '新建设备树',
+      'createDir' : '新建目录',
+      'updateDir' : '修改目录',
+    }
     this.dialog = {
-      type: 'create',
       visible: true,
-      title: '新建设备树',
+      title: dic[type],
       data: {
-        name: '',
+        name: type === 'updateDir' ? cloneDeep(node.data.label) : '',
         rule: [{ required: true, message: '请输入名称', trigger: 'blur' }]
       }
     }
@@ -581,14 +777,18 @@ export default class extends Vue {
   private async checkCallback(data: any) {
     const dirTree: any = this.$refs.dirTree
     const node = dirTree.getNode(data.id)
-    this.checkNodes(dirTree, node)
+    await this.checkNodes(dirTree, node)
+    this.leftCheckedNodes = dirTree.getCheckedNodes(true, false)
+
   }
 
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
-    this.checkNodes(dirTree2, node)
+    await this.checkNodes(dirTree2, node)
+    this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
+
   private async checkNodes(dirTree: any, node: any) {
     if (node.checked) {
       if (node.loaded) {
@@ -617,7 +817,7 @@ export default class extends Vue {
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - top - 90
-    this.treeMaxHeight = this.maxHeight - 160
+    this.treeMaxHeight = this.maxHeight - 110
   }
 
   private dialogSubmit() {
@@ -627,10 +827,82 @@ export default class extends Vue {
   private dialogCancel() {
     this.dialog.visible = false
   }
+
+  private clickEvent(node, data){
+    console.log(node)
+    console.log(data)
+  }
+
+  private editTree(tree){
+    this.treeList.forEach(t => {
+      t.editFlag = false
+    })
+    this.$nextTick(() => {
+      this.isEditing = !this.isEditing
+      tree.editFlag = true
+      this.currentTree = tree
+    })
+
+  }
+
+  private handleNameInput(name){
+    this.treeName = name
+  }
+
+  private submit(){
+
+    this.cancel()
+  }
+
+  private cancel(){
+    this.isEditing = false
+  }
+
+  private addDevices(){
+    const dirTree: any = this.$refs.dirTree
+    const dirTree2: any = this.$refs.dirTree2
+    const checkedNodes = dirTree.getCheckedNodes(true, false)
+    this.currentDirNode.expanded = true
+    checkedNodes.forEach(cndata => {
+      dirTree2.append(cloneDeep(cndata), this.currentDirNode)
+      cndata.disabled = true
+    })
+  }
+
+  private removeDevices(){
+    const dirTree: any = this.$refs.dirTree
+    const dirTree2: any = this.$refs.dirTree2
+    const checkedNodes = dirTree2.getCheckedNodes(true, false)
+    checkedNodes.forEach(cndata => {
+      dirTree2.remove(cndata)
+      const resetNode = dirTree.getNode(cndata)
+      if(resetNode){
+        resetNode.data.disabled = false
+        dirTree.setChecked(resetNode.data,false)
+      }
+    })
+  }
+
+  private selectNode(data, node){
+    if(this.isEditing && data.type !== 'ipc' && data.type !== 'nvr'){
+      if(this.currentDirNode){
+        this.$set(this.currentDirNode.data, 'isSelected' ,false)
+      }
+      this.$nextTick(()=> {
+        this.$set(node.data, 'isSelected' ,true)
+        this.currentDirNode = node
+      })
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.el-card {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
 .filter-container {
   &__search-group {
     margin-right: 10px;
@@ -655,7 +927,7 @@ export default class extends Vue {
   }
 
   .platform {
-    margin-right: 10px;
+    margin-right: 1px;
     min-width: 260px;
 
     &__header {
@@ -665,6 +937,14 @@ export default class extends Vue {
       border-bottom: 1px solid $borderGrey;
       padding: 15px;
 
+      .tree_title {
+        font-size: 14px;
+        color: #333;
+        letter-spacing: 0;
+        line-height: 14px;
+        font-weight: 600;
+      }
+
       .el-button--primary {
         padding: 10px;
         margin-right: 10px;
@@ -672,7 +952,7 @@ export default class extends Vue {
     }
 
     &__list {
-      padding: 15px;
+      padding: 15px 0 15px 15px;
       min-height: 100px;
 
       ul {
@@ -685,7 +965,6 @@ export default class extends Vue {
           height: 30px;
           line-height: 30px;
           cursor: pointer;
-          border-radius: 4px;
           padding-left: 10px;
 
           span {
@@ -712,7 +991,6 @@ export default class extends Vue {
             display: none;
             right: 0;
             top: 0;
-            background: $treeHover;
 
             .el-button {
               padding: 5px;
@@ -724,7 +1002,7 @@ export default class extends Vue {
           }
 
           &:hover {
-            background: $treeHover;
+            background: rgba(255, 122, 4, 10%);
 
             .tools {
               display: block;
@@ -732,15 +1010,11 @@ export default class extends Vue {
           }
 
           &.actived {
-            background: $primary;
-            color: #fff;
-
-            .tools {
-              background: $primary;
-            }
+            border-right: 3px solid #ff7a04;
+            color: #ff7a04;
 
             svg {
-              color: #fff;
+              background: rgba(255, 122, 4, 10%);
             }
           }
         }
@@ -762,57 +1036,105 @@ export default class extends Vue {
     flex: 1;
 
     .input {
-      width: 200px;
-      padding: 20px 10px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+
+      .el-input {
+        width: 200px;
+      }
+
+      .name {
+        display: flex;
+        align-items: center;
+      }
     }
 
     .tree-wraper {
       height: calc(100% - 120px);
       display: flex;
+      margin: 15px 20px;
 
-      .tree {
+      &__border {
         flex: 1;
-        overflow: auto;
+        max-width: 40%;
 
-        .custom-tree-node {
-          width: auto;
+        .header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
 
-          .node-name {
-            position: relative;
-            width: 240px;
-            overflow: hidden;
-
-            span {
-              margin-left: 3px;
-            }
-
-            .svg-icon {
-              color: $textGrey;
-            }
+          .title {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #333;
+            letter-spacing: 0;
+            line-height: 12px;
+            font-weight: 400;
           }
 
-          &.online {
+          .num {
+            font-size: 12px;
+            color: #666;
+            line-height: 12px;
+            font-weight: 400;
+          }
+        }
+
+        .tree {
+          height: 100%;
+          overflow: auto;
+          border: 1px solid #ddd;
+          border-radius: 2px;
+          padding: 15px 35px;
+
+          .custom-tree-node {
+            width: auto;
+
             .node-name {
               position: relative;
+              width: 240px;
+              overflow: hidden;
+
+              span {
+                margin-left: 3px;
+              }
 
               .svg-icon {
-                color: #65c465;
+                color: $textGrey;
+              }
+            }
+
+            &.online {
+              .node-name {
+                position: relative;
+
+                .svg-icon {
+                  color: #65c465;
+                }
+              }
+            }
+
+            .status-badge {
+              position: absolute;
+              top: -1px;
+              left: -3px;
+              width: 6px;
+              height: 6px;
+              opacity: 0.7;
+              display: none;
+
+              &--on {
+                display: block;
               }
             }
           }
+        }
 
-          .status-badge {
-            position: absolute;
-            top: -1px;
-            left: -3px;
-            width: 6px;
-            height: 6px;
-            opacity: 0.7;
-            display: none;
-
-            &--on {
-              display: block;
-            }
+        .violet-bg {
+          ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
+            background-color: #4f84e6;
+            border-color: #4f84e6;
           }
         }
       }
@@ -825,6 +1147,12 @@ export default class extends Vue {
 
         .el-button {
           margin: 0 10px 20px !important;
+        }
+
+        .violet {
+          color: #fff;
+          background: #4f84e6;
+          border-color: #4f84e6;
         }
       }
     }
@@ -845,4 +1173,13 @@ export default class extends Vue {
   }
 }
 
+</style>
+
+<style lang="scss">
+.is-selected > .el-tree-node__content > .custom-tree-node {
+  .node-name {
+    .svg-icon {
+    }
+  }
+}
 </style>

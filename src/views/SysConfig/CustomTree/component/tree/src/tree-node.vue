@@ -1,12 +1,12 @@
 <template>
   <div
-    class="el-tree-node"
-    @click.stop="handleClick"
-    @contextmenu="($event) => this.handleContextMenu($event)"
     v-show="node.visible"
+    ref="node"
+    class="el-tree-node"
     :class="{
       'is-expanded': expanded,
       'is-current': node.isCurrent,
+      'is-selected': node.data.isSelected,
       'is-hidden': !node.visible,
       'is-focusable': !node.disabled,
       'is-checked': !node.disabled && node.checked
@@ -17,57 +17,58 @@
     :aria-disabled="node.disabled"
     :aria-checked="node.checked"
     :draggable="tree.draggable"
+    @click.stop="handleClick"
+    @contextmenu="($event) => handleContextMenu($event)"
     @dragstart.stop="handleDragStart"
     @dragover.stop="handleDragOver"
     @dragend.stop="handleDragEnd"
     @drop.stop="handleDrop"
-    ref="node"
   >
-    <div class="el-tree-node__content"
-      :style="{ 'padding-left': (node.level - 1) * tree.indent + 'px' }">
+    <div
+      class="el-tree-node__content"
+      :style="{'padding-left': (node.level - 1) * tree.indent + 'px'}"
+    >
       <span
-        @click.stop="handleExpandIconClick"
         :class="[
-          { 'is-leaf': node.isLeaf, expanded: !node.isLeaf && expanded },
+          {'is-leaf': node.isLeaf, expanded: !node.isLeaf && expanded},
           'el-tree-node__expand-icon',
           tree.iconClass ? tree.iconClass : 'el-icon-caret-right'
         ]"
-      >
-      </span>
-      <el-checkbox
+        @click.stop="handleExpandIconClick"
+      />
+      <ElCheckbox
         v-if="showCheckbox&&node.data.showCheckbox"
         v-model="node.checked"
         :indeterminate="node.indeterminate"
         :disabled="!!node.disabled"
         @click.native.stop
         @change="handleCheckChange"
-      >
-      </el-checkbox>
+      />
       <span
         v-if="node.loading"
-        class="el-tree-node__loading-icon el-icon-loading">
-      </span>
-      <node-content :node="node"></node-content>
+        class="el-tree-node__loading-icon el-icon-loading"
+      />
+      <NodeContent :node="node" />
     </div>
-    <el-collapse-transition>
+    <ElCollapseTransition>
       <div
-        class="el-tree-node__children"
         v-if="!renderAfterExpand || childNodeRendered"
         v-show="expanded"
+        class="el-tree-node__children"
         role="group"
         :aria-expanded="expanded"
       >
         <el-tree-node
-          :render-content="renderContent"
           v-for="child in node.childNodes"
+          :key="getNodeKey(child)"
+          :render-content="renderContent"
           :render-after-expand="renderAfterExpand"
           :show-checkbox="showCheckbox"
-          :key="getNodeKey(child)"
           :node="child"
-          @node-expand="handleChildNodeExpand">
-        </el-tree-node>
+          @node-expand="handleChildNodeExpand"
+        />
       </div>
-    </el-collapse-transition>
+    </ElCollapseTransition>
   </div>
 </template>
 
@@ -81,26 +82,6 @@ export default {
   name: 'ElTreeNode',
 
   componentName: 'ElTreeNode',
-
-  mixins: [emitter],
-
-  props: {
-    node: {
-      default() {
-        return {}
-      }
-    },
-    props: {},
-    renderContent: Function,
-    renderAfterExpand: {
-      type: Boolean,
-      default: true
-    },
-    showCheckbox: {
-      type: Boolean,
-      default: false
-    }
-  },
 
   components: {
     ElCollapseTransition,
@@ -124,6 +105,26 @@ export default {
               : <span class="el-tree-node__label">{ node.label }</span>
         )
       }
+    }
+  },
+
+  mixins: [emitter],
+
+  props: {
+    node: {
+      default() {
+        return {}
+      }
+    },
+    props: {},
+    renderContent: Function,
+    renderAfterExpand: {
+      type: Boolean,
+      default: true
+    },
+    showCheckbox: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -151,6 +152,41 @@ export default {
       if (val) {
         this.childNodeRendered = true
       }
+    }
+  },
+
+  created() {
+    const parent = this.$parent
+
+    if (parent.isTree) {
+      this.tree = parent
+    } else {
+      this.tree = parent.tree
+    }
+
+    const tree = this.tree
+    if (!tree) {
+      console.warn('Can not find node\'s tree.')
+    }
+
+    const props = tree.props || {}
+    const childrenKey = props['children'] || 'children'
+
+    this.$watch(`node.data.${childrenKey}`, () => {
+      this.node.updateChildren()
+    })
+
+    if (this.node.expanded) {
+      this.expanded = true
+      this.childNodeRendered = true
+    }
+
+    if (this.tree.accordion) {
+      this.$on('tree-node-expand', node => {
+        if (this.node !== node) {
+          this.node.collapse()
+        }
+      })
     }
   },
 
@@ -210,7 +246,7 @@ export default {
           checkedNodes: store.getCheckedNodes(),
           checkedKeys: store.getCheckedKeys(),
           halfCheckedNodes: store.getHalfCheckedNodes(),
-          halfCheckedKeys: store.getHalfCheckedKeys(),
+          halfCheckedKeys: store.getHalfCheckedKeys()
         })
       })
     },
@@ -239,41 +275,12 @@ export default {
       if (!this.tree.draggable) return
       this.tree.$emit('tree-node-drag-end', event, this)
     }
-  },
-
-  created() {
-    const parent = this.$parent
-
-    if (parent.isTree) {
-      this.tree = parent
-    } else {
-      this.tree = parent.tree
-    }
-
-    const tree = this.tree
-    if (!tree) {
-      console.warn('Can not find node\'s tree.')
-    }
-
-    const props = tree.props || {}
-    const childrenKey = props['children'] || 'children'
-
-    this.$watch(`node.data.${childrenKey}`, () => {
-      this.node.updateChildren()
-    })
-
-    if (this.node.expanded) {
-      this.expanded = true
-      this.childNodeRendered = true
-    }
-
-    if(this.tree.accordion) {
-      this.$on('tree-node-expand', node => {
-        if(this.node !== node) {
-          this.node.collapse()
-        }
-      })
-    }
   }
 }
 </script>
+<style lang="scss" scoped>
+.el-tree--highlight-current .el-tree-node.is-selected > .el-tree-node__content {
+  background: rgba(139, 178, 249, 20%);
+}
+
+</style>
