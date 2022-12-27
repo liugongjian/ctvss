@@ -40,7 +40,7 @@
             <el-form-item label="设备状态">
               <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
                 <el-option label="全部" value="" />
-                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}_${item}`" :value="item" />
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}`" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="流状态">
@@ -96,6 +96,7 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
+              width="210"
             >
               <template slot-scope="{row}">
                 <span>{{ row.dirName || '_' }}</span>
@@ -104,6 +105,7 @@
             <el-table-column
               prop="deviceName"
               label="设备名称"
+              width="160"
             />
             <el-table-column
               prop="gbId"
