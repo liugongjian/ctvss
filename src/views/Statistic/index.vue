@@ -470,9 +470,17 @@ export default class extends Vue {
       this.$message.warning('请先查询出实际数据再进行导出')
     } else {
       try {
-        const res = await exportDeviceList(this.param)
         const { groupInfo } = this.listQueryForm
+
         const groupName = groupInfo.split('_')[2]
+
+        const query = {
+          ...this.param,
+          groupName
+        }
+
+        const res = await exportDeviceList(query)
+
         const blob = new Blob([res])
         const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
