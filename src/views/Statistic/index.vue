@@ -96,10 +96,16 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
-              width="210"
+              width="230"
             >
               <template slot-scope="{row}">
-                <span>{{ row.dirName || '_' }}</span>
+                <!-- <span>{{ row.dirName || '_' }}</span> -->
+                <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
+                <span v-else>
+                  <el-tooltip :content="row.dirName" effect="dark" placement="top-start">
+                    <div class="statistic-box__table__text">{{ row.dirName }}</div>
+                  </el-tooltip>
+                </span>
               </template>
             </el-table-column>
             <el-table-column
@@ -618,6 +624,14 @@ export default class extends Vue {
     span {
       font-size: 24px;
     }
+  }
+
+  &__table__text {
+    cursor: pointer;
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>
