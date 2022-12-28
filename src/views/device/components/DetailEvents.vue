@@ -74,6 +74,7 @@ export default class extends Vue {
   @Prop() private inProtocol?: String
   private loading = false
   public selectedDeviceIdsSet = new Set()
+  // set类型好像不会被vue赋予双向绑定机制，从而需要一个相同内容的数组作为其替代品
   public selectedDeviceIds: Array<string> = []
   private search = {
     timeRange: [],
