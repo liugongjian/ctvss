@@ -13,7 +13,7 @@
             <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.name" placement="top" :open-delay="500">
               <span ><status-badge :status="tree.status" /> {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name}}</span>
             </el-tooltip>
-            <span v-else @click.stop=""><el-input v-model="treeName" autofocus size="mini"/></span>
+            <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini"/></span>
             <div v-if="!tree.editFlag" class="tools">
               <el-tooltip class="item" effect="dark" content="编辑设备树" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="editTree(tree)"><svg-icon name="edit" /></el-button>
@@ -32,52 +32,52 @@
         <div v-if="isEditing" class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
           <div class="header">
             <span class="title">全部设备</span>
-            <span class="num">全部设备</span>
+            <span class="num">已选中{{leftCheckedNum}}项</span>
           </div>
-        <div class="tree">
-          <el-tree
-            key="device-el-tree-original"
-            ref="dirTree"
-            empty-text="暂无目录或设备"
-            :data="dirList"
-            node-key="id"
-            highlight-current
-            lazy
-            show-checkbox
-            :load="loadDirs"
-            :props="treeProp"
-            @check="checkCallback"
-            @node-click="clickEvent"
-          >
-            <span
-              slot-scope="{node, data}"
-              class="custom-tree-node"
-              :class="{'online': data.deviceStatus === 'on'}"
+          <div class="tree">
+            <el-tree
+              key="device-el-tree-original"
+              ref="dirTree"
+              empty-text="暂无目录或设备"
+              :data="dirList"
+              node-key="id"
+              highlight-current
+              lazy
+              show-checkbox
+              :load="loadDirs"
+              :props="treeProp"
+              @check="checkCallback"
+              @node-click="clickEvent"
             >
-              <span class="node-name">
-                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                <span v-else-if="node.level !== 1" class="node-dir">
-                  <svg-icon name="dir-close" width="15" height="15" />
+              <span
+                slot-scope="{node, data}"
+                class="custom-tree-node"
+                :class="{'online': data.deviceStatus === 'on'}"
+              >
+                <span class="node-name">
+                  <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                  <span v-else-if="node.level !== 1" class="node-dir">
+                    <svg-icon name="dir-close" width="15" height="15" />
+                  </span>
+                  <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                  {{ node.label }}
+                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="alert-type">{{ renderAlertType(data) }}</span>
                 </span>
-                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                {{ node.label }}
-                <span class="sum-icon">{{ getSums(data) }}</span>
-                <span class="alert-type">{{ renderAlertType(data) }}</span>
               </span>
-            </span>
-          </el-tree>
+            </el-tree>
           </div>
         </div>
         <div v-if="isEditing" class="operator">
-          <el-button :type="leftChecked ? 'primary' : ''" :disabled="!leftChecked" @click="addDevices"><i class="el-icon-arrow-right" /></el-button>
-          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-left" @click="removeDevices"/></el-button>
-          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-up" /></el-button>
-          <el-button :class="{'violet':rightChecked}" :disabled="!rightChecked"><i class="el-icon-arrow-down" /></el-button>
+          <el-button :type="leftCheckedNum > 0 ? 'primary' : ''" :disabled="leftCheckedNum === 0" @click="addDevices" size="mini"><i class="el-icon-arrow-right" /></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-left" @click="removeDevices"/></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-up" @click="sortDevicesUp"/></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-down" @click="sortDevicesDown"/></el-button>
         </div>
         <div class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
           <div class="header">
             <span class="title">{{currentTree.name}}</span>
-            <span class="num">全部设备</span>
+            <span class="num">已选中{{rightCheckedNum}}项</span>
           </div>
         <div class="tree" :class="{'violet-bg': isEditing}">
           <el-tree
@@ -99,26 +99,31 @@
               class="custom-tree-node"
               :class="{'online': data.deviceStatus === 'on'}"
             >
-              <span class="node-name">
-                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                <span v-else-if="node.level !== 1" class="node-dir">
-                  <svg-icon name="dir-close" width="15" height="15" />
-                </span>
-                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                {{ node.label }}
-                <span class="sum-icon">{{ getSums(data) }}</span>
-                <span class="alert-type">{{ renderAlertType(data) }}</span>
-                <template v-if="data.isSelected">
-                  <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                    <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
-                  </el-tooltip>
-                  <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                    <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
-                  </el-tooltip>
-                  <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                    <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
-                  </el-tooltip>
-                </template>
+              <span class="node-name with-operator">
+                <div>
+                  <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                  <span v-else-if="node.level !== 1" class="node-dir">
+                    <svg-icon name="dir-close" width="15" height="15" />
+                  </span>
+                  <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                  {{ node.label }}
+                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="alert-type">{{ renderAlertType(data) }}</span>
+                </div>
+                <div>
+                  <el-button v-if="isEditing && node.level === 1" type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" />新建目录</el-button>
+                  <template v-if="data.isSelected && node.level > 1">
+                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
+                    </el-tooltip>
+                    <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
+                    </el-tooltip>
+                    <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
+                    </el-tooltip>
+                  </template>
+                </div>
               </span>
             </span>
           </el-tree>
@@ -217,12 +222,12 @@ export default class extends Vue {
     startStop: false
   }
 
-  private get leftChecked(){
-    return this.leftCheckedNodes.length > 0
+  private get leftCheckedNum(){
+    return this.leftCheckedNodes.length
   }
 
-  private get rightChecked(){
-    return this.rightCheckedNodes.length > 0
+  private get rightCheckedNum(){
+    return this.rightCheckedNodes.length
   }
 
 
@@ -237,7 +242,10 @@ export default class extends Vue {
 
   @Watch('isEditing')
   private isEditingChange(){
-    this.isEditing && this.$nextTick(() => this.dirList.push(cloneDeep(root)))
+    this.isEditing && this.$nextTick(() => {
+      this.dirList.push(cloneDeep(root))
+      this.leftCheckedNodes = this.rightCheckedNodes = []
+    })
     !this.isEditing && this.$nextTick(() => (this.dirList=[]))
   }
 
@@ -532,7 +540,6 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      console.log('devices:',devices)
       let shareDeviceIds: any = []
       let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -626,7 +633,6 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      console.log('devices:',devices)
       let shareDeviceIds: any = []
       let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -735,17 +741,6 @@ export default class extends Vue {
     })
   }
 
-  /**
-   * 编辑上级平台
-   */
-  private editPlatform(platform: any) {
-    this.$router.push({
-      path: '/up-platform/gb28121-update',
-      query: {
-        platformId: platform.platformId
-      }
-    })
-  }
 
   /**
    * 选择平台
@@ -855,18 +850,30 @@ export default class extends Vue {
   }
 
   private cancel(){
+    const dirTree:any = this.$refs.dirTree
+    const dirTree2:any = this.$refs.dirTree2
     this.isEditing = false
+    this.$nextTick(() => {
+      this.treeList.forEach(t => (t.editFlag = false))
+      dirTree.setCheckedKeys([])
+      dirTree2.setCheckedKeys([])
+    })
   }
 
   private addDevices(){
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     const checkedNodes = dirTree.getCheckedNodes(true, false)
-    this.currentDirNode.expanded = true
-    checkedNodes.forEach(cndata => {
-      dirTree2.append(cloneDeep(cndata), this.currentDirNode)
-      cndata.disabled = true
-    })
+    const cnAvailable = checkedNodes.length && checkedNodes.filter(data => !data.disabled)
+    if(cnAvailable){
+      this.currentDirNode.expanded = true
+      cnAvailable.forEach(cndata => {
+        const cloned = cloneDeep(cndata)
+        dirTree2.append(cloned, this.currentDirNode)
+        cndata.disabled = true
+      })
+      this.leftCheckedNodes = []
+    }
   }
 
   private removeDevices(){
@@ -881,9 +888,70 @@ export default class extends Vue {
         dirTree.setChecked(resetNode.data,false)
       }
     })
+    this.rightCheckedNodes = []
   }
 
+  private sortDevicesUp(){
+    this.sortDevices(true)
+  }
+
+  private sortDevicesDown(){
+    this.sortDevices(false)
+  }
+
+  /**
+   * asd:boolean
+   * 是否上移
+   */
+  private sortDevices(asd){
+    console.log('sort')
+    const dirTree2: any = this.$refs.dirTree2
+    // opNodes = { parentNode : [index1，index2，...] } 其中index1，index2为parent子节点在children数组中的位置
+    const parentNodes = [], opNodes = new WeakMap()
+
+    this.rightCheckedNodes.forEach(rn => {
+      const node = dirTree2.getNode(rn) // 当前选中节点
+      const parent = node.parent // 选中节点的父节点
+      const nodeIndex = parent.childNodes.findIndex(cn => cn.data.id === node.data.id) // 在子节点中的数组index
+      const exist = parentNodes.findIndex(pn => pn.data.id === parent.data.id)
+      if(exist < 0){
+        parentNodes.push(parent)
+        opNodes.set(parent, [nodeIndex])
+      } else {
+        const origin = [...opNodes.get(parent), nodeIndex]
+        const res = origin.sort((a,b) => asd ? a - b : b - a)
+        opNodes.set(parent, res)
+      }
+    })
+    const direction = asd ? -1 : 1
+    parentNodes.forEach(pn => {
+      const nodeIndexs = opNodes.get(pn) // nodeIndexs为排好序的indexs数组,下面将index整体向前提一位
+      nodeIndexs.reduce((pre, cur, index) => {
+        const end = asd ? 0 : pn.childNodes.length - 1
+        if(cur === end) { return cur } // 当前元素是第一位或最后一位，不做操作
+        if(pre === cur + direction) { return cur }//当前和前一个元素是挨着的，不能操作
+        // 以上两种情况之外，交换当前元素和childNodes中之前的元素
+        // 1. 交换元素
+        const curNode = pn.childNodes[cur], prevNode = pn.childNodes[cur + direction]
+        this.$set(pn.childNodes, cur, prevNode)
+        this.$set(pn.childNodes, cur + direction, curNode)
+        // 2.cur也前移
+        nodeIndexs[index] = cur  + direction
+        return cur  + direction
+      }, nodeIndexs[0])
+      // 更新完后，重新放回weakmap中
+      opNodes.set(pn, nodeIndexs)
+    })
+  }
+
+
+
   private selectNode(data, node){
+    if(node.isLeaf){
+      node.visible = false
+      console.log(this.treeDirList)
+    }
+
     if(this.isEditing && data.type !== 'ipc' && data.type !== 'nvr'){
       if(this.currentDirNode){
         this.$set(this.currentDirNode.data, 'isSelected' ,false)
@@ -1089,11 +1157,19 @@ export default class extends Vue {
           padding: 15px 35px;
 
           .custom-tree-node {
-            width: auto;
+            display: inline-block;
+            width: 100%;
+
+            .with-operator {
+              display: flex;
+              justify-content: space-between;
+            }
 
             .node-name {
+              line-height: 36px;
+              vertical-align: middle;
               position: relative;
-              width: 240px;
+              width: 100%;
               overflow: hidden;
 
               span {
@@ -1101,7 +1177,11 @@ export default class extends Vue {
               }
 
               .svg-icon {
-                color: $textGrey;
+                color: #6e7c89;
+              }
+
+              .el-button {
+                color: #333;
               }
             }
 
@@ -1117,8 +1197,8 @@ export default class extends Vue {
 
             .status-badge {
               position: absolute;
-              top: -1px;
-              left: -3px;
+              top: 8px;
+              left: -1px;
               width: 6px;
               height: 6px;
               opacity: 0.7;
@@ -1147,6 +1227,16 @@ export default class extends Vue {
 
         .el-button {
           margin: 0 10px 20px !important;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          i {
+            width: 8px;
+            height: 12px;
+          }
         }
 
         .violet {
@@ -1170,16 +1260,6 @@ export default class extends Vue {
 
   .el-form-item__error {
     left: 64px;
-  }
-}
-
-</style>
-
-<style lang="scss">
-.is-selected > .el-tree-node__content > .custom-tree-node {
-  .node-name {
-    .svg-icon {
-    }
   }
 }
 </style>
