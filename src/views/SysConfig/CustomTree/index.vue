@@ -169,6 +169,12 @@ import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
 import { cloneDeep } from 'lodash'
 
+/**
+ * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
+ * 2. 右侧树节点中没有originFlag: true标记的，是编辑操作中添加的，删除这类节点，直接remove掉即可
+ */
+
+
 const root = {
       id: 0,
       label: "全部",
