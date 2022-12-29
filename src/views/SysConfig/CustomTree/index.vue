@@ -1,5 +1,12 @@
 <template>
   <div class="app-container platform-container">
+    <el-alert
+      title="自定义设备树可在实时预览、录像回放的设备树列表处切换使用。"
+      type="info"
+      show-icon
+      :closable="false"
+      class="mb10"
+    />
     <el-card class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
@@ -111,7 +118,7 @@
                   <span class="alert-type">{{ renderAlertType(data) }}</span>
                 </div>
                 <div>
-                  <el-button v-if="isEditing && node.level === 1" type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" />新建目录</el-button>
+                  <el-button v-if="isEditing && node.level === 1" type="text" @click.stop="openDialog('createDir-root', node)"><svg-icon name="plus" />新建目录</el-button>
                   <template v-if="data.isSelected && node.level > 1">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
@@ -120,7 +127,7 @@
                       <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
                     </el-tooltip>
                     <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
+                      <el-button type="text" @click.stop="deleteDir(node)"><svg-icon name="trash" /></el-button>
                     </el-tooltip>
                   </template>
                 </div>
@@ -206,6 +213,7 @@ export default class extends Vue {
     halfChecked: []
   }
   private dialog = {
+    type:'',
     visible: false,
     title: '',
     data: {}
@@ -311,7 +319,6 @@ export default class extends Vue {
           groupId: group.groupId,
           label: group.groupName,
           inProtocol: group.inProtocol,
-          gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
           showCheckbox: false,
@@ -320,11 +327,7 @@ export default class extends Vue {
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || '',
-            upGbId: group.gbId || '',
-            upGbIdOrigin: group.gbId || ''
-          }],
-          upGbId: group.gbId || '',
-          upGbIdOrigin: group.gbId || ''
+          }]
         })
       })
       resolve(dirList)
@@ -365,7 +368,6 @@ export default class extends Vue {
           groupId: group.groupId,
           label: group.groupName,
           inProtocol: group.inProtocol,
-          gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
           showCheckbox: false,
@@ -373,12 +375,9 @@ export default class extends Vue {
             id: group.groupId,
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            inProtocol: group.inProtocol || '',
-            upGbId: group.gbId || '',
-            upGbIdOrigin: group.gbId || ''
+            inProtocol: group.inProtocol || ''
           }],
-          upGbId: group.gbId || '',
-          upGbIdOrigin: group.gbId || ''
+          originFlag: true
         })
       })
       resolve(treeDirList)
@@ -590,15 +589,9 @@ export default class extends Vue {
           disabled: sharedFlag && !isDeleteFlag,
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
           path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
-          sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || '',
-          dragInFlag: !!node.data?.dragInFlag,
-
-          gbId: dir.gbId,
-          upGbId: dir.gbId || '',
-          upGbIdOrigin: dir.gbId || ''
+          realGroupInProtocol: node.data.realGroupInProtocol || ''
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -683,15 +676,11 @@ export default class extends Vue {
           disabled: sharedFlag && !isDeleteFlag,
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
           path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
-          sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || '',
-          dragInFlag: !!node.data?.dragInFlag,
 
-          gbId: dir.gbId,
-          upGbId: dir.gbId || '',
-          upGbIdOrigin: dir.gbId || ''
+          originFlag: true // 后端保存的数据标志
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -722,23 +711,10 @@ export default class extends Vue {
   }
 
   /**
-   * 删除树
+   * 删除文件夹
    */
-  private deleteDir(dir: any) {
-    this.$alertDelete({
-      type: '目录',
-      msg: `是否确认删除目录"${dir.label}"`,
-      method: deletePlatform,
-      payload: {
-        platformId: dir.platformId
-      },
-      onSuccess: async() => {
-
-          this.currentDirNode = {}
-
-        await this.getTreeList()
-      }
-    })
+  private deleteDir(dirNode: any) {
+    dirNode.visible = false
   }
 
 
@@ -754,12 +730,20 @@ export default class extends Vue {
   }
 
   private openDialog(type , node) {
+    if(['createDir','createDir-root'].includes(type) && !node.loaded){
+      const nodId = node.data.id + ''
+      if(!nodId.startsWith('T')){
+        return this.$message.error('请先展开当前目录，再创建！')
+      }
+    }
     const dic = {
       'createTree' : '新建设备树',
       'createDir' : '新建目录',
+      'createDir-root' : '新建目录',
       'updateDir' : '修改目录',
     }
     this.dialog = {
+      type,
       visible: true,
       title: dic[type],
       data: {
@@ -780,11 +764,30 @@ export default class extends Vue {
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
-    await this.checkNodes(dirTree2, node)
+    await this.checkNodes2(dirTree2, node)
     this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
 
   private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirs && dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
+    }
+  }
+
+  private async checkNodes2(dirTree: any, node: any) {
     if (node.checked) {
       if (node.loaded) {
         node.expanded = true
@@ -816,7 +819,25 @@ export default class extends Vue {
   }
 
   private dialogSubmit() {
+    ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
     this.dialogCancel()
+  }
+
+  private async createDir(){
+    const dirTree2: any = this.$refs.dirTree2
+    const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(0)
+    parentNode.expanded = true
+    this.$nextTick(() => {
+      const insertDir = {
+        id: 'T' + new Date().getTime(), //暂时给一个id保存在前端
+        // @ts-ignore
+        label: this.dialog.data.name,
+        type: 'dir',
+        isLeaf: true,
+        // orderSequence需要设置parentNode.childNodes[0].orderSequence + 1
+      }
+      parentNode.childNodes.length > 0 ? dirTree2.insertBefore( insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
+    })
   }
 
   private dialogCancel() {
@@ -869,7 +890,8 @@ export default class extends Vue {
       this.currentDirNode.expanded = true
       cnAvailable.forEach(cndata => {
         const cloned = cloneDeep(cndata)
-        dirTree2.append(cloned, this.currentDirNode)
+        this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
+        // dirTree2.append(cloned, this.currentDirNode)
         cndata.disabled = true
       })
       this.leftCheckedNodes = []
@@ -881,7 +903,15 @@ export default class extends Vue {
     const dirTree2: any = this.$refs.dirTree2
     const checkedNodes = dirTree2.getCheckedNodes(true, false)
     checkedNodes.forEach(cndata => {
-      dirTree2.remove(cndata)
+
+      const cnNode = dirTree2.getNode(cndata)
+      // 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从树中删除
+      if(cndata.originFlag) {
+        cnNode.visible = false
+      } else {
+        dirTree2.remove(cnNode)
+      }
+
       const resetNode = dirTree.getNode(cndata)
       if(resetNode){
         resetNode.data.disabled = false
@@ -947,11 +977,8 @@ export default class extends Vue {
 
 
   private selectNode(data, node){
-    if(node.isLeaf){
-      node.visible = false
-      console.log(this.treeDirList)
-    }
-
+    console.log(data)
+    console.log(node)
     if(this.isEditing && data.type !== 'ipc' && data.type !== 'nvr'){
       if(this.currentDirNode){
         this.$set(this.currentDirNode.data, 'isSelected' ,false)
@@ -988,6 +1015,14 @@ export default class extends Vue {
 
 .platform-container {
   display: flex;
+  position: relative;
+  padding-top: 50px !important;
+
+  .el-alert {
+    position: absolute;
+    top: 7px;
+    width: 97%;
+  }
 
   ::v-deep .el-card__body {
     padding: 0;
@@ -1130,15 +1165,16 @@ export default class extends Vue {
         .header {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 10px;
+          margin-bottom: 29px;
+          margin-top: 10px;
 
           .title {
             margin-left: 10px;
-            font-size: 14px;
+            font-size: 16px;
             color: #333;
             letter-spacing: 0;
             line-height: 12px;
-            font-weight: 400;
+            font-weight: bold;
           }
 
           .num {
