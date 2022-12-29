@@ -36,6 +36,7 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button type="primary" @click="saveThis">保 存</el-button>
+      <el-button @click="handleClose">取 消</el-button>
     </span>
   </el-dialog>
 </template>
