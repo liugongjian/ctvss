@@ -185,10 +185,10 @@ export default class extends Vue {
    */
   private async ignoreEvents(paload) {
     const params: any = { deviceId: this.deviceId }
-    if (paload instanceof String) {
-      params.ids = [paload]
-    } else {
+    if (Array.isArray(paload)) {
       params.ids = Array.from(paload)
+    } else if (paload) {
+      params.ids = [paload]
     }
     try {
       await ignoreEvents(params)
