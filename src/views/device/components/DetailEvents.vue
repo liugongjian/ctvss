@@ -163,7 +163,6 @@ export default class extends Vue {
     this.dataList.forEach(row => {
       if (devices.some(device => (device as any).id === row.id)) {
         if (!this.selectedDeviceIdsSet.has(row.id)) {
-          console.log(row.id)
           this.selectedDeviceIdsSet.add(row.id)
           this.selectedDeviceIds = Array.from(this.selectedDeviceIdsSet) as any
         }
@@ -204,9 +203,7 @@ export default class extends Vue {
   }
 
   private toggleSelection() {
-    console.log(this.selectedDeviceIds)
     this.dataList.forEach(row => {
-      console.log(this.selectedDeviceIds)
       if (this.selectedDeviceIdsSet.has(row.id)) {
         (this.$refs.table as any).toggleRowSelection(row)
       }
