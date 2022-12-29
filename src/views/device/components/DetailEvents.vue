@@ -34,9 +34,9 @@
     </div>
     <div v-if="isLiuzhou" class="filter-container">
       <el-button type="primary" @click="ignoreEvents()">全部忽略</el-button>
-      <el-button :disabled="!selectedDeviceIdList.length" @click="ignoreEvents(selectedDeviceIdList)">批量忽略</el-button>
+      <el-button :disabled="!selectedDeviceIds.length" @click="ignoreEvents(selectedDeviceIds)">批量忽略<span v-if="selectedDeviceIds.length">{{ '（已选中' + selectedDeviceIds.length + '条）' }}</span></el-button>
     </div>
-    <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @selection-change="handleSelectionChange">
+    <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @select="handleSelectionChange" @select-all="handleSelectionChange">
       <el-table-column v-if="isLiuzhou" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
       <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
@@ -73,7 +73,9 @@ export default class extends Vue {
   @Prop() private deviceId?: String
   @Prop() private inProtocol?: String
   private loading = false
-  public selectedDeviceIdList: Array<string> = []
+  public selectedDeviceIdsSet = new Set()
+  // set类型好像不会被vue赋予双向绑定机制，从而需要一个相同内容的数组作为其替代品
+  public selectedDeviceIds: Array<string> = []
   private search = {
     timeRange: [],
     errorLevel: '1',
@@ -158,10 +160,16 @@ export default class extends Vue {
    * 表格多选框变化
    */
   private handleSelectionChange(devices: Array<Device>) {
-    this.selectedDeviceIdList = []
-    devices.forEach(device => {
-      if ((device as any).deleted === '0') {
-        this.selectedDeviceIdList.push((device as any).id.toString())
+    this.dataList.forEach(row => {
+      if (devices.some(device => (device as any).id === row.id)) {
+        if (!this.selectedDeviceIdsSet.has(row.id)) {
+          console.log(row.id)
+          this.selectedDeviceIdsSet.add(row.id)
+          this.selectedDeviceIds = Array.from(this.selectedDeviceIdsSet) as any
+        }
+      } else {
+        this.selectedDeviceIdsSet.delete(row.id)
+        this.selectedDeviceIds = Array.from(this.selectedDeviceIdsSet) as any
       }
     })
   }
@@ -178,14 +186,16 @@ export default class extends Vue {
    */
   private async ignoreEvents(paload) {
     const params: any = { deviceId: this.deviceId }
-    if (Array.isArray(paload)) {
-      params.ids = paload
-    } else if (paload) {
+    if (paload instanceof String) {
       params.ids = [paload]
+    } else {
+      params.ids = Array.from(paload)
     }
     try {
       await ignoreEvents(params)
       this.$message.success('忽略成功')
+      this.selectedDeviceIdsSet.clear()
+      this.selectedDeviceIds = []
     } catch (e) {
       console.log(e)
     } finally {
@@ -193,14 +203,26 @@ export default class extends Vue {
     }
   }
 
+  private toggleSelection() {
+    console.log(this.selectedDeviceIds)
+    this.dataList.forEach(row => {
+      console.log(this.selectedDeviceIds)
+      if (this.selectedDeviceIdsSet.has(row.id)) {
+        (this.$refs.table as any).toggleRowSelection(row)
+      }
+    })
+  }
+
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
     await this.getList()
+    this.toggleSelection()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
     await this.getList()
+    this.toggleSelection()
   }
 }
 </script>
