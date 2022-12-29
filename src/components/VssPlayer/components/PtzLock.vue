@@ -155,6 +155,8 @@ export default class extends Vue {
       endTime: new Date().getTime() + 86400000,
       startTime: this.transformStampToString(new Date().getTime())
     }
+    const pwdForm: any = this.$refs.pwdForm
+    pwdForm.clearValidate()
   }
 
   private async confirm() {
