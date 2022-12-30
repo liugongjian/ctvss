@@ -172,6 +172,9 @@ import { cloneDeep } from 'lodash'
 /**
  * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
  * 2. 右侧树节点中没有originFlag: true标记的，是编辑操作中添加的，删除这类节点，直接remove掉即可
+ * 3. 为了避免ID冲突，本次编辑中添加的节点data的id + 'T' (设备是'T' + id ; 目录是'T' + 当前时间戳)
+ *
+ * TODO:
  */
 
 
@@ -770,6 +773,8 @@ export default class extends Vue {
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
+    console.log('data:',data)
+    console.log('node:',node)
     await this.checkNodes2(dirTree2, node)
     this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
@@ -794,6 +799,8 @@ export default class extends Vue {
   }
 
   private async checkNodes2(dirTree: any, node: any) {
+    debugger
+    console.log('checked')
     if (node.checked) {
       if (node.loaded) {
         node.expanded = true
@@ -806,7 +813,7 @@ export default class extends Vue {
       node.childNodes.forEach((child: any) => {
         child.checked = true
         if (child.data.type !== 'ipc') {
-          this.checkNodes(dirTree, child)
+          this.checkNodes2(dirTree, child)
         }
       })
     }
@@ -895,7 +902,8 @@ export default class extends Vue {
     if(cnAvailable){
       this.currentDirNode.expanded = true
       cnAvailable.forEach(cndata => {
-        const cloned = cloneDeep(cndata)
+        // 为避免id冲突，新添加的设备ID前加T标识
+        const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id }
         this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
         // dirTree2.append(cloned, this.currentDirNode)
         cndata.disabled = true
@@ -911,17 +919,23 @@ export default class extends Vue {
     checkedNodes.forEach(cndata => {
 
       const cnNode = dirTree2.getNode(cndata)
-      // 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从树中删除
-      if(cndata.originFlag) {
-        cnNode.visible = false
-      } else {
-        dirTree2.remove(cnNode)
+      // 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从右树中删除
+      if(cnNode){
+        if(cndata.originFlag) {
+          cnNode.visible = false
+          cnNode.checked = false
+        } else {
+          // 本次编辑的节点删除时ID需要去掉T字符
+          dirTree2.remove(cnNode)
+        }
       }
 
-      const resetNode = dirTree.getNode(cndata)
+      // 如果是本次编辑添加的设备节点，要删除时，对左侧树的节点操作，需要去掉id中的T字符（第一位）
+      const resetData = cndata.originFlag ? cndata : {...cndata, id: cndata.id.slice(1)}
+      const resetNode = dirTree.getNode(resetData)
       if(resetNode){
         resetNode.data.disabled = false
-        dirTree.setChecked(resetNode.data,false)
+        dirTree.setChecked(resetData,false)
       }
     })
     this.rightCheckedNodes = []
@@ -1276,7 +1290,7 @@ export default class extends Vue {
           align-items: center;
 
           i {
-            width: 8px;
+            width: 12px;
             height: 12px;
           }
         }
