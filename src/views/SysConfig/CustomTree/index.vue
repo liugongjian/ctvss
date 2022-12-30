@@ -867,8 +867,7 @@ export default class extends Vue {
       t.editFlag = false
     })
     this.$nextTick(() => {
-      this.isEditing = true
-      tree.editFlag = true
+      tree.editFlag = this.isEditing = true
       this.currentTree = tree
     })
 
