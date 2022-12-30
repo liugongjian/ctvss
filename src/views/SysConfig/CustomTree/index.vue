@@ -95,7 +95,7 @@
             node-key="id"
             highlight-current
             lazy
-            show-checkbox
+            :show-checkbox="isEditing"
             :load="loadTreeDirs"
             :props="treeProp"
             @check="checkCallback2"
@@ -251,10 +251,12 @@ export default class extends Vue {
   @Watch('currentTree',{
     deep: true
   })
-  private currenTreeNameChange(){
+  private currenTreeNameChange(val, oldVal){
     this.treeName = this.currentTree.name
-    this.treeDirList = []
-    this.$nextTick(() => this.treeDirList.push(cloneDeep(root)))
+    if( val !== oldVal ){
+      this.treeDirList = []
+      this.$nextTick(() => this.treeDirList.push(cloneDeep(root)))
+    }
   }
 
   @Watch('isEditing')
@@ -291,7 +293,7 @@ export default class extends Vue {
         const currentTree = this.platformList.find((tree: any) => tree.platformId === this.currentTree.platformId)
         this.currentTree = currentTree
       } else {
-        this.initPlatform()
+        this.initTree()
       }
     } catch (e) {
       this.$message.error(e && e.message)
@@ -303,7 +305,7 @@ export default class extends Vue {
   /**
    * 初始化上级平台
    */
-  private initPlatform() {
+  private initTree() {
     if (this.treeList.length !== 0) {
       this.selectTree(this.treeList[0])
     }
@@ -799,8 +801,6 @@ export default class extends Vue {
   }
 
   private async checkNodes2(dirTree: any, node: any) {
-    debugger
-    console.log('checked')
     if (node.checked) {
       if (node.loaded) {
         node.expanded = true
@@ -867,7 +867,7 @@ export default class extends Vue {
       t.editFlag = false
     })
     this.$nextTick(() => {
-      this.isEditing = !this.isEditing
+      this.isEditing = true
       tree.editFlag = true
       this.currentTree = tree
     })
