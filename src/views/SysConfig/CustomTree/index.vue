@@ -770,7 +770,8 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
     const node = dirTree.getNode(data.id)
     await this.checkNodes(dirTree, node)
-    this.leftCheckedNodes = dirTree.getCheckedNodes(true, false)
+    const checkedNodes = dirTree.getCheckedNodes(true, false)
+    this.leftCheckedNodes = checkedNodes.filter(cn => !cn.disabled)
 
   }
 
@@ -1004,16 +1005,15 @@ export default class extends Vue {
         }
 
 
-
-        const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
         // 1.2 交换orderSequence
+        const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
         curNode.data.orderSequence = preOrder
         prevNode.data.orderSequence = curOrder
-
+        // 1.3 交换节点
         this.$set(pn.childNodes, cur, prevNode)
         // this.$set(pn.childNodes, cur + direction, curNode)
         this.$set(pn.childNodes, prevIndex, curNode)
-        // 2.cur也前移
+        // 2.交换后，cur前移
         nodeIndexs[index] = prevIndex
         return prevIndex
       }, nodeIndexs[0])
