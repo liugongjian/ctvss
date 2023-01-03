@@ -18,7 +18,7 @@
         <ul>
           <li v-for="tree in treeList" :key="tree.platformId" :class="{'actived': currentTree && (currentTree.platformId === tree.platformId)}" @click="selectTree(tree)">
             <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.name" placement="top" :open-delay="500">
-              <span ><status-badge :status="tree.status" /> {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name}}</span>
+              <span > {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name}}</span>
             </el-tooltip>
             <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini"/></span>
             <div v-if="!tree.editFlag" class="tools">
@@ -77,9 +77,9 @@
         </div>
         <div v-if="isEditing" class="operator">
           <el-button :type="leftCheckedNum > 0 ? 'primary' : ''" :disabled="leftCheckedNum === 0" @click="addDevices" size="mini"><i class="el-icon-arrow-right" /></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-left" @click="removeDevices"/></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-up" @click="sortDevicesUp"/></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini"><i class="el-icon-arrow-down" @click="sortDevicesDown"/></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="removeDevices"><i class="el-icon-arrow-left"/></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesUp"><i class="el-icon-arrow-up"/></el-button>
+          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesDown"><i class="el-icon-arrow-down"/></el-button>
         </div>
         <div class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
           <div class="header">
@@ -205,6 +205,8 @@ export default class extends Vue {
 
   private leftCheckedNodes = []
   private rightCheckedNodes = []
+  // 2023/1/3 该数据已准备好，后面需要在loadDirs最后checked时，将队列里的节点uncheck掉
+  private removedOriginalNodes = []
 
   private isEditing = false
   private treeName = ''
@@ -901,9 +903,17 @@ export default class extends Vue {
     if(cnAvailable){
       this.currentDirNode.expanded = true
       cnAvailable.forEach(cndata => {
-        // 为避免id冲突，新添加的设备ID前加T标识
-        const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id }
-        this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
+        const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
+        if( isNodeExist < 0 ){
+          // 为避免id冲突，本次操作新添加的设备ID前加T标识
+          const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id }
+          this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
+        } else {
+          // 如果是把删除操作撤销,就仅是把隐藏掉的节点再展现出来即可
+          this.currentDirNode.childNodes[isNodeExist].visible = true
+        }
+        // 添加的节点，在删除队列中去掉
+        this.removedOriginalNodes = this.removedOriginalNodes.filter(n => n.data.id !== cndata.id)
         // dirTree2.append(cloned, this.currentDirNode)
         cndata.disabled = true
       })
@@ -923,6 +933,7 @@ export default class extends Vue {
         if(cndata.originFlag) {
           cnNode.visible = false
           cnNode.checked = false
+          this.removedOriginalNodes.push(cnNode)
         } else {
           // 本次编辑的节点删除时ID需要去掉T字符
           dirTree2.remove(cnNode)
@@ -953,7 +964,6 @@ export default class extends Vue {
    * 是否上移
    */
   private sortDevices(asd){
-    console.log('sort')
     const dirTree2: any = this.$refs.dirTree2
     // opNodes = { parentNode : [index1，index2，...] } 其中index1，index2为parent子节点在children数组中的位置
     const parentNodes = [], opNodes = new WeakMap()
@@ -961,7 +971,7 @@ export default class extends Vue {
     this.rightCheckedNodes.forEach(rn => {
       const node = dirTree2.getNode(rn) // 当前选中节点
       const parent = node.parent // 选中节点的父节点
-      const nodeIndex = parent.childNodes.findIndex(cn => cn.data.id === node.data.id) // 在子节点中的数组index
+      const nodeIndex = parent.childNodes.findIndex(cn => cn.data.id === node.data.id) // 在子节点数组中的index
       const exist = parentNodes.findIndex(pn => pn.data.id === parent.data.id)
       if(exist < 0){
         parentNodes.push(parent)
@@ -982,6 +992,11 @@ export default class extends Vue {
         // 以上两种情况之外，交换当前元素和childNodes中之前的元素
         // 1. 交换元素
         const curNode = pn.childNodes[cur], prevNode = pn.childNodes[cur + direction]
+        const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
+        // 1.1 交换orderSequence
+        curNode.data.orderSequence = preOrder
+        prevNode.data.orderSequence = curOrder
+
         this.$set(pn.childNodes, cur, prevNode)
         this.$set(pn.childNodes, cur + direction, curNode)
         // 2.cur也前移
