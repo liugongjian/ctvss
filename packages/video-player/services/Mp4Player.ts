@@ -1,8 +1,15 @@
 
 import { Player } from './Player'
-import { EnhanceHTMLVideoElement } from '../types/Player'
+import { EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
 
 export class Mp4Player extends Player {
+  constructor(config: PlayerConfig) {
+    super(config)
+    this.init()
+    this.bindEvent()
+    this.setDefault()
+  }
+
   /**
    * 初始化
    */

@@ -7,6 +7,7 @@
             <el-option value="flv" label="FLV" />
             <el-option value="hls" label="HLS" />
             <el-option value="rtc" label="Webrtc" />
+            <el-option value="mp4" label="MP4" />
           </el-select>
         </el-form-item>
         <el-form-item label="编码格式">
