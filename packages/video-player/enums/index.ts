@@ -4,7 +4,8 @@
 export enum TypeEnum {
   FLV = 'flv',
   HLS = 'hls',
-  RTC = 'rtc'
+  RTC = 'rtc',
+  MP4 = 'mp4'
 }
 
 /**

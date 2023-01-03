@@ -402,10 +402,11 @@ export class RecordManager {
         startTime: getTimestamp(record.startTime) / 1000,
         endTime: getTimestamp(record.endTime) / 1000,
         duration: record.duration,
-        url: record.playUrl.hlsUrl,
+        url: record.playUrl[`${record.fileFormat}Url`],
         codec: record.video.codec,
         templateName: record.templateName,
-        cover: record.cover
+        cover: record.cover,
+        fileFormat: record.fileFormat
       })
     })
   }
