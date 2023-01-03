@@ -991,17 +991,31 @@ export default class extends Vue {
         if(pre === cur + direction) { return cur }//当前和前一个元素是挨着的，不能操作
         // 以上两种情况之外，交换当前元素和childNodes中之前的元素
         // 1. 交换元素
-        const curNode = pn.childNodes[cur], prevNode = pn.childNodes[cur + direction]
+        // 1.1 找到前面的一个visible非true的节点的数组下标
+        let curNode = pn.childNodes[cur], prevNode = pn.childNodes[cur + direction]
+        let prevIndex = cur + direction
+        while(prevNode && !prevNode.visible){
+          prevIndex += direction
+          prevNode = pn.childNodes[prevIndex]
+        }
+        if(prevIndex < 0 || prevIndex > pn.childNodes.length - 1){
+          prevIndex = end
+          prevNode = pn.childNodes[prevIndex]
+        }
+
+
+
         const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
-        // 1.1 交换orderSequence
+        // 1.2 交换orderSequence
         curNode.data.orderSequence = preOrder
         prevNode.data.orderSequence = curOrder
 
         this.$set(pn.childNodes, cur, prevNode)
-        this.$set(pn.childNodes, cur + direction, curNode)
+        // this.$set(pn.childNodes, cur + direction, curNode)
+        this.$set(pn.childNodes, prevIndex, curNode)
         // 2.cur也前移
-        nodeIndexs[index] = cur  + direction
-        return cur  + direction
+        nodeIndexs[index] = prevIndex
+        return prevIndex
       }, nodeIndexs[0])
       // 更新完后，重新放回weakmap中
       opNodes.set(pn, nodeIndexs)
