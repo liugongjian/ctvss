@@ -475,6 +475,7 @@ export default class extends Mixins(createMixin) {
     industryCode: '',
     networkCode: ''
   }
+
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
   private inTypeList = InType
@@ -484,6 +485,15 @@ export default class extends Mixins(createMixin) {
       value: type.toLowerCase()
     }
   })
+
+  // 用于判断拉流信息是否变更
+  private pullStreamInfo = {
+    deviceIp: '',
+    devicePort: null,
+    pullUrl: '',
+    streamStatus: ''
+  }
+
   private multiStreamSizeList = [
     {
       label: '单码流',
@@ -498,6 +508,7 @@ export default class extends Mixins(createMixin) {
       value: 3
     }
   ]
+
   private autoStreamNumList = [
     {
       label: '主码流',
@@ -544,6 +555,11 @@ export default class extends Mixins(createMixin) {
         return channel.channelNum
       })
       if (this.isUpdate) {
+        // 保存拉流相关信息
+        this.pullStreamInfo.deviceIp = info.deviceIp
+        this.pullStreamInfo.devicePort = info.devicePort
+        this.pullStreamInfo.pullUrl = info.pullUrl
+        this.pullStreamInfo.streamStatus = info.streamStatus
         this.form = Object.assign(
           this.form,
           pick(info, [
@@ -624,7 +640,17 @@ export default class extends Mixins(createMixin) {
    * 提交
    */
   private submit() {
-    this.beforeSubmit(this.doSubmit)
+    // 当拉流信息未改变 或 设备为按需拉流且流不在线时
+    if ((this.form.deviceIp === this.pullStreamInfo.deviceIp && this.form.devicePort === this.pullStreamInfo.devicePort && this.form.pullUrl === this.pullStreamInfo.pullUrl) ||
+      (this.form.pullType !== 1 && this.pullStreamInfo.streamStatus !== 'on')
+    ) {
+      this.beforeSubmit(this.doSubmit)
+    } else {
+      this.$confirm(`当前设备${this.form.pullType === 1 ? '处于自动拉流模式' : '流在线'}，您修改的设备信息会触发重新拉流，确定提交本次编辑吗？`)
+        .then(async() => {
+          this.beforeSubmit(this.doSubmit)
+        }).catch(() => { console.log() })
+    }
   }
 
   /**
