@@ -184,6 +184,7 @@ const root = {
       type: 'dir',
       disabled: false,
       showCheckbox: false,
+      originFlag: true
     }
 
 @Component({
@@ -493,6 +494,8 @@ export default class extends Vue {
   private async loadTreeDirs(node: any, resolve: Function) {
     this.loading.dir = true
     if (node.level === 0) return resolve([])
+    // 如果是当前编辑中添加的目录节点，且没有load，则返回空
+    if (!node.data.originFlag && !node.loaded) return resolve([])
     if (node.level === 1) return this.initTreeDirs(resolve) // 展开全部，load业务组信息
     const dirs = await this.getTree2(node)
 
@@ -727,7 +730,12 @@ export default class extends Vue {
    * 删除文件夹
    */
   private deleteDir(dirNode: any) {
-    dirNode.visible = false
+    if(dirNode.data.originFlag){
+      dirNode.visible = false
+    } else {
+      const dirTree2: any = this.$refs.dirTree2
+      dirTree2.remove(dirNode)
+    }
   }
 
 
@@ -849,7 +857,7 @@ export default class extends Vue {
         // @ts-ignore
         label: this.dialog.data.name,
         type: 'dir',
-        isLeaf: true,
+        isLeaf: false,
         // orderSequence需要设置parentNode.childNodes[0].orderSequence + 1
       }
       parentNode.childNodes.length > 0 ? dirTree2.insertBefore( insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
