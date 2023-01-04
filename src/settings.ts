@@ -36,7 +36,8 @@ const settings: ISettings = {
     'console.vcn.ctcdn.cn'
   ],
   privateDenyPerms: {
-    liuzhou: ['DescribeMap', 'DescribeViid', 'AdminViid', 'AdminCar']
+    liuzhou: ['DescribeMap', 'DescribeViid', 'AdminViid', 'AdminCar'],
+    yeji: ['DescribeMap', 'DescribeViid', 'AdminViid', 'AdminCar', 'AdminAlarm', 'AdminNotification', 'AdminBilling']
   },
   systemActionList: [
     {

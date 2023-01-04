@@ -1014,7 +1014,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
-      perms: ['*']
+      perms: ['AdminNotification']
     },
     children: [
       {
@@ -1073,7 +1073,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '告警管理',
       icon: 'menu-alarm',
-      perms: ['*'],
+      perms: ['AdminAlarm'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -1140,7 +1140,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['AdminBilling']
     },
     children: [
       {
