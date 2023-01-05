@@ -68,7 +68,7 @@
                   </span>
                   <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                   {{ node.label }}
-                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
                   <span class="alert-type">{{ renderAlertType(data) }}</span>
                 </span>
               </span>
@@ -114,7 +114,7 @@
                   </span>
                   <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                   {{ node.label }}
-                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
                   <span class="alert-type">{{ renderAlertType(data) }}</span>
                 </div>
                 <div>
@@ -163,7 +163,7 @@ import { deletePlatform, getPlatforms, validateShareDirs, validateShareDevices }
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
 import { checkPermission } from '@/utils/permission'
-import { renderAlertType, getSums, setDirsStreamStatus } from '@/utils/device'
+import { renderAlertType, getTotalOfTree, setDirsStreamStatus } from '@/utils/device'
 import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
@@ -198,7 +198,7 @@ const root = {
 export default class extends Vue {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
-  private getSums = getSums
+  private getTotalOfTree = getTotalOfTree
 
   private dirList = []
   private treeDirList = []
@@ -341,7 +341,8 @@ export default class extends Vue {
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || '',
-          }]
+          }],
+          totalSize: group.groupStats.deviceSize
         })
       })
       resolve(dirList)
@@ -391,7 +392,8 @@ export default class extends Vue {
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || ''
           }],
-          originFlag: true
+          originFlag: true,
+          totalSize: group.groupStats.deviceSize
         })
       })
       resolve(treeDirList)
@@ -844,10 +846,26 @@ export default class extends Vue {
 
   private dialogSubmit() {
     ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
+    this.dialog.type === 'updateDir' && this.updateDir()
     this.dialogCancel()
   }
 
-  private async createDir(){
+  private updateDir(){
+    // @ts-ignore
+    this.currentDirNode.data.label = this.dialog.data.name
+    this.tagOriginNodeAsEdited(this.currentDirNode)
+  }
+  /**
+   * 将原有的节点打上编辑标记
+   */
+  private tagOriginNodeAsEdited(originNode){
+    if(originNode.data.originFlag){
+      // 打上已编辑过的标志
+      this.$set(originNode.data, 'editFlag', true)
+    }
+  }
+
+  private createDir(){
     const dirTree2: any = this.$refs.dirTree2
     const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(0)
     parentNode.expanded = true
@@ -858,6 +876,7 @@ export default class extends Vue {
         label: this.dialog.data.name,
         type: 'dir',
         isLeaf: false,
+        orderSequence: +parentNode.childNodes[0].data.orderSequence - 1
         // orderSequence需要设置parentNode.childNodes[0].orderSequence + 1
       }
       parentNode.childNodes.length > 0 ? dirTree2.insertBefore( insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
@@ -910,6 +929,7 @@ export default class extends Vue {
     const checkedNodes = dirTree.getCheckedNodes(true, false)
     const cnAvailable = checkedNodes.length && checkedNodes.filter(data => !data.disabled)
     if(cnAvailable){
+      if(!this.currentDirNode) return this.$message.warning('请先选择一个目录！')
       this.currentDirNode.expanded = true
       cnAvailable.forEach(cndata => {
         const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
@@ -944,7 +964,6 @@ export default class extends Vue {
           cnNode.checked = false
           this.removedOriginalNodes.push(cnNode)
         } else {
-          // 本次编辑的节点删除时ID需要去掉T字符
           dirTree2.remove(cnNode)
         }
       }
@@ -977,6 +996,7 @@ export default class extends Vue {
     // opNodes = { parentNode : [index1，index2，...] } 其中index1，index2为parent子节点在children数组中的位置
     const parentNodes = [], opNodes = new WeakMap()
 
+    // 生成opNodes
     this.rightCheckedNodes.forEach(rn => {
       const node = dirTree2.getNode(rn) // 当前选中节点
       const parent = node.parent // 选中节点的父节点
@@ -991,6 +1011,8 @@ export default class extends Vue {
         opNodes.set(parent, res)
       }
     })
+
+    //根据opNodes进行操作
     const direction = asd ? -1 : 1
     parentNodes.forEach(pn => {
       const nodeIndexs = opNodes.get(pn) // nodeIndexs为排好序的indexs数组,下面将index整体向前提一位
@@ -1017,10 +1039,13 @@ export default class extends Vue {
         const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
         curNode.data.orderSequence = preOrder
         prevNode.data.orderSequence = curOrder
-        // 1.3 交换节点
+
+        // 1.3 交换节点，并在原有节点（origin）打上editFlag标记
         this.$set(pn.childNodes, cur, prevNode)
-        // this.$set(pn.childNodes, cur + direction, curNode)
         this.$set(pn.childNodes, prevIndex, curNode)
+        this.tagOriginNodeAsEdited(prevNode)
+        this.tagOriginNodeAsEdited(curNode)
+
         // 2.交换后，cur前移
         nodeIndexs[index] = prevIndex
         return prevIndex
