@@ -126,8 +126,8 @@
                 </span>
               </el-tree>
             </div>
-            <!-- 国标才展示 -->
-            <advanced-search v-if="currentGroup.inProtocol === 'gb28181'" :search-form="advancedSearchForm" @search="doSearch" />
+            <!-- 国标or rtsp 展示 -->
+            <advanced-search v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'" :search-form="advancedSearchForm" @search="doSearch" />
           </div>
         </div>
         <div class="device-list__right">
