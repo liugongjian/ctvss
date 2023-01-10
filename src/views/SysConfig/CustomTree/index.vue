@@ -168,6 +168,7 @@ import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
 import { cloneDeep } from 'lodash'
+import { createTree, deleteTree, loadTreeNode, describeTreeIds } from '@/api/customTree'
 
 /**
  * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
@@ -208,6 +209,9 @@ export default class extends Vue {
   private rightCheckedNodes = []
   // 2023/1/3 该数据已准备好，后面需要在loadDirs最后checked时，将队列里的节点uncheck掉
   private removedOriginalNodes = []
+
+  // 左侧需要check和disabled节点的id
+  private checkedNodeIds = []
 
   private isEditing = false
   private treeName = ''
@@ -252,13 +256,16 @@ export default class extends Vue {
 
 
   @Watch('currentTree',{
-    deep: true
+    deep: true,
+    immediate: true
   })
-  private currenTreeNameChange(val, oldVal){
+  private async currenTreeNameChange(val, oldVal){
     this.treeName = this.currentTree.name
     if( val !== oldVal ){
       this.treeDirList = []
       this.$nextTick(() => this.treeDirList.push(cloneDeep(root)))
+      const {data: { deviceIds }} = await describeTreeIds({id: val.treeId})
+      this.checkedNodeIds = deviceIds
     }
   }
 
@@ -292,8 +299,8 @@ export default class extends Vue {
         pageSize: 1000
       })
       this.treeList = res.platforms.map(item => ({...item, editFlag: false}))
-      if (this.currentTree.platformId) {
-        const currentTree = this.platformList.find((tree: any) => tree.platformId === this.currentTree.platformId)
+      if (this.currentTree.treeId) {
+        const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
         this.currentTree = currentTree
       } else {
         this.initTree()
@@ -306,7 +313,7 @@ export default class extends Vue {
   }
 
   /**
-   * 初始化上级平台
+   * 初始化树列表
    */
   private initTree() {
     if (this.treeList.length !== 0) {
@@ -336,27 +343,11 @@ export default class extends Vue {
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
           showCheckbox: false,
-          path: [{
-            id: group.groupId,
-            label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            inProtocol: group.inProtocol || '',
-          }],
           totalSize: group.groupStats.deviceSize
         })
       })
       resolve(dirList)
-      if (this.platformId) {
-        const { groups } = await validateShareDirs({
-          platformId: this.platformId,
-          groups: res.groups.map(group => ({
-            groupId: group.groupId,
-            inprotocol: group.inProtocol,
-            dirs: []
-          }))
-        })
-        this.setDirChecked(groups, 'group')
-      }
+      this.setDirChecked()
     } catch (e) {
       resolve([])
       console.log(e)
@@ -365,94 +356,20 @@ export default class extends Vue {
     }
   }
 
-  /**
-   * 设备树初始化
-   */
-  public async initTreeDirs(resolve) {
-    const treeDirList = []
-    try {
-      this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      res.groups.forEach((group: any) => {
-        // 放开rtsp rtmp
-        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        treeDirList.push({
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
-          showCheckbox: false,
-          path: [{
-            id: group.groupId,
-            label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            inProtocol: group.inProtocol || ''
-          }],
-          originFlag: true,
-          totalSize: group.groupStats.deviceSize
-        })
-      })
-      resolve(treeDirList)
-      if (this.platformId) {
-        const { groups } = await validateShareDirs({
-          platformId: this.platformId,
-          groups: res.groups.map(group => ({
-            groupId: group.groupId,
-            inprotocol: group.inProtocol,
-            dirs: []
-          }))
-        })
-        this.setDirChecked(groups, 'group')
-      }
-    } catch (e) {
-      resolve([])
-    } finally {
-      this.loading.dir = false
-    }
-  }
-
-  private async setDirChecked(groups, type) {
-    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
-    const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
-    const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
+  private async setDirChecked() {
     const dirTree: any = this.$refs.dirTree
-
-    checkedIds.forEach(check => {
-      this.dirNodeStatus.checked.push(check[type + 'Id'])
-    })
-    halfCheckedIds.forEach(half => {
-      this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
-    })
     if (dirTree) {
-      this.initCheckedNode(dirTree)
-      this.initIdeterminateNode(dirTree)
-    }
-  }
-
-  private initIdeterminateNode(dirTree) {
-    if (this.dirNodeStatus.halfChecked) {
-      this.dirNodeStatus.halfChecked.forEach(id => {
-        if (id) {
-          const node = dirTree.getNode(id)
-          if (node) {
-            node.indeterminate = true
-            node.checked = false
-          }
-        }
+      this.$nextTick(() => {
+        this.initCheckedNode(dirTree)
       })
     }
   }
 
   private initCheckedNode(dirTree) {
-    this.dirNodeStatus.checked.forEach(id => {
+    this.checkedNodeIds.forEach(id => {
       const node = dirTree.getNode(id)
       if (node) {
         node.checked = true
-        node.indeterminate = false
         node.data.disabled = true
       }
     })
@@ -468,23 +385,8 @@ export default class extends Vue {
 
     const dirs = await this.getTree(node)
 
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
-      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
+    this.setDirChecked()
     resolve(dirs)
-
-    if (this.platformId) {
-      const { groups } = await validateShareDirs({
-        platformId: this.platformId,
-        groups: [{
-          groupId: node.data.groupId,
-          inprotocol: node.data.inprotocol,
-          dirs: dirParam
-        }]
-      })
-
-      this.setDirChecked(groups, 'dir')
-    }
-
     // this.tagNvrUnchecked(node, dirs)
     this.resetDirStatus(node)
     this.loading.dir = false
@@ -498,28 +400,9 @@ export default class extends Vue {
     if (node.level === 0) return resolve([])
     // 如果是当前编辑中添加的目录节点，且没有load，则返回空
     if (!node.data.originFlag && !node.loaded) return resolve([])
-    if (node.level === 1) return this.initTreeDirs(resolve) // 展开全部，load业务组信息
+    // if (node.level === 1) return this.initTreeDirs(resolve) // 展开全部，load业务组信息
     const dirs = await this.getTree2(node)
-
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
-      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
     resolve(dirs)
-
-    if (this.platformId) {
-      const { groups } = await validateShareDirs({
-        platformId: this.platformId,
-        groups: [{
-          groupId: node.data.groupId,
-          inprotocol: node.data.inprotocol,
-          dirs: dirParam
-        }]
-      })
-
-      this.setDirChecked(groups, 'dir')
-    }
-
-    // this.tagNvrUnchecked(node, dirs)
-    this.resetDirStatus(node)
     this.loading.dir = false
   }
 
@@ -557,41 +440,10 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      let shareDeviceIds: any = []
-      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
-      const param = {
-        platformId: this.platformId,
-        devices: paramNoNvrDevice.map(device => ({
-          deviceId: device.id
-        }))
-      }
-      try {
-        if (this.platformId) {
-          const res = await validateShareDevices(param)
-          if (res.isUsed) {
-            shareDeviceIds = res.isUsed.map(item => item.deviceId)
-          }
-        }
-      } catch (e) {
-        console.log(e)
-      }
 
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
-        let sharedFlag = false
-        let isDeleteFlag = false
-        if (shareDeviceIds.includes(dir.id)) {
-          sharedFlag = true
 
-          isDeleteFlag = this.filterShareDeviceIds(dir.id)
-          if (!isDeleteFlag) {
-            checkedKeys.push(dir.id)
-          }
-          dirTree.setCheckedKeys(checkedKeys)
-        }
-        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
-        this.initIdeterminateNode(dirTree)
         return {
           ...dir,
           id: dir.id,
@@ -604,9 +456,8 @@ export default class extends Vue {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
-          disabled: sharedFlag && !isDeleteFlag,
+          disabled: false,
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
-          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || ''
@@ -624,79 +475,19 @@ export default class extends Vue {
    */
   private async getTree2(node: any) {
     try {
-      if (node.data.type === 'role') {
-        node.data.roleId = node.data.id
-      } else if (node.data.type === 'group') {
-        node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = node.data.inProtocol
-      }
       if (node.data.type === 'ipc') {
         return
       }
-
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
-        'self-defined-headers': {
-          'role-id': node.data.roleId,
-          'real-group-id': node.data.realGroupId
-        }
-      })
-      let shareDeviceIds: any = []
-      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
-      const param = {
-        platformId: this.platformId,
-        devices: paramNoNvrDevice.map(device => ({
-          deviceId: device.id
-        }))
-      }
-      try {
-        if (this.platformId) {
-          const res = await validateShareDevices(param)
-          if (res.isUsed) {
-            shareDeviceIds = res.isUsed.map(item => item.deviceId)
-          }
-        }
-      } catch (e) {
-        console.log(e)
-      }
-
-      const dirTree2: any = this.$refs.dirTree2
-      let checkedKeys = dirTree2.getCheckedKeys()
-      let dirs: any = devices.dirs.map((dir: any) => {
-        let sharedFlag = false
-        let isDeleteFlag = false
-        if (shareDeviceIds.includes(dir.id)) {
-          sharedFlag = true
-
-          isDeleteFlag = this.filterShareDeviceIds(dir.id)
-          if (!isDeleteFlag) {
-            checkedKeys.push(dir.id)
-          }
-          dirTree2.setCheckedKeys(checkedKeys)
-        }
-        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
-        this.initIdeterminateNode(dirTree2)
+      let { data : { dirs }}: any = await loadTreeNode({dirId: node.data.id})
+      dirs = dirs.map((dir: any) => {
         return {
           ...dir,
-          id: dir.id,
-          groupId: node.data.groupId,
-          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
-          label: dir.label,
-          inProtocol: dir.inProtocol || node.data.inProtocol,
-          channelNum: dir.channelNum + '' || '0',
-          isLeaf: dir.isLeaf,
+          label: dir.name,
+          isLeaf: dir.type === 'ipc',
           type: dir.type,
-          deviceStatus: dir.deviceStatus,
-          streamStatus: dir.streamStatus,
-          disabled: sharedFlag && !isDeleteFlag,
+          deviceStatus: dir.deviceStatus || 'off',
+          streamStatus: dir.streamStatus || 'off',
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
-          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
-          roleId: node.data.roleId || '',
-          realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || '',
 
           originFlag: true // 后端保存的数据标志
         }
@@ -715,12 +506,12 @@ export default class extends Vue {
     this.$alertDelete({
       type: '设备',
       msg: `是否确认删除"${tree.name}"`,
-      method: deletePlatform,
+      method: deleteTree,
       payload: {
-        platformId: tree.platformId
+        treeId: tree.treeId
       },
       onSuccess: async() => {
-        if (tree.platformId === this.currentTree.platformId) {
+        if (tree.treeId === this.currentTree.treeId) {
           this.currentTree = {}
         }
         await this.getTreeList()
@@ -756,7 +547,7 @@ export default class extends Vue {
     if(['createDir','createDir-root'].includes(type) && !node.loaded){
       const nodId = node.data.id + ''
       if(!nodId.startsWith('T')){
-        return this.$message.error('请先展开当前目录，再创建！')
+        return this.$message.warning('请先展开当前目录')
       }
     }
     const dic = {
@@ -818,7 +609,7 @@ export default class extends Vue {
       if (node.loaded) {
         node.expanded = true
       } else {
-        const dirs = await this.getTree(node)
+        const dirs = await this.getTree2(node)
         dirs && dirTree.updateKeyChildren(node.data.id, dirs)
         node.expanded = true
         node.loaded = true
@@ -844,16 +635,30 @@ export default class extends Vue {
     this.treeMaxHeight = this.maxHeight - 110
   }
 
-  private dialogSubmit() {
+  private async dialogSubmit() {
     ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
     this.dialog.type === 'updateDir' && this.updateDir()
-    this.dialogCancel()
+    this.dialog.type === 'createTree' && await this.createTree()
+  }
+
+  private async createTree(){
+    try{
+      // @ts-ignore
+      await createTree({ treeName: this.dialog.data.name })
+      this.$message.success('操作成功')
+      this.dialogCancel()
+      this.getTreeList()
+    } catch(e){
+      this.$message.error(e)
+    }
+
   }
 
   private updateDir(){
     // @ts-ignore
     this.currentDirNode.data.label = this.dialog.data.name
     this.tagOriginNodeAsEdited(this.currentDirNode)
+    this.dialogCancel()
   }
   /**
    * 将原有的节点打上编辑标记
@@ -877,10 +682,11 @@ export default class extends Vue {
         type: 'dir',
         isLeaf: false,
         orderSequence: +parentNode.childNodes[0].data.orderSequence - 1
-        // orderSequence需要设置parentNode.childNodes[0].orderSequence + 1
+        // orderSequence需要设置parentNode.childNodes[0].orderSequence - 1
       }
       parentNode.childNodes.length > 0 ? dirTree2.insertBefore( insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
     })
+    this.dialogCancel()
   }
 
   private dialogCancel() {
@@ -896,9 +702,12 @@ export default class extends Vue {
     this.treeList.forEach(t => {
       t.editFlag = false
     })
+    const dirTree2: any = this.$refs.dirTree2
     this.$nextTick(() => {
       tree.editFlag = this.isEditing = true
       this.currentTree = tree
+      this.currentDirNode = dirTree2.getNode(root)
+      this.$set(this.currentDirNode.data, 'isSelected', true)
     })
 
   }
@@ -929,7 +738,7 @@ export default class extends Vue {
     const checkedNodes = dirTree.getCheckedNodes(true, false)
     const cnAvailable = checkedNodes.length && checkedNodes.filter(data => !data.disabled)
     if(cnAvailable){
-      if(!this.currentDirNode) return this.$message.warning('请先选择一个目录！')
+      if(!this.currentDirNode.loaded) return this.$message.warning('请先展开当前目录')
       this.currentDirNode.expanded = true
       cnAvailable.forEach(cndata => {
         const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
@@ -941,8 +750,10 @@ export default class extends Vue {
           // 如果是把删除操作撤销,就仅是把隐藏掉的节点再展现出来即可
           this.currentDirNode.childNodes[isNodeExist].visible = true
         }
-        // 添加的节点，在删除队列中去掉
-        this.removedOriginalNodes = this.removedOriginalNodes.filter(n => n.data.id !== cndata.id)
+        // 添加的节点，保存在checkedNodeIds
+        if( !this.checkedNodeIds.includes(cndata.id) ){
+          this.checkedNodeIds.push(cndata.id)
+        }
         // dirTree2.append(cloned, this.currentDirNode)
         cndata.disabled = true
       })
@@ -957,24 +768,26 @@ export default class extends Vue {
     checkedNodes.forEach(cndata => {
 
       const cnNode = dirTree2.getNode(cndata)
-      // 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从右树中删除
+      // 1. 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从右树中删除
       if(cnNode){
         if(cndata.originFlag) {
           cnNode.visible = false
           cnNode.checked = false
-          this.removedOriginalNodes.push(cnNode)
         } else {
           dirTree2.remove(cnNode)
         }
       }
 
-      // 如果是本次编辑添加的设备节点，要删除时，对左侧树的节点操作，需要去掉id中的T字符（第一位）
+      // 2. 如果是本次编辑添加的设备节点，要删除时，对左侧树的节点操作，需要去掉id中的T字符（第一位）
       const resetData = cndata.originFlag ? cndata : {...cndata, id: cndata.id.slice(1)}
       const resetNode = dirTree.getNode(resetData)
       if(resetNode){
         resetNode.data.disabled = false
         dirTree.setChecked(resetData,false)
       }
+
+      // 3. 最后如果在checkedNodeIds删除掉这个node的id
+      this.checkedNodeIds = this.checkedNodeIds.filter(nid => nid !== cndata.id)
     })
     this.rightCheckedNodes = []
   }
@@ -1370,7 +1183,7 @@ export default class extends Vue {
   }
 }
 
-.el-form {
+::v-deep .el-form {
   .el-input {
     width: 80%;
   }
