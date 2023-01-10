@@ -262,8 +262,12 @@ export default class extends Vue {
   private async currenTreeNameChange(val, oldVal){
     this.treeName = this.currentTree.name
     if( val !== oldVal ){
-      this.treeDirList = []
-      this.$nextTick(() => this.treeDirList.push(cloneDeep(root)))
+      this.treeDirList  = []
+      this.dirList  = []
+      this.$nextTick(() => {
+        this.treeDirList.push(cloneDeep(root))
+        this.dirList.push(cloneDeep(root))
+      })
       const {data: { deviceIds }} = await describeTreeIds({id: val.treeId})
       this.checkedNodeIds = deviceIds
     }
@@ -272,6 +276,7 @@ export default class extends Vue {
   @Watch('isEditing')
   private isEditingChange(){
     this.isEditing && this.$nextTick(() => {
+      this.dirList  = []
       this.dirList.push(cloneDeep(root))
       this.leftCheckedNodes = this.rightCheckedNodes = []
     })
