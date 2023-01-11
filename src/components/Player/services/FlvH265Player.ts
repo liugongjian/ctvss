@@ -1,13 +1,12 @@
-
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
-import FlvJS from 'flv.js/src/flv.js'
+import FlvJS from '../libs/flv-hevc'
 
 /**
- * FLV播放器
+ * FLV H265播放器
  * 基于flv.js
  */
-export class FlvPlayer extends Player {
+export class FlvH265Player extends Player {
   private flv?: any
   private mseError = false
   private mseErrorCount = 0

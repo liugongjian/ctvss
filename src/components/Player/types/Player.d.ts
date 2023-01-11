@@ -21,6 +21,7 @@ export interface PlayerConfig {
   playbackRate?: number;
   volume: number;
   isMuted: boolean;
+  codec: string;
   onPlay?: () => void;
   onPause?: () => void;
   onRetry?: (immediate: OnRetryParams) => void;

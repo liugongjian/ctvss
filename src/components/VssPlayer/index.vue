@@ -3,7 +3,7 @@
     <Player
       ref="player"
       v-adaptive-tools
-      :type="playerType"
+      :type="type"
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
@@ -204,9 +204,9 @@ export default class extends Vue {
   private player: PlayerModel = null
 
   /* 如视频编码为H265，播放器类型变为h265 */
-  private get playerType() {
-    return this.codec === 'h265' ? 'h265' : this.type
-  }
+  // private get playerType() {
+  //   return this.codec === 'h265' ? 'h265' : this.type
+  // }
 
   /* 获取转换协议后的URL */
   private get videoUrl() {

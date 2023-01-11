@@ -160,6 +160,7 @@ export default class extends Vue {
     try {
       this.player = createPlayer({
         type: this.type,
+        codec: this.codec,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
         isLive: this.isLive,
