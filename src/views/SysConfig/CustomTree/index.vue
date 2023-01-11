@@ -757,8 +757,10 @@ export default class extends Vue {
       if(node.data.originFlag){
         res.id = node.data.id
       } else {
-        // 本次新增加的节点，需要把ID中的'T'去掉
-        res.id = node.data.id.slice(1)
+        if(node.data.type === 'ipc'){
+          // 本次新增的设备节点，需要把ID中的'T'去掉，新增的目录不用带id
+          res.id = node.data.id.slice(1)
+        }
       }
       if(node.parent.data.originFlag){
         // 如果父目录是后端来的节点  则加上parentDirId;否则父目录就是本次新创建的，不加这个参数
@@ -806,7 +808,7 @@ export default class extends Vue {
       cnAv_reverse.forEach(cndata => {
         const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
         if( isNodeExist < 0 ){
-          const orseq_1st =  this.currentDirNode.childNodes[0].data.orderSequence
+          const orseq_1st =  this.currentDirNode.childNodes[0] ? this.currentDirNode.childNodes[0].data.orderSequence : 0
           // 为避免id冲突，本次操作新添加的设备ID前加T标识, 并将os设置为当前第一个子节点os-1
           const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id, orderSequence: orseq_1st - 1}
           this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
