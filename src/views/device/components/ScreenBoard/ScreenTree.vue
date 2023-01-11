@@ -195,9 +195,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标才展示 -->
+      <!-- 国标or rtsp 展示 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181'"
+        v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
