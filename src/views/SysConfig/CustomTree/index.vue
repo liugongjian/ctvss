@@ -465,7 +465,8 @@ export default class extends Vue {
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || ''
+          realGroupInProtocol: node.data.realGroupInProtocol || '',
+          orderSequence: +dir.orderSequence
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -722,8 +723,63 @@ export default class extends Vue {
   }
 
   private submit(){
+    const dirTree2:any = this.$refs.dirTree2
+    const treeRoot = dirTree2.getNode(0)
+    console.log('treeRoot:',treeRoot)
+    const childNodes = treeRoot.childNodes
+    const params = this.generateTreeParams(childNodes)
+    try{
+      console.log('params:',params)
+      // 下面请求2次：1. 修改树的名称  2. 提交params
+      // this.cancel()
+      this.$message.success('操作成功')
+    } catch(e){
+      console.log(e)
+      this.$message.error(e)
+    }
 
-    this.cancel()
+  }
+
+  private generateTreeParams(nodes){
+    const dirs = nodes.map(node => {
+      let childs = []
+      if(node.childNodes.length > 0) {
+        childs = this.generateTreeParams(node.childNodes)
+      }
+      let res: any = {
+                  treeId: this.currentTree.treeId,
+                  dirName: node.data.label,
+                  description: node.data.description || '',
+                  orderSequence: node.data.orderSequence + 0,
+                  type: node.data.type,
+                  dirs: childs
+                }
+      if(node.data.originFlag){
+        res.id = node.data.id
+      } else {
+        // 本次新增加的节点，需要把ID中的'T'去掉
+        res.id = node.data.id.slice(1)
+      }
+      if(node.parent.data.originFlag){
+        // 如果父目录是后端来的节点  则加上parentDirId;否则父目录就是本次新创建的，不加这个参数
+        res.parentDirId = node.parent.data.id
+      }
+      res.actionType = this.getActionType(node)
+      return res
+    })
+    return dirs
+  }
+
+  private getActionType(node){
+      if(!node.visible){
+        return 'del'
+      }
+      if(!node.data.originFlag){
+        return 'add'
+      } else if(node.data.editFlag){
+        return 'update'
+      }
+      return ''
   }
 
   private cancel(){
@@ -745,11 +801,14 @@ export default class extends Vue {
     if(cnAvailable){
       if(!this.currentDirNode.loaded) return this.$message.warning('请先展开当前目录')
       this.currentDirNode.expanded = true
-      cnAvailable.forEach(cndata => {
+      // 为了保证添加后的顺序，反转当前的节点顺序
+      const cnAv_reverse = cnAvailable.reverse()
+      cnAv_reverse.forEach(cndata => {
         const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
         if( isNodeExist < 0 ){
-          // 为避免id冲突，本次操作新添加的设备ID前加T标识
-          const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id }
+          const orseq_1st =  this.currentDirNode.childNodes[0].data.orderSequence
+          // 为避免id冲突，本次操作新添加的设备ID前加T标识, 并将os设置为当前第一个子节点os-1
+          const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id, orderSequence: orseq_1st - 1}
           this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
         } else {
           // 如果是把删除操作撤销,就仅是把隐藏掉的节点再展现出来即可
