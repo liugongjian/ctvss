@@ -13,51 +13,70 @@
         <el-form-item label="描述：" prop="desc">
           <el-input v-model="form.desc" class="form__input" type="textarea" rows="4" :disabled="isCtyunPolicy" />
         </el-form-item>
-        <el-form-item label="操作：" prop="actionList">
-          <span v-if="actionType === 'besideSelected'" style="color: #c0c4cc;">所有操作权限</span>
-          <el-table v-else-if="actionType === 'selected'" ref="actionTable" :data="filteredSystemActionList" tooltip-effect="dark" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" :selectable="checkSelectable" :label-class-name="isCtyunPolicy ? 'is-ctyun-policy' : ''" width="55" />
-            <el-table-column label="操作名称" prop="actionName" width="200" />
-            <el-table-column label="操作描述" prop="actionDesc" />
-          </el-table>
-        </el-form-item>
-        <el-form-item label="资源：" prop="resourceList">
-          <el-radio-group v-model="resourceType" style="margin-bottom: 5px;" :disabled="isCtyunPolicy">
-            <el-radio label="all">所有资源</el-radio>
-            <el-radio label="selected">特定资源</el-radio>
-          </el-radio-group>
-          <div v-show="resourceType === 'selected'" class="dialog-wrap">
-            <div v-loading="loading.dir" class="tree-wrap">
-              <el-tree ref="dirTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
-                <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-                  <span class="node-name">
-                    <svg-icon :name="data.type" color="#6e7c89" />
-                    {{ node.label }}
-                  </span>
-                </span>
-              </el-tree>
+        <el-form-item label="权限：">
+          <div v-for="(statement, index) in form.statementList" :key="statement.id" style="margin-top: 30px;">
+            <div style="height: 40px; line-height: 40px; background-color: #f3f3f3; cursor: pointer;" @click="toggleOpenStatus(index)">
+              <i v-if="statement.opened" class="el-icon-caret-bottom" />
+              <i v-else class="el-icon-caret-right" />
+              <span>智能视图服务（IVS）</span>
+              <el-button type="text" style="float: right;">删除</el-button>
             </div>
-            <div class="device-wrap">
-              <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
-              <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
-                <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
-                  <template slot-scope="{row}">
-                    {{ row.label || '-' }}
-                  </template>
-                </el-table-column>
-                <el-table-column key="path" prop="path" label="所在位置">
-                  <template slot-scope="{row}">
-                    {{ renderPath(row.path) }}
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
-                  <template slot-scope="scope">
-                    <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
+            <div v-show="statement.opened">
+              <el-form-item label="效果（Effect）" :prop="'form.statementList.' + index + '.effect'" label-width="150px">
+                <el-radio-group v-model="statement.effect">
+                  <el-radio label="allow">允许</el-radio>
+                  <el-radio label="deny">拒绝</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="操作（Action）" :prop="'form.statementList.' + index + '.action'" label-width="150px">
+                <span v-if="actionType === 'besideSelected'" style="color: #c0c4cc;">所有操作权限</span>
+                <el-table v-else-if="actionType === 'selected'" ref="actionTable" size="small" :data="filteredSystemActionList" tooltip-effect="dark" @selection-change="handleSelectionChange">
+                  <el-table-column type="selection" :selectable="checkSelectable" :label-class-name="isCtyunPolicy ? 'is-ctyun-policy' : ''" width="55" />
+                  <el-table-column label="操作名称" prop="actionName" width="200" />
+                  <el-table-column label="操作描述" prop="actionDesc" />
+                </el-table>
+              </el-form-item>
+              <el-form-item label="资源（Resource）" :prop="'form.statementList.' + index + '.resourceList'" label-width="150px">
+                <el-radio-group v-model="resourceType" style="margin-bottom: 5px;" :disabled="isCtyunPolicy">
+                  <el-radio label="all">所有资源</el-radio>
+                  <el-radio label="selected">特定资源</el-radio>
+                </el-radio-group>
+                <div v-show="resourceType === 'selected'" class="dialog-wrap">
+                  <div v-loading="loading.dir" class="tree-wrap">
+                    <el-tree ref="dirTree" node-key="id" lazy show-checkbox :data="dirList" :load="loadDirs" :props="treeProp" :check-strictly="false" @check-change="onCheckDevice">
+                      <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+                        <span class="node-name">
+                          <svg-icon :name="data.type" color="#6e7c89" />
+                          {{ node.label }}
+                        </span>
+                      </span>
+                    </el-tree>
+                  </div>
+                  <div class="device-wrap">
+                    <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
+                    <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
+                      <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
+                        <template slot-scope="{row}">
+                          {{ row.label || '-' }}
+                        </template>
+                      </el-table-column>
+                      <el-table-column key="path" prop="path" label="所在位置">
+                        <template slot-scope="{row}">
+                          {{ renderPath(row.path) }}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
+                        <template slot-scope="scope">
+                          <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                </div>
+              </el-form-item>
             </div>
           </div>
+          <el-button type="text" @click="addStatement">+ 添加权限</el-button>
         </el-form-item>
         <el-form-item>
           <el-row style="margin: 20px 0;">
@@ -111,6 +130,7 @@ export default class extends Vue {
     desc: '',
     policyType: '',
     scope: '',
+    statementList: [],
     actionList: [],
     resourceList: []
   }
@@ -210,6 +230,16 @@ export default class extends Vue {
     actionTable.toggleRowSelection(row, index === -1)
   }
 
+  private addStatement() {
+    this.form.statementList.push({
+      effect: 'allow',
+      opened: true
+    })
+  }
+
+  private toggleOpenStatus(index: number) {
+    this.form.statementList[index].opened = !this.form.statementList[index].opened
+  }
   /*
    * 获取策略详情
    */
