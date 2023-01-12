@@ -18,9 +18,9 @@
         <ul>
           <li v-for="tree in treeList" :key="tree.platformId" :class="{'actived': currentTree && (currentTree.platformId === tree.platformId)}" @click="selectTree(tree)">
             <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.name" placement="top" :open-delay="500">
-              <span > {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name}}</span>
+              <span> {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name }}</span>
             </el-tooltip>
-            <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini"/></span>
+            <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini" /></span>
             <div v-if="!tree.editFlag" class="tools">
               <el-tooltip class="item" effect="dark" content="编辑设备树" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="editTree(tree)"><svg-icon name="edit" /></el-button>
@@ -39,7 +39,7 @@
         <div v-if="isEditing" class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
           <div class="header">
             <span class="title">全部设备</span>
-            <span class="num">已选中{{leftCheckedNum}}项</span>
+            <span class="num">已选中{{ leftCheckedNum }}项</span>
           </div>
           <div class="tree">
             <el-tree
@@ -76,65 +76,65 @@
           </div>
         </div>
         <div v-if="isEditing" class="operator">
-          <el-button :type="leftCheckedNum > 0 ? 'primary' : ''" :disabled="leftCheckedNum === 0" @click="addDevices" size="mini"><i class="el-icon-arrow-right" /></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="removeDevices"><i class="el-icon-arrow-left"/></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesUp"><i class="el-icon-arrow-up"/></el-button>
-          <el-button :class="{'violet':rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesDown"><i class="el-icon-arrow-down"/></el-button>
+          <el-button :type="leftCheckedNum > 0 ? 'primary' : ''" :disabled="leftCheckedNum === 0" size="mini" @click="addDevices"><i class="el-icon-arrow-right" /></el-button>
+          <el-button :class="{'violet': rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="removeDevices"><i class="el-icon-arrow-left" /></el-button>
+          <el-button :class="{'violet': rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesUp"><i class="el-icon-arrow-up" /></el-button>
+          <el-button :class="{'violet': rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesDown"><i class="el-icon-arrow-down" /></el-button>
         </div>
         <div class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
           <div class="header">
-            <span class="title">{{currentTree.name}}</span>
-            <span class="num">已选中{{rightCheckedNum}}项</span>
+            <span class="title">{{ currentTree.name }}</span>
+            <span class="num">已选中{{ rightCheckedNum }}项</span>
           </div>
-        <div class="tree" :class="{'violet-bg': isEditing}">
-          <el-tree
-            key="device-el-tree-original"
-            ref="dirTree2"
-            empty-text="暂无目录或设备"
-            :data="treeDirList"
-            node-key="id"
-            highlight-current
-            lazy
-            :show-checkbox="isEditing"
-            :load="loadTreeDirs"
-            :props="treeProp"
-            @check="checkCallback2"
-            @node-click="selectNode"
-          >
-            <span
-              slot-scope="{node, data}"
-              class="custom-tree-node"
-              :class="{'online': data.deviceStatus === 'on'}"
+          <div class="tree" :class="{'violet-bg': isEditing}">
+            <el-tree
+              key="device-el-tree-original"
+              ref="dirTree2"
+              empty-text="暂无目录或设备"
+              :data="treeDirList"
+              node-key="id"
+              highlight-current
+              lazy
+              :show-checkbox="isEditing"
+              :load="loadTreeDirs"
+              :props="treeProp"
+              @check="checkCallback2"
+              @node-click="selectNode"
             >
-              <span class="node-name with-operator">
-                <div>
-                  <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                  <span v-else-if="node.level !== 1" class="node-dir">
-                    <svg-icon name="dir-close" width="15" height="15" />
-                  </span>
-                  <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                  {{ node.label }}
-                  <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
-                  <span class="alert-type">{{ renderAlertType(data) }}</span>
-                </div>
-                <div>
-                  <el-button v-if="isEditing && node.level === 1" type="text" @click.stop="openDialog('createDir-root', node)"><svg-icon name="plus" />新建目录</el-button>
-                  <template v-if="data.isSelected && node.level > 1">
-                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="deleteDir(node)"><svg-icon name="trash" /></el-button>
-                    </el-tooltip>
-                  </template>
-                </div>
+              <span
+                slot-scope="{node, data}"
+                class="custom-tree-node"
+                :class="{'online': data.deviceStatus === 'on'}"
+              >
+                <span class="node-name with-operator">
+                  <div>
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                    <span v-else-if="node.level !== 1" class="node-dir">
+                      <svg-icon name="dir-close" width="15" height="15" />
+                    </span>
+                    <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
+                  </div>
+                  <div>
+                    <el-button v-if="isEditing && node.level === 1" type="text" @click.stop="openDialog('createDir-root', node)"><svg-icon name="plus" />新建目录</el-button>
+                    <template v-if="data.isSelected && node.level > 1">
+                      <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('createDir', node)"><svg-icon name="plus" /></el-button>
+                      </el-tooltip>
+                      <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('updateDir', node)"><svg-icon name="edit" /></el-button>
+                      </el-tooltip>
+                      <el-tooltip v-if="node.level > 1" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="deleteDir(node)"><svg-icon name="trash" /></el-button>
+                      </el-tooltip>
+                    </template>
+                  </div>
+                </span>
               </span>
-            </span>
-          </el-tree>
-        </div>
+            </el-tree>
+          </div>
         </div>
       </div>
       <div v-if="isEditing" class="button">
@@ -159,7 +159,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { deletePlatform, getPlatforms, validateShareDirs, validateShareDevices } from '@/api/upPlatform'
+import { getPlatforms } from '@/api/upPlatform'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
 import { checkPermission } from '@/utils/permission'
@@ -178,15 +178,14 @@ import { createTree, deleteTree, loadTreeNode, describeTreeIds } from '@/api/cus
  * TODO:
  */
 
-
 const root = {
-      id: 0,
-      label: "全部",
-      type: 'dir',
-      disabled: false,
-      showCheckbox: false,
-      originFlag: true
-    }
+  id: 0,
+  label: '全部',
+  type: 'dir',
+  disabled: false,
+  showCheckbox: false,
+  originFlag: true
+}
 
 @Component({
   name: 'UpPlatformList',
@@ -229,7 +228,7 @@ export default class extends Vue {
     halfChecked: []
   }
   private dialog = {
-    type:'',
+    type: '',
     visible: false,
     title: '',
     data: {}
@@ -246,41 +245,40 @@ export default class extends Vue {
     startStop: false
   }
 
-  private get leftCheckedNum(){
+  private get leftCheckedNum() {
     return this.leftCheckedNodes.length
   }
 
-  private get rightCheckedNum(){
+  private get rightCheckedNum() {
     return this.rightCheckedNodes.length
   }
 
-
-  @Watch('currentTree',{
+  @Watch('currentTree', {
     deep: true,
     immediate: true
   })
-  private async currenTreeNameChange(val, oldVal){
+  private async currenTreeNameChange(val, oldVal) {
     this.treeName = this.currentTree.name
-    if( val !== oldVal ){
-      this.treeDirList  = []
-      this.dirList  = []
+    if (val !== oldVal) {
+      this.treeDirList = []
+      this.dirList = []
       this.$nextTick(() => {
         this.treeDirList.push(cloneDeep(root))
         this.dirList.push(cloneDeep(root))
       })
-      const {data: { deviceIds }} = await describeTreeIds({id: val.treeId})
+      const { data: { deviceIds } } = await describeTreeIds({ id: val.treeId })
       this.checkedNodeIds = deviceIds
     }
   }
 
   @Watch('isEditing')
-  private isEditingChange(){
+  private isEditingChange() {
     this.isEditing && this.$nextTick(() => {
-      this.dirList  = []
+      this.dirList = []
       this.dirList.push(cloneDeep(root))
       this.leftCheckedNodes = this.rightCheckedNodes = []
     })
-    !this.isEditing && this.$nextTick(() => (this.dirList=[]))
+    !this.isEditing && this.$nextTick(() => (this.dirList = []))
   }
 
   private async mounted() {
@@ -303,7 +301,7 @@ export default class extends Vue {
         pageNum: 1,
         pageSize: 1000
       })
-      this.treeList = res.platforms.map(item => ({...item, editFlag: false}))
+      this.treeList = res.platforms.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
         const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
         this.currentTree = currentTree
@@ -446,9 +444,7 @@ export default class extends Vue {
         }
       })
 
-      const dirTree: any = this.$refs.dirTree
       let dirs: any = devices.dirs.map((dir: any) => {
-
         return {
           ...dir,
           id: dir.id,
@@ -476,7 +472,7 @@ export default class extends Vue {
     }
   }
 
-   /**
+  /**
    * 获取菜单树
    */
   private async getTree2(node: any) {
@@ -484,7 +480,7 @@ export default class extends Vue {
       if (node.data.type === 'ipc') {
         return
       }
-      let { data : { dirs }}: any = await loadTreeNode({dirId: node.data.id})
+      let { data: { dirs } }: any = await loadTreeNode({ dirId: node.data.id })
       dirs = dirs.map((dir: any) => {
         return {
           ...dir,
@@ -529,14 +525,13 @@ export default class extends Vue {
    * 删除文件夹
    */
   private deleteDir(dirNode: any) {
-    if(dirNode.data.originFlag){
+    if (dirNode.data.originFlag) {
       dirNode.visible = false
     } else {
       const dirTree2: any = this.$refs.dirTree2
       dirTree2.remove(dirNode)
     }
   }
-
 
   /**
    * 选择平台
@@ -549,18 +544,18 @@ export default class extends Vue {
     })
   }
 
-  private openDialog(type , node) {
-    if(['createDir','createDir-root'].includes(type) && !node.loaded){
+  private openDialog(type, node) {
+    if (['createDir', 'createDir-root'].includes(type) && !node.loaded) {
       const nodId = node.data.id + ''
-      if(!nodId.startsWith('T')){
+      if (!nodId.startsWith('T')) {
         return this.$message.warning('请先展开当前目录')
       }
     }
     const dic = {
-      'createTree' : '新建设备树',
-      'createDir' : '新建目录',
-      'createDir-root' : '新建目录',
-      'updateDir' : '修改目录',
+      'createTree': '新建设备树',
+      'createDir': '新建目录',
+      'createDir-root': '新建目录',
+      'updateDir': '修改目录'
     }
     this.dialog = {
       type,
@@ -579,14 +574,13 @@ export default class extends Vue {
     await this.checkNodes(dirTree, node)
     const checkedNodes = dirTree.getCheckedNodes(true, false)
     this.leftCheckedNodes = checkedNodes.filter(cn => !cn.disabled)
-
   }
 
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
-    console.log('data:',data)
-    console.log('node:',node)
+    console.log('data:', data)
+    console.log('node:', node)
     await this.checkNodes2(dirTree2, node)
     this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
@@ -647,20 +641,19 @@ export default class extends Vue {
     this.dialog.type === 'createTree' && await this.createTree()
   }
 
-  private async createTree(){
-    try{
+  private async createTree() {
+    try {
       // @ts-ignore
       await createTree({ treeName: this.dialog.data.name })
       this.$message.success('操作成功')
       this.dialogCancel()
       this.getTreeList()
-    } catch(e){
+    } catch (e) {
       this.$message.error(e)
     }
-
   }
 
-  private updateDir(){
+  private updateDir() {
     // @ts-ignore
     this.currentDirNode.data.label = this.dialog.data.name
     this.tagOriginNodeAsEdited(this.currentDirNode)
@@ -669,20 +662,20 @@ export default class extends Vue {
   /**
    * 将原有的节点打上编辑标记
    */
-  private tagOriginNodeAsEdited(originNode){
-    if(originNode.data.originFlag){
+  private tagOriginNodeAsEdited(originNode) {
+    if (originNode.data.originFlag) {
       // 打上已编辑过的标志
       this.$set(originNode.data, 'editFlag', true)
     }
   }
 
-  private createDir(){
+  private createDir() {
     const dirTree2: any = this.$refs.dirTree2
     const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(0)
     parentNode.expanded = true
     this.$nextTick(() => {
       const insertDir = {
-        id: 'T' + new Date().getTime(), //暂时给一个id保存在前端
+        id: 'T' + new Date().getTime(), // 暂时给一个id保存在前端
         // @ts-ignore
         label: this.dialog.data.name,
         type: 'dir',
@@ -690,7 +683,7 @@ export default class extends Vue {
         orderSequence: +parentNode.childNodes[0].data.orderSequence - 1
         // orderSequence需要设置parentNode.childNodes[0].orderSequence - 1
       }
-      parentNode.childNodes.length > 0 ? dirTree2.insertBefore( insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
+      parentNode.childNodes.length > 0 ? dirTree2.insertBefore(insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
     })
     this.dialogCancel()
   }
@@ -699,12 +692,12 @@ export default class extends Vue {
     this.dialog.visible = false
   }
 
-  private clickEvent(node, data){
+  private clickEvent(node, data) {
     console.log(node)
     console.log(data)
   }
 
-  private editTree(tree){
+  private editTree(tree) {
     this.treeList.forEach(t => {
       t.editFlag = false
     })
@@ -715,54 +708,52 @@ export default class extends Vue {
       this.currentDirNode = dirTree2.getNode(root)
       this.$set(this.currentDirNode.data, 'isSelected', true)
     })
-
   }
 
-  private handleNameInput(name){
+  private handleNameInput(name) {
     this.treeName = name
   }
 
-  private submit(){
-    const dirTree2:any = this.$refs.dirTree2
+  private submit() {
+    const dirTree2: any = this.$refs.dirTree2
     const treeRoot = dirTree2.getNode(0)
-    console.log('treeRoot:',treeRoot)
+    console.log('treeRoot:', treeRoot)
     const childNodes = treeRoot.childNodes
     const params = this.generateTreeParams(childNodes)
-    try{
-      console.log('params:',params)
+    try {
+      console.log('params:', params)
       // 下面请求2次：1. 修改树的名称  2. 提交params
       // this.cancel()
       this.$message.success('操作成功')
-    } catch(e){
+    } catch (e) {
       console.log(e)
       this.$message.error(e)
     }
-
   }
 
-  private generateTreeParams(nodes){
+  private generateTreeParams(nodes) {
     const dirs = nodes.map(node => {
       let childs = []
-      if(node.childNodes.length > 0) {
+      if (node.childNodes.length > 0) {
         childs = this.generateTreeParams(node.childNodes)
       }
       let res: any = {
-                  treeId: this.currentTree.treeId,
-                  dirName: node.data.label,
-                  description: node.data.description || '',
-                  orderSequence: node.data.orderSequence + 0,
-                  type: node.data.type,
-                  dirs: childs
-                }
-      if(node.data.originFlag){
+        treeId: this.currentTree.treeId,
+        dirName: node.data.label,
+        description: node.data.description || '',
+        orderSequence: node.data.orderSequence + 0,
+        type: node.data.type,
+        dirs: childs
+      }
+      if (node.data.originFlag) {
         res.id = node.data.id
       } else {
-        if(node.data.type === 'ipc'){
+        if (node.data.type === 'ipc') {
           // 本次新增的设备节点，需要把ID中的'T'去掉，新增的目录不用带id
           res.id = node.data.id.slice(1)
         }
       }
-      if(node.parent.data.originFlag){
+      if (node.parent.data.originFlag) {
         // 如果父目录是后端来的节点  则加上parentDirId;否则父目录就是本次新创建的，不加这个参数
         res.parentDirId = node.parent.data.id
       }
@@ -772,21 +763,21 @@ export default class extends Vue {
     return dirs
   }
 
-  private getActionType(node){
-      if(!node.visible){
-        return 'del'
-      }
-      if(!node.data.originFlag){
-        return 'add'
-      } else if(node.data.editFlag){
-        return 'update'
-      }
-      return ''
+  private getActionType(node) {
+    if (!node.visible) {
+      return 'del'
+    }
+    if (!node.data.originFlag) {
+      return 'add'
+    } else if (node.data.editFlag) {
+      return 'update'
+    }
+    return ''
   }
 
-  private cancel(){
-    const dirTree:any = this.$refs.dirTree
-    const dirTree2:any = this.$refs.dirTree2
+  private cancel() {
+    const dirTree: any = this.$refs.dirTree
+    const dirTree2: any = this.$refs.dirTree2
     this.isEditing = false
     this.$nextTick(() => {
       this.treeList.forEach(t => (t.editFlag = false))
@@ -795,29 +786,29 @@ export default class extends Vue {
     })
   }
 
-  private addDevices(){
+  private addDevices() {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     const checkedNodes = dirTree.getCheckedNodes(true, false)
     const cnAvailable = checkedNodes.length && checkedNodes.filter(data => !data.disabled)
-    if(cnAvailable){
-      if(!this.currentDirNode.loaded) return this.$message.warning('请先展开当前目录')
+    if (cnAvailable) {
+      if (!this.currentDirNode.loaded) return this.$message.warning('请先展开当前目录')
       this.currentDirNode.expanded = true
       // 为了保证添加后的顺序，反转当前的节点顺序
-      const cnAv_reverse = cnAvailable.reverse()
-      cnAv_reverse.forEach(cndata => {
+      const cnAvReverse = cnAvailable.reverse()
+      cnAvReverse.forEach(cndata => {
         const isNodeExist = this.currentDirNode.childNodes.findIndex(n => cndata.id === n.data.id)
-        if( isNodeExist < 0 ){
-          const orseq_1st =  this.currentDirNode.childNodes[0] ? this.currentDirNode.childNodes[0].data.orderSequence : 0
+        if (isNodeExist < 0) {
+          const orSeq1st = this.currentDirNode.childNodes[0] ? this.currentDirNode.childNodes[0].data.orderSequence : 0
           // 为避免id冲突，本次操作新添加的设备ID前加T标识, 并将os设置为当前第一个子节点os-1
-          const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id, orderSequence: orseq_1st - 1}
-          this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore( cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
+          const cloned = { ...cloneDeep(cndata), id: 'T' + cndata.id, orderSequence: orSeq1st - 1 }
+          this.currentDirNode.childNodes.length > 0 ? dirTree2.insertBefore(cloned, this.currentDirNode.childNodes[0]) : dirTree2.append(cloned, this.currentDirNode)
         } else {
           // 如果是把删除操作撤销,就仅是把隐藏掉的节点再展现出来即可
           this.currentDirNode.childNodes[isNodeExist].visible = true
         }
         // 添加的节点，保存在checkedNodeIds
-        if( !this.checkedNodeIds.includes(cndata.id) ){
+        if (!this.checkedNodeIds.includes(cndata.id)) {
           this.checkedNodeIds.push(cndata.id)
         }
         // dirTree2.append(cloned, this.currentDirNode)
@@ -827,16 +818,15 @@ export default class extends Vue {
     }
   }
 
-  private removeDevices(){
+  private removeDevices() {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     const checkedNodes = dirTree2.getCheckedNodes(true, false)
     checkedNodes.forEach(cndata => {
-
       const cnNode = dirTree2.getNode(cndata)
       // 1. 如果是后端请求来的数据，则隐藏掉；如果是本次操作添加的节点，则直接从右树中删除
-      if(cnNode){
-        if(cndata.originFlag) {
+      if (cnNode) {
+        if (cndata.originFlag) {
           cnNode.visible = false
           cnNode.checked = false
         } else {
@@ -845,11 +835,11 @@ export default class extends Vue {
       }
 
       // 2. 如果是本次编辑添加的设备节点，要删除时，对左侧树的节点操作，需要去掉id中的T字符（第一位）
-      const resetData = cndata.originFlag ? cndata : {...cndata, id: cndata.id.slice(1)}
+      const resetData = cndata.originFlag ? cndata : { ...cndata, id: cndata.id.slice(1) }
       const resetNode = dirTree.getNode(resetData)
-      if(resetNode){
+      if (resetNode) {
         resetNode.data.disabled = false
-        dirTree.setChecked(resetData,false)
+        dirTree.setChecked(resetData, false)
       }
 
       // 3. 最后如果在checkedNodeIds删除掉这个node的id
@@ -858,11 +848,11 @@ export default class extends Vue {
     this.rightCheckedNodes = []
   }
 
-  private sortDevicesUp(){
+  private sortDevicesUp() {
     this.sortDevices(true)
   }
 
-  private sortDevicesDown(){
+  private sortDevicesDown() {
     this.sortDevices(false)
   }
 
@@ -870,10 +860,10 @@ export default class extends Vue {
    * asd:boolean
    * 是否上移
    */
-  private sortDevices(asd){
+  private sortDevices(asd) {
     const dirTree2: any = this.$refs.dirTree2
     // opNodes = { parentNode : [index1，index2，...] } 其中index1，index2为parent子节点在children数组中的位置
-    const parentNodes = [], opNodes = new WeakMap()
+    const parentNodes = []; const opNodes = new WeakMap()
 
     // 生成opNodes
     this.rightCheckedNodes.forEach(rn => {
@@ -881,41 +871,40 @@ export default class extends Vue {
       const parent = node.parent // 选中节点的父节点
       const nodeIndex = parent.childNodes.findIndex(cn => cn.data.id === node.data.id) // 在子节点数组中的index
       const exist = parentNodes.findIndex(pn => pn.data.id === parent.data.id)
-      if(exist < 0){
+      if (exist < 0) {
         parentNodes.push(parent)
         opNodes.set(parent, [nodeIndex])
       } else {
         const origin = [...opNodes.get(parent), nodeIndex]
-        const res = origin.sort((a,b) => asd ? a - b : b - a)
+        const res = origin.sort((a, b) => asd ? a - b : b - a)
         opNodes.set(parent, res)
       }
     })
 
-    //根据opNodes进行操作
+    // 根据opNodes进行操作
     const direction = asd ? -1 : 1
     parentNodes.forEach(pn => {
       const nodeIndexs = opNodes.get(pn) // nodeIndexs为排好序的indexs数组,下面将index整体向前提一位
       nodeIndexs.reduce((pre, cur, index) => {
         const end = asd ? 0 : pn.childNodes.length - 1
-        if(cur === end) { return cur } // 当前元素是第一位或最后一位，不做操作
-        if(pre === cur + direction) { return cur }//当前和前一个元素是挨着的，不能操作
+        if (cur === end) { return cur } // 当前元素是第一位或最后一位，不做操作
+        if (pre === cur + direction) { return cur }// 当前和前一个元素是挨着的，不能操作
         // 以上两种情况之外，交换当前元素和childNodes中之前的元素
         // 1. 交换元素
         // 1.1 找到前面的一个visible非true的节点的数组下标
-        let curNode = pn.childNodes[cur], prevNode = pn.childNodes[cur + direction]
+        let curNode = pn.childNodes[cur]; let prevNode = pn.childNodes[cur + direction]
         let prevIndex = cur + direction
-        while(prevNode && !prevNode.visible){
+        while (prevNode && !prevNode.visible) {
           prevIndex += direction
           prevNode = pn.childNodes[prevIndex]
         }
-        if(prevIndex < 0 || prevIndex > pn.childNodes.length - 1){
+        if (prevIndex < 0 || prevIndex > pn.childNodes.length - 1) {
           prevIndex = end
           prevNode = pn.childNodes[prevIndex]
         }
 
-
         // 1.2 交换orderSequence
-        const curOrder = curNode.data?.orderSequence, preOrder = prevNode.data?.orderSequence
+        const curOrder = curNode.data?.orderSequence; const preOrder = prevNode.data?.orderSequence
         curNode.data.orderSequence = preOrder
         prevNode.data.orderSequence = curOrder
 
@@ -934,17 +923,15 @@ export default class extends Vue {
     })
   }
 
-
-
-  private selectNode(data, node){
+  private selectNode(data, node) {
     console.log(data)
     console.log(node)
-    if(this.isEditing && data.type !== 'ipc' && data.type !== 'nvr'){
-      if(this.currentDirNode){
-        this.$set(this.currentDirNode.data, 'isSelected' ,false)
+    if (this.isEditing && data.type !== 'ipc' && data.type !== 'nvr') {
+      if (this.currentDirNode) {
+        this.$set(this.currentDirNode.data, 'isSelected', false)
       }
-      this.$nextTick(()=> {
-        this.$set(node.data, 'isSelected' ,true)
+      this.$nextTick(() => {
+        this.$set(node.data, 'isSelected', true)
         this.currentDirNode = node
       })
     }
