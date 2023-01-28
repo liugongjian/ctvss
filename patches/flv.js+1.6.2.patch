@@ -1,19 +1,23 @@
 diff --git a/node_modules/flv.js/src/core/mse-controller.js b/node_modules/flv.js/src/core/mse-controller.js
-index 7974940..6c630db 100644
+index 7974940..8ec741c 100644
 --- a/node_modules/flv.js/src/core/mse-controller.js
 +++ b/node_modules/flv.js/src/core/mse-controller.js
-@@ -464,6 +464,10 @@ class MSEController {
+@@ -464,6 +464,14 @@ class MSEController {
                              this._emitter.emit(MSEEvents.BUFFER_FULL);
                          }
                          this._isBufferFull = true;
 +                    } else if (error.code === 11) {
 +                        // Chrome解码错误
 +                        Log.e(this.TAG, error.message);
-+                        this._emitter.emit(MSEEvents.ERROR_MSE, {code: error.code, msg: error.message});
++                        if (type === 'video') {
++                            this._emitter.emit(MSEEvents.ERROR_MSE_VIDEO, {code: error.code, msg: error.message});
++                        } else if (type === 'audio') {
++                            this._emitter.emit(MSEEvents.ERROR_MSE_AUDIO, {code: error.code, msg: error.message});
++                        }
                      } else {
                          Log.e(this.TAG, error.message);
                          this._emitter.emit(MSEEvents.ERROR, {code: error.code, msg: error.message});
-@@ -493,6 +497,7 @@ class MSEController {
+@@ -493,6 +501,7 @@ class MSEController {
  
      _onSourceEnded() {
          // fired on endOfStream
@@ -22,14 +26,15 @@ index 7974940..6c630db 100644
      }
  
 diff --git a/node_modules/flv.js/src/core/mse-events.js b/node_modules/flv.js/src/core/mse-events.js
-index e2e3452..7d2a444 100644
+index e2e3452..05b6bb1 100644
 --- a/node_modules/flv.js/src/core/mse-events.js
 +++ b/node_modules/flv.js/src/core/mse-events.js
-@@ -17,10 +17,12 @@
+@@ -17,10 +17,13 @@
   */
  
  const MSEEvents = {
-+    ERROR_MSE: 'error_mse',
++    ERROR_MSE_VIDEO: 'error_mse_video',
++    ERROR_MSE_AUDIO: 'error_mse_audio',
      ERROR: 'error',
      SOURCE_OPEN: 'source_open',
      UPDATE_END: 'update_end',
@@ -41,17 +46,25 @@ index e2e3452..7d2a444 100644
  export default MSEEvents;
 \ No newline at end of file
 diff --git a/node_modules/flv.js/src/player/flv-player.js b/node_modules/flv.js/src/player/flv-player.js
-index e9a2524..4ee772f 100644
+index e9a2524..40165ba 100644
 --- a/node_modules/flv.js/src/player/flv-player.js
 +++ b/node_modules/flv.js/src/player/flv-player.js
-@@ -154,6 +154,17 @@ class FlvPlayer {
+@@ -154,6 +154,25 @@ class FlvPlayer {
                                 info
              );
          });
-+        this._msectl.on(MSEEvents.ERROR_MSE, (info) => {
++        this._msectl.on(MSEEvents.ERROR_MSE_VIDEO, (info) => {
 +            this._emitter.emit(PlayerEvents.ERROR,
-+                               ErrorTypes.MSE_ERROR,
-+                               ErrorDetails.MEDIA_MSE_ERROR,
++                               ErrorTypes.MSE_VIDEO_ERROR,
++                               ErrorDetails.MEDIA_MSE_VIDEO_ERROR,
++                               info
++            );
++        });
++        this._msectl.on(MSEEvents.ERROR_MSE_AUDIO, (info) => {
++            console.log('🐍', info, ErrorTypes.ERROR_MSE_AUDIO, ErrorDetails.MEDIA_MSE_AUDIO_ERROR)
++            this._emitter.emit(PlayerEvents.ERROR,
++                               ErrorTypes.MSE_AUDIO_ERROR,
++                               ErrorDetails.MEDIA_MSE_AUDIO_ERROR,
 +                               info
 +            );
 +        });
@@ -63,17 +76,28 @@ index e9a2524..4ee772f 100644
          this._msectl.attachMediaElement(mediaElement);
  
 diff --git a/node_modules/flv.js/src/player/player-errors.js b/node_modules/flv.js/src/player/player-errors.js
-index e4a92b7..6df916b 100644
+index e4a92b7..4196fed 100644
 --- a/node_modules/flv.js/src/player/player-errors.js
 +++ b/node_modules/flv.js/src/player/player-errors.js
-@@ -22,6 +22,7 @@ import DemuxErrors from '../demux/demux-errors.js';
+@@ -22,6 +22,8 @@ import DemuxErrors from '../demux/demux-errors.js';
  export const ErrorTypes = {
      NETWORK_ERROR: 'NetworkError',
      MEDIA_ERROR: 'MediaError',
-+    MSE_ERROR: 'MSEMediaError',
++    MSE_VIDEO_ERROR: 'MSEVideoError',
++    MSE_AUDIO_ERROR: 'MSEAudioError',
      OTHER_ERROR: 'OtherError'
  };
  
+@@ -31,7 +33,8 @@ export const ErrorDetails = {
+     NETWORK_TIMEOUT: LoaderErrors.CONNECTING_TIMEOUT,
+     NETWORK_UNRECOVERABLE_EARLY_EOF: LoaderErrors.UNRECOVERABLE_EARLY_EOF,
+ 
+-    MEDIA_MSE_ERROR: 'MediaMSEError',
++    MEDIA_MSE_VIDEO_ERROR: 'MediaMSEVideoError',
++    MEDIA_MSE_AUDIO_ERROR: 'MediaMSEAudioError',
+ 
+     MEDIA_FORMAT_ERROR: DemuxErrors.FORMAT_ERROR,
+     MEDIA_FORMAT_UNSUPPORTED: DemuxErrors.FORMAT_UNSUPPORTED,
 diff --git a/node_modules/flv.js/src/player/player-events.js b/node_modules/flv.js/src/player/player-events.js
 index e089627..b32d96a 100644
 --- a/node_modules/flv.js/src/player/player-events.js

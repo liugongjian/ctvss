@@ -8,6 +8,7 @@
       :codec="codec"
       :volume="volume"
       :is-muted="isMuted"
+      :has-audio="hasAudio"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-live="isLive"
@@ -143,6 +144,12 @@ export default class extends Vue {
     default: false
   })
   private isMuted: boolean
+
+  /* 是否含音轨 */
+  @Prop({
+    default: true
+  })
+  private hasAudio: boolean
 
   /* 默认缩放比例 */
   @Prop()

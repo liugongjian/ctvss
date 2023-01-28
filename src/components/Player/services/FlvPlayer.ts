@@ -28,7 +28,8 @@ export class FlvPlayer extends Player {
     const flvPlayer = FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
-      url: this.url
+      url: this.url,
+      hasAudio: this.hasAudio
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
@@ -40,8 +41,8 @@ export class FlvPlayer extends Player {
         this.onRetry()
       }
       // 视频解码错误
-      if (e === FlvJS.ErrorTypes.MSE_ERROR && !this.mseError) {
-        this.isDebug && console.log('MSE_ERROR', e, this.mseErrorCount)
+      if (e === FlvJS.ErrorTypes.MSE_VIDEO_ERROR && !this.mseError) {
+        this.isDebug && console.log('MSE_VIDEO_ERROR', e, this.mseErrorCount)
         this.mseError = true
         this.mseErrorCount++
         // 先尝试reload播放器，如果5次无法继续播放，则重新渲染播放器
@@ -52,6 +53,14 @@ export class FlvPlayer extends Player {
             immediate: true
           })
         }
+      }
+      // 音频解码错误
+      if (e === FlvJS.ErrorTypes.MSE_AUDIO_ERROR) {
+        this.isDebug && console.log('MSE_AUDIO_ERROR')
+        this.onRetry({
+          immediate: true,
+          hasAudio: false
+        })
       }
     })
     flvPlayer.on(FlvJS.Events.METADATA_ARRIVED, (e: any) => {
