@@ -135,6 +135,19 @@ export default class extends Vue {
     }
   }
 
+  // @Watch('screen.player.currentTime')
+  // private isLockCheck() {
+  //   console.log('每秒都做检查。。。。。难受', this.recordManager.currentRecord.isLock)
+  //   if (this.recordManager.currentRecord.isLock === 1) {
+  //     // 0->1: is locked, need to seek to the next record
+  //     console.log('当前片段禁止播放，跳到下一段')
+  //     this.recordManager.playNextRecord()
+  //   } else if (this.recordManager.currentRecord.isLock === 0) {
+  //     // 1->0: can play, to play record
+  //     console.log('可以播放')
+  //   }
+  // }
+
   /**
    * 播放器事件路由
    */
@@ -161,6 +174,8 @@ export default class extends Vue {
     this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
+    // console.log('here', this.recordManager.currentRecord, this.recordManager.recordList)
+    // 锁定跳转处理 
     // 跳转到offsetTime
     if (this.recordManager.currentRecord && this.recordManager.currentRecord.offsetTime) {
       this.screen.player.seek(this.recordManager.currentRecord.offsetTime)

@@ -8,7 +8,7 @@
     center
     @close="closeDialog"
   >
-    <div v-if="!multiple">
+    <div v-if="!multiple" v-loading="ischecking">
       <div class="unlock">
         <div class="label"><span>设备名: </span></div>
         <div><span>{{ deviceName }}</span></div>
@@ -80,50 +80,79 @@ export default class extends Vue {
   private deviceName = null
   private lockTime = null
   private originExpTime = null
+  private ischecking = false
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
     return this.screen && this.screen.recordManager
   }
 
-  private created() {
-    // 录像锁定管理
-    if (this.multiple) {
-      this.unlockItem.map((item: any) => {
-        if (item.exp_time === '解锁时刻') {
-          this.unlockDelNum += 1
-        }
-      })
-      this.unlockNum = this.unlockItem.length
-      // console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
-    } else {
-      this.deviceName = this.unlockItem[0].deviceName
-      this.lockTime = [new Date(this.unlockItem[0].startTime), new Date(this.unlockItem[0].endTime)]
-      this.isExpired = this.unlockItem[0].exp_time === '解锁时刻'
-      this.originExpTime = this.unlockItem[0].origin_exp_time
+  private async created() {
+    try {
+      this.ischecking = true
+      this.unlockItem[0].deviceId = this.screen.deviceId
+      this.unlockItem[0].deviceName = this.screen.deviceName
+      const params: any = {
+        deviceId: this.screen.deviceId,
+        startTime: +this.unlockItem[0].startTime,
+        endTime: +this.unlockItem[0].endTime,
+        action: 'check'
+      }
+      const res: any = await unLock(params)
+      if (res.storageExpired === 1) {
+        // 包含已过期录像
+        this.originExpTime = res.storageTime
+        this.isExpired = true
+      } else if (res.storageExpired === 0) {
+        // 不包含
+        this.isExpired = false
+      }
+      if (this.multiple) {
+        this.unlockItem.map((item: any) => {
+          if (item.exp_time === '解锁时刻') {
+            this.unlockDelNum += 1
+          }
+        })
+        this.unlockNum = this.unlockItem.length
+      } else {
+        this.deviceName = this.screen.deviceName
+        this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
+      }
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.ischecking = false
     }
+    // 录像锁定管理
+    // if (this.multiple) {
+    //   this.unlockItem.map((item: any) => {
+    //     if (item.exp_time === '解锁时刻') {
+    //       this.unlockDelNum += 1
+    //     }
+    //   })
+    //   this.unlockNum = this.unlockItem.length
+    //   // console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
+    // } else {
+    //   // console.log('解锁 dialog    ', this.unlockItem)
+    //   this.deviceName = this.screen.deviceName
+    //   this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
+    //   // this.isExpired = this.unlockItem[0].exp_time === '解锁时刻'
+    //   // this.originExpTime = this.unlockItem[0].origin_exp_time
+    // }
     // console.log('获取锁定时间    : ', this.recordLockItem)
   }
 
   // 提交锁定
   private async submit() {
-    // if (!this.multiple) {
-    //   var data = {
-    //     recordLockId: this.recordLockItem.recordLockId ,
-    //     startTime: this.recordLockItem.startTime,
-    //     endTime: this.recordLockItem.endTime,
-    //   }
-    // } else {
-    //   // const data = {
-    //   //   recordLockId: 
-    //   // }
-    //   var data = 'ok'
-    // }
-    // console.log('解锁 ', data)
     try {
-      // console.log('提交   ', this.unlockItem)
       this.submitting = true
-      await unLock(this.unlockItem)
+      this.unlockItem[0].deviceId = this.screen.deviceId
+      this.unlockItem[0].deviceName = this.screen.deviceName
+      const params: any = {
+        ...this.unlockItem[0],
+        action: 'unlock'
+      }
+      await unLock(params)
       this.submitting = false
       this.closeDialog(true)
       // 一个emit提示页面重新获取锁列表

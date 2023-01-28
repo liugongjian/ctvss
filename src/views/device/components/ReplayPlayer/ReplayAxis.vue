@@ -20,7 +20,14 @@
     </div>
     <img id="lock" style="display: none;" src="@/assets/images/lock.png">
     <div v-if="tipVisiable" :style="dynamicPos">
-      <span>已锁定: {{ duration.lockStartTime }} - {{ duration.lockEndTime }} </span>
+      <span
+      v-for="item, index in durationList"
+      :key="index"
+      class="lock-tooltip"
+      >
+      已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
+      <span class="lock-tooltip-unlock" @click="unlock(item)">解锁</span>
+      </span>
     </div>
     <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="false" />
   </div>
@@ -146,11 +153,15 @@ export default class extends Vue {
   private notClick = false
   /* 是否生成对应 index 的 tooltip */
   private tipVisiable = false
+  /* 合并锁的间隔阈值 px */
+  private pixelThreshold = 30
 /* hover time display , start & end */
   private duration = {
     'lockStartTime': null,
     'lockEndTime': null
   }
+  /* 合并锁 */
+  private durationList = [] 
   private unlockDuration = {
     'lockStartTime': null,
     'lockEndTime': null
@@ -160,14 +171,19 @@ export default class extends Vue {
     'position': 'relative',
     'padding': '5px',
     'border': '1px solid #d7d7d7',
-    'width': '200px',
-    'height': '25px',
+    'width': '220px',
+    // 'height': '100%',
+    'display': 'block',
     'left': '',
-    'top': '-95px',
+    // 'top': '-95px',
+    'max-height': '77px',
+    'top': '',
     'font-size': '12px',
     'text-align': 'center',
     'border-radius': '6px',
-    'background-color': 'white'
+    'background-color': 'white',
+    'overflow': 'auto',
+    'z-index': '99'
   }
   /* unlock dialog visiable */
   private unlockVisable = false
@@ -175,6 +191,56 @@ export default class extends Vue {
   private recordLockItem = null
 
   // 测试用
+  private testLockList = [
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672271747, // 2022-12-29 07:55:47
+    	endTime: 1672278947 // 2022-12-29 09:55:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672282547, // 2022-12-29 10:55:47
+    	endTime: 1672293347 // 2022-12-29 13:55:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672293647, // 2022-12-29 14:00:47
+    	endTime: 1672293947 // 2022-12-29 14:05:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672294247, // 2022-12-29 14:10:47
+    	endTime: 1672294547 // 2022-12-29 14:15:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672294847, // 2022-12-29 14:20:47
+    	endTime: 1672295147 // 2022-12-29 14:25:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672295447, // 2022-12-29 14:30:47
+    	endTime: 1672295747 // 2022-12-29 14:35:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672296047, // 2022-12-29 14:40:47
+    	endTime: 1672297247 // 2022-12-29 15:00:47
+    },
+    {
+      deviceId: '12111111111111111111113',
+      deviceName: '行也不行',
+      startTime: 1672297547, // 2022-12-29 15:05:47
+    	endTime: 1672308047 // 2022-12-29 18:00:47
+    },
+  ]
   // private testLockList = [
   //   {
   //     recordLockId: '锁定ID-125',
@@ -184,8 +250,8 @@ export default class extends Vue {
   //       duration: null,
   //       exp_time: '解锁时刻',
   //       origin_exp_time: '30',
-  //     startTime: 1657011600,
-  //     endTime: 1657022400
+  //       startTime: 1657011600,
+  //       endTime: 1657022400
   //   },
   //   {
   //     recordLockId: '锁定ID-125',
@@ -489,10 +555,26 @@ export default class extends Vue {
     /* 计算锁的位置 */
     const calLocks = (list) => {
       const locks = []
+      const allPointsLocks = []
+      let joinLocks:any = []
       for (let i = 0; i < list.length; i++) {
         const record = list[i]
+        allPointsLocks.push({
+          time: record.startTime,
+          lockCollection: [],
+          ...record
+        }, {
+          time: record.endTime,
+          lockCollection: [],
+          ...record
+        })
+      }
+      joinLocks = this.joinLock(allPointsLocks)
+      for (let i = 0; i < joinLocks.length; i++) {
+        const record = joinLocks[i]
         if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
-          const lockOffsetTime = record.startTime - this.axisStartTime
+          // const lockOffsetTime = record.startTime - this.axisStartTime
+          const lockOffsetTime = record.time - this.axisStartTime
           locks.push({
             x: Math.floor(lockOffsetTime / this.settings.ratio),
             // startTime: record.startTime,
@@ -509,11 +591,35 @@ export default class extends Vue {
       return locks
     }
     /* 已锁定的录像片段区间起始位置 */
-    this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
-    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
-    // console.log('是否获取到了 locks ',this.recordManager.lockList.length, this.axisData.locks)
+    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
+    this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
     // this.axixData.locks = [{ x: 50 }]
   }
+
+  private joinLock(lockList: any,anchorIndex: number = 0, joinedLockList?: any) {
+    let locks: any = joinedLockList ? joinedLockList : null
+    for (let i = anchorIndex; i < lockList.length - 1; i++) {
+      const anchorLock = lockList[i]
+      locks = joinedLockList ? joinedLockList : [{
+        ...anchorLock
+      }]
+      for (let o = i + 1; o < lockList.length; o++) {
+        const nextLock = lockList[o]
+        const deltaTime = nextLock.time - anchorLock.time
+        const pixelGap = deltaTime / this.settings.ratio
+        if (pixelGap < this.pixelThreshold) {
+          // 合并
+          const len = locks.length
+          locks[len - 1]['lockCollection'].push(nextLock)
+        } else {
+          locks.push(nextLock)
+          return this.joinLock(lockList, o, locks)
+        }
+      }
+    }
+    return locks
+  }
+
 
   /**
    * 绘制时间轴
@@ -635,32 +741,88 @@ export default class extends Vue {
   // 绘制对应的 tooltip
   private drawTooltip(lock: any) {
     // 传参输入 对应锁的坐标
+    // 合并锁，点击无效果，只显示tool tips，通过tool tips进行解锁选择
     this.$nextTick(() => {
+      // 去除重复的开始锁和结束锁
+      let map = new Map()
+      const lockmap = []
+      if (lock.lockCollection.length > 0) {
+        for (let item of lock.lockCollection) {
+          if (!map.has(item.startTime) && !map.has(item.endTime)) {
+            map.set(item.startTime, item)
+            lockmap.push(item)
+          }
+        }
+      }
+      lock.lockCollection = lockmap
+      const subLocks = lock.lockCollection
+      // 检查第一个和第零个元素是否属于同一个录像片段
+      if (subLocks.length > 0 && lock.startTime === subLocks[0].startTime && lock.endTime === subLocks[0].endTime) {
+        subLocks.shift()
+      }
+      this.durationList = [{
+        lockStartTime: (new Date(lock.startTime * 1000)).toLocaleTimeString(),
+        lockEndTime: (new Date(lock.endTime * 1000)).toLocaleTimeString(),
+        deviceId: lock.deviceId,
+        deviceName: lock.deviceName,
+        anchorTime: lock.time,
+        startTime: lock.startTime,
+        endTime: lock.endTime
+      }]
+      // this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
+      if (lock.lockCollection.length > 0) {
+        this.durationList.push(subLocks.map((item: any) => {
+          if (lock.startTime !== item.startTime && lock.endTime !== item.endTime) {
+            return {
+              lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
+              lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
+              deviceId: item.deviceId,
+              deviceName: item.deviceName,
+              startTime: lock.startTime,
+              endTime: lock.endTime,
+              anchorTime: item.time
+            }
+          }
+        }))
+        this.dynamicPos.top = subLocks.length > 1 ? '-148px' : '-126px'
+      } else {
+        this.dynamicPos.top = '-104px'
+      }
       this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
-      this.duration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleTimeString() // fake
-      this.duration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleTimeString() // fake
-      this.unlockDuration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleString() // fake
-      this.unlockDuration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleString() // fake
-      // this.tipVisiable = true
+      this.durationList = this.durationList.flat()
+      // else {
+      //   this.duration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleTimeString() // fake
+      //   this.duration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleTimeString() // fake
+      //   // this.unlockDuration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleString() // fake
+      //   // this.unlockDuration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleString() // fake
+      //   // this.tipVisiable = true
+      // }
     })
   }
   
   /**
    *  点击锁，解绑
+   * 多个锁合并的情况，不弹出解锁页面，点击锁本身无效果
+   * 
    */
   private onClickLock(e: any) {
+    // console.log('一定是更新了的      ', this.durationList)
     if (!this.notClick) {
-      if (this.role === 'sub-role') return
+      if (this.role === 'sub-role' || this.durationList.length > 1) return
       this.axisData.locks.map((item: any) => {
         const validX = item.x + 20
         const validY = 20
         if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
-          // console.log('点击  item   ', item)
           this.recordLockItem = [item]
           this.unlockVisable = true
         }
       })
     }
+  }
+
+  private unlock(item: any) {
+    this.recordLockItem = [item]
+    this.unlockVisable = true
   }
 
   /**
@@ -832,13 +994,39 @@ export default class extends Vue {
     this.draw()
   }
 
-   // 关闭解锁 dialog
-  private closeUnlock() {
-    this.unlockVisable = false
+  // 关闭解锁 dialog
+  private async closeUnlock(isUnlocked?: boolean) {
+    try {
+      console.log('是否解锁了      ', isUnlocked)
+      if (isUnlocked) {
+        const date = getDateByTime(this.currentTime, 's')
+        await this.screen.recordManager.getRecordListByDate(date, false, true) // 重新加载 lock list  
+      }
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.unlockVisable = false
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
+.lock-tooltip {
+  display: inline-block;
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+
+.lock-tooltip-unlock {
+  margin-left: 10px;
+  color: $primary;
+}
+
+.lock-tooltip-unlock:hover {
+  cursor: pointer;
+  color: rgba(250, 131, 52, 80%);
+}
+
 .axis {
   &__wrap {
     position: relative;

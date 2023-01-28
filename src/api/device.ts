@@ -568,9 +568,9 @@ export const unLock = (data: any): Promise<any> =>
 /**
 * 获取录像锁列表
 */
-export const getLockList = (data?: any) =>
+export const getLockList = (params?: any) =>
   request({
-    url: '/record/lock/list',
-    method: 'post',
-    data
+    url: '/record/lock',
+    method: 'get',
+    params
   })

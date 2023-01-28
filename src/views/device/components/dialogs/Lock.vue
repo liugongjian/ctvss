@@ -126,19 +126,18 @@ export default class extends Vue {
         try {
           this.submitting = true
           const res = await setLock({
-            startTime: this.form.duration[0] / 1000,
-            endTime: this.form.duration[1] / 1000,
+            lockPeriod: {
+              startTime: this.form.duration[0] / 1000,
+              endTime: this.form.duration[1] / 1000,
+            },
             deviceId: this.screen.deviceId,
             inProtocol: this.screen.inProtocol,
             groupId: this.currentGroupId,
             parentDeviceId: this.deviceInfo.parentDeviceId
           })
           // console.log('锁完了   res: ', res)
-          if (res.locks.length > 0) {
-            // console.log('摩西摩西   ', this.screen)
-            await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate)
-            // this.screen.recordManager.getRecordListByDate
-          }
+          // 无法判断是否锁定成功
+          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate)
         } catch (e) {
           this.$message.error(e.message)
         } finally {
