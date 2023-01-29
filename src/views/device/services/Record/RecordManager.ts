@@ -423,7 +423,8 @@ export class RecordManager {
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover,
-        isLock: record.isLock
+        isLock: record.isLock,
+        expirationTime: record.expirationTime
       })
     })
   }
@@ -536,6 +537,7 @@ export class RecordManager {
       const recordList = this.recordList && this.recordList.filter(record => {
         return (getDateByTime(record.startTime, 's') === currentDate)
       })
+      console.log('.... 走投无路    ', recordList)
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
           ...record,

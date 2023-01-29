@@ -56,6 +56,11 @@
             :formatter="dateFormatInTable"
           />
           <el-table-column
+            label="过期时间"
+            prop="expirationTime"
+            min-width="180"
+          />
+          <el-table-column
             label="时长"
             prop="duration"
             :formatter="durationFormatInTable"
