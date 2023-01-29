@@ -92,6 +92,12 @@
                   <el-descriptions-item label="设备MAC地址">
                     {{ info.macAddr || '-' }}
                   </el-descriptions-item>
+                  <el-descriptions-item label="EHOME版本">
+                    {{ info.ehomeVersion || '2.0' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.ehomeVersion === '5.0'" label="EHOME凭证名称">
+                    {{ info.userName || '-' }}
+                  </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
                 <template v-if="info && isNVRChannel">
