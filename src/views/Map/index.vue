@@ -1081,7 +1081,10 @@ export default class extends Mixins(IndexMixin) {
         mask: map.mask === 'Y',
         eagle: map.eagle === 'Y',
         dimension: map.dimension === 'Y',
-        marker: map.marker === 'Y'
+        marker: map.marker === 'Y',
+        groupByGroupId: map.groupByGroupId === 'Y',
+        groupByAdjacent: map.groupByAdjacent === 'Y',
+        defaultDeviceColor: map.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'edit'
     } else {
@@ -1094,7 +1097,10 @@ export default class extends Mixins(IndexMixin) {
         mask: false,
         eagle: false,
         dimension: false,
-        marker: false
+        marker: false,
+        groupByGroupId: false,
+        groupByAdjacent: true,
+        defaultDeviceColor: '#FA8334'
       }
       this.mapConfigInfo.status = 'add'
     }
