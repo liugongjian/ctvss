@@ -46,10 +46,10 @@ index e2e3452..05b6bb1 100644
  export default MSEEvents;
 \ No newline at end of file
 diff --git a/node_modules/flv.js/src/player/flv-player.js b/node_modules/flv.js/src/player/flv-player.js
-index e9a2524..40165ba 100644
+index e9a2524..c81f0f3 100644
 --- a/node_modules/flv.js/src/player/flv-player.js
 +++ b/node_modules/flv.js/src/player/flv-player.js
-@@ -154,6 +154,25 @@ class FlvPlayer {
+@@ -154,6 +154,24 @@ class FlvPlayer {
                                 info
              );
          });
@@ -61,7 +61,6 @@ index e9a2524..40165ba 100644
 +            );
 +        });
 +        this._msectl.on(MSEEvents.ERROR_MSE_AUDIO, (info) => {
-+            console.log('🐍', info, ErrorTypes.ERROR_MSE_AUDIO, ErrorDetails.MEDIA_MSE_AUDIO_ERROR)
 +            this._emitter.emit(PlayerEvents.ERROR,
 +                               ErrorTypes.MSE_AUDIO_ERROR,
 +                               ErrorDetails.MEDIA_MSE_AUDIO_ERROR,
