@@ -641,7 +641,7 @@ export default class extends Mixins(createMixin) {
    */
   private submit() {
     // 当拉流信息未改变 或 设备为按需拉流且流不在线时
-    if ((this.form.deviceIp === this.pullStreamInfo.deviceIp && this.form.devicePort === this.pullStreamInfo.devicePort && this.form.pullUrl === this.pullStreamInfo.pullUrl) ||
+    if (!this.isUpdate || (this.form.deviceIp === this.pullStreamInfo.deviceIp && this.form.devicePort === this.pullStreamInfo.devicePort && this.form.pullUrl === this.pullStreamInfo.pullUrl) ||
       (this.form.pullType !== 1 && this.pullStreamInfo.streamStatus !== 'on')
     ) {
       this.beforeSubmit(this.doSubmit)
