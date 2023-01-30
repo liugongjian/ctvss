@@ -41,6 +41,7 @@
   </el-form>
 </template>
 <script lang='ts'>
+import { encrypt } from '@/utils/encrypt'
 import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
 import {
@@ -139,30 +140,21 @@ export default class extends Vue {
           if (this.isEdit) {
             data = {
               inProtocol: 'ehome',
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               userType: this.form.userType,
               description: this.form.description,
-              password:
-                'YTVjIX' +
-                Base64.encode(this.form.password as string) +
-                'ZmZUBl',
-              newPassword:
-                'YmNjIW' +
-                Base64.encode(this.form.newPassword as string) +
-                '1mZSNl'
+              password: encrypt(this.form.password),
+              newPassword: encrypt(this.form.newPassword)
             }
             await updateCertificate(data)
           } else {
             this.form.password = this.form.newPassword
             data = {
               inProtocol: 'ehome',
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               userType: this.form.userType,
               description: this.form.description,
-              password:
-                'YTVjIX' +
-                Base64.encode(this.form.password as string) +
-                'ZmZUBl'
+              password: encrypt(this.form.password)
             }
             await createCertificate(data)
           }
