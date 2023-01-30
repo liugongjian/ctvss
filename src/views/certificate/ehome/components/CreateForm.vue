@@ -42,7 +42,6 @@
 </template>
 <script lang='ts'>
 import { encrypt } from '@/utils/encrypt'
-import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
 import {
   createCertificate,
@@ -144,7 +143,8 @@ export default class extends Vue {
               userType: this.form.userType,
               description: this.form.description,
               password: encrypt(this.form.password),
-              newPassword: encrypt(this.form.newPassword)
+              newPassword: encrypt(this.form.newPassword),
+              version: '2.0'
             }
             await updateCertificate(data)
           } else {
@@ -154,7 +154,8 @@ export default class extends Vue {
               userName: encrypt(this.form.userName),
               userType: this.form.userType,
               description: this.form.description,
-              password: encrypt(this.form.password)
+              password: encrypt(this.form.password),
+              version: '2.0'
             }
             await createCertificate(data)
           }
