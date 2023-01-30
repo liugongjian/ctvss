@@ -158,9 +158,10 @@ export default class extends ComponentMixin {
       }
     } else {
       this.audioKey = this.randomKey()
+      const transPriority = this.deviceInfo.inProtocol === 'ehome' ? 'tcp' : 'UDP'
       const param = {
         deviceId: this.intercomInfo.deviceId,
-        transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
+        transPriority, // 先使用UDP，等流媒体侧兼容之后再使用参数
         inProtocol: this.intercomInfo.inProtocol,
         audioKey: this.audioKey
       }
@@ -218,7 +219,8 @@ export default class extends ComponentMixin {
         this.last = nowTime
         const param = {
           deviceId: this.intercomInfo.deviceId,
-          audioKey: this.audioKey
+          audioKey: this.audioKey,
+          inProtocol: this.intercomInfo.inProtocol
         }
         this.stopRecord()
         stopTalk(param).then(() => {
