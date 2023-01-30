@@ -387,6 +387,10 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('curMap')
   private curmapChange() {
+    // TODO
+    this.curMap.groupByGroupId = 'N'
+    this.curMap.groupByAdjacent = 'N'
+    this.curMap.defaultDeviceColor = '#52c41a'
     MapModule.SetMapInfo(this.curMap)
   }
 
