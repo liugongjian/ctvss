@@ -46,14 +46,16 @@
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation">
-                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
-                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
-              </span>
-              <span class="operation">
-                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
-                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
-              </span>
+              <div v-if="!['ehome'].includes(screen.inProtocol)">
+                <span class="operation">
+                  <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
+                  <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
+                </span>
+                <span class="operation">
+                  <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
+                  <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
+                </span>
+              </div>
             </div>
           </div>
           <div class="ptz-slider">
@@ -355,7 +357,8 @@ export default class extends Vue {
 
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.screen.inProtocol
     }
     switch (direction) {
       case 5:
@@ -410,7 +413,8 @@ export default class extends Vue {
 
   private formatEndParam(direction: number) {
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.screen.inProtocol
     }
     switch (direction) {
       case 5:
