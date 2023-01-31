@@ -574,3 +574,13 @@ export const getLockList = (params?: any) =>
     method: 'get',
     params
   })
+
+/**
+ * 获取设备所在路径
+ */
+export const getDevicePath = (params: any): Promise<any> =>
+  request({
+    url: '/device/desc/path',
+    method: 'get',
+    params
+  })
