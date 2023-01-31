@@ -87,8 +87,8 @@
                       node-key="id"
                       lazy
                       show-checkbox
-                      :data="dirList"
-                      :load="loadDirs"
+                      :data="statement.dirList"
+                      :load="(node, resolve) => loadDirs(node, resolve, index)"
                       :props="treeProp"
                       :check-strictly="false"
                       @check-change="onCheckDevice($event, index)"
@@ -107,7 +107,7 @@
                   </div>
                   <div class="device-wrap">
                     <div class="device-wrap__header">已选资源({{ statement.resourceList.length }})</div>
-                    <el-table ref="deviceTable" :data="statement.resourceList" empty-text="暂无选择资源" fit>
+                    <el-table :ref="`deviceTable_${index}`" :data="statement.resourceList" empty-text="暂无选择资源" fit>
                       <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
                         <template slot-scope="{row}">
                           {{ row.label || '-' }}
@@ -283,12 +283,14 @@ export default class extends Vue {
 
   private addStatement() {
     this.form.statementList.push({
+      id: new Date().getTime().toString() + Math.random(),
       opened: true,
       effect: 'allow',
       actionType: 'selected',
       resourceType: 'all',
       actionList: [],
-      resourceList: []
+      resourceList: [],
+      dirList: this.dirList
     })
   }
 
@@ -311,19 +313,30 @@ export default class extends Vue {
       this.form.policyName = res.policyName
       this.form.desc = res.desc
       const policyInfo = JSON.parse(res.policyDocument)
-      this.form.actionList = policyInfo.Statement[0].Action
-      if (this.form.actionList[0] === 'vss:*') {
-        this.actionType = 'all'
-      } else {
-        this.actionType = 'selected'
-        if (this.form.actionList[0] === 'vss:Get*') {
-          this.form.actionList = this.filteredSystemActionList
+
+      await this.initDirs()
+
+      this.form.statementList = policyInfo.Statement.map((statement, index) => ({
+        id: new Date().getTime().toString() + Math.random(),
+        opened: index === 0,
+        effect: statement.Effect,
+        actionType: statement.Action[0] === 'vss:*' ? 'all' : 'selected',
+        actionList: statement.Action,
+        resourceType: statement.Resource[0] === '*' ? 'all' : 'selected',
+        resourceList: [],
+        resourceIdList: statement.Resource,
+        dirList: []
+      }))
+
+      this.form.statementList.forEach(async(statement, index) => {
+        if (statement.actionList[0] === 'vss:Get*') {
+          statement.actionList = this.filteredSystemActionList
             .filter((row: any) => row.actionType === 'GET')
             .map((row: any) => row.actionValue)
         }
         this.$nextTick(() => {
-          const actionTable: any = this.$refs.actionTable
-          this.form.actionList.forEach((action: any) => {
+          const actionTable: any = this.$refs[`actionTable_${index}`][0]
+          statement.actionList.forEach((action: any) => {
             const row = this.filteredSystemActionList.find(
               (systemAction: any) => systemAction.actionValue === action
             )
@@ -332,15 +345,7 @@ export default class extends Vue {
             }
           })
         })
-      }
-      const resourceList = policyInfo.Statement[0].Resource
-      if (resourceList[0] === '*') {
-        this.resourceType = 'all'
-      } else {
-        this.resourceType = 'selected'
-      }
-      await this.initDirs()
-      this.$nextTick(() => this.initResourceStatus(resourceList))
+      })
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
@@ -365,10 +370,10 @@ export default class extends Vue {
   /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus(resourceList: any) {
+  public async initResourceStatus(resourceList: any, idx: number) {
     try {
       this.loading.dir = true
-      const dirTree: any = this.$refs.dirTree
+      const dirTree: any = this.$refs[`dirTree_${idx}`][0]
       const checkedKeys = []
       for (let index = 0, len = resourceList.length; index < len; index++) {
         const resource = resourceList[index]
@@ -382,7 +387,7 @@ export default class extends Vue {
               const _key = keyPath[i]
               const node = dirTree.getNode(_key)
               if (node) {
-                await this.loadDirChildren(_key, node)
+                await this.loadDirChildren(dirTree, _key, node)
               }
             }
             checkedKeys.push(keyPath[keyPath.length - 1])
@@ -400,13 +405,12 @@ export default class extends Vue {
   /**
    * 加载子目录
    */
-  public async loadDirChildren(key: string, node: any) {
+  public async loadDirChildren(dirTree: any, key: string, node: any) {
     if (node.loaded) {
       node.parent.expanded = true
       return
     }
     try {
-      const dirTree: any = this.$refs.dirTree
       const data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -415,7 +419,6 @@ export default class extends Vue {
       })
       if (data.dirs) {
         const dirs = data.dirs
-          .filter((dir: any) => dir.type === 'dir')
           .map((dir: any) => ({
             id: dir.id,
             groupId: node.data.groupId,
@@ -473,16 +476,25 @@ export default class extends Vue {
   /**
    * 加载目录
    */
-  private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
+  private async loadDirs(node: any, resolve: Function, index: number) {
+    if (node.level === 0) {
+      resolve([])
+      console.log('loadDirs resolve index: ', index)
+      const statement = this.form.statementList[index]
+      statement.dirList = JSON.parse(JSON.stringify(this.dirList))
+      this.$nextTick(() => {
+        this.initResourceStatus(statement.resourceIdList, index)
+      })
+    } else {
+      const dirs = await this.getTree(node, index)
+      resolve(dirs)
+    }
   }
 
   /**
    * 获取菜单树
    */
-  private async getTree(node: any) {
+  private async getTree(node: any, index: number) {
     try {
       const shareDeviceIds: any = []
 
@@ -493,10 +505,9 @@ export default class extends Vue {
         type: node.data.type === 'group' ? undefined : node.data.type
       })
 
-      const dirTree: any = this.$refs.dirTree
+      const dirTree: any = this.$refs[`dirTree_${index}`][0]
       const checkedKeys = dirTree.getCheckedKeys()
       const dirs: any = devices.dirs
-        .filter((dir: any) => dir.type === 'dir')
         .map((dir: any) => {
           if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
             checkedKeys.push(dir.id)
@@ -573,13 +584,23 @@ export default class extends Vue {
                       : statement.resourceList.map((resource: any) => {
                         const mainUserID = this.$store.state.user.mainUserID
                         const inProtocol = resource.inProtocol
-                        const type = resource.type
+                        const pathLength = resource.path.length
+                        let type = resource.type
+                        if (type === 'ipc' && resource.path[pathLength - 2] && resource.path[pathLength - 2].type === 'nvr') {
+                          type = 'nvrchannel'
+                        }
+                        const typeMap = {
+                          group: 'vssgroup',
+                          dir: 'directory',
+                          nvr: 'nvr',
+                          nvrchannel: 'channel',
+                          ipc: 'ipc',
+                          platform: 'platform'
+                        }
                         const pathIds = resource.path.map(
                           (obj: any) => obj.id
                         )
-                        return `${mainUserID}:${inProtocol}-${
-                          type === 'group' ? 'vssgroup' : 'directory'
-                        }:${pathIds[0]}${
+                        return `${mainUserID}:${inProtocol}-${typeMap[type]}:${pathIds[0]}${
                           (pathIds.length > 1 ? ':' : '') +
                             pathIds.slice(1).join('/')
                         }`
