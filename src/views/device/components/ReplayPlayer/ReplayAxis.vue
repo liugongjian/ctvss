@@ -19,7 +19,7 @@
       <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" width="12" /></div>
     </div>
     <img id="lock" style="display: none;" src="@/assets/images/lock.png">
-    <div v-if="tipVisiable" :style="dynamicPos">
+    <div v-if="tipVisiable" :style="dynamicPos" id="unlockTip" @mouseleave="tooltipHider">
       <span
       v-for="item, index in durationList"
       :key="index"
@@ -28,6 +28,7 @@
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
       <span class="lock-tooltip-unlock" @click="unlock(item)">解锁</span>
       </span>
+      <div class="extend-hover"></div>
     </div>
     <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="false" />
   </div>
@@ -183,6 +184,26 @@ export default class extends Vue {
     'border-radius': '6px',
     'background-color': 'white',
     'overflow': 'auto',
+    'z-index': '99'
+  }
+  /* 增大tooltip 感应范围 */
+  private extendHover = {
+    'position': 'relative',
+    // 'padding': '5px',
+    // 'border': '1px solid #d7d7d7',
+    'width': '220px',
+    // 'height': '100%',
+    'display': 'block',
+    'left': '',
+    // 'top': '-95px',
+    // 'max-height': '77px',
+    'height': '10px',
+    // 'top': '',
+    // 'font-size': '12px',
+    // 'text-align': 'center',
+    // 'border-radius': '6px',
+    'background-color': 'red',
+    // 'overflow': 'auto',
     'z-index': '99'
   }
   /* unlock dialog visiable */
@@ -392,6 +413,7 @@ export default class extends Vue {
     this.canvas.removeEventListener('click', this.onClickLock)
     this.canvas.removeEventListener('mousemove', this.onAxisMove)
     window.removeEventListener('keydown', this.onHotkey)
+    // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
@@ -591,8 +613,8 @@ export default class extends Vue {
       return locks
     }
     /* 已锁定的录像片段区间起始位置 */
-    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
-    this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
+    this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
+    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
     // this.axixData.locks = [{ x: 50 }]
   }
 
@@ -859,8 +881,10 @@ export default class extends Vue {
         this.$nextTick(() => {
           this.tipVisiable = true
           this.drawTooltip(item)
+          // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
         })
       } else {
+        // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
         this.tipVisiable = false
       }
     })
@@ -997,7 +1021,7 @@ export default class extends Vue {
   // 关闭解锁 dialog
   private async closeUnlock(isUnlocked?: boolean) {
     try {
-      console.log('是否解锁了      ', isUnlocked)
+      // console.log('是否解锁了      ', isUnlocked)
       if (isUnlocked) {
         const date = getDateByTime(this.currentTime, 's')
         await this.screen.recordManager.getRecordListByDate(date, false, true) // 重新加载 lock list  
@@ -1008,9 +1032,21 @@ export default class extends Vue {
       this.unlockVisable = false
     }
   }
+
+  // 隐藏 tooltip
+  private tooltipHider(e: MouseEvent) {
+    this.tipVisiable = false
+  }
 }
 </script>
 <style lang="scss" scoped>
+.extend-hover {
+  width: 210px;
+  height: 15px;
+  background-color: transparent;
+  position: fixed;
+}
+
 .lock-tooltip {
   display: inline-block;
   margin-bottom: 4px;

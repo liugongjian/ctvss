@@ -379,7 +379,29 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-
+  {
+    path: '/replay-lock-manage',
+    component: Layout,
+    meta: {
+      title: '锁定录像管理',
+      breadcrumb: true,
+      icon: 'menu-system',
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
+        name: 'replay-lock-manage',
+        meta: {
+          title: '锁定录像管理',
+          breadcrumb: false,
+          icon: 'menu-system',
+          perms: ['*']
+        }
+      }
+    ]
+  },
   {
     path: '/map',
     component: Layout,

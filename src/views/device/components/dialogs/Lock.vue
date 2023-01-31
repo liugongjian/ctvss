@@ -137,7 +137,7 @@ export default class extends Vue {
           })
           // console.log('锁完了   res: ', res)
           // 无法判断是否锁定成功
-          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate)
+          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, true)
         } catch (e) {
           this.$message.error(e.message)
         } finally {

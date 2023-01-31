@@ -8,7 +8,7 @@ import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { VSSError } from '@/utils/error'
-import { getLockList } from '@/api/device'
+import { getDeviceLockList } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 
 export class RecordManager {
@@ -170,7 +170,7 @@ export class RecordManager {
       const records = await this.getRecordList(startTime, endTime)
       // 加载录像锁列表
       // console.log('加载指定日期的录像数据，getRecordList     获取到 records 之后就    加载   录像锁列表   ')
-      const lockList = await this.getLockList(date, date + 24 * 60 * 60)
+      const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
         this.lockList = this.lockList.concat(lockList)
       } else {
@@ -423,7 +423,8 @@ export class RecordManager {
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover,
-        isLock: record.isLock
+        isLock: record.isLock,
+        expirationTime: record.expirationTime
       })
     })
   }
@@ -536,6 +537,7 @@ export class RecordManager {
       const recordList = this.recordList && this.recordList.filter(record => {
         return (getDateByTime(record.startTime, 's') === currentDate)
       })
+      console.log('.... 走投无路    ', recordList)
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
           ...record,
@@ -624,9 +626,9 @@ export class RecordManager {
    * 录像锁相关
    * =================================
    */
-  private async getLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
+  private async getDeviceLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
     try {
-      const res: any = await getLockList({
+      const res: any = await getDeviceLockList({
         deviceId: this.screen.deviceId,
         inProtocol: this.screen.inProtocol,
         groupId: this.currentGroupId,

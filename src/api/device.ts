@@ -566,11 +566,20 @@ export const unLock = (data: any): Promise<any> =>
   })
 
 /**
-* 获取录像锁列表
+* 获取设备录像锁列表
 */
-export const getLockList = (params?: any) =>
+export const getDeviceLockList = (params?: any) =>
   request({
     url: '/record/lock',
+    method: 'get',
+    params
+  })
+/*
+ * 获取用户锁定列表
+ */
+export const getUserLockList = (params?: any) =>
+  request({
+    url: '/record/lock/list',
     method: 'get',
     params
   })
