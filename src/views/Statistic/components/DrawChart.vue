@@ -1,5 +1,5 @@
 <template>
-  <div v-if="container" :id="container" />
+  <div v-if="container" :id="container" class="statistic__chart" />
 </template>
 
 <script lang="ts">
@@ -30,6 +30,7 @@ export default class extends Vue {
   }
 
   private drawChart() {
+    console.log('123')
     const { kind, name } = this.chartInfo
 
     this.container = name
@@ -48,7 +49,9 @@ export default class extends Vue {
       totalDeviceNum,
       onlineNum,
       label,
-      name
+      name,
+      width = 80,
+      height = 80
     } = this.chartInfo
 
     const data = [{ name: '在线', value: Number(onlineNum) }, { name: '离线', value: Number(totalDeviceNum) - Number(onlineNum) }]
@@ -57,8 +60,8 @@ export default class extends Vue {
 
     this.chart = new Chart({
       container: name,
-      width: 120,
-      height: 120,
+      width,
+      height,
       autoFit: true,
       padding: 0
     })

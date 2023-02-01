@@ -1235,7 +1235,7 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/statistic',
     component: Layout,
     meta: {
-      title: '系统设置',
+      title: '统计信息',
       breadcrumb: true,
       icon: 'menu-system',
       perms: ['*']
@@ -1249,7 +1249,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '统计信息',
           breadcrumb: false,
           icon: 'menu-system',
-          perms: ['*']
+          perms: ['*'],
+          groupSelector: true
         }
       }
     ]
