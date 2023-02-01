@@ -965,7 +965,7 @@ export default class extends Mixins(IndexMixin) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
       const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
-      this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
+      this.$refs.mapview.setMapZoomAndCenter(16, marker.longitude, marker.latitude)
       this.$refs.mapview.chooseDevice(marker)
     }
   }
