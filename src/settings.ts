@@ -13,10 +13,12 @@ interface ISettings {
   },
   systemActionList: {
     actionName: string;
-    actionValue: string;
+    actionKey: string;
+    actionValueOption?: Array<any>; // 带值action的选项范围
+    actionValueDefault?: any; // 带值action勾选后的默认值
     actionDesc: string;
-    actionType?: string;
-    autoSelected?: string;
+    actionType?: string; // GET权限的用户会默认设置该perm
+    autoSelected?: string; // 勾选后默认勾选的其他aciton
     resourceType?: string | Array<string>;
   }[]
 }
@@ -43,169 +45,171 @@ const settings: ISettings = {
     // 业务组
     {
       actionName: '查询业务组',
-      actionValue: 'GetGroup',
+      actionKey: 'ivs:GetGroup',
       actionDesc: '拥有业务组的查询权限，并展示业务组管理菜单',
-      actionType: 'GET', // GET权限的用户会默认设置该perm
+      actionType: 'GET',
       resourceType: '*'
     },
     {
       actionName: '删除业务组',
-      actionValue: 'DeleteGroup',
+      actionKey: 'ivs:DeleteGroup',
       actionDesc: '拥有业务组的删除权限，并展示业务组管理菜单',
-      autoSelected: 'GetGroup', // 勾选后默认勾选的其他aciton
+      autoSelected: 'ivs:GetGroup',
       resourceType: '*'
     },
     {
       actionName: '修改业务组',
-      actionValue: 'UpdateGroup',
+      actionKey: 'ivs:UpdateGroup',
       actionDesc: '拥有业务组的修改权限，并展示业务组管理菜单',
-      autoSelected: 'GetGroup',
+      autoSelected: 'ivs:GetGroup',
       resourceType: '*'
     },
     {
       actionName: '创建业务组',
-      actionValue: 'CreateGroup',
+      actionKey: 'ivs:CreateGroup',
       actionDesc: '拥有业务组的创建权限，并展示业务组管理菜单',
-      autoSelected: 'GetGroup',
+      autoSelected: 'ivs:GetGroup',
       resourceType: '*'
     },
     // 设备管理
     {
       actionName: '查询设备',
-      actionValue: 'GetDevice',
+      actionKey: 'ivs:GetDevice',
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '删除设备',
-      actionValue: 'DeleteDevice',
+      actionKey: 'ivs:DeleteDevice',
       actionDesc: '拥有设备的删除权限，并展示设备管理菜单',
-      autoSelected: 'GetDevice',
+      autoSelected: 'ivs:GetDevice',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '修改设备',
-      actionValue: 'UpdateDevice',
+      actionKey: 'ivs:UpdateDevice',
       actionDesc: '拥有设备的修改权限，并展示设备管理菜单',
-      autoSelected: 'GetDevice',
+      autoSelected: 'ivs:GetDevice',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '创建设备',
-      actionValue: 'CreateDevice',
+      actionKey: 'ivs:CreateDevice',
       actionDesc: '拥有设备的创建权限，并展示设备管理菜单',
-      autoSelected: 'GetDevice',
+      autoSelected: 'ivs:GetDevice',
       resourceType: ['directory', 'device', 'channel']
     },
     // 实时预览
     {
       actionName: '查询直播流',
-      actionValue: 'GetLiveStream',
+      actionKey: 'ivs:GetLiveStream',
       actionDesc: '拥有查询直播流权限，并展示实时预览菜单',
       actionType: 'GET',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备云台控制',
-      actionValue: 'ControlDevicePTZ',
+      actionKey: 'ivs:ControlDevicePTZ',
+      actionValueOption: [1, 10],
+      actionValueDefault: 1,
       actionDesc: '拥有设备云台控制权限，并展示实时预览菜单',
-      autoSelected: 'GetLiveStream',
+      autoSelected: 'ivs:GetLiveStream',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备云台锁定',
-      actionValue: 'LockDevicePTZ',
+      actionKey: 'ivs:LockDevicePTZ',
       actionDesc: '拥有设备云台锁定权限，并展示实时预览菜单',
-      autoSelected: 'GetLiveStream',
+      autoSelected: 'ivs:GetLiveStream',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备预置位配置',
-      actionValue: 'ControlDevicePreset',
+      actionKey: 'ivs:ControlDevicePreset',
       actionDesc: '拥有设备预置位配置权限，并展示实时预览菜单',
-      autoSelected: 'GetLiveStream',
+      autoSelected: 'ivs:GetLiveStream',
       resourceType: ['directory', 'device', 'channel']
     },
     // 录像回放
     {
       actionName: '查询云端录像',
-      actionValue: 'GetCloudRecord',
+      actionKey: 'ivs:GetCloudRecord',
       actionDesc: '拥有云端录像文件的查询权限，并展示录像回放菜单',
       actionType: 'GET',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '查询本地录像',
-      actionValue: 'GetDeviceRecord',
+      actionKey: 'ivs:GetDeviceRecord',
       actionDesc: '拥有设备本地录像文件的查询权限，并展示录像回放菜单',
       actionType: 'GET',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '下载云端录像',
-      actionValue: 'DownloadCloudRecord',
+      actionKey: 'ivs:DownloadCloudRecord',
       actionDesc: '拥有云端录像文件的下载权限，并展示录像回放菜单',
-      autoSelected: 'GetCloudRecord',
+      autoSelected: 'ivs:GetCloudRecord',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '锁定云端录像',
-      actionValue: 'LockCloudRecord',
+      actionKey: 'ivs:LockCloudRecord',
       actionDesc: '拥有云端录像文件的锁定权限，并展示录像回放菜单',
-      autoSelected: 'GetCloudRecord',
+      autoSelected: 'ivs:GetCloudRecord',
       resourceType: ['directory', 'device', 'channel']
     },
     // 视图库
     {
       actionName: '查看视图服务',
-      actionValue: 'DescribeViid',
+      actionKey: 'ivs:DescribeViid',
       actionDesc: '具有视图服务菜单',
       actionType: 'GET'
     },
     {
       actionName: '管理视图服务',
-      actionValue: 'AdminViid',
+      actionKey: 'ivs:AdminViid',
       actionDesc: '具有视图服务的管理权限',
-      autoSelected: 'DescribeViid'
+      autoSelected: 'ivs:DescribeViid'
     },
     // 视图分析（原AI功能）- 视图库功能暂放入向上级联，作为一种协议进行控制
     {
       actionName: '查询行业场景应用',
-      actionValue: 'GetApp',
+      actionKey: 'ivs:GetApp',
       actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
       actionType: 'GET'
     },
     {
       actionName: '创建行业场景应用',
-      actionValue: 'CreateApp',
+      actionKey: 'ivs:CreateApp',
       actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
-      autoSelected: 'GetApp'
+      autoSelected: 'ivs:GetApp'
     },
     // 电子地图
     {
       actionName: '查看电子地图',
-      actionValue: 'DescribeMap',
+      actionKey: 'ivs:DescribeMap',
       actionDesc: '拥有电子地图的查看权限，并展示电子地图菜单',
       actionType: 'GET'
     },
     // 概览页面
     {
       actionName: '查看概览页面',
-      actionValue: 'DescribeDashboard',
+      actionKey: 'ivs:DescribeDashboard',
       actionDesc: '拥有概览页面的查看权限',
       actionType: 'GET'
     },
     // 车辆管理
     {
       actionName: '车辆管理',
-      actionValue: 'AdminCar',
+      actionKey: 'ivs:AdminCar',
       actionDesc: '拥有车辆管理权限，并展示车辆管理菜单'
     },
     // 电视墙
     {
       actionName: '电视墙管理',
-      actionValue: 'AdminVideoWall',
+      actionKey: 'ivs:AdminVideoWall',
       actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单'
     }
   ]

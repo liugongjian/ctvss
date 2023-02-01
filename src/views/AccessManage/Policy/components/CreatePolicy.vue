@@ -13,9 +13,9 @@
         <el-form-item label="描述：" prop="desc">
           <el-input v-model="form.desc" class="form__input" type="textarea" rows="4" :disabled="isCtyunPolicy" />
         </el-form-item>
-        <el-form-item label="权限：">
+        <el-form-item label="权限：" prop="statementList">
           <div v-for="(statement, index) in form.statementList" :key="statement.id" class="statement-block">
-            <div style="height: 40px; line-height: 40px; background-color: #f3f3f3; cursor: pointer;" @click="toggleOpenStatus(index)">
+            <div class="statement-block__headline" @click="toggleOpenStatus(index)">
               <i v-if="statement.opened" class="el-icon-caret-bottom" />
               <i v-else class="el-icon-caret-right" />
               <span style="margin-left: 5px;">智能视图服务（IVS）</span>
@@ -28,8 +28,8 @@
                 label-width="180px"
               >
                 <el-radio-group v-model="statement.effect">
-                  <el-radio label="allow">允许</el-radio>
-                  <el-radio label="deny">拒绝</el-radio>
+                  <el-radio label="Allow">允许</el-radio>
+                  <el-radio label="Deny">拒绝</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item
@@ -61,8 +61,25 @@
                   <el-table-column
                     label="操作名称"
                     prop="actionName"
-                    width="200"
+                    width="220"
                   />
+                  <el-table-column
+                    label="操作级别"
+                    prop="actionValue"
+                    width="200"
+                  >
+                    <template slot-scope="{row}">
+                      <span v-if="!row.actionValueOption"> - </span>
+                      <el-select v-else v-model="statement.actionLevel[row.actionKey]" size="mini" style="width: 65%;">
+                        <el-option
+                          v-for="option in row.actionValueOption"
+                          :key="option"
+                          :label="option"
+                          :value="option"
+                        />
+                      </el-select>
+                    </template>
+                  </el-table-column>
                   <el-table-column
                     label="操作描述"
                     prop="actionDesc"
@@ -74,9 +91,12 @@
                 :rules="innerResourceFormRule"
                 :prop="'statementList.' + index + '.resourceList'"
                 label-width="180px"
-                style="margin-top: 20px;"
               >
-                <el-radio-group v-model="statement.resourceType" style="margin-bottom: 5px;" :disabled="isCtyunPolicy">
+                <el-radio-group
+                  v-model="statement.resourceType"
+                  style="margin-bottom: 5px;"
+                  :disabled="isCtyunPolicy"
+                >
                   <el-radio label="all">所有资源</el-radio>
                   <el-radio label="selected">特定资源</el-radio>
                 </el-radio-group>
@@ -129,10 +149,10 @@
               </el-form-item>
             </div>
           </div>
-          <el-button type="text" @click="addStatement">+ 添加权限</el-button>
+          <el-button v-if="!isCtyunPolicy" type="text" @click="addStatement">+ 添加权限</el-button>
         </el-form-item>
         <el-form-item>
-          <el-row style="margin: 20px 0;">
+          <el-row>
             <template v-if="!isCtyunPolicy">
               <el-button type="primary" class="confirm" :loading="loading.dir || loading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
@@ -183,9 +203,7 @@ export default class extends Vue {
     desc: '',
     policyType: '',
     scope: '',
-    statementList: [],
-    actionList: [],
-    resourceList: []
+    statementList: []
   }
 
   private isCtyunPolicy = false
@@ -195,11 +213,16 @@ export default class extends Vue {
     policyName: [
       { required: true, message: '请输入策略名称', trigger: 'blur' },
       { validator: this.validatePolicyName, trigger: 'blur' }
+    ],
+    statementList: [
+      {
+        validator: this.validateStatementList, trigger: 'blur'
+      }
     ]
   }
 
   private innerActionFormRule = {
-    validator: this.validatorActionList,
+    validator: this.validateActionList,
     trigger: 'blur'
   }
 
@@ -220,9 +243,17 @@ export default class extends Vue {
     }
   }
 
-  private validatorActionList(rule: any, value: string, callback: Function) {
+  private validateActionList(rule: any, value: string, callback: Function) {
     if (!value || !value.length) {
       callback(new Error('操作列表不能为空！'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateStatementList(rule: any, value: string, callback: Function) {
+    if (!value || !value.length) {
+      callback(new Error('权限列表不能为空！'))
     } else {
       callback()
     }
@@ -245,7 +276,17 @@ export default class extends Vue {
   private get filteredSystemActionList() {
     const tagObject = UserModule.tags || ({})
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
-    return settings.systemActionList.filter((action: any) => !denyPerms.includes(action.actionValue))
+    return settings.systemActionList
+      .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .map(action => {
+        const options = action.actionValueOption
+        return {
+          ...action,
+          actionValueOption: options && options.every(option => typeof option === 'number')
+            ? Array.from({ length: options[1] - options[0] + 1 }).map((item, index) => options[0] + index)
+            : options
+        }
+      })
   }
 
   private async mounted() {
@@ -272,24 +313,33 @@ export default class extends Vue {
     const actionTable: any = this.$refs[`actionTable_${index}`][0]
     this.$nextTick(() => {
       actions.forEach((action: any) => {
+        const statement = this.form.statementList[index]
+        const actionLevel = statement.actionLevel
+        if (actionLevel[action.actionKey] == null) {
+          this.$set(actionLevel, action.actionKey, action.actionValueDefault)
+        }
         if (action.autoSelected) {
-          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionValue === action.autoSelected)
-          autoSelectedRow && actionTable.toggleRowSelection(autoSelectedRow, true)
+          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === action.autoSelected)
+          if (autoSelectedRow) {
+            actionTable.toggleRowSelection(autoSelectedRow, true)
+          }
         }
       })
     })
-    this.form.statementList[index].actionList = actions.map((action: any) => action.actionValue)
+    this.form.statementList[index].actionList = actions.map((action: any) => action.actionKey)
   }
 
   private addStatement() {
     this.form.statementList.push({
       id: new Date().getTime().toString() + Math.random(),
       opened: true,
-      effect: 'allow',
+      effect: 'Allow',
       actionType: 'selected',
       resourceType: 'all',
       actionList: [],
+      actionLevel: {},
       resourceList: [],
+      resourceIdList: [],
       dirList: this.dirList
     })
   }
@@ -320,8 +370,9 @@ export default class extends Vue {
         id: new Date().getTime().toString() + Math.random(),
         opened: index === 0,
         effect: statement.Effect,
-        actionType: statement.Action[0] === 'vss:*' ? 'all' : 'selected',
+        actionType: statement.Action[0] === 'ivs:*' ? 'all' : 'selected',
         actionList: statement.Action,
+        actionLevel: statement.ActionLevel || {},
         resourceType: statement.Resource[0] === '*' ? 'all' : 'selected',
         resourceList: [],
         resourceIdList: statement.Resource,
@@ -329,21 +380,24 @@ export default class extends Vue {
       }))
 
       this.form.statementList.forEach(async(statement, index) => {
-        if (statement.actionList[0] === 'vss:Get*') {
+        if (statement.actionList[0] === 'ivs:Get*') {
           statement.actionList = this.filteredSystemActionList
             .filter((row: any) => row.actionType === 'GET')
-            .map((row: any) => row.actionValue)
+            .map((row: any) => row.actionKey)
         }
         this.$nextTick(() => {
-          const actionTable: any = this.$refs[`actionTable_${index}`][0]
-          statement.actionList.forEach((action: any) => {
-            const row = this.filteredSystemActionList.find(
-              (systemAction: any) => systemAction.actionValue === action
-            )
-            if (row) {
-              actionTable.toggleRowSelection(row)
-            }
-          })
+          const ref = this.$refs[`actionTable_${index}`]
+          const actionTable: any = ref?.[0]
+          if (actionTable) {
+            statement.actionList.forEach((action: any) => {
+              const row = this.filteredSystemActionList.find(
+                (systemAction: any) => systemAction.actionKey === action
+              )
+              if (row) {
+                actionTable.toggleRowSelection(row)
+              }
+            })
+          }
         })
       })
     } catch (e) {
@@ -362,7 +416,9 @@ export default class extends Vue {
       return false
     }
 
-    const relatedActions = this.filteredSystemActionList.filter((action: any) => action.autoSelected === row.actionValue).map(row => row.actionValue)
+    const relatedActions = this.filteredSystemActionList
+      .filter((action: any) => action.autoSelected === row.actionKey)
+      .map(row => row.actionKey)
     const actionList = this.form.statementList[index].actionList
     return !(relatedActions.length && actionList.filter(action => relatedActions.includes(action)).length)
   }
@@ -574,10 +630,17 @@ export default class extends Vue {
             policyType: 'subUser',
             policyDocument: JSON.stringify({
               Version: '2023-01-03',
-              Statement: this.form.statementList.map((statement: any) =>
-                ({
+              Statement: this.form.statementList.map((statement: any) => {
+                const actionList = statement.actionList
+                // 过滤出已勾选的action值
+                const actionLevel = {}
+                actionList.forEach(action => {
+                  actionLevel[action] = statement.actionLevel[action]
+                })
+                return {
                   Effect: statement.effect,
-                  Action: statement.actionList,
+                  Action: actionList,
+                  ActionLevel: actionLevel,
                   Resource:
                     statement.resourceType === 'all'
                       ? ['*']
@@ -605,7 +668,9 @@ export default class extends Vue {
                             pathIds.slice(1).join('/')
                         }`
                       })
-                })
+                }
+              }
+
               )
             })
           }
@@ -701,9 +766,24 @@ export default class extends Vue {
 
 .statement-block {
   margin-bottom: 10px;
+
+  &__headline {
+    height: 40px;
+    line-height: 40px;
+    background-color: #f3f3f3;
+    cursor: pointer;
+  }
 }
 
 .statement-block:first-child {
   margin-top: 36px;
+}
+
+::v-deep .el-form-item.is-error .el-input__inner {
+  border-color: #c0c4cc !important;
+}
+
+::v-deep .el-form-item .el-form-item {
+  margin-bottom: 20px;
 }
 </style>
