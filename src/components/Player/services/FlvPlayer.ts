@@ -29,7 +29,7 @@ export class FlvPlayer extends Player {
       type: 'flv',
       isLive: true,
       url: this.url,
-      hasAudio: this.hasAudio
+      hasAudio: this.hasAudio === false ? false : null
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
