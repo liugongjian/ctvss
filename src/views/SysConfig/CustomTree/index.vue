@@ -443,10 +443,13 @@ export default class extends Vue {
 
   private async getOnlineNumOfTree() {
     const { dirs }: any = await loadTreeNode({ dirId: this.currentTree.treeId })
-    debugger
     let res = 0
     dirs && dirs.forEach(dir => {
-      res += dir.onlineSize
+      if (dir.type === 'ipc' && dir.deviceStatus === 'on') {
+        res++
+      } else {
+        res += dir.onlineSize
+      }
     })
     return res
   }
