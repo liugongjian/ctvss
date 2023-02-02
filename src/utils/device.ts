@@ -43,7 +43,7 @@ export const getSums = (data: any) => {
  */
 export const getTotalOfTree = (data: any) => {
   if (~['nvr', 'dir', 'platform', 'platformDir', 'top-group'].indexOf(data.type)) {
-    return ` (${data.totalSize})`
+    return ` (${data.onlineSize}/${data.totalSize})`
   } else {
     return ''
   }

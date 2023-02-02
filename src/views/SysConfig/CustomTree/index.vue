@@ -7,7 +7,7 @@
       :closable="false"
       class="mb10"
     />
-    <el-card class="platform">
+    <el-card v-if="!treeListEmpty" class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
         <el-tooltip content="添加上级平台">
@@ -16,9 +16,9 @@
       </div>
       <div ref="treeWrap" v-loading="loading.platform" class="platform__list">
         <ul>
-          <li v-for="tree in treeList" :key="tree.platformId" :class="{'actived': currentTree && (currentTree.platformId === tree.platformId)}" @click="selectTree(tree)">
-            <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.name" placement="top" :open-delay="500">
-              <span> {{ tree.name.length > 8 ? tree.name.slice(0,7) + '...' : tree.name }}</span>
+          <li v-for="tree in treeList" :key="tree.treeId" :class="{'actived': currentTree && (currentTree.treeId === tree.treeId)}" @click="selectTree(tree)">
+            <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.treeName" placement="top" :open-delay="500">
+              <span> {{ tree.treeName.length > 8 ? tree.treeName.slice(0,7) + '...' : tree.treeName }}</span>
             </el-tooltip>
             <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini" /></span>
             <div v-if="!tree.editFlag" class="tools">
@@ -34,9 +34,9 @@
         <div v-if="treeList && !treeList.length && !loading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
-    <el-card ref="deviceWrap" class="shared-devices">
-      <div class="tree-wraper">
-        <div v-if="isEditing" class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
+    <el-card v-if="!treeListEmpty" ref="deviceWrap" class="shared-devices">
+      <div class="tree-wraper" :style="{height: treeMaxHeight + 'px'}">
+        <div v-if="isEditing" class="tree-wraper__border">
           <div class="header">
             <span class="title">全部设备</span>
             <span class="num">已选中{{ leftCheckedNum }}项</span>
@@ -81,10 +81,10 @@
           <el-button :class="{'violet': rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesUp"><i class="el-icon-arrow-up" /></el-button>
           <el-button :class="{'violet': rightCheckedNum > 0}" :disabled="rightCheckedNum === 0" size="mini" @click="sortDevicesDown"><i class="el-icon-arrow-down" /></el-button>
         </div>
-        <div class="tree-wraper__border" :style="{height: treeMaxHeight + 'px'}">
+        <div class="tree-wraper__border">
           <div class="header">
-            <span class="title">{{ currentTree.name }}</span>
-            <span class="num">已选中{{ rightCheckedNum }}项</span>
+            <span class="title">{{ currentTree.treeName }}</span>
+            <span v-if="isEditing" class="num">已选中{{ rightCheckedNum }}项</span>
           </div>
           <div class="tree" :class="{'violet-bg': isEditing}">
             <el-tree
@@ -113,8 +113,8 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ node.label }}
-                    <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
+                    {{ data.parentDevice ? `${data.label}(${data.parentDevice.label})`: node.label }}
+                    <span v-if="data.originFlag" class="sum-icon">{{ getTotalOfTree(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </div>
                   <div>
@@ -139,7 +139,18 @@
       </div>
       <div v-if="isEditing" class="button">
         <el-button type="primary" @click="submit">确 定</el-button>
-        <el-button>取 消</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-card>
+    <el-card v-if="treeListEmpty" class="empty">
+      <div class="title">设备树列表</div>
+      <div class="content">
+        <svg-icon name="empty" width="40" height="40" class="avatar" />
+        <div class="wording">暂无自定义设备树</div>
+        <div class="wording">点击下方“添加”按钮新增</div>
+        <div class="button">
+          <el-button @click="openDialog('createTree')"><span>+ 添加</span></el-button>
+        </div>
       </div>
     </el-card>
     <Dialogue
@@ -159,7 +170,6 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { getPlatforms } from '@/api/upPlatform'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
 import { checkPermission } from '@/utils/permission'
@@ -168,7 +178,7 @@ import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
 import { cloneDeep } from 'lodash'
-import { createTree, deleteTree, loadTreeNode, describeTreeIds } from '@/api/customTree'
+import { createTree, deleteTree, loadTreeNode, describeTreeIds, getTreeList, updateTreeNodes, updateTreeName } from '@/api/customTree'
 
 /**
  * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
@@ -179,12 +189,14 @@ import { createTree, deleteTree, loadTreeNode, describeTreeIds } from '@/api/cus
  */
 
 const root = {
-  id: 0,
+  id: -1,
   label: '全部',
   type: 'dir',
   disabled: false,
   showCheckbox: false,
-  originFlag: true
+  originFlag: true,
+  totalSize: 0,
+  onlineSize: 0
 }
 
 @Component({
@@ -203,6 +215,8 @@ export default class extends Vue {
   private dirList = []
   private treeDirList = []
   private treeList: Array<any> = []
+
+  private groupInfos = []
 
   private leftCheckedNodes = []
   private rightCheckedNodes = []
@@ -245,6 +259,11 @@ export default class extends Vue {
     startStop: false
   }
 
+  private get treeListEmpty() {
+    this.calMaxHeight()
+    return this.treeList.length === 0
+  }
+
   private get leftCheckedNum() {
     return this.leftCheckedNodes.length
   }
@@ -258,16 +277,18 @@ export default class extends Vue {
     immediate: true
   })
   private async currenTreeNameChange(val, oldVal) {
-    this.treeName = this.currentTree.name
+    this.treeName = this.currentTree.treeName
     if (val !== oldVal) {
       this.treeDirList = []
       this.dirList = []
       this.$nextTick(() => {
         this.treeDirList.push(cloneDeep(root))
         this.dirList.push(cloneDeep(root))
+        if (this.currentTree.treeId) {
+          this.getTotalsOfRightTree()
+          this.getTotalsOfLeftTree()
+        }
       })
-      const { data: { deviceIds } } = await describeTreeIds({ id: val.treeId })
-      this.checkedNodeIds = deviceIds
     }
   }
 
@@ -277,12 +298,19 @@ export default class extends Vue {
       this.dirList = []
       this.dirList.push(cloneDeep(root))
       this.leftCheckedNodes = this.rightCheckedNodes = []
+      this.getTotalsOfLeftTree()
     })
     !this.isEditing && this.$nextTick(() => (this.dirList = []))
   }
 
+  @Watch('groupInfos.length')
+  private groupsLoaded() {
+    this.getTotalsOfLeftTree()
+  }
+
   private async mounted() {
     await this.getTreeList()
+    this.initGroups()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -291,17 +319,67 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  private getTotalsOfLeftTree() {
+    const res = { onlineSize: 0, totalSize: 0 }
+    this.groupInfos.length > 0 && this.groupInfos.forEach(group => {
+      res.onlineSize += group.onlineSize
+      res.totalSize += group.totalSize
+    })
+    this.$nextTick(() => {
+      const dirTree: any = this.$refs.dirTree
+      if (dirTree) {
+        const rootNode = dirTree.getNode(root.id)
+        this.$set(rootNode.data, 'totalSize', res.totalSize)
+        this.$set(rootNode.data, 'onlineSize', res.onlineSize)
+      }
+    })
+  }
+
+  private async getTotalsOfRightTree() {
+    const dirTree2: any = this.$refs.dirTree2
+    if (dirTree2) {
+      const { deviceIds, totalSize } = await describeTreeIds({ id: this.currentTree.treeId })
+
+      const onlineSize = await this.getOnlineNumOfTree()
+
+      this.$nextTick(() => {
+        const rootNode = dirTree2.getNode(root.id)
+        this.$set(rootNode.data, 'totalSize', totalSize)
+        this.$set(rootNode.data, 'onlineSize', onlineSize)
+        this.checkedNodeIds = deviceIds
+      })
+    }
+  }
+
+  private async initGroups() {
+    const res = await getGroups({
+      pageSize: 1000
+    })
+    res.groups.forEach((group: any) => {
+      // 放开rtsp rtmp
+      // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+      this.groupInfos.push({
+        id: group.groupId,
+        groupId: group.groupId,
+        label: group.groupName,
+        inProtocol: group.inProtocol,
+        type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+        disabled: false,
+        showCheckbox: false,
+        totalSize: group.groupStats.deviceSize,
+        onlineSize: group.groupStats.onlineIpcSize
+      })
+    })
+  }
+
   /**
    * 查询上级平台列表
    */
   private async getTreeList() {
     try {
       this.loading.platform = true
-      const res = await getPlatforms({
-        pageNum: 1,
-        pageSize: 1000
-      })
-      this.treeList = res.platforms.map(item => ({ ...item, editFlag: false }))
+      const { trees } = await getTreeList({})
+      this.treeList = trees.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
         const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
         this.currentTree = currentTree
@@ -328,28 +406,13 @@ export default class extends Vue {
    * 设备树初始化
    */
   public async initDirs(resolve) {
-    const dirList = []
     try {
       this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-
-      res.groups.forEach((group: any) => {
-        // 放开rtsp rtmp
-        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        dirList.push({
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
-          showCheckbox: false,
-          totalSize: group.groupStats.deviceSize
-        })
-      })
-      resolve(dirList)
+      if (this.groupInfos.length === 0) {
+        // 如果组信息为空，再尝试加载一下，有可能是后端网络错误
+        await this.initGroups()
+      }
+      resolve(this.groupInfos)
       this.setDirChecked()
     } catch (e) {
       resolve([])
@@ -376,6 +439,16 @@ export default class extends Vue {
         node.data.disabled = true
       }
     })
+  }
+
+  private async getOnlineNumOfTree() {
+    const { dirs }: any = await loadTreeNode({ dirId: this.currentTree.treeId })
+    debugger
+    let res = 0
+    dirs && dirs.forEach(dir => {
+      res += dir.onlineSize
+    })
+    return res
   }
 
   /**
@@ -462,7 +535,9 @@ export default class extends Vue {
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || '',
-          orderSequence: +dir.orderSequence
+          orderSequence: +dir.orderSequence,
+          // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
+          parentDevice: node.data.type === 'nvr' ? node.data : null
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -480,17 +555,11 @@ export default class extends Vue {
       if (node.data.type === 'ipc') {
         return
       }
-      let { data: { dirs } }: any = await loadTreeNode({ dirId: node.data.id })
+      let { dirs }: any = await loadTreeNode({ dirId: node.level === 1 ? this.currentTree.treeId : node.data.id })
       dirs = dirs.map((dir: any) => {
         return {
           ...dir,
-          label: dir.name,
-          isLeaf: dir.type === 'ipc',
-          type: dir.type,
-          deviceStatus: dir.deviceStatus || 'off',
-          streamStatus: dir.streamStatus || 'off',
           showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
-
           originFlag: true // 后端保存的数据标志
         }
       })
@@ -507,7 +576,7 @@ export default class extends Vue {
   private deleteTree(tree: any) {
     this.$alertDelete({
       type: '设备',
-      msg: `是否确认删除"${tree.name}"`,
+      msg: `是否确认删除"${tree.treeName}"`,
       method: deleteTree,
       payload: {
         treeId: tree.treeId
@@ -545,6 +614,11 @@ export default class extends Vue {
   }
 
   private openDialog(type, node) {
+    if (type === 'createTree') {
+      this.treeList.forEach(t => {
+        t.editFlag = false
+      })
+    }
     if (['createDir', 'createDir-root'].includes(type) && !node.loaded) {
       const nodId = node.data.id + ''
       if (!nodId.startsWith('T')) {
@@ -628,11 +702,13 @@ export default class extends Vue {
    */
   public calMaxHeight() {
     const treeWrap: any = this.$refs.treeWrap
-    const size = treeWrap.getBoundingClientRect()
-    const top = size.top
-    const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 90
-    this.treeMaxHeight = this.maxHeight - 110
+    if (treeWrap) {
+      const size = treeWrap.getBoundingClientRect()
+      const top = size.top
+      const documentHeight = document.body.offsetHeight
+      this.maxHeight = documentHeight - top - 90
+      this.treeMaxHeight = this.maxHeight - 110
+    }
   }
 
   private async dialogSubmit() {
@@ -671,7 +747,7 @@ export default class extends Vue {
 
   private createDir() {
     const dirTree2: any = this.$refs.dirTree2
-    const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(0)
+    const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(root.id)
     parentNode.expanded = true
     this.$nextTick(() => {
       const insertDir = {
@@ -680,7 +756,7 @@ export default class extends Vue {
         label: this.dialog.data.name,
         type: 'dir',
         isLeaf: false,
-        orderSequence: +parentNode.childNodes[0].data.orderSequence - 1
+        orderSequence: parentNode.childNodes[0] ? +parentNode.childNodes[0].data.orderSequence - 1 : 0
         // orderSequence需要设置parentNode.childNodes[0].orderSequence - 1
       }
       parentNode.childNodes.length > 0 ? dirTree2.insertBefore(insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
@@ -705,7 +781,7 @@ export default class extends Vue {
     this.$nextTick(() => {
       tree.editFlag = this.isEditing = true
       this.currentTree = tree
-      this.currentDirNode = dirTree2.getNode(root)
+      this.currentDirNode = dirTree2.getNode(root.id)
       this.$set(this.currentDirNode.data, 'isSelected', true)
     })
   }
@@ -714,17 +790,21 @@ export default class extends Vue {
     this.treeName = name
   }
 
-  private submit() {
+  private async submit() {
     const dirTree2: any = this.$refs.dirTree2
-    const treeRoot = dirTree2.getNode(0)
-    console.log('treeRoot:', treeRoot)
+    const treeRoot = dirTree2.getNode(root.id)
     const childNodes = treeRoot.childNodes
     const params = this.generateTreeParams(childNodes)
+    const treeInfo = { id: this.currentTree.treeId, type: 'dir', parentDirId: '-1' }
     try {
       console.log('params:', params)
       // 下面请求2次：1. 修改树的名称  2. 提交params
+      await updateTreeNodes({ dirs: [{ ...treeInfo, dirs: params }] })
+      await updateTreeName({ treeId: this.currentTree.treeId, treeName: this.treeName })
       // this.cancel()
       this.$message.success('操作成功')
+      this.getTreeList()
+      this.isEditing = false
     } catch (e) {
       console.log(e)
       this.$message.error(e)
@@ -738,26 +818,32 @@ export default class extends Vue {
         childs = this.generateTreeParams(node.childNodes)
       }
       let res: any = {
-        treeId: this.currentTree.treeId,
+        id: node.data.id,
+        groupId: node.data.groupId || '',
         dirName: node.data.label,
         description: node.data.description || '',
-        orderSequence: node.data.orderSequence + 0,
+        inProtocol: node.data.inProtocol || '',
+        orderSequence: node.data.orderSequence + '',
         type: node.data.type,
         dirs: childs
       }
       if (node.data.originFlag) {
         res.id = node.data.id
+      } else if (node.data.type === 'dir') {
+        delete res.id
       } else {
-        if (node.data.type === 'ipc') {
-          // 本次新增的设备节点，需要把ID中的'T'去掉，新增的目录不用带id
-          res.id = node.data.id.slice(1)
-        }
+        res.id = node.data.id.slice(1)
       }
+      // nvr通道需要添加nvr的设备id
+      if (node.data.parentDevice) {
+        res.parentDeviceId = node.data.parentDevice.id
+      }
+      res.action = this.getActionType(node)
       if (node.parent.data.originFlag) {
         // 如果父目录是后端来的节点  则加上parentDirId;否则父目录就是本次新创建的，不加这个参数
-        res.parentDirId = node.parent.data.id
+        res.action.sourceId = res.parentDirId = node.parent.level !== 1 ? node.parent.data.id + '' : this.currentTree.treeId + ''
       }
-      res.actionType = this.getActionType(node)
+
       return res
     })
     return dirs
@@ -765,14 +851,14 @@ export default class extends Vue {
 
   private getActionType(node) {
     if (!node.visible) {
-      return 'del'
+      return { type: 'del' }
     }
     if (!node.data.originFlag) {
-      return 'add'
+      return { type: 'add' }
     } else if (node.data.editFlag) {
-      return 'update'
+      return { type: 'update' }
     }
-    return ''
+    return { type: '' }
   }
 
   private cancel() {
@@ -1133,7 +1219,7 @@ export default class extends Vue {
         }
 
         .tree {
-          height: 100%;
+          height: calc(100% - 55px);
           overflow: auto;
           border: 1px solid #ddd;
           border-radius: 2px;
@@ -1232,6 +1318,7 @@ export default class extends Vue {
 
     .button {
       padding-left: 100px;
+      margin-bottom: 15px;
     }
   }
 }
@@ -1243,6 +1330,40 @@ export default class extends Vue {
 
   .el-form-item__error {
     left: 64px;
+  }
+}
+
+.empty {
+  width: 100%;
+  min-height: 80vh;
+  padding: 25px 0 15px 35px;
+
+  .title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .content {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .button {
+      margin-top: 30px;
+    }
+
+    .wording {
+      font-size: 14px;
+      color: #999;
+    }
+
+    .avatar {
+      margin-bottom: 30px;
+      color: #dadada;
+    }
   }
 }
 </style>
