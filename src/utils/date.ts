@@ -10,7 +10,6 @@ export const dateFormat = (date: Date | number, formatString = 'yyyy-MM-dd HH:mm
 }
 
 export const dateFormatInTable = (row: any, col: any, val: any) => {
-  console.log('what/    ?     ', row)
   if (!val) return '-'
   return dateFormat(val)
 }

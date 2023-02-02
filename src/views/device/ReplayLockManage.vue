@@ -1,9 +1,9 @@
 <template>
   <div class="screen-list">
-    <div>
+    <div v-loading="jumpLoading">
       <div class="head">
         <div class="head__left">
-          <el-button :type="unlockable ? '' : 'primary'" class="unlock-btn" :disabled="unlockable">解锁</el-button>
+          <el-button :type="unlockable ? '' : 'primary'" class="unlock-btn" :disabled="unlockable" @click="unlockBatch">解锁</el-button>
           <i class="el-icon-info" />锁定录像容量: {{ lockVolume }}
         </div>
         <div class="head__right">
@@ -27,7 +27,7 @@
           <el-table-column label="设备ID/名称" min-width="200">
             <template slot-scope="{row}">
               <template>
-                <span>{{ row.deviceId + '/' }}</span>
+                <span @click="jump2device(row)" class="jump-2-device">{{ row.deviceId + '/' }}</span>
                 <span>{{ row.deviceName }}</span>
               </template>
             </template>
@@ -45,11 +45,13 @@
             label="录像开始时间"
             prop="startTime"
             min-width="180"
+            :formatter="dateFormatInTable"
           />
           <el-table-column
             label="录像结束时间"
             prop="endTime"
             min-width="180"
+            :formatter="dateFormatInTable"
           />
           <el-table-column
             label="时长"
@@ -61,7 +63,7 @@
             prop="duration"
             :formatter="durationFormatInTable"
           /> -->
-          <el-table-column prop="action" label="操作" width="200" fixed="right">
+          <el-table-column prop="action" label="操作" width="100" fixed="right">
             <template slot-scope="{row}">
               <el-button type="text" @click="unlock(row)">
                 解锁
@@ -79,7 +81,8 @@
         />
       </div>
     </div>
-    <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="false" />
+    <UnlockDialog v-if="unlockVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
+    <UnlockDialog v-if="unlockBatchVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
   </div>
 </template>
 <script lang="ts">
@@ -89,6 +92,7 @@ import { getUserLockList} from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import UnlockDialog from '@/views/device/components/dialogs/Unlock.vue'
+import { redirectToDeviceDetail } from '@/utils/device'
 
 @Component({
   name: 'ReplayLockManage',
@@ -116,12 +120,17 @@ export default class extends Vue {
   private lockVolume = ''
   private isLoading = false
   private unlockable = true
+  private recordLockItem: any = null
+  private jumpLoading = false
+  private multiple = false
 
   /* unlock dialog visiable */
   private unlockVisable = false
+  /* unlock batch items */
+  private unlockBatchVisable = false
 
   /* 当前分页后的录像列表 */
-  private recordList: any = null
+  private recordList: any = []
 
   // 测试数据
   private testData = {
@@ -132,99 +141,66 @@ export default class extends Vue {
     "totalPage": 10,
     "lockRecords": [
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
-        "duration": 123
-      },
-       {
-        "deviceId": "123",
-        "deviceName": "123",
-        "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       },
       {
-        "deviceId": "123",
-        "deviceName": "123",
+        "deviceId": "29942039160301973",
+        "deviceName": "test1",
         "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
-        "duration": 123
-      },
-      {
-        "deviceId": "123",
-        "deviceName": "123",
-        "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
-        "duration": 123
-      },
-      {
-        "deviceId": "123",
-        "deviceName": "123",
-        "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
-        "duration": 123
-      },
-      {
-        "deviceId": "123",
-        "deviceName": "123",
-        "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
-        "duration": 123
-      },
-      {
-        "deviceId": "123",
-        "deviceName": "123",
-        "cover": "",
-        "startTime": "2023-01-30 12:00:00",
-        "endTime": "2023-01-30 16:00:00",
+        "startTime": 1673611200,
+        "endTime": 1673618400,
+        "inProtocol": "gb28181",
         "duration": 123
       }
     ]
@@ -289,24 +265,94 @@ export default class extends Vue {
    */
   private unlock(record: any) {
     console.log('解锁     ', record)
+    this.recordLockItem = [record]
+    this.multiple = false
+    this.unlockVisable = true
+  }
+
+  // 关闭解锁 dialog
+  private async closeUnlock(isUnlocked?: boolean) {
+    try {
+      console.log('是否解锁了      ', isUnlocked)
+      if (isUnlocked) {
+        await this.getRecordListByPage() // 重新加载 lock list  
+      }
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.recordLockItem = []
+      this.unlockVisable = false
+    }
   }
 
   /**
-   * 多选 
+   * 批量解锁 
   */ 
  private handleSelectionChange(e: any) {
-  if (e.length > 0) {
+  console.log('多选      ', e)
+  if (e.length > 1) {
     this.unlockable = false
+    this.recordLockItem = e
+    this.multiple = true
+  } else if (e.length === 1) {
+    this.unlockable = false
+    this.recordLockItem = e
+    this.multiple = false
   } else {
     this.unlockable = true
+    this.recordLockItem = []
+    this.multiple = false
   }
  }
+
+ private async jump2device(row: any) {
+  try {
+    this.jumpLoading = true
+    await redirectToDeviceDetail(this, row.deviceId, row.inProtocol)
+  } catch(e) {
+    this.$message.error(e)
+  } finally {
+    this.jumpLoading = false
+  }
+ }
+
+  private async unlockBatch() {
+    try {
+      console.log('批量解锁', this.recordLockItem, this.multiple)
+      if (!this.multiple) {
+        this.unlockVisable = true
+        this.unlockBatchVisable = false
+        return
+      } else {
+        this.unlockVisable = false
+        this.unlockBatchVisable = true
+      }
+    } catch (e) {
+
+    } finally {
+
+    }
+
+  }
+
 }
 </script>
 <style lang="scss" scoped>
 // .dymatic-unlock {
 //   background-color: ;
 // }
+.jump-2-device {
+  color: $primary;
+  cursor: pointer;
+
+  &:hover {
+    color: #fb9c5d;
+  }
+
+  &:active {
+    color: #e1762f;
+  }
+}
 
 .el-icon-info {
   margin-left: 15px;

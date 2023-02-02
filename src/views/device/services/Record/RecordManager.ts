@@ -639,8 +639,8 @@ export class RecordManager {
         // pageNum: pageNum || 1
       })
       // this.lockList = res.lockPeriod
-      console.log('小八嘎       ', this.screen)
-      return res.lockPeriod
+      console.log('小八嘎       ', res)
+      return res.lockPeriods
     } catch (e) {
       this.screen.errorMsg = e.message
     }

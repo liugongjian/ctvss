@@ -133,7 +133,8 @@ export default class extends Vue {
             deviceId: this.screen.deviceId,
             inProtocol: this.screen.inProtocol,
             groupId: this.currentGroupId,
-            parentDeviceId: this.deviceInfo.parentDeviceId
+            parentDeviceId: this.deviceInfo.parentDeviceId,
+            deviceName: this.deviceName
           })
           // console.log('锁完了   res: ', res)
           // 无法判断是否锁定成功

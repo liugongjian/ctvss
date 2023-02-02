@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div v-if="multiple">
+    <div v-if="multiple" v-loading="ischeckingBatch">
       <div class="unlock">
         <div class="label"><span>解锁录像: </span></div>
         <div><span>{{ unlockNum }}个</span></div>
@@ -63,8 +63,8 @@ import { unLock } from '@/api/device'
   name: 'UnlockDialog'
 })
 export default class extends Vue {
-  @Prop()
-  private duration
+  // @Prop()
+  // private duration
   @Prop()
   private screen
   @Prop()
@@ -81,6 +81,8 @@ export default class extends Vue {
   private lockTime = null
   private originExpTime = null
   private ischecking = false
+  private ischeckingBatch = false
+  private periods = []
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -89,39 +91,48 @@ export default class extends Vue {
 
   private async created() {
     try {
-      this.ischecking = true
-      this.unlockItem[0].deviceId = this.screen.deviceId
-      this.unlockItem[0].deviceName = this.screen.deviceName
+      this.multiple ? this.ischecking = true : this.ischeckingBatch = true
+      this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
+      this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
+      this.periods = this.unlockItem.map((item: any) => {
+        return {
+          deviceId: item.deviceId,
+          startTime: item.startTime,
+          endTime: item.endTime,
+        }
+      })
       const params: any = {
-        deviceId: this.screen.deviceId,
-        startTime: +this.unlockItem[0].startTime,
-        endTime: +this.unlockItem[0].endTime,
+        // deviceId: this.unlockItem[0].deviceId,
+        // startTime: +this.unlockItem[0].startTime,
+        // endTime: +this.unlockItem[0].endTime,
+        periods: this.periods,
         action: 'check'
       }
+      console.log('是不是这里哦   2', params, this.multiple)
       const res: any = await unLock(params)
-      if (res.storageExpired === 1) {
-        // 包含已过期录像
-        this.originExpTime = res.storageTime
-        this.isExpired = true
-      } else if (res.storageExpired === 0) {
-        // 不包含
-        this.isExpired = false
-      }
+      // 批量解锁
       if (this.multiple) {
-        this.unlockItem.map((item: any) => {
-          if (item.exp_time === '解锁时刻') {
-            this.unlockDelNum += 1
-          }
-        })
-        this.unlockNum = this.unlockItem.length
+        this.unlockNum = res.unlockNo
+        this.unlockDelNum = res.deleteNo
       } else {
-        this.deviceName = this.screen.deviceName
+        // 单个解锁
+        if (res.storageExpired === 1) {
+          // 包含已过期录像
+          this.originExpTime = res.storageTime
+          this.isExpired = true
+        } else if (res.storageExpired === 0) {
+          // 不包含
+          this.isExpired = false
+        }
+        this.deviceName = this.unlockItem[0].deviceName
         this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
       }
     } catch (e) {
       this.$message.error(e)
+      this.closeDialog(false)
     } finally {
       this.ischecking = false
+      this.ischeckingBatch = false
     }
     // 录像锁定管理
     // if (this.multiple) {
@@ -146,10 +157,13 @@ export default class extends Vue {
   private async submit() {
     try {
       this.submitting = true
-      this.unlockItem[0].deviceId = this.screen.deviceId
-      this.unlockItem[0].deviceName = this.screen.deviceName
+      console.log('提交解锁   ', this.multiple)
+      // this.unlockItem[0].deviceId = this.screen.deviceId
+      // this.unlockItem[0].deviceName = this.screen.deviceName
+
       const params: any = {
-        ...this.unlockItem[0],
+        // ...this.unlockItem[0],
+        periods: this.periods,
         action: 'unlock'
       }
       await unLock(params)
@@ -167,6 +181,7 @@ export default class extends Vue {
   // 关闭 dialog
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
+    console.log('离谱我靠')
     this.$emit('on-close', isRefresh) // 在父级组件中根据true false 判断刷新列表或执行其他操作
   }
 }
