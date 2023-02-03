@@ -163,7 +163,7 @@ const settings: ISettings = {
     // 视图库
     {
       actionName: '查看视图服务',
-      actionKey: 'ivs:DescribeViid',
+      actionKey: 'ivs:GetViid',
       actionDesc: '具有视图服务菜单',
       actionType: 'GET'
     },
@@ -171,7 +171,7 @@ const settings: ISettings = {
       actionName: '管理视图服务',
       actionKey: 'ivs:AdminViid',
       actionDesc: '具有视图服务的管理权限',
-      autoSelected: 'ivs:DescribeViid'
+      autoSelected: 'ivs:GetViid'
     },
     // 视图分析（原AI功能）- 视图库功能暂放入向上级联，作为一种协议进行控制
     {
@@ -181,22 +181,22 @@ const settings: ISettings = {
       actionType: 'GET'
     },
     {
-      actionName: '创建行业场景应用',
-      actionKey: 'ivs:CreateApp',
+      actionName: '管理行业场景应用',
+      actionKey: 'ivs:AdminApp',
       actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
       autoSelected: 'ivs:GetApp'
     },
     // 电子地图
     {
       actionName: '查看电子地图',
-      actionKey: 'ivs:DescribeMap',
+      actionKey: 'ivs:GetMap',
       actionDesc: '拥有电子地图的查看权限，并展示电子地图菜单',
       actionType: 'GET'
     },
     // 概览页面
     {
       actionName: '查看概览页面',
-      actionKey: 'ivs:DescribeDashboard',
+      actionKey: 'ivs:GetDashboard',
       actionDesc: '拥有概览页面的查看权限',
       actionType: 'GET'
     },

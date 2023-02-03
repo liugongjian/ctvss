@@ -30,7 +30,7 @@ export const getUser = (params: any): Promise<any> =>
 
 export const getUserList = (params: any): Promise<any> =>
   request({
-    url: '/iam/user/list',
+    url: '/iam/users',
     method: 'get',
     params
   })
@@ -59,6 +59,13 @@ export const modifyGroup = (params: any): Promise<any> =>
 export const getGroup = (params: any): Promise<any> =>
   request({
     url: '/iam/group',
+    method: 'get',
+    params
+  })
+
+export const getGroupInheritedPolicies = (params: any): Promise<any> =>
+  request({
+    url: '/iam/group/inherited',
     method: 'get',
     params
   })

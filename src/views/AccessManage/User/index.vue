@@ -33,18 +33,18 @@
             <span slot-scope="{node}" class="user-content__menu__item">
               <span>{{ node.label }}</span>
               <span v-if="node.label !== '通讯录'" class="user-content__menu__item__btns">
-                <el-tooltip effect="dark" content="添加子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('add', node)">
+                <el-tooltip effect="dark" content="添加部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('add', node)">
                     <svg-icon name="plus" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('edit', node)">
+                <el-tooltip effect="dark" content="修改部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('edit', node)">
                     <svg-icon name="edit" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('merge', node)">
+                <el-tooltip effect="dark" content="合并部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('merge', node)">
                     <svg-icon name="combine" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
@@ -56,7 +56,7 @@
           <div class="head">
             <div class="head__left">
               <el-button type="primary" @click="createUser">创建成员</el-button>
-              <el-button :disabled="currentNode.data.groupName === '通讯录'" @click="showDialog('edit', currentNode)">修改子部门</el-button>
+              <el-button :disabled="currentNode.data.groupName === '通讯录'" @click="showDialog('edit', currentNode)">修改部门</el-button>
             </div>
             <div class="head__right">
               <!-- <el-input v-model="userSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="getUserList">

@@ -2,20 +2,71 @@
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card v-if="cardIndex === 'form'" v-loading="loading.form">
-      <div class="main-box">
+      <div>
+        <el-steps :active="activeStep" :space="420" finish-status="success">
+          <el-step title="填写账号信息" />
+          <el-step title="设置账号策略" />
+          <el-step title="审阅" />
+        </el-steps>
         <el-form ref="userForm" :model="form" :rules="rules" label-position="right" label-width="150px">
-          <el-form-item prop="iamUserName" label="用户名：">
-            <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
-            <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
-          </el-form-item>
-          <el-form-item prop="phone" label="电话：">
-            <el-input v-model="form.phone" placeholder="请填写用户电话" />
-          </el-form-item>
-          <el-form-item prop="email" label="邮箱：">
-            <el-input v-model="form.email" placeholder="请填写用户邮箱" />
-          </el-form-item>
-          <el-form-item prop="accessType" label="访问方式：">
-            <template>
+          <div v-show="activeStep === 0">
+            <el-form-item prop="userInfo" label="设置账号信息：">
+              <el-table
+                :data="form.userInfo"
+                empty-text="暂无账号信息"
+                max-height="300"
+                row-key="id"
+                style="margin-bottom: 10px;"
+                size="mini"
+              >
+                <el-table-column prop="iamUserName" label="用户名">
+                  <template slot-scope="{row, $index}">
+                    <el-form-item
+                      :prop="'userInfo.' + $index + '.iamUserName'"
+                      :rules="rules.iamUserName"
+                      :inline-message="true"
+                    >
+                      <el-input v-model="row.iamUserName" placeholder="请填写用户名" />
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="email" label="邮箱">
+                  <template slot-scope="{row, $index}">
+                    <el-form-item
+                      :prop="'userInfo.' + $index + '.email'"
+                      :rules="rules.email"
+                      :inline-message="true"
+                    >
+                      <el-input v-model="row.email" placeholder="请填写邮箱" />
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="手机">
+                  <template slot-scope="{row, $index}">
+                    <el-form-item
+                      :prop="'userInfo.' + $index + '.phone'"
+                      :rules="rules.phone"
+                      :inline-message="true"
+                    >
+                      <el-input v-model="row.phone" placeholder="请填写手机号" />
+                    </el-form-item>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="desc" label="备注">
+                  <template slot-scope="{row}">
+                    <el-input v-model="row.desc" />
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="110">
+                  <template slot-scope="scope">
+                    <el-button type="text" @click="removeUser(scope.index)">移除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-row v-if="form.userInfo.length" style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;">用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
+              <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button><el-button type="text">一次性最多添加10个成员</el-button>
+            </el-form-item>
+            <el-form-item prop="accessType" label="访问方式：">
               <el-checkbox v-model="form.consoleEnabled" :disabled="type === 'edit'" @change="accessTypeChange">控制台访问</el-checkbox>
               <el-popover placement="top-start" title="控制台访问" width="400" trigger="hover" :open-delay="300" content="启用密码，允许用户登录到视频监控客户控制台。">
                 <svg-icon slot="reference" class="form-question sign" name="help" />
@@ -24,61 +75,135 @@
               <el-popover placement="top-start" title="编程访问" width="400" trigger="hover" :open-delay="300" content="启用Access Key ID和Secret Access Key，支持API、SDK和其他开发工具访问。">
                 <svg-icon slot="reference" class="form-question sign" name="help" />
               </el-popover>
-            </template>
-          </el-form-item>
-          <el-form-item prop="policy" label="用户权限：">
-            <el-table ref="policyList" v-loading="loading.table" :data="policyList" max-height="500" @selection-change="handleSelectionChange" @row-click="rowClick">
-              <template slot="empty">
-                <span>暂无策略，请先添加策略。</span>
-              </template>
-              <el-table-column type="selection" width="55" />
-              <el-table-column prop="policyName" label="策略名" min-width="100" :show-overflow-tooltip="true" />
-              <el-table-column prop="scope" label="策略归属域" width="120">
-                <template slot-scope="scope">
-                  <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
-                  <el-button v-else type="success" size="mini">自定义策略</el-button>
-                </template>
-              </el-table-column>
-              <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
-              <el-table-column label="操作" width="80">
-                <template slot-scope="{row}">
-                  <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-form-item>
-          <el-form-item prop="resetPwdEnabled" label="是否重置密码：">
-            <el-switch v-model="form.resetPwdEnabled" active-color="#FA8334" inactive-color="#CCCCCC" />
-            <span class="item-tip">用户必须在下次登录时重置密码</span>
-          </el-form-item>
-          <el-form-item prop="passwordLifeTime" label="密码有效期：">
-            <el-radio-group v-model="form.passwordLifeTime">
-              <el-radio
-                v-for="item in lifeTimeOptions"
-                :key="item.value"
-                :label="item.value"
+            </el-form-item>
+            <el-form-item prop="resetPwdEnabled" label="是否重置密码：">
+              <el-switch v-model="form.resetPwdEnabled" active-color="#FA8334" inactive-color="#CCCCCC" />
+              <span class="item-tip">用户必须在下次登录时重置密码</span>
+            </el-form-item>
+            <el-form-item prop="passwordLifeTime" label="密码有效期：">
+              <el-radio-group v-model="form.passwordLifeTime">
+                <el-radio
+                  v-for="item in lifeTimeOptions"
+                  :key="item.value"
+                  :label="item.value"
+                >
+                  {{ item.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item prop="maxOnline" label="最大登录人数：">
+              <el-input v-model.number="form.maxOnline" placeholder="请填写最大登录人数" />
+            </el-form-item>
+            <el-form-item prop="isMutualLogout" label="是否同端互踢：">
+              <el-switch v-model="form.isMutualLogout" active-color="#FA8334" inactive-color="#CCCCCC" />
+              <span class="item-tip">是否开启登录互踢</span>
+            </el-form-item>
+            <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
+              <span>{{ $route.query.subUserLoginLink }}</span>
+              <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
+                <el-button type="text" style="margin-left: 10px;" @click="copyRow($route.query.subUserLoginLink, 'link')">
+                  <svg-icon name="copy" />
+                </el-button>
+              </el-tooltip>
+            </el-form-item>
+          </div>
+          <div v-show="activeStep === 1">
+            <el-tabs v-model="activeName" @tab-click="">
+              <el-tab-pane label="自定义权限" name="select">
+                <el-form-item prop="policies" label-width="0">
+                  <el-table ref="policyList" v-loading="loading.table" :data="policyList" max-height="500" @selection-change="handleSelectionChange" @row-click="rowClick">
+                    <template slot="empty">
+                      <span>暂无策略，请先添加策略。</span>
+                    </template>
+                    <el-table-column type="selection" width="55" />
+                    <el-table-column prop="policyName" label="策略名" min-width="100" :show-overflow-tooltip="true" />
+                    <el-table-column prop="scope" label="策略归属域" width="120">
+                      <template slot-scope="scope">
+                        <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
+                        <el-button v-else type="success" size="mini">自定义策略</el-button>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
+                    <el-table-column label="操作" width="80">
+                      <template slot-scope="{row}">
+                        <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </el-form-item>
+              </el-tab-pane>
+              <el-tab-pane label="复用权限" name="copy">
+                复用
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          <div v-show="activeStep === 2">
+            <el-form-item label-width="0">
+              <el-table
+                :data="form.userInfo"
+                empty-text="暂无账号信息"
+                max-height="300"
+                row-key="id"
+                size="mini"
               >
-                {{ item.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item prop="maxOnline" label="最大登录人数：">
-            <el-input v-model.number="form.maxOnline" placeholder="请填写最大登录人数" />
-          </el-form-item>
-          <el-form-item prop="isMutualLogout" label="是否同端互踢：">
-            <el-switch v-model="form.isMutualLogout" active-color="#FA8334" inactive-color="#CCCCCC" />
-            <span class="item-tip">是否开启登录互踢</span>
-          </el-form-item>
-          <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
-            <span>{{ $route.query.subUserLoginLink }}</span>
-            <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" style="margin-left: 10px;" @click="copyRow($route.query.subUserLoginLink, 'link')">
-                <svg-icon name="copy" />
-              </el-button>
-            </el-tooltip>
-          </el-form-item>
-          <el-form-item>
-            <el-button :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
+                <el-table-column prop="iamUserName" label="用户名" />
+                <el-table-column prop="email" label="邮箱" />
+                <el-table-column prop="phone" label="手机" />
+                <el-table-column prop="desc" label="备注" />
+              </el-table>
+            </el-form-item>
+            <el-form-item prop="accessType" label="访问方式：">
+              <el-checkbox v-model="form.consoleEnabled" :disabled="true">控制台访问</el-checkbox>
+              <el-popover placement="top-start" title="控制台访问" width="400" trigger="hover" :open-delay="300" content="启用密码，允许用户登录到视频监控客户控制台。">
+                <svg-icon slot="reference" class="form-question sign" name="help" />
+              </el-popover>
+              <el-checkbox v-model="form.apiEnabled" :disabled="true">编程访问</el-checkbox>
+              <el-popover placement="top-start" title="编程访问" width="400" trigger="hover" :open-delay="300" content="启用Access Key ID和Secret Access Key，支持API、SDK和其他开发工具访问。">
+                <svg-icon slot="reference" class="form-question sign" name="help" />
+              </el-popover>
+            </el-form-item>
+            <el-form-item prop="resetPwdEnabled" label="是否重置密码：">
+              <el-switch v-model="form.resetPwdEnabled" disabled active-color="#FA8334" inactive-color="#CCCCCC" />
+              <span class="item-tip">用户必须在下次登录时重置密码</span>
+            </el-form-item>
+            <el-form-item prop="passwordLifeTime" label="密码有效期：">
+              <el-radio-group v-model="form.passwordLifeTime" disabled>
+                <el-radio
+                  v-for="item in lifeTimeOptions"
+                  :key="item.value"
+                  :label="item.value"
+                >
+                  {{ item.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item prop="maxOnline" label="最大登录人数：">
+              <el-input v-model.number="form.maxOnline" disabled placeholder="请填写最大登录人数" />
+            </el-form-item>
+            <el-form-item prop="isMutualLogout" label="是否同端互踢：">
+              <el-switch v-model="form.isMutualLogout" disabled active-color="#FA8334" inactive-color="#CCCCCC" />
+              <span class="item-tip">是否开启登录互踢</span>
+            </el-form-item>
+            <el-form-item label="已选策略：">
+              <el-table :data="form.policies" max-height="350">
+                <template slot="empty">
+                  <span>暂无策略，请先添加策略。</span>
+                </template>
+                <el-table-column prop="policyName" label="策略名" min-width="100" :show-overflow-tooltip="true" />
+                <el-table-column prop="scope" label="策略归属域" width="120">
+                  <template slot-scope="scope">
+                    <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
+                    <el-button v-else type="success" size="mini">自定义策略</el-button>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
+              </el-table>
+            </el-form-item>
+          </div>
+          <el-form-item label-width="0">
+            <el-button :disabled="activeStep === 0" type="primary" @click="activeStep -= 1">上一步</el-button>
+            <el-button :disabled="activeStep === 2" type="primary" @click="activeStep += 1">下一步</el-button>
+            <el-button v-if="activeStep === 2" :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
             <el-button :disabled="loading.submit" @click="back">取消</el-button>
           </el-form-item>
         </el-form>
@@ -143,11 +268,12 @@ import {
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import copy from 'copy-to-clipboard'
 import { Component, Vue } from 'vue-property-decorator'
+import EditAccessType from './dialogs/EditAccessType.vue'
 
 Component.registerHooks(['beforeRouteEnter'])
 
 @Component({
-  components: { TemplateBind },
+  components: { TemplateBind, EditAccessType },
   name: 'CreateUser'
 })
 export default class extends Vue {
@@ -156,6 +282,8 @@ export default class extends Vue {
     form: false,
     submit: false
   }
+  private activeStep = 0
+  private activeName = 'select'
   private cardIndex: string = 'form'
   private breadCrumbContent: string = ''
   private lifeTimeOptions = [
@@ -177,25 +305,23 @@ export default class extends Vue {
     }
   ]
   private form: any = {
+    userInfo: [],
     mainUserId: '',
-    iamUserName: '',
     accessType: true,
     consoleEnabled: true,
     apiEnabled: false,
-    policy: null,
-    email: '',
-    phone: '',
     resetPwdEnabled: true,
     passwordLifeTime: 0,
     maxOnline: 1,
-    isMutualLogout: false
+    isMutualLogout: false,
+    policies: []
   }
   private rules: any = {
     iamUserName: [
       { required: true, message: '用户名必填', trigger: 'blur' },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
-    policy: [{ required: true, message: '请添加用户权限' }],
+    policies: [{ required: true, message: '请添加用户权限' }],
     accessType: [
       { required: true, validator: this.validateAccessType, trigger: 'change' }
     ],
@@ -231,17 +357,26 @@ export default class extends Vue {
     })
   }
 
+  private addUser() {
+    this.form.userInfo.push({
+      id: new Date().getTime() + '',
+      iamUserName: '',
+      email: '',
+      phone: '',
+      desc: ''
+    })
+  }
+
+  private removeUser(index: number) {
+    this.form.userInfo.splice(index, 1)
+  }
+
   private accessTypeChange() {
     this.form.accessType = this.form.consoleEnabled || this.form.apiEnabled
   }
 
   private handleSelectionChange(selection: any) {
-    this.form.policy = selection[0]
-    if (selection.length > 1) {
-      const policyList: any = this.$refs.policyList
-      policyList.clearSelection()
-      policyList.toggleRowSelection(selection.pop())
-    }
+    this.form.policies = selection
   }
 
   private rowClick(row: any) {
@@ -312,7 +447,7 @@ export default class extends Vue {
     }
     try {
       let res: any = await getPolicyList(params)
-      this.policyList = res.iamPolices
+      this.policyList = res.iamPolicies
     } catch (e) {
       this.$message.error(e && e.message)
     }
@@ -350,13 +485,11 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       const form = this.form
       let params: any = {
-        iamUserName: form.iamUserName,
-        policyId: form.policy.policyId,
+        userProperties: this.form.userInfo,
+        policyIds: form.policies.map(policy => policy.policyId),
         consoleEnabled: form.consoleEnabled ? '1' : '2',
         apiEnabled: form.apiEnabled ? '1' : '2',
         resetPwdEnabled: form.resetPwdEnabled ? '1' : '2',
-        phone: form.phone || undefined,
-        email: form.email,
         passwordLifeTime: form.passwordLifeTime,
         maxOnline: form.maxOnline,
         isMutualLogout: form.isMutualLogout
@@ -483,27 +616,11 @@ export default class extends Vue {
 }
 
 .el-table {
-  width: 700px;
+  width: 850px;
 
   ::v-deep {
     .el-table__header-wrapper .el-checkbox {
       display: none;
-    }
-    //单选补充样式
-    .el-checkbox__inner {
-      border-radius: 100%;
-
-      &:after {
-        opacity: 1;
-        position: absolute;
-        width: 0.3px;
-        height: 0.3px;
-        background: #fff;
-        border-radius: 100%;
-        top: 4px;
-        left: 4px;
-        border: 2px solid #fff;
-      }
     }
   }
 }
