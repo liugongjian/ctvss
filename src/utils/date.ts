@@ -93,7 +93,7 @@ export const getLocaleDate = () => {
     const date = new Date()
     return new Date(date.getFullYear(), date.getMonth(), date.getDate())
   } else {
-    return new Date(new Date().toLocaleDateString())
+    return new Date(new Date().toDateString())
   }
 }
 
