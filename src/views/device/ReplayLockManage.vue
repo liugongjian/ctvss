@@ -237,11 +237,12 @@ export default class extends Vue {
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      // this.recordList = await getUserLockList(params)
-      this.lockVolume = this.testData.lockVolume
-      this.recordList = this.testData.lockRecords
-      let {pageNum, pageSize, totalNum} = this.testData
+      this.recordList = await getUserLockList(params)
+      this.lockVolume = this.recordList.lockVolume
+      let {pageNum, pageSize, totalNum} = this.recordList
       this.pager = {pageNum, pageSize, totalNum}
+      this.recordList = this.recordList.lockRecords
+      this.secToMs(this.recordList)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -264,8 +265,8 @@ export default class extends Vue {
    * 解锁
    */
   private unlock(record: any) {
-    console.log('解锁     ', record)
-    this.recordLockItem = [record]
+    this.recordLockItem = JSON.parse(JSON.stringify([record]))
+    this.msToS(this.recordLockItem)
     this.multiple = false
     this.unlockVisable = true
   }
@@ -273,34 +274,32 @@ export default class extends Vue {
   // 关闭解锁 dialog
   private async closeUnlock(isUnlocked?: boolean) {
     try {
-      console.log('是否解锁了      ', isUnlocked)
       if (isUnlocked) {
         await this.getRecordListByPage() // 重新加载 lock list  
       }
     } catch (e) {
       this.$message.error(e)
     } finally {
-      this.recordLockItem = []
+      // this.recordLockItem = []
       this.unlockVisable = false
+      this.unlockBatchVisable = false
     }
   }
 
   /**
    * 批量解锁 
   */ 
- private handleSelectionChange(e: any) {
-  console.log('多选      ', e)
-  if (e.length > 1) {
+ private handleSelectionChange(records: any) {
+  this.recordLockItem = JSON.parse(JSON.stringify(records))
+  this.msToS(this.recordLockItem)
+  if (records.length > 1) {
     this.unlockable = false
-    this.recordLockItem = e
     this.multiple = true
-  } else if (e.length === 1) {
+  } else if (records.length === 1) {
     this.unlockable = false
-    this.recordLockItem = e
     this.multiple = false
   } else {
     this.unlockable = true
-    this.recordLockItem = []
     this.multiple = false
   }
  }
@@ -315,26 +314,36 @@ export default class extends Vue {
     this.jumpLoading = false
   }
  }
-
-  private async unlockBatch() {
-    try {
-      console.log('批量解锁', this.recordLockItem, this.multiple)
-      if (!this.multiple) {
-        this.unlockVisable = true
-        this.unlockBatchVisable = false
-        return
-      } else {
-        this.unlockVisable = false
-        this.unlockBatchVisable = true
-      }
-    } catch (e) {
-
-    } finally {
-
+ 
+  private unlockBatch() {
+    if (!this.multiple) {
+      this.unlockVisable = true
+      // this.unlockBatchVisable = false
+    } else {
+      // this.unlockVisable = false
+      this.unlockBatchVisable = true
     }
-
   }
 
+  /**
+  * startTime 秒转毫秒
+  */
+  private secToMs(records: any) {
+    records.map((record: any) => {
+      record.startTime = record.startTime * 1000
+      record.endTime = record.endTime * 1000
+    })
+  }
+
+  /**
+  * startTime ms转s
+  */
+  private msToS(records: any) {
+    records.map((record: any) => {
+      record.startTime = record.startTime / 1000
+      record.endTime = record.endTime / 1000
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>

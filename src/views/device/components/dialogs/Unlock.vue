@@ -51,7 +51,7 @@
         <el-button type="primary" :loading="submitting" @click="submit">
           确 定
         </el-button>
-        <el-button @click="closeDialog">取 消</el-button>
+        <el-button @click="closeDialog(false)">取 消</el-button>
       </div>
   </el-dialog>
 </template>
@@ -181,7 +181,7 @@ export default class extends Vue {
   // 关闭 dialog
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
-    console.log('离谱我靠')
+    console.log('离谱我靠    ', isRefresh)
     this.$emit('on-close', isRefresh) // 在父级组件中根据true false 判断刷新列表或执行其他操作
   }
 }
