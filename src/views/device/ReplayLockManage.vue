@@ -101,6 +101,8 @@ import { redirectToDeviceDetail } from '@/utils/device'
   }
 })
 export default class extends Vue {
+  // 查看该页面是否需要对应权限   ？
+
   private pager = {
     pageNum: 1,
     pageSize: 10,

@@ -26,7 +26,7 @@
       class="lock-tooltip"
       >
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" @click="unlock(item)">解锁</span>
+      <span class="lock-tooltip-unlock" :class="lockPermission === 1 ? '' : 'unlock-disable'" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
@@ -76,6 +76,9 @@ export default class extends Vue {
     default: false
   })
   private disabled: boolean
+
+  /* 锁定权限 */ 
+  private lockPermission: any = 1
 
   /* 时间轴拖动数据 */
   private axisDrag: any = {
@@ -843,6 +846,7 @@ export default class extends Vue {
   }
 
   private unlock(item: any) {
+    if (this.lockPermission !== 1) return
     this.recordLockItem = [item]
     this.unlockVisable = true
   }
@@ -1040,6 +1044,10 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.unlock-disable {
+  color: gray;
+}
+
 .extend-hover {
   width: 210px;
   height: 15px;

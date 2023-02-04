@@ -38,6 +38,9 @@ export class RecordManager {
   private axiosSourceList: CancelTokenSource[]
   /* 录像锁列表 */
   public lockList: any
+
+  /* 锁定权限 */ 
+  public lockPermission: any = 1
   
   private get currentGroupId() {
     return GroupModule.group?.groupId
@@ -199,7 +202,7 @@ export class RecordManager {
             this.screen.url = res.url
           }
           // 锁定后禁止播放
-          if (this.currentRecord.isLock === 1) {
+          if (this.currentRecord.isLock === 1 && this.lockPermission === 0) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
             this.currentRecord = null
             this.screen.url = ''
@@ -280,8 +283,8 @@ export class RecordManager {
         record = this.getRecordByTime(time)
       }
       if (record) {
-        // 被锁定部分不予播放
-        if (record.isLock === 1) {
+        // 被锁定部分，且用户不具备权限，则不予播放
+        if (record.isLock === 1 && this.lockPermission === 0) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
           this.screen.player && this.screen.player.disposePlayer()
@@ -330,11 +333,15 @@ export class RecordManager {
   }
 
   /**
-   * 播放下一段
+   * 播放下一段 
    */
   public playNextRecord() {
     // next record which is unlocked
-    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
+    // also if user's permission = 1, then all records are availabel
+    let nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    if (this.lockPermission === 0) {
+      nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
+    }
     if (nextRecord) {
       if (this.currentRecord) {
         // 云端
