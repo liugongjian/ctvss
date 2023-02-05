@@ -1,0 +1,560 @@
+<template>
+  <el-card>
+    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+      <el-tab-pane label="设备统计" name="statistic">
+        <div class="statistic-box">
+          <div class="statistic-box__title">
+            <div class="access-restriction__title-text">设备统计概览</div>
+          </div>
+          <el-row>
+            <el-col :span="7">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">设备在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="deviceOnlineInfo" />
+            </el-col>
+            <el-col :span="7">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">流在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="streamOnlineInfo" />
+            </el-col>
+            <el-col :span="7">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">录制数<span>(录制中/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="recordOnlineInfo" />
+            </el-col>
+          </el-row>
+
+          <el-form ref="form" :model="listQueryForm" :inline="true">
+            <el-form-item label="业务组">
+              <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备状态">
+              <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}_${item}`" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="流状态">
+              <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="录制状态">
+              <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" :loading="tableLoading" @click="searchDeviceList">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-tooltip placement="top" content="导出">
+                <svg-icon name="export" class="export" @click="exportList" />
+              </el-tooltip>
+            </el-form-item>
+          </el-form>
+
+          <!-- 默认不展示列表，点击了查询才给展示 -->
+          <el-table
+            v-if="Array.isArray(tableData)"
+            v-loading="tableLoading"
+            :data="tableData"
+            style="width: 100%;"
+          >
+            <el-table-column
+              prop="dirName"
+              label="所属目录"
+              width="210"
+            >
+              <template slot-scope="{row}">
+                <span>{{ row.dirName || '_' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="deviceName"
+              label="设备名称"
+            />
+            <el-table-column
+              prop="gbId"
+              label="国标ID"
+              width="210"
+            />
+            <el-table-column
+              prop="deviceId"
+              label="设备ID"
+              width="210"
+            />
+            <el-table-column
+              prop="ip"
+              label="ip"
+              width="210"
+            />
+            <el-table-column
+              prop="status"
+              label="设备状态"
+              width="160"
+            >
+              <template slot-scope="{row}">
+                <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="流状态"
+            >
+              <template slot-scope="{row}">
+                <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="录制状态"
+            >
+              <template slot-scope="{row}">
+                <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="longitude"
+              label="经度"
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.longitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="latitude"
+              label="纬度"
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.latitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="createTime"
+              label="创建时间"
+              width="180"
+            >
+              <template slot-scope="{row}">
+                <span>{{ dateFormat(Number(row.createTime)) }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            v-if="Array.isArray(tableData)"
+            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.totalNum" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-tab-pane>
+      <el-tab-pane label="录像统计" name="record">
+        <div class="statistic-box">
+          <el-row>
+            <el-col :span="7">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">
+                  存储容量
+                  <span>(已使用/总容量)</span>
+                </p>
+                <p v-if="recordData.storage" class="statistic-box__content__number">
+                  <span>{{ recordUsage }}TB</span>
+                  /{{ recordTotal }}TB
+                </p>
+              </div>
+              <draw-chart :chart-info="bytesInfo" />
+            </el-col>
+            <el-col :span="7">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">
+                  录制数
+                  <span>(录制中/总数
+                    <el-tooltip class="item" effect="dark" content="总数包含IPC和NVR下的通道" placement="top-start">
+                      <i class="el-icon-warning" />
+                    </el-tooltip>
+                    )</span>
+                </p>
+                <p v-if="recordData.record" class="statistic-box__content__number">
+                  <span>{{ recordData.record.online }}</span>
+                  /{{ recordData.record.total }}
+                </p>
+              </div>
+              <draw-chart :chart-info="recordInfo" />
+            </el-col>
+          </el-row>
+          <div class="statistic-box__title">
+            <div class="statistic-box__title-text">近7日存储用量趋势</div>
+            <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
+          </div>
+          <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
+          <div class="statistic-box__line-content">
+            <draw-chart :chart-info="recordLogInfo" />
+          </div>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+    <el-dialog
+      title="近7日存储用量趋势配置"
+      :visible="ifThresholdDialog"
+      width="35%"
+      :before-close="changeThresholdDialog"
+      center
+    >
+      <div class="statistic-box__threshold-dialog">
+        <el-input v-model="thresholdInput" placeholder="请输入告警阈值" min="0" max="100" @input="inputChange">
+          <template slot="prepend">告警阈值：</template>
+          <template slot="append">%</template>
+        </el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sureThis">确 定</el-button>
+        <el-button @click="changeThresholdDialog">取 消</el-button>
+      </span>
+    </el-dialog>
+  </el-card>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import DrawChart from './components/DrawChart.vue'
+import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList } from '@/api/statistic'
+import { getGroups } from '@/api/group'
+import { dateFormat } from '@/utils/date'
+
+@Component({
+  name: 'Statistic',
+  components: {
+    DrawChart
+  }
+})
+export default class extends Vue {
+  private activeName: string = 'statistic'
+  private bytesToTB = Math.pow(1024, 4)
+  private chart: any = {}
+
+  private dateFormat = dateFormat
+
+  private tableData: any = null
+  private tableLoading: boolean = false
+
+  private statisticsData: any = {}
+  private recordData: any = {}
+  private recordLog: any = {}
+  private deviceList: any = {}
+
+  private deviceOnlineInfo: any = {}
+  private streamOnlineInfo: any = {}
+  private recordOnlineInfo: any = {}
+
+  private recordLogInfo: any = {}
+
+  private bytesInfo: any = {}
+  private recordInfo: any = {}
+
+  private ifThresholdDialog: boolean = false
+
+  private thresholdInput: any = ''
+
+  private listQueryForm: any = {
+    groupInfo: '',
+    deviceStatus: '',
+    recordStatus: '',
+    streamStatus: ''
+  }
+
+  private pager: any = {
+    pageSize: 10,
+    pageNum: 1,
+    totalNum: 0
+  }
+
+  private deviceStatusText = {
+    'on': '设备在线',
+    'off': '设备离线',
+    'new': '设备未注册'
+  }
+
+  private streamStatusText = {
+    'on': '流在线',
+    'off': '流离线'
+  }
+
+  private recordStatusText = {
+    'on': '录制中',
+    'off': '未录制',
+    'failed': '录制失败'
+  }
+
+  private groupList: any = []
+
+  private param: any = {}
+
+  async mounted() {
+    await this.getData()
+  }
+
+  private get recordUsage() {
+    return (this.recordData.storage.usage / this.bytesToTB).toFixed(2)
+  }
+
+  private get recordTotal() {
+    return (this.recordData.storage.total / this.bytesToTB).toFixed(2)
+  }
+
+  private changeThresholdDialog() {
+    this.ifThresholdDialog = !this.ifThresholdDialog
+    if (this.ifThresholdDialog) {
+      this.thresholdInput = this.recordLog.threshold
+    } else {
+      this.thresholdInput = 0
+    }
+  }
+
+  private async getData() {
+    if (this.activeName === 'statistic') {
+      try {
+        this.statisticsData = await getStatistics()
+
+        this.deviceOnlineInfo = {
+          kind: 'pie',
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalDeviceOnlineNum,
+          label: '在线率',
+          name: 'deviceOnline'
+        }
+        this.streamOnlineInfo = {
+          kind: 'pie',
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalStreamOnlineNum,
+          label: '在线率',
+          name: 'streamOnline'
+        }
+        this.recordOnlineInfo = {
+          kind: 'pie',
+          totalDeviceNum: this.statisticsData.totalDeviceNum,
+          onlineNum: this.statisticsData.totalRecordNum,
+          label: '在线率',
+          name: 'recordOnline'
+        }
+
+        const query = {
+          pageSize: 999
+        }
+        const res = await getGroups(query)
+        this.groupList = res.groups
+      } catch (error) {
+        this.$message.error(error && error.message)
+      }
+    } else {
+      try {
+        this.recordData = await getRecord()
+        this.recordLog = await getRecordLog()
+
+        this.bytesInfo = {
+          kind: 'pie',
+          totalDeviceNum: this.recordData.storage.total / this.bytesToTB,
+          onlineNum: this.recordData.storage.usage / this.bytesToTB,
+          label: '使用率',
+          name: 'bytes'
+        }
+        this.recordInfo = {
+          kind: 'pie',
+          totalDeviceNum: this.recordData.record.total,
+          onlineNum: this.recordData.record.online,
+          label: '使用率',
+          name: 'record'
+        }
+
+        this.recordLogInfo = {
+          kind: 'line',
+          name: 'recordLog',
+          data: this.recordLog
+        }
+      } catch (error) {
+        this.$message.error(error && error.message)
+      }
+    }
+  }
+
+  private searchDeviceList() {
+    this.pager.pageNum = 1
+    this.getDeviceList()
+  }
+
+  private handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    this.pager.pageNum = 1
+    this.getDeviceList()
+  }
+  private handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    this.getDeviceList()
+  }
+
+  private async getDeviceList() {
+    this.tableLoading = true
+
+    const { deviceStatus, streamStatus, recordStatus, groupInfo } = this.listQueryForm
+
+    const groupId = groupInfo.split('_')[0]
+    const inProtocol = groupInfo.split('_')[1]
+
+    this.param = {
+      inProtocol,
+      groupId,
+      deviceStatus,
+      streamStatus,
+      recordStatus,
+      pageSize: this.pager.pageSize,
+      pageNum: this.pager.pageNum
+    }
+
+    try {
+      const res = await getDeviceList(this.param)
+      this.tableData = res.devices
+      this.pager.totalNum = Number(res.totalNum)
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.tableLoading = false
+    }
+  }
+
+  private async exportList() {
+    if (!Array.isArray(this.tableData) || this.tableData.length === 0) {
+      this.$message.warning('请先查询出实际数据再进行导出')
+    } else {
+      try {
+        const res = await exportDeviceList(this.param)
+        const { groupInfo } = this.listQueryForm
+        const groupName = groupInfo.split('_')[2]
+        const blob = new Blob([res])
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = `${groupName}.xlsx`
+        link.click()
+        link.remove()
+      } catch (error) {
+        this.$message.error(error && error.message)
+      }
+    }
+  }
+
+  private inputChange() {
+    this.thresholdInput = Number(this.thresholdInput.replace(/[^\d]/g, ''))
+    if (this.thresholdInput > 100) {
+      this.thresholdInput = 100
+    }
+  }
+
+  private async sureThis() {
+    const param = {
+      threshold: this.thresholdInput
+    }
+    try {
+      await setRecordThreshold(param)
+      this.getData()
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.changeThresholdDialog()
+    }
+  }
+
+  private handleClick() {
+    this.getData()
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.statistic-box {
+  ::v-deep .el-row {
+    .el-col {
+      display: flex;
+      border: 1px solid #d3d3d3;
+      margin: calc((100% - 29.1667%*3)/6);
+      padding: 10px 0;
+    }
+  }
+
+  ::v-deep .el-form {
+    &-item {
+      &__label {
+        padding-right: 10px;
+      }
+    }
+  }
+
+  &__title {
+    padding-left: 16px;
+    border-left: 8px solid #fa8334;
+    height: 26px;
+    line-height: 26px;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0 20px;
+
+    &-text {
+      width: 160px;
+      display: inline-block;
+    }
+  }
+
+  &__content {
+    width: 230px;
+
+    &__title {
+      font-size: 12px;
+      color: #a1a1a1;
+      padding-left: 20px;
+
+      span {
+        color: #d3d3d3;
+      }
+    }
+
+    &__number {
+      padding-left: 20px;
+      color: #0f0f0f;
+      font-size: 16px;
+
+      span {
+        color: #9bcc56;
+      }
+    }
+  }
+
+  &__line-content {
+    width: 50%;
+    height: 500px;
+  }
+
+  &__warning {
+    width: 240px;
+    height: 60px;
+    background-color: #ac0100;
+    color: #fff;
+    font-size: 16px;
+    line-height: 60px;
+    padding-left: 20px;
+    margin: 30px 0;
+
+    span {
+      font-size: 24px;
+    }
+  }
+}
+</style>

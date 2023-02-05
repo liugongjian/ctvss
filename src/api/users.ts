@@ -98,3 +98,12 @@ export const updatetUserConfig = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+/**
+ * 获取验证码
+ */
+export const getCaptcha = (): Promise<any> =>
+  request({
+    url: '/user/captcha',
+    method: 'get'
+  })
