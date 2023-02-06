@@ -174,7 +174,12 @@ export default class extends ComponentMixin {
         this.cannotStop = false
         const { streamServerAddr } = res
         const ifwss = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
+
+        const arr = this.intercomInfo.url?.split('/')
+        const streamName = arr ? arr[arr.length - 1].split('.')[0] : ''
+        const wsQuery = this.deviceInfo.inProtocol === 'ehome' ? streamName : this.intercomInfo.deviceId
+        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${wsQuery}`
+
         try {
           this.ws = new WebSocket(wsUrl)
           this.ws.onopen = (e: any) => {
