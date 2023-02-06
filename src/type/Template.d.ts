@@ -11,7 +11,8 @@ export interface RecordTemplate {
   formatList: Array<RecordTemplateFormat>,
   description?: string;
   createdTime?: string;
-  storageTime: number
+  storageTime?: number,
+  interval?: number
 }
 
 export interface CallbackTemplate {

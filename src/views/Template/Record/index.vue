@@ -124,7 +124,9 @@ export default class extends Vue {
           recordType: template.recordType,
           createdTime: template.createdTime,
           description: template.description,
-          formatList: []
+          formatList: [],
+          storageTime: template.storageTime,
+          interval: template.interval
         }
         if (template.hlsParam && template.hlsParam.enable) {
           rowData.formatList.push({

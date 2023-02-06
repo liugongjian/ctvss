@@ -156,7 +156,8 @@ export default class extends Vue {
         recordType: data.recordType,
         description: data.description,
         formatList: [],
-        storageTime: 30
+        storageTime: 30,
+        interval: data.interval
       }
 
       if (data.hlsParam && data.hlsParam.enable) {
