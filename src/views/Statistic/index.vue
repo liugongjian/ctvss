@@ -215,38 +215,66 @@
             />
           </div>
         </el-tab-pane>
-        <el-tab-pane label="设备统计" name="record">
-          <div v-if="activeName === 'record'" class="statistic-box statistic-box__device">
+        <!-- 设备统计 -->
+        <el-tab-pane label="设备统计" name="device">
+          <div v-if="activeName === 'device'" class="statistic-box statistic-box__device">
             <div class="statistic-box__left">
-              <device-tree />
+              <device-tree @treeback="getTreeDeviceId" />
             </div>
             <div class="statistic-box__right">
-              <div class="statistic-box__title">
-                <div class="statistic-box__title-text">设备录像统计</div>
-              </div>
-              <el-date-picker
-                v-model="monthValue"
-                type="month"
-                placeholder="选择月"
-                value-format="yyyy-MM"
-                @change="monthValueChange"
-              />
-              <div class="statistic-box__calendar">
-                <div class="statistic-box__calendar__chart">
-                  <div class="statistic-box__content">
-                    <p class="statistic-box__content__title">录制天数</p>
-                    <p class="statistic-box__content__number"><span>2</span>/31</p>
+              <el-tabs v-model="activeTab">
+                <el-tab-pane label="录像统计" name="record">
+                  <div class="statistic-box__title">
+                    <div class="statistic-box__title-text">设备录像统计</div>
                   </div>
-                  <draw-chart :chart-info="recordDays" />
-                </div>
-                <div class="statistic-box__calendar__date">
-                  123
-                </div>
-              </div>
+                  <el-date-picker
+                    v-model="monthValue"
+                    type="month"
+                    placeholder="选择月"
+                    value-format="yyyy-MM"
+                    @change="monthValueChange"
+                  />
+                  <div class="statistic-box__calendar">
+                    <div class="statistic-box__calendar__chart">
+                      <div class="statistic-box__content">
+                        <p class="statistic-box__content__title">录制天数</p>
+                        <p class="statistic-box__content__number"><span>2</span>/31</p>
+                      </div>
+                      <draw-chart :chart-info="recordDays" />
+                    </div>
+                    <div class="statistic-box__calendar__line" />
+                    <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
+                      <span v-for="item in calendarInfo" :key="item.day" class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
+                        {{ item.day.split('-')[2] }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="statistic-box__title">
+                    <div class="statistic-box__title-text">丢失录像片段统计</div>
+                  </div>
+                  <el-form ref="filterForm" :model="filterForm" :inline="true">
+                    <el-form-item label="时间段">
+                      <el-col :span="11">
+                        <el-date-picker v-model="filterForm.date1" type="date" placeholder="选择日期" style="width: 100%;" />
+                      </el-col>
+                      <el-col class="line" :span="2">-</el-col>
+                      <el-col :span="11">
+                        <el-time-picker v-model="filterForm.date2" placeholder="选择时间" style="width: 100%;" />
+                      </el-col>
+                    </el-form-item>
+                    <el-form-item label="忽略时长">
+                      <el-input v-model="filterForm.ignore" />
+                    </el-form-item>
+                  </el-form>
+                </el-tab-pane>
+              </el-tabs>
             </div>
           </div>
         </el-tab-pane>
       </el-tabs>
+
+      <!-- 弹层，非页面主题内容 -->
+      <!-- 近7日存储用量趋势配置 -->
       <el-dialog
         title="近7日存储用量趋势配置"
         :visible="ifThresholdDialog"
@@ -265,6 +293,27 @@
           <el-button @click="changeThresholdDialog">取 消</el-button>
         </span>
       </el-dialog>
+
+      <!-- 录像丢失统计 -->
+      <el-dialog
+        :title="`${dayInfo.day} 录像丢失统计`"
+        :visible="ifDayDialog"
+        center
+        :before-close="changeDayDialog"
+      >
+        <p>{{ `录制完整率: ${dayInfo.complianceRate*100}%` }}</p>
+        <el-table>
+          <el-table-column
+            prop="deviceName"
+            label="设备名称"
+            width="160"
+          />
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <!-- <el-button type="primary" @click="sureThis">确 定</el-button> -->
+          <el-button @click="changeDayDialog">关 闭</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -273,8 +322,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
-import { getStatistics, getRecord, getRecordLog, setRecordThreshold, getDeviceList, exportDeviceList, getCalendarInfo } from '@/api/statistic'
-import { ChartInfo, CalendarListResponse, CalendarQuery, CalendarItem } from '@/type/Statistic'
+import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
+  getDeviceList, exportDeviceList, getCalendarInfo,
+  getCalendarMissData } from '@/api/statistic'
+import { ChartInfo, CalendarListResponse, CalendarQuery,
+  CalendarItem, CalendarMissResponse, CalendarMissItem,
+  RecordMissQuery, FilterQuery } from '@/type/Statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
 import { UserModule } from '@/store/modules/user'
@@ -288,6 +341,7 @@ import { UserModule } from '@/store/modules/user'
 })
 export default class extends Vue {
   private activeName: string = 'statistic'
+  private activeTab: string = 'record'
   private bytesToTB = Math.pow(1024, 4)
   private chart: any = {}
 
@@ -320,6 +374,19 @@ export default class extends Vue {
   private monthValue: string = ''
   private daysOfMonth: number = 0
   private calendarInfo: CalendarItem[] = []
+
+  private ifDayDialog: boolean = false
+  private dayInfo: CalendarItem = {}
+
+  private dayMissDataLoading: boolean = false
+
+  private dayMissTableData: CalendarMissItem[] = []
+
+  private filterForm: FilterQuery = {
+    startTime: '',
+    endTime: '',
+    ignore: 0
+  }
 
   private listQueryForm: any = {
     groupInfo: '',
@@ -357,6 +424,7 @@ export default class extends Vue {
 
   async mounted() {
     await this.getData()
+    this.getMonth()
   }
 
   public get ifLiuzhou() {
@@ -369,6 +437,13 @@ export default class extends Vue {
 
   private get recordTotal() {
     return (this.recordData.storage.total / this.bytesToTB).toFixed(2)
+  }
+
+  private getMonth() {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1
+    this.monthValue = `${year}-${month}`
   }
 
   private changeThresholdDialog() {
@@ -443,14 +518,14 @@ export default class extends Vue {
         this.$message.error(error && error.message)
       }
     } else {
-      //
+      await this.getCalendarInfo()
       this.recordDays = {
         kind: 'pie',
         totalDeviceNum: 130,
         onlineNum: 100,
         label: '在线率',
         name: 'recordDays',
-        width: 280,
+        width: 180,
         height: 280
       }
     }
@@ -470,14 +545,200 @@ export default class extends Vue {
     return date
   }
 
+  private getThisClass(item: CalendarItem): string {
+    switch (item.status) {
+      case 'unbind':
+      case 'stop':
+        return 'statistic-box__calendar__date__stop'
+      case 'complete':
+        return 'statistic-box__calendar__date__complete'
+      case 'incomplete':
+        return 'statistic-box__calendar__date__incomplete'
+      default:
+        return 'statistic-box__calendar__date__stop'
+    }
+  }
+
+  private openDetail(item: CalendarItem) {
+    if (item.status === 'incomplete') {
+      this.dayInfo = item
+      try {
+        this.dayMissDataLoading = true
+        const param: RecordMissQuery = {}
+        console.log(param)
+      } catch (error) {
+        this.$message.error(error && error.message)
+      } finally {
+        this.dayMissDataLoading = false
+      }
+
+      this.changeDayDialog()
+    }
+  }
+
+  private changeDayDialog() {
+    this.ifDayDialog = !this.ifDayDialog
+  }
+
+  // 左侧树点击回调
+  private getTreeDeviceId(deviceId: string) {
+    this.deviceId = deviceId
+    console.log('this.deviceId--->', this.deviceId)
+  }
+
   private async getCalendarInfo() {
     try {
       const param: CalendarQuery = {
         deviceId: '',
         month: ''
       }
-      const calendarInfo: CalendarListResponse = await getCalendarInfo(param)
-      this.calendarInfo = calendarInfo.records
+
+      // const calendarInfo: CalendarListResponse = await getCalendarInfo(param)
+      // this.calendarInfo = calendarInfo.records
+      console.log(param)
+      const data = {
+        'records': [
+          { 'day': '2023-01-01',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-02',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-03',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-04',
+            'status': 'complete',
+            'complianceRate': 1
+          },
+          { 'day': '2023-01-05',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-06',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-07',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-08',
+            'status': 'complete',
+            'complianceRate': 1
+          }, {
+            'day': '2023-01-09',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-10',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-11',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-12',
+            'status': 'complete',
+            'complianceRate': 1
+          }, {
+            'day': '2023-01-13',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-14',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-15',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-16',
+            'status': 'complete',
+            'complianceRate': 1
+          }, {
+            'day': '2023-01-17',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-18',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-19',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-20',
+            'status': 'complete',
+            'complianceRate': 1
+          }, {
+            'day': '2023-01-21',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-22',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-23',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-24',
+            'status': 'complete',
+            'complianceRate': 1
+          }, {
+            'day': '2023-01-25',
+            'status': 'unbind',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-26',
+            'status': 'stop',
+            'complianceRate': 0
+          },
+          {
+            'day': '2023-01-27',
+            'status': 'incomplete',
+            'complianceRate': 0.8
+          },
+          {
+            'day': '2023-01-28',
+            'status': 'complete',
+            'complianceRate': 1
+          },
+          {
+            'day': '2023-01-29',
+            'status': 'complete',
+            'complianceRate': 1
+          }
+        ]
+      }
+      this.calendarInfo = data.records
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -722,19 +983,60 @@ export default class extends Vue {
 
   &__calendar {
     display: flex;
-    width: 80%;
+    width: 640px;
     margin-top: 20px;
-    border: 1px solid red;
+    border: 1px solid #b4b4b4;
     padding: 10px;
+    max-width: 750px;
 
     &__chart,
     &__date {
       flex: 1;
-      width: 50%;
+      width: 49%;
     }
 
     &__chart {
       display: flex;
+      padding-top: 10px;
+    }
+
+    &__date {
+      padding: 10px 10px 10px 15px;
+      // height: 166px;
+
+      &__day {
+        display: inline-block;
+        vertical-align: middle;
+        width: 36px;
+        margin: 3px;
+        height: 26px;
+        text-align: center;
+        line-height: 26px;
+        background-color: #fff;
+        user-select: none;
+      }
+
+      &__incomplete {
+        background-color: #f59a23;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      &__stop {
+        background-color: #fff;
+        border: 1px #b4b4b4 solid;
+      }
+
+      &__complete {
+        background-color: #95f201;
+      }
+    }
+
+    &__line {
+      height: 130px;
+      width: 1px;
+      border-left: 1px solid #b4b4b4;
+      margin-top: 20px;
     }
   }
 
@@ -752,13 +1054,14 @@ export default class extends Vue {
 
     .statistic-box__content {
       width: 90px;
-      padding-top: 50px;
-      padding-left: 30px;
+      padding-top: 40px;
+      padding-left: 10px;
     }
   }
 
   &__right {
     flex: 1;
+    padding: 20px;
   }
 }
 </style>

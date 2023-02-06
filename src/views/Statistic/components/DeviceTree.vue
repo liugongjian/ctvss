@@ -22,7 +22,7 @@
           </el-tooltip> -->
         </div>
         <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
-          <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
+          <div class="dir-list__tree--root" :class="{'actived': isRootDir}">
             <svg-icon name="component" width="12px" />
             根目录
             <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
@@ -137,7 +137,7 @@ export default class extends Vue {
   }
 
   @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: string, oldGroupId: string) {
+  private onCurrentGroupChange(groupId: string) {
     this.advancedSearchForm.deviceStatusKeys = []
     this.advancedSearchForm.streamStatusKeys = []
     this.advancedSearchForm.deviceAddresses = {
@@ -150,18 +150,13 @@ export default class extends Vue {
     this.advancedSearchForm.revertSearchFlag = false
     if (!groupId) return
     this.$nextTick(() => {
-      if (oldGroupId || !this.defaultKey) {
-        this.gotoRoot()
-      }
       this.initDirs()
     })
   }
 
   private mounted() {
     this.initSearchStatus()
-    // this.getGroupList()
     this.calMaxHeight()
-    this.initDirs()
     window.addEventListener('resize', this.calMaxHeight)
   }
 
@@ -193,7 +188,7 @@ export default class extends Vue {
   /**
    * 初始化目录
    */
-  public async initDirs(isExpand?: boolean) {
+  public async initDirs() {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
@@ -208,10 +203,13 @@ export default class extends Vue {
         searchKey: this.advancedSearchForm.searchKey || undefined
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
-      console.log('dirList---->', this.dirList)
+
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
-        this.initTreeStatus(isExpand)
+        // this.initTreeStatus(isExpand)
+        const dirTree: any = this.$refs.dirTree
+        dirTree.setCurrentKey(this.dirList[0].id)
+        this.deviceRouter(this.dirList[0])
       })
     } catch (e) {
       this.dirList = []
@@ -271,20 +269,6 @@ export default class extends Vue {
   }
 
   /**
-   * 返回根目录
-   */
-  private async gotoRoot() {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setCurrentKey(null)
-    await DeviceModule.ResetBreadcrumb()
-    await VGroupModule.resetVGroupInfo()
-    this.deviceRouter({
-      id: '0',
-      type: 'dir'
-    })
-  }
-
-  /**
    * 计算最大高度
    */
   public calMaxHeight() {
@@ -293,49 +277,6 @@ export default class extends Vue {
     // const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - 172
-  }
-
-  /**
-   * 初始化目录状态
-   * @param isExpand 是否默认打开第一个设备
-   */
-  public async initTreeStatus(isExpand = true) {
-    const blackList = ['/screen', '/replay']
-    const path = this.$route.path
-    if (this.advancedSearchForm.revertSearchFlag) {
-      // 根据搜索结果 组装 目录树
-      this.dirList = this.transformDirList(this.dirList)
-      if (blackList.indexOf(path) === -1 && this.dirList.length && isExpand) {
-        let nonLeafNode: any = this.dirList[0]
-        while (nonLeafNode && nonLeafNode.children && nonLeafNode.children.length) {
-          nonLeafNode = nonLeafNode.children[0]
-        }
-        this.$nextTick(() => this.deviceRouter(nonLeafNode))
-      }
-    } else if (blackList.indexOf(path) === -1) {
-      const dirTree: any = this.$refs.dirTree
-      const path: string | (string | null)[] | null = this.$route.query.path
-      const keyPath = path ? path.toString().split(',') : null
-      if (keyPath) {
-        for (let i = 0; i < keyPath.length; i++) {
-          const _key = keyPath[i]
-          const node = dirTree.getNode(_key)
-          if (node) {
-            await this.loadDirChildren(_key, node)
-            if (i === keyPath.length - 1) {
-              // 避免刷新目录后无法选中
-              dirTree.setCurrentKey(this.defaultKey)
-              DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-            }
-          }
-        }
-      } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
-        // 如果为查找设备则不执行任何操作
-        if (this.$route.query.isSearch === '1') return
-        // 如果根目录下无设备，则跳转至第一个目录下
-        if (isExpand) this.deviceRouter(this.dirList[0])
-      }
-    }
   }
 
   /**
@@ -419,7 +360,6 @@ export default class extends Vue {
   }
 
   private deviceRouter(item: any, node?: any) {
-    console.log(item, node)
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
@@ -436,6 +376,7 @@ export default class extends Vue {
       _node = node
       _node.expanded = true
     }
+    this.$emit('treeback', item.id)
   }
 
   /**
