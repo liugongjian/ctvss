@@ -279,24 +279,23 @@ export default class extends Vue {
   private async currenTreeNameChange(val, oldVal) {
     this.treeName = this.currentTree.treeName
     if (val !== oldVal) {
-      this.treeDirList = []
-      this.dirList = []
-      this.$nextTick(() => {
-        this.treeDirList.push(cloneDeep(root))
-        this.dirList.push(cloneDeep(root))
-        if (this.currentTree.treeId) {
-          this.getTotalsOfRightTree()
-          this.getTotalsOfLeftTree()
-        }
-      })
+      this.treeDirList = [cloneDeep(root)]
+      this.dirList = [cloneDeep(root)]
+      // this.$nextTick(() => {
+      // this.treeDirList.push(cloneDeep(root))
+      // this.dirList.push(cloneDeep(root))
+      if (this.currentTree.treeId) {
+        this.getTotalsOfRightTree()
+        this.getTotalsOfLeftTree()
+      }
+      // })
     }
   }
 
   @Watch('isEditing')
   private isEditingChange() {
     this.isEditing && this.$nextTick(() => {
-      this.dirList = []
-      this.dirList.push(cloneDeep(root))
+      this.dirList = [cloneDeep(root)]
       this.leftCheckedNodes = this.rightCheckedNodes = []
       this.getTotalsOfLeftTree()
     })
@@ -781,12 +780,12 @@ export default class extends Vue {
       t.editFlag = false
     })
     const dirTree2: any = this.$refs.dirTree2
-    this.$nextTick(() => {
-      tree.editFlag = this.isEditing = true
-      this.currentTree = tree
-      this.currentDirNode = dirTree2.getNode(root.id)
-      this.$set(this.currentDirNode.data, 'isSelected', true)
-    })
+    // this.$nextTick(() => {
+    tree.editFlag = this.isEditing = true
+    this.currentTree = tree
+    this.currentDirNode = dirTree2.getNode(root.id)
+    this.$set(this.currentDirNode.data, 'isSelected', true)
+    // })
   }
 
   private handleNameInput(name) {
@@ -868,11 +867,11 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     this.isEditing = false
-    this.$nextTick(() => {
-      this.treeList.forEach(t => (t.editFlag = false))
-      dirTree.setCheckedKeys([])
-      dirTree2.setCheckedKeys([])
-    })
+    // this.$nextTick(() => {
+    this.treeList.forEach(t => (t.editFlag = false))
+    dirTree.setCheckedKeys([])
+    dirTree2.setCheckedKeys([])
+    // })
   }
 
   private addDevices() {
