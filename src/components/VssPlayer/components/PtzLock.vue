@@ -46,6 +46,7 @@ import { format } from 'date-fns'
 import { ptzLock, ptzUnlock } from '@/api/ptz_control'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 // import { throttle } from 'lodash'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'PtzLock',
@@ -114,6 +115,7 @@ export default class extends Vue {
   private mounted() {
     this.isLocked = this.deviceInfo.ptzLockStatus < 2
     this.initTime()
+    console.log('this.deviceInfo:', this.deviceInfo)
   }
 
   private initTime() {
@@ -129,7 +131,12 @@ export default class extends Vue {
 
   private async unlock() {
     try {
-      const { unlockResult } = await ptzUnlock({ deviceId: this.deviceInfo.deviceId, password: '' })
+      const { unlockResult } = await ptzUnlock({
+        deviceId: this.deviceInfo.deviceId,
+        password: '',
+        inProtocol: this.deviceInfo.inProtocol,
+        groupId: GroupModule.group?.groupId
+      })
       if (unlockResult === 3) {
         this.isLocked = false
         this.$message.success('解锁成功!')
@@ -157,7 +164,7 @@ export default class extends Vue {
       startTime: this.transformStampToString(new Date().getTime())
     }
     const pwdForm: any = this.$refs.pwdForm
-    pwdForm.clearValidate()
+    pwdForm && pwdForm.clearValidate()
   }
 
   private async confirm() {
@@ -192,13 +199,17 @@ export default class extends Vue {
           const param = this.isLocked
             ? {
               deviceId: this.deviceInfo.deviceId,
-              password: this.form.unlockPwd
+              password: this.form.unlockPwd,
+              inProtocol: this.deviceInfo.inProtocol,
+              groupId: GroupModule.group?.groupId
             }
             : {
               deviceId: this.deviceInfo.deviceId,
               startTime: Math.floor(new Date().getTime() / 1000),
               endTime: Math.floor(this.form.endTime / 1000),
-              password: this.form.lockPwd
+              password: this.form.lockPwd,
+              inProtocol: this.deviceInfo.inProtocol,
+              groupId: GroupModule.group?.groupId
             }
           this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
 
