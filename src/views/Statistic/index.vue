@@ -255,15 +255,18 @@
                   <el-form ref="filterForm" :model="filterForm" :inline="true">
                     <el-form-item label="时间段">
                       <el-col :span="11">
-                        <el-date-picker v-model="filterForm.date1" type="date" placeholder="选择日期" style="width: 100%;" />
+                        <el-date-picker v-model="filterForm.startTime" type="date" placeholder="选择日期" style="width: 100%;" />
                       </el-col>
                       <el-col class="line" :span="2">-</el-col>
                       <el-col :span="11">
-                        <el-time-picker v-model="filterForm.date2" placeholder="选择时间" style="width: 100%;" />
+                        <el-time-picker v-model="filterForm.endTime" placeholder="选择时间" style="width: 100%;" />
                       </el-col>
                     </el-form-item>
                     <el-form-item label="忽略时长">
                       <el-input v-model="filterForm.ignore" />
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
                     </el-form-item>
                   </el-form>
                 </el-tab-pane>
@@ -273,7 +276,7 @@
         </el-tab-pane>
       </el-tabs>
 
-      <!-- 弹层，非页面主题内容 -->
+      <!-- 弹层，非页面主体内容 -->
       <!-- 近7日存储用量趋势配置 -->
       <el-dialog
         title="近7日存储用量趋势配置"
@@ -319,7 +322,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
@@ -327,7 +330,7 @@ import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
   getCalendarMissData } from '@/api/statistic'
 import { ChartInfo, CalendarListResponse, CalendarQuery,
   CalendarItem, CalendarMissResponse, CalendarMissItem,
-  RecordMissQuery, FilterQuery } from '@/type/Statistic'
+  RecordMissQuery } from '@/type/Statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
 import { UserModule } from '@/store/modules/user'
@@ -382,10 +385,15 @@ export default class extends Vue {
 
   private dayMissTableData: CalendarMissItem[] = []
 
-  private filterForm: FilterQuery = {
+  private deviceId: string = ''
+
+  private filterForm: RecordMissQuery = {
+    deviceId: '',
     startTime: '',
     endTime: '',
-    ignore: 0
+    ignore: 0,
+    pageNum: 1,
+    pageSize: 10
   }
 
   private listQueryForm: any = {
@@ -421,6 +429,17 @@ export default class extends Vue {
   private groupList: any = []
 
   private param: any = {}
+
+  @Watch('deviceId')
+  private onDeviceIdChange(deviceId: string) {
+    this.filterForm = {
+      deviceId,
+      ignore: 0,
+      pageNum: 1,
+      pageSize: 10
+    }
+    console.log('deviceId--->', deviceId)
+  }
 
   async mounted() {
     await this.getData()
@@ -519,15 +538,6 @@ export default class extends Vue {
       }
     } else {
       await this.getCalendarInfo()
-      this.recordDays = {
-        kind: 'pie',
-        totalDeviceNum: 130,
-        onlineNum: 100,
-        label: '在线率',
-        name: 'recordDays',
-        width: 180,
-        height: 280
-      }
     }
   }
 
@@ -583,9 +593,9 @@ export default class extends Vue {
   // 左侧树点击回调
   private getTreeDeviceId(deviceId: string) {
     this.deviceId = deviceId
-    console.log('this.deviceId--->', this.deviceId)
   }
 
+  // 获取 日历及图表 信息
   private async getCalendarInfo() {
     try {
       const param: CalendarQuery = {
@@ -739,9 +749,25 @@ export default class extends Vue {
         ]
       }
       this.calendarInfo = data.records
+      this.recordDays = {
+        kind: 'pie',
+        totalDeviceNum: 130,
+        onlineNum: 100,
+        label: '在线率',
+        name: 'recordDays',
+        width: 180,
+        height: 280
+      }
     } catch (error) {
       this.$message.error(error && error.message)
     }
+  }
+
+  // 查询丢失录像片段
+  private searchList() {
+    // const param: RecordMissQuery = {
+
+    // }
   }
 
   private searchDeviceList() {
