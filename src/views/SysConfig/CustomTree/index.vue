@@ -159,7 +159,11 @@
       @dialogSubmit="dialogSubmit"
       @dialogCancel="dialogCancel"
     >
-      <el-form :model="dialog.data">
+      <div v-if="dialog.type === 'deleteDir'" class="dialog__content">
+        <div>将删除该目录下的所有目录和设备，确定删除吗？</div>
+        <el-checkbox v-model="hideDeleteDirDialog">本次编辑不再询问</el-checkbox>
+      </div>
+      <el-form v-else :model="dialog.data">
         <el-form-item label="名称" prop="name" :rules="dialog.data.rule">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
@@ -252,6 +256,8 @@ export default class extends Vue {
   public maxHeight = null
   private treeMaxHeight = null
 
+  private hideDeleteDirDialog = false
+
   public loading = {
     platform: false,
     dir: false,
@@ -279,16 +285,14 @@ export default class extends Vue {
   private async currenTreeNameChange(val, oldVal) {
     this.treeName = this.currentTree.treeName
     if (val !== oldVal) {
-      this.treeDirList = [cloneDeep(root)]
-      this.dirList = [cloneDeep(root)]
-      // this.$nextTick(() => {
-      // this.treeDirList.push(cloneDeep(root))
-      // this.dirList.push(cloneDeep(root))
-      if (this.currentTree.treeId) {
-        this.getTotalsOfRightTree()
-        this.getTotalsOfLeftTree()
-      }
-      // })
+      this.$nextTick(() => {
+        this.treeDirList = [cloneDeep(root)]
+        this.dirList = [cloneDeep(root)]
+        if (this.currentTree.treeId) {
+          this.getTotalsOfRightTree()
+          this.getTotalsOfLeftTree()
+        }
+      })
     }
   }
 
@@ -596,6 +600,10 @@ export default class extends Vue {
    * 删除文件夹
    */
   private deleteDir(dirNode: any) {
+    this.hideDeleteDirDialog ? this.hideOrRemoveDir(dirNode) : this.openDialog('deleteDir', dirNode)
+  }
+
+  private hideOrRemoveDir(dirNode) {
     if (dirNode.data.originFlag) {
       dirNode.visible = false
     } else {
@@ -631,13 +639,14 @@ export default class extends Vue {
       'createTree': '新建设备树',
       'createDir': '新建目录',
       'createDir-root': '新建目录',
-      'updateDir': '修改目录'
+      'updateDir': '修改目录',
+      'deleteDir': '删除目录'
     }
     this.dialog = {
       type,
       visible: true,
       title: dic[type],
-      data: {
+      data: type === 'deleteDir' ? { node } : {
         name: type === 'updateDir' ? cloneDeep(node.data.label) : '',
         rule: [{ required: true, message: '请输入名称', trigger: 'blur' }]
       }
@@ -717,6 +726,11 @@ export default class extends Vue {
     ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
     this.dialog.type === 'updateDir' && this.updateDir()
     this.dialog.type === 'createTree' && await this.createTree()
+    if (this.dialog.type === 'deleteDir') {
+      // @ts-ignore
+      this.hideOrRemoveDir(this.dialog.data.node)
+      this.dialog.visible = false
+    }
   }
 
   private async createTree() {
@@ -768,6 +782,9 @@ export default class extends Vue {
 
   private dialogCancel() {
     this.dialog.visible = false
+    if (this.dialog.type === 'deleteDir') {
+      this.hideDeleteDirDialog = false
+    }
   }
 
   private clickEvent(node, data) {
@@ -867,11 +884,13 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     this.isEditing = false
-    // this.$nextTick(() => {
-    this.treeList.forEach(t => (t.editFlag = false))
-    dirTree.setCheckedKeys([])
-    dirTree2.setCheckedKeys([])
-    // })
+    this.$nextTick(() => {
+      this.treeList.forEach(t => (t.editFlag = false))
+      dirTree.setCheckedKeys([])
+      dirTree2.setCheckedKeys([])
+      this.treeDirList = [cloneDeep(root)]
+      this.getTotalsOfRightTree()
+    })
   }
 
   private addDevices() {
@@ -1366,6 +1385,17 @@ export default class extends Vue {
       margin-bottom: 30px;
       color: #dadada;
     }
+  }
+}
+
+.dialog__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  & > div {
+    margin-bottom: 20px;
   }
 }
 </style>
