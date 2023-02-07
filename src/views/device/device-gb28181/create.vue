@@ -256,7 +256,31 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item label="GB28181凭证:" prop="userName">
+            <el-form-item prop="gb35114">
+              <template slot="label">
+                GB35114协议:
+                <el-popover
+                  placement="top-start"
+                  title="GB35114协议"
+                  width="400"
+                  trigger="hover"
+                  :open-delay="300"
+                  :content="tips.gb35114"
+                >
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
+                </el-popover>
+              </template>
+              <el-switch
+                v-model="form.gb35114"
+                :active-value="1"
+                :inactive-value="0"
+              />
+            </el-form-item>
+            <el-form-item v-if="!form.gb35114" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -632,6 +656,7 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     poleId: '',
+    gb35114: 0,
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
