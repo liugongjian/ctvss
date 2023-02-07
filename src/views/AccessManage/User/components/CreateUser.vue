@@ -205,7 +205,7 @@
             </el-tabs>
           </div>
           <div v-show="activeStep === 2">
-            <el-form-item label="账号信息" prop="userInfo">
+            <el-form-item label="账号信息：" prop="userInfo">
               <el-table
                 :data="form.userInfo"
                 class="fixed-width-table"
