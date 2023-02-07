@@ -13,6 +13,7 @@
             <el-form-item prop="userInfo" label="设置账号信息：">
               <el-table
                 :data="form.userInfo"
+                class="fixed-width-table"
                 empty-text="暂无账号信息"
                 max-height="300"
                 row-key="id"
@@ -57,14 +58,17 @@
                     <el-input v-model="row.desc" />
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="110">
+                <el-table-column v-if="type === 'add'" label="操作" width="110">
                   <template slot-scope="scope">
                     <el-button type="text" @click="removeUser(scope.index)">移除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
               <el-row v-if="form.userInfo.length" style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;">用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
-              <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button><el-button type="text">一次性最多添加10个成员</el-button>
+              <template v-if="type === 'add'">
+                <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button>
+                <el-button type="text">一次性最多添加10个成员</el-button>
+              </template>
             </el-form-item>
             <el-form-item prop="accessType" label="访问方式：">
               <el-checkbox v-model="form.consoleEnabled" :disabled="type === 'edit'" @change="accessTypeChange">控制台访问</el-checkbox>
@@ -92,7 +96,7 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="maxOnline" label="最大登录人数：">
-              <el-input v-model.number="form.maxOnline" placeholder="请填写最大登录人数" />
+              <el-input v-model.number="form.maxOnline" placeholder="请填写最大登录人数" style="width: 320px;" />
             </el-form-item>
             <el-form-item prop="isMutualLogout" label="是否同端互踢：">
               <el-switch v-model="form.isMutualLogout" active-color="#FA8334" inactive-color="#CCCCCC" />
@@ -108,10 +112,33 @@
             </el-form-item>
           </div>
           <div v-show="activeStep === 1">
-            <el-tabs v-model="activeName" @tab-click="">
+            <div class="group-dialog__inherited">
+              <span class="group-dialog__inherited_title">继承上级部门策略:</span>
+              <div class="group-dialog__inherited_tag">
+                <template v-if="inheritedPolicies.length">
+                  <el-tag
+                    v-for="policy in inheritedPolicies"
+                    :key="policy.name"
+                    style="margin-right: 10px; margin-bottom: 3px;"
+                  >
+                    {{ `${policy.policyName}(${policy.groupDetails.groupName})` }}
+                  </el-tag>
+                </template>
+                <el-tag v-else type="warning">暂无继承策略</el-tag>
+              </div>
+            </div>
+            <el-tabs v-model="activeName">
               <el-tab-pane label="自定义权限" name="select">
+                <div style="margin-bottom: 10px;">请选择策略列表:</div>
                 <el-form-item prop="policies" label-width="0">
-                  <el-table ref="policyList" v-loading="loading.table" :data="policyList" max-height="500" @selection-change="handleSelectionChange" @row-click="rowClick">
+                  <el-table
+                    ref="policyList"
+                    v-loading="loading.table"
+                    class="fixed-width-table"
+                    :data="policyList"
+                    max-height="500"
+                    @selection-change="handleSelectionChange"
+                  >
                     <template slot="empty">
                       <span>暂无策略，请先添加策略。</span>
                     </template>
@@ -132,15 +159,56 @@
                   </el-table>
                 </el-form-item>
               </el-tab-pane>
-              <el-tab-pane label="复用权限" name="copy">
-                复用
+              <el-tab-pane label="复用权限" name="copy" class="tab-pane__copy">
+                <div class="tab-pane__copy_title">账号列表：</div>
+                <el-form-item label-width="0" prop="copyUser">
+                  <div v-loading="" class="tab-pane__copy_user-list">
+                    <div class="tab-pane__copy_user-list_left">
+                      <el-tree
+                        ref="groupTree"
+                        :props="props"
+                        node-key="groupId"
+                        highlight-current
+                        :expand-on-click-node="false"
+                        :default-expanded-keys="['']"
+                        current-node-key=""
+                        lazy
+                        :load="loadGroups"
+                        @current-change="loadIamUsers"
+                      />
+                    </div>
+                    <div class="tab-pane__copy_user-list_right">
+                      <el-table
+                        ref="userList"
+                        :data="userList"
+                        class="user-table"
+                        size="mini"
+                        @selection-change="handleUserListChange"
+                      >
+                        <el-table-column type="selection" />
+                        <el-table-column prop="iamUserName" label="账号名" min-width="120" />
+                        <el-table-column prop="desc" label="备注" min-width="220" show-overflow-tooltip>
+                          <template slot-scope="{row}">
+                            <span>{{ row.desc || '-' }}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="账号关联策略" min-width="300">
+                          <template slot-scope="{row}">
+                            <el-tag v-for="policy in row.policies" :key="policy.policyId" style="margin-right: 3px;">{{ policy.policyName }}</el-tag>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                  </div>
+                </el-form-item>
               </el-tab-pane>
             </el-tabs>
           </div>
           <div v-show="activeStep === 2">
-            <el-form-item label-width="0">
+            <el-form-item label="账号信息" prop="userInfo">
               <el-table
                 :data="form.userInfo"
+                class="fixed-width-table"
                 empty-text="暂无账号信息"
                 max-height="300"
                 row-key="id"
@@ -178,14 +246,14 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="maxOnline" label="最大登录人数：">
-              <el-input v-model.number="form.maxOnline" disabled placeholder="请填写最大登录人数" />
+              <el-input v-model.number="form.maxOnline" disabled placeholder="请填写最大登录人数" style="width: 320px;" />
             </el-form-item>
             <el-form-item prop="isMutualLogout" label="是否同端互踢：">
               <el-switch v-model="form.isMutualLogout" disabled active-color="#FA8334" inactive-color="#CCCCCC" />
               <span class="item-tip">是否开启登录互踢</span>
             </el-form-item>
-            <el-form-item label="已选策略：">
-              <el-table :data="form.policies" max-height="350">
+            <el-form-item label="生效策略：">
+              <el-table :data="effectivePolicies" class="fixed-width-table" max-height="350">
                 <template slot="empty">
                   <span>暂无策略，请先添加策略。</span>
                 </template>
@@ -201,8 +269,8 @@
             </el-form-item>
           </div>
           <el-form-item label-width="0">
-            <el-button :disabled="activeStep === 0" type="primary" @click="activeStep -= 1">上一步</el-button>
-            <el-button :disabled="activeStep === 2" type="primary" @click="activeStep += 1">下一步</el-button>
+            <el-button :disabled="activeStep === 0" type="primary" @click="gotoPrev">上一步</el-button>
+            <el-button :disabled="activeStep === 2" type="primary" @click="gotoNext">下一步</el-button>
             <el-button v-if="activeStep === 2" :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
             <el-button :disabled="loading.submit" @click="back">取消</el-button>
           </el-form-item>
@@ -220,11 +288,11 @@
         <el-table :data="newUserData" style="width: 100%;">
           <el-table-column prop="userName" label="用户名" />
           <el-table-column prop="passwords" label="密码">
-            <template slot-scope="scope">
-              <div v-if="scope.row.passwords">
-                <span>{{ showPasswords ? scope.row.passwords : '****' }}</span>
-                <span v-if="showPasswords" class="text-btn" @click="showPasswords = false">隐藏</span>
-                <span v-else class="text-btn" @click="showPasswords = true">显示</span>
+            <template slot-scope="{row}">
+              <div v-if="row.passwords">
+                <span>{{ row.showPasswords ? row.passwords : '****' }}</span>
+                <span v-if="row.showPasswords" class="text-btn" @click="row.showPasswords = false">隐藏</span>
+                <span v-else class="text-btn" @click="row.showPasswords = true">显示</span>
               </div>
               <div v-else>
                 <span>--</span>
@@ -232,16 +300,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="secrets" label="密钥">
-            <template slot-scope="scope">
+            <template slot-scope="{row}">
               <div>
                 <span>AccessKeyId：</span>
-                <span>{{ scope.row.secretId ? scope.row.secretId : '--' }}</span>
+                <span>{{ row.secretId ? row.secretId : '--' }}</span>
               </div>
-              <div v-if="scope.row.secretKey">
+              <div v-if="row.secretKey">
                 <span>SecretAccessKey：</span>
-                <span>{{ showSecretKey ? scope.row.secretKey : '****' }}</span>
-                <span v-if="showSecretKey" class="text-btn" @click="showSecretKey = false">隐藏</span>
-                <span v-else class="text-btn" @click="showSecretKey = true">显示</span>
+                <span>{{ row.showSecretKey ? row.secretKey : '****' }}</span>
+                <span v-if="row.showSecretKey" class="text-btn" @click="row.showSecretKey = false">隐藏</span>
+                <span v-else class="text-btn" @click="row.showSecretKey = true">显示</span>
               </div>
               <div v-else>
                 <span>SecretAccessKey：--</span>
@@ -262,8 +330,8 @@
 
 <script lang="ts">
 import {
-  createUser, getPolicyList, getUser,
-  modifyUser
+  createUser, getPolicyList, getUser, getUserList,
+  modifyUser, getGroupList, getGroupInheritedPolicies, getGroup
 } from '@/api/accessManage'
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import copy from 'copy-to-clipboard'
@@ -282,8 +350,15 @@ export default class extends Vue {
     form: false,
     submit: false
   }
+  private props: object = {
+    label: 'groupName',
+    children: 'children'
+  }
   private activeStep = 0
   private activeName = 'select'
+  private userList = []
+  private effectivePolicies = []
+  private inheritedPolicies = []
   private cardIndex: string = 'form'
   private breadCrumbContent: string = ''
   private lifeTimeOptions = [
@@ -314,14 +389,19 @@ export default class extends Vue {
     passwordLifeTime: 0,
     maxOnline: 1,
     isMutualLogout: false,
-    policies: []
+    policies: [],
+    copyUser: []
   }
   private rules: any = {
     iamUserName: [
       { required: true, message: '用户名必填', trigger: 'blur' },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
-    policies: [{ required: true, message: '请添加用户权限' }],
+    userInfo: [
+      { required: true, message: '至少添加一个成员', trigger: 'blur' }
+    ],
+    policies: [{ validator: this.validatePolicies, trigger: ['blur', 'change'] }],
+    copyUser: [{ validator: this.validateCopyUser, trigger: ['blur', 'change'] }],
     accessType: [
       { required: true, validator: this.validateAccessType, trigger: 'change' }
     ],
@@ -343,7 +423,6 @@ export default class extends Vue {
   }
   private policyList: Array<object> = []
   private newUserData: Array<object> = []
-  private showPasswords: boolean = false
   private showSecretKey: boolean = false
   private fromUrl: string = ''
 
@@ -371,12 +450,85 @@ export default class extends Vue {
     this.form.userInfo.splice(index, 1)
   }
 
+  private gotoPrev() {
+    this.activeStep -= 1
+  }
+
+  private gotoNext() {
+    this.activeStep += 1
+    if (this.activeStep === 2) {
+      if (this.activeName === 'select') {
+        this.effectivePolicies = this.form.policies
+      } else {
+        this.effectivePolicies = this.form.copyUser?.[0]?.policies
+      }
+    }
+  }
+
+  private async loadIamUsers(data: any) {
+    try {
+      const params = {
+        groupId: data.groupId,
+        pageSize: -1,
+        pageNum: -1
+      }
+      let res: any = await getUserList(params)
+      this.userList = res.iamUsers.map((iamUser: any) => {
+        return {
+          iamUserId: iamUser.iamUserId,
+          iamUserName: iamUser.iamUserName,
+          desc: iamUser.desc,
+          policies: iamUser.policies
+        }
+      })
+    } catch (e) {
+      console.log('e: ', e)
+    }
+  }
+
+  private async loadGroups(node: any, resolve: Function) {
+    if (node.level === 0) {
+      await this.loadIamUsers({
+        groupId: ''
+      })
+      return resolve([
+        { groupName: '通讯录', groupId: '', children: [] }
+      ])
+    }
+    try {
+      const res = await getGroupList({
+        parentGroupId: node.data.groupId
+      })
+      // let groups = res.groups.filter((item: any) => item.groupId !== this.dialogData.data.groupId)
+      let groups = res.groups
+      let dirs: any = groups.map((group: any) => {
+        return {
+          groupName: group.groupName,
+          groupId: group.groupId
+        }
+      })
+      resolve(dirs)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   private accessTypeChange() {
     this.form.accessType = this.form.consoleEnabled || this.form.apiEnabled
   }
 
   private handleSelectionChange(selection: any) {
     this.form.policies = selection
+  }
+
+  private handleUserListChange(rows: any) {
+    if (rows.length > 1) {
+      const userList: any = this.$refs.userList
+      userList.clearSelection()
+      userList.toggleRowSelection(rows.pop())
+    } else {
+      this.form.copyUser = rows
+    }
   }
 
   private rowClick(row: any) {
@@ -422,11 +574,48 @@ export default class extends Vue {
     }
   }
 
+  private async initCreateGroup(parentGroupId: string) {
+    try {
+      let params = {
+        groupId: parentGroupId
+      }
+      const [inheritedPoliciesRes, groupRes] =
+        await Promise.all([getGroupInheritedPolicies(params), getGroup(params)])
+
+      const iamPolicies: any = this.policyList
+      const policyIds = groupRes.policyIds
+      const tempPolicies = policyIds.map(id => {
+        const policy = iamPolicies.find(iamPolicy => iamPolicy.policyId === id)
+        return {
+          policyId: policy.policyId,
+          policyName: policy.policyName,
+          policyDesc: policy.policyDesc,
+          groupDetails: {
+            groupId: groupRes.groupId,
+            groupName: groupRes.groupName,
+            groupDesc: groupRes.groupDesc
+          }
+        }
+      })
+      const inheritPolicies = inheritedPoliciesRes.inheritedPolicies
+      inheritPolicies.forEach(inherit => {
+        if (!policyIds.includes(inherit.policyId)) {
+          tempPolicies.push(inherit)
+        }
+      })
+      this.inheritedPolicies = tempPolicies
+    } catch (e) {
+      this.$message.error(e)
+    }
+  }
+
   private async mounted() {
     try {
       this.loading.form = true
       await this.getPolicyList()
       this.type = this.$route.query.type
+      const parentGroupId: any = this.$route.query.groupId
+      await this.initCreateGroup(parentGroupId)
       if (this.type === 'edit') {
         this.breadCrumbContent = '编辑用户'
         this.getUser()
@@ -455,38 +644,49 @@ export default class extends Vue {
 
   private async getUser() {
     try {
+      const userId = this.$router.currentRoute.query.userId
       let res = await getUser({
-        iamUserId: this.$router.currentRoute.query.userId
+        iamUserId: userId
       })
       this.form = {
-        iamUserName: res.iamUserName,
+        userInfo: [{
+          id: userId,
+          iamUserName: res.iamUserName,
+          email: res.email,
+          phone: res.phone,
+          desc: res.desc
+        }],
         consoleEnabled: res.consoleEnabled === '1',
         apiEnabled: res.apiEnabled === '1',
         resetPwdEnabled: res.resetPwdEnabled === '1',
         accessType: res.apiEnabled === '1' || res.consoleEnabled === '1',
-        email: res.email,
-        phone: res.phone,
         passwordLifeTime: res.passwordLifeTime,
         maxOnline: res.maxOnline,
         isMutualLogout: res.isMutualLogout
       }
-      let selectRow = this.policyList.find((policy: any) => {
-        return policy.policyId === res.policyId
-      })
       const policyList: any = this.$refs.policyList
-      policyList.toggleRowSelection(selectRow)
+      res.policies.forEach(policy => {
+        let selectRow = this.policyList.find((row: any) => {
+          return row.policyId === policy.policyId
+        })
+        policyList.toggleRowSelection(selectRow)
+      })
     } catch (e) {
       this.$message.error(e && e.message)
       this.back()
     }
   }
+
   private async operateUser(type: any) {
     const form: any = this.$refs.userForm
     form.validate(async(valid: any) => {
       const form = this.form
+      console.log('this.form.copyUser: ', this.form.copyUser)
       let params: any = {
         userProperties: this.form.userInfo,
-        policyIds: form.policies.map(policy => policy.policyId),
+        policyIds: this.activeName === 'select'
+          ? form.policies.map(policy => policy.policyId)
+          : form.copyUser?.[0]?.policies.map(policy => policy.policyId),
         consoleEnabled: form.consoleEnabled ? '1' : '2',
         apiEnabled: form.apiEnabled ? '1' : '2',
         resetPwdEnabled: form.resetPwdEnabled ? '1' : '2',
@@ -501,22 +701,29 @@ export default class extends Vue {
             params.groupId = this.$router.currentRoute.query.groupId
             let res = await createUser(params)
             this.cardIndex = 'table'
-            this.newUserData = [
-              {
-                mainUserId: res.mainUserId,
-                userName: res.iamUserName,
-                passwords: res.iamUserPasswd,
-                secretId: res.ak,
-                secretKey: res.sk
-              }
-            ]
+            this.newUserData = res.createdUserInfos.map(userInfo => ({
+              mainUserId: userInfo.mainUserId,
+              userName: userInfo.iamUserName,
+              passwords: userInfo.iamUserPasswd,
+              secretId: userInfo.ak,
+              secretKey: userInfo.sk,
+              showPasswords: false,
+              showSecretKey: false
+            }))
           } else if (type === 'edit') {
+            const row = this.form.userInfo[0]
             params.iamUserId = this.$router.currentRoute.query.userId
+            params.iamUserName = row.iamUserName
+            params.phone = row.phone
+            params.email = row.email
+            params.desc = row.desc
+            delete params.userProperties
             await modifyUser(params)
             this.$message.success('修改用户成功')
             this.back()
           }
         } else {
+          this.$message.error('存在校验未通过字段，请检查确认！')
           return false
         }
       } catch (e) {
@@ -572,6 +779,22 @@ export default class extends Vue {
     }
   }
 
+  private validatePolicies(rule: any, value: any, callback: Function) {
+    if (this.activeName === 'select' && !this.form.policies.length) {
+      callback(new Error('请添加用户权限'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateCopyUser(rule: any, value: any, callback: Function) {
+    if (this.activeName === 'copy' && !this.form.copyUser.length) {
+      callback(new Error('请选择要拷贝权限的用户'))
+    } else {
+      callback()
+    }
+  }
+
   private validateAccessType(rule: any, value: any, callback: Function) {
     if (!value) {
       callback(new Error('请至少选择一种访问方式'))
@@ -615,12 +838,36 @@ export default class extends Vue {
   }
 }
 
-.el-table {
+.fixed-width-table.el-table {
   width: 850px;
 
   ::v-deep {
     .el-table__header-wrapper .el-checkbox {
       display: none;
+    }
+  }
+}
+
+.user-table.el-table {
+  ::v-deep {
+    .el-table__header-wrapper .el-checkbox {
+      display: none;
+    }
+    //单选补充样式
+    .el-checkbox__inner {
+      border-radius: 100%;
+
+      &:after {
+        opacity: 1;
+        position: absolute;
+        width: 0.3px;
+        height: 0.3px;
+        background: #fff;
+        border-radius: 100%;
+        top: 4px;
+        left: 4px;
+        border: 2px solid #fff;
+      }
     }
   }
 }
@@ -649,5 +896,55 @@ export default class extends Vue {
 .back-btn {
   margin-top: 20px;
   margin-left: 20px;
+}
+
+.tab-pane__copy {
+  &_title {
+    margin-bottom: 10px;
+  }
+
+  &_user-list {
+    display: flex;
+    border: 1px solid #dfe6ec;
+
+    &_left {
+      margin-bottom: 8px;
+      width: 40%;
+    }
+
+    &_right {
+      width: 60%;
+      border-left: 1px solid #dfe6ec;
+    }
+  }
+}
+
+.group-dialog {
+  &__inherited {
+    margin-bottom: 7px;
+
+    &_title {
+      font-size: 16px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    &_tag {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__policy {
+    margin-bottom: 20px;
+
+    &_title {
+      font-size: 16px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+  }
 }
 </style>

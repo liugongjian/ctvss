@@ -16,7 +16,7 @@
             <el-tag
               v-for="policy in inheritedPolicies"
               :key="policy.name"
-              style="margin-right: 10px;"
+              style="margin-right: 10px; margin-bottom: 3px;"
             >
               {{ `${policy.policyName}(${policy.groupDetails.groupName})` }}
             </el-tag>
@@ -381,7 +381,7 @@ export default class extends Vue {
 
   .group-dialog {
     &__inherited {
-      margin-bottom: 20px;
+      margin-bottom: 17px;
 
       &_title {
         font-size: 16px;

@@ -327,7 +327,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link: string = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 
@@ -417,6 +417,7 @@ export default class extends Vue {
       query: {
         type: 'edit',
         userId: row.iamUserId,
+        groupId: this.currentNode.data.groupId,
         subUserLoginLink: this.subUserLoginLink,
         nodeKeyPath: this.nodeKeyPath
       }
