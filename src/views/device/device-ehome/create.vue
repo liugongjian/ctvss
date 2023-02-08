@@ -74,11 +74,12 @@
         <el-form-item label="版本:" prop="ehomeVersion">
           <el-radio-group v-model="form.ehomeVersion">
             <el-radio-button
-              v-for="item in ehomeVersionList"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
+              v-for="item in ehomeVersionMap"
+              :key="item.value"
+              :label="item.value"
+            >
+              {{ item.label }}
+            </el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
@@ -447,7 +448,17 @@ export default class extends Mixins(createMixin) {
     }
   })
 
-  private ehomeVersionList = ['2.0', '5.0']
+  private ehomeVersionMap = [
+    {
+      label: 'EHOME2.0',
+      value: '2.0'
+    },
+    {
+      label: 'ISUP5.0',
+      value: '5.0'
+    }
+  ]
+
   private multiStreamSizeList = [
     {
       label: '单码流',

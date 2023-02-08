@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">新建EHOME凭证</el-button>
+        <el-button type="primary" @click="handleCreate">新建ISUP凭证</el-button>
         <div class="filter-container__right">
           <el-input
             v-model="userName"
@@ -138,8 +138,8 @@ export default class extends Vue {
 
   private async deleteCertificate(row: EHOME) {
     this.$alertDelete({
-      type: 'EHOME凭证',
-      msg: `是否确认删除EHOME凭证"${row.userName}"`,
+      type: 'ISUP凭证',
+      msg: `是否确认删除ISUP凭证"${row.userName}"`,
       method: deleteCertificate,
       payload: {
         inProtocol: 'ehome',

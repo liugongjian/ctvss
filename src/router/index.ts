@@ -551,7 +551,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210424150201007001',
           name: 'ehome-certificate',
-          title: 'EHOME凭证',
+          title: 'ISUP凭证',
           icon: 'dot',
           perms: ['*'],
           activeMenu: '/certificate/ehome'
@@ -563,7 +563,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'ehome-create',
         meta: {
           id: '20210424150201007002',
-          title: '新建EHOME凭证',
+          title: '新建ISUP凭证',
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/ehome'
@@ -575,7 +575,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'ehome-update',
         meta: {
           id: '20210424150201007003',
-          title: '编辑EHOME凭证',
+          title: '编辑ISUP凭证',
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/ehome'

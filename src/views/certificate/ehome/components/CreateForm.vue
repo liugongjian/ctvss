@@ -161,9 +161,9 @@ export default class extends Vue {
           }
           onSuccess()
           if (this.isEdit) {
-            this.$message.success('修改EHOME凭证成功！')
+            this.$message.success('修改ISUP凭证成功！')
           } else {
-            this.$message.success('新建EHOME凭证成功！')
+            this.$message.success('新建ISUP凭证成功！')
           }
         } catch (e) {
           this.$message.error(e && e.message)
