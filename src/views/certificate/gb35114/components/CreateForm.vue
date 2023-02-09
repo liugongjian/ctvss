@@ -1,7 +1,7 @@
 <template>
   <el-form
     ref="dataForm"
-    v-loading="loading.submit"
+    v-loading="loading.form"
     class="gb35114-form"
     :rules="rules"
     :model="form"
@@ -23,7 +23,7 @@
       </div>
       <div v-if="form.errorTip" class="form-tip error-tip">{{ form.errorTip }}</div>
     </el-form-item>
-    <el-form-item label="解析数据：" prop="gbId">
+    <el-form-item label="解析数据：" prop="outId">
       <div class="form-box">
         <div class="form-box-item">
           <span class="form-box-item__title">设备名称：</span>
@@ -31,7 +31,7 @@
         </div>
         <div class="form-box-item">
           <span class="form-box-item__title">国标ID：</span>
-          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.gbId || '-') }}</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.outId || '-') }}</span>
         </div>
       </div>
     </el-form-item>
@@ -44,7 +44,7 @@
           <span class="form-box-item__title">证书截止有效时间：</span>
           <span class="form-box-item__content">
             <el-date-picker
-              v-model="form.validTime"
+              v-model="form.expireTime"
               type="datetime"
               placeholder="选择日期时间"
               :clearable="false"
@@ -53,14 +53,14 @@
           </span>
         </div>
         <div class="form-box-item">
-          <el-button v-if="form.certificate" size="small" type="primary" @click="1">重新生成证书</el-button>
-          <el-button v-else size="small" type="primary" @click="generateCertificate">生成证书</el-button>
+          <el-button v-if="form.certificate" size="small" type="primary" :loading="loading.generate" @click="1">重新生成证书</el-button>
+          <el-button v-else size="small" type="primary" :loading="loading.generate" @click="generateCertificate">生成证书</el-button>
         </div>
         <div v-if="form.certificate" class="form-box-item">
           <span class="form-box-item__content">{{ form.certificate }}</span>
         </div>
         <div v-if="form.certificate" class="form-box-item">
-          <el-button size="small" type="primary" @click="1">一键下载</el-button>
+          <el-button size="small" type="primary" :loading="loading.download" @click="1">一键下载</el-button>
         </div>
       </div>
     </el-form-item>
@@ -81,10 +81,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getDateByTime } from '@/utils/date'
 import {
-  createCertificate,
-  queryCertificate,
-  updateCertificate
-} from '@/api/certificate/gb28181'
+  uploadCsr,
+  generateCertificate,
+  describeCertificate,
+  downloadCertificate
+} from '@/api/certificate/gb35114'
+import { error } from 'console'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
@@ -92,24 +94,28 @@ import {
 export default class extends Vue {
   private rules = {
     fileName: [{ required: true, message: '请选择本地设备证书请求文件', trigger: 'blur' }],
-    gbId: [{ required: true, message: '请选择正确的设备证书请求文件获取解析数据', trigger: 'blur' }],
+    outId: [{ required: true, message: '请选择正确的设备证书请求文件获取解析数据', trigger: 'blur' }],
     certificate: [{ required: true, message: '请生成证书', trigger: 'change' }]
   }
 
   private selectedFile: any = null
+  // 解析进程对象
+  public reader: any = new FileReader()
   private form = {
     fileName: '',
     deviceName: '',
-    gbId: '',
-    validTime: new Date(),
+    outId: '',
+    expireTime: new Date(),
     certificate: '',
+    description: '',
     errorTip: ''
   }
 
   private loading = {
     upload: false,
     generate: false,
-    submit: false
+    form: false,
+    download: false
   }
 
   private pickerOptions = {
@@ -121,28 +127,93 @@ export default class extends Vue {
     }
   }
 
+  private async mounted() {
+    const params: any = this.$route.params
+    if (params.outId) {
+      try {
+        this.loading.form = true
+        const res = await describeCertificate({ outId: params.outId })
+        this.form.deviceName = res.deviceName
+        this.form.outId = res.outId
+        this.form.certificate = '相关证书文件压缩包'
+      } catch (e) {
+        this.$message.error(e && e.message)
+      } finally {
+        this.loading.form = false
+      }
+    }
+  }
+
   /**
    * 浏览请求文件
    */
   private previewFile(data) {
     this.selectedFile = data.file
     this.form.fileName = this.selectedFile.name
+    // 检验大小
+    console.log(this.selectedFile.size)
+    if (this.selectedFile.size > 8192) {
+      return (this.form.errorTip = '请求文件文件格式错误')
+    } else {
+      this.reader.readAsText(this.selectedFile)
+      this.reader.onloadend = () => {
+        const result = this.reader.result.trim()
+        console.log(result)
+        if (result.startsWith('-----BEGIN CERTIFICATE REQUEST-----') && result.endsWith('-----END CERTIFICATE REQUEST-----')) {
+          this.form.errorTip = ''
+        } else {
+          this.form.errorTip = '请求文件文件格式错误'
+        }
+      }
+    }
   }
 
   /**
    * 解析请求文件
    */
   private uploadFile() {
+    if (this.form.errorTip) return
     const dataForm: any = this.$refs.dataForm
     dataForm.validateField('fileName', (err) => {
       if (!err) {
         this.loading.upload = true
-        setTimeout(() => {
-          console.log(this.selectedFile)
+        this.fileToBase64(this.selectedFile, this.reader).then(async(fileString: any) => {
+          console.log(fileString)
+          // try {
+          //   const res = await uploadCsr({ deviceCsr: fileString })
+          //   this.form.deviceName = res.deviceName
+          //   this.form.outId = res.outId
+          // } catch (e) {
+          //   console.log(e)
+          // } finally {
+          //   this.loading.upload = false
+          // }
+          setTimeout(() => {
+            this.loading.upload = false
+            this.form.deviceName = '测试设备'
+            this.form.outId = '12345678901234567890'
+          }, 1000)
+        }).catch(e => {
+          console.log(e)
           this.loading.upload = false
-          this.form.deviceName = '测试设备'
-          this.form.gbId = '12345678901234567890'
-        }, 1000)
+        })
+      }
+    })
+  }
+
+  // 文件转base64
+  private fileToBase64(file: any, reader: any) {
+    return new Promise((resolve, reject) => {
+      let fileResult: any = ''
+      reader.readAsDataURL(file)
+      reader.onload = function() {
+        fileResult = reader.result
+      }
+      reader.onerror = function(error: any) {
+        reject(error)
+      }
+      reader.onloadend = function() {
+        resolve(fileResult)
       }
     })
   }
@@ -152,21 +223,55 @@ export default class extends Vue {
    */
   private generateCertificate() {
     const dataForm: any = this.$refs.dataForm
-    dataForm.validateField('gbId', (err) => {
+    dataForm.validateField('outId', async(err) => {
       if (!err) {
         this.loading.generate = true
         setTimeout(() => {
           const params = {
             deviceName: this.form.deviceName,
-            gbId: this.form.gbId,
-            validTime: this.form.validTime
+            outId: this.form.outId,
+            expireTime: this.form.expireTime
           }
           console.log(params)
           this.loading.generate = false
           this.form.certificate = '相关证书文件压缩包'
         }, 1000)
+        // try {
+        //   this.loading.generate = true
+        //   await generateCertificate({
+        //     deviceName: this.form.deviceName,
+        //     outId: this.form.outId,
+        //     expireTime: this.form.expireTime,
+        //     description: this.form.description
+        //   })
+        //   this.form.certificate = '相关证书文件压缩包'
+        // } catch (e) {
+        //   this.$message.error(e && e.message)
+        // } finally {
+        //   this.loading.form = false
+        // }
       }
     })
+  }
+
+  /**
+   * 下载证书
+   */
+  private async downloadCertificate() {
+    // try {
+    //   this.loading.download = true
+    //   const res = await downloadCertificate({ outId: this.form.outId })
+    //   const file = res.certsZip
+    //   const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+    //   const link = document.createElement('a')
+    //   link.href = window.URL.createObjectURL(blob)
+    //   link.download = '相关证书文件压缩包'
+    //   link.click()
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // } finally {
+    //   this.loading.download = false
+    // }
   }
 
   private submit(onSuccess: Function) {
@@ -174,7 +279,7 @@ export default class extends Vue {
     let data: any = {}
     form.validate(async(valid: any) => {
       if (valid) {
-        this.loading.submit = true
+        this.loading.form = true
         try {
           data = this.form
           // await createCertificate(data)
@@ -183,7 +288,7 @@ export default class extends Vue {
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
-          this.loading.submit = false
+          this.loading.form = false
         }
       } else {
         console.log('error submit!!')

@@ -28,6 +28,8 @@ export default class extends Vue {
   }
 
   private back() {
+    const form: any = this.$refs.createForm
+    form.reader && form.reader.abort()
     this.$router.push('/certificate/gb35114')
   }
 

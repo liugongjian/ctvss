@@ -534,7 +534,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb28181/update/:id?',
+        path: 'gb28181/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
         name: 'gb28181-update',
         meta: {
@@ -572,7 +572,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'ga1400/update/:id?',
+        path: 'ga1400/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'ga1400-update',
         meta: {
@@ -610,7 +610,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb35114/update/:id?',
+        path: 'gb35114/update/:outId?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'gb35114-update',
         meta: {

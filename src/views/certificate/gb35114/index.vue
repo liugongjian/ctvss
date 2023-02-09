@@ -25,12 +25,12 @@
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column prop="description" label="描述" min-width="160" />
-        <el-table-column prop="description" label="设备名称" min-width="160" />
-        <el-table-column prop="description" label="国标ID" min-width="200" />
-        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
-        <el-table-column prop="createdTime" label="更新时间" min-width="160" />
-        <el-table-column prop="createdTime" label="证书有效期时间" min-width="160" />
-        <el-table-column prop="createdTime" label="状态" min-width="100" />
+        <el-table-column prop="deviceName" label="设备名称" min-width="160" />
+        <el-table-column prop="outId" label="国标ID" min-width="200" />
+        <el-table-column prop="ceateTime" label="创建时间" min-width="160" />
+        <el-table-column prop="updateTime" label="更新时间" min-width="160" />
+        <el-table-column prop="expireTime" label="证书有效期时间" min-width="160" />
+        <el-table-column prop="status" label="状态" min-width="100" />
         <el-table-column prop="action" label="操作" width="180" fixed="right">
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
