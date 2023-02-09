@@ -46,14 +46,16 @@
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation">
-                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
-                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
-              </span>
-              <span class="operation">
-                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
-                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
-              </span>
+              <div v-if="!['ehome'].includes(screen.inProtocol)">
+                <span class="operation">
+                  <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
+                  <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
+                </span>
+                <span class="operation">
+                  <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
+                  <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
+                </span>
+              </div>
             </div>
           </div>
           <div class="ptz-slider">
@@ -67,7 +69,7 @@
               input-size="mini"
             />
           </div>
-          <el-tabs v-model="tabName">
+          <el-tabs v-if="!['ehome'].includes(screen.inProtocol)" v-model="tabName">
             <el-tab-pane label="预置位" name="preset">
               <div v-loading="loading.preset" class="ptz-tab-container">
                 <template v-for="(preset, index) in presets">
@@ -195,13 +197,16 @@ export default class extends Vue {
     cruise: false,
     homeposition: false
   }
+
   private currentIndex: any = {
     preset: null,
     cruise: null
   }
+
   private dialog: any = {
     cruise: false
   }
+
   private isCreate: boolean = true
   private presets: Array<any> = []
   private cruises: Array<any> = []
@@ -212,6 +217,7 @@ export default class extends Vue {
     waitTime: '',
     presetId: ''
   }
+
   private homepositionRules: any = {
     waitTime: [
       // { required: true, message: '请填写守望时间', trigger: 'blur' },
@@ -227,7 +233,7 @@ export default class extends Vue {
   }
 
   private get disablePTZ() {
-    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || this.screen.inProtocol !== 'gb28181'
+    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || !['gb28181', 'ehome'].includes(this.screen.inProtocol)
   }
 
   @Watch('presets')
@@ -245,6 +251,7 @@ export default class extends Vue {
       this.getKeepWatchInfo()
     }
   }
+
   // 获取预置位信息
   private async getPresets() {
     try {
@@ -310,7 +317,7 @@ export default class extends Vue {
   }
 
   private async deletePreset(presetId: number) {
-    await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await deleteDevicePreset({ deviceId: this.deviceId, presetId: String(presetId) })
     // this.$set(this.presets, presetId - 1, {
     //   'setFlag': false,
     //   'name': `预置位 ${presetId}`,
@@ -318,8 +325,9 @@ export default class extends Vue {
     // })
     this.getPresets()
   }
+
   private async setPreset(presetId: number, presetName: string) {
-    await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
+    await setDevicePreset({ deviceId: this.deviceId, presetId: String(presetId), presetName })
     // this.$set(this.presets, presetId - 1, {
     //   'setFlag': true,
     //   'name': presetName,
@@ -327,6 +335,7 @@ export default class extends Vue {
     // })
     this.getPresets()
   }
+
   private enterEdit(preset: any, index: number) {
     preset.editNameFlag = true
     this.$nextTick(() => {
@@ -334,18 +343,22 @@ export default class extends Vue {
       $nameinput[0].focus()
     })
   }
+
   private closeEdit(preset: any, index: number) {
     if (!preset.name) {
       preset.name = `预置位 ${index + 1}`
     }
     preset.editNameFlag = false
   }
+
   private async gotoPreset(presetId: number) {
-    await gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await gotoDevicePreset({ deviceId: this.deviceId, presetId: String(presetId) })
   }
+
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.screen.inProtocol
     }
     switch (direction) {
       case 5:
@@ -397,9 +410,11 @@ export default class extends Vue {
     }
     return param
   }
+
   private formatEndParam(direction: number) {
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.screen.inProtocol
     }
     switch (direction) {
       case 5:
@@ -451,22 +466,27 @@ export default class extends Vue {
     }
     return param
   }
+
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
     await startDeviceMove(data)
   }
+
   private async endPtzMove(direction: number) {
     const data = this.formatEndParam(direction)
     await endDeviceMove(data)
   }
+
   private async startPtzAdjust(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
     await startDeviceAdjust(data)
   }
+
   private async endPtzAdjust(direction: number) {
     const data = this.formatEndParam(direction)
     await endDeviceAdjust(data)
   }
+
   private formatToolTip() {
     return '云台速度 ' + this.speed
   }

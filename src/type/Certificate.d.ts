@@ -12,6 +12,12 @@ export interface GB28181 extends Certificate {
   confirmPassword?: string;
 }
 
+export interface EHOME extends Certificate {
+  password?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+}
+
 export interface GA1400 extends Certificate {
   password?: string;
   newPassword?: string;
