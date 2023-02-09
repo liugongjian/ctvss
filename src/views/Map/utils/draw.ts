@@ -1,6 +1,7 @@
 import { markerObject } from '@/views/Map/models/VMap'
 import { checkPermission } from '@/utils/permission'
 import { drawCameraBg } from './svg'
+import settings from '../settings'
 
 const createNode = (htmlstr: string) => {
   const div = document.createElement('div')
@@ -12,9 +13,9 @@ export const drawCamera = (markerOptions: markerObject, options) => {
   const markerContent = document.createElement('div')
   markerContent.setAttribute('class', 'marker-containt marker-camera')
   const appearance = markerOptions.appearance || '{}'
-  let mColor = JSON.parse(appearance).color || '#FA8334'
+  let mColor = JSON.parse(appearance).color || options.defaultDeviceColor
   if (mColor === '0') {
-    mColor = '#FA8334'
+    mColor = options.defaultDeviceColor
   }
   const cameraBg = createNode(drawCameraBg(mColor))
   // eslint-disable-next-line max-len
@@ -75,7 +76,7 @@ export const drawBubblePoint = (point) => {
   markerContent.setAttribute('class', 'marker-containt marker-bubblePoint')
   markerContent.setAttribute('id', `marker-point-${point.tagId}`)
   const appearance = point.appearance || '{}'
-  const color = JSON.parse(appearance).color || '#FA8334'
+  const color = JSON.parse(appearance).color || settings.defaultDeviceColor
   const show = JSON.parse(appearance).showLabel || false
   const marker = createNode(`<svg class="icon-interest" width="26px" height="30px" viewBox="0 0 26 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="电子地图--兴趣点工具" transform="translate(-734.000000, -370.000000)" fill="${color}" fill-rule="nonzero"> <g id="摄像头点位-copy" transform="translate(620.000000, 200.000000)"> <path d="M126.727273,170 C133.746556,170 139.454545,175.625 139.454545,182.45 C139.454545,191.75 127.807163,199.475 127.344353,199.775 C127.190083,199.925 126.958678,200 126.727273,200 C126.495868,200 126.341598,199.925 126.110193,199.775 C125.570248,199.475 114,191.75 114,182.45 C114,175.625 119.707989,170 126.727273,170 Z M126.272727,177.272727 C123.503497,177.272727 121.272727,179.503497 121.272727,182.272727 C121.272727,185.041958 123.503497,187.272727 126.272727,187.272727 C129.041958,187.272727 131.272727,185.041958 131.272727,182.272727 C131.272727,179.503497 129.041958,177.272727 126.272727,177.272727 Z M126.272727,185.454545 C125.038961,185.454545 124,184.207792 124,182.727273 C124,181.246753 125.038961,180 126.272727,180 C127.506494,180 128.545455,181.246753 128.545455,182.727273 C128.545455,184.207792 127.506494,185.454545 126.272727,185.454545 L126.272727,185.454545 Z" id="Shape-Copy-3"></path> </g> </g> </g> </svg>`)
   const deleteIcon = `<i class="icon icon_delete" onclick="deleteInterest('${point.tagId}', '${point.type}')"></i>`

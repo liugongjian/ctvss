@@ -6,7 +6,7 @@ import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'
 import { isEqual } from 'lodash'
-
+import settings from '../settings'
 export interface mapObject {
   mapId: string,
   name: string,
@@ -447,6 +447,7 @@ export default class VMap {
       div.className = 'index-cluster'
       div.style.width = styleObj.size + 'px'
       div.style.height = styleObj.size + 'px'
+      div.style.backgroundColor = this.curMapOptions.defaultDeviceColor
       // 自定义点击事件
       context.marker.on('click', (e) => {
         let curZoom = this.map.getZoom()
@@ -480,7 +481,7 @@ export default class VMap {
         context.marker.setContent(' ')
       } else {
         const div = document.createElement('div')
-        const bgColor = '#fa8334'
+        const bgColor = this.curMapOptions.defaultDeviceColor || settings.defaultDeviceColor
         const fontColor = '#fff'
         div.style.backgroundColor = bgColor
         const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
@@ -516,6 +517,7 @@ export default class VMap {
       } else {
         // const content = this.buildContent(context.data[0])
         const content = drawCamera(context.data[0], {
+          defaultDeviceColor: this.curMapOptions.defaultDeviceColor,
           handlers: this.markerEventHandlers,
           isEdit: this.isEdit,
           map: this.map

@@ -142,6 +142,7 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { validateIsLng, validateIsLat } from './utils/validate'
 import { createMap, modifyMap } from '@/api/map'
+import settings from './settings'
 
 @Component({
   name: 'MapConfig'
@@ -189,7 +190,7 @@ export default class MapConfig extends Vue {
     marker: false, // 是否显示点位
     groupByGroupId: false, // 是否启用业务组聚合
     groupByAdjacent: true, // 是否启用相邻点聚合
-    defaultDeviceColor: '#FA8334' // 点位默认颜色
+    defaultDeviceColor: settings.defaultDeviceColor // 点位默认颜色
   }
   private get zoomDesc() {
     const map = {
@@ -276,7 +277,7 @@ export default class MapConfig extends Vue {
           marker: this.form.marker ? 'Y' : 'N',
           groupByGroupId: this.form.groupByGroupId ? 'Y' : 'N',
           groupByAdjacent: this.form.groupByAdjacent ? 'Y' : 'N',
-          defaultDeviceColor: this.form.defaultDeviceColor
+          defaultDeviceColor: this.form.defaultDeviceColor || settings.defaultDeviceColor
         }
         if (this.form.status === 'add') {
           const res = await createMap(map)

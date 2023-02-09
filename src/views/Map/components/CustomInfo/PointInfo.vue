@@ -51,10 +51,9 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
+  @Prop()private mapOption: any
   @Prop() private isAdd: boolean
-  @Prop()
-  private isEdit: boolean
-
+  @Prop()private isEdit: boolean
   @Prop() private predefineColor: []
 
   private color
@@ -64,7 +63,7 @@ export default class extends Vue {
   private RecordStatusType = RecordStatusType
 
   get markerInfo() {
-    this.color = MapModule.markerInfo.appearance.color || '#FA8334'
+    this.color = MapModule.markerInfo.appearance.color || this.mapOption.defaultDeviceColor
     return MapModule.markerInfo
   }
 

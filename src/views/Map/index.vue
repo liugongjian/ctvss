@@ -160,6 +160,7 @@
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
+                :key="mapViewKey"
                 ref="mapview"
                 :map-option="curMap"
                 :is-edit="isEdit"
@@ -171,7 +172,7 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
+                <custom-info v-if="customInfoType" :key="customInfoType" :map-option="curMap" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
               </div>
             </div>
           </div>
@@ -194,6 +195,7 @@ import { mapObject } from '@/views/Map/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
 import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
+import settings from './settings'
 
 @Component({
   name: 'Map',
@@ -235,6 +237,7 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
   private customInfoType: string = ''
+  private mapViewKey = new Date().getTime()
 
   private form = {
     mapId: '',
@@ -387,10 +390,6 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('curMap')
   private curmapChange() {
-    // TODO
-    this.curMap.groupByGroupId = 'N'
-    this.curMap.groupByAdjacent = 'N'
-    this.curMap.defaultDeviceColor = '#52c41a'
     MapModule.SetMapInfo(this.curMap)
   }
 
@@ -1020,6 +1019,7 @@ export default class extends Mixins(IndexMixin) {
       this.curMap = mapinfo
       this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
       this.$refs.mapview.renderMask(mapinfo.mask)
+      this.mapViewKey = new Date().getTime()
       this.$alertSuccess('地图修改成功')
     }
     this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
@@ -1084,7 +1084,7 @@ export default class extends Mixins(IndexMixin) {
         marker: map.marker === 'Y',
         groupByGroupId: map.groupByGroupId === 'Y',
         groupByAdjacent: map.groupByAdjacent === 'Y',
-        defaultDeviceColor: map.defaultDeviceColor
+        defaultDeviceColor: map.defaultDeviceColor || settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'edit'
     } else {
@@ -1100,7 +1100,7 @@ export default class extends Mixins(IndexMixin) {
         marker: false,
         groupByGroupId: false,
         groupByAdjacent: true,
-        defaultDeviceColor: '#FA8334'
+        defaultDeviceColor: settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'add'
     }
