@@ -124,6 +124,7 @@
                 <el-button type="primary" @click="modifyMap">确定</el-button>
               </span>
             </el-dialog>
+
             <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>是否继承设备中的经纬度</h3>
@@ -136,6 +137,20 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
+
+            <el-dialog title="添加监控点位" :visible.sync="dragAddPositionDialog" class="dialog-text" :before-close="cancelAddMark">
+              <div>
+                <h3>是否继承设备中的经纬度</h3>
+                <h3>如不继承则使用鼠标所在的经纬度</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="dragAddPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">继承</el-button>
+              <el-button @click="confirmAddMarker(false)">不继承</el-button>
+              <el-button @click="cancelAddMark">取消</el-button>
+            </el-dialog>
+
             <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
@@ -230,6 +245,8 @@ export default class extends Mixins(IndexMixin) {
   private dragAddNoPositionDialogCheck = false
   private uselnglat = true // 是否要继承设备坐标
   private addNoPositionDialog = false
+  private dragAddPositionDialog = false
+  private dragAddPositionDialogCheck = false
   private addNoPositionDialogCheck = false
   private dragAddNoPositionDialog = false
   private deviceInfo: any = {}
@@ -830,6 +847,8 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialog = false
     this.addNoPositionDialogCheck = false
+    this.dragAddPositionDialog = false
+    this.dragAddPositionDialogCheck = false
     this.dragAddNoPositionDialog = false
     this.dragAddNoPositionDialogCheck = false
   }
@@ -857,10 +876,19 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      if (!this.addPositionDialogCheck) {
-        this.addPositionDialog = true
-      } else {
-        this.confirmAddMarker(this.uselnglat)
+      
+      if(this.ifDragging){
+        if (!this.dragAddPositionDialogCheck) {
+          this.dragAddPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }   
+      }else{
+        if (!this.addPositionDialogCheck) {
+          this.addPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       }
     } else {
       if (this.ifDragging) {
@@ -941,6 +969,7 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.dragAddPositionDialog = false
     }
   }
 
