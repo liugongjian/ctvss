@@ -21,7 +21,7 @@
               {{ `${policy.policyName}(${policy.groupDetails.groupName})` }}
             </el-tag>
           </template>
-          <el-tag v-else type="warning">暂无继承策略</el-tag>
+          <el-button v-else type="text">暂无继承策略</el-button>
         </div>
       </div>
       <div class="group-dialog__policy">

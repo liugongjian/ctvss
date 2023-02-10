@@ -102,7 +102,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '概览',
       icon: 'menu-dashboard',
       breadcrumb: false,
-      perms: ['DescribeDashboard'],
+      perms: ['ivs:GetDashboard'],
       alwaysShow: false
     },
     children: [
@@ -114,7 +114,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'menu-dashboard',
           breadcrumb: true,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
@@ -126,7 +126,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
@@ -138,7 +138,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       }
     ]
@@ -149,7 +149,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '业务组管理',
       icon: 'menu-group',
-      perms: ['DescribeGroup'],
+      perms: ['ivs:GetGroup'],
       alwaysShow: false
     },
     children: [
@@ -161,7 +161,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'menu-group',
           breadcrumb: false,
-          perms: ['DescribeGroup'],
+          perms: ['ivs:GetGroup'],
           activeMenu: '/group'
         }
       },
@@ -173,7 +173,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '新建业务组',
           icon: 'menu-group',
           hidden: true,
-          perms: ['AdminGroup'],
+          perms: ['ivs:CreateGroup'],
           activeMenu: '/group'
         }
       },
@@ -185,7 +185,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '编辑业务组',
           icon: 'menu-group',
           hidden: true,
-          perms: ['AdminGroup'],
+          perms: ['ivs:UpdateGroup'],
           activeMenu: '/group'
         }
       },
@@ -197,7 +197,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'menu-group',
           hidden: true,
-          perms: ['DescribeGroup'],
+          perms: ['ivs:CreateGroup'],
           activeMenu: '/group'
         }
       }
@@ -209,7 +209,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '设备管理',
       icon: 'menu-device',
-      perms: ['DescribeDevice'],
+      perms: ['ivs:GetDevice'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -223,7 +223,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'menu-device',
           breadcrumb: false,
-          perms: ['DescribeDevice'],
+          perms: ['ivs:GetDevice'],
           groupSelector: true
         },
         children: [
@@ -234,7 +234,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '设备列表',
               breadcrumb: false,
-              perms: ['DescribeDevice'],
+              perms: ['ivs:GetDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -246,7 +246,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '添加设备',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:CreateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -258,7 +258,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '编辑设备',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -270,7 +270,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '设备详情',
               hidden: true,
-              perms: ['DescribeDevice'],
+              perms: ['ivs:GetDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -282,7 +282,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '配置子通道',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -297,7 +297,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '实时预览',
       icon: 'menu-live',
-      perms: ['ScreenPreview'],
+      perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -310,7 +310,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '实时预览',
           icon: 'menu-live',
           breadcrumb: false,
-          perms: ['ScreenPreview'],
+          perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
           activeMenu: '/screen',
           groupSelector: true
         }
@@ -359,7 +359,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '录像回放',
       icon: 'menu-replay',
-      perms: ['ReplayRecord'],
+      perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -372,7 +372,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '录像回放',
           icon: 'menu-replay',
           breadcrumb: false,
-          perms: ['ReplayRecord'],
+          perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
           activeMenu: '/replay',
           groupSelector: true
         }
@@ -386,7 +386,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '电子地图',
       icon: 'menu-map',
-      perms: ['DescribeMap'],
+      perms: ['ivs:GetMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false
@@ -400,7 +400,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
-          perms: ['DescribeMap']
+          perms: ['ivs:GetMap']
         }
       }]
   },
@@ -487,7 +487,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-ga1400',
       alwaysShow: true,
       // tags: ['ga1400'],
-      perms: ['DescribeViid', 'AdminViid']
+      perms: ['ivs:GetViid', 'ivs:AdminViid']
     },
     children: [
       {
@@ -497,7 +497,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '向上级联',
           icon: 'dot',
-          perms: ['DescribeViid'],
+          perms: ['ivs:GetViid'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -508,7 +508,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建平台',
           hidden: true,
-          perms: ['AdminViid'],
+          perms: ['ivs:AdminViid'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -519,7 +519,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑平台',
           hidden: true,
-          perms: ['AdminViid'],
+          perms: ['ivs:AdminViid'],
           activeMenu: '/view-service/up-platform'
         }
       }
@@ -790,7 +790,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: 'AI管理',
       icon: 'menu-ai',
       alwaysShow: true,
-      perms: ['DescribeAi']
+      perms: ['ivs:GetApp', 'ivs:AdminApp']
     },
     children: [
       {
@@ -803,7 +803,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -817,7 +817,7 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: true,
           only: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -830,7 +830,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -843,7 +843,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -856,7 +856,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -869,7 +869,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/config',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -881,7 +881,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -893,7 +893,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       }
     ]
@@ -1154,7 +1154,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '车辆管理',
       breadcrumb: true,
       icon: 'menu-car',
-      perms: ['AdminCar']
+      perms: ['ivs:AdminCar']
     },
     children: [
       {
@@ -1166,7 +1166,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '车辆管理',
           breadcrumb: false,
           icon: 'car',
-          perms: ['AdminCar']
+          perms: ['ivs:AdminCar']
         }
       }
     ]

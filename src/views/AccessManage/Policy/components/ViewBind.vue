@@ -13,7 +13,7 @@
     >
       <el-table-column
         prop="name"
-        label="用户名"
+        label="用户名/部门名"
       >
         <template slot-scope="{row}">
           {{ row.name || row.id }}
@@ -30,7 +30,7 @@
           <svg-icon name="filter" width="15" height="15" />
         </template>
         <template slot-scope="{row}">
-          {{ row.type === 'group' ? "用户组" : "用户" }}
+          {{ row.type === 'iam_group' ? "部门" : "用户" }}
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -66,7 +66,7 @@ export default class extends Vue {
   }
   private loading = false
   private bindData = []
-  private filtersArray = [{ text: '用户组', value: 'group' }, { text: '用户', value: 'user' }]
+  private filtersArray = [{ text: '部门', value: 'iam_group' }, { text: '用户', value: 'iam_user' }]
   private async mounted() {
     this.getPolicyPrincipals()
   }
@@ -98,8 +98,9 @@ export default class extends Vue {
     try {
       this.loading = true
       await detachUserPolicy({
-        policyId: this.policyId,
-        iamUserId: row.id
+        policyIds: [this.policyId],
+        iamUserId: row.id,
+        principalType: row.type
       })
       this.$message.success(`解除用户 ${row.name} 绑定的策略成功！`)
       this.getPolicyPrincipals()
@@ -127,6 +128,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .bind-table {
   position: relative;
+
   ::v-deep {
     span.el-table__column-filter-trigger {
       visibility: hidden;

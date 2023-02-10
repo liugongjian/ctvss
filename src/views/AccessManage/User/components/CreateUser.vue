@@ -124,7 +124,7 @@
                     {{ `${policy.policyName}(${policy.groupDetails.groupName})` }}
                   </el-tag>
                 </template>
-                <el-tag v-else type="warning">暂无继承策略</el-tag>
+                <el-button v-else type="text">暂无继承策略</el-button>
               </div>
             </div>
             <el-tabs v-model="activeName">
@@ -150,7 +150,11 @@
                         <el-button v-else type="success" size="mini">自定义策略</el-button>
                       </template>
                     </el-table-column>
-                    <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
+                    <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180">
+                      <template slot-scope="scope">
+                        {{ scope.row.policyDesc || '-' }}
+                      </template>
+                    </el-table-column>
                     <el-table-column label="操作" width="80">
                       <template slot-scope="{row}">
                         <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
@@ -264,15 +268,27 @@
                     <el-button v-else type="success" size="mini">自定义策略</el-button>
                   </template>
                 </el-table-column>
-                <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180" />
+                <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="180">
+                  <template slot-scope="scope">
+                    {{ scope.row.policyDesc || '-' }}
+                  </template>
+                </el-table-column>
               </el-table>
             </el-form-item>
           </div>
-          <el-form-item label-width="0">
+          <el-form-item label-width="0" style="width: 1000px;">
             <el-button :disabled="activeStep === 0" type="primary" @click="gotoPrev">上一步</el-button>
             <el-button :disabled="activeStep === 2" type="primary" @click="gotoNext">下一步</el-button>
             <el-button v-if="activeStep === 2" :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
             <el-button :disabled="loading.submit" @click="back">取消</el-button>
+            <el-button
+              v-if="activeStep === 2 && effectivePolicies.length"
+              type="primary"
+              style="float: right;"
+              @click="showPreviewDialog"
+            >
+              预览权限详情
+            </el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -325,6 +341,7 @@
       </div>
       <el-button type="primary" class="back-btn" @click="back">返回</el-button>
     </el-card>
+    <PreviewPermission v-if="showPreviewPermission" :dialog-data="previewDialogData" @on-close="closePreviewDialog" />
   </div>
 </template>
 
@@ -337,11 +354,12 @@ import TemplateBind from '@/views/components/TemplateBind.vue'
 import copy from 'copy-to-clipboard'
 import { Component, Vue } from 'vue-property-decorator'
 import EditAccessType from './dialogs/EditAccessType.vue'
+import PreviewPermission from './dialogs/PreviewPermission.vue'
 
 Component.registerHooks(['beforeRouteEnter'])
 
 @Component({
-  components: { TemplateBind, EditAccessType },
+  components: { TemplateBind, EditAccessType, PreviewPermission },
   name: 'CreateUser'
 })
 export default class extends Vue {
@@ -354,6 +372,8 @@ export default class extends Vue {
     label: 'groupName',
     children: 'children'
   }
+  private showPreviewPermission = false
+  private previewDialogData = {}
   private activeStep = 0
   private activeName = 'select'
   private userList = []
@@ -450,6 +470,18 @@ export default class extends Vue {
     this.form.userInfo.splice(index, 1)
   }
 
+  private showPreviewDialog() {
+    this.previewDialogData = {
+      iamGroupId: this.$route.query.groupId,
+      policyIds: this.effectivePolicies.map(policy => policy.policyId)
+    }
+    this.showPreviewPermission = true
+  }
+
+  private closePreviewDialog() {
+    this.showPreviewPermission = false
+  }
+
   private gotoPrev() {
     this.activeStep -= 1
   }
@@ -460,7 +492,7 @@ export default class extends Vue {
       if (this.activeName === 'select') {
         this.effectivePolicies = this.form.policies
       } else {
-        this.effectivePolicies = this.form.copyUser?.[0]?.policies
+        this.effectivePolicies = this.form.copyUser?.[0]?.policies || []
       }
     }
   }
@@ -574,7 +606,7 @@ export default class extends Vue {
     }
   }
 
-  private async initCreateGroup(parentGroupId: string) {
+  private async initParentGroupInfo(parentGroupId: string) {
     try {
       let params = {
         groupId: parentGroupId
@@ -615,7 +647,7 @@ export default class extends Vue {
       await this.getPolicyList()
       this.type = this.$route.query.type
       const parentGroupId: any = this.$route.query.groupId
-      await this.initCreateGroup(parentGroupId)
+      await this.initParentGroupInfo(parentGroupId)
       if (this.type === 'edit') {
         this.breadCrumbContent = '编辑用户'
         this.getUser()

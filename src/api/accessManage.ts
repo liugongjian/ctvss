@@ -194,7 +194,7 @@ export const getPolicyPrincipals = (params: any): Promise<any> =>
 
 export const detachUserPolicy = (data: any): Promise<any> =>
   request({
-    url: '/iam/policy/detachUser',
+    url: '/iam/policy/detach',
     method: 'post',
     data
   })
@@ -257,6 +257,22 @@ export const accountUnlock = (data: any): Promise<any> =>
 export const accountLock = (data: any): Promise<any> =>
   request({
     url: '/iam/user/lock',
+    method: 'post',
+    data
+  })
+
+// 账号权限预览
+export const previewAuthActions = (data: any): Promise<any> =>
+  request({
+    url: '/iam/authpreview',
+    method: 'post',
+    data
+  })
+
+// 账号权限查看
+export const getAuthActions = (data: any): Promise<any> =>
+  request({
+    url: '/iam/auth',
     method: 'post',
     data
   })

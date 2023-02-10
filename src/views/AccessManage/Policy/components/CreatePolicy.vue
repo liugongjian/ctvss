@@ -149,7 +149,7 @@
               </el-form-item>
             </div>
           </div>
-          <el-button v-if="!isCtyunPolicy" type="text" @click="addStatement">+ 添加权限</el-button>
+          <el-button v-if="!isCtyunPolicy" :loading="loading.dir || loading.resource" type="text" @click="addStatement">+ 添加权限</el-button>
         </el-form-item>
         <el-form-item>
           <el-row>

@@ -74,14 +74,15 @@
               </template>
             </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policyName" label="策略名">
+            <el-table-column prop="policies" label="策略名">
               <template slot-scope="{row}">
-                {{ row.policyName || '-' }}
+                <span>{{ row.policies || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" fixed="right" width="300">
+            <el-table-column prop="createdTime" label="创建时间" width="200" />
+            <el-table-column label="操作" fixed="right" width="380">
               <template slot-scope="scope">
+                <el-button type="text" @click="getPermission(scope.row)">查看权限</el-button>
                 <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
@@ -98,6 +99,7 @@
       </div>
     </el-card>
     <UserGroupDialog v-if="isShowDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
+    <PreviewPermission v-if="showPreviewPermission" :dialog-data="previewDialogData" @on-close="closePreviewDialog" />
   </div>
 </template>
 
@@ -109,11 +111,13 @@ import { changeIAMPassword } from '@/api/users'
 import { encrypt } from '@/utils/encrypt'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
+import PreviewPermission from './components/dialogs/PreviewPermission.vue'
 
 @Component({
   name: 'AccessManageUser',
   components: {
-    UserGroupDialog
+    UserGroupDialog,
+    PreviewPermission
   }
 })
 export default class extends Vue {
@@ -128,6 +132,8 @@ export default class extends Vue {
     menu: false,
     body: false
   }
+  private showPreviewPermission = false
+  private previewDialogData = {}
   private nodePath: string = '通讯录'
   private nodeKeyPath: any = '-1'
   private isShowDialog: boolean = false
@@ -159,6 +165,19 @@ export default class extends Vue {
     data === 0 &&
       this.pager.pageNum > 1 &&
       this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
+  private getPermission(row) {
+    this.previewDialogData = {
+      dialogType: 'get',
+      dialogTitle: '查看权限',
+      iamUserId: row.iamUserId
+    }
+    this.showPreviewPermission = true
+  }
+
+  private closePreviewDialog() {
+    this.showPreviewPermission = false
   }
 
   private mounted() {
@@ -312,7 +331,7 @@ export default class extends Vue {
         return {
           iamUserId: iamUser.iamUserId,
           iamUserName: iamUser.iamUserName,
-          policyName: iamUser.policyName,
+          policies: iamUser.policies.map(policy => policy.policyName).join('|'),
           createdTime: iamUser.createdTime
         }
       })

@@ -195,9 +195,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标or rtsp 展示 -->
+      <!-- 虚拟业务组暂不支持搜索 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'"
+        v-if="currentGroup.inProtocol !== 'vgroup'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
