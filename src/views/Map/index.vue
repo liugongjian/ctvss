@@ -147,7 +147,7 @@
                 <el-checkbox v-model="dragAddPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
               <el-button @click="confirmAddMarker(true)">继承</el-button>
-              <el-button @click="confirmAddMarker(false)">不继承</el-button>
+              <el-button @click="confirmDragAddPosition">不继承</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
 
@@ -876,14 +876,13 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      
-      if(this.ifDragging){
+      if (this.ifDragging) {
         if (!this.dragAddPositionDialogCheck) {
           this.dragAddPositionDialog = true
         } else {
           this.confirmAddMarker(this.uselnglat)
-        }   
-      }else{
+        }
+      } else {
         if (!this.addPositionDialogCheck) {
           this.addPositionDialog = true
         } else {
@@ -969,7 +968,6 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
-      this.dragAddPositionDialog = false
     }
   }
 
@@ -985,6 +983,14 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.addMarker(this.markerInfo)
     this.dragAddNoPositionDialog = false
     this.ifDragging = false
+  }
+
+  private confirmDragAddPosition() {
+    const { lat, lng } = this.dragNodeInfo
+    this.markerInfo.longitude = lng
+    this.markerInfo.latitude = lat
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.dragAddPositionDialog = false
   }
 
   deviceClick(data) {
