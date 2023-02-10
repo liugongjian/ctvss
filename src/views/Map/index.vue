@@ -1022,6 +1022,7 @@ export default class extends Mixins(IndexMixin) {
       this.mapViewKey = new Date().getTime()
       this.$alertSuccess('地图修改成功')
     }
+    this.mapViewKey = new Date().getTime()
     this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
     this.toggleOverView(mapinfo.eagle)
     this.toggleMarkersShow(mapinfo.marker)
@@ -1153,6 +1154,7 @@ export default class extends Mixins(IndexMixin) {
       this.curMap = null
       return
     }
+    this.mapViewKey = new Date().getTime()
     this.showMapConfig = false
     this.curMap = map
     this.changeEdit(false)
