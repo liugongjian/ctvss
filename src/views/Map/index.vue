@@ -1501,6 +1501,7 @@ export default class extends Mixins(IndexMixin) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
   }
 
   .node-name-move {
