@@ -59,6 +59,11 @@
       </div>
     </el-card>
     <el-card class="dashboard-wrap-overview__container">
+      <h2>访问安全设置</h2>
+      <p>开启后，将支持用户使用App端、PC客户端登录</p>
+      <el-button type="primary" @click="setSecurity">访问设置</el-button>
+    </el-card>
+    <el-card class="dashboard-wrap-overview__container">
       <div class="dashboard-wrap-overview__item__card__content">
         <div class="dashboard-wrap-overview__cell">
           <p class="dashboard-wrap-overview__cell__head">登录链接</p>
@@ -69,6 +74,19 @@
         </div>
       </div>
     </el-card>
+
+    <!-- 非页面主题内容  dialog弹层   -->
+    <el-dialog
+      title="访问密码设置"
+      visible="ifShowPasswordDialog"
+      :before-close="closePasswordDialog"
+    >
+      <el-form>
+        <el-form-item label="密码">
+          123
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -96,6 +114,8 @@ export default class extends Mixins(DashboardMixin) {
 
   private userLoginLink: any = ''
   private mainUserID: any = ''
+
+  private ifShowPasswordDialog: boolean = false
 
   private get container() {
     return 'DashboardLightContainer'
@@ -181,6 +201,14 @@ export default class extends Mixins(DashboardMixin) {
     this.mainUserID = this.$store.state.user.mainUserID
     const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&mainUserID=${this.mainUserID}`
     this.userLoginLink = link
+  }
+
+  private openPasswordDialog() {
+    this.ifShowPasswordDialog = true
+  }
+
+  private closePasswordDialog() {
+    this.ifShowPasswordDialog = false
   }
 }
 </script>
