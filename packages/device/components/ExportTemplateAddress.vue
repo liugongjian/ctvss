@@ -40,8 +40,8 @@
         <el-button
           v-if="index === 0"
           type="text"
-          class="cascader-box__btn"
-          :disabled="exportAddressForm.address.length >= 5"
+          class="cascader-box__btn cascader-box__btn__add"
+          :disabled="exportAddressForm.address.length >= 5 "
           @click="addAddress"
         >
           <i class="el-icon-circle-plus" />
@@ -286,6 +286,11 @@ export default class extends Vue {
     margin-left: 20px;
     // padding: 6px 0;
     vertical-align: middle;
+      &.is-disabled{
+        opacity: 0.6;
+        color: #999;
+        cursor: not-allowed;
+      }
   }
 }
 </style>
