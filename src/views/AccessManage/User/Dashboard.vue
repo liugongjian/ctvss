@@ -61,7 +61,7 @@
     <el-card class="dashboard-wrap-overview__container">
       <h2>访问安全设置</h2>
       <p>开启后，将支持用户使用App端、PC客户端登录</p>
-      <el-button type="primary" @click="setSecurity">访问设置</el-button>
+      <el-button type="primary" @click="openPasswordDialog">访问设置</el-button>
     </el-card>
     <el-card class="dashboard-wrap-overview__container">
       <div class="dashboard-wrap-overview__item__card__content">
@@ -78,7 +78,7 @@
     <!-- 非页面主题内容  dialog弹层   -->
     <el-dialog
       title="访问密码设置"
-      visible="ifShowPasswordDialog"
+      :visible="ifShowPasswordDialog"
       :before-close="closePasswordDialog"
     >
       <el-form>
