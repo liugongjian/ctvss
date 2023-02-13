@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    v-loading="loading"
     :title="dialogData.dialogTitle || dialogTitle"
     :visible="dialogVisible"
     :close-on-click-modal="false"
@@ -68,6 +69,7 @@ export default class extends Vue {
   private dialogVisible = true
   private dialogTitle = '查看权限'
   private authIamUsers = []
+  private loading = false
 
   private get filteredSystemActionList() {
     const tagObject = UserModule.tags || ({})
@@ -80,19 +82,24 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    const dialogData = this.dialogData
-    console.log('dialogData: ', this.dialogData)
-    const res = await describeAuthIamUsers({
-      groupId: dialogData.groupId,
-      dirPath: dialogData.dirPath,
-      deviceID: dialogData.deviceId
-    })
-    this.authIamUsers = res.iamUsers.map(iamUser => ({
-      iamUserId: iamUser.iamUserId,
-      iamUserName: iamUser.iamUserName,
-      ...iamUser.actions
-    }))
-    console.log('this.authIamUsers: ', this.authIamUsers)
+    try {
+      this.loading = true
+      const dialogData = this.dialogData
+      const res = await describeAuthIamUsers({
+        groupId: dialogData.groupId,
+        dirPath: dialogData.dirPath,
+        deviceId: dialogData.deviceId
+      })
+      this.authIamUsers = res.iamUsers.map(iamUser => ({
+        iamUserId: iamUser.iamUserId,
+        iamUserName: iamUser.iamUserName,
+        ...iamUser.actions
+      }))
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
   }
 
   private closeDialog(isRefresh: boolean = false) {

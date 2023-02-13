@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { encrypt } from '@/utils/encrypt'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, getIAMUserMergedPolicies, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import { resetRouter } from '@/router'

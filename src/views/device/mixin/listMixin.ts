@@ -258,10 +258,15 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   }
 
   public describePermission() {
+    const path: any = this.$route.query.path
+    const pathArr = path ? path.split(',') : []
+    const dirPath = this.isDir ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+    const deviceId = this.isDir ? undefined : pathArr[pathArr.length - 1]
     this.describePermissonDialogData = {
+      type: this.type,
       groupId: this.groupId,
-      dirPath: this.dirId,
-      deviceId: this.deviceId
+      dirPath: dirPath || '0',
+      deviceId: deviceId
     }
     this.dialog.describePermission = true
   }
