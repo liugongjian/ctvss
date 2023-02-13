@@ -80,10 +80,40 @@
       title="访问密码设置"
       :visible="ifShowPasswordDialog"
       :before-close="closePasswordDialog"
+      custom-class="dashboard__set-password"
     >
-      <el-form>
-        <el-form-item label="密码">
-          123
+      <el-form v-model="passwordForm">
+        <el-form-item label="设置密码">
+          <el-input
+            :key="password"
+            ref="password"
+            v-model="passwordForm.password"
+            :type="passwordType.password"
+            placeholder="请输入密码"
+            name="password"
+            tabindex="2"
+          />
+          <span class="show-pwd" @click="showPwd('newPwd')">
+            <svg-icon
+              :name="passwordType.password === 'password' ? 'eye-off' : 'eye-on'"
+            />
+          </span>
+        </el-form-item>
+        <el-form-item label="重新输入密码">
+          <el-input
+            :key="confirmPassword"
+            ref="confirmPassword"
+            v-model="passwordForm.confirmPassword"
+            :type="passwordType.confirmPassword"
+            placeholder="请再次输入密码"
+            name="confirmPassword"
+            tabindex="2"
+          />
+          <span class="show-pwd" @click="showPwd('newPwd')">
+            <svg-icon
+              :name="passwordType.confirmPassword === 'password' ? 'eye-off' : 'eye-on'"
+            />
+          </span>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -97,6 +127,7 @@ import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
 import { getIamInfo } from '@/api/iamDashboard'
+import { Form as ElForm, Input } from 'element-ui'
 
 @Component({
   name: 'DashboardIam',
@@ -116,6 +147,16 @@ export default class extends Mixins(DashboardMixin) {
   private mainUserID: any = ''
 
   private ifShowPasswordDialog: boolean = false
+
+  private passwordForm = {
+    password: '',
+    confirmPassword: ''
+  }
+
+  private passwordType = {
+    password: 'password',
+    confirmPassword: 'password'
+  }
 
   private get container() {
     return 'DashboardLightContainer'
@@ -210,5 +251,19 @@ export default class extends Mixins(DashboardMixin) {
   private closePasswordDialog() {
     this.ifShowPasswordDialog = false
   }
+
+  private showPwd(type: string) {
+    if (this.passwordType[type] === 'password') {
+      this.passwordType[type] = ''
+    } else {
+      this.passwordType[type] = 'password'
+    }
+    this.$nextTick(() => {
+      (this.$refs[type] as Input).focus()
+    })
+  }
 }
 </script>
+<style lang="scss" scoped>
+
+</style>
