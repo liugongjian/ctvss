@@ -154,17 +154,6 @@ export default class extends Vue {
     console.log(this.selectedFile.size)
     if (this.selectedFile.size > 8192) {
       return (this.form.errorTip = '请求文件文件格式错误')
-    } else {
-      this.reader.readAsText(this.selectedFile)
-      this.reader.onloadend = () => {
-        const result = this.reader.result.trim()
-        console.log(result)
-        if (result.startsWith('-----BEGIN CERTIFICATE REQUEST-----') && result.endsWith('-----END CERTIFICATE REQUEST-----')) {
-          this.form.errorTip = ''
-        } else {
-          this.form.errorTip = '请求文件文件格式错误'
-        }
-      }
     }
   }
 
@@ -177,22 +166,22 @@ export default class extends Vue {
     dataForm.validateField('fileName', (err) => {
       if (!err) {
         this.loading.upload = true
-        this.fileToBase64(this.selectedFile, this.reader).then(async(fileString: any) => {
+        this.fileToText(this.selectedFile, this.reader).then(async(fileString: any) => {
           console.log(fileString)
-          // try {
-          //   const res = await uploadCsr({ deviceCsr: fileString })
-          //   this.form.deviceName = res.deviceName
-          //   this.form.outId = res.outId
-          // } catch (e) {
-          //   console.log(e)
-          // } finally {
-          //   this.loading.upload = false
-          // }
-          setTimeout(() => {
+          try {
+            const res = await uploadCsr({ deviceCsr: fileString })
+            this.form.deviceName = res.deviceName
+            this.form.outId = res.outId
+          } catch (e) {
+            console.log(e)
+          } finally {
             this.loading.upload = false
-            this.form.deviceName = '测试设备'
-            this.form.outId = '12345678901234567890'
-          }, 1000)
+          }
+          // setTimeout(() => {
+          //   this.loading.upload = false
+          //   this.form.deviceName = '测试设备'
+          //   this.form.outId = '12345678901234567890'
+          // }, 1000)
         }).catch(e => {
           console.log(e)
           this.loading.upload = false
@@ -201,19 +190,25 @@ export default class extends Vue {
     })
   }
 
-  // 文件转base64
-  private fileToBase64(file: any, reader: any) {
+  // 读取文件内容
+  private fileToText(file: any, reader: any) {
     return new Promise((resolve, reject) => {
       let fileResult: any = ''
-      reader.readAsDataURL(file)
+      reader.readAsText(this.selectedFile)
       reader.onload = function() {
         fileResult = reader.result
       }
       reader.onerror = function(error: any) {
         reject(error)
       }
-      reader.onloadend = function() {
-        resolve(fileResult)
+      reader.onloadend = () => {
+        if (fileResult.trim().startsWith('-----BEGIN CERTIFICATE REQUEST-----') && fileResult.trim().endsWith('-----END CERTIFICATE REQUEST-----')) {
+          this.form.errorTip = ''
+          resolve(fileResult)
+        } else {
+          this.form.errorTip = '请求文件文件格式错误'
+          reject(new Error('请求文件文件格式错误'))
+        }
       }
     })
   }
