@@ -135,7 +135,7 @@
               </h3>
               <el-button @click="confirmAddMarker(true)">继承</el-button>
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addPositionDialogCheck')">取消</el-button>
             </el-dialog>
 
             <el-dialog title="添加监控点位" :visible.sync="dragAddPositionDialog" class="dialog-text" :before-close="cancelAddMark">
@@ -148,7 +148,7 @@
               </h3>
               <el-button @click="confirmAddMarker(true)">继承</el-button>
               <el-button @click="confirmDragAddPosition">不继承</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('dragAddPositionDialogCheck')">取消</el-button>
             </el-dialog>
 
             <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
@@ -159,7 +159,7 @@
                 <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
               <el-button @click="confirmAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addNoPositionDialogCheck')">取消</el-button>
             </el-dialog>
             <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
@@ -169,7 +169,7 @@
                 <el-checkbox v-model="dragAddNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('dragAddNoPositionDialogCheck')">取消</el-button>
             </el-dialog>
             <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
               <!-- ifMapDisabled -->
@@ -842,16 +842,24 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  cancelAddMark() {
-    this.ifDragging = false
-    this.addPositionDialog = false
-    this.addPositionDialogCheck = false
-    this.addNoPositionDialog = false
-    this.addNoPositionDialogCheck = false
-    this.dragAddPositionDialog = false
-    this.dragAddPositionDialogCheck = false
-    this.dragAddNoPositionDialog = false
-    this.dragAddNoPositionDialogCheck = false
+  cancelAddMark(str: string) {
+    if (str) {
+      this.ifDragging = false
+      this.addPositionDialog = false
+      this.addNoPositionDialog = false
+      this.dragAddPositionDialog = false
+      this.dragAddNoPositionDialog = false
+    } else {
+      this.ifDragging = false
+      this.addPositionDialog = false
+      this.addPositionDialogCheck = false
+      this.addNoPositionDialog = false
+      this.addNoPositionDialogCheck = false
+      this.dragAddPositionDialog = false
+      this.dragAddPositionDialogCheck = false
+      this.dragAddNoPositionDialog = false
+      this.dragAddNoPositionDialogCheck = false
+    }
   }
 
   addMarker(marker) {
