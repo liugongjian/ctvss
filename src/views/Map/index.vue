@@ -877,7 +877,6 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      console.log('this.ifDragging--->', this.ifDragging, 'this.dragAddPositionDialogCheck===>', this.dragAddPositionDialogCheck, 'this.addPositionDialogCheck--->', this.addPositionDialogCheck)
       if (this.ifDragging) {
         if (!this.dragAddPositionDialogCheck) {
           this.dragAddPositionDialog = true
