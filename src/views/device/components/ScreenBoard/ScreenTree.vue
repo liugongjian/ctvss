@@ -75,6 +75,7 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -119,6 +120,7 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -193,9 +195,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标才展示 -->
+      <!-- 国标or rtsp 展示 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181'"
+        v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
@@ -214,6 +216,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
+import AdditionalStatus from '../AdditionalStatus.vue'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { dropScreen } from './directives/dropScreen'
 
@@ -223,7 +226,8 @@ import { dropScreen } from './directives/dropScreen'
     StatusBadge,
     StreamSelector,
     OperateSelector,
-    AdvancedSearch
+    AdvancedSearch,
+    AdditionalStatus
   },
   directives: {
     'drop-screen': dropScreen
@@ -385,7 +389,7 @@ export default class extends Mixins(IndexMixin) {
    * @param policy 执行策略
    */
   private async executeQueue(node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
-    let devicesQueue: Device[] = []
+    const devicesQueue: Device[] = []
     const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
@@ -429,7 +433,7 @@ export default class extends Mixins(IndexMixin) {
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        let data = await getDeviceTree({
+        const data = await getDeviceTree({
           groupId: this.currentGroupId,
           id: node!.data.id,
           type: node!.data.type,

@@ -112,6 +112,7 @@ import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
+import { addLog } from '@/api/operationLog'
 
 @Component({
   name: 'ScreenList',
@@ -291,6 +292,12 @@ export default class extends Vue {
         link.remove()
       }
       record.loading = false
+      const recordTypeName = this.currentScreen.recordType === 0 ? '云端' : '设备'
+      addLog({
+        deviceId: this.currentScreen.deviceId.toString(),
+        inProtocol: this.currentScreen.inProtocol,
+        operationName: `下载${recordTypeName}录像`
+      })
     } catch (e) {
       this.$message.error(e.message)
     }
@@ -303,6 +310,12 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = true
     this.currentListRecord = record
+    const recordTypeName = this.currentScreen.recordType === 0 ? '云端' : '设备'
+    addLog({
+      deviceId: this.currentScreen.deviceId.toString(),
+      inProtocol: this.currentScreen.inProtocol,
+      operationName: `播放${recordTypeName}录像`
+    })
   }
 
   /**

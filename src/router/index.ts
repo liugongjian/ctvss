@@ -452,6 +452,33 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/operation-log',
+    component: Layout,
+    meta: {
+      id: '20210424150201001100',
+      title: '操作日志',
+      icon: 'check-log',
+      perms: ['*'],
+      alwaysShow: false,
+      breadcrumb: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
+        name: 'operation-log',
+        meta: {
+          id: '20210424150201001101',
+          title: '操作日志',
+          icon: 'check-log',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/operation-log'
+        }
+      }
+    ]
+  },
+  {
     path: '/view-service',
     component: Layout,
     redirect: 'noredirect',
@@ -1039,6 +1066,18 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
+      },
+      {
+        path: 'accessRestriction',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/AccessRestriction/index.vue'),
+        name: 'AccessRestrictionManage',
+        meta: {
+          title: '访问限制',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/accessRestriction',
+          perms: ['*']
+        }
       }
     ]
   },
@@ -1225,6 +1264,30 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['*'],
           activeMenu: '/exportDevices'
+        }
+      }
+    ]
+  },
+  {
+    path: '/statistic',
+    component: Layout,
+    meta: {
+      title: '统计信息',
+      breadcrumb: true,
+      icon: 'menu-system',
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'menu-system',
+          perms: ['*'],
+          groupSelector: true
         }
       }
     ]

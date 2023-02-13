@@ -267,6 +267,7 @@
             :device-name="info.deviceName"
             :streams="info.deviceStreams"
             :stream-size="info.multiStreamSize"
+            :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
@@ -274,6 +275,9 @@
         </el-tab-pane>
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
+        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
     </div>

@@ -21,6 +21,7 @@ const getPageTitle = (key: string) => {
 router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Start progress bar
   NProgress.start()
+  console.log('to: ', to, ' from: ', from)
 
   if (innerWhiteList.some(url => to.path.startsWith(url))) {
     if (UserModule.casLoginId) {
@@ -88,8 +89,21 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         // Remove token and redirect to login page
         UserModule.ResetToken()
         Message.error(err || 'Has Error')
-        window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
-        NProgress.done()
+
+        const loginType = loginService.getLoginType()
+        console.log('loginType:', loginType)
+        if (loginType === 'sub') {
+          next(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)
+        } else if (loginType === 'main') {
+          next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+        } else {
+          if (loginService.casUrl.login) {
+            window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
+          } else {
+            next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+            NProgress.done()
+          }
+        }
       }
     } else {
       // 单点登录菜单高亮

@@ -16,6 +16,7 @@ import DetailConfig from '../components/DetailConfig.vue'
 import DetailEvents from '../components/DetailEvents.vue'
 import DetailPreview from '../components/DetailPreview.vue'
 import DetailReplay from '../components/DetailReplay.vue'
+import DetailStatistics from '../components/DetailStatistics.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
@@ -29,6 +30,7 @@ import { networkMap } from '@/assets/region/network'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
 import settings from '@/settings'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   components: {
@@ -37,6 +39,7 @@ import settings from '@/settings'
     DetailConfig,
     DetailPreview,
     DetailReplay,
+    DetailStatistics,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain,
@@ -187,6 +190,10 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     } else {
       return null
     }
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   public get groupSipDomain() {

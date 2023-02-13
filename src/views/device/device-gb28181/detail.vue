@@ -20,6 +20,10 @@
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
               <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
             </div> -->
+            <!-- <record-statistics
+              :device-id="deviceId"
+              :in-protocol="inProtocol"
+            /> -->
             <!--设备信息-->
             <div class="detail__section">
               <div class="detail__title">设备信息</div>
@@ -292,6 +296,7 @@
             :device-name="info.deviceName"
             :streams="info.deviceStreams"
             :stream-size="info.multiStreamSize"
+            :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
@@ -303,6 +308,9 @@
         <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">
           <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
+        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
     </div>

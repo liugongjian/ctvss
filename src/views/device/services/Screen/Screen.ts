@@ -4,6 +4,7 @@ import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/types/Vss
 import { RecordManager } from '../Record/RecordManager'
 import { Player } from '@/components/Player/services/Player'
 import { getDevicePreview } from '@/api/device'
+import { addLog } from '@/api/operationLog'
 
 export class Screen {
   /* 播放器类型 */
@@ -52,6 +53,7 @@ export class Screen {
   public videoWidth: number
   public videoHeight: number
   public codec: string
+  public ptzLockStatus: number
 
   /**
    * ----------------
@@ -87,6 +89,7 @@ export class Screen {
     NO_STORE: 8,
     OUT_OF_RANGE: 14
   }
+
   public ERROR = {
     NO_RECORD: '该时段没有录像',
     NO_STORE: '视频资源包未包含存储',
@@ -116,6 +119,7 @@ export class Screen {
     this.hasRtc = false
     this.recordType = 0
     this.currentRecordDatetime = null
+    this.ptzLockStatus = null
     this._volume = null
     this._isMuted = null
     this._playbackRate = null
@@ -140,7 +144,8 @@ export class Screen {
       inProtocol: this.inProtocol,
       deviceName: this.deviceName,
       roleId: this.roleId,
-      realGroupId: this.realGroupId
+      realGroupId: this.realGroupId,
+      ptzLockStatus: this.ptzLockStatus
     }
   }
 
@@ -273,12 +278,26 @@ export class Screen {
         const videoInfo = this.parseVideoInfo(res.videoInfo)
         this.videoWidth = videoInfo.videoWidth
         this.videoHeight = videoInfo.videoHeight
+        this.ptzLockStatus = res.ptzLockStatus
         if (this.streamNum && this.streams.length) {
-          const stream = this.streams[this.streamNum - 1]
-          if (stream) stream.streamStatus = 'on'
+          // eslint-disable-next-line eqeqeq
+          const stream = this.streams.find(s => this.streamNum == s.streamNum)
+          if (stream) {
+            stream.streamStatus = 'on'
+          } else {
+            this.streams.push({
+              streamNum: this.streamNum,
+              streamStatus: 'on'
+            })
+          }
         }
       }
       this.isLoading = false
+      addLog({
+        deviceId: this.deviceId.toString(),
+        inProtocol: this.inProtocol,
+        operationName: '开始播放'
+      })
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
@@ -339,8 +358,11 @@ export class Screen {
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()
-    // this.recordManager = new RecordManager({
-    //   screen: this
-    // })
+    const recordTypeName = this.recordType === 0 ? '云端' : '设备'
+    addLog({
+      deviceId: this.deviceId.toString(),
+      inProtocol: this.inProtocol,
+      operationName: `开始${recordTypeName}回放`
+    })
   }
 }

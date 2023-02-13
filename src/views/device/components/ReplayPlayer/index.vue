@@ -47,6 +47,7 @@
       />
     </template>
     <template slot="controlRight">
+      <Lock :screen="screen" />
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
@@ -64,6 +65,7 @@ import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
 import RecordDownload from './RecordDownload.vue'
+import Lock from './RecordLock.vue'
 
 @Component({
   name: 'ReplayPlayer',
@@ -73,7 +75,8 @@ import RecordDownload from './RecordDownload.vue'
     DatePicker,
     ReplayType,
     Fullscreen,
-    RecordDownload
+    RecordDownload,
+    Lock
   }
 })
 export default class extends Vue {
