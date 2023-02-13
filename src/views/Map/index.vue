@@ -877,6 +877,7 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
+      console.log('this.ifDragging--->', this.ifDragging, 'this.dragAddPositionDialogCheck===>', this.dragAddPositionDialogCheck, 'this.addPositionDialogCheck--->', this.addPositionDialogCheck)
       if (this.ifDragging) {
         if (!this.dragAddPositionDialogCheck) {
           this.dragAddPositionDialog = true
@@ -970,6 +971,7 @@ export default class extends Mixins(IndexMixin) {
     } finally {
       this.addPositionDialog = false
       this.dragAddPositionDialog = false
+      this.ifDragging = false
     }
   }
 
@@ -993,6 +995,7 @@ export default class extends Mixins(IndexMixin) {
     this.markerInfo.latitude = lat
     this.$refs.mapview.addMarker(this.markerInfo)
     this.dragAddPositionDialog = false
+    this.ifDragging = false
   }
 
   deviceClick(data) {
