@@ -829,6 +829,7 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
+    this.dragAddPositionDialogCheck = false
     this.changeToolState('pointer')
     this.$refs.mapview.changeMapClickEvent('pointer')
     if (!this.isEdit) {
@@ -968,6 +969,7 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.dragAddPositionDialog = false
     }
   }
 
