@@ -154,6 +154,8 @@ export default class extends Vue {
     console.log(this.selectedFile.size)
     if (this.selectedFile.size > 8192) {
       return (this.form.errorTip = '请求文件文件格式错误')
+    } else {
+      this.form.errorTip = ''
     }
   }
 
@@ -173,15 +175,10 @@ export default class extends Vue {
             this.form.deviceName = res.deviceName
             this.form.outId = res.outId
           } catch (e) {
-            console.log(e)
+            this.form.errorTip = e && e.message
           } finally {
             this.loading.upload = false
           }
-          // setTimeout(() => {
-          //   this.loading.upload = false
-          //   this.form.deviceName = '测试设备'
-          //   this.form.outId = '12345678901234567890'
-          // }, 1000)
         }).catch(e => {
           console.log(e)
           this.loading.upload = false
@@ -220,31 +217,31 @@ export default class extends Vue {
     const dataForm: any = this.$refs.dataForm
     dataForm.validateField('outId', async(err) => {
       if (!err) {
-        this.loading.generate = true
-        setTimeout(() => {
-          const params = {
-            deviceName: this.form.deviceName,
-            outId: this.form.outId,
-            expireTime: this.form.expireTime
-          }
-          console.log(params)
-          this.loading.generate = false
-          this.form.certificate = '相关证书文件压缩包'
-        }, 1000)
-        // try {
-        //   this.loading.generate = true
-        //   await generateCertificate({
+        // this.loading.generate = true
+        // setTimeout(() => {
+        //   const params = {
         //     deviceName: this.form.deviceName,
         //     outId: this.form.outId,
-        //     expireTime: this.form.expireTime,
-        //     description: this.form.description
-        //   })
+        //     expireTime: this.form.expireTime
+        //   }
+        //   console.log(params)
+        //   this.loading.generate = false
         //   this.form.certificate = '相关证书文件压缩包'
-        // } catch (e) {
-        //   this.$message.error(e && e.message)
-        // } finally {
-        //   this.loading.form = false
-        // }
+        // }, 1000)
+        try {
+          this.loading.generate = true
+          await generateCertificate({
+            deviceName: this.form.deviceName,
+            outId: this.form.outId,
+            expireTime: this.form.expireTime.getTime(),
+            description: this.form.description
+          })
+          this.form.certificate = '相关证书文件压缩包'
+        } catch (e) {
+          this.$message.error(e && e.message)
+        } finally {
+          this.loading.form = false
+        }
       }
     })
   }
@@ -253,20 +250,20 @@ export default class extends Vue {
    * 下载证书
    */
   private async downloadCertificate() {
-    // try {
-    //   this.loading.download = true
-    //   const res = await downloadCertificate({ outId: this.form.outId })
-    //   const file = res.certsZip
-    //   const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    //   const link = document.createElement('a')
-    //   link.href = window.URL.createObjectURL(blob)
-    //   link.download = '相关证书文件压缩包'
-    //   link.click()
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.loading.download = false
-    // }
+    try {
+      this.loading.download = true
+      const res = await downloadCertificate({ outId: this.form.outId })
+      const file = res.certsZip
+      const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = '相关证书文件压缩包'
+      link.click()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.download = false
+    }
   }
 
   private submit(onSuccess: Function) {
