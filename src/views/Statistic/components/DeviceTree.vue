@@ -60,8 +60,8 @@
             </span>
           </el-tree>
         </div>
-        <!-- 国标or rtsp 展示 -->
-        <!-- <advanced-search v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'" :search-form="advancedSearchForm" @search="doSearch" /> -->
+        <!-- 虚拟业务组暂不支持搜索 -->
+        <!-- <advanced-search v-if="currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" /> -->
       </div>
     </div>
   </div>
