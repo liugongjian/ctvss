@@ -80,12 +80,18 @@
       title="访问密码设置"
       :visible="ifShowPasswordDialog"
       :before-close="closePasswordDialog"
+      :destroy-on-close="true"
       custom-class="dashboard__set-password"
+      width="40%"
     >
-      <el-form v-model="passwordForm">
-        <el-form-item label="设置密码">
+      <el-form
+        :model="passwordForm"
+        :rules="rules"
+        class="dashboard__set-password__password-form"
+      >
+        <el-form-item label="设置密码" prop="password">
           <el-input
-            :key="password"
+            key="password"
             ref="password"
             v-model="passwordForm.password"
             :type="passwordType.password"
@@ -93,29 +99,34 @@
             name="password"
             tabindex="2"
           />
-          <span class="show-pwd" @click="showPwd('newPwd')">
+          <span class="show-pwd" @click="showPwd('password')">
             <svg-icon
               :name="passwordType.password === 'password' ? 'eye-off' : 'eye-on'"
             />
           </span>
         </el-form-item>
-        <el-form-item label="重新输入密码">
+        <el-form-item label="重新输入密码" prop="confirmPassword">
           <el-input
-            :key="confirmPassword"
+            key="confirmPassword"
             ref="confirmPassword"
             v-model="passwordForm.confirmPassword"
             :type="passwordType.confirmPassword"
             placeholder="请再次输入密码"
             name="confirmPassword"
-            tabindex="2"
+            tabindex="3"
+            @keyup.enter.native="sureChangePassword"
           />
-          <span class="show-pwd" @click="showPwd('newPwd')">
+          <span class="show-pwd" @click="showPwd('confirmPassword')">
             <svg-icon
               :name="passwordType.confirmPassword === 'password' ? 'eye-off' : 'eye-on'"
             />
           </span>
         </el-form-item>
       </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sureChangePassword">确 定</el-button>
+        <el-button @click="closePasswordDialog">取 消</el-button>
+      </span>
     </el-dialog>
   </el-card>
 </template>
@@ -160,6 +171,32 @@ export default class extends Mixins(DashboardMixin) {
 
   private get container() {
     return 'DashboardLightContainer'
+  }
+
+  private validatePassword = (rule: any, value: string, callback: Function) => {
+    if (!value) {
+      callback(new Error('密码不能为空'))
+    } else {
+      callback()
+    }
+  }
+  private validateConfirmPassword = (rule: any, value: string, callback: Function) => {
+    if (this.passwordForm.password !== this.passwordForm.confirmPassword) {
+      callback(new Error('两次密码输入不一致！'))
+    } else {
+      callback()
+    }
+  }
+
+  private rules = {
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { validator: this.validatePassword, trigger: ['blur', 'change'] }
+    ],
+    confirmPassword: [
+      { required: true, message: '请再次输入密码', trigger: 'blur' },
+      { validator: this.validateConfirmPassword, trigger: ['blur', 'change'] }
+    ]
   }
 
   private mounted() {
@@ -250,6 +287,14 @@ export default class extends Mixins(DashboardMixin) {
 
   private closePasswordDialog() {
     this.ifShowPasswordDialog = false
+    this.passwordForm = {
+      password: '',
+      confirmPassword: ''
+    }
+    this.passwordType = {
+      password: 'password',
+      confirmPassword: 'password'
+    }
   }
 
   private showPwd(type: string) {
@@ -262,8 +307,33 @@ export default class extends Mixins(DashboardMixin) {
       (this.$refs[type] as Input).focus()
     })
   }
+
+  private sureChangePassword() {
+    (this.$refs.form as ElForm).validate(async(valid: boolean) => {
+      if (valid) {
+        console.log(123)
+      }
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
+.dashboard {
+  &__set-password {
+    position: relative;
+    width: 40%;
+    margin: 60px 0 60px 20px;
 
+    &__password-form {
+      .show-pwd {
+        position: absolute;
+        right: 10px;
+        font-size: 16px;
+        color: $darkGray;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+}
 </style>
