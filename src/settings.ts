@@ -160,57 +160,65 @@ const settings: ISettings = {
       autoSelected: 'ivs:GetCloudRecord',
       resourceType: ['directory', 'device', 'channel']
     },
-    // 视图库
+    // 视图库(视图库功能可放入向上级联，作为一种协议进行控制)
     {
       actionName: '查看视图服务',
       actionKey: 'ivs:GetViid',
       actionDesc: '具有视图服务菜单',
-      actionType: 'GET'
+      actionType: 'GET',
+      resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '管理视图服务',
       actionKey: 'ivs:AdminViid',
       actionDesc: '具有视图服务的管理权限',
-      autoSelected: 'ivs:GetViid'
+      autoSelected: 'ivs:GetViid',
+      resourceType: ['directory', 'device', 'channel']
     },
-    // 视图分析（原AI功能）- 视图库功能暂放入向上级联，作为一种协议进行控制
+    // 视图分析（原AI功能）
     {
       actionName: '查询行业场景应用',
       actionKey: 'ivs:GetApp',
       actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
-      actionType: 'GET'
+      actionType: 'GET',
+      resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '管理行业场景应用',
       actionKey: 'ivs:AdminApp',
       actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
-      autoSelected: 'ivs:GetApp'
+      autoSelected: 'ivs:GetApp',
+      resourceType: ['directory', 'device', 'channel']
     },
     // 电子地图
     {
       actionName: '查看电子地图',
       actionKey: 'ivs:GetMap',
       actionDesc: '拥有电子地图的查看权限，并展示电子地图菜单',
-      actionType: 'GET'
+      actionType: 'GET',
+      resourceType: '*'
     },
     // 概览页面
     {
       actionName: '查看概览页面',
       actionKey: 'ivs:GetDashboard',
       actionDesc: '拥有概览页面的查看权限',
-      actionType: 'GET'
+      actionType: 'GET',
+      resourceType: '*'
     },
     // 车辆管理
     {
       actionName: '车辆管理',
       actionKey: 'ivs:AdminCar',
-      actionDesc: '拥有车辆管理权限，并展示车辆管理菜单'
+      actionDesc: '拥有车辆管理权限，并展示车辆管理菜单',
+      resourceType: ['directory', 'device', 'channel']
     },
     // 电视墙
     {
       actionName: '电视墙管理',
       actionKey: 'ivs:AdminVideoWall',
-      actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单'
+      actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单',
+      resourceType: '*'
     }
   ]
 }

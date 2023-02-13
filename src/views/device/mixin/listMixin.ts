@@ -14,13 +14,15 @@ import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
+import DescribePermission from '../components/dialogs/DescribePermission.vue'
 
 @Component({
   components: {
     StatusBadge,
     MoveDir,
     UploadExcel,
-    Resource
+    Resource,
+    DescribePermission
   }
 })
 export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
@@ -61,8 +63,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public dialog = {
     moveDir: false,
     uploadExcel: false,
-    resource: false
+    resource: false,
+    describePermission: false
   }
+  public describePermissonDialogData = {}
   public eventsList = []
   public keyword = ''
   public filter: any = {
@@ -251,6 +255,19 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   @Watch('deviceList.length')
   public onDeviceListChange(data: any) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
+  public describePermission() {
+    this.describePermissonDialogData = {
+      groupId: this.groupId,
+      dirPath: this.dirId,
+      deviceId: this.deviceId
+    }
+    this.dialog.describePermission = true
+  }
+
+  public closePreviewDialog() {
+    this.dialog.describePermission = false
   }
 
   public reset() {

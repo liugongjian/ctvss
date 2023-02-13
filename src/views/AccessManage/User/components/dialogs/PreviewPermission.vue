@@ -57,7 +57,6 @@
                 v-else
                 :key="actionKey + node.id"
                 :class="{
-                  'el-icon-minus': !data[actionKey],
                   'el-icon-check': data[actionKey] && data[actionKey].auth,
                   'el-icon-close': data[actionKey] && !data[actionKey].auth,
                   'node-permission__action-inherited': data[actionKey] && data[actionKey].isInherited
@@ -78,7 +77,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'
-import { getAuthActions, previewAuthActions } from '@/api/accessManage'
+import { previewAuthActions } from '@/api/accessManage'
 import settings from '@/settings'
 import { UserModule } from '@/store/modules/user'
 
@@ -104,7 +103,6 @@ export default class extends Vue {
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
-    console.log('res: ', res)
     return res
   }
 
@@ -181,29 +179,21 @@ export default class extends Vue {
           }
         })
 
-      console.log('dirs: ', dirs)
-      const promiseArr = dirs.map(dir => {
-        return this.dialogData.dialogType === 'get'
-          ? getAuthActions({
-            groupId: node.data.groupId,
-            dirPath: dir.type === 'dir' ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1),
-            deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id,
-            iamUserId: this.dialogData.iamUserId
-          })
-          : previewAuthActions({
-            groupId: node.data.groupId,
-            dirPath: dir.type === 'dir' ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1),
-            deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id,
-            iamGroupId: this.dialogData.iamGroupId,
-            policyIds: this.dialogData.policyIds
-          })
+      const isGet = this.dialogData.dialogType === 'get'
+      const permissionRes = await previewAuthActions({
+        targetResources: dirs.map(dir => ({
+          groupId: node.data.groupId,
+          dirPath: dir.type === 'dir' ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1),
+          deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id
+        })),
+        iamUserId: isGet ? this.dialogData.iamUserId : undefined,
+        iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,
+        policyIds: isGet ? undefined : this.dialogData.policyIds
       })
-      const permissionArr: any = await Promise.all(promiseArr)
       const result = dirs.map((dir, index) => ({
         ...dir,
-        ...permissionArr[index].iamUsers[0].actions
+        ...permissionRes.result[index].iamUser.actions
       }))
-      console.log('result: ', result)
       return result
     } catch (e) {
       console.log(e)
@@ -279,7 +269,7 @@ export default class extends Vue {
 
   &_tree-wrap {
     clear: both;
-    flex: 1 0;
+    // flex: 1 0;
     height: 500px;
     padding: 10px;
     padding-top: 0;

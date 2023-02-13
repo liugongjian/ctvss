@@ -261,7 +261,7 @@ export const accountLock = (data: any): Promise<any> =>
     data
   })
 
-// 账号权限预览
+// 账号权限-预览
 export const previewAuthActions = (data: any): Promise<any> =>
   request({
     url: '/iam/authpreview',
@@ -269,10 +269,18 @@ export const previewAuthActions = (data: any): Promise<any> =>
     data
   })
 
-// 账号权限查看
+// 账号权限-查看（前端暂未用到）
 export const getAuthActions = (data: any): Promise<any> =>
   request({
     url: '/iam/auth',
+    method: 'post',
+    data
+  })
+
+// 查看指定设备或目录的赋权子账号列表
+export const describeAuthIamUsers = (data: any): Promise<any> =>
+  request({
+    url: '/iam/auth/users',
     method: 'post',
     data
   })
