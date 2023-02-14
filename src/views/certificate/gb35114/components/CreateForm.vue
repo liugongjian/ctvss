@@ -9,7 +9,7 @@
     label-width="170px"
   >
     <el-form-item label="设备证书请求文件：" prop="fileName" class="form-with-tip">
-      <div class="upload-box">
+      <div v-if="ifNeedFile" class="upload-box">
         <el-input v-model="form.fileName" placeholder="请选择本地设备证书请求文件" disabled />
         <el-upload
           ref="upload"
@@ -20,22 +20,23 @@
           <el-button slot="trigger" size="small" type="primary" :disabled="loading.upload">浏览</el-button>
           <el-button size="small" type="primary" :loading="loading.upload" @click="uploadFile">上传</el-button>
         </el-upload>
+        <div v-if="form.errorTip" class="form-tip error-tip">{{ form.errorTip }}</div>
       </div>
-      <div v-if="form.errorTip" class="form-tip error-tip">{{ form.errorTip }}</div>
+      <el-button v-else type="primary" :disabled="editDisable" @click="reUploadFile">重新上传</el-button>
     </el-form-item>
     <el-form-item label="解析数据：" prop="outId">
       <div class="form-box">
         <div class="form-box-item">
           <span class="form-box-item__title">设备名称：</span>
-          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.deviceName || '-') }}</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.deviceName || '待解析') }}</span>
         </div>
         <div class="form-box-item">
           <span class="form-box-item__title">国标ID：</span>
-          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.outId || '-') }}</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.outId || '待解析') }}</span>
         </div>
       </div>
     </el-form-item>
-    <el-form-item label="相关证书文件：" prop="certificate">
+    <!-- <el-form-item label="相关证书文件：" prop="certificate">
       <div class="form-box">
         <div class="form-box-item">
           <div class="form-box--tip">
@@ -63,6 +64,15 @@
           <el-button size="small" type="primary" :loading="loading.download" @click="1">一键下载</el-button>
         </div>
       </div>
+    </el-form-item> -->
+    <el-form-item label="证书截止有效时间：" prop="expireTime">
+      <el-date-picker
+        v-model="form.expireTime"
+        type="datetime"
+        placeholder="选择日期时间"
+        :clearable="false"
+        :picker-options="pickerOptions"
+      />
     </el-form-item>
     <el-form-item label="描述：" prop="description">
       <el-input
@@ -86,7 +96,6 @@ import {
   describeCertificate,
   downloadCertificate
 } from '@/api/certificate/gb35114'
-import { error } from 'console'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
@@ -95,10 +104,11 @@ export default class extends Vue {
   private rules = {
     fileName: [{ required: true, message: '请选择本地设备证书请求文件', trigger: 'blur' }],
     outId: [{ required: true, message: '请选择正确的设备证书请求文件获取解析数据', trigger: 'blur' }],
-    certificate: [{ required: true, message: '请生成证书', trigger: 'change' }]
+    expireTime: [{ required: true, message: '请选择截止有效日期', trigger: 'blur' }]
   }
 
   private selectedFile: any = null
+  private ifNeedFile: boolean = true
   // 解析进程对象
   public reader: any = new FileReader()
   private form = {
@@ -106,7 +116,7 @@ export default class extends Vue {
     deviceName: '',
     outId: '',
     expireTime: new Date(),
-    certificate: '',
+    // certificate: '',
     description: '',
     errorTip: ''
   }
@@ -127,21 +137,35 @@ export default class extends Vue {
     }
   }
 
-  private async mounted() {
+  private get currentOutId() {
     const params: any = this.$route.params
-    if (params.outId) {
+    return params && params.outId
+  }
+
+  private async mounted() {
+    if (this.currentOutId) {
+      this.ifNeedFile = false
       try {
         this.loading.form = true
-        const res = await describeCertificate({ outId: params.outId })
+        const res = await describeCertificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
-        this.form.certificate = '相关证书文件压缩包'
+        // this.form.certificate = '相关证书文件压缩包'
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading.form = false
       }
     }
+  }
+
+  /**
+   * 重新上传文件
+   */
+  private reUploadFile() {
+    this.ifNeedFile = true
+    this.form.outId = ''
+    this.form.deviceName = ''
   }
 
   /**
@@ -213,7 +237,7 @@ export default class extends Vue {
   /**
    * 生成证书
    */
-  private generateCertificate() {
+  private submit() {
     const dataForm: any = this.$refs.dataForm
     dataForm.validateField('outId', async(err) => {
       if (!err) {
@@ -236,7 +260,7 @@ export default class extends Vue {
             expireTime: this.form.expireTime.getTime(),
             description: this.form.description
           })
-          this.form.certificate = '相关证书文件压缩包'
+          // this.form.certificate = '相关证书文件压缩包'
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
@@ -264,29 +288,6 @@ export default class extends Vue {
     } finally {
       this.loading.download = false
     }
-  }
-
-  private submit(onSuccess: Function) {
-    const form: any = this.$refs.dataForm
-    let data: any = {}
-    form.validate(async(valid: any) => {
-      if (valid) {
-        this.loading.form = true
-        try {
-          data = this.form
-          // await createCertificate(data)
-          console.log(data)
-          // onSuccess()
-        } catch (e) {
-          this.$message.error(e && e.message)
-        } finally {
-          this.loading.form = false
-        }
-      } else {
-        console.log('error submit!!')
-        return false
-      }
-    })
   }
 }
 </script>
@@ -326,13 +327,14 @@ export default class extends Vue {
 
 .upload-box,
 .form-box,
+.el-date-editor,
 .el-textarea {
   width: 400px;
 }
 
-.el-date-editor {
-  width: 200px;
-}
+// .el-date-editor {
+//   width: 200px;
+// }
 
 .error-tip {
   color: $danger;

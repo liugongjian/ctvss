@@ -24,6 +24,7 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
+        <el-table-column prop="sort" label="序号" min-width="100" />
         <el-table-column prop="description" label="描述" min-width="160" />
         <el-table-column prop="deviceName" label="设备名称" min-width="160" />
         <el-table-column prop="outId" label="国标ID" min-width="200" />
