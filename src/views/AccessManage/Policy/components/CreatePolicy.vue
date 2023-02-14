@@ -27,7 +27,11 @@
                 :prop="'statementList.' + index + '.effect'"
                 label-width="180px"
               >
-                <el-radio-group v-model="statement.effect" @input="changeEffect(index)">
+                <el-radio-group
+                  v-model="statement.effect"
+                  :disabled="isCtyunPolicy"
+                  @input="changeEffect(index)"
+                >
                   <el-radio label="Allow">允许</el-radio>
                   <el-radio label="Deny">拒绝</el-radio>
                 </el-radio-group>
