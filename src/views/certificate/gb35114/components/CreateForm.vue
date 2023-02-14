@@ -133,7 +133,7 @@ export default class extends Vue {
      * 限制可选日期
      */
     disabledDate: (time) => {
-      return time.getTime() < getDateByTime(Date.now())
+      return time.getTime() < getDateByTime(Date.now()) || time.getTime() > (getDateByTime(Date.now()) + 365 * 10 * 24 * 60 * 60 * 1000)
     }
   }
 
@@ -150,7 +150,6 @@ export default class extends Vue {
         const res = await describeCertificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
-        // this.form.certificate = '相关证书文件压缩包'
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
@@ -237,7 +236,7 @@ export default class extends Vue {
   /**
    * 生成证书
    */
-  private submit() {
+  private submit(onSuccess: Function) {
     const dataForm: any = this.$refs.dataForm
     dataForm.validateField('outId', async(err) => {
       if (!err) {
@@ -257,10 +256,10 @@ export default class extends Vue {
           await generateCertificate({
             deviceName: this.form.deviceName,
             outId: this.form.outId,
-            expireTime: this.form.expireTime.getTime(),
+            expireTime: +(this.form.expireTime.getTime() + '').slice(0, -3),
             description: this.form.description
           })
-          // this.form.certificate = '相关证书文件压缩包'
+          onSuccess()
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
@@ -268,26 +267,6 @@ export default class extends Vue {
         }
       }
     })
-  }
-
-  /**
-   * 下载证书
-   */
-  private async downloadCertificate() {
-    try {
-      this.loading.download = true
-      const res = await downloadCertificate({ outId: this.form.outId })
-      const file = res.certsZip
-      const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-      const link = document.createElement('a')
-      link.href = window.URL.createObjectURL(blob)
-      link.download = '相关证书文件压缩包'
-      link.click()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.download = false
-    }
   }
 }
 </script>

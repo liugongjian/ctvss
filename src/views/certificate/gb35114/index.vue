@@ -24,18 +24,26 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column prop="sort" label="序号" min-width="100" />
+        <el-table-column prop="sort" label="序号" min-width="100">
+          <template slot-scope="{$index}">
+            {{ $index + 1 + pager.pageSize * (pager.pageNum - 1) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
         <el-table-column prop="deviceName" label="设备名称" min-width="160" />
         <el-table-column prop="outId" label="国标ID" min-width="200" />
-        <el-table-column prop="ceateTime" label="创建时间" min-width="160" />
+        <el-table-column prop="createTime" label="创建时间" min-width="160" />
         <el-table-column prop="updateTime" label="更新时间" min-width="160" />
         <el-table-column prop="expireTime" label="证书有效期时间" min-width="160" />
-        <el-table-column prop="status" label="状态" min-width="100" />
+        <el-table-column prop="status" label="状态" min-width="100">
+          <template slot-scope="{row}">
+            {{ row.status === 'on' ? '使用中' : '未使用' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="action" label="操作" width="180" fixed="right">
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
-            <el-button type="text" @click="edit(row)">下载证书</el-button>
+            <el-button type="text" @click="downloadCertificate(row)">下载证书</el-button>
             <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -55,8 +63,7 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
-import { getList, deleteCertificate } from '@/api/certificate/gb28181'
-import { GB28181 } from '@/type/Certificate'
+import { describeCertificateList, deleteCertificate, downloadCertificate } from '@/api/certificate/gb35114'
 
 @Component({
   name: 'CertificateGb28181List'
@@ -65,7 +72,7 @@ export default class extends Vue {
   private userType = ''
   private userName = ''
   private loading = false
-  private dataList: Array<GB28181> = []
+  private dataList: []
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -91,15 +98,9 @@ export default class extends Vue {
 
   private async getList() {
     this.loading = true
-    const params = {
-      userName: this.userName,
-      userType: this.userType,
-      pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize
-    }
     try {
-      const res = await getList(params)
-      this.dataList = res.gbCerts
+      const res = await describeCertificateList({})
+      this.dataList = res.gb35114Certs
       this.pager.total = res.totalNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
@@ -128,23 +129,56 @@ export default class extends Vue {
     await this.getList()
   }
 
-  private edit(row: GB28181) {
+  private edit(row: any) {
     this.$router.push({
-      name: 'gb28181-update',
+      name: 'gb35114-update',
       params: {
-        userName: row.userName
+        outId: row.outId
       }
     })
   }
 
-  private async deleteCertificate(row: GB28181) {
+  private async deleteCertificate(row) {
     this.$alertDelete({
       type: 'GB35114凭证',
-      msg: `是否确认删除GB35114凭证"${row.userName}"`,
+      msg: '是否确认删除GB35114凭证',
       method: deleteCertificate,
-      payload: { userName: row.userName },
+      payload: {
+        outId: row.outId,
+        certId: row.certId
+      },
       onSuccess: this.getList
     })
+  }
+
+  /**
+   * 下载证书
+   */
+  private async downloadCertificate(row) {
+    try {
+      const res = await downloadCertificate({ outId: row.outId })
+      const file = res.certsZip
+      const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = '相关证书文件压缩包'
+      link.click()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
+  }
+
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
   }
 }
 </script>
