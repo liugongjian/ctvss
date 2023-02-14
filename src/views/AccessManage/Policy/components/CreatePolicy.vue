@@ -74,7 +74,7 @@
                   >
                     <template slot-scope="{row}">
                       <span v-if="!row.actionValueOption"> - </span>
-                      <el-select v-else v-model="statement.actionLevel[row.actionKey]" size="mini" style="width: 65%;">
+                      <el-select v-else v-model="statement.actionLevel[row.actionKey]" :disabled="isCtyunPolicy" size="mini" style="width: 65%;">
                         <el-option
                           v-for="option in row.actionValueOption"
                           :key="option"
