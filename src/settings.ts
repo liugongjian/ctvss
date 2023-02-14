@@ -121,14 +121,14 @@ const settings: ISettings = {
       actionName: '设备云台锁定',
       actionKey: 'ivs:LockDevicePTZ',
       actionDesc: '拥有设备云台锁定权限，并展示实时预览菜单',
-      autoSelected: 'ivs:GetLiveStream',
+      autoSelected: 'ivs:ControlDevicePTZ',
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备预置位配置',
       actionKey: 'ivs:ControlDevicePreset',
       actionDesc: '拥有设备预置位配置权限，并展示实时预览菜单',
-      autoSelected: 'ivs:GetLiveStream',
+      autoSelected: 'ivs:ControlDevicePTZ',
       resourceType: ['directory', 'device', 'channel']
     },
     // 录像回放

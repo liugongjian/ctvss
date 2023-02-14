@@ -86,11 +86,11 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         // Set the replace: true, so the navigation will not leave a history record
         next({ ...to, replace: true })
       } catch (err) {
+        const loginType = loginService.getLoginType()
         // Remove token and redirect to login page
         UserModule.ResetToken()
         Message.error(err || 'Has Error')
 
-        const loginType = loginService.getLoginType()
         console.log('loginType:', loginType)
         if (loginType === 'sub') {
           next(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)

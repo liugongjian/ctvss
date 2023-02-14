@@ -256,7 +256,6 @@ class User extends VuexModule implements IUserState {
 
       const mergedPolicy: any = await getIAMUserMergedPolicies()
       const policy = JSON.parse(mergedPolicy.policyDocument || '{}')
-      console.log('policy: ', policy)
       try {
         const allowStatments = policy.Statement.filter((statement: any) => statement.Effect === 'Allow')
         const tempActionList = allowStatments.reduce((pre, cur) => {
@@ -307,7 +306,7 @@ class User extends VuexModule implements IUserState {
     const perms = data.perms
     // perms must be a non-empty array
     if (!perms || perms.length <= 0) {
-      throw Error('GetGlobalInfo: perms must be a non-null array!')
+      throw Error('当前子用户权限为空，请为其配置策略后再访问！')
     }
     this.SET_PERMS(perms)
     this.SET_RESOURCES(data)
