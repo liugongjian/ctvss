@@ -67,7 +67,7 @@
               <el-row v-if="form.userInfo.length" style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;">用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
               <template v-if="type === 'add'">
                 <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button>
-                <el-button type="text">一次性最多添加10个成员</el-button>
+                <el-button type="text">一次性最多添加10名成员</el-button>
               </template>
             </el-form-item>
             <el-form-item prop="accessType" label="访问方式：">
@@ -262,6 +262,15 @@
                   <span>暂无策略，请先添加策略。</span>
                 </template>
                 <el-table-column prop="policyName" label="策略名" min-width="100" :show-overflow-tooltip="true" />
+                <el-table-column
+                  prop="inherited"
+                  label="是否继承"
+                >
+                  <template slot-scope="{row}">
+                    <el-tag v-if="row.inherited" type="success">是</el-tag>
+                    <el-tag v-else type="primary">否</el-tag>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="scope" label="策略归属域" width="120">
                   <template slot-scope="scope">
                     <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
@@ -473,7 +482,9 @@ export default class extends Vue {
   private showPreviewDialog() {
     this.previewDialogData = {
       iamGroupId: this.$route.query.groupId,
-      policyIds: this.effectivePolicies.map(policy => policy.policyId)
+      policyIds: this.effectivePolicies
+        .filter(effectivePolicy => !effectivePolicy.inherited)
+        .map(policy => policy.policyId)
     }
     this.showPreviewPermission = true
   }
@@ -489,10 +500,15 @@ export default class extends Vue {
   private gotoNext() {
     this.activeStep += 1
     if (this.activeStep === 2) {
+      const inheritedPolicies = this.inheritedPolicies.map((inheritedPolicy: any) => ({
+        ...inheritedPolicy,
+        inherited: true
+      }))
+
       if (this.activeName === 'select') {
-        this.effectivePolicies = this.form.policies
+        this.effectivePolicies = inheritedPolicies.concat(this.form.policies)
       } else {
-        this.effectivePolicies = this.form.copyUser?.[0]?.policies || []
+        this.effectivePolicies = inheritedPolicies.concat(this.form.copyUser?.[0]?.policies || [])
       }
     }
   }
@@ -550,6 +566,7 @@ export default class extends Vue {
   }
 
   private handleSelectionChange(selection: any) {
+    console.log('selection: ', selection)
     this.form.policies = selection
   }
 
@@ -622,6 +639,7 @@ export default class extends Vue {
           policyId: policy.policyId,
           policyName: policy.policyName,
           policyDesc: policy.policyDesc,
+          policyScope: policy.policyScope,
           groupDetails: {
             groupId: groupRes.groupId,
             groupName: groupRes.groupName,
@@ -694,7 +712,9 @@ export default class extends Vue {
         accessType: res.apiEnabled === '1' || res.consoleEnabled === '1',
         passwordLifeTime: res.passwordLifeTime,
         maxOnline: res.maxOnline,
-        isMutualLogout: res.isMutualLogout
+        isMutualLogout: res.isMutualLogout,
+        policies: res.policies || [],
+        copyUser: []
       }
       const policyList: any = this.$refs.policyList
       res.policies.forEach(policy => {
@@ -713,7 +733,6 @@ export default class extends Vue {
     const form: any = this.$refs.userForm
     form.validate(async(valid: any) => {
       const form = this.form
-      console.log('this.form.copyUser: ', this.form.copyUser)
       let params: any = {
         userProperties: this.form.userInfo,
         policyIds: this.activeName === 'select'
@@ -812,8 +831,8 @@ export default class extends Vue {
   }
 
   private validatePolicies(rule: any, value: any, callback: Function) {
-    if (this.activeName === 'select' && !this.form.policies.length) {
-      callback(new Error('请添加用户权限'))
+    if (this.activeName === 'select' && !this.inheritedPolicies.length && !this.form.policies.length) {
+      callback(new Error('无继承策略情况下，请至少勾选一条策略'))
     } else {
       callback()
     }

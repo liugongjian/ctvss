@@ -15,6 +15,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
 import DescribePermission from '../components/dialogs/DescribePermission.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   components: {
@@ -217,6 +218,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       }
     }
     return buttons
+  }
+
+  get isMainUser() {
+    return !UserModule.iamUserId
   }
 
   @Watch('$route.query')

@@ -318,7 +318,7 @@ export default class extends Vue {
         if (actionLevel[action.actionKey] == null) {
           this.$set(actionLevel, action.actionKey, action.actionValueDefault)
         }
-        if (action.autoSelected) {
+        if (statement.effect === 'Allow' && action.autoSelected) {
           const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === action.autoSelected)
           if (autoSelectedRow) {
             actionTable.toggleRowSelection(autoSelectedRow, true)
@@ -415,11 +415,14 @@ export default class extends Vue {
     if (this.isCtyunPolicy) {
       return false
     }
-
+    const statement = this.form.statementList[index]
+    if (statement.effect !== 'Allow') {
+      return true
+    }
     const relatedActions = this.filteredSystemActionList
       .filter((action: any) => action.autoSelected === row.actionKey)
       .map(row => row.actionKey)
-    const actionList = this.form.statementList[index].actionList
+    const actionList = statement.actionList
     return !(relatedActions.length && actionList.filter(action => relatedActions.includes(action)).length)
   }
 

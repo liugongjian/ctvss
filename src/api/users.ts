@@ -20,11 +20,10 @@ export const getIAMUserInfo = (params: any) =>
     params
   })
 
-export const getIAMUserMergedPolicies = (data: any) =>
+export const getIAMUserMergedPolicies = () =>
   request({
     url: '/iam/user/mergedPolicy',
-    method: 'post',
-    data
+    method: 'post'
   })
 
 export const getUserByName = (username: string) =>

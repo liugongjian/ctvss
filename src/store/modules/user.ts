@@ -253,15 +253,25 @@ class User extends VuexModule implements IUserState {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       this.SET_NAME(data.iamUserName)
       setUsername(data.iamUserName)
-      const policy = JSON.parse(data.policyDocument || '{}')
+
+      const mergedPolicy: any = await getIAMUserMergedPolicies()
+      const policy = JSON.parse(mergedPolicy.policyDocument || '{}')
+      console.log('policy: ', policy)
       try {
-        const actionList = policy.Statement[0].Action
+        const allowStatments = policy.Statement.filter((statement: any) => statement.Effect === 'Allow')
+        const tempActionList = allowStatments.reduce((pre, cur) => {
+          return pre.concat(cur.Action)
+        }, [])
+
+        const actionList = [...new Set(tempActionList)]
         const resourceList = policy.Statement[0].Resource
-        if (actionList[0] === 'vss:*') {
+        if (actionList.includes('ivs:*')) {
           data.perms = ['*']
           data.resource = ['*']
-        } else if (actionList[0] === 'vss:Get*') {
-          data.perms = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionKey)
+        } else if (actionList.includes('ivs:Get*')) {
+          const getActions = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionKey)
+          data.perms = [...new Set(actionList.filter(action => action !== 'ivs:Get*').concat(getActions))]
+          console.log('data.perms: ', data.perms)
           data.resource = ['*']
           data.resourcesSet = new Set()
         } else {
@@ -276,8 +286,8 @@ class User extends VuexModule implements IUserState {
         }
       } catch (e) {
         data = {
-          perms: ['*'],
-          resource: ['*'],
+          perms: [],
+          resource: [],
           resourcesSet: new Set()
         }
       }

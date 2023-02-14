@@ -461,6 +461,7 @@ export default class extends Vue {
       query: {
         type: 'edit',
         userId: user.iamUserId,
+        groupId: this.currentNode.data.groupId,
         subUserLoginLink: this.subUserLoginLink,
         nodeKeyPath: this.nodeKeyPath
       }
