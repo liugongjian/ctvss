@@ -20,3 +20,16 @@ export const deleteUser = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const setAccessPassword = (param: any): Promise<any> =>
+  request({
+    url: '/iam/user/addpwd',
+    method: 'post',
+    data: param
+  })
+
+export const ifAccess = (): Promise<any> =>
+  request({
+    url: '/iam/user/pwdsetting/access',
+    method: 'get'
+  })
