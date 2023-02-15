@@ -248,7 +248,7 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item> -->
-        <el-form-item label="配置资源包:" prop="resources">
+        <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -297,7 +297,7 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
