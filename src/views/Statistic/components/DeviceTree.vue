@@ -376,7 +376,8 @@ export default class extends Vue {
       _node = node
       _node.expanded = true
     }
-    this.$emit('treeback', item.id)
+
+    this.$emit('treeback', item.id, this.currentGroupInProtocol, this.currentGroupId)
   }
 
   /**

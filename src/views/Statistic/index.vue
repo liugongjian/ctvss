@@ -217,36 +217,38 @@
         </el-tab-pane>
         <!-- 设备统计 -->
         <el-tab-pane label="设备统计" name="device">
-          <div v-if="activeName === 'device'" class="statistic-box statistic-box__device">
+          <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
             <div class="statistic-box__left">
               <device-tree @treeback="getTreeDeviceId" />
             </div>
             <div class="statistic-box__right">
               <el-tabs v-model="activeTab">
-                <el-tab-pane label="录像统计" name="record">
+                <el-tab-pane v-loading="calendarLoading" label="录像统计" name="record">
                   <div class="statistic-box__title">
                     <div class="statistic-box__title-text">设备录像统计</div>
                   </div>
-                  <el-date-picker
-                    v-model="monthValue"
-                    type="month"
-                    placeholder="选择月"
-                    value-format="yyyy-MM"
-                    @change="monthValueChange"
-                  />
-                  <div class="statistic-box__calendar">
-                    <div class="statistic-box__calendar__chart">
-                      <div class="statistic-box__content">
-                        <p class="statistic-box__content__title">录制天数</p>
-                        <p class="statistic-box__content__number"><span>2</span>/31</p>
+                  <div v-if="calendarInfo.length > 0">
+                    <el-date-picker
+                      v-model="monthValue"
+                      type="month"
+                      placeholder="选择月"
+                      value-format="yyyy-MM"
+                      @change="monthValueChange"
+                    />
+                    <div class="statistic-box__calendar">
+                      <div class="statistic-box__calendar__chart">
+                        <div class="statistic-box__content">
+                          <p class="statistic-box__content__title">录制天数</p>
+                          <p class="statistic-box__content__number"><span>2</span>/31</p>
+                        </div>
+                        <draw-chart :chart-info="recordDays" />
                       </div>
-                      <draw-chart :chart-info="recordDays" />
-                    </div>
-                    <div class="statistic-box__calendar__line" />
-                    <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
-                      <span v-for="item in calendarInfo" :key="item.day" class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
-                        {{ item.day.split('-')[2] }}
-                      </span>
+                      <div class="statistic-box__calendar__line" />
+                      <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
+                        <span v-for="item in calendarInfo" :key="item.day" class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
+                          {{ item.day.split('-')[2] }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div class="statistic-box__title">
@@ -254,21 +256,41 @@
                   </div>
                   <el-form ref="filterForm" :model="filterForm" :inline="true">
                     <el-form-item label="时间段">
-                      <el-col :span="11">
+                      <!-- <el-col :span="11">
                         <el-date-picker v-model="filterForm.startTime" type="date" placeholder="选择日期" style="width: 100%;" />
                       </el-col>
                       <el-col class="line" :span="2">-</el-col>
                       <el-col :span="11">
                         <el-time-picker v-model="filterForm.endTime" placeholder="选择时间" style="width: 100%;" />
-                      </el-col>
+                      </el-col> -->
+                      <el-date-picker
+                        v-model="filterForm.dateValue"
+                        type="datetimerange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                      />
                     </el-form-item>
                     <el-form-item label="忽略时长">
+                      <template slot="label">
+                        忽略时长
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                          :open-delay="300"
+                          content="忽略规定秒内的缺失录像。"
+                        >
+                          <svg-icon slot="reference" class="form-question" name="help" />
+                        </el-popover>
+                      </template>
                       <el-input v-model="filterForm.ignore" />
                     </el-form-item>
                     <el-form-item>
                       <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
                     </el-form-item>
                   </el-form>
+                  <miss-table v-if="!calendarLoading" :info="searchParam" />
                 </el-tab-pane>
               </el-tabs>
             </div>
@@ -305,13 +327,30 @@
         :before-close="changeDayDialog"
       >
         <p>{{ `录制完整率: ${dayInfo.complianceRate*100}%` }}</p>
-        <el-table>
+        <!-- <el-table
+          :data="dayMissTableData"
+          style="width: 100%;"
+        >
           <el-table-column
-            prop="deviceName"
-            label="设备名称"
-            width="160"
+            prop="startTime"
+            label="开始时间"
+            width="180"
           />
-        </el-table>
+          <el-table-column
+            prop="endTime"
+            label="结束时间"
+            width="180"
+          />
+          <el-table-column
+            prop="missSeconds"
+            label="缺失时长(秒)"
+          >
+            <template slot-scope="{row}">
+              <span style="margin-left: 10px;">{{ row.missSeconds }}</span>
+            </template>
+          </el-table-column>
+        </el-table> -->
+        <miss-table from="dialog" :info="dayInfo" />
         <span slot="footer" class="dialog-footer">
           <!-- <el-button type="primary" @click="sureThis">确 定</el-button> -->
           <el-button @click="changeDayDialog">关 闭</el-button>
@@ -325,11 +364,14 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
+import MissTable from './components/MissTable.vue'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
-  getDeviceList, exportDeviceList, getCalendarInfo,
-  getCalendarMissData } from '@/api/statistic'
+  getDeviceList, exportDeviceList, getCalendarInfo
+  // getCalendarMissData
+} from '@/api/statistic'
 import { ChartInfo, CalendarListResponse, CalendarQuery,
-  CalendarItem, CalendarMissResponse, CalendarMissItem,
+  CalendarItem, CalendarMissItem,
+  // CalendarMissResponse,
   RecordMissQuery } from '@/type/Statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
@@ -339,7 +381,8 @@ import { UserModule } from '@/store/modules/user'
   name: 'Statistic',
   components: {
     DrawChart,
-    DeviceTree
+    DeviceTree,
+    MissTable
   }
 })
 export default class extends Vue {
@@ -377,6 +420,7 @@ export default class extends Vue {
   private monthValue: string = ''
   private daysOfMonth: number = 0
   private calendarInfo: CalendarItem[] = []
+  private calendarLoading: boolean = true
 
   private ifDayDialog: boolean = false
   private dayInfo: CalendarItem = {}
@@ -384,6 +428,7 @@ export default class extends Vue {
   private dayMissDataLoading: boolean = false
 
   private dayMissTableData: CalendarMissItem[] = []
+  private dialogDayMissData: CalendarMissItem[] = []
 
   private deviceId: string = ''
 
@@ -395,6 +440,8 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10
   }
+
+  private searchParam = {}
 
   private listQueryForm: any = {
     groupInfo: '',
@@ -434,11 +481,23 @@ export default class extends Vue {
   private onDeviceIdChange(deviceId: string) {
     this.filterForm = {
       deviceId,
+      inProtocol: this.inProtocol,
+      groupId: this.groupId,
       ignore: 0,
       pageNum: 1,
-      pageSize: 10
+      pageSize: 10,
+      dateValue: [new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(23, 59, 59, 0))]
     }
-    console.log('deviceId--->', deviceId)
+    this.searchParam = { ...this.filterForm }
+    this.getMonth()
+    this.getCalendarInfo()
+  }
+
+  @Watch('monthValue')
+  private onMonthValueChange() {
+    if (this.deviceId) {
+      this.getCalendarInfo()
+    }
   }
 
   async mounted() {
@@ -462,7 +521,8 @@ export default class extends Vue {
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth() + 1
-    this.monthValue = `${year}-${month}`
+    const monthStr = month < 10 ? `0${month}` : month
+    this.monthValue = `${year}-${monthStr}`
   }
 
   private changeThresholdDialog() {
@@ -536,8 +596,6 @@ export default class extends Vue {
       } catch (error) {
         this.$message.error(error && error.message)
       }
-    } else {
-      await this.getCalendarInfo()
     }
   }
 
@@ -571,17 +629,14 @@ export default class extends Vue {
 
   private openDetail(item: CalendarItem) {
     if (item.status === 'incomplete') {
-      this.dayInfo = item
-      try {
-        this.dayMissDataLoading = true
-        const param: RecordMissQuery = {}
-        console.log(param)
-      } catch (error) {
-        this.$message.error(error && error.message)
-      } finally {
-        this.dayMissDataLoading = false
+      const query = {
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        groupId: this.groupId,
+        dateValue: [new Date(new Date(item.day).setHours(0, 0, 0, 0)), new Date(new Date(item.day).setHours(23, 59, 59, 0))],
+        ...item
       }
-
+      this.dayInfo = query
       this.changeDayDialog()
     }
   }
@@ -591,183 +646,44 @@ export default class extends Vue {
   }
 
   // 左侧树点击回调
-  private getTreeDeviceId(deviceId: string) {
+  private getTreeDeviceId(deviceId: string, inProtocol: string, groupId: string) {
     this.deviceId = deviceId
+    this.inProtocol = inProtocol
+    this.groupId = groupId
   }
 
   // 获取 日历及图表 信息
   private async getCalendarInfo() {
     try {
+      this.calendarLoading = true
       const param: CalendarQuery = {
-        deviceId: '',
-        month: ''
+        deviceId: this.deviceId,
+        month: this.monthValue,
+        inProtocol: this.inProtocol,
+        groupId: this.groupId
       }
 
-      // const calendarInfo: CalendarListResponse = await getCalendarInfo(param)
-      // this.calendarInfo = calendarInfo.records
-      console.log(param)
-      const data = {
-        'records': [
-          { 'day': '2023-01-01',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-02',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-03',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-04',
-            'status': 'complete',
-            'complianceRate': 1
-          },
-          { 'day': '2023-01-05',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-06',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-07',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-08',
-            'status': 'complete',
-            'complianceRate': 1
-          }, {
-            'day': '2023-01-09',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-10',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-11',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-12',
-            'status': 'complete',
-            'complianceRate': 1
-          }, {
-            'day': '2023-01-13',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-14',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-15',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-16',
-            'status': 'complete',
-            'complianceRate': 1
-          }, {
-            'day': '2023-01-17',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-18',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-19',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-20',
-            'status': 'complete',
-            'complianceRate': 1
-          }, {
-            'day': '2023-01-21',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-22',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-23',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-24',
-            'status': 'complete',
-            'complianceRate': 1
-          }, {
-            'day': '2023-01-25',
-            'status': 'unbind',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-26',
-            'status': 'stop',
-            'complianceRate': 0
-          },
-          {
-            'day': '2023-01-27',
-            'status': 'incomplete',
-            'complianceRate': 0.8
-          },
-          {
-            'day': '2023-01-28',
-            'status': 'complete',
-            'complianceRate': 1
-          },
-          {
-            'day': '2023-01-29',
-            'status': 'complete',
-            'complianceRate': 1
-          }
-        ]
-      }
-      this.calendarInfo = data.records
+      const calendarInfo: CalendarListResponse = await getCalendarInfo(param)
+      this.calendarInfo = calendarInfo.records
       this.recordDays = {
         kind: 'pie',
-        totalDeviceNum: 130,
-        onlineNum: 100,
-        label: '在线率',
+        totalDeviceNum: 31,
+        onlineNum: 2,
+        label: '完整率',
         name: 'recordDays',
         width: 180,
         height: 280
       }
     } catch (error) {
       this.$message.error(error && error.message)
+    } finally {
+      this.calendarLoading = false
     }
   }
 
   // 查询丢失录像片段
-  private searchList() {
-    // const param: RecordMissQuery = {
-
-    // }
+  private async searchList() {
+    this.searchParam = { ...this.filterForm }
   }
 
   private searchDeviceList() {
@@ -1009,6 +925,8 @@ export default class extends Vue {
 
   &__calendar {
     display: flex;
+    // justify-content: center;
+    align-items: center;
     width: 640px;
     margin-top: 20px;
     border: 1px solid #b4b4b4;
@@ -1027,7 +945,7 @@ export default class extends Vue {
     }
 
     &__date {
-      padding: 10px 10px 10px 15px;
+      padding: 10px;
       // height: 166px;
 
       &__day {
@@ -1062,7 +980,7 @@ export default class extends Vue {
       height: 130px;
       width: 1px;
       border-left: 1px solid #b4b4b4;
-      margin-top: 20px;
+      // margin-top: 20px;
     }
   }
 
