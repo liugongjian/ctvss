@@ -53,6 +53,7 @@
         :is-auto-play="true"
         :is-live="form.isLive"
         :is-ws="form.isWs"
+        :has-audio="form.hasAudio"
         @dispatch="onPlayerDispatch"
       />
     </div>
@@ -88,10 +89,11 @@ import VssPlayer from './index.vue'
 export default class extends Vue {
   private form: any = {
     codec: 'h264',
-    type: 'hls',
+    type: 'flv',
     videoName: 'TestVideo',
-    isLive: false,
-    isWs: false,
+    isLive: true,
+    isWs: true,
+    hasAudio: true,
     deviceInfo: {
       deviceName: 'TestVideo',
       deviceId: '123',
@@ -106,6 +108,7 @@ export default class extends Vue {
 
   private generate() {
     this.url = ''
+    this.form.hasAudio = true
 
     this.$nextTick(() => {
       this.url = this.form.url
@@ -113,14 +116,34 @@ export default class extends Vue {
   }
 
   private onPlayerDispatch(event: PlayerEvent) {
-    console.log(event)
-    // if (type === 'rtc') {
-    //   this.url = ''
+    switch (event.eventType) {
+      case 'retry':
+        this.onRetry(event.payload)
+        break
+    }
+  }
 
-    //   this.$nextTick(() => {
-    //     this.url = this.form.rtcUrl
-    //   })
-    // }
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(payload?) {
+    let timeout = 30 * 1000
+    if (payload && payload.immediate) {
+      timeout = 100
+    }
+    setTimeout(() => {
+      try {
+        this.url = ''
+        if (payload.hasAudio != null) {
+          this.form.hasAudio = payload.hasAudio
+        }
+        this.$nextTick(() => {
+          this.url = this.form.url
+        })
+      } catch {
+        this.onRetry()
+      }
+    }, timeout)
   }
 }
 </script>
