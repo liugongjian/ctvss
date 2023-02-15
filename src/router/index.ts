@@ -726,6 +726,28 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
+        path: '/custom-device-tree',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/CustomDeviceTree/index.vue'),
+        name: 'custom-device-tree',
+        meta: {
+          title: '自定义设备树',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/template/custom-device-tree'
+        },
+        children: [
+          {
+            path: 'template-update',
+            component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+            name: 'template-update',
+            meta: {
+              title: '编辑录制模板',
+              perms: ['*']
+            }
+          },
+        ]
+      },
+      {
         path: 'alert/create',
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
         name: 'AlertCreate',

@@ -228,6 +228,16 @@ export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   })
 
 /**
+ * 设备批量绑定
+ */
+ export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+   url: '/device/record/batchBind',
+   method: 'post',
+   data: params
+ })
+
+/**
  * 设置设备回调模板
  */
 export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
