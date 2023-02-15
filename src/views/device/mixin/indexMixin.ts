@@ -2,6 +2,7 @@ import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
@@ -22,6 +23,7 @@ export default class IndexMixin extends Vue {
     searchKey: '',
     revertSearchFlag: false
   }
+
   public maxHeight = null
   public dirList = []
   public isExpanded = true
@@ -71,6 +73,10 @@ export default class IndexMixin extends Vue {
 
   public get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
+  }
+
+  public get isCustomTree() {
+    return this.currentGroup?.isCustomTree
   }
 
   public get breadcrumb() {
@@ -129,15 +135,22 @@ export default class IndexMixin extends Vue {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: 0,
-        deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
-        deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
-        searchKey: this.advancedSearchForm.searchKey || undefined
-      })
+      let res
+      if (this.isCustomTree) {
+        res = await loadTreeNode({
+          dirId: this.currentGroupId
+        })
+      } else {
+        res = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: 0,
+          deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+          streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+          matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+          deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+          searchKey: this.advancedSearchForm.searchKey || undefined
+        })
+      }
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
@@ -257,11 +270,18 @@ export default class IndexMixin extends Vue {
         VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
       }
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      })
+      let data
+      if (this.isCustomTree) {
+        data = await loadTreeNode({
+          dirId: this.currentGroupId
+        })
+      } else {
+        data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node.data.id,
+          type: node.data.type
+        })
+      }
       if (data.dirs) {
         if (this.currentGroup?.inProtocol === 'vgroup') {
           data.dirs.forEach((dir: any) => {
@@ -285,7 +305,7 @@ export default class IndexMixin extends Vue {
    */
   @Provide('getDirPath')
   public getDirPath(node: any) {
-    let path: any = []
+    const path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node.data
       if (data && data.id) {
@@ -493,11 +513,18 @@ export default class IndexMixin extends Vue {
       VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
     }
     try {
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      })
+      let res
+      if (this.isCustomTree) {
+        res = await loadTreeNode({
+          dirId: this.currentGroupId
+        })
+      } else {
+        res = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node.data.id,
+          type: node.data.type
+        })
+      }
       if (this.currentGroup?.inProtocol === 'vgroup') {
         res.dirs.forEach((dir: any) => {
           dir.roleId = node.data.roleId || ''

@@ -299,7 +299,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-live',
       perms: ['ScreenPreview'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      customTreeSelector: true
     },
     children: [
       {
@@ -312,7 +313,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ScreenPreview'],
           activeMenu: '/screen',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]
@@ -361,7 +363,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-replay',
       perms: ['ReplayRecord'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      customTreeSelector: true
     },
     children: [
       {
@@ -374,7 +377,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ReplayRecord'],
           activeMenu: '/replay',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]

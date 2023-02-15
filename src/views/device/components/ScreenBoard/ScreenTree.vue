@@ -427,7 +427,9 @@ export default class extends Mixins(IndexMixin) {
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
       if (node.data.deviceStatus === 'on' || !this.screenManager.isLive) {
-        node.data.inProtocol = this.currentGroupInProtocol
+        if (!node.data.inProtocol) {
+          node.data.inProtocol = this.currentGroupInProtocol
+        }
         deviceArr.push(node.data)
       }
     } else {

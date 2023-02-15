@@ -67,6 +67,7 @@ import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getSums } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -81,6 +82,7 @@ export default class extends Mixins(IndexMixin) {
   @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
+
   private dialogVisible = true
   private submitting = false
   public dirList = []
@@ -102,14 +104,22 @@ export default class extends Mixins(IndexMixin) {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        deviceStatusKeys: this.outerSearch.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.outerSearch.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.outerSearch.matchKeys.join(',') || undefined,
-        searchKey: this.outerSearch.searchKey || undefined,
-        id: 0
-      })
+      let res
+      if (this.isCustomTree) {
+        res = await loadTreeNode({
+          dirId: this.currentGroupId
+        })
+      } else {
+        res = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: 0,
+          deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+          streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+          matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+          deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+          searchKey: this.advancedSearchForm.searchKey || undefined
+        })
+      }
       this.dirList = this.setDirsStreamStatus(res.dirs)
 
       // 根据搜索结果 组装 目录树（柳州搜索新增功能）
