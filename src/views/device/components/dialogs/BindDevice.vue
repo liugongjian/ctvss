@@ -1,27 +1,19 @@
 <template>
-  <el-dialog
-    title="绑定设备"
-    class="dialog-body"
-    :close-on-click-modal="false"
-    width="740px"
-    :append-to-body="true"
-    center
-    :visible="visible"
-    @close="closeDialog(false)"
-  >
+  <div class="bind-wrap">
     <div class="bind-body">
       <div class="bind-body-left">
         <span class="bind-title-left">全部设备</span>
-        <span class="bind-title-right">已选中{{}}项</span>
+        <span class="bind-title-right">已选中{{ checkedNum }}项</span>
         <el-tree
           ref="bindTree"
+          :key="time"
           :data="deviceList"
           class="general-tree"
           node-key="id"
           lazy
           v-loading="loading.deviceTree"
           highlight-current
-          empty-text="暂无已绑定设备"
+          empty-text="暂无2已绑定设备"
           :load="loadSubDeviceLeft"
           show-checkbox
           @check-change="bindCheck"
@@ -50,11 +42,11 @@
       </div>
       <div class="bind-body-right">
         <span class="bind-title-left">绑定设备预览</span>
-        <span class="bind-title-right">已选中{{}}项</span>
+        <!-- <span class="bind-title-right">已选中{{}}项</span> -->
         <el-tree
           ref="previewTree"
           lazy
-          empty-text="暂无已绑定设备"
+          empty-text="暂无3已绑定设备"
           v-loading="loading.previewTree"
           class="general-tree"
           :load="loadSubDeviceLeft"
@@ -71,7 +63,7 @@
           <span
             slot-scope="{node, data}"
             class="bind-device-tree"
-            :class="{'has-binded-self': data.bindStatus === 1}"
+            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
           >
             <span class="node-name">
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -79,6 +71,7 @@
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
+              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               {{ node.label }}
               {{ data.totalSize === 0 ? '' : '(' + data.totalSize + ')' }}
             </span>
@@ -89,7 +82,7 @@
     <div class="bind-body-bottom">
       <el-checkbox v-model="quickStart">绑定该按需模板后，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
-    <div slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
       <el-button type="primary" :loading="submitting" :disabled="submitable" @click="submit">
         确 定
       </el-button>
@@ -97,9 +90,11 @@
     </div>
     <el-dialog
       width="30%"
+      top="20%"
       :visible="hasBindedNode"
       append-to-body
     >
+      <i class="el-icon-info" style="color: #faad15;" />
       <span>您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?</span>
       <div slot="footer" class="dialog-footer">
       <el-button type="primary" :disabled="submitable" @click="subSubmit">
@@ -108,23 +103,28 @@
       <el-button @click="hasBindedNode = false">取 消</el-button>
     </div>
     </el-dialog>
-  </el-dialog>
+  </div>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice } from '@/api/template'
 import { setDeviceRecordTemplateBatch } from '@/api/device'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'BindDevice'
+  name: 'BindDevice',
+  components: {
+    StatusBadge
+  }
 })
 export default class extends Vue {
   @Prop()
   private currentTemplate: any
  
-  private visible = true
   private submitable = true
   private hasBindedNode = false
+
+  private time = (new Date()).getTime()
    
 
   private loading = {
@@ -143,6 +143,12 @@ export default class extends Vue {
   private get checkedNodes() {
     const leftTree: any = this.$refs.bindTree
     return leftTree.getCheckedNodes(false, true)
+  }
+
+  private get checkedNum() {
+    const leftTree: any = this.$refs.bindTree
+    const checkedNodes = leftTree ? leftTree.getCheckedNodes(true) : []
+    return checkedNodes.length
   }
 
   @Ref('bindTree') private bindTree
@@ -312,7 +318,6 @@ export default class extends Vue {
       let checkedNodes = this.checkedNodes.filter((item: any) => {
         return item.isLeaf 
       })
-      this.hasBindedNode = true
       // 组装 groupId
       const devices = checkedNodes.map((item: any) => {
         return {
@@ -327,16 +332,18 @@ export default class extends Vue {
         templateId: this.currentTemplate.templateId,
         devices: devices
       })
+      this.$message.success('批量绑定设备成功！')
+      this.submitting = false
+      this.closeDialog(true)
     } catch(e) {
       this.$message.error(e)
-    } finally {
       this.submitting = false
+      this.closeDialog(false)
     }
   }
 
   // 关闭 dialog
   private closeDialog(isBinded: boolean = false) {
-    this.visible = false
     this.$emit('on-close', isBinded)
   }
 
@@ -388,21 +395,6 @@ export default class extends Vue {
     try{
       const data: any = node.data
       const rootId = this.getRootId(node)
-      // 不涉及虚拟业务组
-      // // 虚拟业务组请求需要添加请求头
-      // let header = {}
-      // if (data.inProtocol === 'vgroup') {
-      //   // 添加请求头
-      //   header = {
-      //     'role-id': data.roleId
-      //   }        
-      // }
-      // if (data.vgroup && data.type === 'group') {
-      //   header = {
-      //     'role-id': data.roleId,
-      //     'real-group-id': data.realGroupId
-      //   }
-      // }
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
         groupId: rootId,
@@ -411,21 +403,6 @@ export default class extends Vue {
         bind: false,
         path: data.path
       })
-      // if (data.inProtocol === 'vgroup') {
-      //   res.dirs.map((item: any) => {
-      //     // 添加查询标识
-      //     item.vgroup = true
-      //     item.roleId = data.id
-      //   })
-      // }
-      // if (data.vgroup && data.type === 'group') {
-      //   // 添加第二级子节点查询标识
-      //   res.dirs.map((item: any) => {
-      //     item.vgroup = true
-      //     item.roleId = data.roleId
-      //     item.realGroupId = data.id
-      //   })
-      // }
       return res.dirs
     } catch (e) {
       this.$message.error(e)
@@ -434,6 +411,17 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.bind-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.bind-device-node.online .node-name {
+  .svg-icon {
+    color: #65c465;
+  }
+}
+
 .has-binded-self {
   color: $textGrey;
   cursor: not-allowed;
