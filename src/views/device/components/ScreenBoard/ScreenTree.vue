@@ -210,6 +210,7 @@ import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
 import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -435,15 +436,22 @@ export default class extends Mixins(IndexMixin) {
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        const data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type,
-          'self-defined-headers': {
-            'role-id': node!.data.roleId || '',
-            'real-group-id': node!.data.realGroupId || ''
-          }
-        })
+        let data
+        if (this.isCustomTree) {
+          data = await loadTreeNode({
+            dirId: node!.data.id
+          })
+        } else {
+          data = await getDeviceTree({
+            groupId: this.currentGroupId,
+            id: node!.data.id,
+            type: node!.data.type,
+            'self-defined-headers': {
+              'role-id': node!.data.roleId || '',
+              'real-group-id': node!.data.realGroupId || ''
+            }
+          })
+        }
         const dirs = this.setDirsStreamStatus(data.dirs)
         dirTree.updateKeyChildren(node.data.id, dirs)
         node.expanded = true

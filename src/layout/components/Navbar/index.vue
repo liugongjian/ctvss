@@ -158,6 +158,7 @@ import { AiGroups } from '@/views/Dashboard/helper/aiGroups'
 import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
 import { trim } from 'lodash'
 import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { removeLocalStorage } from '@/utils/storage'
 
 @Component({
   name: 'Navbar',
@@ -299,9 +300,11 @@ export default class extends Mixins(DashboardMixin) {
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string) {
     this.groupId = groupId
+    removeLocalStorage('liveScreenCache')
+    removeLocalStorage('replayScreenCache')
   }
 
-  @Watch('hasCustomTreeSelector', { immediate: true })
+  @Watch('hasCustomTreeSelector')
   private onHasCustomTreeSelectorChange(hasCustomTreeSelector: boolean) {
     let currentGroup
     if (hasCustomTreeSelector) {

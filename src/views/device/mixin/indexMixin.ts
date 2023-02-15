@@ -273,7 +273,7 @@ export default class IndexMixin extends Vue {
       let data
       if (this.isCustomTree) {
         data = await loadTreeNode({
-          dirId: this.currentGroupId
+          dirId: node.data.id
         })
       } else {
         data = await getDeviceTree({
@@ -516,7 +516,7 @@ export default class IndexMixin extends Vue {
       let res
       if (this.isCustomTree) {
         res = await loadTreeNode({
-          dirId: this.currentGroupId
+          dirId: node.data.id
         })
       } else {
         res = await getDeviceTree({
