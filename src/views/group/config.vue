@@ -49,7 +49,7 @@
         </info-list>
       </el-tab-pane>
       <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
-        <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
+        <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" :disable-record-template="true" />
       </el-tab-pane>
     </el-tabs>
   </div>

@@ -298,7 +298,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="配置资源包:" prop="resources">
+        <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -352,7 +352,7 @@
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"

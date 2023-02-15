@@ -338,7 +338,7 @@
             >
               <el-input v-model="form.poleId" />
             </el-form-item>
-            <el-form-item label="配置资源包:" prop="resources">
+            <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
               <ResourceTabs
                 v-model="form.resources"
                 :is-update="isUpdate"
@@ -465,7 +465,7 @@
         <el-form-item label="杆号:" prop="poleId">
           <el-input v-model="form.poleId" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"

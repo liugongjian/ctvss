@@ -144,7 +144,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="配置资源包:" prop="resources">
+      <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
         <ResourceTabs
           v-model="form.resources"
           :is-update="isUpdate"

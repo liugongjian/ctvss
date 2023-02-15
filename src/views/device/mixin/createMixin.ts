@@ -119,6 +119,11 @@ export default class CreateMixin extends Vue {
     return this.form.deviceType === 'ipc'
   }
 
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   private get breadCrumbContent() {
     let title = this.$route.meta.title
     if (this.isChannel) {

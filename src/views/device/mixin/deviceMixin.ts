@@ -128,19 +128,25 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('startRecord')
   public async startRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+    this.$confirm(`确认开启${device.deviceName}的云端录像吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(async() => {
+      try {
+        const params: any = {
+          deviceId: device.deviceId,
+          inProtocol: this.inProtocol
+        }
+        await startRecord(params)
+        this.$message.success('已通知开始录制')
+        this.init()
+        return true
+      } catch (e) {
+        this.$message.error(e && e.message)
+        console.error(e)
       }
-      await startRecord(params)
-      this.$message.success('已通知开始录制')
-      this.init()
-      return true
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
+    })
   }
 
   /**
@@ -148,19 +154,25 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('stopRecord')
   public async stopRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        recordTaskId: device.recordTaskId,
-        inProtocol: this.inProtocol
+    this.$confirm(`确认关闭${device.deviceName}的云端录像吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(async() => {
+      try {
+        const params: any = {
+          deviceId: device.deviceId,
+          recordTaskId: device.recordTaskId,
+          inProtocol: this.inProtocol
+        }
+        await stopRecord(params)
+        this.$message.success('已通知停止录像')
+        this.init()
+        return true
+      } catch (e) {
+        this.$message.error(e && e.message)
+        console.error(e)
       }
-      await stopRecord(params)
-      this.$message.success('已通知停止录像')
-      this.init()
-      return true
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
+    })
   }
 }
