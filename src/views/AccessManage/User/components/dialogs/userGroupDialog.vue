@@ -76,6 +76,12 @@
           :load="loadGroups"
           @current-change="setCurrentNode"
         />
+        <el-alert
+          title="部门合并后，当前部门绑定的策略不会迁移到新部门，请谨慎操作！"
+          type="warning"
+          :closable="true"
+          style="margin-top: 6px;"
+        />
       </el-form-item>
       <template v-else>
         <el-form-item label="部门名称:" prop="groupName">

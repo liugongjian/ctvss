@@ -547,7 +547,6 @@ export default class extends Vue {
       const res = await getGroupList({
         parentGroupId: node.data.groupId
       })
-      // let groups = res.groups.filter((item: any) => item.groupId !== this.dialogData.data.groupId)
       let groups = res.groups
       let dirs: any = groups.map((group: any) => {
         return {
