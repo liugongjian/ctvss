@@ -32,9 +32,21 @@
         <el-table-column prop="description" label="描述" min-width="160" />
         <el-table-column prop="deviceName" label="设备名称" min-width="160" />
         <el-table-column prop="outId" label="国标ID" min-width="200" />
-        <el-table-column prop="createTime" label="创建时间" min-width="160" />
-        <el-table-column prop="updateTime" label="更新时间" min-width="160" />
-        <el-table-column prop="expireTime" label="证书有效期时间" min-width="160" />
+        <el-table-column prop="createTime" label="创建时间" min-width="160">
+          <template slot-scope="{row}">
+            {{ dateFormat(+row.createTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="updateTime" label="更新时间" min-width="160">
+          <template slot-scope="{row}">
+            {{ dateFormat(+row.updateTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="expireTime" label="证书有效期时间" min-width="160">
+          <template slot-scope="{row}">
+            {{ dateFormat(+row.expireTime * 1000) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态" min-width="100">
           <template slot-scope="{row}">
             {{ row.status === 'on' ? '使用中' : '未使用' }}
@@ -62,7 +74,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { dateFormatInTable } from '@/utils/date'
+import { dateFormat } from '@/utils/date'
 import { describeCertificateList, deleteCertificate, downloadCertificate } from '@/api/certificate/gb35114'
 
 @Component({
@@ -79,7 +91,7 @@ export default class extends Vue {
     total: 0
   }
 
-  private dateFormatInTable = dateFormatInTable
+  private dateFormat = dateFormat
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {

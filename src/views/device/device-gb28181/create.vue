@@ -256,7 +256,7 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item prop="gb35114">
+            <el-form-item prop="enableGB35114">
               <template slot="label">
                 GB35114协议:
                 <el-popover
@@ -265,7 +265,7 @@
                   width="400"
                   trigger="hover"
                   :open-delay="300"
-                  :content="tips.gb35114"
+                  :content="tips.enableGB35114"
                 >
                   <svg-icon
                     slot="reference"
@@ -275,12 +275,12 @@
                 </el-popover>
               </template>
               <el-switch
-                v-model="form.gb35114"
-                :active-value="1"
-                :inactive-value="0"
+                v-model="form.enableGB35114"
+                :active-value="true"
+                :inactive-value="false"
               />
             </el-form-item>
-            <el-form-item v-if="!form.gb35114" label="GB28181凭证:" prop="userName">
+            <el-form-item v-if="!form.enableGB35114" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -656,7 +656,7 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     poleId: '',
-    gb35114: 0,
+    enableGB35114: false,
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -740,6 +740,7 @@ export default class extends Mixins(createMixin) {
             'parentDeviceId',
             'gbId',
             'userName',
+            'enableGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'serialNumber',
@@ -917,6 +918,7 @@ export default class extends Mixins(createMixin) {
             'macAddr',
             'pullType',
             'userName',
+            'enableGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'gbId',
@@ -952,6 +954,11 @@ export default class extends Mixins(createMixin) {
             gbId: this.form.gbId,
             transPriority: this.form.transPriority
           })
+        }
+        // 使用35114不需要国标凭证
+        if (this.form.enableGB35114) {
+          delete params.userName
+          delete params.password
         }
       } else {
         // NVR通道

@@ -133,7 +133,7 @@ export default class extends Vue {
      * 限制可选日期
      */
     disabledDate: (time) => {
-      return time.getTime() < getDateByTime(Date.now()) || time.getTime() > (getDateByTime(Date.now()) + 365 * 10 * 24 * 60 * 60 * 1000)
+      return time.getTime() < (getDateByTime(Date.now()) + 24 * 60 * 60 * 1000) || time.getTime() > (getDateByTime(Date.now()) + 365 * 10 * 24 * 60 * 60 * 1000)
     }
   }
 
