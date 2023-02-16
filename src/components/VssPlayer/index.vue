@@ -3,11 +3,12 @@
     <Player
       ref="player"
       v-adaptive-tools
-      :type="playerType"
+      :type="type"
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
       :is-muted="isMuted"
+      :has-audio="hasAudio"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-live="isLive"
@@ -41,7 +42,7 @@
       <template slot="controlRight">
         <StreamSelector :stream-info="player && streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
-        <Intercom v-if="player && isLive && (deviceInfo.inProtocol === 'gb28181' || deviceInfo.inProtocol === 'ehome')" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
+        <Intercom v-if="player && isLive && (deviceInfo.inProtocol === 'gb28181' || deviceInfo.inProtocol === 'ehome')" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
@@ -144,6 +145,12 @@ export default class extends Vue {
   })
   private isMuted: boolean
 
+  /* 是否含音轨 */
+  @Prop({
+    default: true
+  })
+  private hasAudio: boolean
+
   /* 默认缩放比例 */
   @Prop()
   private scale: string
@@ -204,9 +211,9 @@ export default class extends Vue {
   private player: PlayerModel = null
 
   /* 如视频编码为H265，播放器类型变为h265 */
-  private get playerType() {
-    return this.codec === 'h265' ? 'h265' : this.type
-  }
+  // private get playerType() {
+  //   return this.codec === 'h265' ? 'h265' : this.type
+  // }
 
   /* 获取转换协议后的URL */
   private get videoUrl() {
