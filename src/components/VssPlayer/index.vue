@@ -43,7 +43,7 @@
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
         <Intercom v-if="player && isLive && (deviceInfo.inProtocol === 'gb28181' || deviceInfo.inProtocol === 'ehome')" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
-        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzZoom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
