@@ -1278,6 +1278,17 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'menu-system',
           perms: ['*']
         }
+      },
+      {
+        path: '/custom-tree',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
+          breadcrumb: false,
+          icon: 'menu-system',
+          perms: ['*']
+        }
       }
     ]
   },
