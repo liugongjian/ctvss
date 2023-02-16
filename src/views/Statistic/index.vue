@@ -1,5 +1,5 @@
 <template>
-  <div class="statistic" :class="[{'statistic__statistic': activeName === 'statistic'}]">
+  <div ref="statisticWrap" class="statistic" :class="[{'statistic__statistic': activeName === 'statistic'}]">
     <el-card>
       <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
         <el-tab-pane label="基本统计" name="statistic">
@@ -219,7 +219,7 @@
         <el-tab-pane label="设备统计" name="device">
           <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
             <div class="statistic-box__left">
-              <device-tree @treeback="getTreeDeviceId" />
+              <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" />
             </div>
             <div class="statistic-box__right">
               <el-tabs v-model="activeTab">
