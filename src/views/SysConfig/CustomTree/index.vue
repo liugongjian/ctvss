@@ -48,6 +48,7 @@
               empty-text="暂无目录或设备"
               :data="dirList"
               node-key="id"
+              :default-expanded-keys="[-1]"
               highlight-current
               lazy
               show-checkbox
@@ -94,6 +95,7 @@
               :data="treeDirList"
               node-key="id"
               highlight-current
+              :default-expanded-keys="[-1]"
               lazy
               :show-checkbox="isEditing"
               :load="loadTreeDirs"
