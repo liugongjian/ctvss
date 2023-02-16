@@ -43,7 +43,7 @@ import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import { format } from 'date-fns'
-import { ptzLock, ptzUnlock } from '@/api/ptz_control'
+import { ptzLock, ptzUnlock, getLockStatus } from '@/api/ptz_control'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 // import { throttle } from 'lodash'
 import { GroupModule } from '@/store/modules/group'
@@ -112,10 +112,14 @@ export default class extends Vue {
     this.dialogVisible ? this.initTime() : this.clear()
   }
 
-  private mounted() {
-    this.isLocked = this.deviceInfo.ptzLockStatus < 2
+  private async mounted() {
+    const res = await getLockStatus({
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.deviceInfo.inProtocol,
+      groupId: GroupModule.group?.groupId
+    })
+    this.isLocked = res.status < 2
     this.initTime()
-    console.log('this.deviceInfo:', this.deviceInfo)
   }
 
   private initTime() {
