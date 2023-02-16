@@ -46,7 +46,7 @@
         </el-form-item>
         <el-form-item label="关键字匹配:" prop="matchKeys">
           <el-checkbox-group v-model="innerForm.matchKeys">
-            <el-checkbox v-for="matchKey in matchKeyList" :key="matchKey.value" :label="matchKey.value">{{ matchKey.label }}</el-checkbox>
+            <el-checkbox v-for="matchKey in filteredMatchKeyList" :key="matchKey.value" :label="matchKey.value">{{ matchKey.label }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -60,6 +60,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import AddressCascader from '@/views/components/AddressCascader.vue'
+import { GroupModule } from '@/store/modules/group'
 import { AdvancedSearch } from '@/type/AdvancedSearch'
 import { DeviceAddress } from '@/type/Device'
 
@@ -119,6 +120,13 @@ export default class extends Vue {
       value: 'poleId'
     }
   ]
+
+  public get filteredMatchKeyList() {
+    return this.matchKeyList.filter((keyObject: any) => {
+      return keyObject.value !== 'poleId' || GroupModule.group.inProtocol !== 'rtsp'
+    })
+  }
+
   public get highlightFilterButton() {
     return this.searchForm.deviceStatusKeys.length || this.searchForm.streamStatusKeys.length || this.searchForm.matchKeys.length || this.searchForm.deviceAddresses.code
   }

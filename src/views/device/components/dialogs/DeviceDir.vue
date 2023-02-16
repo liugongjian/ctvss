@@ -10,7 +10,7 @@
   >
     <div v-loading="loading.dir" class="tree-wrap">
       <el-tree
-        v-if="!outerSearch.revertSearchFlag"
+        v-if="!revertSearchFlag"
         key="device-dir-el-tree-original"
         ref="dirTree"
         node-key="id"
@@ -62,7 +62,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/Device'
@@ -79,7 +79,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
 
@@ -88,6 +87,7 @@ export default class extends Mixins(IndexMixin) {
   public dirList = []
   private currentDir: any = null
   private getSums = getSums
+  private revertSearchFlag = false
 
   /**
    * 当前业务组ID
@@ -121,9 +121,22 @@ export default class extends Mixins(IndexMixin) {
         })
       }
       this.dirList = this.setDirsStreamStatus(res.dirs)
-
+      const query: any = this.$route.query
       // 根据搜索结果 组装 目录树（柳州搜索新增功能）
-      if (this.outerSearch.revertSearchFlag) {
+      const outerSearch = {
+        deviceStatusKeys: (query.deviceStatusKeys || '').split(','),
+        streamStatusKeys: (query.streamStatusKeys || '').split(','),
+        matchKeys: (query.matchKeys || '').split(','),
+        searchKey: query.searchKey || '',
+        deviceAddressesCode: (query.deviceAddresses || '').split(',')[0]
+      }
+      this.revertSearchFlag = Boolean(outerSearch.searchKey ||
+        outerSearch.deviceStatusKeys.length ||
+        outerSearch.streamStatusKeys.length ||
+        outerSearch.deviceAddressesCode
+      )
+
+      if (this.revertSearchFlag) {
         this.dirList = this.transformDirList(this.dirList)
       }
     } catch (e) {

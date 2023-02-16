@@ -31,6 +31,9 @@ Vue.use(ElementUI, {
   size: AppModule.size // Set element-ui default size
 })
 
+// @ts-ignore
+ElementUI.Dialog.props.closeOnClickModal = false
+
 Vue.use(Polyfill)
 
 Vue.use(SvgIcon, {

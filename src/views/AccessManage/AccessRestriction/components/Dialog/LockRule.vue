@@ -4,6 +4,7 @@
     :visible="true"
     width="500px"
     :before-close="handleClose"
+    :close-on-click-modal="false"
     center
   >
     <el-form ref="form" :model="form" label-width="130px" :rules="rules">

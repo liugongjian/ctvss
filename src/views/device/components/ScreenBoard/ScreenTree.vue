@@ -195,9 +195,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标才展示 -->
+      <!-- 虚拟业务组暂不支持搜索 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181'"
+        v-if="currentGroup.inProtocol !== 'vgroup'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />

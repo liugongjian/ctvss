@@ -211,7 +211,10 @@ export default class extends Vue {
     // 设置阴影区域
     this.chart.annotation().region({
       start: [minData[0]?.day, 'min'],
-      end: [minData[minDataLen - 1]?.day, 'max']
+      end: [minData[minDataLen - 1]?.day, 'max'],
+      style: {
+        fill: 'red'
+      }
     })
 
     this.chart.point().position('day*usage')
