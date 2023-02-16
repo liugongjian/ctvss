@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-02-15 15:36:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-16 10:40:08
+ * @LastEditTime: 2023-02-16 15:34:17
  * @FilePath: /vss-user-web/src/views/Statistic/components/MissTable.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,7 +35,7 @@
         label="缺失时长"
       >
         <template slot-scope="{row}">
-          <span style="margin-left: 10px;">{{ (row.missSeconds/3600).toFixed(2) }}小时</span>
+          <span style="margin-left: 10px;">{{ durationFormat(row.missSeconds) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -54,7 +54,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { RecordMissQuery, CalendarMissResponse, CalendarMissItem } from '@/type/Statistic'
 import { getCalendarMissData } from '@/api/statistic'
-import { dateFormat } from '@/utils/date'
+import { dateFormat, durationFormat } from '@/utils/date'
 @Component({
   name: 'MissTable',
   components: {
@@ -63,6 +63,8 @@ import { dateFormat } from '@/utils/date'
 export default class extends Vue {
   @Prop() private info
   @Prop() private from
+
+  private durationFormat = durationFormat
 
   private dayMissTableData: CalendarMissItem[] = []
 
