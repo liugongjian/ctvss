@@ -18,7 +18,8 @@ interface ISettings {
     actionValueDefault?: any; // 带值action勾选后的默认值
     actionDesc: string;
     actionType?: string; // GET权限的用户会默认设置该perm
-    autoSelected?: string; // 勾选后默认勾选的其他aciton
+    allowAutoSelected?: string[]; // 勾选后默认勾选的其他aciton - Allow场景
+    denyAutoSelected?: string[]; // 勾选后默认勾选的其他aciton - Deny场景
     resourceType?: string | Array<string>;
   }[]
 }
@@ -48,27 +49,27 @@ const settings: ISettings = {
       actionKey: 'ivs:GetGroup',
       actionDesc: '拥有业务组的查询权限，并展示业务组管理菜单',
       actionType: 'GET',
+      denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup'],
       resourceType: '*'
     },
     {
       actionName: '删除业务组',
       actionKey: 'ivs:DeleteGroup',
       actionDesc: '拥有业务组的删除权限，并展示业务组管理菜单',
-      autoSelected: 'ivs:GetGroup',
+      allowAutoSelected: ['ivs:GetGroup'],
       resourceType: '*'
     },
     {
       actionName: '修改业务组',
       actionKey: 'ivs:UpdateGroup',
       actionDesc: '拥有业务组的修改权限，并展示业务组管理菜单',
-      autoSelected: 'ivs:GetGroup',
+      allowAutoSelected: ['ivs:GetGroup'],
       resourceType: '*'
     },
     {
       actionName: '创建业务组',
       actionKey: 'ivs:CreateGroup',
       actionDesc: '拥有业务组的创建权限，并展示业务组管理菜单',
-      autoSelected: 'ivs:GetGroup',
       resourceType: '*'
     },
     // 设备管理
@@ -77,27 +78,27 @@ const settings: ISettings = {
       actionKey: 'ivs:GetDevice',
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
+      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:GetLiveStream'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '删除设备',
       actionKey: 'ivs:DeleteDevice',
       actionDesc: '拥有设备的删除权限，并展示设备管理菜单',
-      autoSelected: 'ivs:GetDevice',
+      allowAutoSelected: ['ivs:GetDevice'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '修改设备',
       actionKey: 'ivs:UpdateDevice',
       actionDesc: '拥有设备的修改权限，并展示设备管理菜单',
-      autoSelected: 'ivs:GetDevice',
+      allowAutoSelected: ['ivs:GetDevice'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '创建设备',
       actionKey: 'ivs:CreateDevice',
       actionDesc: '拥有设备的创建权限，并展示设备管理菜单',
-      autoSelected: 'ivs:GetDevice',
       resourceType: ['directory', 'device', 'channel']
     },
     // 实时预览
@@ -106,6 +107,8 @@ const settings: ISettings = {
       actionKey: 'ivs:GetLiveStream',
       actionDesc: '拥有查询直播流权限，并展示实时预览菜单',
       actionType: 'GET',
+      allowAutoSelected: ['ivs:GetDevice'],
+      denyAutoSelected: ['ivs:ControlDevicePTZ'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -114,21 +117,22 @@ const settings: ISettings = {
       actionValueOption: [1, 10],
       actionValueDefault: 1,
       actionDesc: '拥有设备云台控制权限，并展示实时预览菜单',
-      autoSelected: 'ivs:GetLiveStream',
+      allowAutoSelected: ['ivs:GetLiveStream'],
+      denyAutoSelected: ['ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备云台锁定',
       actionKey: 'ivs:LockDevicePTZ',
       actionDesc: '拥有设备云台锁定权限，并展示实时预览菜单',
-      autoSelected: 'ivs:ControlDevicePTZ',
+      allowAutoSelected: ['ivs:ControlDevicePTZ'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '设备预置位配置',
       actionKey: 'ivs:ControlDevicePreset',
       actionDesc: '拥有设备预置位配置权限，并展示实时预览菜单',
-      autoSelected: 'ivs:ControlDevicePTZ',
+      allowAutoSelected: ['ivs:ControlDevicePTZ'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 录像回放
@@ -137,6 +141,7 @@ const settings: ISettings = {
       actionKey: 'ivs:GetCloudRecord',
       actionDesc: '拥有云端录像文件的查询权限，并展示录像回放菜单',
       actionType: 'GET',
+      denyAutoSelected: ['ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -150,29 +155,30 @@ const settings: ISettings = {
       actionName: '下载云端录像',
       actionKey: 'ivs:DownloadCloudRecord',
       actionDesc: '拥有云端录像文件的下载权限，并展示录像回放菜单',
-      autoSelected: 'ivs:GetCloudRecord',
+      allowAutoSelected: ['ivs:GetCloudRecord'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '锁定云端录像',
       actionKey: 'ivs:LockCloudRecord',
       actionDesc: '拥有云端录像文件的锁定权限，并展示录像回放菜单',
-      autoSelected: 'ivs:GetCloudRecord',
+      allowAutoSelected: ['ivs:GetCloudRecord'],
       resourceType: ['directory', 'device', 'channel']
     },
-    // 视图库(视图库功能可放入向上级联，作为一种协议进行控制)
+    // 视图级联服务(视图级联服务可放入向上级联，作为一种协议进行控制)
     {
       actionName: '查看视图服务',
       actionKey: 'ivs:GetViid',
       actionDesc: '具有视图服务菜单',
       actionType: 'GET',
+      denyAutoSelected: ['ivs:AdminViid'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '管理视图服务',
       actionKey: 'ivs:AdminViid',
       actionDesc: '具有视图服务的管理权限',
-      autoSelected: 'ivs:GetViid',
+      allowAutoSelected: ['ivs:GetViid'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 视图分析（原AI功能）
@@ -181,13 +187,14 @@ const settings: ISettings = {
       actionKey: 'ivs:GetApp',
       actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
       actionType: 'GET',
+      denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
       actionName: '管理行业场景应用',
       actionKey: 'ivs:AdminApp',
       actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
-      autoSelected: 'ivs:GetApp',
+      allowAutoSelected: ['ivs:GetApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 电子地图

@@ -327,12 +327,17 @@ export default class extends Vue {
         if (actionLevel[action.actionKey] == null) {
           this.$set(actionLevel, action.actionKey, action.actionValueDefault)
         }
-        if (statement.effect === 'Allow' && action.autoSelected) {
-          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === action.autoSelected)
+        const autoSelectedArr = (statement.effect === 'Allow'
+          ? action.allowAutoSelected
+          : action.denyAutoSelected) || []
+
+        console.log('autoSelectdArr: ', autoSelectedArr)
+        autoSelectedArr.forEach((autoSelected) => {
+          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === autoSelected)
           if (autoSelectedRow) {
             actionTable.toggleRowSelection(autoSelectedRow, true)
           }
-        }
+        })
       })
     })
     this.form.statementList[index].actionList = actions.map((action: any) => action.actionKey)
@@ -425,12 +430,14 @@ export default class extends Vue {
       return false
     }
     const statement = this.form.statementList[index]
-    if (statement.effect !== 'Allow') {
-      return true
-    }
     const relatedActions = this.filteredSystemActionList
-      .filter((action: any) => action.autoSelected === row.actionKey)
-      .map(row => row.actionKey)
+      .filter((action: any) => {
+        const autoSelected = (statement.effect === 'Allow'
+          ? action.allowAutoSelected
+          : action.denyAutoSelected) || []
+        return autoSelected.includes(row.actionKey)
+      })
+      .map(item => item.actionKey)
     const actionList = statement.actionList
     return !(relatedActions.length && actionList.filter(action => relatedActions.includes(action)).length)
   }
