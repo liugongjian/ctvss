@@ -18,7 +18,7 @@
             <div class="statement-block__headline" @click="toggleOpenStatus(index)">
               <i v-if="statement.opened" class="el-icon-caret-bottom" />
               <i v-else class="el-icon-caret-right" />
-              <span style="margin-left: 5px;">智能视图服务（IVS）</span>
+              <span style="margin-left: 5px;">{{ '权限集' + (index + 1) }}</span>
               <el-button type="text" style="float: right; margin-right: 10px;" @click.stop="deleteStatement(index)">删除</el-button>
             </div>
             <div v-show="statement.opened">
