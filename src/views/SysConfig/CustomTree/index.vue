@@ -138,7 +138,7 @@
         </div>
       </div>
       <div v-if="isEditing" class="button">
-        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button type="primary" :loading="loading.submitting" @click="submit">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-card>
@@ -262,7 +262,8 @@ export default class extends Vue {
     platform: false,
     dir: false,
     sharedDevices: false,
-    startStop: false
+    startStop: false,
+    submitting: false
   }
 
   private get treeListEmpty() {
@@ -810,6 +811,7 @@ export default class extends Vue {
   }
 
   private async submit() {
+    this.loading.submitting = true
     const dirTree2: any = this.$refs.dirTree2
     const treeRoot = dirTree2.getNode(root.id)
     const childNodes = treeRoot.childNodes
@@ -827,6 +829,8 @@ export default class extends Vue {
     } catch (e) {
       console.log(e)
       this.$message.error(e)
+    } finally {
+      this.loading.submitting = false
     }
   }
 
