@@ -22,7 +22,7 @@
         </el-upload>
         <div v-if="form.errorTip" class="form-tip error-tip">{{ form.errorTip }}</div>
       </div>
-      <el-button v-else type="primary" :disabled="editDisable" @click="reUploadFile">重新上传</el-button>
+      <el-button v-else type="primary" @click="reUploadFile">重新上传</el-button>
     </el-form-item>
     <el-form-item label="解析数据：" prop="outId">
       <div class="form-box">
@@ -94,11 +94,11 @@ import {
   uploadCsr,
   generateCertificate,
   describeCertificate,
-  downloadCertificate
+  updateCertificate
 } from '@/api/certificate/gb35114'
 
 @Component({
-  name: 'CreateGb28181CertificateForm'
+  name: 'CreateGb35114CertificateForm'
 })
 export default class extends Vue {
   private rules = {
@@ -115,11 +115,13 @@ export default class extends Vue {
     fileName: '',
     deviceName: '',
     outId: '',
-    expireTime: new Date(),
+    expireTime: getDateByTime(Date.now()) + 24 * 60 * 60 * 1000,
     // certificate: '',
     description: '',
     errorTip: ''
   }
+
+  private fileString = ''
 
   private loading = {
     upload: false,
@@ -142,6 +144,11 @@ export default class extends Vue {
     return params && params.outId
   }
 
+  private get currentCertId() {
+    const params: any = this.$route.params
+    return params && params.certId
+  }
+
   private async mounted() {
     if (this.currentOutId) {
       this.ifNeedFile = false
@@ -150,6 +157,7 @@ export default class extends Vue {
         const res = await describeCertificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
+        this.form.expireTime = new Date(res.expireTime * 1000)
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
@@ -192,7 +200,7 @@ export default class extends Vue {
       if (!err) {
         this.loading.upload = true
         this.fileToText(this.selectedFile, this.reader).then(async(fileString: any) => {
-          console.log(fileString)
+          this.fileString = fileString
           try {
             const res = await uploadCsr({ deviceCsr: fileString })
             this.form.deviceName = res.deviceName
@@ -240,25 +248,26 @@ export default class extends Vue {
     const dataForm: any = this.$refs.dataForm
     dataForm.validateField('outId', async(err) => {
       if (!err) {
-        // this.loading.generate = true
-        // setTimeout(() => {
-        //   const params = {
-        //     deviceName: this.form.deviceName,
-        //     outId: this.form.outId,
-        //     expireTime: this.form.expireTime
-        //   }
-        //   console.log(params)
-        //   this.loading.generate = false
-        //   this.form.certificate = '相关证书文件压缩包'
-        // }, 1000)
         try {
           this.loading.generate = true
-          await generateCertificate({
+          const params: any = {
             deviceName: this.form.deviceName,
-            outId: this.form.outId,
             expireTime: +(this.form.expireTime.getTime() + '').slice(0, -3),
             description: this.form.description
-          })
+          }
+          // 判断是否为更新证书
+          if (this.currentOutId) {
+            this.fileString && (params.deviceCsr = this.fileString)
+            await updateCertificate({
+              ...params,
+              certId: this.currentCertId
+            })
+          } else {
+            await generateCertificate({
+              ...params,
+              outId: this.form.outId
+            })
+          }
           onSuccess()
         } catch (e) {
           this.$message.error(e && e.message)

@@ -14,7 +14,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import CreateForm from './components/CreateForm.vue'
 
 @Component({
-  name: 'CreateGb28181Certificate',
+  name: 'CreateGb35114Certificate',
   components: {
     CreateForm
   }

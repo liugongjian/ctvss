@@ -5,9 +5,10 @@
         <el-button type="primary" @click="handleCreate">新建GB35114凭证</el-button>
         <div class="filter-container__right">
           <el-input
-            v-model="userName"
+            v-model="searchKey"
             class="filter-container__search-group"
             placeholder="请输入设备名称/国标ID"
+            clearable
             @keyup.enter.native="handleFilter"
           >
             <el-button
@@ -78,13 +79,13 @@ import { dateFormat } from '@/utils/date'
 import { describeCertificateList, deleteCertificate, downloadCertificate } from '@/api/certificate/gb35114'
 
 @Component({
-  name: 'CertificateGb28181List'
+  name: 'CertificateGb35114List'
 })
 export default class extends Vue {
   private userType = ''
-  private userName = ''
+  private searchKey = ''
   private loading = false
-  private dataList: []
+  private dataList = []
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -111,7 +112,12 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     try {
-      const res = await describeCertificateList({})
+      const params = {
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize,
+        searchKey: this.searchKey
+      }
+      const res = await describeCertificateList(params)
       this.dataList = res.gb35114Certs
       this.pager.total = res.totalNum
       this.pager.pageSize = res.pageSize
@@ -145,7 +151,8 @@ export default class extends Vue {
     this.$router.push({
       name: 'gb35114-update',
       params: {
-        outId: row.outId
+        outId: row.outId,
+        certId: row.certId
       }
     })
   }

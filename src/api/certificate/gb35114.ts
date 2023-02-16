@@ -25,6 +25,16 @@ export const generateCertificate = (params: any): Promise<any> =>
   })
 
 /**
+ * 修改gb35114凭证
+ */
+export const updateCertificate = (params: any): Promise<any> =>
+  request({
+    url: '/cert/gb35114/modify',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 查询gb35114凭证详情
  * @param params
  * @returns
@@ -42,6 +52,16 @@ export const describeCertificate = (params: any): Promise<any> =>
  * @returns
  */
 export const describeCertificateList = (params: any): Promise<any> =>
+  request({
+    url: '/cert/gb35114/list',
+    method: 'get',
+    params
+  })
+
+/**
+ * 搜索gb35114凭证
+ */
+export const searchCertificateList = (params: any): Promise<any> =>
   request({
     url: '/cert/gb35114/list',
     method: 'get',

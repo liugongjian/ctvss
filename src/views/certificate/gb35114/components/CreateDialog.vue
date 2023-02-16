@@ -20,7 +20,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import CreateForm from './CreateForm.vue'
 
 @Component({
-  name: 'CreateGb28181CertificateDialog',
+  name: 'CreateGb35114CertificateDialog',
   components: {
     CreateForm
   }
