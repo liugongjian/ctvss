@@ -374,6 +374,8 @@ export default class extends ComponentMixin {
     video {
       width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用
+      height: 100%;
+      object-fit: fill;
     }
 
     .controls {
@@ -414,7 +416,7 @@ export default class extends ComponentMixin {
 
 .intercom-player {
   width: 70%;
-  height: 70%;
+  // height: 70%;
   background-color: #000;
 }
 
