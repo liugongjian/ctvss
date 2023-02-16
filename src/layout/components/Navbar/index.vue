@@ -13,6 +13,7 @@
       class="filter-group multi-group-selector"
       filterable
       placeholder="请选择业务组或自定义目录树"
+      @visible-change="visibleChange"
       @change="changeGroup"
     >
       <el-option-group
@@ -297,6 +298,10 @@ export default class extends Mixins(DashboardMixin) {
     return this.$route.query.isLight
   }
 
+  private get liuzhouFlag() {
+    return true
+  }
+
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string) {
     this.groupId = groupId
@@ -316,8 +321,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private async mounted() {
-    const liuzhouFlag = true
-    if (liuzhouFlag) {
+    if (this.liuzhouFlag) {
       GroupModule.GetMultiGroupList()
     } else {
       GroupModule.GetGroupList()
@@ -345,9 +349,13 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
-    // 当条目数为20倍数时不需要首次加载
-    if (this.groupList.length % 20 !== 0) {
-      val && GroupModule.GetGroupList()
+    if (this.liuzhouFlag) {
+      GroupModule.GetMultiGroupList()
+    } else {
+      // 当条目数为20倍数时不需要首次加载
+      if (this.groupList.length % 20 !== 0) {
+        val && GroupModule.GetGroupList()
+      }
     }
   }
 
