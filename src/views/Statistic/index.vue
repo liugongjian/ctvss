@@ -284,10 +284,15 @@
                           <svg-icon slot="reference" class="form-question" name="help" />
                         </el-popover>
                       </template>
-                      <el-input v-model="filterForm.ignore" />
+                      <el-input v-model="filterForm.ignore" @input="minValue" />
                     </el-form-item>
                     <el-form-item>
                       <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-tooltip placement="top" content="导出">
+                        <svg-icon name="export" class="export" @click="exportMissData" />
+                      </el-tooltip>
                     </el-form-item>
                   </el-form>
                   <miss-table v-if="!calendarLoading" :info="searchParam" />
@@ -327,29 +332,7 @@
         :before-close="changeDayDialog"
       >
         <p>{{ `录制完整率: ${dayInfo.complianceRate*100}%` }}</p>
-        <!-- <el-table
-          :data="dayMissTableData"
-          style="width: 100%;"
-        >
-          <el-table-column
-            prop="startTime"
-            label="开始时间"
-            width="180"
-          />
-          <el-table-column
-            prop="endTime"
-            label="结束时间"
-            width="180"
-          />
-          <el-table-column
-            prop="missSeconds"
-            label="缺失时长(秒)"
-          >
-            <template slot-scope="{row}">
-              <span style="margin-left: 10px;">{{ row.missSeconds }}</span>
-            </template>
-          </el-table-column>
-        </el-table> -->
+
         <miss-table from="dialog" :info="dayInfo" />
         <span slot="footer" class="dialog-footer">
           <!-- <el-button type="primary" @click="sureThis">确 定</el-button> -->
@@ -366,12 +349,12 @@ import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
 import MissTable from './components/MissTable.vue'
 import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
-  getDeviceList, exportDeviceList, getCalendarInfo
-  // getCalendarMissData
+  getDeviceList, exportDeviceList, getCalendarInfo,
+  exportCalendarMissData
 } from '@/api/statistic'
 import { ChartInfo, CalendarListResponse, CalendarQuery,
   CalendarItem, CalendarMissItem,
-  // CalendarMissResponse,
+  ExportMissQuery,
   RecordMissQuery } from '@/type/Statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
@@ -701,6 +684,14 @@ export default class extends Vue {
     this.getDeviceList()
   }
 
+  private minValue(value) {
+    value = value.replace(/[^\d]/g, '')
+    if (value <= 0) {
+      value = 0
+      this.filterForm.ignore = 0
+    }
+  }
+
   private async getDeviceList() {
     this.tableLoading = true
 
@@ -756,6 +747,31 @@ export default class extends Vue {
       } catch (error) {
         this.$message.error(error && error.message)
       }
+    }
+  }
+
+  private async exportMissData() {
+    try {
+      const { deviceId, dateValue: [startTime, endTime],
+        ignore, inProtocol, groupId } = this.filterForm
+      const param: ExportMissQuery = {
+        deviceId,
+        inProtocol,
+        groupId,
+        startTime: dateFormat(startTime, 'yyyy-MM-dd HH:mm:ss'),
+        endTime: dateFormat(endTime, 'yyyy-MM-dd HH:mm:ss'),
+        ignore
+      }
+      const res = await exportCalendarMissData(param)
+      const date = dateFormat(startTime, 'yyyy-MM-dd')
+      const blob = new Blob([res])
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = `${date}.xlsx`
+      link.click()
+      link.remove()
+    } catch (error) {
+      this.$message.error(error && error.message)
     }
   }
 

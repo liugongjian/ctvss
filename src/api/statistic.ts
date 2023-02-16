@@ -73,5 +73,6 @@ export const exportCalendarMissData = (params: ExportMissQuery): Promise<any> =>
   request({
     url: '/statistics/record/missExport',
     method: 'get',
-    params
+    params,
+    responseType: 'blob'
   })
