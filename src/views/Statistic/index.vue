@@ -239,7 +239,7 @@
                       <div class="statistic-box__calendar__chart">
                         <div class="statistic-box__content">
                           <p class="statistic-box__content__title">录制天数</p>
-                          <p class="statistic-box__content__number"><span>2</span>/31</p>
+                          <p class="statistic-box__content__number"><span>{{ recordDayInfo.totalRecordDays || 0 }}</span>/{{ recordDayInfo.totalDays || 30 }}</p>
                         </div>
                         <draw-chart :chart-info="recordDays" />
                       </div>
@@ -404,6 +404,7 @@ export default class extends Vue {
   private daysOfMonth: number = 0
   private calendarInfo: CalendarItem[] = []
   private calendarLoading: boolean = true
+  private recordDayInfo: any = {}
 
   private ifDayDialog: boolean = false
   private dayInfo: CalendarItem = {}
@@ -647,11 +648,12 @@ export default class extends Vue {
       }
 
       const calendarInfo: CalendarListResponse = await getCalendarInfo(param)
+      this.recordDayInfo = calendarInfo
       this.calendarInfo = calendarInfo.records
       this.recordDays = {
         kind: 'pie',
-        totalDeviceNum: 31,
-        onlineNum: 2,
+        totalDeviceNum: 100,
+        onlineNum: this.recordDayInfo?.complianceRate || 0,
         label: '完整率',
         name: 'recordDays',
         width: 180,
