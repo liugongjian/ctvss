@@ -17,17 +17,23 @@
       <div ref="treeWrap" v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="tree in treeList" :key="tree.treeId" :class="{'actived': currentTree && (currentTree.treeId === tree.treeId)}" @click="selectTree(tree)">
-            <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.treeName" placement="top" :open-delay="500">
-              <span> {{ tree.treeName.length > 8 ? tree.treeName.slice(0,7) + '...' : tree.treeName }}</span>
-            </el-tooltip>
-            <span v-if="tree.editFlag" @click.stop=""><el-input v-model="treeName" autofocus size="mini" /></span>
-            <div v-if="!tree.editFlag" class="tools">
-              <el-tooltip class="item" effect="dark" content="编辑设备树" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop="editTree(tree)"><svg-icon name="edit" /></el-button>
+            <div>
+              <el-tooltip v-if="!tree.editFlag" effect="dark" :content="tree.treeName" placement="top" :open-delay="500">
+                <span> {{ tree.treeName.length > 8 ? tree.treeName.slice(0,7) + '...' : tree.treeName }}</span>
               </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="删除设备树" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop="deleteTree(tree)"><svg-icon name="trash" /></el-button>
-              </el-tooltip>
+              <span v-if="tree.editFlag" class="platform__list__item" @click.stop="">
+                <el-input v-model="treeName" autofocus size="mini" />
+                <i class="el-icon-check" @click="handleChangeTreeName(treeName, tree)" />
+                <i class="el-icon-close" @click="handleCancel(tree)" />
+              </span>
+              <div v-if="!tree.editFlag" class="tools">
+                <el-tooltip class="item" effect="dark" content="编辑设备树" placement="top" :open-delay="300">
+                  <el-button type="text" @click.stop="editTreeName(tree)"><svg-icon name="edit" /></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除设备树" placement="top" :open-delay="300">
+                  <el-button type="text" @click.stop="deleteTree(tree)"><svg-icon name="trash" /></el-button>
+                </el-tooltip>
+              </div>
             </div>
           </li>
         </ul>
@@ -86,6 +92,9 @@
           <div class="header">
             <span class="title">{{ currentTree.treeName }}</span>
             <span v-if="isEditing" class="num">已选中{{ rightCheckedNum }}项</span>
+            <span v-if="!isEditing" class="num">
+              <el-button type="text" @click="editTreeFrame">编辑</el-button>
+            </span>
           </div>
           <div class="tree" :class="{'violet-bg': isEditing}">
             <el-tree
@@ -139,7 +148,7 @@
           </div>
         </div>
       </div>
-      <div v-if="isEditing" class="button">
+      <div v-show="isEditing" class="button">
         <el-button type="primary" :loading="loading.submitting" @click="submit">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
@@ -795,17 +804,19 @@ export default class extends Vue {
     console.log(data)
   }
 
-  private editTree(tree) {
+  private editTreeName(tree) {
     this.treeList.forEach(t => {
       t.editFlag = false
     })
-    const dirTree2: any = this.$refs.dirTree2
-    // this.$nextTick(() => {
-    tree.editFlag = this.isEditing = true
+    tree.editFlag = true
     this.currentTree = tree
+  }
+
+  private editTreeFrame() {
+    this.isEditing = true
+    const dirTree2: any = this.$refs.dirTree2
     this.currentDirNode = dirTree2.getNode(root.id)
     this.$set(this.currentDirNode.data, 'isSelected', true)
-    // })
   }
 
   private handleNameInput(name) {
@@ -823,7 +834,6 @@ export default class extends Vue {
       console.log('params:', params)
       // 下面请求2次：1. 修改树的名称  2. 提交params
       await updateTreeNodes({ dirs: [{ ...treeInfo, dirs: params }] })
-      await updateTreeName({ treeId: this.currentTree.treeId, treeName: this.treeName })
       // this.cancel()
       this.$message.success('操作成功')
       this.getTreeList()
@@ -1049,6 +1059,21 @@ export default class extends Vue {
       })
     }
   }
+
+  private async handleChangeTreeName(treeName, tree) {
+    try {
+      await updateTreeName({ treeId: tree.treeId, treeName })
+      tree.treeName = treeName
+      tree.editFlag = false
+      this.$message.success('操作成功')
+    } catch (e) {
+      this.$message.error(e)
+    }
+  }
+
+  private handleCancel(tree) {
+    tree.editFlag = false
+  }
 }
 </script>
 
@@ -1087,6 +1112,7 @@ export default class extends Vue {
   ::v-deep .el-card__body {
     padding: 0;
     height: 100%;
+    min-height: 87vh;
   }
 
   .platform {
@@ -1117,6 +1143,17 @@ export default class extends Vue {
     &__list {
       padding: 15px 0 15px 15px;
       min-height: 100px;
+
+      &__item {
+        & > .el-input {
+          width: 80%;
+        }
+
+        & > i {
+          margin-left: 5px;
+          color: #6e7c89;
+        }
+      }
 
       ul {
         margin: 0;
@@ -1226,6 +1263,7 @@ export default class extends Vue {
         .header {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           margin-bottom: 29px;
           margin-top: 10px;
 
