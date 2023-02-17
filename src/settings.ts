@@ -49,7 +49,7 @@ const settings: ISettings = {
       actionKey: 'ivs:GetGroup',
       actionDesc: '拥有业务组的查询权限，并展示业务组管理菜单',
       actionType: 'GET',
-      denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup'],
+      denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup', 'ivs:GetDevice'],
       resourceType: '*'
     },
     {
@@ -78,6 +78,7 @@ const settings: ISettings = {
       actionKey: 'ivs:GetDevice',
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
+      allowAutoSelected: ['ivs:GetGroup'],
       denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:GetLiveStream'],
       resourceType: ['directory', 'device', 'channel']
     },
