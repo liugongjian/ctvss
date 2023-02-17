@@ -31,12 +31,12 @@
           {{ message }}
         </div>
         <div class="text-404__info">
-          Please check that the URL you entered is correct, or click the button below to return to the homepage.
+          请联系主账号配置权限策略后，重新加载控制台或重新登录。
         </div>
         <a
           href=""
           class="text-404__return-home"
-        >返回首页</a>
+        >控制台</a>
         <a
           class="text-404__return-login"
           @click="logout"
@@ -55,7 +55,7 @@ import * as loginService from '@/services/loginService'
   name: 'Page404'
 })
 export default class extends Vue {
-  private message = '404 Page Not Found'
+  private message = '当前用户暂无权限'
 
   private async logout() {
     const data: any = await UserModule.LogOut()

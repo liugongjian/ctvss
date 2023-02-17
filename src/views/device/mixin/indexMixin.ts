@@ -6,6 +6,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
+import { previewAuthActions } from '@/api/accessManage'
+import { dir } from 'console'
 
 @Component
 export default class IndexMixin extends Vue {
@@ -138,6 +140,24 @@ export default class IndexMixin extends Vue {
         deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
         searchKey: this.advancedSearchForm.searchKey || undefined
       })
+      res.dirs = res.dirs
+        .map((dir: any) => ({
+          ...dir,
+          id: dir.id,
+          groupId: this.currentGroupId,
+          label: dir.label,
+          inProtocol: this.currentGroupInProtocol,
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          parentId: '0',
+          path: [
+            {
+              id: dir.id,
+              label: dir.label,
+              type: dir.type
+            }
+          ]
+        }))
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
@@ -270,6 +290,18 @@ export default class IndexMixin extends Vue {
             dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
           })
         }
+        data.dirs = data.dirs
+          .map((dir: any) => ({
+            ...dir,
+            id: dir.id,
+            groupId: node.data.groupId,
+            label: dir.label,
+            inProtocol: node.data.inProtocol,
+            isLeaf: dir.isLeaf,
+            type: dir.type,
+            path: node.data.path.concat([dir]),
+            parentId: node.data.id
+          }))
         data.dirs = this.setDirsStreamStatus(data.dirs)
         dirTree.updateKeyChildren(key, data.dirs)
       }
@@ -505,9 +537,36 @@ export default class IndexMixin extends Vue {
           dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
         })
       }
+      res.dirs = res.dirs
+        .map((dir: any) => ({
+          ...dir,
+          id: dir.id,
+          groupId: node.data.groupId,
+          label: dir.label,
+          inProtocol: node.data.inProtocol,
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          path: node.data.path.concat([dir]),
+          parentId: node.data.id
+        }))
       res.dirs = this.setDirsStreamStatus(res.dirs)
+      console.log('res.dirs: ', res.dirs)
+      const permissionRes = await previewAuthActions({
+        targetResources: res.dirs.map(dir => ({
+          groupId: node.data.groupId,
+          dirPath: dir.type === 'dir' ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/'),
+          deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id
+        }))
+      })
+      res.dirs = res.dirs
+        .map((dir: any, index: number) => ({
+          ...dir,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+      console.log('modified res.dirs: ', res.dirs)
       resolve(res.dirs)
     } catch (e) {
+      console.log('e: ', e)
       resolve([])
     }
   }
