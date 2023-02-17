@@ -20,14 +20,14 @@
           <el-input v-model="form.templateName" style="width: 463px;" placeholder="请输入模板名称" />
           <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。模板名称不能重复。</div>
         </el-form-item>
-        <el-form-item label="录制类别:" required prop="recordType">
+        <el-form-item label="录制类别:" prop="recordType">
           <el-radio-group v-model="form.recordType">
             <el-radio :label="1">全天录制</el-radio>
             <el-radio :label="2">按需录制</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="存储时长:" required prop="storageTime" class="record-form-item">
-          <el-input v-model="form.storageTime" style="width: 150px;"><span slot="suffix">天</span></el-input>
+        <el-form-item label="存储时长:" prop="storageTime" class="record-form-item">
+          <el-input v-model="form.storageTime" type="number" min="0" oninput ="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
         </el-form-item>
         <el-form-item label="模板备注" prop="description">
           <el-input v-model="form.description" style="width: 463px;" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注" />
@@ -62,6 +62,9 @@ private rules = {
   templateName: [
     { required: true, message: '请输入录制模板名称', trigger: 'blur' },
     { validator: this.validateTemplateName, trigger: 'blur' }
+  ],
+  storageTime: [
+    {required: true, message: '请填写存储时长', trigger: 'blur'},
   ]
 }
 
@@ -142,6 +145,7 @@ private validateTemplateName(rule: any, value: string, callback: Function) {
     callback()
   }
 }
+
 }
 </script>
 

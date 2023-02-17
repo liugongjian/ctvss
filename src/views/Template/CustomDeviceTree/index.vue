@@ -20,9 +20,9 @@
                 <ul>
                   <li v-for="template in templates" :key="template.templateId" :class="{'actived': currentTemplate && (currentTemplate.templateId === template.templateId)}" @click="selectTemplate(template)">
                     <span> {{ template.templateName }}</span><div class="tools">
-                      <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
+                      <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
-                      </el-tooltip>
+                      </el-tooltip> -->
                       <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
@@ -326,7 +326,7 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.minHeight = documentHeight - top - 22
+    this.minHeight = documentHeight - top - 22 + 250
   }
 
   // 删除设备
