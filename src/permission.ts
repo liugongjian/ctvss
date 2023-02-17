@@ -113,7 +113,14 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
       }
     } else {
       if (to.path === '/404') {
-        next({ path: '/dashboard' })
+        const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+        if (menuRoutes.length > 0) {
+          to = menuRoutes[0]
+        } else {
+          // @ts-ignore
+          to = PermissionModule.dynamicRoutes[0]
+        }
+        next({ ...to, replace: true })
       } else {
       // 单点登录菜单高亮
         UserModule.casLoginId && casService.activeCasMenu(to)
