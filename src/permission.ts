@@ -60,9 +60,15 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
     // Check whether the user has obtained his permission
     if (UserModule.perms.length === 0) {
       try {
-        // Note: perms must be a object array! such as: ['*'] or ['GET']
+        // Note: perms must be a string array! such as: ['*'] or ['GET']
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
+        if (!perms.length) {
+          Message.error('当前子用户无权限，请为其配置策略后刷新页面或点击返回主页！')
+          if (to.path === '/404') {
+            return next()
+          }
+        }
         const iamUserId = UserModule.iamUserId
         const tagObject = UserModule.tags || ({})
         const tags = Object.keys(tagObject).filter(key => UserModule.tags[key] === 'Y')
@@ -106,9 +112,13 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         }
       }
     } else {
+      if (to.path === '/404') {
+        next({ path: '/dashboard' })
+      } else {
       // 单点登录菜单高亮
-      UserModule.casLoginId && casService.activeCasMenu(to)
-      next()
+        UserModule.casLoginId && casService.activeCasMenu(to)
+        next()
+      }
     }
   } else {
     // Other pages that do not have permission to access are redirected to the login page.
