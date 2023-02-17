@@ -30,7 +30,12 @@
             >
               <template slot-scope="{row}">
                 <span v-if="row.blackIpList.length > 1">
-                  <el-tooltip class="item" effect="dark" :content="row.blackIpList.join('/')" placement="top-start">
+                  <el-tooltip class="item" effect="dark" placement="top-start">
+                    <div slot="content">
+                      <p v-for="item in row.blackIpList" :key="item">
+                        {{ item }}
+                      </p>
+                    </div>
                     <span> {{ row.blackIpList[0] }}</span>
                   </el-tooltip>
                 </span>
@@ -164,10 +169,10 @@
               label="锁定结束时间"
               width="180"
             >
-              <template slot-scope="{row}">
+              <!-- <template slot-scope="{row}">
                 <span v-if="row.lockEndTime === '-'">永久</span>
-                <span v-else>{{ row.lockEndTime }}</span>
-              </template>
+                <span v-else>{{ dateFormat(Number(row.lockEndTime)) }}</span>
+              </template> -->
             </el-table-column>
             <el-table-column
               prop="address"

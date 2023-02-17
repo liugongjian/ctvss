@@ -14,13 +14,16 @@ import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
+import DescribePermission from '../components/dialogs/DescribePermission.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   components: {
     StatusBadge,
     MoveDir,
     UploadExcel,
-    Resource
+    Resource,
+    DescribePermission
   }
 })
 export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
@@ -61,8 +64,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public dialog = {
     moveDir: false,
     uploadExcel: false,
-    resource: false
+    resource: false,
+    describePermission: false
   }
+  public describePermissonDialogData = {}
   public eventsList = []
   public keyword = ''
   public filter: any = {
@@ -215,6 +220,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     return buttons
   }
 
+  get isMainUser() {
+    return !UserModule.iamUserId
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
     this.reset()
@@ -251,6 +260,24 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   @Watch('deviceList.length')
   public onDeviceListChange(data: any) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
+  public describePermission() {
+    const path: any = this.$route.query.path
+    const pathArr = path ? path.split(',') : []
+    const dirPath = this.isDir ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+    const deviceId = this.isDir ? undefined : pathArr[pathArr.length - 1]
+    this.describePermissonDialogData = {
+      type: this.type,
+      groupId: this.groupId,
+      dirPath: dirPath || '0',
+      deviceId: deviceId
+    }
+    this.dialog.describePermission = true
+  }
+
+  public closePreviewDialog() {
+    this.dialog.describePermission = false
   }
 
   public reset() {

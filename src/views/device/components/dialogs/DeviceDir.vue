@@ -10,7 +10,7 @@
   >
     <div v-loading="loading.dir" class="tree-wrap">
       <el-tree
-        v-if="!outerSearch.revertSearchFlag"
+        v-if="!revertSearchFlag"
         key="device-dir-el-tree-original"
         ref="dirTree"
         node-key="id"
@@ -78,7 +78,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
   private dialogVisible = true
@@ -86,6 +85,7 @@ export default class extends Mixins(IndexMixin) {
   public dirList = []
   private currentDir: any = null
   private getSums = getSums
+  private revertSearchFlag = false
 
   /**
    * 当前业务组ID
@@ -102,18 +102,32 @@ export default class extends Mixins(IndexMixin) {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
+      const query: any = this.$route.query
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
-        deviceStatusKeys: this.outerSearch.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.outerSearch.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.outerSearch.matchKeys.join(',') || undefined,
-        searchKey: this.outerSearch.searchKey || undefined,
+        deviceStatusKeys: query.deviceStatusKeys || undefined,
+        streamStatusKeys: query.streamStatusKeys || undefined,
+        matchKeys: query.matchKeys || undefined,
+        searchKey: query.searchKey || undefined,
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
 
       // 根据搜索结果 组装 目录树（柳州搜索新增功能）
-      if (this.outerSearch.revertSearchFlag) {
+      const outerSearch = {
+        deviceStatusKeys: (query.deviceStatusKeys || '').split(','),
+        streamStatusKeys: (query.streamStatusKeys || '').split(','),
+        matchKeys: (query.matchKeys || '').split(','),
+        searchKey: query.searchKey || '',
+        deviceAddressesCode: (query.deviceAddresses || '').split(',')[0]
+      }
+      this.revertSearchFlag = Boolean(outerSearch.searchKey ||
+        outerSearch.deviceStatusKeys.length ||
+        outerSearch.streamStatusKeys.length ||
+        outerSearch.deviceAddressesCode
+      )
+
+      if (this.revertSearchFlag) {
         this.dirList = this.transformDirList(this.dirList)
       }
     } catch (e) {

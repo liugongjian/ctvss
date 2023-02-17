@@ -282,8 +282,16 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
         this.ptzLockStatus = res.ptzLockStatus
         if (this.streamNum && this.streams.length) {
-          const stream = this.streams[this.streamNum - 1]
-          if (stream) stream.streamStatus = 'on'
+          // eslint-disable-next-line eqeqeq
+          const stream = this.streams.find(s => this.streamNum == s.streamNum)
+          if (stream) {
+            stream.streamStatus = 'on'
+          } else {
+            this.streams.push({
+              streamNum: this.streamNum,
+              streamStatus: 'on'
+            })
+          }
         }
       }
       this.isLoading = false

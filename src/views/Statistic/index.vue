@@ -40,7 +40,7 @@
             <el-form-item label="设备状态">
               <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
                 <el-option label="全部" value="" />
-                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}_${item}`" :value="item" />
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}`" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="流状态">
@@ -96,14 +96,22 @@
             <el-table-column
               prop="dirName"
               label="所属目录"
+              width="230"
             >
               <template slot-scope="{row}">
-                <span>{{ row.dirName || '_' }}</span>
+                <!-- <span>{{ row.dirName || '_' }}</span> -->
+                <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
+                <span v-else>
+                  <el-tooltip :content="row.dirName" effect="dark" placement="top-start">
+                    <div class="statistic-box__table__text">{{ row.dirName }}</div>
+                  </el-tooltip>
+                </span>
               </template>
             </el-table-column>
             <el-table-column
               prop="deviceName"
               label="设备名称"
+              width="160"
             />
             <el-table-column
               prop="gbId"
@@ -468,9 +476,17 @@ export default class extends Vue {
       this.$message.warning('请先查询出实际数据再进行导出')
     } else {
       try {
-        const res = await exportDeviceList(this.param)
         const { groupInfo } = this.listQueryForm
+
         const groupName = groupInfo.split('_')[2]
+
+        const query = {
+          ...this.param,
+          groupName
+        }
+
+        const res = await exportDeviceList(query)
+
         const blob = new Blob([res])
         const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
@@ -608,6 +624,14 @@ export default class extends Vue {
     span {
       font-size: 24px;
     }
+  }
+
+  &__table__text {
+    cursor: pointer;
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

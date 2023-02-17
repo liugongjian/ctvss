@@ -161,11 +161,11 @@ export default class extends Vue {
       this.loading.table = true
       let res: any = await getPolicyList(params)
       this.policyList = []
-      for (let i = 0; i < res.iamPolices.length; i++) {
+      for (let i = 0; i < res.iamPolicies.length; i++) {
         let obj: object = {
-          policyName: res.iamPolices[i].policyName,
-          policyDescribe: res.iamPolices[i].policyDesc,
-          policyId: res.iamPolices[i].policyId
+          policyName: res.iamPolicies[i].policyName,
+          policyDescribe: res.iamPolicies[i].policyDesc,
+          policyId: res.iamPolicies[i].policyId
         }
         this.policyList.push(obj)
       }
