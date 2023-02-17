@@ -64,7 +64,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
         if (!perms.length) {
-          Message.error('当前子用户无权限，请为其配置策略后刷新页面或点击返回主页！')
+          Message.error('当前子用户暂无权限，请联系主账号配置权限策略！')
           if (to.path === '/404') {
             return next()
           }
