@@ -14,7 +14,7 @@
               <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
-          <div v-loading="loading.template" ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div ref="dirList" v-loading="loading.template" class="device-list__left" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
@@ -35,7 +35,7 @@
         </div>
         <div class="device-list__right">
           <div v-if="mainCard">
-            <el-descriptions :column="2" border v-loading="loading.templateInfo">
+            <el-descriptions v-loading="loading.templateInfo" :column="2" border>
               <template slot="title">
                 <span class="title">模板信息</span>
               </template>
@@ -49,7 +49,7 @@
               <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
-            <el-descriptions labelClassName="has-no-colon" :column="1">
+            <el-descriptions label-class-name="has-no-colon" :column="1">
               <template slot="title">
                 <span class="title">绑定关系</span>
               </template>
@@ -69,14 +69,15 @@
                   <div class="tree-block">
                     <el-tree
                       ref="bindTreeMain"
+                      v-loading="loading.templateDeviceTree || loading.unbinding"
                       :data="deviceListMain"
                       node-key="id"
                       lazy
                       :show-checkbox="isDelete"
-                      v-loading="loading.templateDeviceTree || loading.unbinding"
                       highlight-current
                       empty-text="暂无已绑定设备"
                       :load="loadSubDevice"
+                      :props="treeProp"
                       @check-change="handleCheck"
                     >
                       <span
@@ -97,7 +98,7 @@
                     <el-button @click="handleUnbindCancel">取消</el-button>
                   </div>
                 </div>
-                <div class="bind-right" v-if="isDelete">
+                <div v-if="isDelete" class="bind-right">
                   <span class="bind-title-left">
                     已选择设备
                   </span>
@@ -109,12 +110,12 @@
                       <el-table-column
                         prop="label"
                         label="设备名"
-                        width="170"                    
+                        width="170"
                       />
                       <el-table-column
                         prop="path"
                         label="设备路径"
-                        width="170"                    
+                        width="170"
                       />
                     </el-table>
                   </div>
@@ -126,24 +127,10 @@
             </el-descriptions>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
-            <create-or-update-template :createOrUpdateFlag="createOrUpdateFlag" :formData="currentTemplate" :templateId="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
+            <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
           </div>
         </div>
       </div>
-      <el-dialog
-        width="30%"
-        top="20%"
-        :visible="delCertain"
-      >
-        <i class="el-icon-info" style="color: #faad15;" />
-        <span>您确定要删除{{ delNum }}个设备的录制模板吗？</span>
-        <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="subDelSubmit">
-          确 定
-        </el-button>
-        <el-button @click="delCertain = false">取 消</el-button>
-      </div>
-      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -151,7 +138,7 @@
 import { Component, Vue, Ref } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
-import BindDevice from '@/views/device/components/dialogs/BindDevice.vue' 
+import BindDevice from '@/views/device/components/dialogs/BindDevice.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
 
@@ -164,7 +151,6 @@ import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
   }
 })
 export default class extends Vue {
-
   @Ref('bindTreeMain') private bindTreeMain
 
   // 编辑页面参数
@@ -173,7 +159,6 @@ export default class extends Vue {
   private createOrUpdateFlag = false
 
   private isDelete = false
-  private delCertain = false
   private handleDevice = true
 
   private bindDevice = false
@@ -182,7 +167,6 @@ export default class extends Vue {
 
   private delDataList = []
 
-  private delNum = 0
   private dirDrag = {
     isDragging: false,
     start: 0,
@@ -196,6 +180,12 @@ export default class extends Vue {
     templateInfo: false,
     templateDeviceTree: false,
     unbinding: false
+  }
+
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
   }
 
   private bindedDeviceNum = 0
@@ -246,7 +236,7 @@ export default class extends Vue {
     try {
       this.loading.templateInfo = true
       let templateInfo = await queryRecordTemplate({
-        templateId: this.currentTemplate.templateId,
+        templateId: this.currentTemplate.templateId
       })
       console.log('模板信息     ', templateInfo)
       this.renderTemplateInfo = templateInfo // 渲染模板信息
@@ -269,8 +259,8 @@ export default class extends Vue {
       let id = node && node.id
       let templateDeviceTree = await getTemplateDeviceTree({
         templateId: templateId || this.currentTemplate.templateId,
-        groupId: type === 'group' ? id : 0 ,
-        id: id || 0 ,
+        groupId: type === 'group' ? id : 0,
+        id: id || 0,
         type: type,
         path: path,
         bind: true
@@ -280,7 +270,7 @@ export default class extends Vue {
       this.bindedDeviceNum = templateDeviceTree.totalSize // 已绑定数目应该直接给出
       // 渲染已绑定设备数
       // this.deviceListMain.map((item: any) => {
-        // item.bindStatus === 1 && (this.bindedDeviceNum += 1)
+      // item.bindStatus === 1 && (this.bindedDeviceNum += 1)
       // })
     } catch (e) {
       this.$message.error(e)
@@ -347,7 +337,7 @@ export default class extends Vue {
     this.bindDevice = false
     // this.handleDevice = false
   }
-  
+
   private async loadSubDevice(node: any, resolve: Function) {
     console.log('嗯哼?', node)
     const data: any = node.data
@@ -380,15 +370,15 @@ export default class extends Vue {
       let item = nodes.data
       this.setNodesChecked(item, checked)
     } else {
-    nodes.map((item: any) => {
-      this.setNodesChecked(item, checked)
-    })
+      nodes.map((item: any) => {
+        this.setNodesChecked(item, checked)
+      })
     }
   }
 
   // 获取子节点
   private async getSubTree(node: any) {
-    try{
+    try {
       const data: any = node.data
       const rootId = this.getRootId(node)
       const res = await getTemplateDeviceTree({
@@ -418,27 +408,22 @@ export default class extends Vue {
 
   // 获取当前节点对应根节点的id
   private getRootId(node: any) {
-    while(node.level != 1) {
+    while (node.level !== 1) {
       return this.getRootId(node.parent)
     }
     return node.data.id
   }
 
-
-  private async handleCheck(data: any, ischecked: any) {
-    // 去展开所有项,一直拿到叶子节点
-    await this.deepExpand(data.id, ischecked)
-    // console.log('handle   check    ', data, ischecked)
+  private async handleCheck(data: any, isChecked: any) {
+    if (isChecked) {
+      await this.deepExpand(data.id, isChecked)
+    }
     this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
-    console.log('只保留叶子节点', this.delDataList)
-    this.delNum = this.delDataList.length
-    // 获取左侧整体勾选状态
-
   }
 
   // 获取已绑定子节点
   private async getSubCheckedTree(node: any) {
-    try{
+    try {
       const data: any = node.data
       const rootId = this.getRootId(node)
       const res = await getTemplateDeviceTree({
@@ -455,57 +440,75 @@ export default class extends Vue {
     }
   }
 
-  // 解绑弹窗确认
+  /**
+   * 确定接触绑定
+   */
   private delSubmit() {
     if (this.delDataList.length === 0) return
-    this.delCertain = true
-  }
-
-  private async subDelSubmit() {
-    try {
-      this.loading.unbinding = true
-      await unbindDeviceRecordTemplateBatch({
-        templateId: this.currentTemplate.templateId,
-        devices: this.delDataList
-      })
-    } catch (e) {
-      this.$message.error(e)
-    } finally {
-      this.loading.unbinding = false
-      // 删除完后重新获取绑定设备树
-      this.bindedDeviceNum = 0
-      this.isDelete = false
-      this.defaultDevice = true
-      // this.handleDevice = true
-      this.initBindDevice()
-    }
-  }
-  
-  // 递归展开当前节点的所有已绑定子节点
-  private async deepExpand(id: any, checked: any) {
-    const dirTreeNode = this.bindTreeMain && this.bindTreeMain.getNode(id)
-    const dirs = dirTreeNode && await this.getSubCheckedTree(dirTreeNode)
-    // 叶子节点处理
-    if (!dirs || dirs.length === 0) {
-      dirTreeNode && (dirTreeNode.loaded = true)
-      return
-    }
-    this.bindTreeMain.updateKeyChildren(id, dirs)
-    dirTreeNode && (dirTreeNode.loaded = true)
-    // this.previewTree.updateKeyChildren(id, dirs)
-    // const previewTreeNode = this.previewTree.getNode(id)
-    // previewTreeNode.loaded = true
-    dirs.forEach(async dir => {
-      // 半选如何处理
-      const leftNode = this.bindTreeMain.getNode(dir.id)
-      this.setChecked(leftNode, checked)
-      if (!dir.isLeaf) {
-        await this.deepExpand(dir.id, checked)
+    this.$confirm(`您确定要删除${this.delDataList.length}个设备的录制模板吗？点击确定后设备将立刻解绑模板，井停止录像！`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async() => {
+      try {
+        this.loading.unbinding = true
+        const delDataList = this.delDataList.map(data => {
+          const node = this.bindTreeMain.getNode(data.id)
+          const rootId = this.getRootId(node)
+          data.groupId = rootId
+          return data
+        })
+        await unbindDeviceRecordTemplateBatch({
+          templateId: this.currentTemplate.templateId,
+          devices: delDataList
+        })
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.delDataList = []
+      } catch (e) {
+        this.$message.error(e)
+      } finally {
+        this.loading.unbinding = false
+        // 删除完后重新获取绑定设备树
+        this.bindedDeviceNum = 0
+        this.isDelete = false
+        this.defaultDevice = true
+        this.initBindDevice()
       }
     })
   }
 
-  // 点击'绑定设备'按钮
+  /**
+   * 递归展开当前节点的所有已绑定子节点
+   */
+  private async deepExpand(id: any, checked: any) {
+    const dirTreeNode = this.bindTreeMain && this.bindTreeMain.getNode(id)
+    if (!dirTreeNode || dirTreeNode.data.isLeaf || dirTreeNode.loaded) {
+      return
+    }
+    dirTreeNode.loading = true
+    const dirs = dirTreeNode && await this.getSubCheckedTree(dirTreeNode)
+    this.bindTreeMain.updateKeyChildren(id, dirs)
+    if (dirTreeNode) {
+      dirTreeNode.loading = false
+      dirTreeNode.loaded = true
+      dirTreeNode.expanded = true
+    }
+    for (let i = 0; i < dirs.length; i++) {
+      const dir = dirs[i]
+      const leftNode = this.bindTreeMain.getNode(dir.id)
+      leftNode.checked = true
+      if (!dir.isLeaf) {
+        await this.deepExpand(dir.id, checked)
+      }
+    }
+  }
+
+  /**
+   * 点击'绑定设备'按钮
+   */
   private clickBind() {
     this.bindDevice = true
     this.isDelete = false
@@ -527,7 +530,7 @@ export default class extends Vue {
     this.defaultDevice = true
     // this.handleDevice = true
   }
-  
+
   // 关闭绑定 或 取消绑定设备
   private async bindDialogClose(isBinded: boolean) {
     console.log('关闭绑定    ', isBinded)
@@ -586,7 +589,6 @@ export default class extends Vue {
       this.loading.template = false
     }
   }
-
 }
 </script>
 <style lang="scss">

@@ -6,15 +6,14 @@
         <span class="bind-title-right">已选中{{ checkedNum }}项</span>
         <el-tree
           ref="bindTree"
-          :key="time"
-          :data="deviceList"
+          v-loading="loading.deviceTree"
           class="general-tree"
           node-key="id"
           lazy
-          v-loading="loading.deviceTree"
           highlight-current
           empty-text="暂无已绑定设备"
           :load="loadSubDeviceLeft"
+          :props="treeProp"
           show-checkbox
           @check-change="bindCheck"
         >
@@ -45,13 +44,14 @@
         <!-- <span class="bind-title-right">已选中{{}}项</span> -->
         <el-tree
           ref="previewTree"
+          v-loading="loading.previewTree"
           lazy
           empty-text="暂无已绑定设备"
-          v-loading="loading.previewTree"
           class="general-tree"
-          :load="loadSubDeviceLeft"
+          :props="treeProp"
           node-key="id"
-          :data="deviceList"
+          :load="loadSubDeviceLeft"
+          :data="previewDeviceList"
           :filter-node-method="filterTree"
         >
           <!-- :data="previewDeviceList" -->
@@ -83,7 +83,7 @@
       <el-checkbox v-model="quickStart">绑定该按需模板后，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
-      <el-button type="primary" :loading="submitting" :disabled="submitable" @click="submit">
+      <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
         确 定
       </el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
@@ -97,11 +97,11 @@
       <i class="el-icon-info" style="color: #faad15;" />
       <span>您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?</span>
       <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :disabled="submitable" @click="subSubmit">
-        确 定
-      </el-button>
-      <el-button @click="hasBindedNode = false">取 消</el-button>
-    </div>
+        <el-button type="primary" :disabled="!submitable" @click="subSubmit">
+          确 定
+        </el-button>
+        <el-button @click="hasBindedNode = false">取 消</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -120,20 +120,24 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 export default class extends Vue {
   @Prop()
   private currentTemplate: any
- 
-  private submitable = true
+
+  private submitable = false
   private hasBindedNode = false
 
   private time = (new Date()).getTime()
-   
 
   private loading = {
     deviceTree: false,
     previewTree: false
   }
 
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
+  }
+
   private submitting = false
-  private deviceList: any = []
   private quickStart = false
   private previewDeviceList: any = []
 
@@ -154,61 +158,60 @@ export default class extends Vue {
   @Ref('bindTree') private bindTree
   @Ref('previewTree') private previewTree
 
-
   private async created() {
-    this.getAllDevice()
+    // this.getAllDevice()
   }
 
   // 左侧获取  全部  设备
-  private async getAllDevice(init?: boolean,node?: any) {
-    let templateId = node && node.templateId
-    let type = node && node.type
-    let path = node && node.path
-    let id = node && node.id
-    try {
-      this.loading.deviceTree = true
-      this.submitable = true
-      const res = await getTemplateDeviceTree({
-        templateId: templateId || this.currentTemplate.templateId,
-        groupId: 0 ,
-        id: id || 0 ,
-        type: type,
-        path: path,
-        bind: false
-      })
-      this.deviceList = res.dirs
-      res.dirs.map(async (item: any) => {
-        if(item.bindSize > 0) {
-          // 具有默认勾选项的节点进行递归加载
-          if (item.bindStatus > 0 || item.bindSize === item.totalSize) {
-            // 全选态
-            await this.deepExpand(item.id, true)
-          }
-          if (item.bindSize > 0 && item.bindSize < item.totalSize) {
-            // 半选
-            await this.deepExpand(item.id, true)
-          }
-        }
-        // 虚拟业务组添加请求头
-        if (item.inProtocol === 'vgroup') {
-          // 添加第一级子节点查询标识
-          item.vgroup = true
-          item.roleId = item.id
-        }
-      })
-      this.$nextTick(() => {
-        // 设置已绑定设备的勾选状态
-        // 区分勾选状态
-        this.setChecked(res.dirs)
-        this.setFilter()
-      })
-    } catch(e) {
-      this.$message.error(e)
-    } finally {
-      this.loading.deviceTree = false
-      this.submitable = false
-    }
-  }
+  // private async getAllDevice(init?: boolean, node?: any) {
+  //   let templateId = node && node.templateId
+  //   let type = node && node.type
+  //   let path = node && node.path
+  //   let id = node && node.id
+  //   try {
+  //     this.loading.deviceTree = true
+  //     this.submitable = true
+  //     const res = await getTemplateDeviceTree({
+  //       templateId: templateId || this.currentTemplate.templateId,
+  //       groupId: 0,
+  //       id: id || 0,
+  //       type: type,
+  //       path: path,
+  //       bind: false
+  //     })
+  //     this.deviceList = res.dirs
+  //     res.dirs.map(async(item: any) => {
+  //       if (item.bindSize > 0) {
+  //         // 具有默认勾选项的节点进行递归加载
+  //         if (item.bindStatus > 0 || item.bindSize === item.totalSize) {
+  //           // 全选态
+  //           await this.deepExpand(item.id, true)
+  //         }
+  //         if (item.bindSize > 0 && item.bindSize < item.totalSize) {
+  //           // 半选
+  //           await this.deepExpand(item.id, true)
+  //         }
+  //       }
+  //       // 虚拟业务组添加请求头
+  //       if (item.inProtocol === 'vgroup') {
+  //         // 添加第一级子节点查询标识
+  //         item.vgroup = true
+  //         item.roleId = item.id
+  //       }
+  //     })
+  //     this.$nextTick(() => {
+  //       // 设置已绑定设备的勾选状态
+  //       // 区分勾选状态
+  //       this.setChecked(res.dirs)
+  //       this.setFilter()
+  //     })
+  //   } catch (e) {
+  //     this.$message.error(e)
+  //   } finally {
+  //     this.loading.deviceTree = false
+  //     this.submitable = false
+  //   }
+  // }
 
   // 已绑定设备勾选状态设置
   private async setChecked(nodes: any, checked?: boolean) {
@@ -216,9 +219,9 @@ export default class extends Vue {
       let item = nodes.data
       this.setNodesChecked(item, checked)
     } else {
-    nodes.map((item: any) => {
-      this.setNodesChecked(item, checked)
-    })
+      nodes.map((item: any) => {
+        this.setNodesChecked(item, checked)
+      })
     }
   }
 
@@ -252,47 +255,72 @@ export default class extends Vue {
     })
   }
 
-  // 懒加载左侧  子节点
+  /**
+   * 懒加载左侧  子节点
+   */
   private async loadSubDeviceLeft(node: any, resolve: Function) {
-    console.log('摩西摩西     ', node)
-    if(node.data.isLeaf) return resolve([])
-    if (node.level === 0) return resolve(this.deviceList)
-    // 获取父级节点id
-    try {
-      const res = await this.getSubTree(node)
-      this.$nextTick(() => {
-        // 设置已绑定设备的勾选状态
-        this.setChecked(res)
-        this.setFilter()
-      })
-      return resolve(res)
-    } catch (e) {
-      resolve([])
+    if (node.level === 0) {
+      try {
+        this.loading.deviceTree = true
+        this.loading.previewTree = true
+        this.submitable = false
+        const res = await getTemplateDeviceTree({
+          templateId: this.currentTemplate.templateId,
+          groupId: 0,
+          id: 0,
+          bind: false
+        })
+        this.previewDeviceList = res.dirs
+        resolve(res.dirs)
+        this.$nextTick(async() => {
+          this.setChecked(res.dirs)
+          this.setFilter()
+          // 设置已绑定设备的勾选状态
+          // 区分勾选状态
+          for (let i = 0; i < res.dirs.length; i++) {
+            const item = res.dirs[i]
+            if (item.bindSize > 0) {
+              await this.deepExpand(item.id, false)
+            }
+          }
+          // this.setChecked(res.dirs)
+          // this.setFilter()
+        })
+      } catch (e) {
+        resolve([])
+      } finally {
+        this.loading.deviceTree = false
+        this.loading.previewTree = false
+        this.submitable = true
+      }
+    } else {
+      // 获取父级节点id
+      try {
+        this.submitable = false
+        const res = await this.getSubTree(node)
+        this.$nextTick(() => {
+          // 设置已绑定设备的勾选状态
+          this.setChecked(res)
+          this.setFilter()
+        })
+        return resolve(res)
+      } catch (e) {
+        resolve([])
+      } finally {
+        this.submitable = true
+      }
     }
   }
 
   // 右侧懒加载
   // 需要左侧去加载，更新左侧数据
   private async loadSubDeviceRight(node: any, resolve: Function) {
-    const data: any = node.data
-    if (node.level === 0 || node.data.isLeaf) return resolve([])
-    const rootId = this.getRootId(node)
-    try {
-        const res = await this.getSubTree(node)
-      this.$nextTick(() => {
-        // 过滤子节点
-        const filterNode = this.checkedNodes
-        this.previewTree.filter(filterNode)
-      })
-      return resolve(res)
-    } catch (e) {
-      resolve([])
-    }
+    resolve([])
   }
 
   // 获取当前节点对应根节点的id
   private getRootId(node: any) {
-    while(node.level != 1) {
+    while (node.level !== 1) {
       return this.getRootId(node.parent)
     }
     return node.data.id
@@ -302,27 +330,32 @@ export default class extends Vue {
   /**
    * 虚拟业务组使用   inprotocol === vgroup 判断
    * roleid = type
-   * */ 
+   * */
   private async submit() {
     // 获取当前勾选的数据
     // console.log('勾选的数据    ', this.checkedNodes)
     // 筛选是否有绑定其他模板的设备
     const bindedCheck = this.checkedNodes.some((item: any) => {
-      item.bindStatus > 1 
+      return item.bindStatus > 1
     })
+    let msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?'
     if (bindedCheck) {
-      this.hasBindedNode = true
-      return
+      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？这些设备在切换新模板时，已存在的历史录像将修改过期时间，使用新的模板存储时长策略。'
     }
-    await this.subSubmit()
+    this.$confirm(msg, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async() => {
+      await this.subSubmit()
+    })
   }
 
   private async subSubmit() {
     try {
-      this.submitting = true
       this.hasBindedNode = false
       let checkedNodes = this.checkedNodes.filter((item: any) => {
-        return item.isLeaf 
+        return item.isLeaf
       })
       // 组装 groupId
       const devices = checkedNodes.map((item: any) => {
@@ -331,7 +364,7 @@ export default class extends Vue {
           id: item.id,
           type: item.type,
           inProtocol: item.inProtocol,
-          startRecord: this.quickStart,
+          startRecord: this.quickStart
         }
       })
       await setDeviceRecordTemplateBatch({
@@ -339,12 +372,9 @@ export default class extends Vue {
         devices: devices
       })
       this.$message.success('批量绑定设备成功！')
-      this.submitting = false
-      this.closeDialog(true)
-    } catch(e) {
+      this.$emit('on-close', true)
+    } catch (e) {
       this.$message.error(e)
-      this.submitting = false
-      this.closeDialog(false)
     }
   }
 
@@ -354,11 +384,9 @@ export default class extends Vue {
   }
 
   // 勾选的变化
-  private async bindCheck(data?: any, checked?: any) {
-    // 设置勾选状态或者勾选的时候加载出节点的子节点信息
-    const currentNode = this.bindTree.getNode(data.id)
-    if (!currentNode.loaded) {
-      await this.deepExpand(data.id, checked)
+  private async bindCheck(data?: any, isChecked?: boolean) {
+    if (isChecked) {
+      await this.deepExpand(data.id, isChecked)
     }
     // 获取当前状态下所有被勾选的节点数组
     this.setFilter()
@@ -374,31 +402,45 @@ export default class extends Vue {
 
   // 递归展开所有业务组 只加载
   private async deepExpand(id: any, checked: any) {
-    const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
-    const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
-    // 叶子节点处理
-    if (!dirs || dirs.length === 0) {
-      dirTreeNode && (dirTreeNode.loaded = true)
-      return
-    }
-    this.bindTree.updateKeyChildren(id, dirs)
-    dirTreeNode && (dirTreeNode.loaded = true)
-    this.previewTree.updateKeyChildren(id, dirs)
-    // const previewTreeNode = this.previewTree.getNode(id)
-    // previewTreeNode.loaded = true
-    dirs.forEach(async dir => {
-      // 半选如何处理
-      const leftNode = this.bindTree.getNode(dir.id)
-      this.setChecked(leftNode, checked)
-      if (!dir.isLeaf) {
-        await this.deepExpand(dir.id, checked)
+    try {
+      const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
+      if (!dirTreeNode || dirTreeNode.data.isLeaf || dirTreeNode.loaded) {
+        return
       }
-    })
+      dirTreeNode.loading = true
+      this.submitable = true
+      const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
+      this.bindTree.updateKeyChildren(id, dirs)
+      dirTreeNode.loading = false
+      dirTreeNode.loaded = true
+      this.previewTree.updateKeyChildren(id, dirs)
+      // const previewTreeNode = this.previewTree.getNode(id)
+      // if (dirTreeNode) {
+      //   previewTreeNode.loading = false
+      //   previewTreeNode.loaded = true
+      //   // previewTreeNode.expanded = true
+      // }
+
+      this.setFilter()
+      for (let i = 0; i < dirs.length; i++) {
+        const dir = dirs[i]
+        // 半选如何处理
+        const leftNode = this.bindTree.getNode(dir.id)
+        checked && this.setChecked(leftNode, true)
+        if (!dir.isLeaf) {
+          await this.deepExpand(dir.id, checked)
+        }
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.submitable = true
+    }
   }
 
   // 获取子节点
   private async getSubTree(node: any) {
-    try{
+    try {
       const data: any = node.data
       const rootId = this.getRootId(node)
       const res = await getTemplateDeviceTree({
@@ -467,6 +509,28 @@ export default class extends Vue {
   overflow: auto;
 }
 
+.node-dir {
+  .svg-icon {
+    display: none;
+
+    &:last-child {
+      display: inline;
+    }
+  }
+}
+
+.is-expanded > .el-tree-node__content {
+  .node-dir {
+    .svg-icon {
+      display: none;
+
+      &:first-child {
+        display: inline;
+      }
+    }
+  }
+}
+
 ::v-deep {
   .el-dialog {
     border-radius: 12px;
@@ -503,5 +567,3 @@ export default class extends Vue {
   }
 }
 </style>
-
-
