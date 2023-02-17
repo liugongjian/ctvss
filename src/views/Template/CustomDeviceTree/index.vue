@@ -11,7 +11,7 @@
           <div class="dir-list__tools">
             <span class="left-title">模板列表</span>
             <el-tooltip class="item new-template" effect="dark" content="新建录制模板" placement="top" :open-delay="300">
-              <el-button>+ 新建</el-button>
+              <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
           <div v-loading="loading.template" ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
@@ -34,95 +34,100 @@
           </div>
         </div>
         <div class="device-list__right">
-          <el-descriptions :column="2" border v-loading="loading.templateInfo">
-            <template slot="title">
-              <span class="title">模板信息</span>
-            </template>
-            <template slot="extra">
-              <el-button type="text" class="btn-edit">编辑</el-button>
-            </template>
-            <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
-            <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
-            <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime }}</el-descriptions-item>
-            <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval }}</el-descriptions-item>
-            <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
-            <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
-          </el-descriptions>
-          <el-descriptions labelClassName="has-no-colon" :column="1">
-            <template slot="title">
-              <span class="title">绑定关系</span>
-            </template>
-            <el-descriptions-item v-if="handleDevice" colon="false">
-              <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
-              <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
-            </el-descriptions-item>
-            <el-descriptions-item  colon="false">
-              <div class="bind-left">
-                <span class="bind-title-left">
-                  已绑定设备
-                </span>
-                <span class="bind-title-right">
-                  已绑定 {{ bindedDeviceNum }} 项
-                </span>
-                <div class="tree-block">
-                  <el-tree
-                    :key="timestamp"
-                    ref="bindTreeMain"
-                    :data="deviceListMain"
-                    node-key="id"
-                    lazy
-                    :show-checkbox="isDelete"
-                    v-loading="loading.templateDeviceTree || loading.unbinding"
-                    highlight-current
-                    empty-text="暂无1已绑定设备"
-                    :load="loadSubDevice"
-                    @check-change="handleCheck"
-                  >
-                    <span
-                      slot-scope="{node, data}"
-                      class="custom-tree-node"
-                      :class="{'online': data.deviceStatus === 'on'}"
+          <div v-if="mainCard">
+            <el-descriptions :column="2" border v-loading="loading.templateInfo">
+              <template slot="title">
+                <span class="title">模板信息</span>
+              </template>
+              <template slot="extra">
+                <el-button type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
+              </template>
+              <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
+              <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
+              <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 }}</el-descriptions-item>
+              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval }}</el-descriptions-item>
+              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
+              <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
+            </el-descriptions>
+            <el-descriptions labelClassName="has-no-colon" :column="1">
+              <template slot="title">
+                <span class="title">绑定关系</span>
+              </template>
+              <!-- <el-descriptions-item v-if="handleDevice" colon="false"> -->
+              <el-descriptions-item colon="false">
+                <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
+                <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
+              </el-descriptions-item>
+              <el-descriptions-item v-if="defaultDevice" colon="false">
+                <div class="bind-left">
+                  <span class="bind-title-left">
+                    已绑定设备
+                  </span>
+                  <span class="bind-title-right">
+                    已绑定 {{ bindedDeviceNum }} 项
+                  </span>
+                  <div class="tree-block">
+                    <el-tree
+                      ref="bindTreeMain"
+                      :data="deviceListMain"
+                      node-key="id"
+                      lazy
+                      :show-checkbox="isDelete"
+                      v-loading="loading.templateDeviceTree || loading.unbinding"
+                      highlight-current
+                      empty-text="暂无已绑定设备"
+                      :load="loadSubDevice"
+                      @check-change="handleCheck"
                     >
-                      <span class="node-name">
-                        <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                        <svg-icon :name="data.type" />
-                        {{ node.label }}
+                      <span
+                        slot-scope="{node, data}"
+                        class="custom-tree-node"
+                        :class="{'online': data.deviceStatus === 'on'}"
+                      >
+                        <span class="node-name">
+                          <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                          <svg-icon :name="data.type" />
+                          {{ node.label }}
+                        </span>
                       </span>
-                    </span>
-                  </el-tree>
+                    </el-tree>
+                  </div>
+                  <div v-if="isDelete" style="margin-top: 20px;">
+                    <el-button :disabled="loading.unbinding" type="primary" @click="delSubmit">删除</el-button>
+                    <el-button @click="handleUnbindCancel">取消</el-button>
+                  </div>
                 </div>
-                <div v-if="isDelete" style="margin-top: 20px;">
-                  <el-button :disabled="loading.unbinding" type="primary" @click="delSubmit">删除</el-button>
-                  <el-button @click="handleUnbindCancel">取消</el-button>
+                <div class="bind-right" v-if="isDelete">
+                  <span class="bind-title-left">
+                    已选择设备
+                  </span>
+                  <div class="tree-block">
+                    <el-table
+                      :data="delDataList"
+                      height="400"
+                    >
+                      <el-table-column
+                        prop="deviceName"
+                        label="设备名"
+                        width="170"                    
+                      />
+                      <el-table-column
+                        prop="path"
+                        label="设备路径"
+                        width="170"                    
+                      />
+                    </el-table>
+                  </div>
                 </div>
-              </div>
-              <div class="bind-right" v-if="isDelete">
-                <span class="bind-title-left">
-                  已选择设备
-                </span>
-                <div class="tree-block">
-                  <el-table
-                    :data="delDataList"
-                    height="400"
-                  >
-                    <el-table-column
-                      prop="deviceName"
-                      label="设备名"
-                      width="170"                    
-                    />
-                    <el-table-column
-                      prop="path"
-                      label="设备路径"
-                      width="170"                    
-                    />
-                  </el-table>
-                </div>
-              </div>
-            </el-descriptions-item>
-            <el-descriptions-item v-if="bindDevice" colon="false">
-              <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" />
-            </el-descriptions-item>
-          </el-descriptions>
+              </el-descriptions-item>
+              <el-descriptions-item v-if="bindDevice" colon="false">
+                <bind-device :current-template="currentTemplate" @on-close="bindDialogClose" />
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+          <div v-if="createOrUpdateTemplate" class="edit-template">
+            <create-or-update-template :createOrUpdateFlag="createOrUpdateFlag" :formData="currentTemplate" :templateId="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
+          </div>
         </div>
       </div>
       <el-dialog
@@ -130,37 +135,42 @@
         top="20%"
         :visible="delCertain"
       >
-      <i class="el-icon-info" style="color: #faad15;" />
-      <span>您确定要删除{{ delNum }}个设备的录制模板吗？</span>
-      <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="subDelSubmit">
-        确 定
-      </el-button>
-      <el-button @click="delCertain = false">取 消</el-button>
-    </div>
-    </el-dialog>
+        <i class="el-icon-info" style="color: #faad15;" />
+        <span>您确定要删除{{ delNum }}个设备的录制模板吗？</span>
+        <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="subDelSubmit">
+          确 定
+        </el-button>
+        <el-button @click="delCertain = false">取 消</el-button>
+      </div>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Ref } from 'vue-property-decorator'
-import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice } from '@/api/template'
+import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
 import BindDevice from '@/views/device/components/dialogs/BindDevice.vue' 
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
 
 @Component({
   name: 'CustomDeviceTree',
   components: {
     BindDevice,
-    StatusBadge
+    StatusBadge,
+    CreateOrUpdateTemplate
   }
 })
 export default class extends Vue {
 
   @Ref('bindTreeMain') private bindTreeMain
 
-  private timestamp = null
+  // 编辑页面参数
+  private mainCard = true
+  private createOrUpdateTemplate = false
+  private createOrUpdateFlag = false
 
   private isDelete = false
   private delCertain = false
@@ -190,6 +200,7 @@ export default class extends Vue {
 
   private bindedDeviceNum = 0
   private bindDialogVisible = false
+  private createTemplateDisable = false
 
   private maxHeight = null
   private currentTemplate: any = {}
@@ -199,18 +210,17 @@ export default class extends Vue {
   private renderTemplateInfo: any = {}
 
   private async mounted() {
-    this.timestamp = (new Date()).getTime()
-    // 设置初始化展示页面结构
-    this.defaultDevice = true
-    this.isDelete = false
-    this.bindDevice = false
-    this.handleDevice = true
+    // this.handleDevice = true
     this.init()
   }
 
   // 获取1模板列表并初始化2模板信息和3设备树
   private async init() {
     try {
+      // 设置初始化展示页面结构
+      this.defaultDevice = true
+      this.isDelete = false
+      this.bindDevice = false
       this.loading.template = true
       let params = {}
       let res = await getRecordTemplates(params) // 获取模板列表
@@ -280,30 +290,21 @@ export default class extends Vue {
 
   // 选择模板
   private async selectTemplate(template: any) {
+    console.log('切换模板')
     // 设置初始化展示页面结构
     this.bindedDeviceNum = 0
+    this.mainCard = true
     this.defaultDevice = true
     this.isDelete = false
     this.bindDevice = false
-    this.handleDevice = true
+    this.createOrUpdateTemplate = false
+    this.createTemplateDisable = false
+    // this.handleDevice = true
     this.currentTemplate = template
     console.log('2')
     this.initBindDevice()
     this.initTemplateInfo()
   }
-
-  /**
-   * 编辑模板
-   */
-  private editTemplate(template: any) {
-    this.$router.push({
-      path: '/custom-device-tree/template-update',
-      query: {
-        templateId: template.platformId
-      }
-    })
-  }
-
 
   /**
   * 设置左侧宽度
@@ -334,7 +335,7 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 22
+    this.maxHeight = documentHeight - top - 22 + 150
   }
 
   // 删除设备
@@ -343,12 +344,14 @@ export default class extends Vue {
     this.isDelete = true
     this.defaultDevice = true
     this.bindDevice = false
-    this.handleDevice = false
+    // this.handleDevice = false
   }
   
   private async loadSubDevice(node: any, resolve: Function) {
+    console.log('嗯哼?', node)
     const data: any = node.data
-    if (node.level === 0 || node.data.isLeaf) return resolve([])
+    if (node.data.isLeaf) return resolve([])
+    if (node.level === 0) return resolve(this.deviceListMain)
     const rootId = this.getRootId(node)
     try {
       const res = await this.getSubTree(node)
@@ -401,6 +404,17 @@ export default class extends Vue {
     }
   }
 
+  // 删除模板
+  private async deleteTemplate(row: any) {
+    this.$alertDelete({
+      type: '录制模板',
+      msg: `确定删除录制模板"${row.templateName}"`,
+      method: deleteRecordTemplate,
+      payload: { templateId: row.templateId },
+      onSuccess: this.init
+    })
+  }
+
   // 获取当前节点对应根节点的id
   private getRootId(node: any) {
     while(node.level != 1) {
@@ -411,11 +425,13 @@ export default class extends Vue {
 
 
   private handleCheck(data: any, ischecked: any) {
-    // check-change的时候也要去展开所有项
-    console.log('handle   check    ', data, ischecked)
-    this.delDataList = this.bindTreeMain.getCheckedNodes(true)
+    // 去展开所有项,一直拿到叶子节点
+    // console.log('handle   check    ', data, ischecked)
+    this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
     console.log('只保留叶子节点', this.delDataList)
     this.delNum = this.delDataList.length
+    // 获取左侧整体勾选状态
+
   }
 
   // 解绑弹窗确认
@@ -440,9 +456,34 @@ export default class extends Vue {
       this.bindedDeviceNum = 0
       this.isDelete = false
       this.defaultDevice = true
-      this.handleDevice = true
+      // this.handleDevice = true
       this.initBindDevice()
     }
+  }
+
+  
+  // 递归展开所有业务组 只加载
+  private async deepExpand(id: any, checked: any) {
+    const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
+    const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
+    // 叶子节点处理
+    if (!dirs || dirs.length === 0) {
+      dirTreeNode && (dirTreeNode.loaded = true)
+      return
+    }
+    this.bindTree.updateKeyChildren(id, dirs)
+    dirTreeNode && (dirTreeNode.loaded = true)
+    this.previewTree.updateKeyChildren(id, dirs)
+    // const previewTreeNode = this.previewTree.getNode(id)
+    // previewTreeNode.loaded = true
+    dirs.forEach(async dir => {
+      // 半选如何处理
+      const leftNode = this.bindTree.getNode(dir.id)
+      this.setChecked(leftNode, checked)
+      if (!dir.isLeaf) {
+        await this.deepExpand(dir.id, checked)
+      }
+    })
   }
 
   // 点击'绑定设备'按钮
@@ -450,14 +491,14 @@ export default class extends Vue {
     this.bindDevice = true
     this.isDelete = false
     this.defaultDevice = false
-    this.handleDevice = false
+    // this.handleDevice = false
   }
 
   // 点击'删除设备'按钮
   private clickUnbind() {
     this.isDelete = true
     this.defaultDevice = true
-    this.handleDevice = false
+    // this.handleDevice = false
     this.bindDevice = false
   }
 
@@ -465,17 +506,16 @@ export default class extends Vue {
   private handleUnbindCancel() {
     this.isDelete = false
     this.defaultDevice = true
-    this.handleDevice = true
+    // this.handleDevice = true
   }
   
   // 关闭绑定 或 取消绑定设备
   private async bindDialogClose(isBinded: boolean) {
-    console.log('关闭绑定    ', this.$refs.bindTreeMain)
-    this.timestamp += 100
+    console.log('关闭绑定    ', isBinded)
     this.bindDevice = false
     // 切换回默认页面
     this.defaultDevice = true
-    this.handleDevice = true
+    // this.handleDevice = true
     if (isBinded) {
       // 绑定设备,重新请求设备树
       console.log('3')
@@ -484,9 +524,58 @@ export default class extends Vue {
     }
     console.log('关闭绑定    查看    树   ', this.deviceListMain)
   }
+
+  // 新建模板
+  private createTemplate() {
+    // 关闭主页面
+    // 展示新建/编辑页面
+    this.mainCard = false
+    this.createTemplateDisable = true
+    this.createOrUpdateTemplate = true
+    this.createOrUpdateFlag = true // 新建
+  }
+
+  // 编辑模板
+  private editTemplate(template: any) {
+    console.log('点击编辑', template)
+    this.currentTemplate = template
+    this.mainCard = false
+    this.createTemplateDisable = true
+    this.createOrUpdateTemplate = true
+    this.createOrUpdateFlag = false // 编辑
+  }
+
+  // 关闭新建/编辑模板
+  private createClose(isRefresh: any) {
+    // 控制关闭新建和编辑分页,激活新建按钮
+    this.createTemplateDisable = false
+    this.createOrUpdateTemplate = false
+    this.mainCard = true
+    if (isRefresh) {
+      // 更新页面
+      this.init()
+    }
+  }
+
+  // 提交模板编辑/新建操作
+  private templateSubmit(finish: boolean) {
+    // 禁止操作模板列表
+    if (!finish) {
+      this.loading.template = true
+    }
+    if (finish) {
+      this.loading.template = false
+    }
+  }
+
 }
 </script>
 <style lang="scss">
+.edit-template {
+  height: 800px;
+  overflow: auto;
+}
+
 .el-descriptions-item__label.has-no-colon {
   margin-left: -10px;
 

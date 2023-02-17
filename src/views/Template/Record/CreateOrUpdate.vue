@@ -23,8 +23,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="录制文件类型:" class="record-form-item">
-          <el-input v-if="form.recordType === 1" v-model="form.storageTime" />天
-          <el-table v-if="form.recordType === 2" ref="formatTable" :data="form.formatList" border size="mini" :header-cell-style="setHeaderClass" style="width: 80%; min-width: 650px;" @selection-change="handleSelectionChange">
+          <el-table ref="formatTable" :data="form.formatList" border size="mini" :header-cell-style="setHeaderClass" style="width: 80%; min-width: 650px;" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" :selectable="defaultSelectable" />
             <el-table-column prop="formatType" label="文件类型" align="center" width="100" />
             <el-table-column label="录制周期时长" align="center" width="250">

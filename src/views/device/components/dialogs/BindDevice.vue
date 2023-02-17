@@ -13,7 +13,7 @@
           lazy
           v-loading="loading.deviceTree"
           highlight-current
-          empty-text="暂无2已绑定设备"
+          empty-text="暂无已绑定设备"
           :load="loadSubDeviceLeft"
           show-checkbox
           @check-change="bindCheck"
@@ -46,7 +46,7 @@
         <el-tree
           ref="previewTree"
           lazy
-          empty-text="暂无3已绑定设备"
+          empty-text="暂无已绑定设备"
           v-loading="loading.previewTree"
           class="general-tree"
           :load="loadSubDeviceLeft"
@@ -178,9 +178,9 @@ export default class extends Vue {
       })
       this.deviceList = res.dirs
       res.dirs.map(async (item: any) => {
-        if(item.bindStatus > 0 || item.bindSize > 0) {
+        if(item.bindSize > 0) {
           // 具有默认勾选项的节点进行递归加载
-          if (item.bindStatus > 0) {
+          if (item.bindStatus > 0 || item.bindSize === item.totalSize) {
             // 全选态
             await this.deepExpand(item.id, true)
           }
@@ -228,9 +228,13 @@ export default class extends Vue {
       // 禁用绑定其他模板的节点勾选框
       item.disabled = true
     }
+    if (item.bindSize === item.totalSize && item.bindSize > 0) {
+      // 默认全选
+      this.bindTree.setChecked(item.id, true, true)
+    }
     if (item.bindSize > 0 && item.bindSize < item.totalSize) {
       // 半选
-      const halfNode: any = this.bindTree.getNode(item.id)
+      const halfNode: any = this.bindTree && this.bindTree.getNode(item.id)
       halfNode.indeterminate = true
     }
     if (checked) {
@@ -244,13 +248,15 @@ export default class extends Vue {
       // 获取当前状态下所有被勾选的节点数组
       const currentTree = this.bindTree && this.bindTree.getCheckedNodes(false, true)
       // 过滤得到右侧预览树
-      this.previewTree.filter(currentTree)
+      this.previewTree && this.previewTree.filter(currentTree)
     })
   }
 
   // 懒加载左侧  子节点
   private async loadSubDeviceLeft(node: any, resolve: Function) {
-    if (node.level === 0 || node.data.isLeaf) return resolve([])
+    console.log('摩西摩西     ', node)
+    if(node.data.isLeaf) return resolve([])
+    if (node.level === 0) return resolve(this.deviceList)
     // 获取父级节点id
     try {
       const res = await this.getSubTree(node)
@@ -368,7 +374,7 @@ export default class extends Vue {
 
   // 递归展开所有业务组 只加载
   private async deepExpand(id: any, checked: any) {
-    const dirTreeNode = this.bindTree.getNode(id)
+    const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
     const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
     // 叶子节点处理
     if (!dirs || dirs.length === 0) {
