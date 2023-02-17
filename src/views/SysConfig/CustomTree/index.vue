@@ -546,7 +546,7 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
           orderSequence: +dir.orderSequence,
           // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
-          parentDevice: node.data.type === 'nvr' ? node.data : null
+          parentDevice: ['nvr', 'platform'].includes(node.data.type) ? node.data : null
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -859,7 +859,7 @@ export default class extends Vue {
       } else {
         res.id = node.data.id.slice(1)
       }
-      // nvr通道需要添加nvr的设备id
+      // nvr通道需要添加nvr的设备id，platform下的设备需要加platform的设备id
       if (node.data.parentDevice) {
         res.parentDeviceId = node.data.parentDevice.id
       }
@@ -1217,6 +1217,7 @@ export default class extends Vue {
       height: calc(100% - 120px);
       display: flex;
       margin: 15px 20px;
+      min-height: 83vh;
 
       &__border {
         flex: 1;
