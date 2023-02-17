@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{height: `${maxHeight}px`}" :class="{'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{minHeight: `${minHeight}px`}" :class="{'device-list--dragging': dirDrag.isDragging}">
         <div
           class="device-list__handle"
           :style="`left: ${dirDrag.width}px`"
@@ -107,7 +107,7 @@
                       height="400"
                     >
                       <el-table-column
-                        prop="deviceName"
+                        prop="label"
                         label="设备名"
                         width="170"                    
                       />
@@ -202,7 +202,7 @@ export default class extends Vue {
   private bindDialogVisible = false
   private createTemplateDisable = false
 
-  private maxHeight = null
+  private minHeight = null
   private currentTemplate: any = {}
   private deviceListMain: any = []
 
@@ -211,6 +211,7 @@ export default class extends Vue {
 
   private async mounted() {
     // this.handleDevice = true
+    this.calMaxHeight()
     this.init()
   }
 
@@ -335,7 +336,7 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 22 + 150
+    this.minHeight = documentHeight - top - 22
   }
 
   // 删除设备
@@ -424,14 +425,34 @@ export default class extends Vue {
   }
 
 
-  private handleCheck(data: any, ischecked: any) {
+  private async handleCheck(data: any, ischecked: any) {
     // 去展开所有项,一直拿到叶子节点
+    await this.deepExpand(data.id, ischecked)
     // console.log('handle   check    ', data, ischecked)
     this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
     console.log('只保留叶子节点', this.delDataList)
     this.delNum = this.delDataList.length
     // 获取左侧整体勾选状态
 
+  }
+
+  // 获取已绑定子节点
+  private async getSubCheckedTree(node: any) {
+    try{
+      const data: any = node.data
+      const rootId = this.getRootId(node)
+      const res = await getTemplateDeviceTree({
+        templateId: this.currentTemplate.templateId,
+        groupId: rootId,
+        id: data.id,
+        type: data.type,
+        bind: true,
+        path: data.path
+      })
+      return res.dirs
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   // 解绑弹窗确认
@@ -443,7 +464,6 @@ export default class extends Vue {
   private async subDelSubmit() {
     try {
       this.loading.unbinding = true
-      console.log('康康   删除的额 是 节点还是 data', this.delDataList)
       await unbindDeviceRecordTemplateBatch({
         templateId: this.currentTemplate.templateId,
         devices: this.delDataList
@@ -460,25 +480,24 @@ export default class extends Vue {
       this.initBindDevice()
     }
   }
-
   
-  // 递归展开所有业务组 只加载
+  // 递归展开当前节点的所有已绑定子节点
   private async deepExpand(id: any, checked: any) {
-    const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
-    const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
+    const dirTreeNode = this.bindTreeMain && this.bindTreeMain.getNode(id)
+    const dirs = dirTreeNode && await this.getSubCheckedTree(dirTreeNode)
     // 叶子节点处理
     if (!dirs || dirs.length === 0) {
       dirTreeNode && (dirTreeNode.loaded = true)
       return
     }
-    this.bindTree.updateKeyChildren(id, dirs)
+    this.bindTreeMain.updateKeyChildren(id, dirs)
     dirTreeNode && (dirTreeNode.loaded = true)
-    this.previewTree.updateKeyChildren(id, dirs)
+    // this.previewTree.updateKeyChildren(id, dirs)
     // const previewTreeNode = this.previewTree.getNode(id)
     // previewTreeNode.loaded = true
     dirs.forEach(async dir => {
       // 半选如何处理
-      const leftNode = this.bindTree.getNode(dir.id)
+      const leftNode = this.bindTreeMain.getNode(dir.id)
       this.setChecked(leftNode, checked)
       if (!dir.isLeaf) {
         await this.deepExpand(dir.id, checked)
@@ -572,7 +591,7 @@ export default class extends Vue {
 </script>
 <style lang="scss">
 .edit-template {
-  height: 800px;
+  height: 100%;
   overflow: auto;
 }
 
