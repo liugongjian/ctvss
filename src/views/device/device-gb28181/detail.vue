@@ -139,7 +139,7 @@
                       <el-descriptions-item label="设备国标ID">
                         {{ info.gbId || '-' }}
                       </el-descriptions-item>
-                      <el-descriptions-item v-if="info.gb35114Mode">
+                      <el-descriptions-item v-if="info.enableGB35114">
                         <template slot="label">
                           GB35114协议
                           <el-popover
@@ -148,12 +148,12 @@
                             width="400"
                             trigger="hover"
                             :open-delay="300"
-                            :content="tips.gb35114Mode"
+                            :content="tips.enableGB35114"
                           >
                             <svg-icon slot="reference" class="form-question" name="help" />
                           </el-popover>
                         </template>
-                        {{ info.gb35114Mode ? '已启用' : '未启用' }}
+                        {{ info.enableGB35114 ? '已启用' : '未启用' }}
                       </el-descriptions-item>
                       <el-descriptions-item v-else label="GB28181凭证注册用户名">
                         {{ info.userName }}

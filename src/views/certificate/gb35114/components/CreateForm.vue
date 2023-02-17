@@ -157,7 +157,7 @@ export default class extends Vue {
         const res = await describeCertificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
-        this.form.expireTime = new Date(res.expireTime * 1000)
+        this.form.expireTime = res.expireTime * 1000
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
@@ -251,8 +251,7 @@ export default class extends Vue {
         try {
           this.loading.generate = true
           const params: any = {
-            deviceName: this.form.deviceName,
-            expireTime: +(this.form.expireTime.getTime() + '').slice(0, -3),
+            expireTime: +(this.form.expireTime + '').slice(0, -3),
             description: this.form.description
           }
           // 判断是否为更新证书
@@ -265,6 +264,7 @@ export default class extends Vue {
           } else {
             await generateCertificate({
               ...params,
+              deviceName: this.form.deviceName,
               outId: this.form.outId
             })
           }
