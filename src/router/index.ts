@@ -197,7 +197,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'menu-group',
           hidden: true,
-          perms: ['ivs:CreateGroup'],
+          perms: ['ivs:GetGroup'],
           activeMenu: '/group'
         }
       }
