@@ -429,11 +429,11 @@ export default class extends Vue {
     // 去展开所有项,一直拿到叶子节点
     await this.deepExpand(data.id, ischecked)
     // console.log('handle   check    ', data, ischecked)
-    this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
-    console.log('只保留叶子节点', this.delDataList)
-    this.delNum = this.delDataList.length
+    // this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
+    // console.log('只保留叶子节点', this.delDataList)
+    // this.delNum = this.delDataList.length
     // 获取左侧整体勾选状态
-
+    console.log('勾选   删除    ', data, ischecked)
   }
 
   // 获取已绑定子节点
@@ -464,6 +464,7 @@ export default class extends Vue {
   private async subDelSubmit() {
     try {
       this.loading.unbinding = true
+      this.delCertain = false // 关闭dialog
       await unbindDeviceRecordTemplateBatch({
         templateId: this.currentTemplate.templateId,
         devices: this.delDataList
@@ -497,8 +498,9 @@ export default class extends Vue {
     // previewTreeNode.loaded = true
     dirs.forEach(async dir => {
       // 半选如何处理
-      const leftNode = this.bindTreeMain.getNode(dir.id)
-      this.setChecked(leftNode, checked)
+      // const leftNode = this.bindTreeMain.getNode(dir.id)
+      // this.setChecked(leftNode, checked)
+      
       if (!dir.isLeaf) {
         await this.deepExpand(dir.id, checked)
       }
