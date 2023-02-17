@@ -331,7 +331,7 @@
         center
         :before-close="changeDayDialog"
       >
-        <p>{{ `录制完整率: ${dayInfo.complianceRate*100}%` }}</p>
+        <p>{{ `录制完整率: ${(dayInfo.complianceRate*100).toFixed(2)}%` }}</p>
 
         <miss-table from="dialog" :info="dayInfo" />
         <span slot="footer" class="dialog-footer">
