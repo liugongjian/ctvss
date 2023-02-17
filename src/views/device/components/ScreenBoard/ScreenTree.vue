@@ -197,7 +197,7 @@
     <div class="dir-list__bottom">
       <!-- 虚拟业务组暂不支持搜索 -->
       <advanced-search
-        v-if="currentGroup.inProtocol !== 'vgroup'"
+        v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
