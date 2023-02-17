@@ -77,7 +77,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         PermissionModule.GenerateRoutes({ tags, perms, denyPerms, iamUserId })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard') {
           const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
           if (menuRoutes.length > 0) {
             to = menuRoutes[0]
