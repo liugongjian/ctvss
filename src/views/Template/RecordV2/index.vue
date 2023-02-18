@@ -138,8 +138,8 @@
 import { Component, Vue, Ref } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
-import BindDevice from '@/views/device/components/dialogs/BindDevice.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import BindDevice from './components/BindDevice.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
 
 @Component({
@@ -633,6 +633,8 @@ export default class extends Vue {
 }
 
 .template-list {
+  padding: 10px;
+
   ul {
     margin: 0;
     padding: 0;

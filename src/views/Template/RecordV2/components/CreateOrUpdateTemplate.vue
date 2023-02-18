@@ -1,11 +1,11 @@
 <template>
-  <div class="app-container" v-loading="submitting">
+  <div v-loading="submitting" class="app-container">
     <div class="header">
       <span>
         <el-button type="text" style="color: #faad15;" @click="back">&lt; 返回</el-button>
       </span>
       <span style="font-size: 16px;font-weight: bold;">
-        {{createOrUpdateFlag ? '新建录制模板' : '编辑录制模板'}}
+        {{ createOrUpdateFlag ? '新建录制模板' : '编辑录制模板' }}
       </span>
     </div>
     <div class="body">
@@ -27,10 +27,10 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="存储时长:" prop="storageTime" class="record-form-item">
-          <el-input v-model="form.storageTime" type="number" min="0" oninput ="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
+          <el-input v-model="form.storageTime" type="number" min="0" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
         </el-form-item>
         <el-form-item label="模板备注" prop="description">
-          <el-input v-model="form.description" style="width: 463px;" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注" />
+          <el-input v-model="form.description" style="width: 463px;" type="textarea" :autosize="{minRows: 2, maxRows: 4}" placeholder="请输入备注" />
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="submit">{{ createOrUpdateFlag ? '新建' : '确定' }}</el-button>
@@ -48,49 +48,49 @@ import { updateRecordTemplate, createRecordTemplate } from '@/api/template'
   name: 'create-or-update-record-template'
 })
 export default class extends Vue {
-@Prop()
-private createOrUpdateFlag: boolean // 新建/编辑
-@Prop()
-private formData?: any // 编辑时,模板数据
-@Prop()
-private templateId!: string
+  @Prop()
+  private createOrUpdateFlag: boolean // 新建/编辑
+  @Prop()
+  private formData?: any // 编辑时,模板数据
+  @Prop()
+  private templateId!: string
 
-private form: any = {}
-private submitting = false
+  private form: any = {}
+  private submitting = false
 
-private rules = {
-  templateName: [
-    { required: true, message: '请输入录制模板名称', trigger: 'blur' },
-    { validator: this.validateTemplateName, trigger: 'blur' }
-  ],
-  storageTime: [
-    {required: true, message: '请填写存储时长', trigger: 'blur'},
-  ]
-}
+  private rules = {
+    templateName: [
+      { required: true, message: '请输入录制模板名称', trigger: 'blur' },
+      { validator: this.validateTemplateName, trigger: 'blur' }
+    ],
+    storageTime: [
+      { required: true, message: '请填写存储时长', trigger: 'blur' }
+    ]
+  }
 
-private mounted() {
-  if (this.createOrUpdateFlag) {
+  private mounted() {
+    if (this.createOrUpdateFlag) {
     // 新建
-    this.form = {
-      templateId: this.templateId,
-      templateName: '',
-      description: '',
-      recordType: 1,
-      storageTime: 30
-    }
-  } else {
+      this.form = {
+        templateId: this.templateId,
+        templateName: '',
+        description: '',
+        recordType: 1,
+        storageTime: 30
+      }
+    } else {
     // 编辑
-    this.form = {
-      templateId: this.templateId,
-      templateName: this.formData.templateName,
-      description: this.formData.description,
-      recordType: this.formData.recordType,
-      storageTime: this.formData.storageTime / 60 / 60 / 24  // 秒 --> 天
+      this.form = {
+        templateId: this.templateId,
+        templateName: this.formData.templateName,
+        description: this.formData.description,
+        recordType: this.formData.recordType,
+        storageTime: this.formData.storageTime / 60 / 60 / 24 // 秒 --> 天
+      }
     }
   }
-}
 
-private async submit() {
+  private async submit() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
@@ -101,14 +101,14 @@ private async submit() {
           if (this.createOrUpdateFlag) {
             const params = {
               ...this.form,
-              storageTime: this.form.storageTime * 24 * 60 * 60  // 秒 --> 天
+              storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
             await createRecordTemplate(params)
             this.$message.success('新建模板成功!')
           } else {
             const params = {
               ...this.form,
-              storageTime: this.form.storageTime * 24 * 60 * 60  // 秒 --> 天
+              storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
             await updateRecordTemplate(params)
             this.$message.success('修改模板成功!')
@@ -123,29 +123,28 @@ private async submit() {
         }
       }
     })
-}
-
-private closePage(isRefresh: boolean) {
-  this.$emit('on-close', isRefresh)
-  // 清空数据
-  const form: any = this.$refs.dataForm
-  form.resetFields()
-}
-
-private back() {
-  this.closePage(false)
-}
-
-private validateTemplateName(rule: any, value: string, callback: Function) {
-  if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{4,64}$/u.test(value)) {
-    callback(new Error('录制模板名称格式错误'))
-  } else if (/^[\s]|[\s]$/.test(value)) {
-    callback(new Error('不能以空格作为名称的首尾。'))
-  } else {
-    callback()
   }
-}
 
+  private closePage(isRefresh: boolean) {
+    this.$emit('on-close', isRefresh)
+    // 清空数据
+    const form: any = this.$refs.dataForm
+    form.resetFields()
+  }
+
+  private back() {
+    this.closePage(false)
+  }
+
+  private validateTemplateName(rule: any, value: string, callback: Function) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{4,64}$/u.test(value)) {
+      callback(new Error('录制模板名称格式错误'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 

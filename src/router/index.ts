@@ -630,15 +630,15 @@ export const asyncRoutes: RouteConfig[] = [
         // path: 'record',
         // component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
         // name: 'record',
-        path: 'custom-device-tree',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/CustomDeviceTree/index.vue'),
-        name: 'custom-device-tree',
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
+        name: 'record',
         meta: {
           title: '录制模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/template/custom-device-tree'
-        },
+          activeMenu: '/template/record'
+        }
         // children: [
         //   {
         //     path: 'template-update',
