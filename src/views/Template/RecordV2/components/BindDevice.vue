@@ -51,7 +51,6 @@
           :props="treeProp"
           node-key="id"
           :load="loadSubDeviceLeft"
-          :data="previewDeviceList"
           :filter-node-method="filterTree"
         >
           <!-- :data="previewDeviceList" -->
@@ -144,15 +143,18 @@ export default class extends Vue {
   private supplyNode = []
   private expandedNodes = []
 
+  private checkedNum = 0
+
   private get checkedNodes() {
     const leftTree: any = this.$refs.bindTree
     return leftTree.getCheckedNodes(false, true)
   }
 
-  private get checkedNum() {
+  private getCheckedNum() {
     const leftTree: any = this.$refs.bindTree
     const checkedNodes = leftTree ? leftTree.getCheckedNodes(true) : []
-    return checkedNodes.length
+    console.log('已勾选的节点', checkedNodes)
+    this.checkedNum = checkedNodes.length
   }
 
   @Ref('bindTree') private bindTree
@@ -226,6 +228,7 @@ export default class extends Vue {
   }
 
   private setNodesChecked(item: any, checked?: boolean) {
+    console.log('...set   ☀', item.label, item)
     if (item.bindStatus === 1) {
       console.log('禁用    ', item.label)
       // 禁用绑定其他模板的节点勾选框
@@ -271,7 +274,9 @@ export default class extends Vue {
           id: 0,
           bind: false
         })
-        this.previewDeviceList = res.dirs // 这样写会导致第一层展开后有一个伸缩（数据填充）然后又被快速过滤的问题
+        this.previewDeviceList = res.dirs
+        this.checkedNum = res.bindSize
+        // updateKey
         resolve(res.dirs)
         this.$nextTick(async() => {
           this.setChecked(res.dirs)
@@ -389,6 +394,8 @@ export default class extends Vue {
     if (isChecked) {
       await this.deepExpand(data.id, isChecked)
     }
+    // 获取勾选项数目
+    this.getCheckedNum()
     // 获取当前状态下所有被勾选的节点数组
     this.setFilter()
   }
@@ -409,7 +416,7 @@ export default class extends Vue {
         return
       }
       dirTreeNode.loading = true
-      this.submitable = true
+      // this.submitable = true
       const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
       this.bindTree.updateKeyChildren(id, dirs)
       dirTreeNode.loading = false
@@ -426,6 +433,7 @@ export default class extends Vue {
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i]
         // 半选如何处理
+        console.log('deep    set   checked  🐕', dir, checked) // checked应该是只有点击勾选的时候才有
         const leftNode = this.bindTree.getNode(dir.id)
         checked && this.setChecked(leftNode, true)
         if (!dir.isLeaf) {

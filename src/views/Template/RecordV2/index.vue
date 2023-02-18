@@ -44,8 +44,8 @@
               </template>
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
-              <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 }}</el-descriptions-item>
-              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval }}</el-descriptions-item>
+              <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 + '天' }}</el-descriptions-item>
+              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval / 60 + '分钟' }}</el-descriptions-item>
               <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '自动录制' : '按需录制' }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
