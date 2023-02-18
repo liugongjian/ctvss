@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item label="录制类别:" prop="recordType">
           <el-radio-group v-model="form.recordType">
-            <el-radio :label="1">全天录制</el-radio>
+            <el-radio :label="1">自动录制</el-radio>
             <el-radio :label="2">按需录制</el-radio>
           </el-radio-group>
         </el-form-item>

@@ -46,15 +46,15 @@
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
               <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 }}</el-descriptions-item>
               <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval }}</el-descriptions-item>
-              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
+              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '自动录制' : '按需录制' }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
             <el-descriptions label-class-name="has-no-colon" :column="1">
               <template slot="title">
                 <span class="title">绑定关系</span>
               </template>
-              <!-- <el-descriptions-item v-if="handleDevice" colon="false"> -->
-              <el-descriptions-item colon="false">
+              <el-descriptions-item v-if="handleDevice" colon="false">
+              <!-- <el-descriptions-item colon="false"> -->
                 <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
                 <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
               </el-descriptions-item>
@@ -200,7 +200,7 @@ export default class extends Vue {
   private renderTemplateInfo: any = {}
 
   private async mounted() {
-    // this.handleDevice = true
+    this.handleDevice = true
     this.calMaxHeight()
     this.init()
   }
@@ -290,7 +290,7 @@ export default class extends Vue {
     this.bindDevice = false
     this.createOrUpdateTemplate = false
     this.createTemplateDisable = false
-    // this.handleDevice = true
+    this.handleDevice = true
     this.currentTemplate = template
     console.log('2')
     this.initBindDevice()
@@ -335,7 +335,7 @@ export default class extends Vue {
     this.isDelete = true
     this.defaultDevice = true
     this.bindDevice = false
-    // this.handleDevice = false
+    this.handleDevice = false
   }
 
   private async loadSubDevice(node: any, resolve: Function) {
@@ -513,14 +513,14 @@ export default class extends Vue {
     this.bindDevice = true
     this.isDelete = false
     this.defaultDevice = false
-    // this.handleDevice = false
+    this.handleDevice = false
   }
 
   // 点击'删除设备'按钮
   private clickUnbind() {
     this.isDelete = true
     this.defaultDevice = true
-    // this.handleDevice = false
+    this.handleDevice = false
     this.bindDevice = false
   }
 
@@ -528,7 +528,7 @@ export default class extends Vue {
   private handleUnbindCancel() {
     this.isDelete = false
     this.defaultDevice = true
-    // this.handleDevice = true
+    this.handleDevice = true
   }
 
   // 关闭绑定 或 取消绑定设备
@@ -537,7 +537,7 @@ export default class extends Vue {
     this.bindDevice = false
     // 切换回默认页面
     this.defaultDevice = true
-    // this.handleDevice = true
+    this.handleDevice = true
     if (isBinded) {
       // 绑定设备,重新请求设备树
       console.log('3')

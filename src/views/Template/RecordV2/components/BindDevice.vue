@@ -227,9 +227,10 @@ export default class extends Vue {
 
   private setNodesChecked(item: any, checked?: boolean) {
     if (item.bindStatus === 1) {
-      this.bindTree.setChecked(item.id, true, true)
+      console.log('禁用    ', item.label)
       // 禁用绑定其他模板的节点勾选框
       item.disabled = true
+      this.bindTree.setChecked(item.id, true, true)
     }
     if (item.bindSize === item.totalSize && item.bindSize > 0) {
       // 默认全选
@@ -270,7 +271,7 @@ export default class extends Vue {
           id: 0,
           bind: false
         })
-        this.previewDeviceList = res.dirs
+        this.previewDeviceList = res.dirs // 这样写会导致第一层展开后有一个伸缩（数据填充）然后又被快速过滤的问题
         resolve(res.dirs)
         this.$nextTick(async() => {
           this.setChecked(res.dirs)
@@ -348,7 +349,7 @@ export default class extends Vue {
       type: 'warning'
     }).then(async() => {
       await this.subSubmit()
-    })
+    }).catch(() => {})
   }
 
   private async subSubmit() {
