@@ -69,13 +69,17 @@
             <template slot-scope="{row}">
               <el-button
                 v-if="!isVGroup && checkPermission(['AdminRecord'])"
-                :disabled="row.loading"
+                :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
               >
                 下载录像
               </el-button>
-              <el-button type="text" @click="playReplay(row)">
+              <el-button
+                type="text"
+                @click="playReplay(row)"
+                :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)"
+              >
                 播放录像
               </el-button>
             </template>

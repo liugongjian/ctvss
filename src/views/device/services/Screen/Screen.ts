@@ -37,6 +37,8 @@ export class Screen {
   public deviceName?: string
   public roleId?: string
   public realGroupId?: string
+  // 用户的设备权限相关
+  public ivsLockCloudRecord?: boolean
 
   /**
    * ----------------

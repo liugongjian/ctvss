@@ -38,9 +38,6 @@ export class RecordManager {
   private axiosSourceList: CancelTokenSource[]
   /* 录像锁列表 */
   public lockList: any
-
-  /* 锁定权限 */ 
-  public lockPermission: any = 1
   
   private get currentGroupId() {
     return GroupModule.group?.groupId
@@ -201,8 +198,9 @@ export class RecordManager {
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
-          // 锁定后禁止播放
-          if (this.currentRecord.isLock === 1 && this.lockPermission === 0) {
+          // 没有锁定权限禁止播放锁定片段
+          // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+            if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
             this.currentRecord = null
             this.screen.url = ''
@@ -236,8 +234,6 @@ export class RecordManager {
           this.screen.errorMsg = this.screen.ERROR.NO_STORE
         } else if (e.code !== -2 && e.code !== -1) {
           this.screen.errorMsg = e.message
-        } else {
-          console.log('异常走到这里', e)
         }
       }
       if (!isConcat && e.code !== -2) this.screen.isLoading = false
@@ -284,7 +280,7 @@ export class RecordManager {
       }
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
-        if (record.isLock === 1 && this.lockPermission === 0) {
+        if (record.isLock === 1 && !this.screen.ivsLockCloudRecord) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
           this.screen.player && this.screen.player.disposePlayer()
@@ -339,7 +335,7 @@ export class RecordManager {
     // next record which is unlocked
     // also if user's permission = 1, then all records are availabel
     let nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
-    if (this.lockPermission === 0) {
+    if (!this.screen.ivsLockCloudRecord) {
       nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
     }
     if (nextRecord) {
@@ -544,7 +540,7 @@ export class RecordManager {
       const recordList = this.recordList && this.recordList.filter(record => {
         return (getDateByTime(record.startTime, 's') === currentDate)
       })
-      console.log('.... 走投无路    ', recordList)
+      // console.log('.... 走投无路    ', recordList)
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
           ...record,
@@ -646,7 +642,7 @@ export class RecordManager {
         // pageNum: pageNum || 1
       })
       // this.lockList = res.lockPeriod
-      console.log('小八嘎       ', res)
+      // console.log('小八嘎       ', res)
       return res.lockPeriods
     } catch (e) {
       this.screen.errorMsg = e.message

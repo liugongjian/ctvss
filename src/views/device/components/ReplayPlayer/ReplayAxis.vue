@@ -26,7 +26,7 @@
       class="lock-tooltip"
       >
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" :class="lockPermission === 1 ? '' : 'unlock-disable'" @click="unlock(item)">解锁</span>
+      <span class="lock-tooltip-unlock" v-if="screen.ivsLockCloudRecord" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
@@ -524,6 +524,7 @@ export default class extends Vue {
         const deltaTime = nextLock.time - anchorLock.time
         const pixelGap = deltaTime / this.settings.ratio
         if (pixelGap < this.pixelThreshold) {
+          console.log('合并  ❄🦆 nextLock.time  anchorLock.time', new Date(nextLock.time * 1000), new Date(anchorLock.time * 1000))
           // 合并
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
@@ -935,10 +936,6 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.unlock-disable {
-  color: gray;
-}
-
 .extend-hover {
   width: 210px;
   height: 15px;

@@ -47,7 +47,7 @@
       />
     </template>
     <template slot="controlRight">
-      <Lock :screen="screen" />
+      <Lock v-if="screen.ivsLockCloudRecord" :screen="screen" />
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
@@ -133,6 +133,10 @@ export default class extends Vue {
       this.type = 'flv'
       this.codec = this.screen.codec
     }
+  }
+
+  private mounted() {
+    console.log('test    ☀ 📕 this.screen.ivsLockCloudRecord ', this.screen.ivsLockCloudRecord)
   }
 
   // @Watch('screen.player.currentTime')
