@@ -318,7 +318,8 @@ export default class extends Vue {
     this.canvas = this.$refs.canvas as HTMLCanvasElement
     this.canvas.addEventListener('mousedown', this.moveAxisStart)
     this.canvas.addEventListener('wheel', this.onWheel)
-    this.canvas.addEventListener('click', this.onClickLock)
+    // 没有锁定权限，不用注册点击锁方法
+    this.screen.ivsLockCloudRecord && this.canvas.addEventListener('click', this.onClickLock)
     this.canvas.addEventListener('mousemove', this.onAxisMove)
     this.canvas.width = this.settings.width
     this.canvas.height = this.settings.height

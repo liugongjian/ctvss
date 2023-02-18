@@ -135,10 +135,6 @@ export default class extends Vue {
     }
   }
 
-  private mounted() {
-    console.log('test    ☀ 📕 this.screen.ivsLockCloudRecord ', this.screen.ivsLockCloudRecord)
-  }
-
   // @Watch('screen.player.currentTime')
   // private isLockCheck() {
   //   console.log('每秒都做检查。。。。。难受', this.recordManager.currentRecord.isLock)
