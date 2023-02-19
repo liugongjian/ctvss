@@ -29,7 +29,7 @@
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              {{ data.totalSize === 0 ? '' : '(' + data.totalSize + ')' }}
+              {{ data.totalSize === 0 ? '' : `(${data.selectedCount || data.bindSize} / ${data.totalSize})` }}
               <span v-if="data.bindStatus === 4">
                 <el-tooltip effect="dark" :content="'当前设备已绑定模板'+data.templateName" placement="top">
                   <i class="el-icon-info" style="color: #faad15;" />
@@ -64,6 +64,7 @@
               </span>
               <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               {{ node.label }}
+              {{ `(${data.selectedCount || data.bindSize})` }}
             </span>
           </span>
         </el-tree>
@@ -97,7 +98,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator'
-import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice } from '@/api/template'
+import { getTemplateDeviceTree } from '@/api/template'
 import { setDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { cloneDeep } from 'lodash'
@@ -111,6 +112,9 @@ import { cloneDeep } from 'lodash'
 export default class extends Vue {
   @Prop()
   private currentTemplate: any
+
+  @Ref('bindTree') private bindTree
+  @Ref('previewTree') private previewTree
 
   private submitable = false
   private hasBindedNode = false
@@ -141,18 +145,13 @@ export default class extends Vue {
   private expandedNodes = []
 
   private get checkedNodes() {
-    const leftTree: any = this.$refs.bindTree
-    return leftTree.getCheckedNodes(false, true)
+    return this.bindTree.getCheckedNodes(false, true)
   }
 
   private get checkedNum() {
-    const leftTree: any = this.$refs.bindTree
-    const checkedNodes = leftTree ? leftTree.getCheckedNodes(true) : []
+    const checkedNodes = this.bindTree ? this.bindTree.getCheckedNodes(true) : []
     return checkedNodes.length
   }
-
-  @Ref('bindTree') private bindTree
-  @Ref('previewTree') private previewTree
 
   /**
    * 懒加载左侧  子节点
@@ -240,6 +239,7 @@ export default class extends Vue {
       await this.deepLoad(data.id, node.checked)
       this.onBindTreeCheck(data)
     }
+    this.sumSelectedCount(node)
   }
 
   // 递归展开所有业务组 只加载
@@ -340,7 +340,9 @@ export default class extends Vue {
     }
   }
 
-  // 已绑定设备勾选状态设置
+  /**
+   * 已绑定设备勾选状态设置
+   */
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
       let item = nodes.data
@@ -373,6 +375,51 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 计算已钩选的节点数量
+   */
+  private sumSelectedCount(node) {
+    console.log(node)
+    if (node.checked) {
+      if (!node.isLeaf) {
+        this.$set(node.data, 'selectedCount', node.data.totalSize)
+      }
+    } else {
+      this.$set(node.data, 'selectedCount', node.data.bindSize)
+    }
+    // 递归更新子孙节点
+    for (let i = 0; i < node.childNodes.length; i++) {
+      const childNode = node.childNodes[i]
+      if (!childNode.isLeaf) {
+        this.sumSelectedCount(childNode)
+      }
+    }
+    this.sumParentSelectedCount(node)
+  }
+
+  /**
+   * 计算祖先的钩选的节点数量
+   */
+  private sumParentSelectedCount(node) {
+    const parent = node.parent
+    console.log(1, parent)
+    if (parent) {
+      const total = parent.childNodes.reduce((total, childNode) => {
+        console.log(total)
+        if (childNode.isLeaf && childNode.checked) {
+          total++
+        } else {
+          total += (childNode.data.selectedCount || childNode.data.bindSize)
+        }
+        return total
+      }, 0)
+      this.$set(parent.data, 'selectedCount', total)
+      if (parent.parent) {
+        this.sumParentSelectedCount(parent)
+      }
+    }
+  }
+
   // 提交锁定
   /**
    * 虚拟业务组使用   inprotocol === vgroup 判断
@@ -380,7 +427,6 @@ export default class extends Vue {
    * */
   private async submit() {
     // 获取当前勾选的数据
-    // console.log('勾选的数据    ', this.checkedNodes)
     // 筛选是否有绑定其他模板的设备
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
@@ -407,7 +453,7 @@ export default class extends Vue {
       // 组装 groupId
       const devices = checkedNodes.map((item: any) => {
         return {
-          groupId: this.getRootId(this.bindTree.getNode(item.id)),
+          groupId: this.getGroupId(this.bindTree.getNode(item.id)),
           id: item.id,
           type: item.type,
           inProtocol: item.inProtocol,
