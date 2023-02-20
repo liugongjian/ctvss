@@ -195,9 +195,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标才展示 -->
+      <!-- 虚拟业务组暂不支持搜索 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181'"
+        v-if="currentGroup.inProtocol !== 'vgroup'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
@@ -209,7 +209,6 @@
 import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
 import { Device } from '@/type/Device'
-import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -433,7 +432,7 @@ export default class extends Mixins(IndexMixin) {
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        const data = await getDeviceTree({
+        const data = await this.getAuthActionsDeviceTree({
           groupId: this.currentGroupId,
           id: node!.data.id,
           type: node!.data.type,
@@ -441,9 +440,8 @@ export default class extends Mixins(IndexMixin) {
             'role-id': node!.data.roleId || '',
             'real-group-id': node!.data.realGroupId || ''
           }
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirTree.updateKeyChildren(node.data.id, dirs)
+        }, node)
+        dirTree.updateKeyChildren(node.data.id, data)
         node.expanded = true
         node.loaded = true
       }

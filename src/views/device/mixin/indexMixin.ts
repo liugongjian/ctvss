@@ -2,10 +2,12 @@ import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
+import { previewAuthActions } from '@/api/accessManage'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
+import { UserModule } from '@/store/modules/user'
 
 @Component
 export default class IndexMixin extends Vue {
@@ -129,7 +131,7 @@ export default class IndexMixin extends Vue {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
-      const res = await getDeviceTree({
+      const dirs = await this.getAuthActionsDeviceTree({
         groupId: this.currentGroupId,
         id: 0,
         deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
@@ -137,8 +139,9 @@ export default class IndexMixin extends Vue {
         matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
         deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
         searchKey: this.advancedSearchForm.searchKey || undefined
-      })
-      this.dirList = this.setDirsStreamStatus(res.dirs)
+      }, null)
+
+      this.dirList = dirs
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
         this.initTreeStatus(isExpand)
@@ -257,21 +260,13 @@ export default class IndexMixin extends Vue {
         VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
       }
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
+      let data = await this.getAuthActionsDeviceTree({
         groupId: this.currentGroupId,
         id: node.data.id,
         type: node.data.type
-      })
-      if (data.dirs) {
-        if (this.currentGroup?.inProtocol === 'vgroup') {
-          data.dirs.forEach((dir: any) => {
-            dir.roleId = node.data.roleId || ''
-            dir.realGroupId = node.data.realGroupId || ''
-            dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-          })
-        }
-        data.dirs = this.setDirsStreamStatus(data.dirs)
-        dirTree.updateKeyChildren(key, data.dirs)
+      }, node)
+      if (data) {
+        dirTree.updateKeyChildren(key, data)
       }
       node.expanded = true
       node.loaded = true
@@ -476,6 +471,48 @@ export default class IndexMixin extends Vue {
     })
   }
 
+  public async getAuthActionsDeviceTree(params: any, node: any) {
+    const res = await getDeviceTree(params)
+    if (res.dirs) {
+      if (this.currentGroupInProtocol === 'vgroup') {
+        res.dirs.forEach((dir: any) => {
+          dir.roleId = (node && node.data.roleId) || ''
+          dir.realGroupId = (node && node.data.realGroupId) || ''
+          dir.realGroupInProtocol = (node && node.data.realGroupInProtocol) || ''
+        })
+      }
+      res.dirs = res.dirs
+        .map((dir: any) => ({
+          ...dir,
+          groupId: this.currentGroupId,
+          inProtocol: this.currentGroupInProtocol,
+          path: node ? node.data.path.concat([dir]) : [{
+            id: dir.id,
+            label: dir.label,
+            type: dir.type
+          }],
+          parentId: node ? node.data.id : '0'
+        }))
+      res.dirs = this.setDirsStreamStatus(res.dirs)
+      if (UserModule.iamUserId) {
+        const permissionRes = await previewAuthActions({
+          targetResources: res.dirs.map(dir => ({
+            groupId: dir.groupId,
+            dirPath: dir.type === 'dir' ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/'),
+            deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id
+          }))
+        })
+        res.dirs = res.dirs
+          .map((dir: any, index: number) => ({
+            ...dir,
+            ...permissionRes.result[index].iamUser.actions
+          }))
+      }
+      console.log('modified res.dirs: ', res.dirs)
+      return res.dirs
+    }
+  }
+
   /**
    * 加载目录
    */
@@ -493,21 +530,14 @@ export default class IndexMixin extends Vue {
       VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
     }
     try {
-      const res = await getDeviceTree({
+      const dirs = await this.getAuthActionsDeviceTree({
         groupId: this.currentGroupId,
         id: node.data.id,
         type: node.data.type
-      })
-      if (this.currentGroup?.inProtocol === 'vgroup') {
-        res.dirs.forEach((dir: any) => {
-          dir.roleId = node.data.roleId || ''
-          dir.realGroupId = node.data.realGroupId || ''
-          dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-        })
-      }
-      res.dirs = this.setDirsStreamStatus(res.dirs)
-      resolve(res.dirs)
+      }, node)
+      resolve(dirs)
     } catch (e) {
+      console.log('e: ', e)
       resolve([])
     }
   }

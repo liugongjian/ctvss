@@ -203,28 +203,6 @@
             }
           }
         }
-
-        .node-dir {
-          .svg-icon {
-            display: none;
-
-            &:last-child {
-              display: inline;
-            }
-          }
-        }
-
-        .is-expanded > .el-tree-node__content {
-          .node-dir {
-            .svg-icon {
-              display: none;
-
-              &:first-child {
-                display: inline;
-              }
-            }
-          }
-        }
       }
 
       &__search {
@@ -672,4 +650,37 @@ script + .el-tooltip__popper {
 .el-month-table td.today .cell {
   color: rgba(0, 0, 0, 85%);
   font-weight: normal;
+}
+
+
+.node-dir {
+  .svg-icon {
+    display: none;
+    color: #6e7c89;
+    
+    &:last-child {
+      display: inline;
+    }
+  }
+}
+
+.is-expanded > .el-tree-node__content {
+  .node-dir {
+    .svg-icon {
+      display: none;
+
+      &:first-child {
+        display: inline;
+      }
+    }
+  }
+}
+
+.node-name {
+  position: relative;
+  color: $text;
+
+  .svg-icon {
+    color: #6e7c89;
+  }
 }

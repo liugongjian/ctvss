@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card v-if="!disableRecordTemplate">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
       <info-list title="录制模板">
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
@@ -21,7 +21,7 @@
       </info-list>
     </el-card>
     <el-card style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
       <info-list title="回调模板">
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定回调模板">
           <el-table-column prop="templateName" label="模板名称" min-width="50" />
@@ -38,7 +38,7 @@
       </info-list>
     </el-card>
     <!-- <el-card style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setAITemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setAITemplate">编辑</el-button>
       <info-list title="AI模板">
         <el-table v-loading="loading.ai" :data="template.aiTemplate" empty-text="该设备或组没有绑定AI模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
@@ -52,7 +52,7 @@
       </info-list>
     </el-card> -->
     <el-card v-if="inProtocol === 'gb28181'" style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
       <info-list title="告警模板">
         <el-table v-loading="loading.alert" :data="template.alertTemplate" empty-text="该设备或组没有绑定告警模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
@@ -109,6 +109,8 @@ import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import { getAIBind, getAlertBind } from '@/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { checkPermission } from '@/utils/permission'
+
 @Component({
   name: 'TemplateBind',
   components: {
@@ -135,6 +137,8 @@ export default class extends Vue {
     default: false
   })
   private disableRecordTemplate?: boolean
+  @Prop() private actions: object
+  public checkPermission = checkPermission
   private loading = {
     record: false,
     callback: false,
@@ -154,6 +158,7 @@ export default class extends Vue {
   private recordTemplateId = ''
   private callbackTemplateId = ''
   private aiTemplateId = ''
+
   private async mounted() {
     this.getStreamTemplate()
     if (this.disableRecordTemplate) {
