@@ -139,7 +139,23 @@
                       <el-descriptions-item label="设备国标ID">
                         {{ info.gbId || '-' }}
                       </el-descriptions-item>
-                      <el-descriptions-item label="GB28181凭证注册用户名">
+                      <el-descriptions-item v-if="info.enabledGB35114">
+                        <template slot="label">
+                          GB35114协议
+                          <el-popover
+                            placement="top-start"
+                            title="GB35114协议"
+                            width="400"
+                            trigger="hover"
+                            :open-delay="300"
+                            :content="tips.enabledGB35114"
+                          >
+                            <svg-icon slot="reference" class="form-question" name="help" />
+                          </el-popover>
+                        </template>
+                        {{ info.enabledGB35114 ? '已启用' : '未启用' }}
+                      </el-descriptions-item>
+                      <el-descriptions-item v-else label="GB28181凭证注册用户名">
                         {{ info.userName }}
                       </el-descriptions-item>
                       <el-descriptions-item v-if="info.deviceType !== 'nvr'" label="杆号">

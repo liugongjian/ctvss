@@ -561,7 +561,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb28181/update/:id?',
+        path: 'gb28181/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
         name: 'gb28181-update',
         meta: {
@@ -599,7 +599,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'ga1400/update/:id?',
+        path: 'ga1400/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'ga1400-update',
         meta: {
@@ -609,6 +609,43 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'gb35114',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/index.vue'),
+        name: 'gb35114',
+        meta: {
+          id: '20210424150201007007',
+          name: 'certificate',
+          title: 'GB35114凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/create',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/create.vue'),
+        name: 'gb35114-create',
+        meta: {
+          id: '20210424150201007008',
+          title: '新建Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/update/:outId?:certId?',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/create.vue'),
+        name: 'gb35114-update',
+        meta: {
+          id: '20210424150201007006',
+          title: '编辑Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
         }
       }
     ]
@@ -1053,7 +1090,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
-      perms: ['*']
+      perms: ['AdminNotification']
     },
     children: [
       {
@@ -1112,7 +1149,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '告警管理',
       icon: 'menu-alarm',
-      perms: ['*'],
+      perms: ['AdminAlarm'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -1179,7 +1216,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['AdminBilling']
     },
     children: [
       {

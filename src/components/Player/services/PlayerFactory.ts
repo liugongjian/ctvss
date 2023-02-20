@@ -1,5 +1,6 @@
 
 import { PlayerConfig } from '../types/Player'
+import { Mp4Player } from './Mp4Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
@@ -28,6 +29,8 @@ export const createPlayer = (config: PlayerConfig) => {
  */
 const initPlayer = (config: PlayerConfig) => {
   switch (config.type) {
+    case 'mp4':
+      return new Mp4Player(config)
     case 'flv':
       return new FlvPlayer(config)
     case 'hls':

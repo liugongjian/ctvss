@@ -256,7 +256,31 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item label="GB28181凭证:" prop="userName">
+            <el-form-item prop="enabledGB35114">
+              <template slot="label">
+                GB35114协议:
+                <el-popover
+                  placement="top-start"
+                  title="GB35114协议"
+                  width="400"
+                  trigger="hover"
+                  :open-delay="300"
+                  :content="tips.enabledGB35114"
+                >
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
+                </el-popover>
+              </template>
+              <el-switch
+                v-model="form.enabledGB35114"
+                :active-value="true"
+                :inactive-value="false"
+              />
+            </el-form-item>
+            <el-form-item v-if="!form.enabledGB35114" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -632,6 +656,7 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     poleId: '',
+    enabledGB35114: false,
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -715,6 +740,7 @@ export default class extends Mixins(createMixin) {
             'parentDeviceId',
             'gbId',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'serialNumber',
@@ -892,6 +918,7 @@ export default class extends Mixins(createMixin) {
             'macAddr',
             'pullType',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'gbId',
@@ -927,6 +954,11 @@ export default class extends Mixins(createMixin) {
             gbId: this.form.gbId,
             transPriority: this.form.transPriority
           })
+        }
+        // 使用35114不需要国标凭证
+        if (this.form.enabledGB35114) {
+          delete params.userName
+          delete params.password
         }
       } else {
         // NVR通道

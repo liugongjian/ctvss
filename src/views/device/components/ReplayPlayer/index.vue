@@ -126,7 +126,7 @@ export default class extends Vue {
   private onChange() {
     if (this.screen.recordType === 0) {
       this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
-      this.type = 'hls'
+      this.type = this.recordManager.currentRecord && this.recordManager.currentRecord.fileFormat
       this.codec = this.recordManager.currentRecord && this.recordManager.currentRecord.codec
     } else {
       this.url = this.screen.url
