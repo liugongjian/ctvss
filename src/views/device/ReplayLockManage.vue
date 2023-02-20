@@ -4,7 +4,7 @@
       <div class="head">
         <div class="head__left">
           <el-button :type="unlockable ? '' : 'primary'" class="unlock-btn" :disabled="unlockable" @click="unlockBatch">解锁</el-button>
-          <i class="el-icon-info" />锁定录像容量: {{ lockVolume }}
+          <i class="el-icon-info" />锁定录像容量: {{ (lockVolume / 1024 / 1024 / 1024).toFixed(2) + 'TB' }}
         </div>
         <div class="head__right">
           <el-input v-model="deviceName" placeholder="请输入设备名称" clearable @keyup.enter.native="getRecordListByPage">

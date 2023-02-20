@@ -31,7 +31,8 @@
         </div>
       </div>
     </div>
-    <div v-if="multiple" v-loading="ischeckingBatch">
+    <!-- <div v-if="multiple"  v-loading="ischeckingBatch"> -->
+    <div v-if="multiple"  v-loading="isUnbinding">
       <div class="unlock">
         <div class="label"><span>解锁录像: </span></div>
         <div><span>{{ unlockNum }}个</span></div>
@@ -83,6 +84,7 @@ export default class extends Vue {
   private ischecking = false
   private ischeckingBatch = false
   private periods = []
+  private isUnbinding = false
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -91,6 +93,7 @@ export default class extends Vue {
 
   private async created() {
     try {
+      this.isUnbinding = true
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
       this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
       this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
@@ -108,7 +111,6 @@ export default class extends Vue {
         periods: this.periods,
         action: 'check'
       }
-      console.log('是不是这里哦   2', params, this.multiple)
       const res: any = await unLock(params)
       // 批量解锁
       if (this.multiple) {
@@ -131,6 +133,7 @@ export default class extends Vue {
       this.$message.error(e)
       this.closeDialog(false)
     } finally {
+      this.isUnbinding = false
       this.ischecking = false
       this.ischeckingBatch = false
     }
@@ -157,7 +160,6 @@ export default class extends Vue {
   private async submit() {
     try {
       this.submitting = true
-      console.log('提交解锁   ', this.multiple)
       // this.unlockItem[0].deviceId = this.screen.deviceId
       // this.unlockItem[0].deviceName = this.screen.deviceName
 
@@ -181,7 +183,6 @@ export default class extends Vue {
   // 关闭 dialog
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
-    console.log('离谱我靠    ', isRefresh)
     this.$emit('on-close', isRefresh) // 在父级组件中根据true false 判断刷新列表或执行其他操作
   }
 }

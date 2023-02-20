@@ -146,7 +146,6 @@ export default class extends Vue {
             parentDeviceId: this.deviceInfo.parentDeviceId,
             deviceName: this.deviceName
           })
-          // console.log('锁完了   res: ', res)
           // 无法判断是否锁定成功
           await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, true)
         } catch (e) {
