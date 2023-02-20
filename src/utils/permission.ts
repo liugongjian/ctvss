@@ -13,6 +13,10 @@ import { UserModule } from '@/store/modules/user'
 // }
 
 export const checkPermission = (value: string[], data?: any): boolean => {
+  // 主账号拥有所有权限
+  if (!UserModule.iamUserId) {
+    return true
+  }
   console.log('data: ', data)
   if (value && value instanceof Array && value.length > 0) {
     let dataPerms = null

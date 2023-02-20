@@ -3,7 +3,7 @@
     <el-page-header content="业务组管理" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="switchTab">
       <el-tab-pane label="基本信息" name="info">
-        <el-button v-permission="['*']" class="info-edit" @click="editForm"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" class="info-edit" @click="editForm"><svg-icon name="edit" /> 编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
@@ -49,7 +49,12 @@
         </info-list>
       </el-tab-pane>
       <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
-        <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
+        <template-bind
+          v-if="activeName==='template'"
+          :group-id="form.groupId"
+          :actions="actions"
+          :in-protocol="form.inProtocol"
+        />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -64,6 +69,9 @@ import { formatSeconds } from '@/utils/interval'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import TemplateBind from '../components/TemplateBind.vue'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'GroupConfig',
@@ -72,6 +80,7 @@ import TemplateBind from '../components/TemplateBind.vue'
   }
 })
 export default class extends Vue {
+  public checkPermission = checkPermission
   private industryMap = industryMap
   private networkMap = networkMap
   private activeName = 'info'
@@ -79,6 +88,7 @@ export default class extends Vue {
   private OutProtocolType = OutProtocolType
   private PullType = PullType
   private PushType = PushType
+  private actions = {}
   private form: Group = {
     groupId: '',
     groupName: '',
@@ -134,6 +144,14 @@ export default class extends Vue {
       this.$set(this.form, 'groupId', query.groupId)
       try {
         const res = await queryGroup({ groupId: this.form.groupId })
+        if (UserModule.iamUserId) {
+          const permissionRes = await previewAuthActions({
+            targetResources: [{
+              groupId: query.groupId
+            }]
+          })
+          this.actions = permissionRes.result[0].iamUser.actions
+        }
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
       } catch (e) {
