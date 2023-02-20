@@ -352,7 +352,6 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('screenManager.screenManagerStatus', { deep: true })
   private onScreenManagerChange(screenManagerStatus) {
-    console.log(screenManagerStatus.executeQueueConfig.status)
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
@@ -364,12 +363,6 @@ export default class extends Mixins(IndexMixin) {
    * 打开分屏
    */
   private openScreen(item: any, streamNum?: number) {
-    // if (item.isLeaf) {
-    //   // 检查锁定权限
-    //   // 单独节点的情况下,权限相关属性还没有打上去
-    //   this.screenManager.currentScreen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
-    // }
-    // console.log('打开分屏    小鸡脚 🐥', item, this.screenManager.currentScreen.ivsLockCloudRecord)
     this.screenManager.openTreeItem(item, streamNum)
   }
 

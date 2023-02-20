@@ -26,7 +26,7 @@
       class="lock-tooltip"
       >
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" v-if="screen.ivsLockCloudRecord" @click="unlock(item)">解锁</span>
+      <span class="lock-tooltip-unlock" v-if="!UserModule.iamUserId || screen.ivsLockCloudRecord" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
@@ -319,7 +319,9 @@ export default class extends Vue {
     this.canvas.addEventListener('mousedown', this.moveAxisStart)
     this.canvas.addEventListener('wheel', this.onWheel)
     // 没有锁定权限，不用注册点击锁方法
-    this.screen.ivsLockCloudRecord && this.canvas.addEventListener('click', this.onClickLock)
+    if (this.screen.ivsLockCloudRecord || !UserModule.iamUserId) {
+      this.canvas.addEventListener('click', this.onClickLock)
+    }
     this.canvas.addEventListener('mousemove', this.onAxisMove)
     this.canvas.width = this.settings.width
     this.canvas.height = this.settings.height
@@ -450,7 +452,6 @@ export default class extends Vue {
     /* 计算片段 */
     const calRecords = (list) => {
       const records = []
-      // console.log('绘制蓝色视频内容条        ', list)
       for (let i = 0; i < list.length; i++) {
         const record = list[i]
         if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
@@ -525,7 +526,6 @@ export default class extends Vue {
         const deltaTime = nextLock.time - anchorLock.time
         const pixelGap = deltaTime / this.settings.ratio
         if (pixelGap < this.pixelThreshold) {
-          console.log('合并  ❄🦆 nextLock.time  anchorLock.time', new Date(nextLock.time * 1000), new Date(anchorLock.time * 1000))
           // 合并
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
@@ -724,7 +724,6 @@ export default class extends Vue {
    * 
    */
   private onClickLock(e: any) {
-    // console.log('一定是更新了的      ', this.durationList)
     if (!this.notClick) {
       if (this.role === 'sub-role' || this.durationList.length > 1) return
       this.axisData.locks.map((item: any) => {
@@ -918,7 +917,6 @@ export default class extends Vue {
   // 关闭解锁 dialog
   private async closeUnlock(isUnlocked?: boolean) {
     try {
-      // console.log('是否解锁了      ', isUnlocked)
       if (isUnlocked) {
         const date = getDateByTime(this.currentTime, 's')
         await this.screen.recordManager.getRecordListByDate(date, false, true) // 重新加载 lock list  

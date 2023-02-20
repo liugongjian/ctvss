@@ -169,7 +169,6 @@ export class RecordManager {
       this.isLoading = true
       const records = await this.getRecordList(startTime, endTime)
       // 加载录像锁列表
-      // console.log('加载指定日期的录像数据，getRecordList     获取到 records 之后就    加载   录像锁列表   ')
       const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
         this.lockList = this.lockList.concat(lockList)
@@ -368,7 +367,6 @@ export class RecordManager {
       const interval = await this.getRecordInterval()
       if (interval) {
         this.recordInterval = setInterval(async() => {
-          console.log('定时轮询新录像', this.screen.deviceId)
           if (this.currentDate < getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60
@@ -540,7 +538,6 @@ export class RecordManager {
       const recordList = this.recordList && this.recordList.filter(record => {
         return (getDateByTime(record.startTime, 's') === currentDate)
       })
-      // console.log('.... 走投无路    ', recordList)
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
           ...record,
@@ -638,11 +635,7 @@ export class RecordManager {
         startTime,
         endTime,
         recordType: this.screen.recordType,
-        // pageSize: pageSize || 9999,
-        // pageNum: pageNum || 1
       })
-      // this.lockList = res.lockPeriod
-      // console.log('小八嘎       ', res)
       return res.lockPeriods
     } catch (e) {
       this.screen.errorMsg = e.message
