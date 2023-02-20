@@ -653,7 +653,7 @@ export default class extends Vue {
       this.recordDays = {
         kind: 'pie',
         totalDeviceNum: 100,
-        onlineNum: this.recordDayInfo?.complianceRate || 0,
+        onlineNum: this.recordDayInfo?.complianceRate * 100 || 0,
         label: '完整率',
         name: 'recordDays',
         width: 180,
