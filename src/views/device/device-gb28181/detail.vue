@@ -325,9 +325,9 @@
           <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+        <!-- <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
           <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
     </div>
     <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
