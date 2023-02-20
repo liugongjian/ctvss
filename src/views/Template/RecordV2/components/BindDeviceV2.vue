@@ -20,10 +20,11 @@
         >
           <span
             slot-scope="{node, data}"
-            class="bind-device-tree"
-            :class="{'has-binded-self': data.bindStatus === 1}"
+            class="custom-tree-node"
+            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
           >
             <span class="node-name">
+              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
@@ -55,16 +56,16 @@
         >
           <span
             slot-scope="{node, data}"
-            class="bind-device-tree"
+            class="custom-tree-node"
             :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
           >
             <span class="node-name">
+              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
-              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               {{ node.label }}
               {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize})` }}
             </span>
