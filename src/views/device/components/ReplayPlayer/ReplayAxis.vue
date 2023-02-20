@@ -89,7 +89,7 @@ export default class extends Vue {
     endTime: -1
   }
 
-  private UserModule = UserModule
+  // private UserModule = UserModule
 
   /* 时间轴设置 */
   private settings = {
