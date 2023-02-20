@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-02-14 16:58:39
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-14 18:20:43
+ * @LastEditTime: 2023-02-20 13:43:42
  * @FilePath: /vss-user-web/src/views/AccessManage/User/Dashboard.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -83,7 +83,7 @@
       </div>
     </el-card>
 
-    <!-- 非页面主题内容  dialog弹层   -->
+    <!-- 非页面主体内容  dialog弹层   -->
     <el-dialog
       title="访问密码设置"
       :visible="ifShowPasswordDialog"
@@ -330,7 +330,7 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const res = await ifAccess() as unknown as any
       const { visible } = res
-      this.ifShowAccess = visible !== 1
+      this.ifShowAccess = visible
     } catch (error) {
       this.$message.error(error)
     }
@@ -339,17 +339,18 @@ export default class extends Mixins(DashboardMixin) {
   private sureChangePassword() {
     (this.$refs.passwordForm as ElForm).validate(async(valid: boolean) => {
       if (valid) {
-        console.log('passwordForm---<', encrypt(this.passwordForm.password))
         try {
           const password = encrypt(this.passwordForm.password)
           const param = {
             password,
             version: '2.0'
           }
-          setAccessPassword(param)
+          await setAccessPassword(param)
           this.$message.success('访问安全设置密码成功')
         } catch (error) {
           this.$message.error(error)
+        } finally {
+          this.closePasswordDialog()
         }
       }
     })
@@ -372,6 +373,7 @@ export default class extends Mixins(DashboardMixin) {
         cursor: pointer;
         user-select: none;
       }
+
       .form-item-tip {
         font-size: 12px;
         color: $darkGray;
@@ -392,7 +394,6 @@ export default class extends Mixins(DashboardMixin) {
         }
       }
     }
-
   }
 }
 </style>
