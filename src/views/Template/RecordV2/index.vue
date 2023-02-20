@@ -131,9 +131,9 @@
               <!-- 绑定的设备 -->
               <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" />
             </div>
-            <div v-if="createOrUpdateTemplate" class="edit-template">
-              <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
-            </div>
+          </div>
+          <div v-if="createOrUpdateTemplate" class="edit-template">
+            <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
           </div>
         </div>
       </div>
@@ -157,6 +157,7 @@ import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
   }
 })
 export default class extends Vue {
+  @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
 
@@ -330,15 +331,19 @@ export default class extends Vue {
    * 计算最大高度
    */
   private calMaxHeight() {
-    const deviceWrap: any = this.$refs.deviceWrap
-    const size = deviceWrap.$el.getBoundingClientRect()
-    const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.minHeight = documentHeight - top - 22
+    console.log(this.deviceWrap)
+    if (this.deviceWrap) {
+      const size = this.deviceWrap.$el.getBoundingClientRect()
+      const top = size.top
+      this.minHeight = documentHeight - top - 22
+    }
 
-    const treeSize = this.bindContainer.getBoundingClientRect()
-    const treeTop = treeSize.top
-    this.minTreeHeight = documentHeight - treeTop - 150
+    if (this.bindContainer) {
+      const treeSize = this.bindContainer.getBoundingClientRect()
+      const treeTop = treeSize.top
+      this.minTreeHeight = documentHeight - treeTop - 150
+    }
   }
 
   // 删除设备
