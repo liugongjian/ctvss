@@ -115,13 +115,14 @@ export default class extends Vue {
     fileName: '',
     deviceName: '',
     outId: '',
-    expireTime: getDateByTime(Date.now()) + 24 * 60 * 60 * 1000,
+    expireTime: new Date(getDateByTime(Date.now()) + 24 * 60 * 60 * 1000),
     // certificate: '',
     description: '',
     errorTip: ''
   }
 
   private fileString = ''
+  private expireTimeCache: number
 
   private loading = {
     upload: false,
@@ -157,7 +158,9 @@ export default class extends Vue {
         const res = await describeCertificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
-        this.form.expireTime = res.expireTime * 1000
+        this.form.description = res.description
+        this.form.expireTime = new Date(res.expireTime * 1000)
+        this.expireTimeCache = +res.expireTime
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
@@ -251,16 +254,32 @@ export default class extends Vue {
         try {
           this.loading.generate = true
           const params: any = {
-            expireTime: +(this.form.expireTime + '').slice(0, -3),
+            expireTime: +(this.form.expireTime.getTime() + '').slice(0, -3),
             description: this.form.description
           }
           // 判断是否为更新证书
           if (this.currentOutId) {
+            // 判断是否更改过请求文件
             this.fileString && (params.deviceCsr = this.fileString)
-            await updateCertificate({
-              ...params,
-              certId: this.currentCertId
-            })
+            // 判断是否更改过时间
+            console.log(params.expireTime, this.expireTimeCache)
+            if (params.expireTime === this.expireTimeCache) {
+              delete params.expireTime
+            }
+            // 判断是否重新生成证书
+            if (params.expireTime || params.deviceCsr) {
+              this.$confirm('修改证书过期时间或设备证书请求文件, 重新生成证书，将会导致设备下线！').then(async() => {
+                await updateCertificate({
+                  ...params,
+                  certId: this.currentCertId
+                })
+              }).catch(() => { console.log() })
+            } else {
+              await updateCertificate({
+                ...params,
+                certId: this.currentCertId
+              })
+            }
           } else {
             await generateCertificate({
               ...params,
@@ -320,9 +339,9 @@ export default class extends Vue {
   width: 400px;
 }
 
-// .el-date-editor {
-//   width: 200px;
-// }
+.el-date-editor {
+  width: 200px;
+}
 
 .error-tip {
   color: $danger;
