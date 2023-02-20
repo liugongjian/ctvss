@@ -1,5 +1,5 @@
 <template>
-  <div class="bind-wrap">
+  <div ref="bindWrap" class="bind-wrap">
     <div class="bind-body">
       <div class="bind-body-left">
         <span class="bind-title-left">全部设备</span>
@@ -15,6 +15,7 @@
           :load="loadSubDeviceLeft"
           :props="treeProp"
           show-checkbox
+          :style="`height: ${minHeight}px`"
           @check="onBindTreeCheck"
         >
           <span
@@ -49,6 +50,7 @@
           :props="treeProp"
           node-key="id"
           :data="previewDeviceList"
+          :style="`height: ${minHeight}px`"
           @node-expand="onPreviewTreeExpand"
         >
           <span
@@ -110,14 +112,15 @@ import { cloneDeep } from 'lodash'
   }
 })
 export default class extends Vue {
-  @Prop()
-  private currentTemplate: any
+  @Prop()private currentTemplate: any
 
+  @Ref('bindWrap') private bindWrap
   @Ref('bindTree') private bindTree
   @Ref('previewTree') private previewTree
 
-  private submitable = false
+  private submitable = true
   private hasBindedNode = false
+  private minHeight = null
 
   private loading = {
     deviceTree: false,
@@ -145,6 +148,28 @@ export default class extends Vue {
 
   private get checkedNodes() {
     return this.bindTree.getCheckedNodes(false, true)
+  }
+
+  private mounted() {
+    this.$nextTick(() => {
+      this.calMaxHeight()
+    })
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  private calMaxHeight() {
+    const size = this.bindWrap.getBoundingClientRect()
+    console.log(size)
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.minHeight = documentHeight - top - 150
   }
 
   /**
@@ -231,7 +256,7 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
-    this.submitable = true
+    this.submitable = false
     const node = this.bindTree.getNode(data.id)
     if (data.id === '-1') {
       // 全选根目录
@@ -259,7 +284,7 @@ export default class extends Vue {
       await this.onBindTreeCheck(data)
     }
     this.sumCheckedSize(node)
-    this.submitable = false
+    this.submitable = true
   }
 
   /**
@@ -557,11 +582,13 @@ export default class extends Vue {
 }
 
 .bind-body-left {
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
 }
 
 .bind-body-right {
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
   margin-left: 20px;
 }
 
@@ -581,7 +608,7 @@ export default class extends Vue {
 .general-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;
-  height: 400px;
+  min-height: 400px;
   margin-bottom: 10px;
   overflow: auto;
 }
