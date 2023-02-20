@@ -69,17 +69,19 @@
             <template slot-scope="{row}">
               <el-button
                 v-if="!isVGroup && checkPermission(['AdminRecord'])"
-                :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
               >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 下载录像
               </el-button>
               <el-button
                 type="text"
                 @click="playReplay(row)"
-                :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
               >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 播放录像
               </el-button>
             </template>
@@ -122,6 +124,7 @@ import { checkPermission } from '@/utils/permission'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import { addLog } from '@/api/operationLog'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ScreenList',
@@ -133,6 +136,10 @@ import { addLog } from '@/api/operationLog'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  private get canLock() {
+    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord
+  }
 
   private pager = {
     pageNum: 1,

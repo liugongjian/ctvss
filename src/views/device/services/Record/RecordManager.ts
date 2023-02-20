@@ -43,6 +43,10 @@ export class RecordManager {
     return GroupModule.group?.groupId
   }
 
+  private get canLock() {
+    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
+  }
+
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
@@ -199,7 +203,7 @@ export class RecordManager {
           }
           // 没有锁定权限禁止播放锁定片段
           // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
-            if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+            if (this.currentRecord.isLock === 1 && !this.canLock) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
             this.currentRecord = null
             this.screen.url = ''
@@ -279,7 +283,8 @@ export class RecordManager {
       }
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
-        if (record.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+        // if (record.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+          if (record.isLock === 1 && !this.canLock) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
           this.screen.player && this.screen.player.disposePlayer()
@@ -334,7 +339,7 @@ export class RecordManager {
     // next record which is unlocked
     // also if user's permission = 1, then all records are availabel
     let nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
-    if (!this.screen.ivsLockCloudRecord) {
+    if (!this.canLock) {
       nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
     }
     if (nextRecord) {
