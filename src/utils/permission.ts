@@ -1,16 +1,34 @@
 import { UserModule } from '@/store/modules/user'
 
+// export const checkPermission = (value: string[], data?: any): boolean => {
+//   console.log('data: ', data)
+//   if (value && value instanceof Array && value.length > 0) {
+//     const permissions = value
+
+//     return hasPermission
+//   } else {
+//     console.error('need perms! Like v-permission="[\'GET\']"')
+//     return false
+//   }
+// }
+
 export const checkPermission = (value: string[], data?: any): boolean => {
+  console.log('data: ', data)
   if (value && value instanceof Array && value.length > 0) {
-    const perms = UserModule.perms
-    const resourcesSet = UserModule.resourcesSet
-    const permissions = value
+    let dataPerms = null
+    if (data) {
+      dataPerms = Object.keys(data)
+        .filter((key: string) => key.startsWith('ivs:'))
+        .filter((permKey: string) => data[permKey].auth)
+    }
+    const perms = dataPerms || UserModule.perms
+    const neededPermissions = value
     const hasPermission = perms.indexOf('*') !== -1 || (perms.some((perm: string) => {
-      return permissions.includes(perm)
-    }) && !resourcesSet.has(data?.id || ''))
+      return neededPermissions.includes(perm)
+    }))
     return hasPermission
   } else {
-    console.error('need perms! Like v-permission="[\'GET\']"')
+    console.error('need perms! Like v-permission="[\'ivs:GetGroup\']"')
     return false
   }
 }

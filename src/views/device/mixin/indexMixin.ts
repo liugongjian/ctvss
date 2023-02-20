@@ -7,7 +7,6 @@ import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
 import { previewAuthActions } from '@/api/accessManage'
-import { dir } from 'console'
 
 @Component
 export default class IndexMixin extends Vue {
