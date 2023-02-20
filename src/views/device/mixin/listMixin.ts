@@ -16,6 +16,7 @@ import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
 import DescribePermission from '../components/dialogs/DescribePermission.vue'
 import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {
@@ -427,6 +428,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
         }
         this.deviceList = [ res ]
       }
+
+      const permissionRes = await this.previewAuthActions({
+
+      })
     } catch (e) {
       this.deviceInfo = null
       this.deviceList = []

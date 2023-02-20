@@ -123,7 +123,11 @@
                         :class="`custom-tree-node__${data.type}`"
                       >
                         <span class="node-name">
-                          <svg-icon :name="data.type" color="#6e7c89" />
+                          <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                          <span v-else class="node-dir">
+                            <svg-icon name="dir" width="15" height="15" />
+                            <svg-icon name="dir-close" width="15" height="15" />
+                          </span>
                           {{ node.label }}
                         </span>
                       </span>
@@ -677,7 +681,8 @@ export default class extends Vue {
                           nvr: 'nvr',
                           nvrchannel: 'channel',
                           ipc: 'ipc',
-                          platform: 'platform'
+                          platform: 'platform',
+                          platformDir: 'platform-directory'
                         }
                         const pathIds = resource.path.map(
                           (obj: any) => obj.id
