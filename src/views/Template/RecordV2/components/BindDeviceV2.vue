@@ -3,7 +3,7 @@
     <div class="bind-body">
       <div class="bind-body-left">
         <span class="bind-title-left">全部设备</span>
-        <span class="bind-title-right">已选中{{ checkedNum }}项</span>
+        <span class="bind-title-right">已选中{{ totalCheckedSize }}项</span>
         <el-tree
           ref="bindTree"
           v-loading="loading.deviceTree"
@@ -29,7 +29,7 @@
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              {{ data.totalSize === 0 ? '' : `(${data.selectedCount || data.bindSize} / ${data.totalSize})` }}
+              {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}
               <span v-if="data.bindStatus === 4">
                 <el-tooltip effect="dark" :content="'当前设备已绑定模板'+data.templateName" placement="top">
                   <i class="el-icon-info" style="color: #faad15;" />
@@ -64,17 +64,17 @@
               </span>
               <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               {{ node.label }}
-              {{ `(${data.selectedCount || data.bindSize})` }}
+              {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize})` }}
             </span>
           </span>
         </el-tree>
       </div>
     </div>
-    <div class="bind-body-bottom">
-      <el-checkbox v-model="quickStart">绑定该按需模板后，未录制状态的设备立即启动录制。</el-checkbox>
+    <div v-if="currentTemplate.type === 2" class="bind-body-bottom">
+      <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
-      <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
+      <el-button type="primary" :loading="submitting" :disabled="loading.deviceTree" @click="submit">
         确 定
       </el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
@@ -88,7 +88,7 @@
       <i class="el-icon-info" style="color: #faad15;" />
       <span>您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?</span>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" :disabled="!submitable" @click="subSubmit">
+        <el-button type="primary" :disabled="loading.deviceTree" @click="subSubmit">
           确 定
         </el-button>
         <el-button @click="hasBindedNode = false">取 消</el-button>
@@ -116,7 +116,6 @@ export default class extends Vue {
   @Ref('bindTree') private bindTree
   @Ref('previewTree') private previewTree
 
-  private submitable = false
   private hasBindedNode = false
 
   private loading = {
@@ -137,20 +136,14 @@ export default class extends Vue {
     isLeaf: false,
     id: '-1',
     type: 'group',
+    bindSize: 0,
     children: []
   }
   private previewDeviceList: any = [ this.rootNode ]
-
-  private supplyNode = []
-  private expandedNodes = []
+  private totalCheckedSize = 0
 
   private get checkedNodes() {
     return this.bindTree.getCheckedNodes(false, true)
-  }
-
-  private get checkedNum() {
-    const checkedNodes = this.bindTree ? this.bindTree.getCheckedNodes(true) : []
-    return checkedNodes.length
   }
 
   /**
@@ -158,10 +151,9 @@ export default class extends Vue {
    */
   private async loadSubDeviceLeft(node: any, resolve: Function) {
     if (node.level === 0) {
+      // 加载第一层业务组
       try {
         this.loading.deviceTree = true
-        this.loading.previewTree = true
-        this.submitable = false
         const res = await getTemplateDeviceTree({
           templateId: this.currentTemplate.templateId,
           groupId: 0,
@@ -179,8 +171,20 @@ export default class extends Vue {
           const previewRootNode = this.previewTree.getNode('-1')
           previewRootNode.loaded = true
           previewRootNode.expanded = true
-
+          // 计算业务组设备总数量
+          let total = 0
+          let bindSize = 0
+          res.dirs.forEach((group) => {
+            total += group.totalSize
+            bindSize += group.bindSize
+          }, 0)
+          this.totalCheckedSize = bindSize
+          this.$set(rootNode.data, 'bindSize', bindSize)
+          this.$set(rootNode.data, 'totalSize', total)
+          this.$set(previewRootNode.data, 'bindSize', bindSize)
+          // 同步勾选状态
           this.setChecked(res.dirs)
+          this.setChecked(rootNode)
           // 同步到预览树
           this.deepCopy(rootNode)
         })
@@ -188,13 +192,12 @@ export default class extends Vue {
         resolve([])
       } finally {
         this.loading.deviceTree = false
-        this.loading.previewTree = false
-        this.submitable = true
       }
     } else {
       const dirs = await this.getSubTree(node)
       this.$nextTick(() => {
         this.setChecked(dirs)
+        this.setChecked(node)
       })
       resolve(dirs)
       // 同步到预览树
@@ -207,7 +210,8 @@ export default class extends Vue {
    * 如果未加载先加载绑定树
    */
   private onPreviewTreeExpand(data, node) {
-    if (!node.loaded) {
+    const bindTreeNode = this.bindTree.getNode(node.data.id)
+    if (!bindTreeNode.loaded) {
       this.loadSubDeviceLeft(node, (children) => {
         const bindTreeNode = this.bindTree.getNode(node.data.id)
         this.bindTree.updateKeyChildren(node.data.id, children)
@@ -217,6 +221,8 @@ export default class extends Vue {
           this.deepCopy(bindTreeNode)
         })
       })
+    } else {
+      this.deepCopy(bindTreeNode)
     }
   }
 
@@ -224,9 +230,20 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
+    this.loading.deviceTree = true
     const node = this.bindTree.getNode(data.id)
-    // 如果是叶子节点更新上层
-    if (node.isLeaf || node.loaded) {
+    if (data.id === '-1') {
+      // 全选根目录
+      for (let i = 0; i < node.childNodes.length; i++) {
+        const childNode = node.childNodes[i]
+        this.deepCheck(node)
+        await this.deepLoad(childNode.data.id, node.checked)
+        this.deepCopy(node)
+      }
+      this.totalCheckedSize = node.data.totalSize
+    } else if (node.isLeaf || node.loaded) {
+      // 如果是叶子节点更新上层, 将上层全部拷贝到预览树
+      this.deepCheck(node)
       if (data.id !== '-1') {
         const previewTreeParent = this.findParentNode(node.parent)
         const bindTreeParent = this.bindTree.getNode(previewTreeParent.data.id)
@@ -237,12 +254,16 @@ export default class extends Vue {
     } else if (!node.loaded) {
       // 如果节点还未加载先递归加载当前节点下所有层级的节点
       await this.deepLoad(data.id, node.checked)
-      this.onBindTreeCheck(data)
+      // 加载完后重新将绑定树的节点拷贝到预览树
+      await this.onBindTreeCheck(data)
     }
-    this.sumSelectedCount(node)
+    this.sumCheckedSize(node)
+    this.loading.deviceTree = false
   }
 
-  // 递归展开所有业务组 只加载
+  /**
+   * 深度递归查询所有子节点
+   */
   private async deepLoad(id: any, checked: any) {
     try {
       const dirTreeNode = this.bindTree && this.bindTree.getNode(id)
@@ -261,7 +282,6 @@ export default class extends Vue {
       // 只能一层层添加到预览树中
       this.deepCopy(dirTreeNode)
 
-      // this.setFilter()
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i]
         // 半选如何处理
@@ -273,8 +293,6 @@ export default class extends Vue {
       }
     } catch (e) {
       console.log(e)
-    } finally {
-      this.submitable = true
     }
   }
 
@@ -295,6 +313,22 @@ export default class extends Vue {
         const child = children[i]
         const childNode = this.bindTree.getNode(child.id)
         this.deepCopy(childNode)
+      }
+    }
+  }
+
+  /**
+   * 深度递归勾选已绑定的设备（解决el-tree Bug)
+   */
+  private deepCheck(node) {
+    const childNodes = node.childNodes
+    for (let i = 0; i < childNodes.length; i++) {
+      const childNode = childNodes[i]
+      if (childNode.data.disabled) {
+        this.bindTree.setChecked(childNode.data.id, true)
+      }
+      if (childNode.childNodes) {
+        this.deepCheck(childNode)
       }
     }
   }
@@ -343,18 +377,18 @@ export default class extends Vue {
   /**
    * 已绑定设备勾选状态设置
    */
-  private async setChecked(nodes: any, checked?: boolean) {
+  private async setChecked(nodes: any) {
     if (!Array.isArray(nodes)) {
       let item = nodes.data
-      this.setNodesChecked(item, checked)
+      this.setNodesChecked(item)
     } else {
       nodes.map((item: any) => {
-        this.setNodesChecked(item, checked)
+        this.setNodesChecked(item)
       })
     }
   }
 
-  private setNodesChecked(item: any, checked?: boolean) {
+  private setNodesChecked(item: any) {
     if (item.bindStatus === 1) {
       this.bindTree.setChecked(item.id, true, true)
       // 禁用绑定其他模板的节点勾选框
@@ -364,66 +398,66 @@ export default class extends Vue {
       // 默认全选
       this.bindTree.setChecked(item.id, true, true)
     }
-    if (item.bindSize > 0 && item.bindSize < item.totalSize) {
+    if ((item.bindSize > 0 && item.bindSize < item.totalSize) || (item.checkedSize > 0 && item.checkedSize < item.totalSize)) {
       // 半选
       const halfNode: any = this.bindTree && this.bindTree.getNode(item.id)
       halfNode.indeterminate = true
-    }
-    if (checked) {
-      // 点击勾选
-      this.bindTree.setChecked(item.id, true, true)
     }
   }
 
   /**
    * 计算已钩选的节点数量
    */
-  private sumSelectedCount(node) {
-    console.log(node)
+  private sumCheckedSize(node) {
+    this.sumChildrenCheckedSize(node)
+    node.parent.data && this.sumParentCheckedSize(node.parent)
+  }
+
+  /**
+   * 计算子孙勾选节点数量
+   */
+  private sumChildrenCheckedSize(node) {
     if (node.checked) {
       if (!node.isLeaf) {
-        this.$set(node.data, 'selectedCount', node.data.totalSize)
+        this.$set(node.data, 'checkedSize', node.data.totalSize)
       }
     } else {
-      this.$set(node.data, 'selectedCount', node.data.bindSize)
+      this.$set(node.data, 'checkedSize', node.data.bindSize)
     }
     // 递归更新子孙节点
     for (let i = 0; i < node.childNodes.length; i++) {
       const childNode = node.childNodes[i]
       if (!childNode.isLeaf) {
-        this.sumSelectedCount(childNode)
+        this.sumChildrenCheckedSize(childNode)
       }
     }
-    this.sumParentSelectedCount(node)
   }
 
   /**
-   * 计算祖先的钩选的节点数量
+   * 计算祖先的勾选的节点数量
    */
-  private sumParentSelectedCount(node) {
-    const parent = node.parent
-    console.log(1, parent)
-    if (parent) {
-      const total = parent.childNodes.reduce((total, childNode) => {
-        console.log(total)
-        if (childNode.isLeaf && childNode.checked) {
-          total++
-        } else {
-          total += (childNode.data.selectedCount || childNode.data.bindSize)
-        }
-        return total
-      }, 0)
-      this.$set(parent.data, 'selectedCount', total)
-      if (parent.parent) {
-        this.sumParentSelectedCount(parent)
+  private sumParentCheckedSize(parentNode) {
+    const totalCheckedSize = parentNode.childNodes && parentNode.childNodes.reduce((total, childNode) => {
+      if (childNode.isLeaf && childNode.checked) {
+        total++
+      } else {
+        total += (childNode.data.checkedSize || childNode.data.bindSize)
       }
+      return total
+    }, 0)
+    this.$set(parentNode.data, 'checkedSize', totalCheckedSize)
+    if (parentNode.parent && parentNode.parent.level !== 0) {
+      this.sumParentCheckedSize(parentNode.parent)
+    }
+    if (parentNode.level === 1) {
+      const previewRootNode = this.previewTree.getNode('-1')
+      previewRootNode.data.bindSize = totalCheckedSize
+      this.totalCheckedSize = totalCheckedSize
     }
   }
 
-  // 提交锁定
   /**
-   * 虚拟业务组使用   inprotocol === vgroup 判断
-   * roleid = type
+   * 提交锁定
    * */
   private async submit() {
     // 获取当前勾选的数据
@@ -438,7 +472,7 @@ export default class extends Vue {
     this.$confirm(msg, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      customClass: 'vss-warning'
     }).then(async() => {
       await this.subSubmit()
     })
