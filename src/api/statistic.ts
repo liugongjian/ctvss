@@ -2,12 +2,12 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-01-31 10:39:56
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-02 16:59:24
+ * @LastEditTime: 2023-02-15 15:32:40
  * @FilePath: /vss-user-web/src/api/statistic.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import request from '@/utils/request'
-import { CalendarQuery, CalendarListResponse,ExportMissQuery
+import { CalendarQuery, RecordMissQuery, ExportMissQuery
 } from '@/type/Statistic'
 
 export const getStatistics = (params: any = {}): Promise<any> =>
@@ -61,7 +61,7 @@ export const getCalendarInfo = (params: CalendarQuery): Promise<any> => request(
 })
 
 // 获取录像丢失列表
-export const getCalendarMissData = (params: CalendarQuery): Promise<any> =>
+export const getCalendarMissData = (params: RecordMissQuery): Promise<any> =>
   request({
     url: '/statistics/record/miss',
     method: 'get',
@@ -73,5 +73,6 @@ export const exportCalendarMissData = (params: ExportMissQuery): Promise<any> =>
   request({
     url: '/statistics/record/missExport',
     method: 'get',
-    params
+    params,
+    responseType: 'blob'
   })

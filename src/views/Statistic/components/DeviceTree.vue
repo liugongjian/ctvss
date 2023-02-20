@@ -60,15 +60,15 @@
             </span>
           </el-tree>
         </div>
-        <!-- 国标or rtsp 展示 -->
-        <!-- <advanced-search v-if="currentGroup.inProtocol === 'gb28181' || currentGroup.inProtocol === 'rtsp'" :search-form="advancedSearchForm" @search="doSearch" /> -->
+        <!-- 虚拟业务组暂不支持搜索 -->
+        <!-- <advanced-search v-if="currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" /> -->
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
@@ -88,6 +88,8 @@ import AdditionalStatus from '@/views/device/components/AdditionalStatus.vue'
 })
 
 export default class extends Vue {
+  @Prop() private wrap
+
   private checkPermission = checkPermission
   public setDirsStreamStatus = setDirsStreamStatus
   public getSums = getSums
@@ -272,11 +274,11 @@ export default class extends Vue {
    * 计算最大高度
    */
   public calMaxHeight() {
-    // const deviceWrap: any = this.$refs.deviceWrap
-    // const size = deviceWrap.$el.getBoundingClientRect()
-    // const top = size.top
+    const wrap = this.wrap
+    const size = wrap.getBoundingClientRect()
+    const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - 172
+    this.maxHeight = documentHeight - top - 90
   }
 
   /**
@@ -376,7 +378,8 @@ export default class extends Vue {
       _node = node
       _node.expanded = true
     }
-    this.$emit('treeback', item.id)
+
+    this.$emit('treeback', item.id, this.currentGroupInProtocol, this.currentGroupId)
   }
 
   /**

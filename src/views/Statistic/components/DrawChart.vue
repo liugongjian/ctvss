@@ -30,7 +30,6 @@ export default class extends Vue {
   }
 
   private drawChart() {
-    console.log('123')
     const { kind, name } = this.chartInfo
 
     this.container = name
