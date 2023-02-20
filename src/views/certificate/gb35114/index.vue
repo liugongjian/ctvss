@@ -57,7 +57,7 @@
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
             <el-button type="text" @click="downloadCertificate(row)">下载证书</el-button>
-            <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
+            <el-button type="text" :disabled="row.status === 'on'" @click="deleteCertificate(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

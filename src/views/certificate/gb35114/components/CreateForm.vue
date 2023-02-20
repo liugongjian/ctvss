@@ -262,23 +262,25 @@ export default class extends Vue {
             // 判断是否更改过请求文件
             this.fileString && (params.deviceCsr = this.fileString)
             // 判断是否更改过时间
-            console.log(params.expireTime, this.expireTimeCache)
             if (params.expireTime === this.expireTimeCache) {
               delete params.expireTime
             }
             // 判断是否重新生成证书
             if (params.expireTime || params.deviceCsr) {
+              console.log(this.currentCertId)
               this.$confirm('修改证书过期时间或设备证书请求文件, 重新生成证书，将会导致设备下线！').then(async() => {
                 await updateCertificate({
                   ...params,
                   certId: this.currentCertId
                 })
+                onSuccess()
               }).catch(() => { console.log() })
             } else {
               await updateCertificate({
                 ...params,
                 certId: this.currentCertId
               })
+              onSuccess()
             }
           } else {
             await generateCertificate({
@@ -286,8 +288,8 @@ export default class extends Vue {
               deviceName: this.form.deviceName,
               outId: this.form.outId
             })
+            onSuccess()
           }
-          onSuccess()
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
