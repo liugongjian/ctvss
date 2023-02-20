@@ -21,15 +21,15 @@
     </div>
     <div ref="filterWrap" class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!isVGroup && (isDir) && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isVGroup && (isDir) && checkPermission(['ivs:UpdateDevice'], deviceActions)" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isMainUser && !isVGroup" @click="describePermission">查看权限</el-button>
-        <el-button v-if="isNVR" type="primary" @click="goToConfigChannel">配置子通道</el-button>
+        <el-button v-if="isNVR && checkPermission(['ivs:UpdateDevice'], deviceActions)" type="primary" @click="goToConfigChannel">配置子通道</el-button>
         <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
-        <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
+        <el-button v-if="!isVGroup && isNVR && checkPermission(['ivs:UpdateDevice'], deviceActions)" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
-        <el-button v-if="!isVGroup && isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
+        <el-button v-if="!isVGroup && isPlatform && checkPermission(['ivs:UpdateDevice'], deviceActions)" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="!isVGroup && isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-dropdown v-if="!isVGroup" placement="bottom" @command="exportExcel">
+        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], deviceActions)" placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
@@ -38,7 +38,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isVGroup && (isDir || isManulNVR) && checkPermission(['AdminDevice'])"
+          v-if="!isVGroup && (isDir || isManulNVR) && checkPermission(['ivs:UpdateDevice'], deviceActions)"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -47,12 +47,12 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice']) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button>
-        <el-dropdown v-if="!isVGroup && checkPermission(['AdminDevice']) && isAllowedDelete" placement="bottom" @command="handleBatch">
+        <el-button v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], deviceActions) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button>
+        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:UpdateDevice', 'ivs:DeleteDevice'], deviceActions) && isAllowedDelete" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR && !isPlatform && !isChannel" command="move">移动至</el-dropdown-item>
-            <el-dropdown-item command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR && !isPlatform && !isChannel && checkPermission(['ivs:UpdateDevice'], deviceActions)" command="move">移动至</el-dropdown-item>
+            <el-dropdown-item v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>

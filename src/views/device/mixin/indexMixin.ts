@@ -498,8 +498,8 @@ export default class IndexMixin extends Vue {
         const permissionRes = await previewAuthActions({
           targetResources: res.dirs.map(dir => ({
             groupId: dir.groupId,
-            dirPath: dir.type === 'dir' ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/'),
-            deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id
+            dirPath: (dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/'),
+            deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
           }))
         })
         res.dirs = res.dirs

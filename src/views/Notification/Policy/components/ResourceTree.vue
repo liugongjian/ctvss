@@ -236,7 +236,9 @@ export default class extends Vue {
         dir: 'directory',
         nvr: 'nvr',
         nvrchannel: 'nvrchannel',
-        ipc: 'ipc'
+        ipc: 'ipc',
+        platform: 'platform',
+        platformDir: 'platform-directory'
       }
       const pathIds = resource.path.map((obj: any) => obj.id)
       return `${mainUserID}:${inProtocol}-${typeMap[type]}:${pathIds[0]}${(pathIds.length > 1 ? ':' : '') + pathIds.slice(1).join('/')}`

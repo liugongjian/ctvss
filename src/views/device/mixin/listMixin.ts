@@ -31,6 +31,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
+  public deviceActions = {}
   public dirStats: any = null
   public selectedDeviceList: Array<Device> = []
   public currentDevice?: Device | null = null
@@ -334,6 +335,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public init() {
     this.parentDeviceId = ''
     if (!this.groupId || !this.inProtocol) return
+
+    if (UserModule.iamUserId) {
+      this.getDeviceActions()
+    }
     switch (this.type) {
       case 'platform':
         this.getDeviceInfo(this.type)
@@ -428,10 +433,6 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
         }
         this.deviceList = [ res ]
       }
-
-      const permissionRes = await this.previewAuthActions({
-
-      })
     } catch (e) {
       this.deviceInfo = null
       this.deviceList = []
@@ -440,6 +441,26 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     }
   }
 
+  /**
+   * 获取当前设备权限
+   */
+  public async getDeviceActions() {
+    try {
+      const type = this.type
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.groupId,
+          dirPath: (type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/'),
+          deviceId: this.deviceId || undefined
+        }]
+      })
+      this.deviceActions = permissionRes.result[0].iamUser.actions
+    } catch (err) {
+      this.$message.error(err && err.message)
+    }
+  }
   /**
    * 加载设备列表
    */
