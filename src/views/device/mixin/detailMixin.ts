@@ -270,7 +270,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   // 详情页操作
   @Provide('detailOperate')
   public async detailOperate(type, num?) {
-    let result = false
+    let result: any = false
     let params: Device = this.info
     num && (params = {
       ...this.info,

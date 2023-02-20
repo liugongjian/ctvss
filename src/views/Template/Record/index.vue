@@ -32,7 +32,7 @@
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
         <el-table-column prop="storeType" label="录制类别" width="120">
           <template slot-scope="{row}">
-            <span>{{ row.recordType === 1 ? '自动录制' : '按需录制' }}</span>
+            <span>{{ row.recordType === 1 ? '自动录制' : '手动录制' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="模板备注" min-width="260" />
@@ -124,7 +124,9 @@ export default class extends Vue {
           recordType: template.recordType,
           createdTime: template.createdTime,
           description: template.description,
-          formatList: []
+          formatList: [],
+          storageTime: template.storageTime,
+          interval: template.interval
         }
         if (template.hlsParam && template.hlsParam.enable) {
           rowData.formatList.push({

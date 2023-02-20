@@ -1,11 +1,11 @@
 <template>
   <div>
-    <el-card>
+    <el-card v-if="!disableRecordTemplate">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
       <info-list title="录制模板">
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
-          <el-table-column prop="recordType" label="是否启用自动录制">
+          <el-table-column prop="recordType" label="是否启用全天录制">
             <template slot-scope="{row}">
               {{ row.recordType === 1 ? '是':'否' }}
             </template>
@@ -129,8 +129,12 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private deviceId?: String
-  @Prop() private inProtocol?: String
+  @Prop() private deviceId?: string
+  @Prop() private inProtocol?: string
+  @Prop({
+    default: false
+  })
+  private disableRecordTemplate?: boolean
   private loading = {
     record: false,
     callback: false,
@@ -152,7 +156,9 @@ export default class extends Vue {
   private aiTemplateId = ''
   private async mounted() {
     this.getStreamTemplate()
-    this.getRecordTemplate()
+    if (this.disableRecordTemplate) {
+      this.getRecordTemplate()
+    }
     // this.getAITemplate()
     this.inProtocol === 'gb28181' && this.getAlertTemplate()
   }

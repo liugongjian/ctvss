@@ -18,7 +18,7 @@
         </el-form-item>
         <el-form-item label="录制类别:" required prop="recordType">
           <el-radio-group v-model="form.recordType">
-            <el-radio :label="1">自动录制</el-radio>
+            <el-radio :label="1">全天录制</el-radio>
             <el-radio :label="2">按需录制</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -116,7 +116,8 @@ export default class extends Vue {
     templateName: '',
     recordType: 1,
     description: '',
-    formatList: []
+    formatList: [],
+    storageTime: 30 // 最小 30 天
   }
   // HARDCODE: 针对天翼看家单独判断
   private placeHolder = {
@@ -153,7 +154,9 @@ export default class extends Vue {
         templateName: data.templateName,
         recordType: data.recordType,
         description: data.description,
-        formatList: []
+        formatList: [],
+        storageTime: 30,
+        interval: data.interval
       }
 
       if (data.hlsParam && data.hlsParam.enable) {
@@ -286,7 +289,8 @@ export default class extends Vue {
             templateId: this.form.templateId || undefined,
             templateName: this.form.templateName,
             recordType: this.form.recordType,
-            description: this.form.description
+            description: this.form.description,
+            storageTime: this.form.storageTime
           }
           this.selectedRows.forEach(row => {
             if (row.formatType === 'HLS') {

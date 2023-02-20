@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--资源包-->
-    <div class="detail__section">
+    <div v-if="!disableResourceTab" class="detail__section">
       <div class="detail__title">
         资源包
         <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置</el-link>
@@ -96,7 +96,7 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="deviceType === 'ipc'" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
         <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setRecordTemplate">配置</el-link>
@@ -105,14 +105,14 @@
         <el-descriptions-item label="模板名称">
           {{ template.recordTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item label="是否启用自动录制">
+        <el-descriptions-item label="是否启用全天录制">
           {{ template.recordTemplate.recordType === 1 ? '是':'否' }}
         </el-descriptions-item>
-        <el-descriptions-item label="录制格式">
+        <!-- <el-descriptions-item label="录制格式">
           {{ template.recordTemplate.flvParam && template.recordTemplate.flvParam.enable ? 'flv': '' }}
           {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'hls': '' }}
           {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'mp4': '' }}
-        </el-descriptions-item>
+        </el-descriptions-item> -->
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
         暂未绑定录制模板
@@ -220,7 +220,7 @@ import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.
 import SetAlertTemplate from '@/views/components/dialogs/SetAlertTemplate.vue'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
-
+import { UserModule } from '@/store/modules/user'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
@@ -236,8 +236,10 @@ import AlgoConfig from './AlgoConfig/index.vue'
   }
 })
 export default class extends Vue {
-  @Prop() private deviceId?: String
-  @Prop() private inProtocol?: String
+  @Prop() private deviceId?: string
+  @Prop() private inProtocol?: string
+  @Prop() private deviceType?: string
+
   private checkPermission = checkPermission
 
   private resourceAiType = ResourceAiType
@@ -284,8 +286,10 @@ export default class extends Vue {
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
+    if (this.deviceType === 'ipc') {
+      this.getRecordTemplate()
+    }
     this.getCallbackTemplate()
-    this.getRecordTemplate()
     this.getAlertTemplate()
     this.getAlgoList()
     await this.getDeviceInfo()
@@ -336,6 +340,11 @@ export default class extends Vue {
 
   public get isNvr() {
     return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   /**

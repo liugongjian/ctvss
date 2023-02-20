@@ -14,18 +14,18 @@
       max-height="500"
     >
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordType" label="是否启用自动录制">
+      <el-table-column prop="recordType" label="是否启用全天录制">
         <template slot-scope="{row}">
           {{ row.recordType === 1 ? '是':'否' }}
         </template>
       </el-table-column>
-      <el-table-column prop="storeType" label="录制格式">
+      <!-- <el-table-column prop="storeType" label="录制格式">
         <template slot-scope="{row}">
           {{ row.flvParam.enable ? 'flv': '' }}
           {{ row.hlsParam.enable ? 'hls': '' }}
           {{ row.mpParam.enable ? 'mp4': '' }}
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="操作">
         <template slot-scope="{row}">
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="!!bindTemplateId" @click="bind(row)">绑定</el-button>
@@ -41,7 +41,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
-import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
+import { setDeviceRecordTemplate, unbindDeviceRecordTemplate, startRecord } from '@/api/device'
 import { formatSeconds } from '@/utils/interval'
 
 @Component({
@@ -86,6 +86,9 @@ export default class extends Vue {
         await setDeviceRecordTemplate(params)
       }
       this.bindTemplateId = row.templateId
+      if (row.recordType === 2) {
+        this.startRecord()
+      }
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -113,6 +116,28 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  public startRecord() {
+    this.$confirm('绑定后是否立即启动录制？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info'
+    }).then(async() => {
+      try {
+        const params: any = {
+          deviceId: this.deviceId,
+          inProtocol: this.inProtocol
+        }
+        await startRecord(params)
+        this.$message.success('已通知开始录制')
+        this.init()
+        return true
+      } catch (e) {
+        this.$message.error(e && e.message)
+        console.error(e)
+      }
+    })
   }
 
   private async mounted() {
