@@ -219,8 +219,9 @@ export default class extends Vue {
       this.isDelete = false
       this.bindDevice = false
       this.loading.template = true
-      let params = {}
-      let res = await getRecordTemplates(params) // 获取模板列表
+      let res = await getRecordTemplates({
+        pageSize: 999
+      }) // 获取模板列表
       this.templates = res.templates
       this.loading.template = false
       this.$nextTick(() => {
