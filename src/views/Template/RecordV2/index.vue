@@ -59,7 +59,7 @@
                 <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
               </el-descriptions-item>
             </el-descriptions>
-            <div class="bind-container">
+            <div ref="bindContainer" class="bind-container">
               <!-- 已绑定的设备 -->
               <div v-if="defaultDevice" class="bind-body">
                 <div class="bind-left">
@@ -82,6 +82,7 @@
                       empty-text="暂无已绑定设备"
                       :load="loadSubDevice"
                       :props="treeProp"
+                      :style="`height: ${minTreeHeight}px`"
                       @check-change="handleCheck"
                     >
                       <span
@@ -113,7 +114,7 @@
                   <div class="tree-block">
                     <el-table
                       :data="delDataList"
-                      height="400"
+                      :height="minTreeHeight"
                     >
                       <el-table-column
                         prop="label"
@@ -156,6 +157,7 @@ import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
   }
 })
 export default class extends Vue {
+  @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
 
   // 编辑页面参数
@@ -198,6 +200,7 @@ export default class extends Vue {
   private createTemplateDisable = false
 
   private minHeight = null
+  private minTreeHeight = null
   private currentTemplate: any = {}
   private deviceListMain: any = []
 
@@ -332,6 +335,10 @@ export default class extends Vue {
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.minHeight = documentHeight - top - 22
+
+    const treeSize = this.bindContainer.getBoundingClientRect()
+    const treeTop = treeSize.top
+    this.minTreeHeight = documentHeight - treeTop - 150
   }
 
   // 删除设备
@@ -612,7 +619,7 @@ export default class extends Vue {
 .right-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;
-  height: 400px;
+  min-height: 400px;
   margin-bottom: 10px;
   overflow: auto;
 }
