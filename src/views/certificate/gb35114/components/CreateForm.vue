@@ -187,6 +187,8 @@ export default class extends Vue {
     // 检验大小
     console.log(this.selectedFile.size)
     if (this.selectedFile.size > 8192) {
+      this.form.outId = ''
+      this.form.deviceName = ''
       return (this.form.errorTip = '请求文件文件格式错误')
     } else {
       this.form.errorTip = ''
@@ -209,6 +211,8 @@ export default class extends Vue {
             this.form.deviceName = res.deviceName
             this.form.outId = res.outId
           } catch (e) {
+            this.form.outId = ''
+            this.form.deviceName = ''
             this.form.errorTip = e && e.message
           } finally {
             this.loading.upload = false
