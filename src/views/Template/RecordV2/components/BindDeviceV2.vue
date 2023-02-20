@@ -74,7 +74,7 @@
       <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
-      <el-button type="primary" :loading="submitting" :disabled="loading.deviceTree" @click="submit">
+      <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
         确 定
       </el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
@@ -88,7 +88,7 @@
       <i class="el-icon-info" style="color: #faad15;" />
       <span>您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?</span>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" :disabled="loading.deviceTree" @click="subSubmit">
+        <el-button type="primary" :disabled="!submitable" @click="subSubmit">
           确 定
         </el-button>
         <el-button @click="hasBindedNode = false">取 消</el-button>
@@ -116,6 +116,7 @@ export default class extends Vue {
   @Ref('bindTree') private bindTree
   @Ref('previewTree') private previewTree
 
+  private submitable = false
   private hasBindedNode = false
 
   private loading = {
@@ -230,7 +231,7 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
-    this.loading.deviceTree = true
+    this.submitable = true
     const node = this.bindTree.getNode(data.id)
     if (data.id === '-1') {
       // 全选根目录
@@ -258,7 +259,7 @@ export default class extends Vue {
       await this.onBindTreeCheck(data)
     }
     this.sumCheckedSize(node)
-    this.loading.deviceTree = false
+    this.submitable = false
   }
 
   /**

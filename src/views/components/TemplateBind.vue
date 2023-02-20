@@ -5,7 +5,7 @@
       <info-list title="录制模板">
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
-          <el-table-column prop="recordType" label="是否启用自动录制">
+          <el-table-column prop="recordType" label="是否启用全天录制">
             <template slot-scope="{row}">
               {{ row.recordType === 1 ? '是':'否' }}
             </template>

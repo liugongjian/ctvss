@@ -14,7 +14,7 @@
       max-height="500"
     >
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordType" label="是否启用自动录制">
+      <el-table-column prop="recordType" label="是否启用全天录制">
         <template slot-scope="{row}">
           {{ row.recordType === 1 ? '是':'否' }}
         </template>
