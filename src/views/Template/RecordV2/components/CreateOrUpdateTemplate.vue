@@ -17,8 +17,8 @@
         label-width="160px"
       >
         <el-form-item label="录制模板名称:" prop="templateName" class="form-with-tip">
-          <el-input v-model="form.templateName" style="width: 463px;" placeholder="请输入模板名称" />
-          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。模板名称不能重复。</div>
+          <el-input v-model="form.templateName" :disabled="!createOrUpdateFlag" style="width: 463px;" placeholder="请输入模板名称" />
+          <div v-if="createOrUpdateFlag" class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。模板名称不能重复。</div>
         </el-form-item>
         <el-form-item label="录制类别:" prop="recordType">
           <el-radio-group v-model="form.recordType">
