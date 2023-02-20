@@ -784,6 +784,7 @@ export default class extends Vue {
 
     .description__content {
       width: 50%;
+      word-break: break-all;
     }
   }
 
