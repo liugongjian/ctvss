@@ -393,7 +393,7 @@ export default class CreateMixin extends Vue {
             alertMsg.push(resource.msg)
           }
         }
-        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
+        if (!this.disableResourceTab && !this.isFreeUser && this.isUpdate && alertMsg.length) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',

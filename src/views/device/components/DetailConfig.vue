@@ -105,7 +105,7 @@
         <el-descriptions-item label="模板名称">
           {{ template.recordTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item label="是否启用自动录制">
+        <el-descriptions-item label="是否启用全天录制">
           {{ template.recordTemplate.recordType === 1 ? '是':'否' }}
         </el-descriptions-item>
         <!-- <el-descriptions-item label="录制格式">

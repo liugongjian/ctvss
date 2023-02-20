@@ -128,7 +128,7 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('startRecord')
   public async startRecord(device: Device) {
-    this.$confirm(`确认开启${device.deviceName}的云端录像吗？`, '提示', {
+    await this.$confirm(`确认开启${device.deviceName}的云端录像吗？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'info'
@@ -145,8 +145,10 @@ export default class DeviceMixin extends Vue {
       } catch (e) {
         this.$message.error(e && e.message)
         console.error(e)
+        return false
       }
     })
+    return true
   }
 
   /**
@@ -154,7 +156,7 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('stopRecord')
   public async stopRecord(device: Device) {
-    this.$confirm(`确认关闭${device.deviceName}的云端录像吗？`, '提示', {
+    await this.$confirm(`确认关闭${device.deviceName}的云端录像吗？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'info'
@@ -172,7 +174,9 @@ export default class DeviceMixin extends Vue {
       } catch (e) {
         this.$message.error(e && e.message)
         console.error(e)
+        return false
       }
     })
+    return true
   }
 }
