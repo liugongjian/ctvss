@@ -1028,5 +1028,9 @@ export default class extends Vue {
     flex: 1;
     padding: 20px;
   }
+
+  .export {
+    cursor: pointer;
+  }
 }
 </style>
