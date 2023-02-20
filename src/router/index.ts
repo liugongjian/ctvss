@@ -1201,7 +1201,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['ivs:frontend:AdminBilling']
     },
     children: [
       {
@@ -1211,7 +1211,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '资源包管理',
           icon: 'dot',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       },
       {
@@ -1223,7 +1223,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/billing/resource',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       }
     ]
