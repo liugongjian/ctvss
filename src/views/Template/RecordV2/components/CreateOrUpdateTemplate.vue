@@ -22,15 +22,15 @@
         </el-form-item>
         <el-form-item label="录制类别:" prop="recordType">
           <el-radio-group v-model="form.recordType">
-            <el-radio :label="1">自动录制</el-radio>
-            <el-radio :label="2">按需录制</el-radio>
+            <el-radio :label="1">全天录制</el-radio>
+            <el-radio :label="2">手动录制</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="存储时长:" prop="storageTime" class="record-form-item">
           <el-input v-model="form.storageTime" type="number" min="0" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
         </el-form-item>
         <el-form-item label="模板备注" prop="description">
-          <el-input v-model="form.description" style="width: 463px;" type="textarea" :autosize="{minRows: 2, maxRows: 4}" placeholder="请输入备注" />
+          <el-input v-model="form.description" style="width: 463px;" type="textarea" maxlength="255" :autosize="{minRows: 3, maxRows: 5}" placeholder="请输入备注" />
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="submit">{{ createOrUpdateFlag ? '新建' : '确定' }}</el-button>

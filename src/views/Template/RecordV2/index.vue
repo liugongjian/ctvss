@@ -23,7 +23,7 @@
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
                       </el-tooltip> -->
-                      <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
+                      <el-tooltip class="item" effect="dark" content="删除模板" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
                     </div>
@@ -66,8 +66,9 @@
                   <span class="bind-title-right">
                     已绑定 {{ bindedDeviceNum }} 项
                   </span>
-                  <div class="tree-block">
+                  <div>
                     <el-tree
+                      class="right-tree"
                       ref="bindTreeMain"
                       v-loading="loading.templateDeviceTree || loading.unbinding"
                       :data="deviceListMain"
@@ -612,6 +613,15 @@ export default class extends Vue {
 
 </style>
 <style lang="scss" scoped>
+.right-tree {
+  border: 1px solid $borderGrey;
+  border-radius: 4px;
+  height: 400px;
+  margin-bottom: 10px;
+  overflow: auto;
+}
+
+
 .bind-right {
   float: right;
   margin-left: 20px;
@@ -628,7 +638,7 @@ export default class extends Vue {
 .tree-block {
   border: 1px $borderGrey solid;
   width: 340px;
-  overflow: hidden;
+  overflow: auto;
   height: 400px;
 }
 
