@@ -424,7 +424,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
             const permissionRes = await previewAuthActions({
               targetResources: deviceList.map((device: any) => ({
                 groupId: this.groupId,
-                dirPath: pathArr.join('/'),
+                dirPath: pathArr.join('/') || '0',
                 deviceId: device.deviceId
               }))
             })
@@ -468,7 +468,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       const permissionRes = await previewAuthActions({
         targetResources: [{
           groupId: this.groupId,
-          dirPath: (type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/'),
+          dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
           deviceId: this.deviceId || undefined
         }]
       })
@@ -514,7 +514,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
         const permissionRes = await previewAuthActions({
           targetResources: res.devices.map((device: any) => ({
             groupId: this.groupId,
-            dirPath: pathArr.join('/'),
+            dirPath: pathArr.join('/') || '0',
             deviceId: device.deviceId
           }))
         })
