@@ -417,6 +417,22 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
             }
             return true
           })
+          // 查询nvr通道的权限
+          if (UserModule.iamUserId && deviceList.length) {
+            const path: any = this.$route.query.path
+            const pathArr = path ? path.split(',') : []
+            const permissionRes = await previewAuthActions({
+              targetResources: deviceList.map((device: any) => ({
+                groupId: this.groupId,
+                dirPath: pathArr.join('/'),
+                deviceId: device.deviceId
+              }))
+            })
+            deviceList = deviceList.map((device: any, index: number) => ({
+              ...device,
+              ...permissionRes.result[index].iamUser.actions
+            }))
+          }
         }
         this.deviceList = deviceList
       } else if (type === 'ipc') {
@@ -492,6 +508,21 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
       res = await getDevices(params, axiosSource.token)
+      if (UserModule.iamUserId && res.devices.length) {
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: res.devices.map((device: any) => ({
+            groupId: this.groupId,
+            dirPath: pathArr.join('/'),
+            deviceId: device.deviceId
+          }))
+        })
+        res.devices = res.devices.map((device: any, index: number) => ({
+          ...device,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+      }
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {

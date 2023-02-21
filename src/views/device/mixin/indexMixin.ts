@@ -494,7 +494,7 @@ export default class IndexMixin extends Vue {
           parentId: node ? node.data.id : '0'
         }))
       res.dirs = this.setDirsStreamStatus(res.dirs)
-      if (UserModule.iamUserId) {
+      if (UserModule.iamUserId && res.dirs.length) {
         const permissionRes = await previewAuthActions({
           targetResources: res.dirs.map(dir => ({
             groupId: dir.groupId,
