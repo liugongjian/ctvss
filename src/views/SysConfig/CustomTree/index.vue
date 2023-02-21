@@ -124,7 +124,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ data.parentDevice ? `${data.label}(${data.parentDevice.label})`: node.label }}
+                    {{ data.parentDevice && data.parentDevice.type === 'nvr' ? `${data.label}(${data.parentDevice.label})`: node.label }}
                     <span v-if="data.originFlag" class="sum-icon">{{ getTotalOfTree(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </div>
@@ -373,7 +373,7 @@ export default class extends Vue {
     res.groups.forEach((group: any) => {
       // 放开rtsp rtmp
       // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-      this.groupInfos.push({
+      group.inProtocol !== 'vgroup' && this.groupInfos.push({
         id: group.groupId,
         groupId: group.groupId,
         label: group.groupName,
@@ -897,16 +897,19 @@ export default class extends Vue {
   }
 
   private cancel() {
-    const dirTree: any = this.$refs.dirTree
-    const dirTree2: any = this.$refs.dirTree2
     this.isEditing = false
     this.$nextTick(() => {
       this.treeList.forEach(t => (t.editFlag = false))
-      dirTree.setCheckedKeys([])
-      dirTree2.setCheckedKeys([])
+      this.clearCheckedKeys()
       this.treeDirList = [cloneDeep(root)]
       this.getTotalsOfRightTree()
     })
+  }
+  private clearCheckedKeys(){
+    const dirTree: any = this.$refs.dirTree
+    const dirTree2: any = this.$refs.dirTree2
+    dirTree.setCheckedKeys([])
+    dirTree2.setCheckedKeys([])
   }
 
   private addDevices() {

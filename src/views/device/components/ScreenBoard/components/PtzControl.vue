@@ -258,7 +258,7 @@ export default class extends Vue {
       const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describeDevicePresets({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.presets = Array.from({ length: 255 }, (value, index) => {
@@ -287,7 +287,7 @@ export default class extends Vue {
       const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describePTZCruiseList({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.cruises = Array.from({ length: 8 }, (value, index) => {
@@ -312,7 +312,7 @@ export default class extends Vue {
       const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describePTZKeepwatch({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.homepositionForm = {
@@ -336,7 +336,7 @@ export default class extends Vue {
       await deleteDevicePreset({
         deviceId: this.deviceId,
         presetId: String(presetId),
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.getPresets()
@@ -357,7 +357,7 @@ export default class extends Vue {
         deviceId: this.deviceId,
         presetId: String(presetId),
         presetName,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       // this.$set(this.presets, presetId - 1, {
@@ -392,7 +392,7 @@ export default class extends Vue {
       await gotoDevicePreset({
         deviceId: this.deviceId,
         presetId: String(presetId),
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
     } catch (e) {
@@ -404,7 +404,7 @@ export default class extends Vue {
     const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
       deviceId: this.deviceId,
-      inProtocol: this.$route.query.inProtocol,
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
       groupId
     }
     switch (direction) {
@@ -462,7 +462,7 @@ export default class extends Vue {
     const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
       deviceId: this.deviceId,
-      inProtocol: this.$route.query.inProtocol,
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
       groupId
     }
     switch (direction) {
@@ -567,7 +567,7 @@ export default class extends Vue {
       await startPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.$message({
@@ -585,7 +585,7 @@ export default class extends Vue {
       await stopPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
         groupId
       })
       this.$message({
