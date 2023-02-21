@@ -178,7 +178,7 @@
           <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
-          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
+          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" :device-type="info.deviceType" />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
           <detail-preview
@@ -197,9 +197,9 @@
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+        <!-- <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
           <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
     </div>
     <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />

@@ -139,7 +139,23 @@
                       <el-descriptions-item label="设备国标ID">
                         {{ info.gbId || '-' }}
                       </el-descriptions-item>
-                      <el-descriptions-item label="GB28181凭证注册用户名">
+                      <el-descriptions-item v-if="info.enabledGB35114">
+                        <template slot="label">
+                          GB35114协议
+                          <el-popover
+                            placement="top-start"
+                            title="GB35114协议"
+                            width="400"
+                            trigger="hover"
+                            :open-delay="300"
+                            :content="tips.enabledGB35114"
+                          >
+                            <svg-icon slot="reference" class="form-question" name="help" />
+                          </el-popover>
+                        </template>
+                        {{ info.enabledGB35114 ? '已启用' : '未启用' }}
+                      </el-descriptions-item>
+                      <el-descriptions-item v-else label="GB28181凭证注册用户名">
                         {{ info.userName }}
                       </el-descriptions-item>
                       <el-descriptions-item v-if="info.deviceType !== 'nvr'" label="杆号">
@@ -285,7 +301,7 @@
           <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
-          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
+          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" :device-type="info.deviceType" />
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
@@ -309,9 +325,9 @@
           <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+        <!-- <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
           <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
     </div>
     <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />

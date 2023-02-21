@@ -68,15 +68,15 @@
         <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button v-if="checkPermission(['DescribeGroup'])" type="text" @click.stop="goToConfig(scope.row)">业务组配置</el-button>
-            <el-button v-if="checkPermission(['DescribeDevice'])" type="text" @click.stop="goToDevices(scope.row)">设备管理</el-button>
-            <el-dropdown v-if="checkPermission(['AdminGroup'])" @command="handleMore">
+            <el-button v-if="checkPermission(['ivs:GetGroup'], scope.row)" type="text" @click.stop="goToConfig(scope.row)">业务组配置</el-button>
+            <el-button v-if="checkPermission(['ivs:GetGroup'], scope.row)" type="text" @click.stop="goToDevices(scope.row)">设备管理</el-button>
+            <el-dropdown v-if="checkPermission(['ivs:UpdateGroup', 'ivs:DeleteGroup'], scope.row)" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
-                <el-dropdown-item :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
-                <el-tooltip v-if="scope.row.inProtocol !== 'vgroup'" content="请先停用业务组后进行删除操作" :disabled="scope.row.groupStatus === 'off'">
+                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && checkPermission(['ivs:UpdateGroup'], scope.row) && scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && checkPermission(['ivs:UpdateGroup'], scope.row) && scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
+                <el-dropdown-item v-if="checkPermission(['ivs:UpdateGroup'], scope.row)" :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
+                <el-tooltip v-if="scope.row.inProtocol !== 'vgroup' && checkPermission(['ivs:DeleteGroup'], scope.row)" content="请先停用业务组后进行删除操作" :disabled="scope.row.groupStatus === 'off'">
                   <span><el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item></span>
                 </el-tooltip>
               </el-dropdown-menu>
@@ -99,12 +99,14 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
+import { UserModule } from '@/store/modules/user'
 import { Group } from '@/type/Group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
 import { checkPermission } from '@/utils/permission'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   name: 'GroupList',
@@ -149,7 +151,20 @@ export default class extends Vue {
     }
     try {
       const res = await getGroups(params)
-      this.dataList = res.groups
+      if (UserModule.iamUserId) {
+        const permissionRes = await previewAuthActions({
+          targetResources: res.groups.map(group => ({
+            groupId: group.groupId
+          }))
+        })
+        this.dataList = res.groups.map((group: any, index: number) => ({
+          ...group,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+      } else {
+        this.dataList = res.groups
+      }
+
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize

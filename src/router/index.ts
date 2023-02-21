@@ -197,7 +197,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'menu-group',
           hidden: true,
-          perms: ['ivs:CreateGroup'],
+          perms: ['ivs:GetGroup'],
           activeMenu: '/group'
         }
       }
@@ -565,7 +565,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb28181/update/:id?',
+        path: 'gb28181/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
         name: 'gb28181-update',
         meta: {
@@ -603,7 +603,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'ga1400/update/:id?',
+        path: 'ga1400/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'ga1400-update',
         meta: {
@@ -613,6 +613,43 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'gb35114',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/index.vue'),
+        name: 'gb35114',
+        meta: {
+          id: '20210424150201007007',
+          name: 'certificate',
+          title: 'GB35114凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/create',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/create.vue'),
+        name: 'gb35114-create',
+        meta: {
+          id: '20210424150201007008',
+          title: '新建Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/update/:outId?:certId?',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/create.vue'),
+        name: 'gb35114-update',
+        meta: {
+          id: '20210424150201007006',
+          title: '编辑Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
         }
       }
     ]
@@ -631,8 +668,11 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
+        // path: 'record',
+        // component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        // name: 'record',
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -640,6 +680,19 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/template/record'
         }
+        // children: [
+        //   {
+        //     path: 'template-update',
+        //     component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        //     name: 'template-update',
+        //     meta: {
+        //       hidden: true,
+        //       title: '编辑录制模板',
+        //       perms: ['*'],
+        //       activeMenu: '/template/custom-device-tree'
+        //     }
+        //   },
+        // ]
       },
       {
         path: 'record/create',
@@ -729,6 +782,28 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/template/alert'
         }
       },
+      // {
+      //   path: '/custom-device-tree',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/Template/CustomDeviceTree/index.vue'),
+      //   name: 'custom-device-tree',
+      //   meta: {
+      //     title: '自定义设备树',
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/template/custom-device-tree'
+      //   },
+      //   children: [
+      //     {
+      //       path: 'template-update',
+      //       component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+      //       name: 'template-update',
+      //       meta: {
+      //         title: '编辑录制模板',
+      //         perms: ['*']
+      //       }
+      //     },
+      //   ]
+      // },
       {
         path: 'alert/create',
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
@@ -1057,7 +1132,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
-      perms: ['*']
+      perms: ['ivs:frontend:AdminNotification']
     },
     children: [
       {
@@ -1069,7 +1144,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/notification/history',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -1081,7 +1156,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -1093,7 +1168,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -1105,7 +1180,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       }
     ]
@@ -1116,7 +1191,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '告警管理',
       icon: 'menu-alarm',
-      perms: ['*'],
+      perms: ['ivs:frontend:AdminAlarm'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -1130,7 +1205,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '告警管理',
           icon: 'menu-alarm',
           breadcrumb: false,
-          perms: ['*'],
+          perms: ['ivs:frontend:AdminAlarm'],
           groupSelector: true
         },
         children: [
@@ -1141,7 +1216,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '告警信息列表',
               breadcrumb: false,
-              perms: ['*'],
+              perms: ['ivs:frontend:AdminAlarm'],
               activeMenu: '/alarm',
               groupSelector: true
             }
@@ -1183,7 +1258,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['ivs:frontend:AdminBilling']
     },
     children: [
       {
@@ -1193,7 +1268,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '资源包管理',
           icon: 'dot',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       },
       {
@@ -1205,7 +1280,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/billing/resource',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       }
     ]
@@ -1239,7 +1314,7 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/statistic',
     component: Layout,
     meta: {
-      title: '系统设置',
+      title: '统计信息',
       breadcrumb: true,
       icon: 'menu-system',
       perms: ['*']
@@ -1253,7 +1328,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '统计信息',
           breadcrumb: false,
           icon: 'menu-system',
-          perms: ['*']
+          perms: ['*'],
+          groupSelector: true
         }
       }
     ]

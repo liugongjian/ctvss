@@ -305,9 +305,9 @@ class User extends VuexModule implements IUserState {
     }
     const perms = data.perms
     // perms must be a non-empty array
-    if (!perms || perms.length <= 0) {
-      throw Error('当前子用户权限为空，请为其配置策略后再访问！')
-    }
+    // if (!perms || perms.length <= 0) {
+    //   throw Error('当前子用户权限为空，请为其配置策略后再访问！')
+    // }
     this.SET_PERMS(perms)
     this.SET_RESOURCES(data)
   }

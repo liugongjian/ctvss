@@ -2,7 +2,7 @@
   <div class="detail__buttons">
     <el-button v-if="!isSearch" size="small" @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
     <el-button v-if="info.deviceType === 'nvr'" size="small" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-    <el-button v-if="!isVgroup && checkPermission(['AdminDevice'])" size="small" @click="changeResourceDialog">配置资源包</el-button>
+    <el-button v-if="!isVgroup && !disableResourceTab && checkPermission(['AdminDevice'])" size="small" @click="changeResourceDialog">配置资源包</el-button>
     <el-button v-if="!isVgroup && checkPermission(['AdminDevice'])" size="small" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
     <el-dropdown v-if="!isVgroup" @command="handleMore">
       <el-button size="small">更多<i class="el-icon-arrow-down" /></el-button>
@@ -32,6 +32,8 @@
 <script lang="ts">
 import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
+import { UserModule } from '@/store/modules/user'
+
 @Component({
   name: 'DetailOperation'
 })
@@ -92,6 +94,11 @@ export default class extends Vue {
 
   private get isSearch() {
     return this.$route.query.isSearch
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   /**

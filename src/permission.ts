@@ -60,9 +60,15 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
     // Check whether the user has obtained his permission
     if (UserModule.perms.length === 0) {
       try {
-        // Note: perms must be a object array! such as: ['*'] or ['GET']
+        // Note: perms must be a string array! such as: ['*'] or ['GET']
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
+        if (!perms.length) {
+          Message.error('当前子用户暂无权限，请联系主账号配置权限策略！')
+          if (to.path === '/404') {
+            return next()
+          }
+        }
         const iamUserId = UserModule.iamUserId
         const tagObject = UserModule.tags || ({})
         const tags = Object.keys(tagObject).filter(key => UserModule.tags[key] === 'Y')
@@ -71,7 +77,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         PermissionModule.GenerateRoutes({ tags, perms, denyPerms, iamUserId })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard') {
           const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
           if (menuRoutes.length > 0) {
             to = menuRoutes[0]
@@ -106,9 +112,20 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         }
       }
     } else {
+      if (to.path === '/404') {
+        const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+        if (menuRoutes.length > 0) {
+          to = menuRoutes[0]
+        } else {
+          // @ts-ignore
+          to = PermissionModule.dynamicRoutes[0]
+        }
+        next({ ...to, replace: true })
+      } else {
       // 单点登录菜单高亮
-      UserModule.casLoginId && casService.activeCasMenu(to)
-      next()
+        UserModule.casLoginId && casService.activeCasMenu(to)
+        next()
+      }
     }
   } else {
     // Other pages that do not have permission to access are redirected to the login page.

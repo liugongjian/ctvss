@@ -4,7 +4,7 @@
       <div class="dashboard-wrap-overview__left">
         <DashboardDataToday />
         <DashboardFlowAndDevice :height="34" />
-        <DashboardResourcePackage @ai-change="aiChange" />
+        <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
       <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
         <DashboardAIAbility />
@@ -16,13 +16,15 @@
 </template>
 
 <script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
 import DashboardAlertToday from '@/views/Dashboard/components/DashboardAlertToday.vue'
 import DashboardAlertLive from '@/views/Dashboard/components/DashboardAlertLive.vue'
 import DashboardFlowAndDevice from '@/views/Dashboard/components/DashboardFlowAndDevice.vue'
 import DashboardAIAbility from '@/views/Dashboard/components/DashboardAIAbility.vue'
 import DashboardDataToday from '@/views/Dashboard/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/Dashboard/components/DashboardResourcePackage.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import { UserModule } from '@/store/modules/user'
+
 @Component({
   name: 'Dashboard',
   components: {
@@ -38,6 +40,11 @@ export default class extends Vue {
   private aiPakageNum = 0
   private aiChange(packageData: any) {
     this.aiPakageNum = packageData.ai
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 }
 </script>

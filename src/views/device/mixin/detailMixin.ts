@@ -234,8 +234,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     const perms = userState.perms
     const privateUserTag = userState.tags.privateUser || ''
     const denyPerms = settings.privateDenyPerms[privateUserTag] || []
-    if (denyPerms.includes('AdminViid') ||
-        (!perms.includes('*') && !perms.includes('AdminViid'))
+    if (denyPerms.includes('ivs:AdminViid') ||
+        (!perms.includes('*') && !perms.includes('ivs:AdminViid'))
     ) {
       return false
     }
@@ -270,7 +270,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   // 详情页操作
   @Provide('detailOperate')
   public async detailOperate(type, num?) {
-    let result = false
+    let result: any = false
     let params: Device = this.info
     num && (params = {
       ...this.info,

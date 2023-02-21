@@ -4,6 +4,7 @@
       <el-form label-position="top">
         <el-form-item label="视频格式">
           <el-select v-model="form.type">
+            <el-option value="mp4" label="Mp4" />
             <el-option value="flv" label="FLV" />
             <el-option value="hls" label="HLS" />
             <el-option value="rtc" label="Webrtc" />

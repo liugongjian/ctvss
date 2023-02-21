@@ -438,9 +438,10 @@ export default class extends Mixins(IndexMixin) {
       if (!this.advancedSearchForm.revertSearchFlag) {
         let data
         if (this.isCustomTree) {
-          data = await loadTreeNode({
+          const res = await loadTreeNode({
             dirId: node!.data.id
           })
+          data = this.setDirsStreamStatus(res.dirs)
         } else {
           data = await getDeviceTree({
             groupId: this.currentGroupId,
@@ -452,8 +453,7 @@ export default class extends Mixins(IndexMixin) {
             }
           })
         }
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirTree.updateKeyChildren(node.data.id, dirs)
+        dirTree.updateKeyChildren(node.data.id, data)
         node.expanded = true
         node.loaded = true
       }

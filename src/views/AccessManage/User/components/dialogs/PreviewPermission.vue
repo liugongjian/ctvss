@@ -31,7 +31,11 @@
           :class="`custom-tree-node__${data.type}`"
         >
           <span class="node-name">
-            <svg-icon :name="data.type" color="#6e7c89" />
+            <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+            <span v-else class="node-dir">
+              <svg-icon name="dir" width="15" height="15" />
+              <svg-icon name="dir-close" width="15" height="15" />
+            </span>
             <span :title="node.label" style="margin-left: 5px;">{{ node.label }}</span>
           </span>
           <div class="node-permission">
@@ -183,8 +187,8 @@ export default class extends Vue {
       const permissionRes = await previewAuthActions({
         targetResources: dirs.map(dir => ({
           groupId: node.data.groupId,
-          dirPath: dir.type === 'dir' ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1),
-          deviceId: dir.type === 'dir' ? undefined : dir.path[dir.path.length - 1].id
+          dirPath: (dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1),
+          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
         })),
         iamUserId: isGet ? this.dialogData.iamUserId : undefined,
         iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,

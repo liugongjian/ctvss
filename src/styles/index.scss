@@ -209,3 +209,12 @@ div:focus {
   left: 0;
   top: 8px;
 }
+
+.el-message-box.vss-warning  {
+  .el-message-box__title span::before {
+    content: '\e7a3';
+    font-family: 'element-icons';
+    color: $primary;
+    margin-right: 10px;
+  }
+}
