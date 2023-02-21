@@ -1,3 +1,11 @@
+<!--
+ * @Author: zhaodan zhaodan@telecom.cn
+ * @Date: 2023-02-14 16:58:39
+ * @LastEditors: zhaodan zhaodan@telecom.cn
+ * @LastEditTime: 2023-02-21 14:05:58
+ * @FilePath: /vss-user-web/src/views/AccessManage/User/Dashboard.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <el-card>
     <el-card class="dashboard-wrap-overview__container">
@@ -58,6 +66,11 @@
       </div> -->
       </div>
     </el-card>
+    <el-card v-if="ifShowAccess" class="dashboard-wrap-overview__container">
+      <h2>访问安全设置</h2>
+      <p>开启后，将支持用户使用App端、PC客户端登录</p>
+      <el-button type="primary" @click="openPasswordDialog">访问设置</el-button>
+    </el-card>
     <el-card class="dashboard-wrap-overview__container">
       <div class="dashboard-wrap-overview__item__card__content">
         <div class="dashboard-wrap-overview__cell">
@@ -69,6 +82,62 @@
         </div>
       </div>
     </el-card>
+
+    <!-- 非页面主体内容  dialog弹层   -->
+    <el-dialog
+      title="访问密码设置"
+      :visible="ifShowPasswordDialog"
+      :before-close="closePasswordDialog"
+      :destroy-on-close="true"
+      custom-class="dashboard__set-password"
+      width="40%"
+    >
+      <el-form
+        ref="passwordForm"
+        :model="passwordForm"
+        :rules="rules"
+        class="dashboard__set-password__password-form"
+      >
+        <el-form-item label="设置密码" prop="password">
+          <el-input
+            key="password"
+            ref="password"
+            v-model="passwordForm.password"
+            :type="passwordType.password"
+            placeholder="请输入密码"
+            name="password"
+            tabindex="2"
+          />
+          <span class="show-pwd" @click="showPwd('password')">
+            <svg-icon
+              :name="passwordType.password === 'password' ? 'eye-off' : 'eye-on'"
+            />
+          </span>
+          <span class="form-item-tip">密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符</span>
+        </el-form-item>
+        <el-form-item label="重新输入密码" prop="confirmPassword">
+          <el-input
+            key="confirmPassword"
+            ref="confirmPassword"
+            v-model="passwordForm.confirmPassword"
+            :type="passwordType.confirmPassword"
+            placeholder="请再次输入密码"
+            name="confirmPassword"
+            tabindex="3"
+            @keyup.enter.native="sureChangePassword"
+          />
+          <span class="show-pwd" @click="showPwd('confirmPassword')">
+            <svg-icon
+              :name="passwordType.confirmPassword === 'password' ? 'eye-off' : 'eye-on'"
+            />
+          </span>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sureChangePassword">确 定</el-button>
+        <el-button @click="closePasswordDialog">取 消</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -78,7 +147,10 @@ import DashboardLightContainer from '@/views/Dashboard/components/DashboardLight
 import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
-import { getIamInfo } from '@/api/iamDashboard'
+import { getIamInfo, setAccessPassword, ifAccess } from '@/api/iamDashboard'
+import { Form as ElForm, Input } from 'element-ui'
+import { encrypt } from '@/utils/encrypt'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardIam',
@@ -97,13 +169,60 @@ export default class extends Mixins(DashboardMixin) {
   private userLoginLink: any = ''
   private mainUserID: any = ''
 
+  private ifShowAccess: boolean = false
+  private ifShowPasswordDialog: boolean = false
+  private tagsObj: any = {}
+
+  private pwdReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.@$!%*#_~?&^])[A-Za-z0-9.@$!%*#_~?&^]{8,20}$/
+
+  private passwordForm = {
+    password: '',
+    confirmPassword: ''
+  }
+
+  private passwordType = {
+    password: 'password',
+    confirmPassword: 'password'
+  }
+
   private get container() {
     return 'DashboardLightContainer'
   }
 
-  private mounted() {
+  private validatePassword = (rule: any, value: string, callback: Function) => {
+    if (!value) {
+      callback(new Error('密码不能为空'))
+    } else if (!this.pwdReg.test(value)) {
+      callback(new Error('密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符'))
+    } else {
+      callback()
+    }
+  }
+  private validateConfirmPassword = (rule: any, value: string, callback: Function) => {
+    if (this.passwordForm.password !== this.passwordForm.confirmPassword) {
+      callback(new Error('两次密码输入不一致！'))
+    } else {
+      callback()
+    }
+  }
+
+  private rules = {
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { validator: this.validatePassword, trigger: ['blur', 'change'] }
+    ],
+    confirmPassword: [
+      { required: true, message: '请再次输入密码', trigger: 'blur' },
+      { validator: this.validatePassword, trigger: ['blur', 'change'] },
+      { validator: this.validateConfirmPassword, trigger: ['blur', 'change'] }
+    ]
+  }
+
+  private async mounted() {
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
+    this.tagsObj = UserModule.tags
+    await this.getIfShowAccess()
   }
 
   /**
@@ -182,5 +301,104 @@ export default class extends Mixins(DashboardMixin) {
     const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&mainUserID=${this.mainUserID}`
     this.userLoginLink = link
   }
+
+  private openPasswordDialog() {
+    this.ifShowPasswordDialog = true
+  }
+
+  private closePasswordDialog() {
+    this.ifShowPasswordDialog = false
+    this.passwordForm = {
+      password: '',
+      confirmPassword: ''
+    }
+    this.passwordType = {
+      password: 'password',
+      confirmPassword: 'password'
+    }
+  }
+
+  private showPwd(type: string) {
+    if (this.passwordType[type] === 'password') {
+      this.passwordType[type] = ''
+    } else {
+      this.passwordType[type] = 'password'
+    }
+    this.$nextTick(() => {
+      (this.$refs[type] as Input).focus()
+    })
+  }
+
+  private async getIfShowAccess() {
+    try {
+      const res = await ifAccess() as unknown as any
+      const { visible } = res
+      const { needSetPwd = 'N' } = this.tagsObj
+      this.ifShowAccess = needSetPwd === 'Y' && visible
+    } catch (error) {
+      this.$message.error(error)
+    }
+  }
+
+  private sureChangePassword() {
+    (this.$refs.passwordForm as ElForm).validate(async(valid: boolean) => {
+      if (valid) {
+        try {
+          const password = encrypt(this.passwordForm.password)
+          const param = {
+            password,
+            version: '2.0'
+          }
+          await setAccessPassword(param)
+          this.$message.success('访问安全设置密码成功')
+          this.ifShowAccess = false
+        } catch (error) {
+          this.$message.error(error)
+        } finally {
+          this.closePasswordDialog()
+        }
+      }
+    })
+  }
 }
 </script>
+<style lang="scss" scoped>
+.dashboard {
+  &__set-password {
+    position: relative;
+    width: 40%;
+    margin: 60px 0 60px 20px;
+
+    &__password-form {
+      .show-pwd {
+        position: absolute;
+        right: 10px;
+        font-size: 16px;
+        color: $darkGray;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .form-item-tip {
+        font-size: 12px;
+        color: $darkGray;
+        line-height: 1;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        padding-top: 6px;
+      }
+
+      ::v-deep .el-form-item.is-error {
+        .error-tip {
+          display: none;
+        }
+
+        .form-item-tip {
+          display: none;
+        }
+      }
+    }
+  }
+}
+</style>
