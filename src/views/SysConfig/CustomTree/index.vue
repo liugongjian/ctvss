@@ -10,7 +10,7 @@
     <el-card v-if="!treeListEmpty" class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
-        <el-tooltip content="添加上级平台">
+        <el-tooltip content="添加设备树">
           <el-button @click="openDialog('createTree')"><span>+ 添加</span></el-button>
         </el-tooltip>
       </div>
