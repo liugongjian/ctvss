@@ -170,6 +170,7 @@ export class RecordManager {
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
       this.isLoading = true
+      console.log('here?   💣  ')
       const records = await this.getRecordList(startTime, endTime)
       // 加载录像锁列表
       const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
@@ -276,6 +277,7 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
+          console.log('是不是这儿    🚀   ')
           await this.getRecordListByDate(date, isConcat, true)
         }
         record = this.getRecordByTime(time)
@@ -382,6 +384,7 @@ export class RecordManager {
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60
           const endTime = Math.floor(new Date().getTime() / 1000)
+          console.log('here?   🌙  ')
           const records = await this.getRecordList(startTime, endTime)
           if (records) {
             this.recordList = this.recordList.concat(records)
