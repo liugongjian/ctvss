@@ -2,6 +2,7 @@ import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { previewAuthActions } from '@/api/accessManage'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
@@ -24,6 +25,7 @@ export default class IndexMixin extends Vue {
     searchKey: '',
     revertSearchFlag: false
   }
+
   public maxHeight = null
   public dirList = []
   public isExpanded = true
@@ -73,6 +75,10 @@ export default class IndexMixin extends Vue {
 
   public get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
+  }
+
+  public get isCustomTree() {
+    return this.currentGroup?.isCustomTree
   }
 
   public get breadcrumb() {
@@ -131,16 +137,23 @@ export default class IndexMixin extends Vue {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
-      const dirs = await this.getAuthActionsDeviceTree({
-        groupId: this.currentGroupId,
-        id: 0,
-        deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
-        deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
-        searchKey: this.advancedSearchForm.searchKey || undefined
-      }, null)
-
+      let dirs
+      if (this.isCustomTree) {
+        const res = await loadTreeNode({
+          dirId: this.currentGroupId
+        })
+        dirs = this.setDirsStreamStatus(res.dirs)
+      } else {
+        dirs = await this.getAuthActionsDeviceTree({
+          groupId: this.currentGroupId,
+          id: 0,
+          deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+          streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+          matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+          deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+          searchKey: this.advancedSearchForm.searchKey || undefined
+        }, null)
+      }
       this.dirList = dirs
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
@@ -260,13 +273,29 @@ export default class IndexMixin extends Vue {
         VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
       }
       const dirTree: any = this.$refs.dirTree
-      let data = await this.getAuthActionsDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      }, node)
-      if (data) {
-        dirTree.updateKeyChildren(key, data)
+      let data
+      if (this.isCustomTree) {
+        data = await loadTreeNode({
+          dirId: node.data.id
+        })
+        if (data.dirs) {
+          if (this.currentGroup?.inProtocol === 'vgroup') {
+            data.dirs.forEach((dir: any) => {
+              dir.roleId = node.data.roleId || ''
+              dir.realGroupId = node.data.realGroupId || ''
+              dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
+            })
+          }
+          data.dirs = this.setDirsStreamStatus(data.dirs)
+          dirTree.updateKeyChildren(key, data.dirs)
+        }
+      } else {
+        const data = await this.getAuthActionsDeviceTree({
+          groupId: this.currentGroupId,
+          id: node.data.id,
+          type: node.data.type
+        }, node)
+        data && dirTree.updateKeyChildren(key, data)
       }
       node.expanded = true
       node.loaded = true
@@ -280,7 +309,7 @@ export default class IndexMixin extends Vue {
    */
   @Provide('getDirPath')
   public getDirPath(node: any) {
-    let path: any = []
+    const path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node.data
       if (data && data.id) {
@@ -486,11 +515,13 @@ export default class IndexMixin extends Vue {
           ...dir,
           groupId: this.currentGroupId,
           inProtocol: this.currentGroupInProtocol,
-          path: node ? node.data.path.concat([dir]) : [{
-            id: dir.id,
-            label: dir.label,
-            type: dir.type
-          }],
+          path: node
+            ? node.data.path.concat([dir])
+            : [{
+              id: dir.id,
+              label: dir.label,
+              type: dir.type
+            }],
           parentId: node ? node.data.id : '0'
         }))
       res.dirs = this.setDirsStreamStatus(res.dirs)
@@ -508,7 +539,6 @@ export default class IndexMixin extends Vue {
             ...permissionRes.result[index].iamUser.actions
           }))
       }
-      console.log('modified res.dirs: ', res.dirs)
       return res.dirs
     }
   }
@@ -530,12 +560,28 @@ export default class IndexMixin extends Vue {
       VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
     }
     try {
-      const dirs = await this.getAuthActionsDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      }, node)
-      resolve(dirs)
+      let res
+      if (this.isCustomTree) {
+        res = await loadTreeNode({
+          dirId: node.data.id
+        })
+        if (this.currentGroup?.inProtocol === 'vgroup') {
+          res.dirs.forEach((dir: any) => {
+            dir.roleId = node.data.roleId || ''
+            dir.realGroupId = node.data.realGroupId || ''
+            dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
+          })
+        }
+        res.dirs = this.setDirsStreamStatus(res.dirs)
+        resolve(res.dirs)
+      } else {
+        const dirs = await this.getAuthActionsDeviceTree({
+          groupId: this.currentGroupId,
+          id: node.data.id,
+          type: node.data.type
+        }, node)
+        resolve(dirs)
+      }
     } catch (e) {
       console.log('e: ', e)
       resolve([])

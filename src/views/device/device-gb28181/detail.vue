@@ -12,7 +12,7 @@
               :is-auto-created="isAutoCreated"
             />
             <!-- <div class="detail__buttons">
-              <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
+              <el-button @click="goSuperior">-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
               <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>

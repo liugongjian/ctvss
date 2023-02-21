@@ -1,3 +1,11 @@
+<!--
+ * @Author: liugongjian liugongjianxin@163.com
+ * @Date: 2022-12-22 16:24:09
+ * @LastEditors: liugongjian liugongjianxin@163.com
+ * @LastEditTime: 2023-01-05 13:58:56
+ * @FilePath: \vss-user-web\src\components\VssPlayer\index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div :id="playerId" ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
     <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
