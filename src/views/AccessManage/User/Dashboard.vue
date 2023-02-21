@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-02-14 16:58:39
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-21 10:34:06
+ * @LastEditTime: 2023-02-21 14:05:58
  * @FilePath: /vss-user-web/src/views/AccessManage/User/Dashboard.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -150,6 +150,7 @@ import * as loginService from '@/services/loginService'
 import { getIamInfo, setAccessPassword, ifAccess } from '@/api/iamDashboard'
 import { Form as ElForm, Input } from 'element-ui'
 import { encrypt } from '@/utils/encrypt'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardIam',
@@ -168,8 +169,9 @@ export default class extends Mixins(DashboardMixin) {
   private userLoginLink: any = ''
   private mainUserID: any = ''
 
-  private ifShowAccess: boolean = true
+  private ifShowAccess: boolean = false
   private ifShowPasswordDialog: boolean = false
+  private tagsObj: any = {}
 
   private pwdReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.@$!%*#_~?&^])[A-Za-z0-9.@$!%*#_~?&^]{8,20}$/
 
@@ -219,6 +221,7 @@ export default class extends Mixins(DashboardMixin) {
   private async mounted() {
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
+    this.tagsObj = UserModule.tags
     await this.getIfShowAccess()
   }
 
@@ -330,7 +333,8 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const res = await ifAccess() as unknown as any
       const { visible } = res
-      this.ifShowAccess = visible
+      const { needSetPwd = 'N' } = this.tagsObj
+      this.ifShowAccess = needSetPwd === 'Y' && visible
     } catch (error) {
       this.$message.error(error)
     }
