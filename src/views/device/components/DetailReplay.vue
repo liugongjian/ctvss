@@ -23,6 +23,7 @@ import { ScreenManager } from '../services/Screen/ScreenManager'
 export default class extends Vue {
   @Prop({ required: true }) private readonly deviceId: number
   @Prop({ required: true }) private readonly inProtocol: string
+  @Prop({ required: true }) private readonly deviceName: string
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
 
@@ -40,6 +41,7 @@ export default class extends Vue {
     screen.inProtocol = this.inProtocol
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
+    screen.deviceName = this.deviceName
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)

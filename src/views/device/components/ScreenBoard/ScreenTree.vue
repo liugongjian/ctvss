@@ -351,7 +351,6 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('screenManager.screenManagerStatus', { deep: true })
   private onScreenManagerChange(screenManagerStatus) {
-    console.log(screenManagerStatus.executeQueueConfig.status)
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
