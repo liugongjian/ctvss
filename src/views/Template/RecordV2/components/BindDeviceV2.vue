@@ -31,7 +31,8 @@
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}
+              <span v-if="node.level === 1">{{ `(已选:${data.checkedSize || data.bindSize} / 总数:${data.totalSize})` }}</span>
+              <span v-else>{{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}</span>
               <span v-if="data.bindStatus === 4">
                 <el-tooltip effect="dark" :content="'当前设备已绑定模板'+data.templateName" placement="top">
                   <i class="el-icon-info" style="color: #faad15;" />
@@ -43,7 +44,6 @@
       </div>
       <div class="bind-body-right">
         <span class="bind-title-left">绑定设备预览</span>
-        <!-- <span class="bind-title-right">已选中{{}}项</span> -->
         <el-tree
           ref="previewTree"
           empty-text="暂无已绑定设备"
@@ -73,7 +73,7 @@
         </el-tree>
       </div>
     </div>
-    <div v-if="currentTemplate.type === 2" class="bind-body-bottom">
+    <div v-if="currentTemplate.recordType === 2" class="bind-body-bottom">
       <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
@@ -137,7 +137,7 @@ export default class extends Vue {
   private submitting = false
   private quickStart = false
   private rootNode = {
-    label: '根目录',
+    label: '全部',
     isLeaf: false,
     id: '-1',
     type: 'group',
@@ -170,7 +170,7 @@ export default class extends Vue {
     console.log(size)
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.minHeight = documentHeight - top - 150
+    this.minHeight = documentHeight - top - 170
   }
 
   /**

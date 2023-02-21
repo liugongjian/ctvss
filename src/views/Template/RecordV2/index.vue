@@ -67,7 +67,8 @@
                     已绑定设备
                   </span>
                   <span class="bind-title-right">
-                    已绑定 {{ bindedDeviceNum }} 项
+                    <span v-if="isDelete">已选中 {{ delDataList.length }} 项</span>
+                    <span v-else>已绑定 {{ bindedDeviceNum }} 项</span>
                   </span>
                   <div>
                     <el-tree
@@ -332,7 +333,6 @@ export default class extends Vue {
    */
   private calMaxHeight() {
     const documentHeight = document.body.offsetHeight
-    console.log(this.deviceWrap)
     if (this.deviceWrap) {
       const size = this.deviceWrap.$el.getBoundingClientRect()
       const top = size.top
@@ -488,6 +488,7 @@ export default class extends Vue {
         this.bindedDeviceNum = 0
         this.isDelete = false
         this.defaultDevice = true
+        this.handleDevice = true
         this.initBindDevice()
       }
     })
