@@ -159,6 +159,7 @@
       :current-name="cruises[currentIndex.cruise].name"
       :is-create="isCreate"
       :device-id="deviceId"
+      :screen="screen"
       @on-close="closeCruiseDialog"
     />
   </div>

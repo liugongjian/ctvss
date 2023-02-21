@@ -71,6 +71,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { describeDevicePresets, describePTZCruise, updatePTZCruise } from '@/api/ptz_control'
+import { getLocalStorage } from '@/utils/storage'
 
 @Component({
   name: 'CreateDir'
@@ -84,6 +85,8 @@ export default class extends Vue {
   private currentName?: any
   @Prop()
   private deviceId?: any
+  @Prop()
+  private screen?: any
   private dialogVisible = true
   private loading: any = {
     form: false,
@@ -178,12 +181,15 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading.submit = true
+          const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
           await updatePTZCruise({
             cruiseId: this.currentIndex.toString(),
             deviceId: this.deviceId,
             cruiseName: this.form.cruiseName,
             holdTime: this.form.holdTime,
             speed: this.form.speed.toString(),
+            inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+            groupId,
             cruises: this.form.pathList.map(presetId => {
               return {
                 presetId
@@ -247,11 +253,13 @@ export default class extends Vue {
       .el-slider__input {
         width: 50px;
       }
+
       input {
         padding-left: 4px;
         padding-right: 4px;
       }
     }
+
     .el-slider__runway.show-input {
       margin-right: 60px;
     }
@@ -259,40 +267,48 @@ export default class extends Vue {
 
   .time-input {
     width: 80px;
-    margin-right: 10px
+    margin-right: 10px;
   }
+
   .path-list {
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
     border-radius: 5px;
     text-align: center;
     height: 200px;
+
     &__header {
       width: 90%;
       display: inline-block;
-      border-bottom: 1px solid #DCDFE6;
+      border-bottom: 1px solid #dcdfe6;
       margin-bottom: 15px;
+
       .el-button {
-        margin-left: 10px
+        margin-left: 10px;
       }
     }
+
     &__content {
       height: 145px;
       overflow: auto;
     }
+
     &__item {
       height: 50px;
       line-height: 50px;
+
       .el-select {
         width: 120px;
         margin-right: 10px;
       }
+
       ::v-deep {
         .el-input__inner {
-          text-align: center
+          text-align: center;
         }
+
         .el-form-item__error {
           left: 25%;
-          top: calc(100% - 6px)
+          top: calc(100% - 6px);
         }
       }
     }
