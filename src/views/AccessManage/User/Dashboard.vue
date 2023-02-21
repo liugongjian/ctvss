@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-02-14 16:58:39
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-21 10:10:47
+ * @LastEditTime: 2023-02-21 10:34:06
  * @FilePath: /vss-user-web/src/views/AccessManage/User/Dashboard.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -347,6 +347,7 @@ export default class extends Mixins(DashboardMixin) {
           }
           await setAccessPassword(param)
           this.$message.success('访问安全设置密码成功')
+          this.ifShowAccess = false
         } catch (error) {
           this.$message.error(error)
         } finally {
