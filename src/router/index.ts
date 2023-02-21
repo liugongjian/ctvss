@@ -299,7 +299,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-live',
       perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      customTreeSelector: true
     },
     children: [
       {
@@ -312,7 +313,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
           activeMenu: '/screen',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]
@@ -361,7 +363,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-replay',
       perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
       alwaysShow: false,
-      groupSelector: true
+      groupSelector: true,
+      customTreeSelector: true
     },
     children: [
       {
@@ -374,7 +377,8 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
           activeMenu: '/replay',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]
@@ -1368,6 +1372,17 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'SysConfig',
         meta: {
           title: '系统设置',
+          breadcrumb: false,
+          icon: 'menu-system',
+          perms: ['*']
+        }
+      },
+      {
+        path: '/custom-tree',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
           breadcrumb: false,
           icon: 'menu-system',
           perms: ['*']

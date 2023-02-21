@@ -127,7 +127,7 @@
               </el-tree>
             </div>
             <!-- 虚拟业务组暂不支持搜索 -->
-            <advanced-search v-if="currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" />
+            <advanced-search v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" />
           </div>
         </div>
         <div class="device-list__right">
