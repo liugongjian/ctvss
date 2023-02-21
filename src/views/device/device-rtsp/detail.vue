@@ -259,7 +259,7 @@
         <el-tab-pane label="配置信息" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetLiveStream'], actions)" label="实时预览" name="preview">
           <detail-preview
             v-if="activeName==='preview'"
             :device-id="deviceId"
@@ -270,10 +270,10 @@
             :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane label="AI分析" name="ai">
+        <el-tab-pane v-if="checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">

@@ -10,6 +10,7 @@
               :is-vgroup="isVGroup"
               :is-nvr="isNVR"
               :is-auto-created="isAutoCreated"
+              :actions="actions"
             />
             <!-- <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
@@ -288,7 +289,7 @@
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetLiveStream'], actions)" label="实时预览" name="preview">
           <detail-preview
             v-if="activeName==='preview'"
             :device-id="deviceId"
@@ -299,10 +300,10 @@
             :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :device-name="info.deviceName" />
         </el-tab-pane>
-        <el-tab-pane label="AI分析" name="ai">
+        <el-tab-pane v-if="checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">
