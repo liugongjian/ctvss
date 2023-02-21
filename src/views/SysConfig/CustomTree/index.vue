@@ -124,7 +124,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ data.parentDevice && data.parentDevice.type === 'nvr' ? `${data.label}(${data.parentDevice.label})`: node.label }}
+                    {{ data.parentDevice ? `${data.label}(${data.parentDevice.label})`: node.label }}
                     <span v-if="data.originFlag" class="sum-icon">{{ getTotalOfTree(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </div>
@@ -555,7 +555,8 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
           orderSequence: +dir.orderSequence,
           // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
-          parentDevice: ['nvr', 'platform'].includes(node.data.type) ? node.data : null
+          parentDevice: ['nvr'].includes(node.data.type) ? node.data : null,
+          rootPlatForm: node.data.type === 'platform' ? node.data : ( node.data.rootPlatForm || null )
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -676,8 +677,6 @@ export default class extends Vue {
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
-    console.log('data:', data)
-    console.log('node:', node)
     await this.checkNodes2(dirTree2, node)
     this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
@@ -831,7 +830,6 @@ export default class extends Vue {
     const params = this.generateTreeParams(childNodes)
     const treeInfo = { id: this.currentTree.treeId, type: 'dir', parentDirId: '-1' }
     try {
-      console.log('params:', params)
       // 下面请求2次：1. 修改树的名称  2. 提交params
       await updateTreeNodes({ dirs: [{ ...treeInfo, dirs: params }] })
       // this.cancel()
@@ -872,6 +870,11 @@ export default class extends Vue {
       // nvr通道需要添加nvr的设备id，platform下的设备需要加platform的设备id
       if (node.data.parentDevice) {
         res.parentDeviceId = node.data.parentDevice.id
+      }
+
+      // platForm下的设备需要加上parentDeviceId
+      if (node.data.rootPlatForm) {
+        res.parentDeviceId = node.data.rootPlatForm.id
       }
       res.action = this.getActionType(node)
       if (node.parent.data.originFlag) {

@@ -342,7 +342,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         const permissionRes = await previewAuthActions({
           targetResources: [{
             groupId: this.currentGroupId,
-            dirPath: pathArr.join('/') || '0',
+            dirPath: pathArr.slice(0, -1).join('/') || '0',
             deviceId: this.deviceId
           }]
         })
