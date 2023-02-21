@@ -10,6 +10,7 @@
               :is-vgroup="isVGroup"
               :is-nvr="isNVR"
               :is-auto-created="isAutoCreated"
+              :actions="actions"
             />
             <!-- <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
@@ -178,7 +179,7 @@
           <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
-          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
+          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" :actions="actions" />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetLiveStream'], actions)" label="实时预览" name="preview">
           <detail-preview

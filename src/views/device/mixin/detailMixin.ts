@@ -347,7 +347,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
           }]
         })
         this.actions = permissionRes.result[0].iamUser.actions
-        console.log('this.actions: ', this.actions)
       }
       /**
        * 2022-03-16修改
