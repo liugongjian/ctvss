@@ -26,7 +26,7 @@
       class="lock-tooltip"
       >
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" v-if="!UserModule.iamUserId || screen.ivsLockCloudRecord" @click="unlock(item)">解锁</span>
+      <span class="lock-tooltip-unlock" v-if="canLock" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
@@ -76,6 +76,10 @@ export default class extends Vue {
     default: false
   })
   private disabled: boolean
+
+  private get canLock() {
+    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
+  }
 
   /* 锁定权限 */ 
   private lockPermission: any = 1
