@@ -168,6 +168,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
+import { getLocalStorage } from '@/utils/storage'
 
 @Component({
   name: 'PtzControl',
@@ -254,7 +255,12 @@ export default class extends Vue {
   private async getPresets() {
     try {
       this.loading.preset = true
-      const res = await describeDevicePresets({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describeDevicePresets({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
       this.presets = Array.from({ length: 255 }, (value, index) => {
         const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
         return {
@@ -278,7 +284,12 @@ export default class extends Vue {
   private async getCruises() {
     try {
       this.loading.cruise = true
-      const res = await describePTZCruiseList({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describePTZCruiseList({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
       this.cruises = Array.from({ length: 8 }, (value, index) => {
         const found = res.cruiseInfos.find((cruise: any) => cruise.cruiseId === (index + 1).toString())
         return {
@@ -298,7 +309,12 @@ export default class extends Vue {
   private async getKeepWatchInfo() {
     try {
       this.loading.homeposition = true
-      const res = await describePTZKeepwatch({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describePTZKeepwatch({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
       this.homepositionForm = {
         enable: res.enable,
         waitTime: res.waitTime,
@@ -316,7 +332,13 @@ export default class extends Vue {
 
   private async deletePreset(presetId: number) {
     try {
-      await deleteDevicePreset({ deviceId: this.deviceId, presetId: String(presetId) })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await deleteDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
       this.getPresets()
     } catch (e) {
       this.$message.error(e && e.message)
@@ -330,7 +352,14 @@ export default class extends Vue {
 
   private async setPreset(presetId: number, presetName: string) {
     try {
-      await setDevicePreset({ deviceId: this.deviceId, presetId: String(presetId), presetName })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await setDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        presetName,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
       // this.$set(this.presets, presetId - 1, {
       //   'setFlag': true,
       //   'name': presetName,
@@ -359,15 +388,24 @@ export default class extends Vue {
 
   private async gotoPreset(presetId: number) {
     try {
-      await gotoDevicePreset({ deviceId: this.deviceId, presetId: String(presetId) })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await gotoDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        inProtocol: this.$route.query.inProtocol,
+        groupId
+      })
     } catch (e) {
       this.$message.error(e && e.message)
     }
   }
 
   private formatStartParam(direction: number, speed: number) {
+    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.$route.query.inProtocol,
+      groupId
     }
     switch (direction) {
       case 5:
@@ -421,8 +459,11 @@ export default class extends Vue {
   }
 
   private formatEndParam(direction: number) {
+    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.$route.query.inProtocol,
+      groupId
     }
     switch (direction) {
       case 5:
@@ -522,9 +563,12 @@ export default class extends Vue {
 
   private async handleCruise(cruiseId: any) {
     try {
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await startPTZCruise({
         cruiseId: cruiseId.toString(),
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
       })
       this.$message({
         type: 'success',
@@ -537,9 +581,12 @@ export default class extends Vue {
 
   private async stopCruise(cruiseId: any) {
     try {
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await stopPTZCruise({
         cruiseId: cruiseId.toString(),
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol,
+        groupId
       })
       this.$message({
         type: 'success',
@@ -556,12 +603,14 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (!valid) return
       try {
+        const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
         await updatePTZKeepwatch({
           deviceId: this.deviceId,
           enable: this.homepositionForm.enable,
           waitTime: this.homepositionForm.waitTime,
           presetId: this.homepositionForm.presetId,
-          inProtocol: 'gb28181'
+          inProtocol: 'gb28181',
+          groupId
         })
         this.$message({
           type: 'success',
