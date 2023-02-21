@@ -167,7 +167,6 @@ export default class extends Vue {
    */
   private calMaxHeight() {
     const size = this.bindWrap.getBoundingClientRect()
-    console.log(size)
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.minHeight = documentHeight - top - 170
@@ -204,7 +203,7 @@ export default class extends Vue {
           res.dirs.forEach((group) => {
             total += group.totalSize
             bindSize += group.bindSize
-          }, 0)
+          })
           this.totalCheckedSize = bindSize
           this.$set(rootNode.data, 'bindSize', bindSize)
           this.$set(rootNode.data, 'totalSize', total)
