@@ -13,11 +13,11 @@ export default class extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .status-badge {
-    width: 4px;
-    height: 4px;
-    opacity: 0.7;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
     border-radius: 100px;
     vertical-align: middle;
     margin-right: 5px;
