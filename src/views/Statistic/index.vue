@@ -943,13 +943,13 @@ export default class extends Vue {
 
   &__calendar {
     display: flex;
-    // justify-content: center;
     align-items: center;
     width: 640px;
-    margin-top: 20px;
-    border: 1px solid #b4b4b4;
+    margin: 20px 0;
+    border: 1px solid $borderGrey2;
     padding: 10px;
     max-width: 750px;
+    border-radius: 3px;
 
     &__chart,
     &__date {
@@ -976,6 +976,8 @@ export default class extends Vue {
         line-height: 26px;
         background-color: #fff;
         user-select: none;
+        font-size: 12px;
+        border-radius: 3px;
       }
 
       &__incomplete {
@@ -990,7 +992,8 @@ export default class extends Vue {
       }
 
       &__complete {
-        background-color: #95f201;
+        background-color: $success;
+        color: #fff;
       }
     }
 
@@ -1024,6 +1027,10 @@ export default class extends Vue {
   &__right {
     flex: 1;
     padding: 20px;
+  }
+
+  .export {
+    cursor: pointer;
   }
 }
 </style>

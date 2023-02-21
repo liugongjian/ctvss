@@ -234,8 +234,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     const perms = userState.perms
     const privateUserTag = userState.tags.privateUser || ''
     const denyPerms = settings.privateDenyPerms[privateUserTag] || []
-    if (denyPerms.includes('AdminViid') ||
-        (!perms.includes('*') && !perms.includes('AdminViid'))
+    if (denyPerms.includes('ivs:AdminViid') ||
+        (!perms.includes('*') && !perms.includes('ivs:AdminViid'))
     ) {
       return false
     }

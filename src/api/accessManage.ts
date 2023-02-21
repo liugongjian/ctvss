@@ -30,7 +30,7 @@ export const getUser = (params: any): Promise<any> =>
 
 export const getUserList = (params: any): Promise<any> =>
   request({
-    url: '/iam/user/list',
+    url: '/iam/users',
     method: 'get',
     params
   })
@@ -59,6 +59,13 @@ export const modifyGroup = (params: any): Promise<any> =>
 export const getGroup = (params: any): Promise<any> =>
   request({
     url: '/iam/group',
+    method: 'get',
+    params
+  })
+
+export const getGroupInheritedPolicies = (params: any): Promise<any> =>
+  request({
+    url: '/iam/group/inherited',
     method: 'get',
     params
   })
@@ -187,7 +194,7 @@ export const getPolicyPrincipals = (params: any): Promise<any> =>
 
 export const detachUserPolicy = (data: any): Promise<any> =>
   request({
-    url: '/iam/policy/detachUser',
+    url: '/iam/policy/detach',
     method: 'post',
     data
   })
@@ -250,6 +257,30 @@ export const accountUnlock = (data: any): Promise<any> =>
 export const accountLock = (data: any): Promise<any> =>
   request({
     url: '/iam/user/lock',
+    method: 'post',
+    data
+  })
+
+// 账号权限-预览
+export const previewAuthActions = (data: any): Promise<any> =>
+  request({
+    url: '/iam/authpreview',
+    method: 'post',
+    data
+  })
+
+// 账号权限-查看（前端暂未用到）
+export const getAuthActions = (data: any): Promise<any> =>
+  request({
+    url: '/iam/auth',
+    method: 'post',
+    data
+  })
+
+// 查看指定设备或目录的赋权子账号列表
+export const describeAuthIamUsers = (data: any): Promise<any> =>
+  request({
+    url: '/iam/auth/users',
     method: 'post',
     data
   })
