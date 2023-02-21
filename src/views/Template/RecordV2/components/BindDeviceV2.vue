@@ -1,5 +1,5 @@
 <template>
-  <div class="bind-wrap">
+  <div ref="bindWrap" class="bind-wrap">
     <div class="bind-body">
       <div class="bind-body-left">
         <span class="bind-title-left">全部设备</span>
@@ -15,21 +15,24 @@
           :load="loadSubDeviceLeft"
           :props="treeProp"
           show-checkbox
+          :style="`height: ${minHeight}px`"
           @check="onBindTreeCheck"
         >
           <span
             slot-scope="{node, data}"
-            class="bind-device-tree"
-            :class="{'has-binded-self': data.bindStatus === 1}"
+            class="custom-tree-node"
+            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
           >
             <span class="node-name">
+              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}
+              <span v-if="node.level === 1">{{ `(已选:${data.checkedSize || data.bindSize} / 总数:${data.totalSize})` }}</span>
+              <span v-else>{{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}</span>
               <span v-if="data.bindStatus === 4">
                 <el-tooltip effect="dark" :content="'当前设备已绑定模板'+data.templateName" placement="top">
                   <i class="el-icon-info" style="color: #faad15;" />
@@ -41,7 +44,6 @@
       </div>
       <div class="bind-body-right">
         <span class="bind-title-left">绑定设备预览</span>
-        <!-- <span class="bind-title-right">已选中{{}}项</span> -->
         <el-tree
           ref="previewTree"
           empty-text="暂无已绑定设备"
@@ -49,20 +51,21 @@
           :props="treeProp"
           node-key="id"
           :data="previewDeviceList"
+          :style="`height: ${minHeight}px`"
           @node-expand="onPreviewTreeExpand"
         >
           <span
             slot-scope="{node, data}"
-            class="bind-device-tree"
+            class="custom-tree-node"
             :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
           >
             <span class="node-name">
+              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
-              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
               {{ node.label }}
               {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize})` }}
             </span>
@@ -70,7 +73,7 @@
         </el-tree>
       </div>
     </div>
-    <div v-if="currentTemplate.type === 2" class="bind-body-bottom">
+    <div v-if="currentTemplate.recordType === 2" class="bind-body-bottom">
       <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
@@ -110,14 +113,15 @@ import { cloneDeep } from 'lodash'
   }
 })
 export default class extends Vue {
-  @Prop()
-  private currentTemplate: any
+  @Prop()private currentTemplate: any
 
+  @Ref('bindWrap') private bindWrap
   @Ref('bindTree') private bindTree
   @Ref('previewTree') private previewTree
 
-  private submitable = false
+  private submitable = true
   private hasBindedNode = false
+  private minHeight = null
 
   private loading = {
     deviceTree: false,
@@ -133,7 +137,7 @@ export default class extends Vue {
   private submitting = false
   private quickStart = false
   private rootNode = {
-    label: '根目录',
+    label: '全部',
     isLeaf: false,
     id: '-1',
     type: 'group',
@@ -145,6 +149,28 @@ export default class extends Vue {
 
   private get checkedNodes() {
     return this.bindTree.getCheckedNodes(false, true)
+  }
+
+  private mounted() {
+    this.$nextTick(() => {
+      this.calMaxHeight()
+    })
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  private calMaxHeight() {
+    const size = this.bindWrap.getBoundingClientRect()
+    console.log(size)
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.minHeight = documentHeight - top - 170
   }
 
   /**
@@ -201,8 +227,6 @@ export default class extends Vue {
         this.setChecked(node)
       })
       resolve(dirs)
-      // 同步到预览树
-      // this.updatePreviewTree(node.data.id, dirs)
     }
   }
 
@@ -213,11 +237,14 @@ export default class extends Vue {
   private onPreviewTreeExpand(data, node) {
     const bindTreeNode = this.bindTree.getNode(node.data.id)
     if (!bindTreeNode.loaded) {
+      const previewTreeNode = this.previewTree.getNode(node.data.id)
+      previewTreeNode.loading = true
       this.loadSubDeviceLeft(node, (children) => {
         const bindTreeNode = this.bindTree.getNode(node.data.id)
         this.bindTree.updateKeyChildren(node.data.id, children)
         bindTreeNode.loaded = true
         bindTreeNode.expanded = true
+        previewTreeNode.loading = false
         this.$nextTick(() => {
           this.deepCopy(bindTreeNode)
         })
@@ -231,7 +258,7 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
-    this.submitable = true
+    this.submitable = false
     const node = this.bindTree.getNode(data.id)
     if (data.id === '-1') {
       // 全选根目录
@@ -259,7 +286,7 @@ export default class extends Vue {
       await this.onBindTreeCheck(data)
     }
     this.sumCheckedSize(node)
-    this.submitable = false
+    this.submitable = true
   }
 
   /**
@@ -557,11 +584,13 @@ export default class extends Vue {
 }
 
 .bind-body-left {
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
 }
 
 .bind-body-right {
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
   margin-left: 20px;
 }
 
@@ -581,7 +610,7 @@ export default class extends Vue {
 .general-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;
-  height: 400px;
+  min-height: 400px;
   margin-bottom: 10px;
   overflow: auto;
 }
