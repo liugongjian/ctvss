@@ -227,8 +227,6 @@ export default class extends Vue {
         this.setChecked(node)
       })
       resolve(dirs)
-      // 同步到预览树
-      // this.updatePreviewTree(node.data.id, dirs)
     }
   }
 
@@ -239,11 +237,14 @@ export default class extends Vue {
   private onPreviewTreeExpand(data, node) {
     const bindTreeNode = this.bindTree.getNode(node.data.id)
     if (!bindTreeNode.loaded) {
+      const previewTreeNode = this.previewTree.getNode(node.data.id)
+      previewTreeNode.loading = true
       this.loadSubDeviceLeft(node, (children) => {
         const bindTreeNode = this.bindTree.getNode(node.data.id)
         this.bindTree.updateKeyChildren(node.data.id, children)
         bindTreeNode.loaded = true
         bindTreeNode.expanded = true
+        previewTreeNode.loading = false
         this.$nextTick(() => {
           this.deepCopy(bindTreeNode)
         })
