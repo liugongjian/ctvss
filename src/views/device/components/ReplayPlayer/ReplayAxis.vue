@@ -77,12 +77,10 @@ export default class extends Vue {
   })
   private disabled: boolean
 
-  private get canLock() {
-    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
-  }
+  private canLock = false
 
   /* 锁定权限 */ 
-  private lockPermission: any = 1
+  // private lockPermission: any = 1
 
   /* 时间轴拖动数据 */
   private axisDrag: any = {
@@ -230,11 +228,6 @@ export default class extends Vue {
     return this.screen && this.screen.isLoading ? '加载中' : dateFormat(this.currentTime * 1000)
   }
 
-  /* 录像锁主子账号判断 */
-  private get role() {
-    return UserModule.iamUserId ? 'sub-role' : 'main-role'
-  }
-
   /* 监听播放器时间变化 */
   @Watch('screen.player.currentTime')
   private onCurrentTimeChange() {
@@ -260,6 +253,8 @@ export default class extends Vue {
 
   /* 监听设备变化 */
   @Watch('screen.deviceId')
+  /* 监听锁定权限变化 */
+  @Watch('screen.ivsLockCloudRecord')
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
   /* 监听录像列表 */
@@ -269,11 +264,22 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
-    console.log('时间轴上可以看到  不 recordType 变了 后端控制 查到为空就行？  🧨✨🎉', this.screen.inProtocol, this.screen.recordType)
+    // console.log('时间轴上可以看到  不 recordType 变了 后端控制 查到为空就行？  🧨✨🎉', this.screen.inProtocol, this.screen.recordType)
     // if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
     //   // 设备不存在录像锁定功能
 
     // }
+    // 更新锁定权限，控制锁定功能
+    if (!UserModule.iamUserId || this.screen.ivsLockCloudRecord) {
+      // can lock
+      this.canLock = true
+      this.canvas && this.canvas.addEventListener('click', this.onClickLock)
+      // console.log('🎈🎈🎈🎈 注册点击锁事件 this.canLock', this.canLock)
+    } else {
+      this.canLock = false
+      this.canvas && this.canvas.removeEventListener('click', this.onClickLock)
+      // console.log('🧨🎇🧨 删除点击锁事件')
+    }
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
@@ -330,9 +336,7 @@ export default class extends Vue {
     this.canvas.addEventListener('mousedown', this.moveAxisStart)
     this.canvas.addEventListener('wheel', this.onWheel)
     // 没有锁定权限，不用注册点击锁方法
-    if (this.screen.ivsLockCloudRecord || !UserModule.iamUserId) {
-      this.canvas.addEventListener('click', this.onClickLock)
-    }
+    this.canLock && (this.canvas.addEventListener('click', this.onClickLock))
     this.canvas.addEventListener('mousemove', this.onAxisMove)
     this.canvas.width = this.settings.width
     this.canvas.height = this.settings.height
@@ -739,8 +743,9 @@ export default class extends Vue {
    * 
    */
   private onClickLock(e: any) {
+    // console.log('点击又不行了？   ', this.durationList.length > 1)
     if (!this.notClick) {
-      if (this.role === 'sub-role' || this.durationList.length > 1) return
+      if (this.durationList.length > 1) return
       this.axisData.locks.map((item: any) => {
         const validX = item.x + 20
         const validY = 20
@@ -753,7 +758,7 @@ export default class extends Vue {
   }
 
   private unlock(item: any) {
-    if (this.lockPermission !== 1) return
+    // if (this.lockPermission !== 1) return
     this.recordLockItem = [item]
     this.unlockVisable = true
   }
