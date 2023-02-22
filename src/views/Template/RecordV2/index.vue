@@ -205,7 +205,7 @@ export default class extends Vue {
 
   private minHeight = null
   private minTreeHeight = null
-  private currentTemplate: any = {}
+  private currentTemplate: any = null
   private deviceListMain: any = []
 
   private templates: any = []
@@ -234,7 +234,9 @@ export default class extends Vue {
       this.loading.template = false
       this.$nextTick(() => {
         // 默认选中第一个模板
-        this.currentTemplate = this.templates[0]
+        if (!this.currentTemplate) {
+          this.currentTemplate = this.templates[0]
+        }
         this.defaultDevice = true
         this.isDelete = false
         this.bindDevice = false
@@ -362,6 +364,7 @@ export default class extends Vue {
       resolve(root)
       this.$nextTick(async() => {
         const rootNode = this.bindTreeMain.getNode('-1')
+        if (!rootNode) return
         this.bindTreeMain.updateKeyChildren('-1', res.dirs)
         rootNode.loaded = true
         rootNode.expanded = true
@@ -590,12 +593,12 @@ export default class extends Vue {
   /**
    * 关闭新建/编辑模板
    */
-  private createClose(isRefresh: any) {
+  private createClose(payload: any) {
     // 控制关闭新建和编辑分页,激活新建按钮
     this.createTemplateDisable = false
     this.createOrUpdateTemplate = false
     this.mainCard = true
-    if (isRefresh) {
+    if (payload.isRefresh) {
       // 更新页面
       this.init()
     }
