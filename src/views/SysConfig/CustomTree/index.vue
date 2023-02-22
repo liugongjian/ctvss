@@ -175,7 +175,7 @@
         <el-checkbox v-model="hideDeleteDirDialog">本次编辑不再询问</el-checkbox>
       </div>
       <el-form v-else :model="dialog.data">
-        <el-form-item label="名称" prop="name" :rules="dialog.data.rule">
+        <el-form-item label="名称" prop="name" :rules="dialog.data.rule" :error="duplicateDirError">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
       </el-form>
@@ -276,6 +276,8 @@ export default class extends Vue {
     startStop: false,
     submitting: false
   }
+
+  private duplicateDirError = ''
 
   private get treeListEmpty() {
     this.calMaxHeight()
@@ -556,7 +558,7 @@ export default class extends Vue {
           orderSequence: +dir.orderSequence,
           // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
           parentDevice: ['nvr'].includes(node.data.type) ? node.data : null,
-          rootPlatForm: node.data.type === 'platform' ? node.data : ( node.data.rootPlatForm || null )
+          rootPlatForm: node.data.type === 'platform' ? node.data : (node.data.rootPlatForm || null)
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -637,6 +639,7 @@ export default class extends Vue {
   }
 
   private openDialog(type, node) {
+    this.duplicateDirError = ''
     if (type === 'createTree') {
       this.treeList.forEach(t => {
         t.editFlag = false
@@ -775,20 +778,34 @@ export default class extends Vue {
   private createDir() {
     const dirTree2: any = this.$refs.dirTree2
     const parentNode = this.dialog.type === 'createDir' ? this.currentDirNode : dirTree2.getNode(root.id)
-    parentNode.expanded = true
-    this.$nextTick(() => {
-      const insertDir = {
-        id: 'T' + new Date().getTime(), // 暂时给一个id保存在前端
+    // dialog.data.name
+    let isNameDuplicate = false
+    if (parentNode.childNodes.length > 0) {
+      parentNode.childNodes.forEach(cnode => {
         // @ts-ignore
-        label: this.dialog.data.name,
-        type: 'dir',
-        isLeaf: false,
-        orderSequence: parentNode.childNodes[0] ? +parentNode.childNodes[0].data.orderSequence - 1 : 0
-        // orderSequence需要设置parentNode.childNodes[0].orderSequence - 1
-      }
-      parentNode.childNodes.length > 0 ? dirTree2.insertBefore(insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
-    })
-    this.dialogCancel()
+        if (cnode.data.label === this.dialog.data.name) {
+          isNameDuplicate = true
+        }
+      })
+    }
+    if (!isNameDuplicate) {
+      parentNode.expanded = true
+      this.$nextTick(() => {
+        const insertDir = {
+          id: 'T' + new Date().getTime(), // 暂时给一个id保存在前端
+          // @ts-ignore
+          label: this.dialog.data.name,
+          type: 'dir',
+          isLeaf: false,
+          orderSequence: parentNode.childNodes[0] ? +parentNode.childNodes[0].data.orderSequence - 1 : 0
+          // orderSequence需要设置parentNode.childNodes[0].orderSequence - 1
+        }
+        parentNode.childNodes.length > 0 ? dirTree2.insertBefore(insertDir, parentNode.childNodes[0]) : dirTree2.append(insertDir, parentNode)
+      })
+      this.dialogCancel()
+    } else {
+      this.duplicateDirError = '文件名重复，不能创建'
+    }
   }
 
   private dialogCancel() {
@@ -908,7 +925,7 @@ export default class extends Vue {
       this.getTotalsOfRightTree()
     })
   }
-  private clearCheckedKeys(){
+  private clearCheckedKeys() {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
     dirTree.setCheckedKeys([])
