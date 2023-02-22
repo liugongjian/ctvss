@@ -74,6 +74,10 @@ export default class CreateMixin extends Vue {
     ]
   }
 
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   public get currentGroup() {
     return GroupModule.group
   }

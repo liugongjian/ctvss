@@ -1,13 +1,6 @@
 <template>
   <div v-loading="submitting" class="app-container">
-    <div class="header">
-      <span>
-        <el-button type="text" style="color: #faad15;" @click="back">&lt; 返回</el-button>
-      </span>
-      <span style="font-size: 16px;font-weight: bold;">
-        {{ createOrUpdateFlag ? '新建录制模板' : '编辑录制模板' }}
-      </span>
-    </div>
+    <el-page-header content="新建录制模板" @back="back" />
     <div class="body">
       <el-form
         ref="dataForm"
@@ -41,7 +34,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { updateRecordTemplate, createRecordTemplate } from '@/api/template'
 
 @Component({
@@ -98,6 +91,7 @@ export default class extends Vue {
           this.submitting = true
           // 提交时,不允许操作 模板列表
           this.$emit('on-submit', false)
+          const templateId = this.templateId
           if (this.createOrUpdateFlag) {
             const params = {
               ...this.form,
@@ -114,7 +108,7 @@ export default class extends Vue {
             this.$message.success('修改模板成功!')
           }
           this.submitting = false
-          this.closePage(true)
+          this.closePage(true, templateId)
           this.$emit('on-submit', true)
         } catch (e) {
           this.submitting = false
@@ -125,8 +119,10 @@ export default class extends Vue {
     })
   }
 
-  private closePage(isRefresh: boolean) {
-    this.$emit('on-close', isRefresh)
+  private closePage(isRefresh: boolean, templateId?) {
+    this.$emit('on-close', {
+      isRefresh, templateId
+    })
     // 清空数据
     const form: any = this.$refs.dataForm
     form.resetFields()

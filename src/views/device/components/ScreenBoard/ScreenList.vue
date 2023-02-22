@@ -56,6 +56,11 @@
             :formatter="dateFormatInTable"
           />
           <el-table-column
+            label="过期时间"
+            prop="expirationTime"
+            min-width="180"
+          />
+          <el-table-column
             label="时长"
             prop="duration"
             :formatter="durationFormatInTable"
@@ -63,14 +68,20 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['AdminRecord'])"
-                :disabled="row.loading"
+                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'])"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
               >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 下载录像
               </el-button>
-              <el-button type="text" @click="playReplay(row)">
+              <el-button
+                type="text"
+                @click="playReplay(row)"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
+              >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 播放录像
               </el-button>
             </template>
@@ -113,6 +124,7 @@ import { checkPermission } from '@/utils/permission'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import { addLog } from '@/api/operationLog'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ScreenList',
@@ -124,6 +136,19 @@ import { addLog } from '@/api/operationLog'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  private get canLock() {
+    // 国标下设备   不受限制
+    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
+  }
+
+  // private get canLock() {
+  //   if (this.screenManager.currentScreen.inProtocol === 'gb28181') {
+  //     return this.screenManager.currentScreen.recordType === 1 ? false : (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   } else {
+  //     return (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   }
+  // }
 
   private pager = {
     pageNum: 1,

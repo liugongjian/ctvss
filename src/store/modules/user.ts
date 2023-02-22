@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { encrypt } from '@/utils/encrypt'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, getIAMUserMergedPolicies, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import { resetRouter } from '@/router'
@@ -253,15 +253,24 @@ class User extends VuexModule implements IUserState {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       this.SET_NAME(data.iamUserName)
       setUsername(data.iamUserName)
-      const policy = JSON.parse(data.policyDocument || '{}')
+
+      const mergedPolicy: any = await getIAMUserMergedPolicies()
+      const policy = JSON.parse(mergedPolicy.policyDocument || '{}')
       try {
-        const actionList = policy.Statement[0].Action
+        const allowStatments = policy.Statement.filter((statement: any) => statement.Effect === 'Allow')
+        const tempActionList = allowStatments.reduce((pre, cur) => {
+          return pre.concat(cur.Action)
+        }, [])
+
+        const actionList = [...new Set(tempActionList)]
         const resourceList = policy.Statement[0].Resource
-        if (actionList[0] === 'vss:*') {
+        if (actionList.includes('ivs:*')) {
           data.perms = ['*']
           data.resource = ['*']
-        } else if (actionList[0] === 'vss:Get*') {
-          data.perms = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionValue)
+        } else if (actionList.includes('ivs:Get*')) {
+          const getActions = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionKey)
+          data.perms = [...new Set(actionList.filter(action => action !== 'ivs:Get*').concat(getActions))]
+          console.log('data.perms: ', data.perms)
           data.resource = ['*']
           data.resourcesSet = new Set()
         } else {
@@ -276,8 +285,8 @@ class User extends VuexModule implements IUserState {
         }
       } catch (e) {
         data = {
-          perms: ['*'],
-          resource: ['*'],
+          perms: [],
+          resource: [],
           resourcesSet: new Set()
         }
       }
@@ -296,9 +305,9 @@ class User extends VuexModule implements IUserState {
     }
     const perms = data.perms
     // perms must be a non-empty array
-    if (!perms || perms.length <= 0) {
-      throw Error('GetGlobalInfo: perms must be a non-null array!')
-    }
+    // if (!perms || perms.length <= 0) {
+    //   throw Error('当前子用户权限为空，请为其配置策略后再访问！')
+    // }
     this.SET_PERMS(perms)
     this.SET_RESOURCES(data)
   }

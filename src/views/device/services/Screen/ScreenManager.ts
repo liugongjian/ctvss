@@ -140,11 +140,16 @@ export class ScreenManager {
     this.transformDeviceParams(screen, item, streamNum)
     screen.streams = this.fillStreams(screen)
     screen.isLive = this.isLive
-    screen.inProtocol = this.inProtocol
+    screen.inProtocol = item.inProtocol || this.inProtocol
     // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
     if (this.isSync) {
       const currentRecordDatetime = this.findRecordCurrentDatetime()
       if (currentRecordDatetime) screen.currentRecordDatetime = currentRecordDatetime
+    }
+    if (item.isLeaf) {
+      // 检查锁定权限
+      // 单独节点的情况下,权限相关属性还没有打上去
+      screen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
     }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()
@@ -209,7 +214,7 @@ export class ScreenManager {
       /* 判断用户是否开启缓存功能 */
       if ((this.isLive && UserModule.settings.screenCache.screen === 'true') ||
         (!this.isLive && UserModule.settings.screenCache.replay === 'true')) {
-        const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
+        const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY.live : SCREEN_CACHE_KEY.replay
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,
           groupId: GroupModule.group.groupId,
@@ -221,8 +226,8 @@ export class ScreenManager {
         setLocalStorage(screenCacheKey, screenCache)
       } else {
         /* 如果用户关闭缓存功能需要删除之前存的记录 */
-        UserModule.settings.screenCache.screen !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY['live'])
-        UserModule.settings.screenCache.replay !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY['replay'])
+        UserModule.settings.screenCache.screen !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY.live)
+        UserModule.settings.screenCache.replay !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY.replay)
       }
     } catch (e) {
       console.log(e)
@@ -235,7 +240,7 @@ export class ScreenManager {
    */
   public loadCache(): boolean {
     try {
-      const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
+      const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY.live : SCREEN_CACHE_KEY.replay
       const screenCacheStr = getLocalStorage(screenCacheKey)
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
@@ -264,9 +269,9 @@ export class ScreenManager {
    */
   public clearCache() {
     if (this.isLive) {
-      removeLocalStorage(SCREEN_CACHE_KEY['live'])
+      removeLocalStorage(SCREEN_CACHE_KEY.live)
     } else {
-      removeLocalStorage(SCREEN_CACHE_KEY['replay'])
+      removeLocalStorage(SCREEN_CACHE_KEY.replay)
     }
   }
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>空状态</title>
+    <g id="设备树" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="自定义设备树_空状态" transform="translate(-789.000000, -317.000000)" fill="#DADADA">
+            <path d="M797.10813,356.434288 L820.89187,356.434288 L820.89187,353.1911 L797.10813,353.1911 L797.10813,356.434288 Z M789,348.866869 L829,348.866869 L829,317.515393 L789,317.515393 L789,348.866869 Z M792.243188,345.623618 L825.756812,345.623618 L825.756812,320.758581 L792.243188,320.758581 L792.243188,345.623618 Z" id="空状态"></path>
+        </g>
+    </g>
+</svg>

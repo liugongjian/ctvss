@@ -14,7 +14,7 @@
               <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
-          <div ref="dirList" v-loading="loading.template" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div ref="dirList" v-loading="loading.template" class="template-list__wrap" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
@@ -35,7 +35,7 @@
         </div>
         <div class="device-list__right">
           <div v-if="mainCard">
-            <el-descriptions v-loading="loading.templateInfo" :column="2" border>
+            <el-descriptions v-loading="loading.templateInfo" :column="2" border label-class-name="description__label" content-class-name="description__content">
               <template slot="title">
                 <span class="title">模板信息</span>
               </template>
@@ -54,24 +54,28 @@
                 <span class="title">绑定关系</span>
               </template>
               <el-descriptions-item v-if="handleDevice" colon="false">
-              <!-- <el-descriptions-item colon="false"> -->
+                <!-- <el-descriptions-item colon="false"> -->
                 <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
                 <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
               </el-descriptions-item>
-              <el-descriptions-item v-if="defaultDevice" colon="false">
+            </el-descriptions>
+            <div ref="bindContainer" class="bind-container">
+              <!-- 已绑定的设备 -->
+              <div v-if="defaultDevice" class="bind-body">
                 <div class="bind-left">
                   <span class="bind-title-left">
                     已绑定设备
                   </span>
                   <span class="bind-title-right">
-                    已绑定 {{ bindedDeviceNum }} 项
+                    <span v-if="isDelete">已选中 {{ delDataList.length }} 项</span>
+                    <span v-else>已绑定 {{ bindedDeviceNum }} 项</span>
                   </span>
                   <div>
                     <el-tree
-                      class="right-tree"
                       ref="bindTreeMain"
+                      :key="treeKey"
                       v-loading="loading.templateDeviceTree || loading.unbinding"
-                      :data="deviceListMain"
+                      class="right-tree"
                       node-key="id"
                       lazy
                       :show-checkbox="isDelete"
@@ -79,6 +83,7 @@
                       empty-text="暂无已绑定设备"
                       :load="loadSubDevice"
                       :props="treeProp"
+                      :style="`height: ${minTreeHeight}px`"
                       @check-change="handleCheck"
                     >
                       <span
@@ -88,7 +93,11 @@
                       >
                         <span class="node-name">
                           <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                          <svg-icon :name="data.type" />
+                          <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                          <span v-else class="node-dir">
+                            <svg-icon name="dir" width="15" height="15" />
+                            <svg-icon name="dir-close" width="15" height="15" />
+                          </span>
                           {{ node.label }}
                         </span>
                       </span>
@@ -106,26 +115,23 @@
                   <div class="tree-block">
                     <el-table
                       :data="delDataList"
-                      height="400"
+                      :height="minTreeHeight"
                     >
                       <el-table-column
                         prop="label"
                         label="设备名"
-                        width="170"
                       />
                       <el-table-column
                         prop="path"
                         label="设备路径"
-                        width="170"
                       />
                     </el-table>
                   </div>
                 </div>
-              </el-descriptions-item>
-              <el-descriptions-item v-if="bindDevice" colon="false">
-                <bind-device :current-template="currentTemplate" @on-close="bindDialogClose" />
-              </el-descriptions-item>
-            </el-descriptions>
+              </div>
+              <!-- 绑定的设备 -->
+              <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" />
+            </div>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
             <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
@@ -137,7 +143,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Ref } from 'vue-property-decorator'
-import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, getTemplateNodeDevice, deleteRecordTemplate } from '@/api/template'
+import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import BindDevice from './components/BindDeviceV2.vue'
@@ -152,6 +158,8 @@ import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
   }
 })
 export default class extends Vue {
+  @Ref('deviceWrap') private deviceWrap
+  @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
 
   // 编辑页面参数
@@ -164,7 +172,7 @@ export default class extends Vue {
 
   private bindDevice = false
   // private unbindDevice = false
-  private defaultDevice = true
+  private defaultDevice = false
 
   private delDataList = []
 
@@ -183,6 +191,8 @@ export default class extends Vue {
     unbinding: false
   }
 
+  private treeKey = new Date().getTime()
+
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -194,36 +204,43 @@ export default class extends Vue {
   private createTemplateDisable = false
 
   private minHeight = null
-  private currentTemplate: any = {}
+  private minTreeHeight = null
+  private currentTemplate: any = null
   private deviceListMain: any = []
 
   private templates: any = []
   private renderTemplateInfo: any = {}
 
-  private async mounted() {
+  private mounted() {
     this.handleDevice = true
     this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
     this.init()
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   // 获取1模板列表并初始化2模板信息和3设备树
   private async init() {
     try {
       // 设置初始化展示页面结构
-      this.defaultDevice = true
-      this.isDelete = false
-      this.bindDevice = false
       this.loading.template = true
-      let params = {}
-      let res = await getRecordTemplates(params) // 获取模板列表
-      console.log('res     ', res)
+      let res = await getRecordTemplates({
+        pageSize: 999
+      }) // 获取模板列表
       this.templates = res.templates
       this.loading.template = false
       this.$nextTick(() => {
         // 默认选中第一个模板
-        this.currentTemplate = this.templates[0]
+        if (!this.currentTemplate) {
+          this.currentTemplate = this.templates[0]
+        }
+        this.defaultDevice = true
+        this.isDelete = false
+        this.bindDevice = false
         // 加载第一项的模板信息和设备树
-        console.log('1')
         this.initBindDevice()
         this.initTemplateInfo()
       })
@@ -232,14 +249,15 @@ export default class extends Vue {
     }
   }
 
-  // 获取模板信息，查询模板信息
+  /**
+   * 获取模板信息，查询模板信息
+   */
   private async initTemplateInfo() {
     try {
       this.loading.templateInfo = true
       let templateInfo = await queryRecordTemplate({
         templateId: this.currentTemplate.templateId
       })
-      console.log('模板信息     ', templateInfo)
       this.renderTemplateInfo = templateInfo // 渲染模板信息
     } catch (e) {
       this.$message.error(e)
@@ -248,41 +266,17 @@ export default class extends Vue {
     }
   }
 
-  // 获取已绑定设备的设备树
-  private async initBindDevice(node?: any) {
-    try {
-      // 初始化或者重新加载已绑定设备树的时候，关闭删除预览模式
-      this.isDelete = false
-      this.loading.templateDeviceTree = true
-      let templateId = node && node.templateId
-      let type = node && node.type
-      let path = node && node.path
-      let id = node && node.id
-      let templateDeviceTree = await getTemplateDeviceTree({
-        templateId: templateId || this.currentTemplate.templateId,
-        groupId: type === 'group' ? id : 0,
-        id: id || 0,
-        type: type,
-        path: path,
-        bind: true
-      })
-      console.log('设备树    ', templateDeviceTree)
-      this.deviceListMain = templateDeviceTree.dirs // 设备树
-      this.bindedDeviceNum = templateDeviceTree.totalSize // 已绑定数目应该直接给出
-      // 渲染已绑定设备数
-      // this.deviceListMain.map((item: any) => {
-      // item.bindStatus === 1 && (this.bindedDeviceNum += 1)
-      // })
-    } catch (e) {
-      this.$message.error(e)
-    } finally {
-      this.loading.templateDeviceTree = false
-    }
+  /**
+   * 重置已绑定的设备树
+   */
+  private async initBindDevice() {
+    this.treeKey = new Date().getTime()
   }
 
-  // 选择模板
+  /**
+   * 选择模板
+   */
   private async selectTemplate(template: any) {
-    console.log('切换模板')
     // 设置初始化展示页面结构
     this.bindedDeviceNum = 0
     this.mainCard = true
@@ -293,7 +287,6 @@ export default class extends Vue {
     this.createTemplateDisable = false
     this.handleDevice = true
     this.currentTemplate = template
-    console.log('2')
     this.initBindDevice()
     this.initTemplateInfo()
   }
@@ -323,15 +316,24 @@ export default class extends Vue {
    * 计算最大高度
    */
   private calMaxHeight() {
-    const deviceWrap: any = this.$refs.deviceWrap
-    const size = deviceWrap.$el.getBoundingClientRect()
-    const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.minHeight = documentHeight - top - 22 + 250
+    if (this.deviceWrap) {
+      const size = this.deviceWrap.$el.getBoundingClientRect()
+      const top = size.top
+      this.minHeight = documentHeight - top - 22
+    }
+
+    if (this.bindContainer) {
+      const treeSize = this.bindContainer.getBoundingClientRect()
+      const treeTop = treeSize.top
+      this.minTreeHeight = documentHeight - treeTop - 150
+    }
   }
 
-  // 删除设备
-  private delDevice(template: any) {
+  /**
+   * 删除设备
+   */
+  private delDevice() {
     // 展示右侧table，展示左侧树可选态
     this.isDelete = true
     this.defaultDevice = true
@@ -339,34 +341,69 @@ export default class extends Vue {
     this.handleDevice = false
   }
 
+  /**
+   * 加载子节点
+   */
   private async loadSubDevice(node: any, resolve: Function) {
-    console.log('嗯哼?', node)
-    const data: any = node.data
-    if (node.data.isLeaf) return resolve([])
-    if (node.level === 0) return resolve(this.deviceListMain)
-    const rootId = this.getRootId(node)
-    try {
-      const res = await this.getSubTree(node)
-      this.$nextTick(() => {
-      // 勾选状态下设置
-        if (!this.isDelete) return
-        this.setChecked(res.dirs)
+    if (node.level === 0) {
+      this.loading.templateDeviceTree = true
+      const res = await getTemplateDeviceTree({
+        templateId: this.currentTemplate.templateId,
+        groupId: 0,
+        id: 0,
+        bind: true
       })
-      return resolve(res)
-    } catch (e) {
-      resolve([])
+      const root = [{
+        label: '全部',
+        isLeaf: false,
+        id: '-1',
+        type: 'group',
+        bindSize: 0
+      }]
+      this.loading.templateDeviceTree = false
+      resolve(root)
+      this.$nextTick(async() => {
+        const rootNode = this.bindTreeMain.getNode('-1')
+        if (!rootNode) return
+        this.bindTreeMain.updateKeyChildren('-1', res.dirs)
+        rootNode.loaded = true
+        rootNode.expanded = true
+        // 计算业务组设备总数量
+        let total = 0
+        res.dirs.forEach((group) => {
+          total += group.totalSize
+        })
+        this.bindedDeviceNum = total
+      })
+    } else {
+      try {
+        const res = await this.getSubCheckedTree(node)
+        this.$nextTick(() => {
+        // 勾选状态下设置
+          if (!this.isDelete) return
+          this.setChecked(res.dirs)
+        })
+        return resolve(res)
+      } catch (e) {
+        resolve([])
+      }
     }
   }
 
+  /**
+   * 设置勾选状态
+   */
   private setNodesChecked(item: any, checked?: boolean) {
     if (checked) {
       // 点击勾选
       this.bindTreeMain.setChecked(item.id, true, true)
     }
   }
-  // 已绑定设备勾选状态设置
+
+  /**
+   * 已绑定设备勾选状态设置
+   */
   private async setChecked(nodes: any, checked?: boolean) {
-    console.log('已绑定设备勾选状态设置      ', nodes)
     if (!Array.isArray(nodes)) {
       let item = nodes.data
       this.setNodesChecked(item, checked)
@@ -377,26 +414,9 @@ export default class extends Vue {
     }
   }
 
-  // 获取子节点
-  private async getSubTree(node: any) {
-    try {
-      const data: any = node.data
-      const rootId = this.getRootId(node)
-      const res = await getTemplateDeviceTree({
-        templateId: this.currentTemplate.templateId,
-        groupId: rootId,
-        id: data.id,
-        type: data.type,
-        bind: true,
-        path: data.path
-      })
-      return res.dirs
-    } catch (e) {
-      this.$message.error(e)
-    }
-  }
-
-  // 删除模板
+  /**
+   * 删除模板
+   */
   private async deleteTemplate(row: any) {
     this.$alertDelete({
       type: '录制模板',
@@ -407,14 +427,9 @@ export default class extends Vue {
     })
   }
 
-  // 获取当前节点对应根节点的id
-  private getRootId(node: any) {
-    while (node.level !== 1) {
-      return this.getRootId(node.parent)
-    }
-    return node.data.id
-  }
-
+  /**
+   * 递归展开子节点
+   */
   private async handleCheck(data: any, isChecked: any) {
     if (isChecked) {
       await this.deepExpand(data.id, isChecked)
@@ -422,11 +437,13 @@ export default class extends Vue {
     this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
   }
 
-  // 获取已绑定子节点
+  /**
+   * 获取已绑定子节点
+   */
   private async getSubCheckedTree(node: any) {
     try {
       const data: any = node.data
-      const rootId = this.getRootId(node)
+      const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
         groupId: rootId,
@@ -449,13 +466,13 @@ export default class extends Vue {
     this.$confirm(`您确定要删除${this.delDataList.length}个设备的录制模板吗？点击确定后设备将立刻解绑模板，井停止录像！`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      customClass: 'vss-warning'
     }).then(async() => {
       try {
         this.loading.unbinding = true
         const delDataList = this.delDataList.map(data => {
           const node = this.bindTreeMain.getNode(data.id)
-          const rootId = this.getRootId(node)
+          const rootId = this.getGroupId(node)
           data.groupId = rootId
           return data
         })
@@ -476,6 +493,7 @@ export default class extends Vue {
         this.bindedDeviceNum = 0
         this.isDelete = false
         this.defaultDevice = true
+        this.handleDevice = true
         this.initBindDevice()
       }
     })
@@ -517,7 +535,9 @@ export default class extends Vue {
     this.handleDevice = false
   }
 
-  // 点击'删除设备'按钮
+  /**
+   * 点击'删除设备'按钮
+   */
   private clickUnbind() {
     this.isDelete = true
     this.defaultDevice = true
@@ -532,23 +552,24 @@ export default class extends Vue {
     this.handleDevice = true
   }
 
-  // 关闭绑定 或 取消绑定设备
+  /**
+   * 关闭绑定 或 取消绑定设备
+   */
   private async bindDialogClose(isBinded: boolean) {
-    console.log('关闭绑定    ', isBinded)
     this.bindDevice = false
     // 切换回默认页面
     this.defaultDevice = true
     this.handleDevice = true
     if (isBinded) {
       // 绑定设备,重新请求设备树
-      console.log('3')
       this.bindedDeviceNum = 0
       this.initBindDevice()
     }
-    console.log('关闭绑定    查看    树   ', this.deviceListMain)
   }
 
-  // 新建模板
+  /**
+   * 新建模板
+   */
   private createTemplate() {
     // 关闭主页面
     // 展示新建/编辑页面
@@ -558,9 +579,10 @@ export default class extends Vue {
     this.createOrUpdateFlag = true // 新建
   }
 
-  // 编辑模板
+  /**
+   * 编辑模板
+   */
   private editTemplate(template: any) {
-    console.log('点击编辑', template)
     this.currentTemplate = template
     this.mainCard = false
     this.createTemplateDisable = true
@@ -568,19 +590,23 @@ export default class extends Vue {
     this.createOrUpdateFlag = false // 编辑
   }
 
-  // 关闭新建/编辑模板
-  private createClose(isRefresh: any) {
+  /**
+   * 关闭新建/编辑模板
+   */
+  private createClose(payload: any) {
     // 控制关闭新建和编辑分页,激活新建按钮
     this.createTemplateDisable = false
     this.createOrUpdateTemplate = false
     this.mainCard = true
-    if (isRefresh) {
+    if (payload.isRefresh) {
       // 更新页面
       this.init()
     }
   }
 
-  // 提交模板编辑/新建操作
+  /**
+   * 提交模板编辑/新建操作
+   */
   private templateSubmit(finish: boolean) {
     // 禁止操作模板列表
     if (!finish) {
@@ -588,6 +614,17 @@ export default class extends Vue {
     }
     if (finish) {
       this.loading.template = false
+    }
+  }
+
+  /**
+   * 获取当前节点对应业务组节点的id
+   */
+  private getGroupId(node: any) {
+    if (node.level === 2) {
+      return node.data.id
+    } else {
+      return this.getGroupId(node.parent)
     }
   }
 }
@@ -616,99 +653,31 @@ export default class extends Vue {
 .right-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;
-  height: 400px;
+  min-height: 400px;
   margin-bottom: 10px;
   overflow: auto;
 }
 
+.bind-body {
+  display: flex;
+}
 
 .bind-right {
-  float: right;
   margin-left: 20px;
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
   height: 400px;
 }
 
 .bind-left {
-  display: inline-block;
-  width: 340px;
+  width: 50%;
+  max-width: 720px;
   height: 400px;
 }
 
 .tree-block {
   border: 1px $borderGrey solid;
-  width: 340px;
   overflow: auto;
-  height: 400px;
-}
-
-.template-list {
-  padding: 10px;
-
-  ul {
-    margin: 0;
-    padding: 0;
-
-    li {
-      position: relative;
-      list-style: none;
-      height: 30px;
-      line-height: 30px;
-      cursor: pointer;
-      border-radius: 4px;
-      padding-left: 10px;
-
-      span {
-        display: block;
-        white-space: nowrap;
-        text-overflow: hidden;
-        word-break: break-all;
-      }
-
-      svg {
-        color: $darkGray;
-        vertical-align: middle;
-        margin-left: 3px;
-      }
-
-      .tools {
-        position: absolute;
-        display: none;
-        right: 0;
-        top: 0;
-        background: $treeHover;
-
-        .el-button {
-          padding: 5px;
-        }
-
-        .el-button + .el-button {
-          margin-left: 0;
-        }
-      }
-
-      &:hover {
-        background: $treeHover;
-
-        .tools {
-          display: block;
-        }
-      }
-
-      &.actived {
-        background: $primary;
-        color: #fff;
-
-        .tools {
-          background: $primary;
-        }
-
-        svg {
-          color: #fff;
-        }
-      }
-    }
-  }
 }
 
 .title {
@@ -724,29 +693,109 @@ export default class extends Vue {
   }
 }
 
-.left-title {
-  font-size: 16px;
-  font-weight: bold;
-  display: inline-block;
-  margin-top: 30px;
-  margin-left: 20px;
-}
+.device-list__left {
+  display: flex;
+  flex-direction: column;
 
-.device-list__left .dir-list__tools {
-  height: 70px;
-  text-align: left;
-}
+  .dir-list__tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    box-sizing: content-box;
 
-.new-template {
-  float: right;
-  margin-top: 23px;
-  margin-right: 5px;
+    .left-title {
+      font-size: 16px;
+      font-weight: bold;
+      display: inline-block;
+      margin-left: 20px;
+    }
+
+    .new-template {
+      margin-right: 10px;
+    }
+  }
+
+  .template-list__wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .template-list {
+    padding: 10px;
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        position: relative;
+        list-style: none;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        border-radius: 4px;
+        padding-left: 10px;
+
+        span {
+          display: block;
+          white-space: nowrap;
+          text-overflow: hidden;
+          word-break: break-all;
+        }
+
+        svg {
+          color: $darkGray;
+          vertical-align: middle;
+          margin-left: 3px;
+        }
+
+        .tools {
+          position: absolute;
+          display: none;
+          right: 0;
+          top: 0;
+          background: $treeHover;
+
+          .el-button {
+            padding: 5px;
+          }
+
+          .el-button + .el-button {
+            margin-left: 0;
+          }
+        }
+
+        &:hover {
+          background: $treeHover;
+
+          .tools {
+            display: block;
+          }
+        }
+
+        &.actived {
+          background: $primary;
+          color: #fff;
+
+          .tools {
+            background: $primary;
+          }
+
+          svg {
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
 }
 
 .btn-edit {
   position: relative;
   top: 12px;
-  right: 20px;
+  right: 29px;
 }
 
 .bind-title-left {
@@ -761,10 +810,20 @@ export default class extends Vue {
   color: $textGrey;
 }
 
-.custom-tree-node.online .node-name {
-  .svg-icon {
-    color: #65c465;
+.device-list__right {
+  ::v-deep {
+    .description__label {
+      min-width: 200px;
+    }
+
+    .description__content {
+      width: 50%;
+      word-break: break-all;
+    }
+  }
+
+  .bind-container {
+    padding: 0 29px;
   }
 }
-
 </style>

@@ -196,7 +196,11 @@
     </div>
     <div class="dir-list__bottom">
       <!-- 虚拟业务组暂不支持搜索 -->
-      <advanced-search v-if="currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" />
+      <advanced-search
+        v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'"
+        :search-form="advancedSearchForm"
+        @search="doSearch"
+      />
       <slot name="bottom" />
     </div>
   </div>
@@ -206,6 +210,7 @@ import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
 import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -348,7 +353,6 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('screenManager.screenManagerStatus', { deep: true })
   private onScreenManagerChange(screenManagerStatus) {
-    console.log(screenManagerStatus.executeQueueConfig.status)
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
@@ -423,23 +427,32 @@ export default class extends Mixins(IndexMixin) {
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
       if (node.data.deviceStatus === 'on' || !this.screenManager.isLive) {
-        node.data.inProtocol = this.currentGroupInProtocol
+        if (!node.data.inProtocol) {
+          node.data.inProtocol = this.currentGroupInProtocol
+        }
         deviceArr.push(node.data)
       }
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        const data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type,
-          'self-defined-headers': {
-            'role-id': node!.data.roleId || '',
-            'real-group-id': node!.data.realGroupId || ''
-          }
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirTree.updateKeyChildren(node.data.id, dirs)
+        let data
+        if (this.isCustomTree) {
+          const res = await loadTreeNode({
+            dirId: node!.data.id
+          })
+          data = this.setDirsStreamStatus(res.dirs)
+        } else {
+          data = await getDeviceTree({
+            groupId: this.currentGroupId,
+            id: node!.data.id,
+            type: node!.data.type,
+            'self-defined-headers': {
+              'role-id': node!.data.roleId || '',
+              'real-group-id': node!.data.realGroupId || ''
+            }
+          })
+        }
+        dirTree.updateKeyChildren(node.data.id, data)
         node.expanded = true
         node.loaded = true
       }

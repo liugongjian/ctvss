@@ -43,8 +43,10 @@ import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
 import { Fragment } from 'vue-fragment'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import { format } from 'date-fns'
-import { ptzLock, ptzUnlock } from '@/api/ptz_control'
+import { ptzLock, ptzUnlock, getLockStatus } from '@/api/ptz_control'
+import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 // import { throttle } from 'lodash'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'PtzLock',
@@ -110,8 +112,13 @@ export default class extends Vue {
     this.dialogVisible ? this.initTime() : this.clear()
   }
 
-  private mounted() {
-    this.isLocked = this.deviceInfo.ptzLockStatus < 2
+  private async mounted() {
+    const res = await getLockStatus({
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.deviceInfo.inProtocol,
+      groupId: GroupModule.group?.groupId
+    })
+    this.isLocked = res.status < 2
     this.initTime()
   }
 
@@ -128,7 +135,12 @@ export default class extends Vue {
 
   private async unlock() {
     try {
-      const { unlockResult } = await ptzUnlock({ deviceId: this.deviceInfo.deviceId, password: '' })
+      const { unlockResult } = await ptzUnlock({
+        deviceId: this.deviceInfo.deviceId,
+        password: '',
+        inProtocol: this.deviceInfo.inProtocol,
+        groupId: GroupModule.group?.groupId
+      })
       if (unlockResult === 3) {
         this.isLocked = false
         this.$message.success('解锁成功!')
@@ -156,34 +168,70 @@ export default class extends Vue {
       startTime: this.transformStampToString(new Date().getTime())
     }
     const pwdForm: any = this.$refs.pwdForm
-    pwdForm.clearValidate()
+    pwdForm && pwdForm.clearValidate()
   }
 
   private async confirm() {
+    debugger
+    this.clearWrongMsg()
     const pwdForm: any = this.$refs.pwdForm
     pwdForm.validate(async valid => {
       if (valid) {
+        if (this.isLocked) {
+          const wrongPT = +getLocalStorage('ptzLockWrongPwdTime')
+          const until = +getLocalStorage('ptzLockWrongPwdUntil')
+          if (wrongPT > 2 && !until) {
+            setLocalStorage('ptzLockWrongPwdUntil', new Date().getTime() + 30 * 60 * 1000)
+            this.$nextTick(() => {
+              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请30分钟之后重试'
+            })
+            return
+          }
+          if (until && until < new Date().getTime()) {
+            removeLocalStorage('ptzLockWrongPwdUntil')
+            setLocalStorage('ptzLockWrongPwdTime', 0)
+          }
+          if (until && until > new Date().getTime()) {
+            this.$nextTick(() => {
+              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请30分钟之后重试'
+            })
+            return
+          }
+        }
         try {
           this.submitting = true
           const param = this.isLocked
             ? {
               deviceId: this.deviceInfo.deviceId,
-              password: this.form.unlockPwd
+              password: this.form.unlockPwd,
+              inProtocol: this.deviceInfo.inProtocol,
+              groupId: GroupModule.group?.groupId
             }
             : {
               deviceId: this.deviceInfo.deviceId,
               startTime: Math.floor(new Date().getTime() / 1000),
               endTime: Math.floor(this.form.endTime / 1000),
-              password: this.form.lockPwd
+              password: this.form.lockPwd,
+              inProtocol: this.deviceInfo.inProtocol,
+              groupId: GroupModule.group?.groupId
             }
           this.isLocked ? await ptzUnlock(param) : await ptzLock(param)
+
           this.$message.success(`${this.isLocked ? '解锁' : '锁定'}成功！`)
           this.clear()
           setTimeout(() => {
             this.isLocked = !this.isLocked
           }, 200)
         } catch (e) {
-          this.isLocked ? (this.unclockPwdWrongMsg = e.message) : this.$message.error(e.message)
+          if (this.isLocked) {
+            this.unclockPwdWrongMsg = e.message
+            if (e.code === 7) {
+              const wrongPwdTime = +getLocalStorage('ptzLockWrongPwdTime')
+              setLocalStorage('ptzLockWrongPwdTime', wrongPwdTime + 1)
+            }
+          } else {
+            this.$message.error(e.message)
+          }
         } finally {
           this.submitting = false
         }

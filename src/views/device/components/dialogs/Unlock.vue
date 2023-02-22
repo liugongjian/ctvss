@@ -8,7 +8,7 @@
     center
     @close="closeDialog"
   >
-    <div v-if="!multiple">
+    <div v-if="!multiple" v-loading="ischecking">
       <div class="unlock">
         <div class="label"><span>设备名: </span></div>
         <div><span>{{ deviceName }}</span></div>
@@ -31,7 +31,8 @@
         </div>
       </div>
     </div>
-    <div v-if="multiple">
+    <!-- <div v-if="multiple"  v-loading="ischeckingBatch"> -->
+    <div v-if="multiple"  v-loading="isUnbinding">
       <div class="unlock">
         <div class="label"><span>解锁录像: </span></div>
         <div><span>{{ unlockNum }}个</span></div>
@@ -51,7 +52,7 @@
         <el-button type="primary" :loading="submitting" @click="submit">
           确 定
         </el-button>
-        <el-button @click="closeDialog">取 消</el-button>
+        <el-button @click="closeDialog(false)">取 消</el-button>
       </div>
   </el-dialog>
 </template>
@@ -63,8 +64,8 @@ import { unLock } from '@/api/device'
   name: 'UnlockDialog'
 })
 export default class extends Vue {
-  @Prop()
-  private duration
+  // @Prop()
+  // private duration
   @Prop()
   private screen
   @Prop()
@@ -80,50 +81,94 @@ export default class extends Vue {
   private deviceName = null
   private lockTime = null
   private originExpTime = null
+  private ischecking = false
+  private ischeckingBatch = false
+  private periods = []
+  private isUnbinding = false
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
     return this.screen && this.screen.recordManager
   }
 
-  private created() {
-    // 录像锁定管理
-    if (this.multiple) {
-      this.unlockItem.map((item: any) => {
-        if (item.exp_time === '解锁时刻') {
-          this.unlockDelNum += 1
+  private async created() {
+    try {
+      this.isUnbinding = true
+      this.multiple ? this.ischecking = true : this.ischeckingBatch = true
+      this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
+      this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
+      this.periods = this.unlockItem.map((item: any) => {
+        return {
+          deviceId: item.deviceId,
+          startTime: item.startTime,
+          endTime: item.endTime,
         }
       })
-      this.unlockNum = this.unlockItem.length
-      // console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
-    } else {
-      this.deviceName = this.unlockItem[0].deviceName
-      this.lockTime = [new Date(this.unlockItem[0].startTime), new Date(this.unlockItem[0].endTime)]
-      this.isExpired = this.unlockItem[0].exp_time === '解锁时刻'
-      this.originExpTime = this.unlockItem[0].origin_exp_time
+      const params: any = {
+        // deviceId: this.unlockItem[0].deviceId,
+        // startTime: +this.unlockItem[0].startTime,
+        // endTime: +this.unlockItem[0].endTime,
+        periods: this.periods,
+        action: 'check'
+      }
+      const res: any = await unLock(params)
+      // 批量解锁
+      if (this.multiple) {
+        this.unlockNum = res.unlockNo
+        this.unlockDelNum = res.deleteNo
+      } else {
+        // 单个解锁
+        if (res.storageExpired === 1) {
+          // 包含已过期录像
+          this.originExpTime = res.storageTime
+          this.isExpired = true
+        } else if (res.storageExpired === 0) {
+          // 不包含
+          this.isExpired = false
+        }
+        this.deviceName = this.unlockItem[0].deviceName
+        this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
+      }
+    } catch (e) {
+      this.$message.error(e)
+      this.closeDialog(false)
+    } finally {
+      this.isUnbinding = false
+      this.ischecking = false
+      this.ischeckingBatch = false
     }
+    // 录像锁定管理
+    // if (this.multiple) {
+    //   this.unlockItem.map((item: any) => {
+    //     if (item.exp_time === '解锁时刻') {
+    //       this.unlockDelNum += 1
+    //     }
+    //   })
+    //   this.unlockNum = this.unlockItem.length
+    //   // console.log(' this.unlockDelNum   this.unlockNum ',  this.unlockDelNum, this.unlockNum)
+    // } else {
+    //   // console.log('解锁 dialog    ', this.unlockItem)
+    //   this.deviceName = this.screen.deviceName
+    //   this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
+    //   // this.isExpired = this.unlockItem[0].exp_time === '解锁时刻'
+    //   // this.originExpTime = this.unlockItem[0].origin_exp_time
+    // }
     // console.log('获取锁定时间    : ', this.recordLockItem)
   }
 
   // 提交锁定
   private async submit() {
-    // if (!this.multiple) {
-    //   var data = {
-    //     recordLockId: this.recordLockItem.recordLockId ,
-    //     startTime: this.recordLockItem.startTime,
-    //     endTime: this.recordLockItem.endTime,
-    //   }
-    // } else {
-    //   // const data = {
-    //   //   recordLockId: 
-    //   // }
-    //   var data = 'ok'
-    // }
-    // console.log('解锁 ', data)
     try {
-      // console.log('提交   ', this.unlockItem)
       this.submitting = true
-      await unLock(this.unlockItem)
+      // this.unlockItem[0].deviceId = this.screen.deviceId
+      // this.unlockItem[0].deviceName = this.screen.deviceName
+
+      const params: any = {
+        // ...this.unlockItem[0],
+        periods: this.periods,
+        action: 'unlock'
+      }
+      await unLock(params)
       this.submitting = false
       this.closeDialog(true)
       // 一个emit提示页面重新获取锁列表

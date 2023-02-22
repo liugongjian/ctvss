@@ -92,11 +92,11 @@ export default class extends ComponentMixin {
       // 刷新
       this.pollingVideos()
       // 间隔时间大于预加载时间则执行预加载策略
-      let preLoadDelay = 5
+      let preLoadDelay = 999 // 禁用
       if (this.pollingInterval <= preLoadDelay) {
         preLoadDelay = 0
       }
-      let intervalPolling = () => {
+      const intervalPolling = () => {
         this.timer = setTimeout(
           () => {
             this.timer && clearTimeout(this.timer)
@@ -131,7 +131,7 @@ export default class extends ComponentMixin {
     let currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
-      let deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
+      const deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
       this.screenList[i].inProtocol = deviceInfo.inProtocol
       this.screenList[i].isLive = this.screenManager.isLive
@@ -157,11 +157,11 @@ export default class extends ComponentMixin {
   private async preLoadPollingVideos() {
     console.log('轮巡预加载')
     const length = this.devicesQueue.length
-    let currentExecuteIndex = this.currentExecuteIndex % length
+    const currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     let preLoadScreen = new Screen()
     for (let i = 0; i < this.maxSize; i++) {
-      let pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
+      const pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
       preLoadScreen.destroy()
       preLoadScreen.deviceId = pollingDeviceInfo.id
       preLoadScreen.deviceName = pollingDeviceInfo.label

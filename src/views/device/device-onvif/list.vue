@@ -9,8 +9,9 @@
     </div>
     <div ref="filterWrap" class="filter-container clearfix">
       <div v-if="!isVGroup" class="filter-container__left">
-        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
-        <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
+        <el-button v-if="isMainUser && !isVGroup" @click="describePermission">查看权限</el-button>
+        <el-button v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="move">移动至</el-dropdown-item>
@@ -142,18 +143,18 @@
         </el-table-column>
         <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
           <template slot-scope="scope">
-            <el-button v-if="checkPermission(['ScreenPreview'])" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
-            <el-button v-if="checkPermission(['ReplayRecord'])" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
+            <el-button v-if="checkPermission(['ivs:GetLiveStream'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
+            <el-button v-if="checkPermission(['ivs:GetCloudRecord'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
             <!-- <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button> -->
-            <el-dropdown @command="handleMore">
+            <el-dropdown v-if="checkPermission(['ivs:UpdateDevice', 'ivs:DeleteDevice'], scope.row)" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && scope.row.streamStatus === 'on' && checkPermission(['AdminDevice'])" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
-                <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['AdminDevice'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
-                <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && !isNVR && checkPermission(['AdminDevice'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && scope.row.streamStatus === 'on' && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
+                <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && !isNVR &&checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -173,6 +174,7 @@
       </div>
     </div>
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <describe-permission v-if="dialog.describePermission" :dialog-data="describePermissonDialogData" @on-close="closeDialog('describePermission', ...arguments)" />
   </div>
 </template>
 <script lang="ts">

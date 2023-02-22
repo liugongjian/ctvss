@@ -47,7 +47,7 @@
       />
     </template>
     <template slot="controlRight">
-      <Lock :screen="screen" />
+      <Lock v-if="canLock" :screen="screen" />
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
@@ -66,6 +66,7 @@ import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
 import RecordDownload from './RecordDownload.vue'
 import Lock from './RecordLock.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ReplayPlayer',
@@ -99,6 +100,8 @@ export default class extends Vue {
   @Prop()
   private isCarTask: Boolean
 
+  private UserModule = UserModule
+
   private url: string = null
   private type: string = null
   private codec: string = null
@@ -119,6 +122,15 @@ export default class extends Vue {
   /* 录像类型 */
   private get recordType() {
     return this.screen && this.screen.recordType
+  }
+
+  /* 是否具有锁定功能 */
+  private get canLock() {
+    if (this.screen.inProtocol === 'gb28181') {
+      return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    } else {
+      return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    }
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
@@ -161,6 +173,7 @@ export default class extends Vue {
     this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
+    // 锁定跳转处理 
     // 跳转到offsetTime
     if (this.recordManager.currentRecord && this.recordManager.currentRecord.offsetTime) {
       this.screen.player.seek(this.recordManager.currentRecord.offsetTime)

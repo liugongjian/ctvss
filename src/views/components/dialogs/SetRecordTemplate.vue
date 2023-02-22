@@ -131,7 +131,6 @@ export default class extends Vue {
         }
         await startRecord(params)
         this.$message.success('已通知开始录制')
-        this.init()
         return true
       } catch (e) {
         this.$message.error(e && e.message)
