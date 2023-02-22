@@ -236,6 +236,9 @@ export default class extends Vue {
         // 默认选中第一个模板
         if (!this.currentTemplate) {
           this.currentTemplate = this.templates[0]
+        } else {
+          const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
+          this.currentTemplate = currentTemplate || this.templates[0]
         }
         this.defaultDevice = true
         this.isDelete = false
@@ -600,6 +603,9 @@ export default class extends Vue {
     this.mainCard = true
     if (payload.isRefresh) {
       // 更新页面
+      this.currentTemplate = {
+        templateId: payload.templateId
+      }
       this.init()
     }
   }
