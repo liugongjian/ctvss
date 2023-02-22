@@ -335,7 +335,6 @@ export default class extends Vue {
           ? action.allowAutoSelected
           : action.denyAutoSelected) || []
 
-        console.log('autoSelectdArr: ', autoSelectedArr)
         autoSelectedArr.forEach((autoSelected) => {
           const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === autoSelected)
           if (autoSelectedRow) {
