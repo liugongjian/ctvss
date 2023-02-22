@@ -285,6 +285,7 @@ export class RecordManager {
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
         // if (record.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+        console.log('查看权限设置   this.screen.ivsLockCloudRecord ', this.screen.ivsLockCloudRecord)
         if (record.isLock === 1 && !this.canLock) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time

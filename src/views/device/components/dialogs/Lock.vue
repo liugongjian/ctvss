@@ -7,7 +7,9 @@
     :append-to-body="true"
     center
     @close="closeDialog"
+    
   >
+  <div v-loading="loadingForm || submitting">
     <el-form
       ref="dataForm"
       class="form"
@@ -16,8 +18,8 @@
       :rules="rules"
       label-position="right"
       label-width="100px"
-      v-loading="loadingForm"
     >
+      <!-- v-loading="loadingForm" -->
       <el-form-item label="设备名:" class="device">
         {{ deviceName }}
       </el-form-item>
@@ -34,11 +36,12 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loadingForm="submitting" @click="submit">
+      <el-button type="primary" @click="submit">
         确 定
       </el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
+  </div>
   </el-dialog>
 </template>
 <script lang="ts">
@@ -166,6 +169,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+}
+
 .form {
   & .device {
     display: block;
