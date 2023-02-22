@@ -72,7 +72,7 @@
         </span>
       </el-tree>
     </div>
-    <div slot="footer" align="center" style="margin-top: 0;">
+    <div slot="footer" align="center">
       <el-button type="primary" @click="closeDialog">{{ '关闭' }}</el-button>
     </div>
   </el-dialog>
@@ -226,6 +226,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+::v-deep .el-dialog__footer {
+  margin-top: 0;
+  padding-bottom: 15px;
+}
+
 ::v-deep .el-tree-node {
   position: relative;
 
@@ -267,7 +272,7 @@ export default class extends Vue {
 
 ::v-deep .el-dialog__body {
   position: relative;
-  height: 550px;
+  height: 580px;
   overflow: auto;
   padding-top: 15px;
   padding-bottom: 5px;
