@@ -1337,7 +1337,7 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/sysconfig',
     component: Layout,
     meta: {
-      title: '系统设置',
+      title: '系统管理',
       breadcrumb: true,
       icon: 'menu-system',
       perms: ['*']
@@ -1348,7 +1348,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',
         meta: {
-          title: '系统设置',
+          title: '系统管理',
           breadcrumb: false,
           icon: 'dot',
           perms: ['*']

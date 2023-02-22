@@ -91,13 +91,14 @@ export default class extends Vue {
           this.submitting = true
           // 提交时,不允许操作 模板列表
           this.$emit('on-submit', false)
-          const templateId = this.templateId
+          let templateId = this.templateId
           if (this.createOrUpdateFlag) {
             const params = {
               ...this.form,
               storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
-            await createRecordTemplate(params)
+            const res = await createRecordTemplate(params)
+            templateId = res.templateId
             this.$message.success('新建模板成功!')
           } else {
             const params = {

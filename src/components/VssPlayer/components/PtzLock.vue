@@ -172,7 +172,6 @@ export default class extends Vue {
   }
 
   private async confirm() {
-    debugger
     this.clearWrongMsg()
     const pwdForm: any = this.$refs.pwdForm
     pwdForm.validate(async valid => {
