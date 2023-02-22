@@ -72,7 +72,7 @@
         </span>
       </el-tree>
     </div>
-    <div slot="footer" align="center">
+    <div slot="footer" align="center" style="margin-top: 0;">
       <el-button type="primary" @click="closeDialog">{{ '关闭' }}</el-button>
     </div>
   </el-dialog>
@@ -129,7 +129,7 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
-      const groups = []
+      let groups = []
       res.groups.forEach((group: any) => {
         group.inProtocol !== 'vgroup' &&
           groups.push({
@@ -148,6 +148,19 @@ export default class extends Vue {
             ]
           })
       })
+      const isGet = this.dialogData.dialogType === 'get'
+      const permissionRes = await previewAuthActions({
+        targetResources: groups.map(group => ({
+          groupId: group.id
+        })),
+        iamUserId: isGet ? this.dialogData.iamUserId : undefined,
+        iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,
+        policyIds: isGet ? undefined : this.dialogData.policyIds
+      })
+      groups = groups.map((group, index) => ({
+        ...group,
+        ...permissionRes.result[index].iamUser.actions
+      }))
       return groups
     } catch (e) {
       console.log('e: ', e)
@@ -254,31 +267,27 @@ export default class extends Vue {
 
 ::v-deep .el-dialog__body {
   position: relative;
+  height: 550px;
+  overflow: auto;
+  padding-top: 15px;
+  padding-bottom: 5px;
 
   &_action-wrap {
-    margin-top: 5px;
-    float: right;
     display: flex;
     justify-content: flex-end;
-    margin-right: 27px;
-    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    margin-right: -1px;
 
     &_name {
       width: 26px;
-      padding: 0 5px;
+      padding: 2px 5px;
       border-top: 1px solid #ccc;
-      border-right: 1px solid #ccc;
+      border-left: 1px solid #ccc;
     }
   }
 
   &_tree-wrap {
-    clear: both;
-    // flex: 1 0;
-    height: 500px;
-    padding: 10px;
-    padding-top: 0;
-    overflow: auto;
-    border-right: 1px solid $borderGrey;
+    border-bottom: 1px solid #ccc;
 
     .is-disabled + .custom-tree-node__ipc {
       cursor: not-allowed;

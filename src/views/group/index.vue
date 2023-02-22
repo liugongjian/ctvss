@@ -10,7 +10,7 @@
     <el-card>
       <div class="filter-container">
         <!-- 为避免拥有AdminGroup权限的子账号创建的业务组自己无法查看，此处改为具有 * 权限才能创建业务组 -->
-        <el-button v-permission="['*']" type="primary" @click="handleCreate">新建业务组</el-button>
+        <el-button v-if="checkPermission(['*'])" type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
