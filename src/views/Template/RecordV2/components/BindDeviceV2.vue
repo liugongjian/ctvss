@@ -517,13 +517,13 @@ export default class extends Vue {
           groupId: this.getGroupId(this.bindTree.getNode(item.id)),
           id: item.id,
           type: item.type,
-          inProtocol: item.inProtocol,
-          startRecord: this.quickStart
+          inProtocol: item.inProtocol
         }
       })
       await setDeviceRecordTemplateBatch({
         templateId: this.currentTemplate.templateId,
-        devices: devices
+        devices: devices,
+        startRecord: this.quickStart
       })
       this.$message.success('批量绑定设备成功！')
       this.$emit('on-close', true)
