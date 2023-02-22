@@ -1,345 +1,345 @@
 <template>
   <div ref="statisticWrap" class="statistic" :class="[{'statistic__statistic': activeName === 'statistic'}]">
-    <el-card>
-      <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
-        <el-tab-pane label="基本统计" name="statistic">
-          <div class="statistic-box statistic-box__p15-no-t">
+    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+      <el-tab-pane label="基本统计" name="statistic">
+        <div class="statistic-box statistic-box__p15-no-t">
+          <div class="statistic-box__title">
+            <div class="access-restriction__title-text">设备统计概览</div>
+          </div>
+          <el-row>
+            <el-col :span="5">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">设备在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="deviceOnlineInfo" />
+            </el-col>
+            <el-col :span="5">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">流在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="streamOnlineInfo" />
+            </el-col>
+            <el-col :span="5">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">录制数<span>(录制中/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+              </div>
+              <draw-chart :chart-info="recordOnlineInfo" />
+            </el-col>
+            <el-col :span="5">
+              <div class="statistic-box__content">
+                <p class="statistic-box__content__title">
+                  存储容量
+                  <span>(已使用/总容量)</span>
+                </p>
+                <p v-if="recordData.storage" class="statistic-box__content__number">
+                  <span>{{ recordUsage }}TB</span>
+                  /{{ recordTotal }}TB
+                </p>
+              </div>
+              <draw-chart :chart-info="bytesInfo" />
+            </el-col>
+          </el-row>
+
+          <div v-if="ifLiuzhou">
             <div class="statistic-box__title">
-              <div class="access-restriction__title-text">设备统计概览</div>
+              <div class="statistic-box__title-text">近7日存储用量趋势</div>
+              <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
             </div>
+            <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
+            <div class="statistic-box__line-content">
+              <draw-chart :chart-info="recordLogInfo" />
+            </div>
+          </div>
+
+          <el-form ref="form" :model="listQueryForm" :inline="true">
+            <el-form-item label="业务组" required>
+              <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
+                <!-- <el-option label="全部" value="" /> -->
+                <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备状态">
+              <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}`" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="流状态">
+              <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="录制状态">
+              <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
+                <el-option label="全部" value="" />
+                <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" :loading="tableLoading" @click="searchDeviceList">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-tooltip placement="top" content="导出">
+                <svg-icon name="export" class="export" @click="exportList" />
+              </el-tooltip>
+            </el-form-item>
+          </el-form>
+
+          <!-- 默认不展示，点击了查询才给展示 -->
+
+          <div v-if="Array.isArray(tableData)" class="statistic-box__info">
             <el-row>
-              <el-col :span="5">
+              <el-col :span="7">
                 <div class="statistic-box__content">
-                  <p class="statistic-box__content__title">设备在线数<span>(在线/总数)</span></p>
-                  <p class="statistic-box__content__number"><span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+                  <p class="statistic-box__content__title">设备在线数:<span class="statistic-box__content__title_number">{{ tableInfo.totalDeviceOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
                 </div>
-                <draw-chart :chart-info="deviceOnlineInfo" />
               </el-col>
-              <el-col :span="5">
+              <el-col :span="7">
                 <div class="statistic-box__content">
-                  <p class="statistic-box__content__title">流在线数<span>(在线/总数)</span></p>
-                  <p class="statistic-box__content__number"><span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+                  <p class="statistic-box__content__title">流在线数:<span class="statistic-box__content__title_number">{{ tableInfo.totalStreamOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
                 </div>
-                <draw-chart :chart-info="streamOnlineInfo" />
               </el-col>
-              <el-col :span="5">
+              <el-col :span="7">
                 <div class="statistic-box__content">
-                  <p class="statistic-box__content__title">录制数<span>(录制中/总数)</span></p>
-                  <p class="statistic-box__content__number"><span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
+                  <p class="statistic-box__content__title">录制数:<span class="statistic-box__content__title_number">{{ tableInfo.totalRecordNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
                 </div>
-                <draw-chart :chart-info="recordOnlineInfo" />
-              </el-col>
-              <el-col :span="5">
-                <div class="statistic-box__content">
-                  <p class="statistic-box__content__title">
-                    存储容量
-                    <span>(已使用/总容量)</span>
-                  </p>
-                  <p v-if="recordData.storage" class="statistic-box__content__number">
-                    <span>{{ recordUsage }}TB</span>
-                    /{{ recordTotal }}TB
-                  </p>
-                </div>
-                <draw-chart :chart-info="bytesInfo" />
               </el-col>
             </el-row>
-
-            <div v-if="ifLiuzhou">
-              <div class="statistic-box__title">
-                <div class="statistic-box__title-text">近7日存储用量趋势</div>
-                <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
-              </div>
-              <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
-              <div class="statistic-box__line-content">
-                <draw-chart :chart-info="recordLogInfo" />
-              </div>
-            </div>
-
-            <el-form ref="form" :model="listQueryForm" :inline="true">
-              <el-form-item label="业务组" required>
-                <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
-                  <!-- <el-option label="全部" value="" /> -->
-                  <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="设备状态">
-                <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
-                  <el-option label="全部" value="" />
-                  <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}`" :value="item" />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="流状态">
-                <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
-                  <el-option label="全部" value="" />
-                  <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="录制状态">
-                <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
-                  <el-option label="全部" value="" />
-                  <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
-                </el-select>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" :loading="tableLoading" @click="searchDeviceList">查询</el-button>
-              </el-form-item>
-              <el-form-item>
-                <el-tooltip placement="top" content="导出">
-                  <svg-icon name="export" class="export" @click="exportList" />
-                </el-tooltip>
-              </el-form-item>
-            </el-form>
-
-            <!-- 默认不展示，点击了查询才给展示 -->
-
-            <div v-if="Array.isArray(tableData)" class="statistic-box__info">
-              <el-row>
-                <el-col :span="7">
-                  <div class="statistic-box__content">
-                    <p class="statistic-box__content__title">设备在线数:<span>{{ tableInfo.totalDeviceOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
-                  </div>
-                </el-col>
-                <el-col :span="7">
-                  <div class="statistic-box__content">
-                    <p class="statistic-box__content__title">流在线数:<span>{{ tableInfo.totalStreamOnlineNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
-                  </div>
-                </el-col>
-                <el-col :span="7">
-                  <div class="statistic-box__content">
-                    <p class="statistic-box__content__title">录制数:<span>{{ tableInfo.totalRecordNum }}/{{ tableInfo.totalDeviceNum }}</span></p>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-
-            <el-table
-              v-if="Array.isArray(tableData)"
-              v-loading="tableLoading"
-              :data="tableData"
-              style="width: 100%;"
-            >
-              <el-table-column
-                prop="dirName"
-                label="所属目录"
-                width="230"
-              >
-                <template slot-scope="{row}">
-                  <!-- <span>{{ row.dirName || '_' }}</span> -->
-                  <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
-                  <span v-else>
-                    <el-tooltip :content="row.dirName" effect="dark" placement="top-start">
-                      <div class="statistic-box__table__text">{{ row.dirName }}</div>
-                    </el-tooltip>
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="deviceName"
-                label="设备名称"
-                width="160"
-              />
-              <el-table-column
-                prop="gbId"
-                label="国标ID"
-                width="210"
-              />
-              <el-table-column
-                prop="deviceId"
-                label="设备ID"
-                width="210"
-              />
-              <el-table-column
-                prop="deviceIp"
-                label="ip"
-                width="210"
-              />
-              <el-table-column
-                prop="status"
-                label="设备状态"
-                width="80"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="status"
-                label="流状态"
-                width="80"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="status"
-                label="录制状态"
-                width="80"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="longitude"
-                label="经度"
-                width="140"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ Number(row.longitude).toFixed(4) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="latitude"
-                label="纬度"
-                width="140"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ Number(row.latitude).toFixed(4) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="createTime"
-                label="创建时间"
-                width="180"
-              >
-                <template slot-scope="{row}">
-                  <span>{{ dateFormat(Number(row.createTime)) }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              v-if="Array.isArray(tableData)"
-              :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.totalNum" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
           </div>
-        </el-tab-pane>
-        <!-- 设备统计 -->
-        <el-tab-pane label="设备统计" name="device">
-          <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
-            <div class="statistic-box__left">
-              <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" />
-            </div>
-            <div class="statistic-box__right">
-              <el-tabs v-model="activeTab">
-                <el-tab-pane v-loading="calendarLoading" label="录像统计" name="record">
-                  <div class="statistic-box__title">
-                    <div class="statistic-box__title-text">设备录像统计</div>
-                  </div>
-                  <div v-if="calendarInfo.length > 0">
-                    <el-date-picker
-                      v-model="monthValue"
-                      type="month"
-                      placeholder="选择月"
-                      value-format="yyyy-MM"
-                      @change="monthValueChange"
-                    />
-                    <div class="statistic-box__calendar">
-                      <div class="statistic-box__calendar__chart">
-                        <div class="statistic-box__content">
-                          <p class="statistic-box__content__title">录制天数</p>
-                          <p class="statistic-box__content__number"><span>{{ recordDayInfo.totalRecordDays || 0 }}</span>/{{ recordDayInfo.totalDays || 30 }}</p>
-                        </div>
-                        <draw-chart :chart-info="recordDays" />
+
+          <el-table
+            v-if="Array.isArray(tableData)"
+            v-loading="tableLoading"
+            :data="tableData"
+            style="width: 100%;"
+          >
+            <el-table-column
+              prop="dirName"
+              label="所属目录"
+              width="230"
+            >
+              <template slot-scope="{row}">
+                <!-- <span>{{ row.dirName || '_' }}</span> -->
+                <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
+                <span v-else>
+                  <el-tooltip :content="row.dirName" effect="dark" placement="top-start">
+                    <div class="statistic-box__table__text">{{ row.dirName }}</div>
+                  </el-tooltip>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="deviceName"
+              label="设备名称"
+              width="160"
+            />
+            <el-table-column
+              prop="gbId"
+              label="国标ID"
+              width="210"
+            />
+            <el-table-column
+              prop="deviceId"
+              label="设备ID"
+              width="210"
+            />
+            <el-table-column
+              prop="deviceIp"
+              label="ip"
+              width="210"
+            />
+            <el-table-column
+              prop="status"
+              label="设备状态"
+              width="80"
+            >
+              <template slot-scope="{row}">
+                <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="流状态"
+              width="80"
+            >
+              <template slot-scope="{row}">
+                <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="status"
+              label="录制状态"
+              width="80"
+            >
+              <template slot-scope="{row}">
+                <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="longitude"
+              label="经度"
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.longitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="latitude"
+              label="纬度"
+              width="140"
+            >
+              <template slot-scope="{row}">
+                <span>{{ Number(row.latitude).toFixed(4) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="createTime"
+              label="创建时间"
+              width="180"
+            >
+              <template slot-scope="{row}">
+                <span>{{ dateFormat(Number(row.createTime)) }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            v-if="Array.isArray(tableData)"
+            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.totalNum" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-tab-pane>
+      <!-- 设备统计 -->
+      <el-tab-pane label="设备统计" name="device">
+        <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
+          <div class="statistic-box__left">
+            <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" />
+          </div>
+          <div class="statistic-box__right">
+            <el-tabs v-model="activeTab">
+              <el-tab-pane v-loading="calendarLoading" label="录像统计" name="record">
+                <div class="statistic-box__title">
+                  <div class="statistic-box__title-text">设备录像统计</div>
+                </div>
+                <div v-if="calendarInfo.length > 0">
+                  <el-date-picker
+                    v-model="monthValue"
+                    type="month"
+                    placeholder="选择月"
+                    value-format="yyyy-MM"
+                    @change="monthValueChange"
+                  />
+                  <div class="statistic-box__calendar">
+                    <div class="statistic-box__calendar__chart">
+                      <div class="statistic-box__content">
+                        <p class="statistic-box__content__title">录制天数</p>
+                        <p class="statistic-box__content__number"><span>{{ recordDayInfo.totalRecordDays || 0 }}</span>/{{ recordDayInfo.totalDays || 30 }}</p>
                       </div>
-                      <div class="statistic-box__calendar__line" />
-                      <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
-                        <span v-for="item in calendarInfo" :key="item.day" class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
+                      <draw-chart :chart-info="recordDays" />
+                    </div>
+                    <div class="statistic-box__calendar__line" />
+                    <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
+                      <el-tooltip v-for="item in calendarInfo" :key="item.day" placement="top" :content="`录制完整率${(item.complianceRate*100).toFixed(2)}%`">
+                        <span class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
                           {{ item.day.split('-')[2] }}
                         </span>
-                      </div>
+                      </el-tooltip>
                     </div>
                   </div>
-                  <div class="statistic-box__title">
-                    <div class="statistic-box__title-text">丢失录像片段统计</div>
-                  </div>
-                  <el-form ref="filterForm" :model="filterForm" :inline="true">
-                    <el-form-item label="时间段">
-                      <!-- <el-col :span="11">
+                </div>
+                <div class="statistic-box__title">
+                  <div class="statistic-box__title-text">丢失录像片段统计</div>
+                </div>
+                <el-form ref="filterForm" :model="filterForm" :inline="true">
+                  <el-form-item label="时间段">
+                    <!-- <el-col :span="11">
                         <el-date-picker v-model="filterForm.startTime" type="date" placeholder="选择日期" style="width: 100%;" />
                       </el-col>
                       <el-col class="line" :span="2">-</el-col>
                       <el-col :span="11">
                         <el-time-picker v-model="filterForm.endTime" placeholder="选择时间" style="width: 100%;" />
                       </el-col> -->
-                      <el-date-picker
-                        v-model="filterForm.dateValue"
-                        type="datetimerange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                      />
-                    </el-form-item>
-                    <el-form-item label="忽略时长">
-                      <template slot="label">
-                        忽略时长
-                        <el-popover
-                          placement="top-start"
-                          width="400"
-                          trigger="hover"
-                          :open-delay="300"
-                          content="忽略规定秒内的缺失录像。"
-                        >
-                          <svg-icon slot="reference" class="form-question" name="help" />
-                        </el-popover>
-                      </template>
-                      <el-input v-model="filterForm.ignore" @input="minValue" />
-                    </el-form-item>
-                    <el-form-item>
-                      <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
-                    </el-form-item>
-                    <el-form-item>
-                      <el-tooltip placement="top" content="导出">
-                        <svg-icon name="export" class="export" @click="exportMissData" />
-                      </el-tooltip>
-                    </el-form-item>
-                  </el-form>
-                  <miss-table v-if="!calendarLoading" :info="searchParam" />
-                </el-tab-pane>
-              </el-tabs>
-            </div>
+                    <el-date-picker
+                      v-model="filterForm.dateValue"
+                      type="datetimerange"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                    />
+                  </el-form-item>
+                  <el-form-item label="忽略时长">
+                    <template slot="label">
+                      忽略时长
+                      <el-popover
+                        placement="top-start"
+                        width="400"
+                        trigger="hover"
+                        :open-delay="300"
+                        content="忽略规定秒内的缺失录像。"
+                      >
+                        <svg-icon slot="reference" class="form-question" name="help" />
+                      </el-popover>
+                    </template>
+                    <el-input v-model="filterForm.ignore" @input="minValue" />
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-tooltip placement="top" content="导出">
+                      <svg-icon name="export" class="export" @click="exportMissData" />
+                    </el-tooltip>
+                  </el-form-item>
+                </el-form>
+                <miss-table v-if="!calendarLoading" :info="searchParam" />
+              </el-tab-pane>
+            </el-tabs>
           </div>
-        </el-tab-pane>
-      </el-tabs>
-
-      <!-- 弹层，非页面主体内容 -->
-      <!-- 近7日存储用量趋势配置 -->
-      <el-dialog
-        title="近7日存储用量趋势配置"
-        :visible="ifThresholdDialog"
-        width="35%"
-        :before-close="changeThresholdDialog"
-        center
-      >
-        <div class="statistic-box__threshold-dialog">
-          <el-input v-model="thresholdInput" placeholder="请输入告警阈值" min="0" max="100" @input="inputChange">
-            <template slot="prepend">告警阈值：</template>
-            <template slot="append">%</template>
-          </el-input>
         </div>
-        <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="sureThis">确 定</el-button>
-          <el-button @click="changeThresholdDialog">取 消</el-button>
-        </span>
-      </el-dialog>
+      </el-tab-pane>
+    </el-tabs>
 
-      <!-- 录像丢失统计 -->
-      <el-dialog
-        :title="`${dayInfo.day} 录像丢失统计`"
-        :visible="ifDayDialog"
-        center
-        :before-close="changeDayDialog"
-      >
-        <p>{{ `录制完整率: ${(dayInfo.complianceRate*100).toFixed(2)}%` }}</p>
+    <!-- 弹层，非页面主体内容 -->
+    <!-- 近7日存储用量趋势配置 -->
+    <el-dialog
+      title="近7日存储用量趋势配置"
+      :visible="ifThresholdDialog"
+      width="35%"
+      :before-close="changeThresholdDialog"
+      center
+    >
+      <div class="statistic-box__threshold-dialog">
+        <el-input v-model="thresholdInput" placeholder="请输入告警阈值" min="0" max="100" @input="inputChange">
+          <template slot="prepend">告警阈值：</template>
+          <template slot="append">%</template>
+        </el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="sureThis">确 定</el-button>
+        <el-button @click="changeThresholdDialog">取 消</el-button>
+      </span>
+    </el-dialog>
 
-        <miss-table from="dialog" :info="dayInfo" />
-        <span slot="footer" class="dialog-footer">
-          <!-- <el-button type="primary" @click="sureThis">确 定</el-button> -->
-          <el-button @click="changeDayDialog">关 闭</el-button>
-        </span>
-      </el-dialog>
-    </el-card>
+    <!-- 录像丢失统计 -->
+    <el-dialog
+      :title="`${dayInfo.day} 录像丢失统计`"
+      :visible="ifDayDialog"
+      center
+      :before-close="changeDayDialog"
+    >
+      <p>{{ `录制完整率: ${(dayInfo.complianceRate*100).toFixed(2)}%` }}</p>
+
+      <miss-table from="dialog" :info="dayInfo" />
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button type="primary" @click="sureThis">确 定</el-button> -->
+        <el-button @click="changeDayDialog">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -815,6 +815,10 @@ export default class extends Vue {
 
   ::v-deep .el-tabs__content {
     padding: 0;
+
+    .el-form {
+      margin-top: 30px;
+    }
   }
 
   ::v-deep.el-card {
@@ -836,7 +840,7 @@ export default class extends Vue {
       width: 22%;
       display: flex;
       border: 1px solid #d3d3d3;
-      margin: calc((100% - 20.8333%*4)/8);
+      margin: 10px calc((100% - 20.8333%*4)/8);
       padding: 10px 0;
       min-width: 230px;
     }
@@ -857,7 +861,7 @@ export default class extends Vue {
     line-height: 26px;
     font-size: 16px;
     font-weight: bold;
-    margin: 10px 0 20px;
+    margin: 20px 0 10px;
 
     &-text {
       width: 160px;
@@ -871,7 +875,7 @@ export default class extends Vue {
     &__title {
       font-size: 12px;
       color: #a1a1a1;
-      padding-left: 5px;
+      padding-left: 10px;
 
       span {
         color: #d3d3d3;
@@ -879,12 +883,12 @@ export default class extends Vue {
     }
 
     &__number {
-      padding-left: 5px;
+      padding-left: 10px;
       color: #0f0f0f;
       font-size: 16px;
 
       span {
-        color: #9bcc56;
+        color: $success;
       }
     }
   }
@@ -892,6 +896,7 @@ export default class extends Vue {
   &__info {
     background: #f2f2f2;
     margin: 10px 0;
+    padding-left: 10px;
 
     ::v-deep .el-row {
       .el-col {
@@ -907,13 +912,18 @@ export default class extends Vue {
         span {
           color: #a1a1a1;
         }
+
+        span.statistic-box__content__title_number {
+          color: #0f0f0f;
+          padding-left: 5px;
+        }
       }
     }
   }
 
   &__line-content {
-    width: 85%;
-    height: 500px;
+    width: 95%;
+    // height: 500px;
   }
 
   &__warning {
@@ -925,8 +935,7 @@ export default class extends Vue {
     color: #fff;
     font-size: 16px;
     line-height: 60px;
-    // padding-left: 20px;
-    margin: 30px 0;
+    margin: 20px 0 30px;
 
     span {
       font-size: 24px;
