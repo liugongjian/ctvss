@@ -76,7 +76,7 @@
     <div v-if="currentTemplate.recordType === 2" class="bind-body-bottom">
       <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
-    <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
+    <div slot="footer" class="submit-footer">
       <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
         确 定
       </el-button>
@@ -635,6 +635,10 @@ export default class extends Vue {
       }
     }
   }
+}
+
+.submit-footer {
+  margin: 20px 0;
 }
 
 ::v-deep {
