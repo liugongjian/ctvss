@@ -686,6 +686,7 @@ export default class extends Vue {
   border-radius: 4px;
   min-height: 400px;
   margin-bottom: 10px;
+  padding: 10px;
   overflow: auto;
 }
 
