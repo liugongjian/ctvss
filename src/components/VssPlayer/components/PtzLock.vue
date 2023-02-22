@@ -180,9 +180,9 @@ export default class extends Vue {
           const wrongPT = +getLocalStorage('ptzLockWrongPwdTime')
           const until = +getLocalStorage('ptzLockWrongPwdUntil')
           if (wrongPT > 2 && !until) {
-            setLocalStorage('ptzLockWrongPwdUntil', new Date().getTime() + 30 * 60 * 1000)
+            setLocalStorage('ptzLockWrongPwdUntil', new Date().getTime() + 5 * 60 * 1000)
             this.$nextTick(() => {
-              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请30分钟之后重试'
+              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请5分钟之后重试'
             })
             return
           }
@@ -192,7 +192,7 @@ export default class extends Vue {
           }
           if (until && until > new Date().getTime()) {
             this.$nextTick(() => {
-              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请30分钟之后重试'
+              this.unclockPwdWrongMsg = '您输入密码已连续错误3次，请5分钟之后重试'
             })
             return
           }
