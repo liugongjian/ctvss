@@ -242,7 +242,7 @@ export default class extends ComponentMixin {
         // this.showCanvasBox = false
         // this.oCanvas.style.cursor = 'auto'
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error(err.message)
         this.showCanvasBox = false
         this.oCanvas.style.cursor = 'auto'
       })
