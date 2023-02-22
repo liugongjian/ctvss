@@ -1309,30 +1309,30 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  {
-    path: '/statistic',
-    component: Layout,
-    meta: {
-      title: '统计信息',
-      breadcrumb: true,
-      icon: 'menu-system',
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-        name: 'statistic',
-        meta: {
-          title: '统计信息',
-          breadcrumb: false,
-          icon: 'menu-system',
-          perms: ['*'],
-          groupSelector: true
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/statistic',
+  //   component: Layout,
+  //   meta: {
+  //     title: '统计信息',
+  //     breadcrumb: true,
+  //     icon: 'menu-system',
+  //     perms: ['*']
+  //   },
+  //   children: [
+  //     {
+  //       path: '',
+  //       component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+  //       name: 'statistic',
+  //       meta: {
+  //         title: '统计信息',
+  //         breadcrumb: false,
+  //         icon: 'chart',
+  //         perms: ['*'],
+  //         groupSelector: true
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/sysconfig',
     component: Layout,
@@ -1350,7 +1350,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '系统设置',
           breadcrumb: false,
-          icon: 'menu-system',
+          icon: 'dot',
           perms: ['*']
         }
       },
@@ -1361,7 +1361,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '锁定录像管理',
           breadcrumb: false,
-          icon: 'menu-system',
+          icon: 'dot',
           perms: ['ivs:LockCloudRecord']
         }
         // component: Layout,
@@ -1372,17 +1372,17 @@ export const asyncRoutes: RouteConfig[] = [
         //   perms: ['ivs:LockCloudRecord']
         // },
         // children: [
-          // {
-            // path: '',
-            // component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
-            // name: 'replay-lock-manage',
-            // meta: {
-            //   title: '锁定录像管理',
-            //   breadcrumb: false,
-            //   icon: 'menu-system',
-            //   perms: ['ivs:LockCloudRecord']
-            // }
-          // }
+        // {
+        // path: '',
+        // component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
+        // name: 'replay-lock-manage',
+        // meta: {
+        //   title: '锁定录像管理',
+        //   breadcrumb: false,
+        //   icon: 'menu-system',
+        //   perms: ['ivs:LockCloudRecord']
+        // }
+        // }
         // ]
       },
       {
@@ -1392,8 +1392,20 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '自定义设备树',
           breadcrumb: false,
-          icon: 'menu-system',
+          icon: 'dot',
           perms: ['*']
+        }
+      },
+      {
+        path: '/statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'dot',
+          perms: ['*'],
+          groupSelector: true
         }
       }
     ]
