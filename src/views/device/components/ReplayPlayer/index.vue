@@ -47,7 +47,7 @@
       />
     </template>
     <template slot="controlRight">
-      <Lock v-if="!UserModule.iamUserId || screen.ivsLockCloudRecord" :screen="screen" />
+      <Lock v-if="canLock" :screen="screen" />
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
@@ -122,6 +122,15 @@ export default class extends Vue {
   /* 录像类型 */
   private get recordType() {
     return this.screen && this.screen.recordType
+  }
+
+  /* 是否具有锁定功能 */
+  private get canLock() {
+    if (this.screen.inProtocol === 'gb28181') {
+      return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    } else {
+      return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    }
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })

@@ -269,6 +269,11 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
+    console.log('时间轴上可以看到  不 recordType 变了 后端控制 查到为空就行？  🧨✨🎉', this.screen.inProtocol, this.screen.recordType)
+    // if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
+    //   // 设备不存在录像锁定功能
+
+    // }
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
@@ -516,6 +521,10 @@ export default class extends Vue {
     }
     /* 已锁定的录像片段区间起始位置 */
     this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
+    // 国标下，切换到设备时，去掉锁
+    if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
+      this.axisData.locks = []
+    }
     // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
     // this.axixData.locks = [{ x: 50 }]
   }
