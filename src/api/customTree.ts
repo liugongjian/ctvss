@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { UserModule } from '@/store/modules/user'
 /**
  * 查询自定义树列表
  */
@@ -40,6 +41,11 @@ export const loadTreeNode = (params: any): Promise<any> => {
     url: '/tree/customize/nodes',
     method: 'get',
     params
+  }).then((res: any) => {
+    if (UserModule.iamUserId && res.dirs) {
+      res.dirs = res.dirs.filter(dir => dir.type !== 'dir' || dir.totalSize > 0)
+    }
+    return res
   })
 }
 
