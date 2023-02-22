@@ -725,6 +725,10 @@ export default class extends Vue {
   }
 }
 
+.device-list {
+  height: 500px;
+}
+
 .device-list__left {
   display: flex;
   flex-direction: column;
