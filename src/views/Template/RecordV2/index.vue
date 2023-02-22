@@ -142,6 +142,7 @@
   </div>
 </template>
 <script lang="ts">
+import axios from 'axios'
 import { Component, Vue, Ref } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
@@ -211,6 +212,7 @@ export default class extends Vue {
 
   private templates: any = []
   private renderTemplateInfo: any = {}
+  private axiosSource = null
 
   private mounted() {
     this.handleDevice = true
@@ -298,6 +300,7 @@ export default class extends Vue {
     this.createTemplateDisable = false
     this.handleDevice = true
     this.currentTemplate = template
+    this.axiosSource.cancel()
     this.initBindDevice()
     this.initTemplateInfo()
   }
@@ -358,34 +361,39 @@ export default class extends Vue {
   private async loadSubDevice(node: any, resolve: Function) {
     if (node.level === 0) {
       this.loading.templateDeviceTree = true
+      this.axiosSource = axios.CancelToken.source()
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
         groupId: 0,
         id: 0,
         bind: true
-      })
-      const root = [{
-        label: '全部',
-        isLeaf: false,
-        id: '-1',
-        type: 'group',
-        bindSize: 0
-      }]
+      }, this.axiosSource.token)
       this.loading.templateDeviceTree = false
-      resolve(root)
-      this.$nextTick(async() => {
-        const rootNode = this.bindTreeMain && this.bindTreeMain.getNode('-1')
-        if (!rootNode) return
-        this.bindTreeMain.updateKeyChildren('-1', res.dirs)
-        rootNode.loaded = true
-        rootNode.expanded = true
-        // 计算业务组设备总数量
-        let total = 0
-        res.dirs.forEach((group) => {
-          total += group.totalSize
+      if (res.dirs.length) {
+        const root = [{
+          label: '全部',
+          isLeaf: false,
+          id: '-1',
+          type: 'group',
+          bindSize: 0
+        }]
+        resolve(root)
+        this.$nextTick(async() => {
+          const rootNode = this.bindTreeMain && this.bindTreeMain.getNode('-1')
+          if (!rootNode) return
+          this.bindTreeMain.updateKeyChildren('-1', res.dirs)
+          rootNode.loaded = true
+          rootNode.expanded = true
+          // 计算业务组设备总数量
+          let total = 0
+          res.dirs.forEach((group) => {
+            total += group.totalSize
+          })
+          this.bindedDeviceNum = total
         })
-        this.bindedDeviceNum = total
-      })
+      } else {
+        resolve([])
+      }
     } else {
       try {
         const res = await this.getSubCheckedTree(node)
