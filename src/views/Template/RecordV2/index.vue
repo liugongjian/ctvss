@@ -161,6 +161,7 @@ export default class extends Vue {
   @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
+  @Ref('dirList') private dirList
 
   // 编辑页面参数
   private mainCard = true
@@ -233,19 +234,26 @@ export default class extends Vue {
       this.templates = res.templates
       this.loading.template = false
       this.$nextTick(() => {
-        // 默认选中第一个模板
-        if (!this.currentTemplate) {
-          this.currentTemplate = this.templates[0]
+        if (this.templates.length) {
+          // 默认选中第一个模板
+          if (!this.currentTemplate) {
+            this.currentTemplate = this.templates[0]
+          } else {
+            const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
+            this.currentTemplate = currentTemplate || this.templates[0]
+          }
+          this.$nextTick(() => {
+            this.scrollToActived()
+          })
+          this.defaultDevice = true
+          this.isDelete = false
+          this.bindDevice = false
+          // 加载第一项的模板信息和设备树
+          this.initBindDevice()
+          this.initTemplateInfo()
         } else {
-          const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
-          this.currentTemplate = currentTemplate || this.templates[0]
+          this.currentTemplate = null
         }
-        this.defaultDevice = true
-        this.isDelete = false
-        this.bindDevice = false
-        // 加载第一项的模板信息和设备树
-        this.initBindDevice()
-        this.initTemplateInfo()
       })
     } catch (e) {
       this.$message.error(e)
@@ -366,7 +374,7 @@ export default class extends Vue {
       this.loading.templateDeviceTree = false
       resolve(root)
       this.$nextTick(async() => {
-        const rootNode = this.bindTreeMain.getNode('-1')
+        const rootNode = this.bindTreeMain && this.bindTreeMain.getNode('-1')
         if (!rootNode) return
         this.bindTreeMain.updateKeyChildren('-1', res.dirs)
         rootNode.loaded = true
@@ -632,6 +640,15 @@ export default class extends Vue {
     } else {
       return this.getGroupId(node.parent)
     }
+  }
+
+  /**
+   * 滚动条跳转到选中位置
+   */
+  private scrollToActived() {
+    const activedItem = this.dirList.querySelector('li.actived')
+    const offsetTop = activedItem.offsetTop
+    this.dirList.scrollTop = offsetTop
   }
 }
 </script>
