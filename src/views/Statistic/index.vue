@@ -688,10 +688,7 @@ export default class extends Vue {
 
   private minValue(value) {
     value = value.replace(/[^\d]/g, '')
-    if (value <= 0) {
-      value = 0
-      this.filterForm.ignore = 0
-    }
+    this.filterForm.ignore = value
   }
 
   private async getDeviceList() {

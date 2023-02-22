@@ -46,7 +46,7 @@
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
               <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 + '天' }}</el-descriptions-item>
               <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval / 60 + '分钟' }}</el-descriptions-item>
-              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '自动录制' : '按需录制' }}</el-descriptions-item>
+              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '全天录制' : '手动录制' }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
             <el-descriptions label-class-name="has-no-colon" :column="1">
@@ -142,6 +142,7 @@
   </div>
 </template>
 <script lang="ts">
+import axios from 'axios'
 import { Component, Vue, Ref } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
@@ -161,6 +162,7 @@ export default class extends Vue {
   @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
+  @Ref('dirList') private dirList
 
   // 编辑页面参数
   private mainCard = true
@@ -210,6 +212,7 @@ export default class extends Vue {
 
   private templates: any = []
   private renderTemplateInfo: any = {}
+  private axiosSource = null
 
   private mounted() {
     this.handleDevice = true
@@ -233,16 +236,26 @@ export default class extends Vue {
       this.templates = res.templates
       this.loading.template = false
       this.$nextTick(() => {
-        // 默认选中第一个模板
-        if (!this.currentTemplate) {
-          this.currentTemplate = this.templates[0]
+        if (this.templates.length) {
+          // 默认选中第一个模板
+          if (!this.currentTemplate) {
+            this.currentTemplate = this.templates[0]
+          } else {
+            const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
+            this.currentTemplate = currentTemplate || this.templates[0]
+          }
+          this.$nextTick(() => {
+            this.scrollToActived()
+          })
+          this.defaultDevice = true
+          this.isDelete = false
+          this.bindDevice = false
+          // 加载第一项的模板信息和设备树
+          this.initBindDevice()
+          this.initTemplateInfo()
+        } else {
+          this.currentTemplate = null
         }
-        this.defaultDevice = true
-        this.isDelete = false
-        this.bindDevice = false
-        // 加载第一项的模板信息和设备树
-        this.initBindDevice()
-        this.initTemplateInfo()
       })
     } catch (e) {
       this.$message.error(e)
@@ -287,6 +300,7 @@ export default class extends Vue {
     this.createTemplateDisable = false
     this.handleDevice = true
     this.currentTemplate = template
+    this.axiosSource.cancel()
     this.initBindDevice()
     this.initTemplateInfo()
   }
@@ -347,34 +361,39 @@ export default class extends Vue {
   private async loadSubDevice(node: any, resolve: Function) {
     if (node.level === 0) {
       this.loading.templateDeviceTree = true
+      this.axiosSource = axios.CancelToken.source()
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
         groupId: 0,
         id: 0,
         bind: true
-      })
-      const root = [{
-        label: '全部',
-        isLeaf: false,
-        id: '-1',
-        type: 'group',
-        bindSize: 0
-      }]
+      }, this.axiosSource.token)
       this.loading.templateDeviceTree = false
-      resolve(root)
-      this.$nextTick(async() => {
-        const rootNode = this.bindTreeMain.getNode('-1')
-        if (!rootNode) return
-        this.bindTreeMain.updateKeyChildren('-1', res.dirs)
-        rootNode.loaded = true
-        rootNode.expanded = true
-        // 计算业务组设备总数量
-        let total = 0
-        res.dirs.forEach((group) => {
-          total += group.totalSize
+      if (res.dirs.length) {
+        const root = [{
+          label: '全部',
+          isLeaf: false,
+          id: '-1',
+          type: 'group',
+          bindSize: 0
+        }]
+        resolve(root)
+        this.$nextTick(async() => {
+          const rootNode = this.bindTreeMain && this.bindTreeMain.getNode('-1')
+          if (!rootNode) return
+          this.bindTreeMain.updateKeyChildren('-1', res.dirs)
+          rootNode.loaded = true
+          rootNode.expanded = true
+          // 计算业务组设备总数量
+          let total = 0
+          res.dirs.forEach((group) => {
+            total += group.totalSize
+          })
+          this.bindedDeviceNum = total
         })
-        this.bindedDeviceNum = total
-      })
+      } else {
+        resolve([])
+      }
     } else {
       try {
         const res = await this.getSubCheckedTree(node)
@@ -600,6 +619,9 @@ export default class extends Vue {
     this.mainCard = true
     if (payload.isRefresh) {
       // 更新页面
+      this.currentTemplate = {
+        templateId: payload.templateId
+      }
       this.init()
     }
   }
@@ -626,6 +648,15 @@ export default class extends Vue {
     } else {
       return this.getGroupId(node.parent)
     }
+  }
+
+  /**
+   * 滚动条跳转到选中位置
+   */
+  private scrollToActived() {
+    const activedItem = this.dirList.querySelector('li.actived')
+    const offsetTop = activedItem.offsetTop
+    this.dirList.scrollTop = offsetTop
   }
 }
 </script>
@@ -655,6 +686,7 @@ export default class extends Vue {
   border-radius: 4px;
   min-height: 400px;
   margin-bottom: 10px;
+  padding: 10px;
   overflow: auto;
 }
 
@@ -811,6 +843,8 @@ export default class extends Vue {
 }
 
 .device-list__right {
+  overflow: auto;
+
   ::v-deep {
     .description__label {
       min-width: 200px;
