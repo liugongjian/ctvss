@@ -10,7 +10,7 @@
         </el-steps>
         <el-form ref="userForm" :model="form" :rules="rules" label-position="right" label-width="150px">
           <div v-show="activeStep === 0">
-            <el-form-item prop="userInfo" label="设置账号信息：">
+            <el-form-item prop="userInfo" label="设置账号信息：" class="user-info">
               <el-table
                 :data="form.userInfo"
                 class="fixed-width-table"
@@ -60,7 +60,7 @@
                 </el-table-column>
                 <el-table-column v-if="type === 'add'" label="操作" width="110">
                   <template slot-scope="scope">
-                    <el-button type="text" @click="removeUser(scope.index)">移除</el-button>
+                    <el-button type="text" @click="removeUser(scope.$index)">移除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -416,14 +416,14 @@ export default class extends Vue {
     apiEnabled: false,
     resetPwdEnabled: true,
     passwordLifeTime: 0,
-    maxOnline: 1,
+    maxOnline: 3,
     isMutualLogout: false,
     policies: [],
     copyUser: []
   }
   private rules: any = {
     iamUserName: [
-      { required: true, message: '用户名必填', trigger: 'blur' },
+      { required: true, message: '用户名不能为空', trigger: ['blur', 'change'] },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
     userInfo: [
@@ -435,10 +435,13 @@ export default class extends Vue {
       { required: true, validator: this.validateAccessType, trigger: 'change' }
     ],
     email: [
-      { required: true, message: '请填写邮箱', trigger: 'blur' },
+      { required: true, message: '邮箱不能为空', trigger: ['blur', 'change'] },
       { validator: this.validateEmail, trigger: 'blur' }
     ],
-    phone: [{ validator: this.validatePhone, trigger: 'blur' }],
+    phone: [
+      { required: true, message: '手机号不能为空', trigger: ['blur', 'change'] },
+      { validator: this.validatePhone, trigger: 'blur' }
+    ],
     passwordLifeTime: [
       { required: true, message: '请选择密码有效期', trigger: 'blur' }
     ],
@@ -466,6 +469,8 @@ export default class extends Vue {
   }
 
   private addUser() {
+    const form: any = this.$refs.userForm
+    form.clearValidate('userInfo')
     this.form.userInfo.push({
       id: new Date().getTime() + '',
       iamUserName: '',
@@ -498,17 +503,40 @@ export default class extends Vue {
   }
 
   private gotoNext() {
-    this.activeStep += 1
-    if (this.activeStep === 2) {
-      const inheritedPolicies = this.inheritedPolicies.map((inheritedPolicy: any) => ({
-        ...inheritedPolicy,
-        inherited: true
-      }))
-
+    const validateArr = []
+    if (this.activeStep === 0) {
+      validateArr.push(...['userInfo', 'accessType', 'resetPwdEnabled', 'passwordLifeTime', 'maxOnline', 'isMutualLogout'])
+      const tempArr = []
+      this.form.userInfo.forEach((user: any, index: number) => {
+        tempArr.push(`userInfo.${index}.iamUserName`, `userInfo.${index}.email`, `userInfo.${index}.phone`)
+      })
+      validateArr.push(...tempArr)
+    } else if (this.activeStep === 1) {
       if (this.activeName === 'select') {
-        this.effectivePolicies = inheritedPolicies.concat(this.form.policies)
+        validateArr.push('policies')
       } else {
-        this.effectivePolicies = inheritedPolicies.concat(this.form.copyUser?.[0]?.policies || [])
+        validateArr.push('copyUser')
+      }
+    }
+
+    const validateResult = []
+    const form: any = this.$refs.userForm
+    form.validateField(validateArr, (errMessage) => {
+      validateResult.push(errMessage)
+    })
+    if (validateResult.every(message => !message)) {
+      this.activeStep += 1
+      if (this.activeStep === 2) {
+        const inheritedPolicies = this.inheritedPolicies.map((inheritedPolicy: any) => ({
+          ...inheritedPolicy,
+          inherited: true
+        }))
+
+        if (this.activeName === 'select') {
+          this.effectivePolicies = inheritedPolicies.concat(this.form.policies)
+        } else {
+          this.effectivePolicies = inheritedPolicies.concat(this.form.copyUser?.[0]?.policies || [])
+        }
       }
     }
   }
@@ -822,7 +850,9 @@ export default class extends Vue {
   }
 
   private validateUserName(rule: any, value: any, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
+    if (!value) {
+      callback(new Error('用户名必填'))
+    } else if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
       callback(new Error('2-16位，可包含大小写字母、数字、中划线'))
     } else {
       callback()
@@ -840,6 +870,8 @@ export default class extends Vue {
   private validateCopyUser(rule: any, value: any, callback: Function) {
     if (this.activeName === 'copy' && !this.form.copyUser.length) {
       callback(new Error('请选择要拷贝权限的用户'))
+    } else if (this.activeName === 'copy' && !this.inheritedPolicies.length && !this.form.copyUser[0].policies.length) {
+      callback(new Error('拷贝该用户后会导致无生效策略，请切换其他用户'))
     } else {
       callback()
     }
@@ -854,7 +886,9 @@ export default class extends Vue {
   }
 
   private validateEmail(rule: any, value: string, callback: Function) {
-    if (value && !/^[\w-.]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/gi.test(value)) {
+    if (!value) {
+      callback(new Error('邮箱必填'))
+    } else if (value && !/^[\w-.]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/gi.test(value)) {
       callback(new Error('请输入正确的邮箱'))
     } else {
       callback()
@@ -862,7 +896,9 @@ export default class extends Vue {
   }
 
   private validatePhone(rule: any, value: string, callback: Function) {
-    if (value && !/^\d{11}$/.test(value)) {
+    if (!value) {
+      callback(new Error('手机必填'))
+    } else if (value && !/^\d{11}$/.test(value)) {
       callback(new Error('请输入正确的手机号'))
     } else {
       callback()
@@ -995,6 +1031,18 @@ export default class extends Vue {
       display: inline-block;
       margin-bottom: 10px;
     }
+  }
+}
+
+::v-deep .user-info .is-required .el-input.el-input--medium {
+  .el-input__inner {
+    width: 90%;
+  }
+
+  &:before {
+    content: '*';
+    color: #f5212d;
+    margin-right: 4px;
   }
 }
 </style>
