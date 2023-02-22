@@ -85,6 +85,7 @@ export default class extends Mixins(ScreenMixin) {
    * 切换录像类型
    */
   private onReplayTypeChange(recordType) {
+    console.log('切换录像类型  🧧🧧     需要区分国标的 云端 和设备 ReplayType  this.currentScreen.inProtocol', recordType, this.currentScreen.inProtocol)
     this.screenManager.changeReplayType(recordType)
   }
 }

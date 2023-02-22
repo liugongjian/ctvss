@@ -14,7 +14,7 @@
               <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
-          <div ref="dirList" v-loading="loading.template" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div ref="dirList" v-loading="loading.template" class="template-list__wrap" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
@@ -73,9 +73,9 @@
                   <div>
                     <el-tree
                       ref="bindTreeMain"
+                      :key="treeKey"
                       v-loading="loading.templateDeviceTree || loading.unbinding"
                       class="right-tree"
-                      :data="deviceListMain"
                       node-key="id"
                       lazy
                       :show-checkbox="isDelete"
@@ -172,7 +172,7 @@ export default class extends Vue {
 
   private bindDevice = false
   // private unbindDevice = false
-  private defaultDevice = true
+  private defaultDevice = false
 
   private delDataList = []
 
@@ -190,6 +190,8 @@ export default class extends Vue {
     templateDeviceTree: false,
     unbinding: false
   }
+
+  private treeKey = new Date().getTime()
 
   private treeProp = {
     label: 'label',
@@ -224,9 +226,6 @@ export default class extends Vue {
   private async init() {
     try {
       // 设置初始化展示页面结构
-      this.defaultDevice = true
-      this.isDelete = false
-      this.bindDevice = false
       this.loading.template = true
       let res = await getRecordTemplates({
         pageSize: 999
@@ -236,6 +235,9 @@ export default class extends Vue {
       this.$nextTick(() => {
         // 默认选中第一个模板
         this.currentTemplate = this.templates[0]
+        this.defaultDevice = true
+        this.isDelete = false
+        this.bindDevice = false
         // 加载第一项的模板信息和设备树
         this.initBindDevice()
         this.initTemplateInfo()
@@ -245,7 +247,9 @@ export default class extends Vue {
     }
   }
 
-  // 获取模板信息，查询模板信息
+  /**
+   * 获取模板信息，查询模板信息
+   */
   private async initTemplateInfo() {
     try {
       this.loading.templateInfo = true
@@ -260,38 +264,16 @@ export default class extends Vue {
     }
   }
 
-  // 获取已绑定设备的设备树
-  private async initBindDevice(node?: any) {
-    try {
-      // 初始化或者重新加载已绑定设备树的时候，关闭删除预览模式
-      this.isDelete = false
-      this.loading.templateDeviceTree = true
-      let templateId = node && node.templateId
-      let type = node && node.type
-      let path = node && node.path
-      let id = node && node.id
-      let templateDeviceTree = await getTemplateDeviceTree({
-        templateId: templateId || this.currentTemplate.templateId,
-        groupId: type === 'group' ? id : 0,
-        id: id || 0,
-        type: type,
-        path: path,
-        bind: true
-      })
-      this.deviceListMain = templateDeviceTree.dirs // 设备树
-      this.bindedDeviceNum = templateDeviceTree.totalSize // 已绑定数目应该直接给出
-      // 渲染已绑定设备数
-      // this.deviceListMain.map((item: any) => {
-      // item.bindStatus === 1 && (this.bindedDeviceNum += 1)
-      // })
-    } catch (e) {
-      this.$message.error(e)
-    } finally {
-      this.loading.templateDeviceTree = false
-    }
+  /**
+   * 重置已绑定的设备树
+   */
+  private async initBindDevice() {
+    this.treeKey = new Date().getTime()
   }
 
-  // 选择模板
+  /**
+   * 选择模板
+   */
   private async selectTemplate(template: any) {
     // 设置初始化展示页面结构
     this.bindedDeviceNum = 0
@@ -346,7 +328,9 @@ export default class extends Vue {
     }
   }
 
-  // 删除设备
+  /**
+   * 删除设备
+   */
   private delDevice() {
     // 展示右侧table，展示左侧树可选态
     this.isDelete = true
@@ -355,29 +339,67 @@ export default class extends Vue {
     this.handleDevice = false
   }
 
+  /**
+   * 加载子节点
+   */
   private async loadSubDevice(node: any, resolve: Function) {
-    if (node.data.isLeaf) return resolve([])
-    if (node.level === 0) return resolve(this.deviceListMain)
-    try {
-      const res = await this.getSubTree(node)
-      this.$nextTick(() => {
-      // 勾选状态下设置
-        if (!this.isDelete) return
-        this.setChecked(res.dirs)
+    if (node.level === 0) {
+      this.loading.templateDeviceTree = true
+      const res = await getTemplateDeviceTree({
+        templateId: this.currentTemplate.templateId,
+        groupId: 0,
+        id: 0,
+        bind: true
       })
-      return resolve(res)
-    } catch (e) {
-      resolve([])
+      const root = [{
+        label: '全部',
+        isLeaf: false,
+        id: '-1',
+        type: 'group',
+        bindSize: 0
+      }]
+      this.loading.templateDeviceTree = false
+      resolve(root)
+      this.$nextTick(async() => {
+        const rootNode = this.bindTreeMain.getNode('-1')
+        this.bindTreeMain.updateKeyChildren('-1', res.dirs)
+        rootNode.loaded = true
+        rootNode.expanded = true
+        // 计算业务组设备总数量
+        let total = 0
+        res.dirs.forEach((group) => {
+          total += group.totalSize
+        })
+        this.bindedDeviceNum = total
+      })
+    } else {
+      try {
+        const res = await this.getSubCheckedTree(node)
+        this.$nextTick(() => {
+        // 勾选状态下设置
+          if (!this.isDelete) return
+          this.setChecked(res.dirs)
+        })
+        return resolve(res)
+      } catch (e) {
+        resolve([])
+      }
     }
   }
 
+  /**
+   * 设置勾选状态
+   */
   private setNodesChecked(item: any, checked?: boolean) {
     if (checked) {
       // 点击勾选
       this.bindTreeMain.setChecked(item.id, true, true)
     }
   }
-  // 已绑定设备勾选状态设置
+
+  /**
+   * 已绑定设备勾选状态设置
+   */
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
       let item = nodes.data
@@ -389,26 +411,9 @@ export default class extends Vue {
     }
   }
 
-  // 获取子节点
-  private async getSubTree(node: any) {
-    try {
-      const data: any = node.data
-      const rootId = this.getRootId(node)
-      const res = await getTemplateDeviceTree({
-        templateId: this.currentTemplate.templateId,
-        groupId: rootId,
-        id: data.id,
-        type: data.type,
-        bind: true,
-        path: data.path
-      })
-      return res.dirs
-    } catch (e) {
-      this.$message.error(e)
-    }
-  }
-
-  // 删除模板
+  /**
+   * 删除模板
+   */
   private async deleteTemplate(row: any) {
     this.$alertDelete({
       type: '录制模板',
@@ -419,14 +424,9 @@ export default class extends Vue {
     })
   }
 
-  // 获取当前节点对应根节点的id
-  private getRootId(node: any) {
-    while (node.level !== 1) {
-      return this.getRootId(node.parent)
-    }
-    return node.data.id
-  }
-
+  /**
+   * 递归展开子节点
+   */
   private async handleCheck(data: any, isChecked: any) {
     if (isChecked) {
       await this.deepExpand(data.id, isChecked)
@@ -434,11 +434,13 @@ export default class extends Vue {
     this.delDataList = this.bindTreeMain.getCheckedNodes(true, false)
   }
 
-  // 获取已绑定子节点
+  /**
+   * 获取已绑定子节点
+   */
   private async getSubCheckedTree(node: any) {
     try {
       const data: any = node.data
-      const rootId = this.getRootId(node)
+      const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
         groupId: rootId,
@@ -467,7 +469,7 @@ export default class extends Vue {
         this.loading.unbinding = true
         const delDataList = this.delDataList.map(data => {
           const node = this.bindTreeMain.getNode(data.id)
-          const rootId = this.getRootId(node)
+          const rootId = this.getGroupId(node)
           data.groupId = rootId
           return data
         })
@@ -530,7 +532,9 @@ export default class extends Vue {
     this.handleDevice = false
   }
 
-  // 点击'删除设备'按钮
+  /**
+   * 点击'删除设备'按钮
+   */
   private clickUnbind() {
     this.isDelete = true
     this.defaultDevice = true
@@ -545,7 +549,9 @@ export default class extends Vue {
     this.handleDevice = true
   }
 
-  // 关闭绑定 或 取消绑定设备
+  /**
+   * 关闭绑定 或 取消绑定设备
+   */
   private async bindDialogClose(isBinded: boolean) {
     this.bindDevice = false
     // 切换回默认页面
@@ -558,7 +564,9 @@ export default class extends Vue {
     }
   }
 
-  // 新建模板
+  /**
+   * 新建模板
+   */
   private createTemplate() {
     // 关闭主页面
     // 展示新建/编辑页面
@@ -568,7 +576,9 @@ export default class extends Vue {
     this.createOrUpdateFlag = true // 新建
   }
 
-  // 编辑模板
+  /**
+   * 编辑模板
+   */
   private editTemplate(template: any) {
     this.currentTemplate = template
     this.mainCard = false
@@ -577,7 +587,9 @@ export default class extends Vue {
     this.createOrUpdateFlag = false // 编辑
   }
 
-  // 关闭新建/编辑模板
+  /**
+   * 关闭新建/编辑模板
+   */
   private createClose(isRefresh: any) {
     // 控制关闭新建和编辑分页,激活新建按钮
     this.createTemplateDisable = false
@@ -589,7 +601,9 @@ export default class extends Vue {
     }
   }
 
-  // 提交模板编辑/新建操作
+  /**
+   * 提交模板编辑/新建操作
+   */
   private templateSubmit(finish: boolean) {
     // 禁止操作模板列表
     if (!finish) {
@@ -597,6 +611,17 @@ export default class extends Vue {
     }
     if (finish) {
       this.loading.template = false
+    }
+  }
+
+  /**
+   * 获取当前节点对应业务组节点的id
+   */
+  private getGroupId(node: any) {
+    if (node.level === 2) {
+      return node.data.id
+    } else {
+      return this.getGroupId(node.parent)
     }
   }
 }
@@ -652,75 +677,6 @@ export default class extends Vue {
   overflow: auto;
 }
 
-.template-list {
-  padding: 10px;
-
-  ul {
-    margin: 0;
-    padding: 0;
-
-    li {
-      position: relative;
-      list-style: none;
-      height: 30px;
-      line-height: 30px;
-      cursor: pointer;
-      border-radius: 4px;
-      padding-left: 10px;
-
-      span {
-        display: block;
-        white-space: nowrap;
-        text-overflow: hidden;
-        word-break: break-all;
-      }
-
-      svg {
-        color: $darkGray;
-        vertical-align: middle;
-        margin-left: 3px;
-      }
-
-      .tools {
-        position: absolute;
-        display: none;
-        right: 0;
-        top: 0;
-        background: $treeHover;
-
-        .el-button {
-          padding: 5px;
-        }
-
-        .el-button + .el-button {
-          margin-left: 0;
-        }
-      }
-
-      &:hover {
-        background: $treeHover;
-
-        .tools {
-          display: block;
-        }
-      }
-
-      &.actived {
-        background: $primary;
-        color: #fff;
-
-        .tools {
-          background: $primary;
-        }
-
-        svg {
-          color: #fff;
-        }
-      }
-    }
-  }
-}
-
 .title {
   &:before {
     display: inline-block;
@@ -734,29 +690,109 @@ export default class extends Vue {
   }
 }
 
-.left-title {
-  font-size: 16px;
-  font-weight: bold;
-  display: inline-block;
-  margin-top: 30px;
-  margin-left: 20px;
-}
+.device-list__left {
+  display: flex;
+  flex-direction: column;
 
-.device-list__left .dir-list__tools {
-  height: 70px;
-  text-align: left;
-}
+  .dir-list__tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    box-sizing: content-box;
 
-.new-template {
-  float: right;
-  margin-top: 23px;
-  margin-right: 5px;
+    .left-title {
+      font-size: 16px;
+      font-weight: bold;
+      display: inline-block;
+      margin-left: 20px;
+    }
+
+    .new-template {
+      margin-right: 10px;
+    }
+  }
+
+  .template-list__wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .template-list {
+    padding: 10px;
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        position: relative;
+        list-style: none;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        border-radius: 4px;
+        padding-left: 10px;
+
+        span {
+          display: block;
+          white-space: nowrap;
+          text-overflow: hidden;
+          word-break: break-all;
+        }
+
+        svg {
+          color: $darkGray;
+          vertical-align: middle;
+          margin-left: 3px;
+        }
+
+        .tools {
+          position: absolute;
+          display: none;
+          right: 0;
+          top: 0;
+          background: $treeHover;
+
+          .el-button {
+            padding: 5px;
+          }
+
+          .el-button + .el-button {
+            margin-left: 0;
+          }
+        }
+
+        &:hover {
+          background: $treeHover;
+
+          .tools {
+            display: block;
+          }
+        }
+
+        &.actived {
+          background: $primary;
+          color: #fff;
+
+          .tools {
+            background: $primary;
+          }
+
+          svg {
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
 }
 
 .btn-edit {
   position: relative;
   top: 12px;
-  right: 20px;
+  right: 29px;
 }
 
 .bind-title-left {
@@ -769,12 +805,6 @@ export default class extends Vue {
   font-size: 13px;
   float: right;
   color: $textGrey;
-}
-
-.custom-tree-node.online .node-name {
-  .svg-icon {
-    color: #65c465;
-  }
 }
 
 .device-list__right {

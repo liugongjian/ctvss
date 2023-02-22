@@ -373,7 +373,7 @@ export default class extends Vue {
     res.groups.forEach((group: any) => {
       // 放开rtsp rtmp
       // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-      this.groupInfos.push({
+      group.inProtocol !== 'vgroup' && this.groupInfos.push({
         id: group.groupId,
         groupId: group.groupId,
         label: group.groupName,
@@ -555,7 +555,8 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
           orderSequence: +dir.orderSequence,
           // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
-          parentDevice: ['nvr', 'platform'].includes(node.data.type) ? node.data : null
+          parentDevice: ['nvr'].includes(node.data.type) ? node.data : null,
+          rootPlatForm: node.data.type === 'platform' ? node.data : ( node.data.rootPlatForm || null )
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -676,8 +677,6 @@ export default class extends Vue {
   private async checkCallback2(data: any) {
     const dirTree2: any = this.$refs.dirTree2
     const node = dirTree2.getNode(data.id)
-    console.log('data:', data)
-    console.log('node:', node)
     await this.checkNodes2(dirTree2, node)
     this.rightCheckedNodes = dirTree2.getCheckedNodes(true, false)
   }
@@ -831,7 +830,6 @@ export default class extends Vue {
     const params = this.generateTreeParams(childNodes)
     const treeInfo = { id: this.currentTree.treeId, type: 'dir', parentDirId: '-1' }
     try {
-      console.log('params:', params)
       // 下面请求2次：1. 修改树的名称  2. 提交params
       await updateTreeNodes({ dirs: [{ ...treeInfo, dirs: params }] })
       // this.cancel()
@@ -873,6 +871,11 @@ export default class extends Vue {
       if (node.data.parentDevice) {
         res.parentDeviceId = node.data.parentDevice.id
       }
+
+      // platForm下的设备需要加上parentDeviceId
+      if (node.data.rootPlatForm) {
+        res.parentDeviceId = node.data.rootPlatForm.id
+      }
       res.action = this.getActionType(node)
       if (node.parent.data.originFlag) {
         // 如果父目录是后端来的节点  则加上parentDirId;否则父目录就是本次新创建的，不加这个参数
@@ -897,16 +900,19 @@ export default class extends Vue {
   }
 
   private cancel() {
-    const dirTree: any = this.$refs.dirTree
-    const dirTree2: any = this.$refs.dirTree2
     this.isEditing = false
     this.$nextTick(() => {
       this.treeList.forEach(t => (t.editFlag = false))
-      dirTree.setCheckedKeys([])
-      dirTree2.setCheckedKeys([])
+      this.clearCheckedKeys()
       this.treeDirList = [cloneDeep(root)]
       this.getTotalsOfRightTree()
     })
+  }
+  private clearCheckedKeys(){
+    const dirTree: any = this.$refs.dirTree
+    const dirTree2: any = this.$refs.dirTree2
+    dirTree.setCheckedKeys([])
+    dirTree2.setCheckedKeys([])
   }
 
   private addDevices() {

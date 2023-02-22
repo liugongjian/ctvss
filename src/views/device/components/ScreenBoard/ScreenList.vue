@@ -68,7 +68,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'])"
                 :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
@@ -138,8 +138,17 @@ export default class extends Vue {
   private getScreenManager: Function
 
   private get canLock() {
-    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord
+    // 国标下设备   不受限制
+    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
   }
+
+  // private get canLock() {
+  //   if (this.screenManager.currentScreen.inProtocol === 'gb28181') {
+  //     return this.screenManager.currentScreen.recordType === 1 ? false : (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   } else {
+  //     return (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   }
+  // }
 
   private pager = {
     pageNum: 1,

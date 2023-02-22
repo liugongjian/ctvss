@@ -167,7 +167,6 @@ export default class extends Vue {
    */
   private calMaxHeight() {
     const size = this.bindWrap.getBoundingClientRect()
-    console.log(size)
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.minHeight = documentHeight - top - 170
@@ -204,7 +203,7 @@ export default class extends Vue {
           res.dirs.forEach((group) => {
             total += group.totalSize
             bindSize += group.bindSize
-          }, 0)
+          })
           this.totalCheckedSize = bindSize
           this.$set(rootNode.data, 'bindSize', bindSize)
           this.$set(rootNode.data, 'totalSize', total)
@@ -308,7 +307,7 @@ export default class extends Vue {
       dirTreeNode.loaded = true
       dirTreeNode.expanded = true
       // 只能一层层添加到预览树中
-      this.deepCopy(dirTreeNode)
+      // this.deepCopy(dirTreeNode)
 
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i]
@@ -518,13 +517,13 @@ export default class extends Vue {
           groupId: this.getGroupId(this.bindTree.getNode(item.id)),
           id: item.id,
           type: item.type,
-          inProtocol: item.inProtocol,
-          startRecord: this.quickStart
+          inProtocol: item.inProtocol
         }
       })
       await setDeviceRecordTemplateBatch({
         templateId: this.currentTemplate.templateId,
-        devices: devices
+        devices: devices,
+        startRecord: this.quickStart
       })
       this.$message.success('批量绑定设备成功！')
       this.$emit('on-close', true)
