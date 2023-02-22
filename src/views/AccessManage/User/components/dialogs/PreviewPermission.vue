@@ -72,7 +72,7 @@
         </span>
       </el-tree>
     </div>
-    <div slot="footer" align="center">
+    <div slot="footer" align="center" style="margin-top: 0;">
       <el-button type="primary" @click="closeDialog">{{ '关闭' }}</el-button>
     </div>
   </el-dialog>
