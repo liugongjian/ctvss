@@ -14,7 +14,7 @@
               <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
-          <div ref="dirList" v-loading="loading.template" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div ref="dirList" v-loading="loading.template" class="template-list__wrap" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
@@ -677,75 +677,6 @@ export default class extends Vue {
   overflow: auto;
 }
 
-.template-list {
-  padding: 10px;
-
-  ul {
-    margin: 0;
-    padding: 0;
-
-    li {
-      position: relative;
-      list-style: none;
-      height: 30px;
-      line-height: 30px;
-      cursor: pointer;
-      border-radius: 4px;
-      padding-left: 10px;
-
-      span {
-        display: block;
-        white-space: nowrap;
-        text-overflow: hidden;
-        word-break: break-all;
-      }
-
-      svg {
-        color: $darkGray;
-        vertical-align: middle;
-        margin-left: 3px;
-      }
-
-      .tools {
-        position: absolute;
-        display: none;
-        right: 0;
-        top: 0;
-        background: $treeHover;
-
-        .el-button {
-          padding: 5px;
-        }
-
-        .el-button + .el-button {
-          margin-left: 0;
-        }
-      }
-
-      &:hover {
-        background: $treeHover;
-
-        .tools {
-          display: block;
-        }
-      }
-
-      &.actived {
-        background: $primary;
-        color: #fff;
-
-        .tools {
-          background: $primary;
-        }
-
-        svg {
-          color: #fff;
-        }
-      }
-    }
-  }
-}
-
 .title {
   &:before {
     display: inline-block;
@@ -759,29 +690,109 @@ export default class extends Vue {
   }
 }
 
-.left-title {
-  font-size: 16px;
-  font-weight: bold;
-  display: inline-block;
-  margin-top: 30px;
-  margin-left: 20px;
-}
+.device-list__left {
+  display: flex;
+  flex-direction: column;
 
-.device-list__left .dir-list__tools {
-  height: 70px;
-  text-align: left;
-}
+  .dir-list__tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    box-sizing: content-box;
 
-.new-template {
-  float: right;
-  margin-top: 23px;
-  margin-right: 5px;
+    .left-title {
+      font-size: 16px;
+      font-weight: bold;
+      display: inline-block;
+      margin-left: 20px;
+    }
+
+    .new-template {
+      margin-right: 10px;
+    }
+  }
+
+  .template-list__wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .template-list {
+    padding: 10px;
+
+    ul {
+      margin: 0;
+      padding: 0;
+
+      li {
+        position: relative;
+        list-style: none;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        border-radius: 4px;
+        padding-left: 10px;
+
+        span {
+          display: block;
+          white-space: nowrap;
+          text-overflow: hidden;
+          word-break: break-all;
+        }
+
+        svg {
+          color: $darkGray;
+          vertical-align: middle;
+          margin-left: 3px;
+        }
+
+        .tools {
+          position: absolute;
+          display: none;
+          right: 0;
+          top: 0;
+          background: $treeHover;
+
+          .el-button {
+            padding: 5px;
+          }
+
+          .el-button + .el-button {
+            margin-left: 0;
+          }
+        }
+
+        &:hover {
+          background: $treeHover;
+
+          .tools {
+            display: block;
+          }
+        }
+
+        &.actived {
+          background: $primary;
+          color: #fff;
+
+          .tools {
+            background: $primary;
+          }
+
+          svg {
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
 }
 
 .btn-edit {
   position: relative;
   top: 12px;
-  right: 20px;
+  right: 29px;
 }
 
 .bind-title-left {
@@ -794,12 +805,6 @@ export default class extends Vue {
   font-size: 13px;
   float: right;
   color: $textGrey;
-}
-
-.custom-tree-node.online .node-name {
-  .svg-icon {
-    color: #65c465;
-  }
 }
 
 .device-list__right {

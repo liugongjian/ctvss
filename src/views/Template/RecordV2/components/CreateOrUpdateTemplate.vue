@@ -1,13 +1,6 @@
 <template>
   <div v-loading="submitting" class="app-container">
-    <div class="header">
-      <span>
-        <el-button type="text" style="color: #faad15;" @click="back">&lt; 返回</el-button>
-      </span>
-      <span style="font-size: 16px;font-weight: bold;">
-        {{ createOrUpdateFlag ? '新建录制模板' : '编辑录制模板' }}
-      </span>
-    </div>
+    <el-page-header content="新建录制模板" @back="back" />
     <div class="body">
       <el-form
         ref="dataForm"

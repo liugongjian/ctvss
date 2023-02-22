@@ -307,7 +307,7 @@ export default class extends Vue {
       dirTreeNode.loaded = true
       dirTreeNode.expanded = true
       // 只能一层层添加到预览树中
-      this.deepCopy(dirTreeNode)
+      // this.deepCopy(dirTreeNode)
 
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i]
