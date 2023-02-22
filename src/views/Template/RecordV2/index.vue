@@ -843,6 +843,8 @@ export default class extends Vue {
 }
 
 .device-list__right {
+  overflow: auto;
+
   ::v-deep {
     .description__label {
       min-width: 200px;
