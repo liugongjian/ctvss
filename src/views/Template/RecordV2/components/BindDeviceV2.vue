@@ -492,7 +492,7 @@ export default class extends Vue {
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
     })
-    let msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?'
+    let msg = `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？`
     if (bindedCheck) {
       msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？这些设备在切换新模板时，已存在的历史录像将修改过期时间，使用新的模板存储时长策略。'
     }
