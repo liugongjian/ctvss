@@ -94,6 +94,7 @@ export default class extends Vue {
   private async created() {
     try {
       this.isUnbinding = true
+      this.ischecking = true
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
       this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
       this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
@@ -102,6 +103,7 @@ export default class extends Vue {
           deviceId: item.deviceId,
           startTime: item.startTime,
           endTime: item.endTime,
+          inProtocol: this.screen.inProtocol
         }
       })
       const params: any = {
@@ -120,7 +122,7 @@ export default class extends Vue {
         // 单个解锁
         if (res.storageExpired === 1) {
           // 包含已过期录像
-          this.originExpTime = res.storageTime
+          this.originExpTime = res.storageTime / 60 / 60 / 24
           this.isExpired = true
         } else if (res.storageExpired === 0) {
           // 不包含
