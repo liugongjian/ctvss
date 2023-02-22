@@ -130,7 +130,7 @@ class User extends VuexModule implements IUserState {
       platform: 'web',
       version: '2.0'
     })
-    console.log('data: ', data)
+
     setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
     setUsername(userName)
