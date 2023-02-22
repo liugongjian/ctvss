@@ -482,7 +482,7 @@ export default class extends Vue {
    */
   private delSubmit() {
     if (this.delDataList.length === 0) return
-    this.$confirm(`您确定要删除${this.delDataList.length}个设备的录制模板吗？点击确定后设备将立刻解绑模板，井停止录像！`, '提示', {
+    this.$confirm(`您确定要删除${this.delDataList.length}个设备的录制模板吗？点击确定后设备将立刻解绑模板，并停止录像！`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       customClass: 'vss-warning'
@@ -723,6 +723,10 @@ export default class extends Vue {
     margin-left: 10px;
     margin-top: 20px;
   }
+}
+
+.device-list {
+  height: 500px;
 }
 
 .device-list__left {

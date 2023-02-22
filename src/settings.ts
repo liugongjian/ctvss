@@ -50,7 +50,7 @@ const settings: ISettings = {
       actionKey: 'ivs:GetGroup',
       actionDesc: '拥有业务组的查询权限，并展示业务组管理菜单',
       actionType: 'GET',
-      denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup', 'ivs:GetDevice'],
+      denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup', 'ivs:CreateGroup', 'ivs:GetDevice'],
       resourceType: '*'
     },
     {
@@ -67,12 +67,14 @@ const settings: ISettings = {
       allowAutoSelected: ['ivs:GetGroup'],
       resourceType: '*'
     },
-    {
-      actionName: '创建业务组',
-      actionKey: 'ivs:CreateGroup',
-      actionDesc: '拥有业务组的创建权限，并展示业务组管理菜单',
-      resourceType: '*'
-    },
+    // 暂时隐藏
+    // {
+    //   actionName: '创建业务组',
+    //   actionKey: 'ivs:CreateGroup',
+    //   allowAutoSelected: ['ivs:GetGroup'],
+    //   actionDesc: '拥有业务组的创建权限，并展示业务组管理菜单',
+    //   resourceType: '*'
+    // },
     // 设备管理
     {
       actionName: '查询设备',
@@ -80,7 +82,7 @@ const settings: ISettings = {
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
       allowAutoSelected: ['ivs:GetGroup'],
-      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord'],
+      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -101,6 +103,7 @@ const settings: ISettings = {
       actionName: '创建设备',
       actionKey: 'ivs:CreateDevice',
       actionDesc: '拥有设备的创建权限，并展示设备管理菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 实时预览

@@ -124,7 +124,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ data.parentDevice ? `${data.label}(${data.parentDevice.label})`: node.label }}
+                    {{ data.parentDevice && !enableCloudChannelName ? `${data.label}(${data.parentDevice.label})`: node.label }}
                     <span v-if="data.originFlag" class="sum-icon">{{ getTotalOfTree(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </div>
@@ -194,6 +194,7 @@ import { getDeviceTree } from '@/api/device'
 import ElTree from './component/tree/src/tree.vue'
 import { cloneDeep } from 'lodash'
 import { createTree, deleteTree, loadTreeNode, describeTreeIds, getTreeList, updateTreeNodes, updateTreeName } from '@/api/customTree'
+import { getLocalStorage } from '@/utils/storage'
 
 /**
  * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
@@ -243,6 +244,8 @@ export default class extends Vue {
 
   private isEditing = false
   private treeName = ''
+
+  private enableCloudChannelName = false
 
   private treeProp = {
     label: 'label',
@@ -327,9 +330,20 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getTreeList()
+    this.enableCloudChannelName = this.getNvrShowChannelName()
+    // this.enableCloudChannelName = getLocalStorage('screenCache')
     this.initGroups()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private getNvrShowChannelName() {
+    const settings = getLocalStorage('settings')
+    if (settings) {
+      const settingsOb = JSON.parse(settings)
+      return settingsOb.screenCache.enableCloudChannelName === 'true'
+    }
+    return false
   }
 
   private destroyed() {
@@ -1146,8 +1160,8 @@ export default class extends Vue {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid $borderGrey;
-      padding: 15px;
+      // border-bottom: 1px solid $borderGrey;
+      padding: 16px;
 
       .tree_title {
         font-size: 14px;
@@ -1164,7 +1178,7 @@ export default class extends Vue {
     }
 
     &__list {
-      padding: 15px 0 15px 15px;
+      padding: 0 0 15px 15px;
       min-height: 100px;
 
       &__item {
@@ -1220,7 +1234,7 @@ export default class extends Vue {
             }
 
             .el-button + .el-button {
-              margin-left: 0;
+              margin-left: -5px;
             }
           }
 
@@ -1287,16 +1301,16 @@ export default class extends Vue {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 29px;
-          margin-top: 10px;
+          height: 20px;
+          margin: 10px 0;
 
           .title {
             margin-left: 10px;
-            font-size: 16px;
+            font-size: 14px;
             color: #333;
             letter-spacing: 0;
             line-height: 12px;
-            font-weight: bold;
+            font-weight: 400;
           }
 
           .num {
@@ -1321,6 +1335,10 @@ export default class extends Vue {
             .with-operator {
               display: flex;
               justify-content: space-between;
+
+              .el-button + .el-button {
+                margin-left: 5px;
+              }
             }
 
             .node-disabled {
