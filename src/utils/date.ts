@@ -156,3 +156,13 @@ export const isCrossDays = (moveStartTime: number, moveEndTime: number) => {
   if (moveStartTime === moveEndTime) return false
   return new Date(moveStartTime).getDate() - new Date(moveEndTime).getDate() !== 0
 }
+
+
+/**
+ * 转换成 YYYY-MM-DD 24小时 时间格式
+ */
+export const time24Format = (time: number) => {
+  const front = (new Date(time)).toLocaleDateString().replaceAll('/','-')
+  const end = (new Date(time)).toLocaleString().split(' ')[1]
+  return front + ' ' + end
+}

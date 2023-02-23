@@ -7,33 +7,19 @@
     :close-on-click-modal="false"
     @close="closeDialog"
   >
-    <div v-if="info && type === 'record'">
-      <div style="margin-bottom: 20px;margin-left: 8px;">任务历史</div>
-      <div class="history">
-        <div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.operate)} ` }}<span style="color: #9e9e9e;">{{ `${op.operateTime}` }}</span></div>
-      </div>
-    </div>
     <div class="dialog-player-wrapper">
-      <detail-preview
-        v-if="info && type === 'preview'"
-        :device-id="record.deviceId"
-        :in-protocol="record.inProtocol"
-        :device-name="info.deviceName"
-        :streams="info.deviceStreams"
-        :stream-size="info.multiStreamSize"
-      />
       <detail-replay
         v-if="info && type === 'record'"
         :device-id="record.deviceId"
         :in-protocol="record.inProtocol"
-        :device-name="info.deviceName"
+        :device-name="deviceName"
         :datetime-range="dateTimeRange"
         :is-car-task="true"
       />
     </div>
     <div slot="title" class="dialog-title">
-      <div class="plate">{{ record.plateNumber }}</div>
-      <div v-if="type === 'record'" class="time">{{ record.startTime + (record.endTime.length > 0 ? ' - ' + record.endTime : '至今') }}</div>
+      <div class="plate">{{ deviceName }}</div>
+      <div class="time">{{ startTime + ' 至 ' + endTime }}</div>
     </div>
   </el-dialog>
 </template>
@@ -42,8 +28,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import DetailPreview from '@/views/device/components/DetailPreview.vue'
 import DetailReplay from '@/views/device/components/DetailReplay.vue'
 import { getDevice } from '@/api/device'
-import { getCarTask } from '@/api/car'
-import { getUnixTime, parse } from 'date-fns'
+import { time24Format } from '@/utils/date'
 
 @Component({
   name: 'VideoDialog',
@@ -58,32 +43,27 @@ export default class extends Vue {
   @Prop({ default: '' })
   private type!: String
 
-  private hasClose = true
-
-  private isSingle = false
-
-  private info = null
-
+  private info: any = null
   private dateTimeRange = {}
-  private Operations = []
+  private deviceName = ''
 
-  public async mounted() {
+  private startTime = ''
+  private endTime = ''
+
+  public async created() {
     try {
-      this.info = await getDevice({
+      const res: any = await getDevice({
         deviceId: this.record?.deviceId,
         inProtocol: this.record?.inProtocol
       })
-      // console.log('获取啥设备啊   🚓🚒🚆🏎 ', this.info)
+      this.deviceName = res.deviceName
+      this.info = res
       if (this.type === 'record') {
-        this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
+        this.dateTimeRange = { startTime: this.record.startTime / 1000, endTime: this.record.endTime / 1000 }
       }
-      // console.log('🎨  来录像回放    ', this.record, this.dateTimeRange)
-      let params = {
-        taskId: this.record?.id,
-        deviceId: this.record?.deviceId
-      }
-      const res = await getCarTask(params)
-      this.Operations = res?.operations
+      this.startTime = time24Format(this.record.startTime)
+      this.endTime = time24Format(this.record.endTime)
+      // console.log('⭐⭐⭐   录像锁定的回放  🛵🦂  ', this.record, this.dateTimeRange, this.startTime, this.endTime)
     } catch (e) {
       this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
@@ -91,23 +71,6 @@ export default class extends Vue {
 
   private closeDialog() {
     this.$emit('on-close')
-  }
-
-  private getOpType(type) {
-    switch (type) {
-      case 0:
-        return '开始'
-      case 1:
-        return '暂停'
-      case 2:
-        return '结束'
-      case 3:
-        return '继续'
-    }
-  }
-
-  private getTimeStampFromString(str) {
-    return getUnixTime(parse(str, 'yyyy-MM-dd HH:mm:ss', new Date()))
   }
 }
 </script>
@@ -148,6 +111,7 @@ export default class extends Vue {
     line-height: 24px;
     font-size: 18px;
     color: #303133;
+    margin-bottom: 10px;
   }
 
   .time {

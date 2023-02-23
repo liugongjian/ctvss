@@ -69,7 +69,7 @@ class Permission extends VuexModule implements IPermissionState {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
-      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log' && route.path !== '/replay-lock-manage')
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log')
       // 对子账号，过滤掉自定义设备树
       const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
       const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]

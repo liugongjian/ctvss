@@ -26,7 +26,7 @@
       class="lock-tooltip"
       >
       已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" v-if="canLock" @click="unlock(item)">解锁</span>
+      <span class="lock-tooltip-unlock" v-if="canLock && !isDialogTask" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
@@ -76,6 +76,10 @@ export default class extends Vue {
     default: false
   })
   private disabled: boolean
+
+  /* 是否是dialog窗口 */
+  @Prop()
+  private isDialogTask: boolean
 
   private canLock = false
 
@@ -270,7 +274,7 @@ export default class extends Vue {
 
     // }
     // 更新锁定权限，控制锁定功能
-    if (!UserModule.iamUserId || this.screen.ivsLockCloudRecord) {
+    if ((!UserModule.iamUserId || this.screen.ivsLockCloudRecord) && !this.isDialogTask) {
       // can lock
       this.canLock = true
       this.canvas && this.canvas.addEventListener('click', this.onClickLock)
@@ -335,8 +339,10 @@ export default class extends Vue {
     this.canvas = this.$refs.canvas as HTMLCanvasElement
     this.canvas.addEventListener('mousedown', this.moveAxisStart)
     this.canvas.addEventListener('wheel', this.onWheel)
-    // 没有锁定权限，不用注册点击锁方法
-    this.canLock && (this.canvas.addEventListener('click', this.onClickLock))
+    // 没有锁定权限、dialog录像窗口，不用注册点击锁方法
+    if (this.canLock && !this.isDialogTask) {
+      this.canvas.addEventListener('click', this.onClickLock)
+    }
     this.canvas.addEventListener('mousemove', this.onAxisMove)
     this.canvas.width = this.settings.width
     this.canvas.height = this.settings.height
@@ -743,7 +749,6 @@ export default class extends Vue {
    * 
    */
   private onClickLock(e: any) {
-    // console.log('点击又不行了？   ', this.durationList.length > 1)
     if (!this.notClick) {
       if (this.durationList.length > 1) return
       this.axisData.locks.map((item: any) => {
@@ -937,6 +942,7 @@ export default class extends Vue {
   // 关闭解锁 dialog
   private async closeUnlock(isUnlocked?: boolean) {
     try {
+      // 如果是锁定录像管理页面查看并解锁，则向上抛出关闭录像dialog的事件
       this.tipVisiable = false //关闭tool tips
       if (isUnlocked) {
         const date = getDateByTime(this.currentTime, 's')
