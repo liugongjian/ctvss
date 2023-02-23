@@ -77,7 +77,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         PermissionModule.GenerateRoutes({ tags, perms, denyPerms, iamUserId })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard') {
+        if (to.path === '/404' || (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard')) {
           const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
           if (menuRoutes.length > 0) {
             to = menuRoutes[0]
@@ -112,15 +112,8 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         }
       }
     } else {
-      if (to.path === '/404') {
-        const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
-        if (menuRoutes.length > 0) {
-          to = menuRoutes[0]
-        } else {
-          // @ts-ignore
-          to = PermissionModule.dynamicRoutes[0]
-        }
-        next({ ...to, replace: true })
+      if (!to.matched.length) {
+        next({ path: '/404', replace: true })
       } else {
       // 单点登录菜单高亮
         UserModule.casLoginId && casService.activeCasMenu(to)

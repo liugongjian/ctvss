@@ -937,6 +937,7 @@ export default class extends Vue {
   // 关闭解锁 dialog
   private async closeUnlock(isUnlocked?: boolean) {
     try {
+      this.tipVisiable = false //关闭tool tips
       if (isUnlocked) {
         const date = getDateByTime(this.currentTime, 's')
         await this.screen.recordManager.getRecordListByDate(date, false, true) // 重新加载 lock list  
