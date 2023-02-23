@@ -61,7 +61,6 @@
               :load="loadDirs"
               :props="treeProp"
               @check="checkCallback"
-              @node-click="clickEvent"
             >
               <span
                 slot-scope="{node, data}"
@@ -829,11 +828,6 @@ export default class extends Vue {
     }
   }
 
-  private clickEvent(node, data) {
-    console.log(node)
-    console.log(data)
-  }
-
   private editTreeName(tree) {
     this.treeList.forEach(t => {
       t.editFlag = false
@@ -1085,8 +1079,6 @@ export default class extends Vue {
   }
 
   private selectNode(data, node) {
-    console.log(data)
-    console.log(node)
     if (this.isEditing && data.type !== 'ipc' && data.type !== 'nvr') {
       if (this.currentDirNode) {
         this.$set(this.currentDirNode.data, 'isSelected', false)
