@@ -8,52 +8,58 @@
     center
     @close="closeDialog"
   >
-    <div v-if="!multiple" v-loading="ischecking">
-      <div class="unlock">
-        <div class="label"><span>设备名: </span></div>
-        <div><span>{{ deviceName }}</span></div>
-        <div class="label"><span>录像时段: </span></div>
-        <div>
-          <el-date-picker
-            v-model="lockTime"
-            type="datetimerange"
-            value-format="timestamp"
-            disabled
-          />
+    <div  v-loading="ischecking || isUnbinding || submitting">
+      <!-- <div v-if="!multiple" v-loading="ischecking"> -->
+      <div v-if="!multiple">
+      <!-- <div v-if="!multiple"> -->
+        <div class="unlock">
+          <div class="label"><span>设备名: </span></div>
+          <div><span>{{ deviceName }}</span></div>
+          <div class="label"><span>录像时段: </span></div>
+          <div>
+            <el-date-picker
+              v-model="lockTime"
+              type="datetimerange"
+              value-format="timestamp"
+              disabled
+            />
+          </div>
+        </div>
+        <div v-if="isExpired" class="unlock-tip">
+          <div class="tip-label" style="color: red;">
+            <svg-icon name="warningtip" />
+          </div>
+          <div class="tip-content" style="color: red;">
+            该段录像原始存储有效期为录制后的{{ originExpTime }}天，已超过原始存储期限，解锁后，将被系统删除。
+          </div>
         </div>
       </div>
-      <div v-if="isExpired" class="unlock-tip">
-        <div class="tip-label" style="color: red;">
-          <svg-icon name="warningtip" />
+      <!-- <div v-if="multiple"  v-loading="isUnbinding"> -->
+      <div v-if="multiple">
+      <!-- <div v-if="multiple"> -->
+        <div class="unlock">
+          <div class="label"><span>解锁录像: </span></div>
+          <div><span>{{ unlockNum }}个</span></div>
+          <div v-if="unlockDelNum > 0" class="label"><span>解锁后立即删除录像: </span></div>
+          <div v-if="unlockDelNum > 0"><span>{{ unlockDelNum }}个</span></div>
         </div>
-        <div class="tip-content" style="color: red;">
-          该段录像原始存储有效期为录制后的{{ originExpTime }}天，已超过原始存储期限，解锁后，将被系统删除。
-        </div>
-      </div>
-    </div>
-    <!-- <div v-if="multiple"  v-loading="ischeckingBatch"> -->
-    <div v-if="multiple"  v-loading="isUnbinding">
-      <div class="unlock">
-        <div class="label"><span>解锁录像: </span></div>
-        <div><span>{{ unlockNum }}个</span></div>
-        <div v-if="unlockDelNum > 0" class="label"><span>解锁后立即删除录像: </span></div>
-        <div v-if="unlockDelNum > 0"><span>{{ unlockDelNum }}个</span></div>
-      </div>
-      <div v-if="unlockDelNum > 0" class="unlock-tip">
-        <div class="tip-label" style="color: red;">
-          <svg-icon name="warningtip" />
-        </div>
-        <div class="tip-content" style="color: red;">
-          您选择的录像文件中有{{ unlockDelNum }}个录像文件已超过录制模板的存储时长，解锁后立即过期，将被系统删除。
+        <div v-if="unlockDelNum > 0" class="unlock-tip">
+          <div class="tip-label" style="color: red;">
+            <svg-icon name="warningtip" />
+          </div>
+          <div class="tip-content" style="color: red;">
+            您选择的录像文件中有{{ unlockDelNum }}个录像文件已超过录制模板的存储时长，解锁后立即过期，将被系统删除。
+          </div>
         </div>
       </div>
-    </div>
-    <div slot="footer" class="dialog-footer">
-        <el-button type="primary" :loading="submitting" @click="submit">
+      <div slot="footer" class="dialog-footer">
+        <!-- <el-button type="primary" :loading="submitting" @click="submit"> -->
+        <el-button type="primary" @click="submit">
           确 定
         </el-button>
         <el-button @click="closeDialog(false)">取 消</el-button>
       </div>
+    </div>
   </el-dialog>
 </template>
 <script lang="ts">
@@ -190,6 +196,10 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+}
 // .form {
 //   display: grid;
 //   margin-left: 16%;

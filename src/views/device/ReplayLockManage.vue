@@ -4,7 +4,7 @@
       <div class="head">
         <div class="head__left">
           <el-button :type="unlockable ? '' : 'primary'" class="unlock-btn" :disabled="unlockable" @click="unlockBatch">解锁</el-button>
-          <i class="el-icon-info" />锁定录像容量: {{ (lockVolume / 1024 / 1024 / 1024).toFixed(2) + 'TB' }}
+          <i class="el-icon-info" />锁定录像容量: {{ (lockVolume / 1024 / 1024 / 1024).toFixed(3) + 'GB' }}
         </div>
         <div class="head__right">
           <el-input v-model="deviceName" placeholder="请输入设备名称" clearable @keyup.enter.native="getRecordListByPage">
@@ -65,7 +65,10 @@
           /> -->
           <el-table-column prop="action" label="操作" width="100" fixed="right">
             <template slot-scope="{row}">
-              <el-button type="text" @click="unlock(row)">
+              <el-button type="text" @click.stop.native="replay(row)">
+                播放
+              </el-button>
+              <el-button type="text" @click.stop.native="unlock(row)">
                 解锁
               </el-button>
             </template>
@@ -133,80 +136,6 @@ export default class extends Vue {
 
   /* 当前分页后的录像列表 */
   private recordList: any = []
-
-  // 测试数据
-  private testData = {
-    "lockVolume": "12.1T",
-    "pageNum": 1,
-    "pageSize": 10,
-    "totalNum": 100,
-    "totalPage": 10,
-    "lockRecords": [
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      },
-      {
-        "deviceId": "29942039160301973",
-        "deviceName": "test1",
-        "cover": "",
-        "startTime": 1673611200,
-        "endTime": 1673618400,
-        "inProtocol": "gb28181",
-        "duration": 123
-      }
-    ]
-  }
 
   // /* 是否为虚拟业务组 */
   // private get isVGroup() {
