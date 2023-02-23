@@ -99,6 +99,7 @@ export default class extends Vue {
 
   private async created() {
     try {
+      // console.log('解锁    🔒    ',this.unlockItem, this.screen)
       this.isUnbinding = true
       this.ischecking = true
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
@@ -109,7 +110,7 @@ export default class extends Vue {
           deviceId: item.deviceId,
           startTime: item.startTime,
           endTime: item.endTime,
-          inProtocol: this.screen.inProtocol
+          inProtocol: this.screen ? this.screen.inProtocol : item.inProtocol
         }
       })
       const params: any = {

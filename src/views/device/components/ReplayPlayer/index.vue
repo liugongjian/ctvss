@@ -43,11 +43,12 @@
         :has-axis="hasAxis"
         :screen="screen"
         :is-inline="true"
+        :is-dialog-task="isCarTask"
         @change="onAxisTimeChange"
       />
     </template>
     <template slot="controlRight">
-      <Lock v-if="canLock" :screen="screen" />
+      <Lock v-if="canLock && !isCarTask" :screen="screen" />
       <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>

@@ -70,6 +70,8 @@ export class Screen {
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
   public datetimeRange?: { startTime: number; endTime: number; }
+  /* 录像回放是否是dialog窗口形式 */
+  public isDialogTask?: boolean
 
   /**
    * ----------------

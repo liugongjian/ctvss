@@ -6,6 +6,7 @@
     :in-protocol="inProtocol"
     :default-size="1"
     :is-single="true"
+    :is-dialog-task="isCarTask"
   />
 </template>
 

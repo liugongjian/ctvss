@@ -86,6 +86,7 @@
     </div>
     <UnlockDialog v-if="unlockVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
     <UnlockDialog v-if="unlockBatchVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
+    <VideoDialog v-if="showVideoDialog" :record="currentRecord" :type="videoType" @on-close="closeVideo" />
   </div>
 </template>
 <script lang="ts">
@@ -96,11 +97,13 @@ import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import UnlockDialog from '@/views/device/components/dialogs/Unlock.vue'
 import { redirectToDeviceDetail } from '@/utils/device'
+import VideoDialog from './components/dialogs/VideoDialog.vue'
 
 @Component({
   name: 'ReplayLockManage',
   components: {
-    UnlockDialog
+    UnlockDialog,
+    VideoDialog
   }
 })
 export default class extends Vue {
@@ -117,6 +120,10 @@ export default class extends Vue {
     play: false
   }
 
+  private showVideoDialog = false
+  private currentRecord: any = {}
+  private videoType = ''
+  
   private deviceName = ''
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
@@ -144,6 +151,18 @@ export default class extends Vue {
 
   private mounted() {
     this.getRecordListByPage()
+  }
+
+  // 播放录像
+  private replay(row: any) {
+    this.currentRecord = row
+    this.showVideoDialog = true
+    this.videoType = 'record'
+  }
+
+  private closeVideo() {
+    this.currentRecord = {}
+    this.showVideoDialog = false
   }
 
   /**

@@ -151,7 +151,7 @@ export default class extends Vue {
     }
     try {
       const res = await getGroups(params)
-      if (UserModule.iamUserId) {
+      if (UserModule.iamUserId && res.groups.length) {
         const permissionRes = await previewAuthActions({
           targetResources: res.groups.map(group => ({
             groupId: group.groupId

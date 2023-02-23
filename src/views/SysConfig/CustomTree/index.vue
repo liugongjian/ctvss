@@ -61,7 +61,6 @@
               :load="loadDirs"
               :props="treeProp"
               @check="checkCallback"
-              @node-click="clickEvent"
             >
               <span
                 slot-scope="{node, data}"
@@ -175,7 +174,7 @@
         <el-checkbox v-model="hideDeleteDirDialog">本次编辑不再询问</el-checkbox>
       </div>
       <el-form v-else :model="dialog.data">
-        <el-form-item label="名称" prop="name" :rules="dialog.data.rule" :error="duplicateDirError">
+        <el-form-item :label="`${dialog.type === 'createTree' ? '设备树' : '目录'}名称`" prop="name" :rules="dialog.data.rule" :error="duplicateDirError">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
       </el-form>
@@ -666,9 +665,9 @@ export default class extends Vue {
       }
     }
     const dic = {
-      'createTree': '新建设备树',
-      'createDir': '新建目录',
-      'createDir-root': '新建目录',
+      'createTree': '添加设备树',
+      'createDir': '添加目录',
+      'createDir-root': '添加目录',
       'updateDir': '修改目录',
       'deleteDir': '删除目录'
     }
@@ -829,11 +828,6 @@ export default class extends Vue {
     }
   }
 
-  private clickEvent(node, data) {
-    console.log(node)
-    console.log(data)
-  }
-
   private editTreeName(tree) {
     this.treeList.forEach(t => {
       t.editFlag = false
@@ -898,14 +892,15 @@ export default class extends Vue {
       } else {
         res.id = node.data.id.slice(1)
       }
+
+      // platForm下的设备需要加上parentDeviceId, 且nvr不在platform下
+      if (node.data.rootPlatForm) {
+        res.parentDeviceId = node.data.rootPlatForm.id
+      }
+
       // nvr通道需要添加nvr的设备id，platform下的设备需要加platform的设备id
       if (node.data.parentDevice) {
         res.parentDeviceId = node.data.parentDevice.id
-      }
-
-      // platForm下的设备需要加上parentDeviceId
-      if (node.data.rootPlatForm) {
-        res.parentDeviceId = node.data.rootPlatForm.id
       }
       res.action = this.getActionType(node)
       if (node.parent.data.originFlag) {
@@ -1084,8 +1079,6 @@ export default class extends Vue {
   }
 
   private selectNode(data, node) {
-    console.log(data)
-    console.log(node)
     if (this.isEditing && data.type !== 'ipc' && data.type !== 'nvr') {
       if (this.currentDirNode) {
         this.$set(this.currentDirNode.data, 'isSelected', false)
@@ -1361,6 +1354,10 @@ export default class extends Vue {
               }
 
               .el-button {
+                .svg-icon {
+                  color: #333;
+                }
+
                 color: #333;
               }
             }
@@ -1435,12 +1432,14 @@ export default class extends Vue {
 }
 
 ::v-deep .el-form {
+  margin-left: 13px;
+
   .el-input {
-    width: 80%;
+    width: 300px;
   }
 
   .el-form-item__error {
-    left: 64px;
+    left: 104px;
   }
 }
 

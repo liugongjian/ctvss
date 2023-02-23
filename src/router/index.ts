@@ -149,7 +149,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '业务组管理',
       icon: 'menu-group',
-      perms: ['ivs:GetGroup'],
+      perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
       alwaysShow: false
     },
     children: [
@@ -161,7 +161,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'menu-group',
           breadcrumb: false,
-          perms: ['ivs:GetGroup'],
+          perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
           activeMenu: '/group'
         }
       },
@@ -209,7 +209,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '设备管理',
       icon: 'menu-device',
-      perms: ['ivs:GetDevice'],
+      perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -223,7 +223,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'menu-device',
           breadcrumb: false,
-          perms: ['ivs:GetDevice'],
+          perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
           groupSelector: true
         },
         children: [
@@ -234,7 +234,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '设备列表',
               breadcrumb: false,
-              perms: ['ivs:GetDevice'],
+              perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -1387,7 +1387,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '锁定录像管理',
           breadcrumb: false,
           icon: 'dot',
-          perms: ['ivs:LockCloudRecord']
+          perms: ['*']
         }
         // component: Layout,
         // meta: {

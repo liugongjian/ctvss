@@ -44,7 +44,7 @@ export default class extends Vue {
 
   // 隐藏资源包配置
   public get disableResourceTab() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+    return !UserModule.token || (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou')
   }
 }
 </script>
