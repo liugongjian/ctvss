@@ -92,7 +92,11 @@
             </el-table-column>
           </el-table>
           <el-pagination
-            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            :current-page="pager.pageNum"
+            :page-size="pager.pageSize"
+            :total="pager.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
         </div>
@@ -235,6 +239,7 @@ export default class extends Vue {
         nodeObj.groupId === '-1' ? `${nodeObj.groupId}` : `/${nodeObj.groupId}`
     })
     this.$route.params.nodeKeyPath = this.nodeKeyPath
+    this.pager.pageNum = 1
     this.getUserList()
   }
 
