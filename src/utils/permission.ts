@@ -17,7 +17,7 @@ export const checkPermission = (value: string[], data?: any): boolean => {
   if (!UserModule.iamUserId) {
     return true
   }
-  console.log('data: ', data)
+
   if (value && value instanceof Array && value.length > 0) {
     let dataPerms = null
     if (data) {
