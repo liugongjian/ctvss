@@ -425,7 +425,7 @@ export default class extends Vue {
   private updateCheckedNum(item: any, data2: any) {
     // 手动勾选
     const currentNode: any = this.bindTree.getNode(item.id)
-    console.log('手动勾选才会触发啊！🥽🥽🥽！！currentNode', currentNode)
+    // console.log('手动勾选才会触发啊！🥽🥽🥽！！currentNode', currentNode)
     // item: 节点对象信息
     // data2: 勾选状态的数组
     // 勾到哪个节点，就从哪个节点开始往上冒泡一直到最顶层，每一层都加上当前层对应node的叶子节点数量  递归childNodes到倒数第二层，如果是叶子节点则加1
@@ -443,13 +443,13 @@ export default class extends Vue {
             }
           }
         }(currentNode)
-        console.log('....🌙',testNum)
+        // console.log('....🌙',testNum)
         this.$set(item, 'checkedDeviceNum', testNum)
         // item.checkedDeviceNum = testNum
       } else {
         // 取消
         this.$set(item, 'checkedDeviceNum', item.bindSize)
-        console.log('....🎈',item.checkedDeviceNum)
+        // console.log('....🎈',item.checkedDeviceNum)
         // item.checkedDeviceNum = item.bindSize
       }
     } else {
@@ -461,7 +461,7 @@ export default class extends Vue {
         this.$set(item, 'checkedDeviceNum', item.checkedDeviceNum - 1)
         // item.checkedDeviceNum -= 1
       }
-      console.log('....✨',item.checkedDeviceNum)
+      // console.log('....✨',item.checkedDeviceNum)
     }
     // if (!data.isLeaf) {
     //   // 不是叶子节点，更新勾选数量  set prop 才能更新吧

@@ -1348,7 +1348,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',
         meta: {
-          title: '系统管理',
+          title: '系统设置',
           breadcrumb: false,
           icon: 'dot',
           perms: ['*']
@@ -1362,7 +1362,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '锁定录像管理',
           breadcrumb: false,
           icon: 'dot',
-          perms: ['ivs:LockCloudRecord']
+          perms: ['*']
         }
         // component: Layout,
         // meta: {
