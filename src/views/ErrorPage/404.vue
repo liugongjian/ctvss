@@ -34,8 +34,8 @@
           请联系主账号配置权限策略后，重新加载控制台或重新登录。
         </div>
         <a
-          href=""
           class="text-404__return-home"
+          @click="back"
         >控制台</a>
         <a
           class="text-404__return-login"
@@ -49,6 +49,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
+import { PermissionModule } from '@/store/modules/permission'
 import * as loginService from '@/services/loginService'
 
 @Component({
@@ -56,6 +57,21 @@ import * as loginService from '@/services/loginService'
 })
 export default class extends Vue {
   private message = '当前用户暂无权限'
+
+  private async back() {
+    const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+    let to = null
+    if (menuRoutes.length > 0) {
+      to = menuRoutes[0]
+    } else {
+      to = PermissionModule.dynamicRoutes[0]
+    }
+    if (to.path === '*' && to.redirect === '/404') {
+      window.location.href = ''
+    } else {
+      this.$router.push({ ...to })
+    }
+  }
 
   private async logout() {
     const data: any = await UserModule.LogOut()
