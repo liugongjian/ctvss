@@ -1028,6 +1028,10 @@ export default class extends Vue {
       padding-top: 40px;
       padding-left: 10px;
     }
+
+    ::v-deep .not-allowed {
+      cursor: not-allowed;
+    }
   }
 
   &__right {
