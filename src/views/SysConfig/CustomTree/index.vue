@@ -1447,7 +1447,7 @@ export default class extends Vue {
   }
 
   .el-form-item__error {
-    left: 64px;
+    left: 104px;
   }
 }
 
