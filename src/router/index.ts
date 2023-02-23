@@ -1344,11 +1344,36 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
-        name: 'SysConfig',
+        path: '/statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
         meta: {
-          title: '系统设置',
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'dot',
+          perms: ['*']
+          // groupSelector: true
+        }
+      },
+      {
+        path: 'operation-log',
+        component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
+        name: 'operation-log',
+        meta: {
+          id: '20210424150201001101',
+          title: '操作日志',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/operation-log'
+        }
+      },
+      {
+        path: '/custom-tree',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
           breadcrumb: false,
           icon: 'dot',
           perms: ['*']
@@ -1386,28 +1411,17 @@ export const asyncRoutes: RouteConfig[] = [
         // ]
       },
       {
-        path: '/custom-tree',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
-        name: 'CustomTree',
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
+        name: 'SysConfig',
         meta: {
-          title: '自定义设备树',
+          title: '系统设置',
           breadcrumb: false,
           icon: 'dot',
           perms: ['*']
         }
-      },
-      {
-        path: '/statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-        name: 'statistic',
-        meta: {
-          title: '统计信息',
-          breadcrumb: false,
-          icon: 'dot',
-          perms: ['*'],
-          groupSelector: true
-        }
       }
+
     ]
   },
   {
