@@ -66,7 +66,11 @@ export default class extends Vue {
     } else {
       to = PermissionModule.dynamicRoutes[0]
     }
-    this.$router.push({ ...to })
+    if (to.path === '*' && to.redirect === '/404') {
+      window.location.href = ''
+    } else {
+      this.$router.push({ ...to })
+    }
   }
 
   private async logout() {
