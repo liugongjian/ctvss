@@ -161,8 +161,13 @@ export const isCrossDays = (moveStartTime: number, moveEndTime: number) => {
 /**
  * 转换成 YYYY-MM-DD 24小时 时间格式
  */
-export const time24Format = (time: number) => {
+export const time24Format = (time: number, isTrans?: boolean) => {
   const front = (new Date(time)).toLocaleDateString().replaceAll('/','-')
-  const end = (new Date(time)).toLocaleString().split(' ')[1]
+  let end = (new Date(time)).toLocaleString().split(' ')[1]
+  /* 将晚上12点转换成24：00：00 */
+  if (isTrans) {
+    return end === '00:00:00' ? '24:00:00' : end
+  }
   return front + ' ' + end
 }
+
