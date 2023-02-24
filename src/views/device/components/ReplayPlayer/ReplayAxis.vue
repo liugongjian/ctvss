@@ -269,21 +269,14 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
-    // console.log('时间轴上可以看到  不 recordType 变了 后端控制 查到为空就行？  🧨✨🎉', this.screen.inProtocol, this.screen.recordType)
-    // if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
-    //   // 设备不存在录像锁定功能
-
-    // }
     // 更新锁定权限，控制锁定功能
     if ((!UserModule.iamUserId || this.screen.ivsLockCloudRecord) && !this.isDialogTask) {
       // can lock
       this.canLock = true
       this.canvas && this.canvas.addEventListener('click', this.onClickLock)
-      // console.log('🎈🎈🎈🎈 注册点击锁事件 this.canLock', this.canLock)
     } else {
       this.canLock = false
       this.canvas && this.canvas.removeEventListener('click', this.onClickLock)
-      // console.log('🧨🎇🧨 删除点击锁事件')
     }
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
@@ -722,8 +715,8 @@ export default class extends Vue {
             return {
               // lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
               lockStartTime: time24Format(item.startTime * 1000),
-              // lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
-              lockEndTime: time24Format(lock.endTime * 1000, true),
+              lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
+              // lockEndTime: time24Format(item.endTime * 1000, true),
               deviceId: item.deviceId,
               deviceName: item.deviceName,
               startTime: lock.startTime,

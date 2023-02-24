@@ -249,8 +249,9 @@
             {{ row.createdTime }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
+        <el-table-column label="操作" prop="action" class-name="col-action" width="340" fixed="right">
           <template slot-scope="scope">
+            <el-button v-if="isMainUser && !isVGroup" type="text" @click="describePermission(scope.row)">查看权限</el-button>
             <el-button v-if="checkPermission(['ivs:GetLiveStream'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button v-if="checkPermission(['ivs:GetCloudRecord'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
             <!-- <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button> -->

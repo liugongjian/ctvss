@@ -290,7 +290,6 @@ export default class extends Vue {
 
   // 已绑定设备勾选状态设置
   private async setChecked(nodes: any, checked?: boolean) {
-    // console.log('初始化的时候遍历所有节点，包括每一个结点的所有子节点，然后打上勾选状态，checked 只有在手动勾选的时候才有， nodes, checked', nodes, checked)
     if (!Array.isArray(nodes)) {
       let item = nodes.data || nodes
       this.setNodesChecked(item, checked)
@@ -302,9 +301,7 @@ export default class extends Vue {
   }
 
   private setNodesChecked(item: any, checked?: boolean) {
-    // console.log('...set   ☀', item.label, item)
     if (item.bindStatus === 1) {
-      // console.log('禁用    ', item)
       // 禁用绑定其他模板的节点勾选框
       item.disabled = true
       this.bindTree.setChecked(item.id, true, true)
@@ -325,7 +322,6 @@ export default class extends Vue {
     // 获取并更新父节点的勾选数量,只会设置父节点，不会设置叶子节点，因为永远设置的是父级
     // const currentNode: any =this.bindTree && this.bindTree.getNode(item.id)
     // const parentNode: any = currentNode.parent || null
-    // console.log('在设置勾选的时候，更新勾选数量    🥁parentNode.getCheckedNodes(false, true)🎨',)
     // parentNode && parentNode.data.checkedNum
     // // 只有叶子节点的时候才可以开始统计
     // if (parentNode && item.isLeaf) {
@@ -371,7 +367,6 @@ export default class extends Vue {
    * */
   private async submit() {
     // 获取当前勾选的数据
-    // console.log('勾选的数据    ', this.checkedNodes)
     // 筛选是否有绑定其他模板的设备
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
@@ -425,7 +420,6 @@ export default class extends Vue {
   private updateCheckedNum(item: any, data2: any) {
     // 手动勾选
     const currentNode: any = this.bindTree.getNode(item.id)
-    // console.log('手动勾选才会触发啊！🥽🥽🥽！！currentNode', currentNode)
     // item: 节点对象信息
     // data2: 勾选状态的数组
     // 勾到哪个节点，就从哪个节点开始往上冒泡一直到最顶层，每一层都加上当前层对应node的叶子节点数量  递归childNodes到倒数第二层，如果是叶子节点则加1
@@ -443,13 +437,11 @@ export default class extends Vue {
             }
           }
         }(currentNode)
-        // console.log('....🌙',testNum)
         this.$set(item, 'checkedDeviceNum', testNum)
         // item.checkedDeviceNum = testNum
       } else {
         // 取消
         this.$set(item, 'checkedDeviceNum', item.bindSize)
-        // console.log('....🎈',item.checkedDeviceNum)
         // item.checkedDeviceNum = item.bindSize
       }
     } else {
@@ -461,13 +453,11 @@ export default class extends Vue {
         this.$set(item, 'checkedDeviceNum', item.checkedDeviceNum - 1)
         // item.checkedDeviceNum -= 1
       }
-      // console.log('....✨',item.checkedDeviceNum)
     }
     // if (!data.isLeaf) {
     //   // 不是叶子节点，更新勾选数量  set prop 才能更新吧
     //   // 半选的时候
     //   isChecked ? data.checkedDeviceNum = data.totalSize : data.checkedDeviceNum = 0
-    // console.log('进来啊  兄弟！ isChecked, data.totalSize, data.checkedDeviceNum', isChecked, data.totalSize, data.checkedDeviceNum)
     // }
   }
 
@@ -499,7 +489,6 @@ export default class extends Vue {
       }
       dirTreeNode.loading = true
       // this.submitable = true
-      // console.log('递归  内鬼   🧞‍♀️🧞‍♂️🦠', dirTreeNode)
       const dirs = dirTreeNode && await this.getSubTree(dirTreeNode)
       this.bindTree.updateKeyChildren(id, dirs)
       dirTreeNode.loading = false
@@ -515,7 +504,6 @@ export default class extends Vue {
       for (let i = 0; i < dirs.length; i++) {
         const dir = dirs[i]
         // 半选如何处理
-        // console.log('deep    set   checked  🐕', dir, checked)
         const leftNode = this.bindTree.getNode(dir.id)
         // 区分懒加载设置默认勾选和点击勾选
         checked ? this.setChecked(leftNode, checked) : this.setChecked(leftNode)
@@ -535,7 +523,6 @@ export default class extends Vue {
   private async getSubTree(node: any) {
     try {
       const data: any = node.data
-      // console.log('hello motherfucker!   获取子节点  🔫👼🏽', data.path)
       const rootId = this.getRootId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,

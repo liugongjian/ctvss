@@ -6,6 +6,7 @@ import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/st
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
+import { checkPermission } from '@/utils/permission'
 
 interface ScreenManagerConfig {
   inProtocol: string;
@@ -131,6 +132,12 @@ export class ScreenManager {
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
+    // 无权限
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    if (!checkPermission(perms, item)) {
+      return
+    }
+
     this.currentIndex = !isNaN(index) ? index : this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
@@ -150,6 +157,7 @@ export class ScreenManager {
       // 检查锁定权限
       // 权限相关属性
       screen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
+      screen.permission = item
     }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()

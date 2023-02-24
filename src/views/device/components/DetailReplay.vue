@@ -28,6 +28,8 @@ export default class extends Vue {
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
   @Prop() private readonly lockPermission: boolean
+  @Prop() private readonly info: any
+  @Prop() private readonly permission: any
 
   private height = 'auto'
 
@@ -45,6 +47,9 @@ export default class extends Vue {
     screen.datetimeRange = this.datetimeRange
     screen.deviceName = this.deviceName
     screen.ivsLockCloudRecord = this.lockPermission
+    screen.detailInfo = this.info
+    screen.permission = this.permission
+
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)

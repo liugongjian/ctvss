@@ -9,6 +9,7 @@ import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
 import { UserModule } from '@/store/modules/user'
+import { checkPermission } from '@/utils/permission'
 
 @Component
 export default class IndexMixin extends Vue {
@@ -26,6 +27,8 @@ export default class IndexMixin extends Vue {
     revertSearchFlag: false
   }
 
+  public rootActions = {}
+  public checkPermission = checkPermission
   public maxHeight = null
   public dirList = []
   public isExpanded = true
@@ -144,6 +147,15 @@ export default class IndexMixin extends Vue {
         })
         dirs = this.setDirsStreamStatus(res.dirs)
       } else {
+        if (UserModule.iamUserId) {
+          const permissionRes = await previewAuthActions({
+            targetResources: [{
+              groupId: this.currentGroupId
+            }]
+          })
+          this.rootActions = permissionRes.result[0].iamUser.actions
+          console.log('this.rootActions: ', this.rootActions)
+        }
         dirs = await this.getAuthActionsDeviceTree({
           groupId: this.currentGroupId,
           id: 0,
