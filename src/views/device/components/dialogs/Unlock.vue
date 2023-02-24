@@ -99,7 +99,6 @@ export default class extends Vue {
 
   private async created() {
     try {
-      // console.log('解锁    🔒    ',this.unlockItem, this.screen)
       this.isUnbinding = true
       this.ischecking = true
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
