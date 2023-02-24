@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-02-15 15:36:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-16 15:46:51
+ * @LastEditTime: 2023-02-24 13:32:10
  * @FilePath: /vss-user-web/src/views/Statistic/components/MissTable.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,29 +16,30 @@
       <el-table-column
         prop="startTime"
         label="开始时间"
-        width="180"
+        width="230"
       />
       <el-table-column
         prop="endTime"
         label="结束时间"
-        width="180"
+        width="230"
       />
       <el-table-column
         prop="missSeconds"
-        label="缺失时长(秒)"
+        label="缺失时长"
       >
         <template slot-scope="{row}">
-          <span style="margin-left: 10px;">{{ row.missSeconds }}</span>
+          <span>{{ row.missSeconds }}秒</span>
+          <span>({{ durationFormat(row.missSeconds) }})</span>
         </template>
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="missSeconds"
         label="缺失时长"
       >
         <template slot-scope="{row}">
           <span style="margin-left: 10px;">{{ durationFormat(row.missSeconds) }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
     <el-pagination
       :current-page="pager.pageNum"
