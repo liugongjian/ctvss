@@ -73,11 +73,9 @@ export default class extends Vue {
         deviceId: this.record?.deviceId,
         inProtocol: this.record?.inProtocol
       })
-      // console.log('获取啥设备啊   🚓🚒🚆🏎 ', this.info)
       if (this.type === 'record') {
         this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
       }
-      // console.log('🎨  来录像回放    ', this.record, this.dateTimeRange)
       let params = {
         taskId: this.record?.id,
         deviceId: this.record?.deviceId
