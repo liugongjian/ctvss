@@ -1,5 +1,6 @@
 <template>
   <div v-if="deviceId && !disablePTZ" class="container">
+    <div v-if="!isClosed && !checkPermission(['ivs:ControlDevicePTZ'], screen)" class="container__disabled-mask" @click="disabledPanelAlert" />
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -170,6 +171,7 @@ import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, set
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'PtzControl',
@@ -189,6 +191,8 @@ import { getLocalStorage } from '@/utils/storage'
 export default class extends Vue {
   @Prop()
   private screen
+
+  public checkPermission = checkPermission
 
   private speed = 5
   private isClosed = true
@@ -648,14 +652,36 @@ export default class extends Vue {
       callback()
     }
   }
+
+  private disabledPanelAlert() {
+    this.$message.warning('该设备已锁定，不能进行云台操作')
+  }
 }
 </script>
 <style lang="scss" scoped>
 .container {
+  position: relative;
+
+  &__disabled-mask {
+    position: absolute;
+    z-index: 18;
+    width: 100%;
+    height: 100%;
+    background: #808080;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   &__ptz {
     width: 210px;
     height: 100%;
     position: relative;
+
+    ::v-deep {
+      .el-loading-mask {
+        z-index: 16;
+      }
+    }
 
     &__title {
       height: 40px;
@@ -682,6 +708,9 @@ export default class extends Vue {
           height: 100%;
           overflow: hidden;
           background: url('~@/assets/ptz/expand.png') 0 50% no-repeat;
+          cursor: pointer;
+          position: relative;
+          z-index: 19;
         }
       }
 
@@ -829,6 +858,10 @@ export default class extends Vue {
 
             .el-slider__runway.show-input {
               margin-right: 56px;
+            }
+
+            .el-slider__button-wrapper {
+              z-index: 17 !important;
             }
           }
         }
