@@ -140,8 +140,8 @@ export default class extends Vue {
           this.submitting = true
           const res = await setLock({
             lockPeriod: {
-              startTime: this.form.duration[0] / 1000,
-              endTime: this.form.duration[1] / 1000,
+              startTime: (this.form.duration[0] / 1000).toFixed(),
+              endTime: (this.form.duration[1] / 1000).toFixed(),
             },
             deviceId: this.screen.deviceId,
             inProtocol: this.screen.inProtocol,

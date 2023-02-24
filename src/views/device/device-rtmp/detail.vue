@@ -234,7 +234,7 @@
           <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
-          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :lock-permission="checkPermission(['ivs:LockCloudRecord'])" />
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :device-name="info.deviceName" :lock-permission="checkPermission(['ivs:LockCloudRecord'])" />
         </el-tab-pane>
         <el-tab-pane v-if="checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />

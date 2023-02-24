@@ -20,7 +20,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="存储时长:" prop="storageTime" class="record-form-item">
-          <el-input v-model="form.storageTime" type="number" min="0" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
+          <el-input v-model.number="form.storageTime" type="number" min="0" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
         </el-form-item>
         <el-form-item label="模板备注" prop="description">
           <el-input v-model="form.description" style="width: 463px;" type="textarea" maxlength="255" :autosize="{minRows: 3, maxRows: 5}" placeholder="请输入备注" />
@@ -57,7 +57,8 @@ export default class extends Vue {
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
     storageTime: [
-      { required: true, message: '请填写存储时长', trigger: 'blur' }
+      { required: true, message: '请填写存储时长', trigger: 'blur' },
+      { validator: this.validateStorageTime, trigger: 'blur' }
     ]
   }
 
@@ -142,8 +143,13 @@ export default class extends Vue {
       callback()
     }
   }
+
+  private validateStorageTime(rule: any, value: number, callback: Function) {
+    if (value > 10950) {
+      callback(new Error('存储时长输入过长，最大时长不超过10950天'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>

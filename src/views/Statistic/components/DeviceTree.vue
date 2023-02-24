@@ -8,18 +8,12 @@
     <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
       <div class="dir-list" :style="`width: ${dirDrag.width}px`">
         <div class="dir-list__tools">
-          <!-- <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) " class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
-            <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
-          </el-tooltip> -->
           <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
             <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
           </el-tooltip>
-          <!-- <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) " class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
-            <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
-          </el-tooltip>
           <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
             <el-button type="text"><i class="el-icon-setting" /></el-button>
-          </el-tooltip> -->
+          </el-tooltip>
         </div>
         <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
           <div class="dir-list__tree--root" :class="{'actived': isRootDir}">
@@ -43,7 +37,7 @@
             <span
               slot-scope="{node, data}"
               class="custom-tree-node"
-              :class="{'online': data.deviceStatus === 'on'}"
+              :class="{'online': data.deviceStatus === 'on','not-allowed': !data.groupName && data.type !== 'ipc'}"
             >
               <span class="node-name">
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -68,10 +62,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { GroupModule } from '@/store/modules/group'
-import { DeviceModule } from '@/store/modules/device'
+// import { DeviceModule } from '@/store/modules/device'
 import { getDeviceTree } from '@/api/device'
 import { checkPermission } from '@/utils/permission'
 import { AdvancedSearch } from '@/type/AdvancedSearch'
@@ -100,6 +94,7 @@ export default class extends Vue {
 
   public defaultKey = null
   private maxHeight: number = 0
+  private currentGroup = {}
 
   public loading = {
     dir: false,
@@ -138,26 +133,9 @@ export default class extends Vue {
     revertSearchFlag: false
   }
 
-  @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: string) {
-    this.advancedSearchForm.deviceStatusKeys = []
-    this.advancedSearchForm.streamStatusKeys = []
-    this.advancedSearchForm.deviceAddresses = {
-      code: '',
-      level: ''
-    }
-    this.advancedSearchForm.matchKeys = []
-    this.advancedSearchForm.inputKey = ''
-    this.advancedSearchForm.searchKey = ''
-    this.advancedSearchForm.revertSearchFlag = false
-    if (!groupId) return
-    this.$nextTick(() => {
-      this.initDirs()
-    })
-  }
-
   private mounted() {
     this.initSearchStatus()
+    this.initDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -171,21 +149,9 @@ export default class extends Vue {
     return this.$route.query.type === 'dir' && this.$route.query.dirId === '0'
   }
 
-  public get isVGroup() {
-    return GroupModule.group?.inProtocol === 'vgroup'
-  }
-
-  public get currentGroup() {
-    return GroupModule.group
-  }
-
-  public get currentGroupId() {
-    return GroupModule.group?.groupId
-  }
-
-  public get currentGroupInProtocol() {
-    return GroupModule.group?.inProtocol
-  }
+  // public get currentGroupInProtocol() {
+  //   return GroupModule.group?.inProtocol
+  // }
 
   /**
    * 初始化目录
@@ -194,23 +160,21 @@ export default class extends Vue {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
-      await DeviceModule.ResetBreadcrumb()
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: 0,
-        deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-        matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
-        deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
-        searchKey: this.advancedSearchForm.searchKey || undefined
-      })
-      this.dirList = this.setDirsStreamStatus(res.dirs)
 
-      this.getRootSums(this.dirList)
+      const groupsList = GroupModule.groups.map((item: any) => {
+        return {
+          label: item.groupName,
+          id: item.groupId,
+          groupInProtocol: item.inProtocol,
+          ...item
+        }
+      })
+      this.currentGroup = groupsList[0]
+      this.dirList = groupsList
+
       this.$nextTick(() => {
-        // this.initTreeStatus(isExpand)
         const dirTree: any = this.$refs.dirTree
-        dirTree.setCurrentKey(this.dirList[0].id)
+        dirTree.setCurrentKey(this.dirList[0]?.id)
         this.deviceRouter(this.dirList[0])
       })
     } catch (e) {
@@ -304,31 +268,17 @@ export default class extends Vue {
    */
   public async loadDirChildren(key: string, node: any) {
     try {
-      if (this.currentGroup?.inProtocol === 'vgroup') {
-        if (node.data.type === 'role') {
-          node.data.roleId = node.data.id
-        } else if (node.data.type === 'group') {
-          node.data.realGroupId = node.data.id
-          node.data.realGroupInProtocol = node.data.inProtocol
-        }
-        VGroupModule.SetRoleID(node.data.roleId || '')
-        VGroupModule.SetRealGroupId(node.data.realGroupId || '')
-        VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
-      }
       const dirTree: any = this.$refs.dirTree
       let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
+        groupId: node.data.groupId || '',
+        id: node.data.groupName ? 0 : node.data.id,
         type: node.data.type
       })
       if (data.dirs) {
-        if (this.currentGroup?.inProtocol === 'vgroup') {
-          data.dirs.forEach((dir: any) => {
-            dir.roleId = node.data.roleId || ''
-            dir.realGroupId = node.data.realGroupId || ''
-            dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-          })
-        }
+        data.dirs.forEach((dir: any) => {
+          dir.groupId = node.data.groupId || ''
+          dir.groupInProtocol = node.data.groupInProtocol || ''
+        })
         data.dirs = this.setDirsStreamStatus(data.dirs)
         dirTree.updateKeyChildren(key, data.dirs)
       }
@@ -361,25 +311,43 @@ export default class extends Vue {
     return path
   }
 
-  private deviceRouter(item: any, node?: any) {
-    const dirTree: any = this.$refs.dirTree
+  private async deviceRouter(item: any, node?: any) {
+    this.loading.dir = true
     let _node: any
     if (!node) {
-      _node = dirTree.getNode(item.id)
+      const dirTree: any = this.$refs.dirTree
+      _node = dirTree.getNode(item?.id)
       if (_node) {
         // 过滤状态全量返回,不需要手动加载
-        if (!_node.loaded && !this.advancedSearchForm.revertSearchFlag) {
-          this.loadDirChildren(item.id, _node)
-        }
+        // if (!_node.loaded && !this.advancedSearchForm.revertSearchFlag) {
+        //   await this.loadDirChildren(item.id, _node)
+        // }
         _node.parent.expanded = true
-        dirTree.setCurrentKey(item.id)
       }
     } else {
       _node = node
       _node.expanded = true
     }
 
-    this.$emit('treeback', item.id, this.currentGroupInProtocol, this.currentGroupId)
+    // 暂时要处理业务组 为tree node的情况
+    if (item.groupName || item.type === 'nvr' || item.type === 'platform' || item.type === 'dir') {
+      await this.loadDirChildren(item.id, _node)
+      this.$nextTick(async() => {
+        const dirTree: any = this.$refs.dirTree
+        const result = _node.childNodes?.find((item: any) => item.data?.type === 'ipc')
+
+        dirTree.setCurrentKey(result?.data?.id)
+        // dirTree.setCurrentNode(result?.data)
+        this.defaultKey = result?.data?.id
+        if (result && Object.keys(result).length > 0) {
+          this.$emit('treeback', result.data.id, result.data.groupInProtocol, result.data.groupId)
+        }
+        this.loading.dir = false
+      })
+    } else {
+      this.$emit('treeback', item.id, item.groupInProtocol, item.groupId)
+      this.loading.dir = false
+    }
   }
 
   /**
@@ -415,32 +383,25 @@ export default class extends Vue {
    */
   public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
-    if (this.currentGroup?.inProtocol === 'vgroup') {
-      if (node.data.type === 'role') {
-        node.data.roleId = node.data.id
-      } else if (node.data.type === 'group') {
-        node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = node.data.inProtocol
-      }
-      VGroupModule.SetRoleID(node.data.roleId || '')
-      VGroupModule.SetRealGroupId(node.data.realGroupId || '')
-      VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
-    }
+    this.currentGroup = node.data
     try {
       const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
+        groupId: node.data.groupId || '',
+        id: node.data.groupName ? 0 : node.data.id,
         type: node.data.type
       })
-      if (this.currentGroup?.inProtocol === 'vgroup') {
-        res.dirs.forEach((dir: any) => {
-          dir.roleId = node.data.roleId || ''
-          dir.realGroupId = node.data.realGroupId || ''
-          dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-        })
-      }
+      res.dirs.forEach((dir: any) => {
+        dir.groupId = node.data.groupId || ''
+        dir.groupInProtocol = node.data.groupInProtocol || ''
+      })
       res.dirs = this.setDirsStreamStatus(res.dirs)
       resolve(res.dirs)
+      this.$nextTick(() => {
+        const dirTree: any = this.$refs.dirTree
+        const result = node.childNodes?.find((item: any) => item.data?.type === 'ipc')
+
+        dirTree.setCurrentKey(result?.data?.id)
+      })
     } catch (e) {
       resolve([])
     }
