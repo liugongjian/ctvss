@@ -43,6 +43,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { prefixZero } from '@/utils/number'
+import { time24Format } from '@/utils/date'
 import { Screen } from '@/views/device/services/Screen/Screen'
 import { throttle } from 'lodash'
 import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
@@ -183,7 +184,7 @@ export default class extends Vue {
     'position': 'relative',
     'padding': '5px',
     'border': '1px solid #d7d7d7',
-    'width': '220px',
+    'width': '300px',
     // 'height': '100%',
     'display': 'block',
     'left': '',
@@ -202,7 +203,7 @@ export default class extends Vue {
     'position': 'relative',
     // 'padding': '5px',
     // 'border': '1px solid #d7d7d7',
-    'width': '220px',
+    'width': '300px',
     // 'height': '100%',
     'display': 'block',
     'left': '',
@@ -704,8 +705,10 @@ export default class extends Vue {
         subLocks.shift()
       }
       this.durationList = [{
-        lockStartTime: (new Date(lock.startTime * 1000)).toLocaleTimeString(),
-        lockEndTime: (new Date(lock.endTime * 1000)).toLocaleTimeString(),
+        lockStartTime: time24Format(lock.startTime * 1000),
+        // lockStartTime: (new Date(lock.startTime * 1000)).toLocaleTimeString(),
+        // lockEndTime: (new Date(lock.endTime * 1000)).toLocaleTimeString(),
+        lockEndTime: time24Format(lock.endTime * 1000, true),
         deviceId: lock.deviceId,
         deviceName: lock.deviceName,
         anchorTime: lock.time,
@@ -717,8 +720,10 @@ export default class extends Vue {
         this.durationList.push(subLocks.map((item: any) => {
           if (lock.startTime !== item.startTime && lock.endTime !== item.endTime) {
             return {
-              lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
-              lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
+              // lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
+              lockStartTime: time24Format(item.startTime * 1000),
+              // lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
+              lockEndTime: time24Format(lock.endTime * 1000, true),
               deviceId: item.deviceId,
               deviceName: item.deviceName,
               startTime: lock.startTime,
@@ -731,7 +736,8 @@ export default class extends Vue {
       } else {
         this.dynamicPos.top = '-104px'
       }
-      this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
+      // this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
+      this.dynamicPos.left = this.settings.width - lock.x <= 320 ? lock.x - 280 + 'px' : lock.x + 'px'
       this.durationList = this.durationList.flat()
       // else {
       //   this.duration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleTimeString() // fake
