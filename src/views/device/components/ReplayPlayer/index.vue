@@ -16,6 +16,7 @@
     :is-muted="screen.isMuted"
     :playback-rate="screen.playbackRate"
     :scale="screen.scale"
+    :permission="screen.permission"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     :has-axis="hasAxis"

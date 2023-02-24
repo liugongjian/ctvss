@@ -715,7 +715,7 @@ export default class extends Vue {
             return {
               // lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
               lockStartTime: time24Format(item.startTime * 1000),
-              lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
+              lockEndTime: time24Format(item.endTime * 1000, true),
               // lockEndTime: time24Format(item.endTime * 1000, true),
               deviceId: item.deviceId,
               deviceName: item.deviceName,
