@@ -211,7 +211,7 @@ export default class extends Vue {
   }
 
   private mounted() {
-    console.log('⭐    ☀  🌏   ', this.screen.permission)
+    // console.log('⭐    ☀  🌏   ', this.screen.permission)
     this.getRecordListByPage()
   }
 
