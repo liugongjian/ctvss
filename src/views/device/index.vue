@@ -165,7 +165,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import AdditionalStatus from './components/AdditionalStatus.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
-import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { exportSearchResult } from '@/api/device'
 
@@ -181,7 +180,6 @@ import { exportSearchResult } from '@/api/device'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private getSums = getSums
   private parentDir = null
