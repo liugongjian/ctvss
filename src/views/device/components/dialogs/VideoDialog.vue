@@ -63,7 +63,6 @@ export default class extends Vue {
       }
       this.startTime = time24Format(this.record.startTime)
       this.endTime = time24Format(this.record.endTime)
-      // console.log('⭐⭐⭐   录像锁定的回放  🛵🦂  ', this.record, this.dateTimeRange, this.startTime, this.endTime)
     } catch (e) {
       this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
