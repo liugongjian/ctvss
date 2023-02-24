@@ -82,7 +82,7 @@ const settings: ISettings = {
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
       allowAutoSelected: ['ivs:GetGroup'],
-      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord'],
+      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -154,6 +154,7 @@ const settings: ISettings = {
       actionName: '查询本地录像',
       actionKey: 'ivs:GetDeviceRecord',
       actionDesc: '拥有设备本地录像文件的查询权限，并展示录像回放菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       actionType: 'GET',
       resourceType: ['directory', 'device', 'channel']
     },

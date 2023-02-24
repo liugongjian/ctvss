@@ -11,22 +11,22 @@
           @mousedown="changeWidthStart($event)"
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
-          <div class="dir-list" :style="`width: ${dirDrag.width}px`">
+          <div v-loading="loading.dir" class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice']) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice']) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
+            <div class="dir-list__tree device-list__max-height">
               <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
                 <svg-icon name="component" width="12px" />
                 根目录
@@ -165,7 +165,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import AdditionalStatus from './components/AdditionalStatus.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
-import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { exportSearchResult } from '@/api/device'
 
@@ -181,7 +180,6 @@ import { exportSearchResult } from '@/api/device'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private getSums = getSums
   private parentDir = null

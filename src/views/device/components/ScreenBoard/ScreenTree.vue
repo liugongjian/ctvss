@@ -1,5 +1,5 @@
 <template>
-  <div class="dir-list">
+  <div v-loading="loading.dir" class="dir-list">
     <div class="dir-list__tools">
       <el-tooltip
         v-if="isLive"
@@ -44,7 +44,6 @@
       </el-tooltip>
     </div>
     <div
-      v-loading="loading.dir"
       class="dir-list__tree device-list__max-height"
       :class="{'dir-list__tree--live': isLive, 'dir-list__tree--replay': !isLive}"
     >
@@ -65,10 +64,14 @@
           v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+          :class="{
+            'online': data.deviceStatus === 'on',
+            'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
+            'no-permission': !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+          }"
           @contextmenu="($event, node)"
         >
-          <span class="node-name">
+          <span class="node-name" :title="getTitle(data)">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
@@ -88,7 +91,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc' && isLive" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive && checkPermission(['ivs:GetLiveStream'], data)" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
           </div>
@@ -110,10 +113,14 @@
           v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+          :class="{
+            'online': data.deviceStatus === 'on',
+            'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
+            'no-permission': !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+          }"
           @contextmenu="($event, node)"
         >
-          <span class="node-name">
+          <span class="node-name" :title="getTitle(data)">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
@@ -133,7 +140,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive && checkPermission(['ivs:GetLiveStream'], data)" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -209,7 +216,6 @@
 import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
 import { Device } from '@/type/Device'
-import { getDeviceTree } from '@/api/device'
 import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
@@ -426,7 +432,9 @@ export default class extends Mixins(IndexMixin) {
     if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
-      if (node.data.deviceStatus === 'on' || !this.screenManager.isLive) {
+      // 需要执行IAM的判断逻辑，判断是否有对应的操作权限
+      const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+      if (this.checkPermission(perms, node.data) && (node.data.deviceStatus === 'on' || !this.screenManager.isLive)) {
         if (!node.data.inProtocol) {
           node.data.inProtocol = this.currentGroupInProtocol
         }
@@ -442,7 +450,7 @@ export default class extends Mixins(IndexMixin) {
           })
           data = this.setDirsStreamStatus(res.dirs)
         } else {
-          data = await getDeviceTree({
+          data = await this.getAuthActionsDeviceTree({
             groupId: this.currentGroupId,
             id: node!.data.id,
             type: node!.data.type,
@@ -450,7 +458,7 @@ export default class extends Mixins(IndexMixin) {
               'role-id': node!.data.roleId || '',
               'real-group-id': node!.data.realGroupId || ''
             }
-          })
+          }, node)
         }
         dirTree.updateKeyChildren(node.data.id, data)
         node.expanded = true
@@ -510,6 +518,19 @@ export default class extends Mixins(IndexMixin) {
       this.queueExecutor.resumePolling()
     }
   }
+
+  /**
+   * 获取无权限提示
+   */
+  getTitle(data: any) {
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    const title = this.isLive ? '无该设备实时预览权限' : '无该设备录像回放权限'
+    if (!this.checkPermission(perms, data)) {
+      return title
+    } else {
+      return ''
+    }
+  }
 }
 
 </script>
@@ -518,6 +539,10 @@ export default class extends Mixins(IndexMixin) {
   position: relative;
 
   &--live .offline .node-name {
+    cursor: not-allowed;
+  }
+
+  .no-permission .node-name {
     cursor: not-allowed;
   }
 }
