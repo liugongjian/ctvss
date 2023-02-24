@@ -26,6 +26,7 @@ export default class IndexMixin extends Vue {
     revertSearchFlag: false
   }
 
+  public rootActions = {}
   public maxHeight = null
   public dirList = []
   public isExpanded = true
@@ -144,6 +145,15 @@ export default class IndexMixin extends Vue {
         })
         dirs = this.setDirsStreamStatus(res.dirs)
       } else {
+        if (UserModule.iamUserId) {
+          const permissionRes = await previewAuthActions({
+            targetResources: [{
+              groupId: this.currentGroupId
+            }]
+          })
+          this.rootActions = permissionRes.result[0].iamUser.actions
+          console.log('this.rootActions: ', this.rootActions)
+        }
         dirs = await this.getAuthActionsDeviceTree({
           groupId: this.currentGroupId,
           id: 0,
