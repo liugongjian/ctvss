@@ -524,7 +524,7 @@ export default class extends Mixins(IndexMixin) {
    */
   getTitle(data: any) {
     const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
-    const title = this.isLive ? '无实时预览权限' : '无录像回放权限'
+    const title = this.isLive ? '无该设备实时预览权限' : '无该设备录像回放权限'
     if (!this.checkPermission(perms, data)) {
       return title
     } else {
