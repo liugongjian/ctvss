@@ -72,8 +72,10 @@ class Permission extends VuexModule implements IPermissionState {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log')
       // 对子账号，过滤掉自定义设备树
       const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
-      const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
-      sysconfigRoute.children = sysconfigRoute.children.filter(child => child.path !== '/custom-tree')
+      if (sysconfigRouteIndex > -1) {
+        const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
+        sysconfigRoute.children = sysconfigRoute.children.filter(child => child.path !== '/custom-tree')
+      }
     }
 
     // 根据route.meta.tags及用户tags过滤路由
