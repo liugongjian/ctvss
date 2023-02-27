@@ -10,8 +10,8 @@
     <div ref="filterWrap" class="filter-container clearfix">
       <div v-if="!isVGroup" class="filter-container__left">
         <el-button v-if="isMainUser && !isVGroup" @click="describePermission">查看权限</el-button>
-        <el-button v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
-        <el-dropdown v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" placement="bottom" @command="handleBatch">
+        <el-button v-if="checkPermission(['ivs:GetDevice'], deviceActions)" :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown v-if="checkPermission(['ivs:UpdateDevice'], selectedDeviceList)" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="move">移动至</el-dropdown-item>

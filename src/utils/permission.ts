@@ -20,17 +20,22 @@ export const checkPermission = (value: string[], data?: any): boolean => {
 
   if (value && value instanceof Array && value.length > 0) {
     let dataPerms = null
-    if (data) {
-      dataPerms = Object.keys(data)
-        .filter((key: string) => key.startsWith('ivs:'))
-        .filter((permKey: string) => data[permKey].auth)
+    if (!Array.isArray(data)) {
+      data = [data]
     }
-    const perms = dataPerms || UserModule.perms
-    const neededPermissions = value
-    const hasPermission = perms.indexOf('*') !== -1 || (perms.some((perm: string) => {
-      return neededPermissions.includes(perm)
-    }))
-    return hasPermission
+    return data.every((item) => {
+      if (item) {
+        dataPerms = Object.keys(item)
+          .filter((key: string) => key.startsWith('ivs:'))
+          .filter((permKey: string) => item[permKey].auth)
+      }
+      const perms = dataPerms || UserModule.perms
+      const neededPermissions = value
+      const hasPermission = perms.indexOf('*') !== -1 || (perms.some((perm: string) => {
+        return neededPermissions.includes(perm)
+      }))
+      return hasPermission
+    })
   } else {
     console.error('need perms! Like v-permission="[\'ivs:GetGroup\']"')
     return false

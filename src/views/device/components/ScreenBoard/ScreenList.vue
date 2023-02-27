@@ -15,7 +15,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="!isVGroup && checkPermission(['AdminRecord'], actions)"
+                  v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"

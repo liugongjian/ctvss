@@ -28,7 +28,7 @@
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="!isVGroup && isPlatform && checkPermission(['ivs:UpdateDevice'], deviceActions)" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="!isVGroup && isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], deviceActions)" placement="bottom" @command="exportExcel">
+        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:GetDevice'], deviceActions)" placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
@@ -37,7 +37,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isVGroup && (isDir || isManulNVR) && checkPermission(['ivs:UpdateDevice'], deviceActions)"
+          v-if="!isVGroup && (isDir || isManulNVR) && checkPermission(['ivs:CreateDevice'], deviceActions)"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -46,14 +46,14 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], deviceActions) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button>
-        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:UpdateDevice', 'ivs:DeleteDevice'], deviceActions)" placement="bottom" @command="handleBatch">
+        <el-button v-if="!isVGroup && checkPermission(['ivs:CreateDevice'], deviceActions) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button>
+        <el-dropdown v-if="!isVGroup && checkPermission(['ivs:UpdateDevice', 'ivs:DeleteDevice'], selectedDeviceList)" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR && !isPlatform && !isChannel && checkPermission(['ivs:UpdateDevice'], deviceActions)" command="move">移动至</el-dropdown-item>
-            <el-dropdown-item v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" command="startDevice">启用流</el-dropdown-item>
-            <el-dropdown-item v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)" command="stopDevice">停用流</el-dropdown-item>
-            <el-dropdown-item v-if="isAllowedDelete && checkPermission(['ivs:DeleteDevice'], deviceActions)" command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR && !isPlatform && !isChannel && checkPermission(['ivs:UpdateDevice'], selectedDeviceList)" command="move">移动至</el-dropdown-item>
+            <el-dropdown-item v-if="checkPermission(['ivs:UpdateDevice'], selectedDeviceList)" command="startDevice">启用流</el-dropdown-item>
+            <el-dropdown-item v-if="checkPermission(['ivs:UpdateDevice'], selectedDeviceList)" command="stopDevice">停用流</el-dropdown-item>
+            <el-dropdown-item v-if="isAllowedDelete && checkPermission(['ivs:DeleteDevice'], selectedDeviceList)" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
