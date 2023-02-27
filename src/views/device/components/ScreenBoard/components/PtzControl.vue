@@ -1,6 +1,6 @@
 <template>
   <div v-if="deviceId && !disablePTZ" class="container">
-    <div v-if="!isClosed && !checkPermission(['ivs:ControlDevicePTZ'], screen)" class="container__disabled-mask" @click="disabledPanelAlert" />
+    <!-- <div v-if="!isClosed && !checkPermission(['ivs:ControlDevicePTZ'], screen)" class="container__disabled-mask" @click="disabledPanelAlert" /> -->
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -83,8 +83,8 @@
                       <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
                     </div>
                     <span v-if="currentIndex.preset === index" class="handle">
-                      <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
-                      <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
+                      <i v-if="preset.setFlag && controlDevicePreset" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
+                      <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
                       <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
                     </span>
                   </div>
@@ -107,7 +107,7 @@
                       <div v-if="cruise.setFlag" class="handle-stop">
                         <svg-icon title="停止" name="stop" @click="stopCruise(cruise.index)" />
                       </div>
-                      <i title="设置" class="handle-edit" @click="editCruise(cruise)" />
+                      <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="editCruise(cruise)" />
                       <div v-if="cruise.setFlag" class="handle-play">
                         <svg-icon title="启用" name="play" @click="handleCruise(cruise.index)" />
                       </div>
@@ -124,13 +124,14 @@
                       v-model="homepositionForm.enable"
                       active-value="1"
                       inactive-value="0"
+                      :disabled="!controlDevicePreset"
                     />
                   </el-form-item>
                   <el-form-item label="等待时间:" prop="waitTime">
-                    <el-input v-model="homepositionForm.waitTime" :disabled="homepositionForm.enable !== '1'" /> 秒
+                    <el-input v-model="homepositionForm.waitTime" :disabled="homepositionForm.enable !== '1' || !controlDevicePreset" /> 秒
                   </el-form-item>
                   <el-form-item label="守望位置:" prop="presetId">
-                    <el-select v-model="homepositionForm.presetId" :disabled="homepositionForm.enable !== '1'">
+                    <el-select v-model="homepositionForm.presetId" :disabled="homepositionForm.enable !== '1' || !controlDevicePreset">
                       <el-option
                         v-for="(item, index) in homepositionList"
                         :key="index"
@@ -140,7 +141,7 @@
                     </el-select>
                   </el-form-item>
                   <el-form-item label-width="50px">
-                    <el-button class="submit-button" type="primary" @click="saveHomeposition">保存</el-button>
+                    <el-button :disabled="!controlDevicePreset" class="submit-button" type="primary" @click="saveHomeposition">保存</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -230,6 +231,10 @@ export default class extends Vue {
     presetId: [
       { validator: this.validateHomeposition, trigger: 'blur' }
     ]
+  }
+
+  private get controlDevicePreset() {
+    return checkPermission(['ivs:ControlDevicePreset'], screen)
   }
 
   private get deviceId() {
@@ -377,11 +382,13 @@ export default class extends Vue {
   }
 
   private enterEdit(preset: any, index: number) {
-    preset.editNameFlag = true
-    this.$nextTick(() => {
-      const $nameinput: any = this.$refs['nameinput' + index]
-      $nameinput[0].focus()
-    })
+    if (this.controlDevicePreset) {
+      preset.editNameFlag = true
+      this.$nextTick(() => {
+        const $nameinput: any = this.$refs['nameinput' + index]
+        $nameinput[0].focus()
+      })
+    }
   }
 
   private closeEdit(preset: any, index: number) {

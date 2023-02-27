@@ -1382,33 +1382,13 @@ export const asyncRoutes: RouteConfig[] = [
       {
         path: '/replay-lock-manage',
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
-        name: 'replay-lock-manage',
+        name: 'ReplayLockManage',
         meta: {
           title: '锁定录像管理',
           breadcrumb: false,
           icon: 'dot',
           perms: ['*']
         }
-        // component: Layout,
-        // meta: {
-        //   title: '锁定录像管理',
-        //   breadcrumb: true,
-        //   icon: 'menu-system',
-        //   perms: ['ivs:LockCloudRecord']
-        // },
-        // children: [
-        // {
-        // path: '',
-        // component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
-        // name: 'replay-lock-manage',
-        // meta: {
-        //   title: '锁定录像管理',
-        //   breadcrumb: false,
-        //   icon: 'menu-system',
-        //   perms: ['ivs:LockCloudRecord']
-        // }
-        // }
-        // ]
       },
       {
         path: '',
