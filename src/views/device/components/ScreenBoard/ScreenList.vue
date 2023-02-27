@@ -68,7 +68,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'], actions)"
+                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'], actions) && checkPermission(['ivs:DownloadCloudRecord'], actions)"
                 :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"

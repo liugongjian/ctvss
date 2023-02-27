@@ -1,21 +1,23 @@
 <template>
   <el-dialog
     :visible="true"
-    :width="info && type === 'record' ? '1200px' : '800px'"
+    :width="type === 'record' ? '1200px' : '800px'"
     center
     :destroy-on-close="true"
     :close-on-click-modal="false"
     @close="closeDialog"
   >
+    <!-- :width="info && type === 'record' ? '1200px' : '800px'" -->
     <div class="dialog-player-wrapper">
       <detail-replay
-        v-if="info && type === 'record'"
+        v-if="type === 'record'"
         :device-id="record.deviceId"
         :in-protocol="record.inProtocol"
         :device-name="deviceName"
         :datetime-range="dateTimeRange"
         :is-car-task="true"
       />
+        <!-- v-if="info && type === 'record'" -->
     </div>
     <div slot="title" class="dialog-title">
       <div class="plate">{{ deviceName }}</div>
@@ -52,12 +54,13 @@ export default class extends Vue {
 
   public async created() {
     try {
-      const res: any = await getDevice({
-        deviceId: this.record?.deviceId,
-        inProtocol: this.record?.inProtocol
-      })
-      this.deviceName = res.deviceName
-      this.info = res
+      console.log('💣    ', this.record)
+      this.deviceName = this.record.deviceName
+      // const res: any = await getDevice({
+      //   deviceId: this.record?.deviceId,
+      //   inProtocol: this.record?.inProtocol
+      // })
+      // this.info = res
       if (this.type === 'record') {
         this.dateTimeRange = { startTime: this.record.startTime / 1000, endTime: this.record.endTime / 1000 }
       }

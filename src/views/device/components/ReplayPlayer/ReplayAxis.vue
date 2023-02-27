@@ -794,25 +794,42 @@ export default class extends Vue {
   private onAxisMove(e: MouseEvent) {
     // 非拖拽，移动到锁位置，显示提示
     // 显示锁定提示的时候点住锁位置并拖动，始终跟随拖动位置显示提示和锁位置
-    this.axisData.locks.map((item: any) => {
-      const validX = item.x + 20
-      const validY = 20
-      if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
-        this.$nextTick(() => {
-          this.tipVisiable = true
-          this.drawTooltip(item)
-          // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
-        })
-      } else {
-        // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
-        this.tipVisiable = false
-      }
-    })
+    // this.axisData.locks.map((item: any) => {
+    //   const validX = item.x + 20
+    //   const validY = 20
+    //   if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+    //     this.$nextTick(() => {
+    //       this.tipVisiable = true
+    //       this.drawTooltip(item)
+    //       // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
+    //     })
+    //   } else {
+    //     // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
+    //     this.tipVisiable = false
+    //   }
+    // })
     if (this.axisDrag.isDragging) {
+      this.tipVisiable = false // 拖拽时隐藏tooltips
       this.notClick = true
       this.axisDrag.deltaX = this.axisDrag.startX - e.x
       this.axisDrag.startX = e.x
       this.currentTime = this.currentTime + this.axisDrag.deltaX * this.settings.ratio // 将偏移像素值转换成时间戳
+    } else {
+      // 非拖拽时再绘制tooltips
+      this.axisData.locks.map((item: any) => {
+        const validX = item.x + 20
+        const validY = 20
+        if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+          this.$nextTick(() => {
+            this.tipVisiable = true
+            this.drawTooltip(item)
+            // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
+          })
+        } else {
+          // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
+          this.tipVisiable = false
+        }
+      })
     }
     this.generateData()
     this.draw()

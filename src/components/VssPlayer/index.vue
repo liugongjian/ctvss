@@ -56,7 +56,7 @@
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
-        <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetLiveStream'], permission) : checkPermission(['ivs:GetCloudRecord'], permission))" :is-live="isLive" @dispatch="dispatch" />
+        <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" />
         <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
         <slot name="controlRight" />
       </template>
