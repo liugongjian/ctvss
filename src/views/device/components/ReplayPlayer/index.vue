@@ -50,7 +50,7 @@
     </template>
     <template slot="controlRight">
       <Lock v-if="canLock && !isCarTask" :screen="screen" />
-      <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
+      <RecordDownload v-if="checkPermission(['ivs:DownloadCloudRecord'], actions) && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -104,16 +104,15 @@ export default class extends Vue {
 
   private UserModule = UserModule
 
+  private checkPermission = checkPermission
+  private actions: any = null
+
   private url: string = null
   private type: string = null
   private codec: string = null
 
   private get recordManager() {
     return this.screen.recordManager
-  }
-
-  private get hasAdminRecord() {
-    return checkPermission(['AdminRecord'])
   }
 
   /* 当前全屏状态 */
@@ -147,6 +146,10 @@ export default class extends Vue {
       this.type = 'flv'
       this.codec = this.screen.codec
     }
+  }
+
+  private mounted() {
+    this.actions = this.screen.permission
   }
 
   /**

@@ -123,7 +123,6 @@ export default class extends Vue {
       this.loadingForm = true
       await this.getDeviceInfo()
       // nvr 通道设备名称
-      console.log('西巴       💣  🎇', this.screen)
       this.deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName
     } catch (e) {
       this.$message.error(e)

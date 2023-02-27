@@ -197,6 +197,8 @@ export default class extends Vue {
   })
   private async getRecordList() {
     try {
+      // 更新权限
+      this.actions = this.currentScreen.permission
       // 没有加载录像直接进入录像列表时，没有 recordManager
       if (!this.currentScreen.recordManager) return
       this.resetPager()
