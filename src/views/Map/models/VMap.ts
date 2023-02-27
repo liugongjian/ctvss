@@ -6,7 +6,7 @@ import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'
 import { isEqual } from 'lodash'
-
+import settings from '../settings'
 export interface mapObject {
   mapId: string,
   name: string,
@@ -17,6 +17,9 @@ export interface mapObject {
   eagle?: string
   dimension?: string
   marker?: string
+  groupByGroupId?: string
+  groupByAdjacent?: string
+  defaultDeviceColor?: string
 }
 
 declare global {
@@ -83,7 +86,8 @@ export const getAMapLoad = () => {
           'AMap.ControlBar',
           'AMap.IndexCluster',
           'AMap.MouseTool',
-          'AMap.PolygonEditor'
+          'AMap.PolygonEditor',
+          'AMap.MapType'
         ]
       }).then((AMap) => {
         resolve(AMap)
@@ -161,6 +165,13 @@ export default class VMap {
           right: '10px'
         }
       })
+      const mapType = new AMap.MapType({
+        defaultType: 0,
+        position: {
+          bottom: '130px',
+          left: '210px'
+        }
+      })
 
       const auto = new AMap.AutoComplete({ input: 'map-tip-input' })
       auto.on('select', (e) => {
@@ -171,6 +182,7 @@ export default class VMap {
       map.addControl(this.overView)
       map.addControl(scale)
       map.addControl(controlBar)
+      map.addControl(mapType)
       // map.on('click', () => {
       //   this.cancelChoose()
       // })
@@ -329,8 +341,8 @@ export default class VMap {
 
   addMarker(marker): void {
     this.curMarkerList.push(marker)
-    this.markerCluster.addData(this.wrapMarkers([marker]))
-    this.indexCluster.addData(this.wrapMarkers([marker]))
+    this.markerCluster && this.markerCluster.addData(this.wrapMarkers([marker]))
+    this.indexCluster && this.indexCluster.addData(this.wrapMarkers([marker]))
   }
 
   renderMap(map: mapObject) {
@@ -370,8 +382,8 @@ export default class VMap {
 
   updateMarkerList(markers) {
     this.curMarkerList = markers
-    this.markerCluster.setData(this.wrapMarkers(markers))
-    this.indexCluster.setData(this.wrapMarkers(markers))
+    this.markerCluster && this.markerCluster.setData(this.wrapMarkers(markers))
+    this.indexCluster && this.indexCluster.setData(this.wrapMarkers(markers))
   }
 
   cancelChoose() {
@@ -384,8 +396,12 @@ export default class VMap {
   }
 
   setCluster(markers: any[]) {
-    this.setIndexCluster(markers)
-    this.setMarkerCluster(markers)
+    let minZoom = 0
+    if (this.curMapOptions.groupByGroupId === 'Y') {
+      this.setIndexCluster(markers)
+      minZoom = 15
+    }
+    this.setMarkerCluster(markers, minZoom)
   }
 
   // 设置索引聚合
@@ -431,6 +447,7 @@ export default class VMap {
       div.className = 'index-cluster'
       div.style.width = styleObj.size + 'px'
       div.style.height = styleObj.size + 'px'
+      div.style.backgroundColor = this.curMapOptions.defaultDeviceColor
       // 自定义点击事件
       context.marker.on('click', (e) => {
         let curZoom = this.map.getZoom()
@@ -454,17 +471,17 @@ export default class VMap {
   }
 
   // 设置相邻聚合
-  setMarkerCluster(markers: any[]) {
+  setMarkerCluster(markers: any[], minZoom = 0) {
     if (this.markerCluster) {
       this.markerCluster.setMap(null)
     }
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
-      if (this.map.getZoom() < 15) {
+      if (this.map.getZoom() < minZoom) {
         context.marker.setContent(' ')
       } else {
         const div = document.createElement('div')
-        const bgColor = 'rgba(0, 157, 217, 0.8)'
+        const bgColor = this.curMapOptions.defaultDeviceColor || settings.defaultDeviceColor
         const fontColor = '#fff'
         div.style.backgroundColor = bgColor
         const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
@@ -495,11 +512,12 @@ export default class VMap {
       }
     }
     const _renderMarker = (context: any) => {
-      if (this.map.getZoom() < 15) {
+      if (this.map.getZoom() < minZoom) {
         context.marker.setContent(' ')
       } else {
         // const content = this.buildContent(context.data[0])
         const content = drawCamera(context.data[0], {
+          defaultDeviceColor: this.curMapOptions.defaultDeviceColor,
           handlers: this.markerEventHandlers,
           isEdit: this.isEdit,
           map: this.map
@@ -538,7 +556,7 @@ export default class VMap {
     }
 
     this.markerCluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
-      maxZoom: 19,
+      maxZoom: this.curMapOptions.groupByAdjacent === 'Y' ? 19 : 0.1,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker // 自定义非聚合点样式
     })

@@ -68,7 +68,7 @@ class Map extends VuexModule implements IMapState {
       color: '',
       colorType: '',
       appearance: {
-        color: '#1e78e0',
+        color: '#FA8334',
         colorType: 'bubble',
         showLabel: false
       }

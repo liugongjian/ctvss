@@ -54,7 +54,7 @@ export default class Interest extends Vue {
   private color
 
   get interestInfo() {
-    this.color = MapModule.interestInfo.appearance.color || '#1e78e0'
+    this.color = MapModule.interestInfo.appearance.color
     return MapModule.interestInfo
   }
 
