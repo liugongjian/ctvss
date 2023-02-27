@@ -368,7 +368,11 @@ import PreviewPermission from './dialogs/PreviewPermission.vue'
 Component.registerHooks(['beforeRouteEnter'])
 
 @Component({
-  components: { TemplateBind, EditAccessType, PreviewPermission },
+  components: {
+    TemplateBind,
+    EditAccessType,
+    PreviewPermission
+  },
   name: 'CreateUser'
 })
 export default class extends Vue {

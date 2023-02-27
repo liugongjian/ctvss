@@ -74,15 +74,16 @@
               </template>
             </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policies" label="策略名">
+            <el-table-column prop="policies" label="策略名" width="280">
               <template slot-scope="{row}">
                 <span>{{ row.policies || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="createdTime" label="创建时间" width="200" />
-            <el-table-column label="操作" fixed="right" width="380">
+            <el-table-column label="操作" fixed="right" width="480">
               <template slot-scope="scope">
                 <el-button type="text" @click="getPermission(scope.row)">查看权限</el-button>
+                <el-button type="text" @click="getUserBind(scope.row)">查看绑定关系</el-button>
                 <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
@@ -104,6 +105,7 @@
     </el-card>
     <UserGroupDialog v-if="isShowDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
     <PreviewPermission v-if="showPreviewPermission" :dialog-data="previewDialogData" @on-close="closePreviewDialog" />
+    <UserViewBind v-if="showUserViewBind" :dialog-data="userViewBindData" @on-close="closeUserViewBind" />
   </div>
 </template>
 
@@ -116,12 +118,14 @@ import { encrypt } from '@/utils/encrypt'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
 import PreviewPermission from './components/dialogs/PreviewPermission.vue'
+import UserViewBind from './components/dialogs/UserViewBind.vue'
 
 @Component({
   name: 'AccessManageUser',
   components: {
     UserGroupDialog,
-    PreviewPermission
+    PreviewPermission,
+    UserViewBind
   }
 })
 export default class extends Vue {
@@ -137,7 +141,9 @@ export default class extends Vue {
     body: false
   }
   private showPreviewPermission = false
+  private showUserViewBind = false
   private previewDialogData = {}
+  private userViewBindData = {}
   private nodePath: string = '通讯录'
   private nodeKeyPath: any = '-1'
   private isShowDialog: boolean = false
@@ -180,8 +186,20 @@ export default class extends Vue {
     this.showPreviewPermission = true
   }
 
+  private getUserBind(row) {
+    this.userViewBindData = {
+      parentGroupId: this.currentNode.data.groupId,
+      iamUserId: row.iamUserId
+    }
+    this.showUserViewBind = true
+  }
+
   private closePreviewDialog() {
     this.showPreviewPermission = false
+  }
+
+  private closeUserViewBind() {
+    this.showUserViewBind = false
   }
 
   private mounted() {
