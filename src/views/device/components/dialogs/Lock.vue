@@ -23,7 +23,7 @@
       <el-form-item label="设备名:" class="device">
         {{ deviceName }}
       </el-form-item>
-      <el-form-item label="录像时段:" class="date-picker">
+      <el-form-item label="录像时段:" class="date-picker" prop="duration">
         <el-date-picker
           ref="datepicker"
           v-model="form.duration"
