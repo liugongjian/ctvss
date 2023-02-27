@@ -862,7 +862,7 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/ai',
     component: Layout,
-    redirect: 'noredirect',
+    redirect: '/ai/ai-app-list',
     name: 'AI',
     meta: {
       title: 'AI管理',
