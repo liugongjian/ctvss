@@ -194,6 +194,7 @@
             :device-name="info.deviceName"
             :streams="info.deviceStreams"
             :stream-size="info.multiStreamSize"
+            :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
