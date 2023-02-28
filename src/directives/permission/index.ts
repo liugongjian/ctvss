@@ -6,7 +6,6 @@ function checkPermission(el: any, binding: any) {
   if (!UserModule.iamUserId) {
     return true
   }
-  console.log('---binding: ', binding)
   const { value } = binding
   const perms = UserModule.perms
   if (value && value instanceof Array && value.length > 0) {
