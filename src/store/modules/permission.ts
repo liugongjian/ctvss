@@ -9,6 +9,10 @@ interface IMatchFn {
   (infos: string[], route: RouteConfig): boolean
 }
 
+interface IMatchFn2 {
+  (infoObj: object, route: RouteConfig): boolean
+}
+
 const notInDenyPerms: IMatchFn = (denyPerms, route) => {
   if (route.meta && route.meta.perms) {
     return !denyPerms.some(denyPerm => route.meta.perms.includes(denyPerm))
@@ -23,14 +27,35 @@ const hasPermission: IMatchFn = (perms, route) => {
   return true
 }
 
-const hasTags: IMatchFn = (tags, route) => {
-  if (route.meta && route.meta.tags) {
-    return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+// const hasTags: IMatchFn = (tags, route) => {
+//   if (route.meta && route.meta.tags) {
+//     return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+//   }
+//   return true
+// }
+
+const hasTags2: IMatchFn2 = (tagObject, route) => {
+  const settingTags = route.meta.tags
+  if (settingTags) {
+    let neededTagObject = {}
+    if (Array.isArray(settingTags)) {
+      settingTags.forEach(tag => {
+        neededTagObject[tag] = ['Y']
+      })
+    } else {
+      neededTagObject = settingTags
+    }
+    return Object.keys(neededTagObject).every(neededTag => {
+      const tagValue = tagObject[neededTag]
+      const neededValue = neededTagObject[neededTag]
+      return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+    })
   }
+
   return true
 }
 
-const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: string[]) => {
+const filterAsyncRoutes = (matchFn: IMatchFn | IMatchFn2, routes: RouteConfig[], infos: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
     const r = { ...route }
@@ -46,7 +71,7 @@ const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: stri
 
 export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
 export const filterAsyncRoutesByDenyPerms = filterAsyncRoutes.bind(null, notInDenyPerms)
-export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
+export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags2)
 
 export interface IPermissionState {
   routes: RouteConfig[]
@@ -65,7 +90,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { tags: string[], perms: string[], denyPerms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { tagObject: object, perms: string[], denyPerms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
@@ -79,7 +104,7 @@ class Permission extends VuexModule implements IPermissionState {
     }
 
     // 根据route.meta.tags及用户tags过滤路由
-    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tags)
+    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tagObject)
 
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
