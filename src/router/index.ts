@@ -640,7 +640,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb35114/update/:outId?:certId?',
+        path: 'gb35114/update/:outId?/:certId?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb35114/create.vue'),
         name: 'gb35114-update',
         meta: {

@@ -79,6 +79,7 @@
         v-model="form.description"
         type="textarea"
         :rows="3"
+        :maxlength="255"
         placeholder="请输入凭证描述，如凭证介绍或用途"
       />
     </el-form-item>
