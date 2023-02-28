@@ -15,7 +15,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                  v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -68,7 +68,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'])"
+                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'], actions) && checkPermission(['ivs:DownloadCloudRecord'], actions)"
                 :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
@@ -78,8 +78,8 @@
               </el-button>
               <el-button
                 type="text"
-                @click="playReplay(row)"
                 :disabled="row.loading || (!canLock && row.isLock === 1)"
+                @click="playReplay(row)"
               >
                 <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 播放录像
@@ -167,6 +167,7 @@ export default class extends Vue {
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private checkPermission = checkPermission
+  private actions: any = null
 
   /* 当前分页后的录像列表 */
   private recordList: Record[] = null
@@ -196,6 +197,8 @@ export default class extends Vue {
   })
   private async getRecordList() {
     try {
+      // 更新权限
+      this.actions = this.currentScreen.permission
       // 没有加载录像直接进入录像列表时，没有 recordManager
       if (!this.currentScreen.recordManager) return
       this.resetPager()
@@ -204,6 +207,7 @@ export default class extends Vue {
         this.recordList = []
         return
       }
+      this.recordList = []
       this.getRecordListByPage()
     } catch (e) {
       this.$message.error(e)
@@ -211,6 +215,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.actions = this.screenManager.currentScreen.permission
     this.getRecordListByPage()
   }
 

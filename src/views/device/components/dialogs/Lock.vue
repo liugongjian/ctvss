@@ -23,7 +23,7 @@
       <el-form-item label="设备名:" class="device">
         {{ deviceName }}
       </el-form-item>
-      <el-form-item label="录像时段:" class="date-picker">
+      <el-form-item label="录像时段:" class="date-picker" prop="duration">
         <el-date-picker
           ref="datepicker"
           v-model="form.duration"
@@ -122,7 +122,8 @@ export default class extends Vue {
     try {
       this.loadingForm = true
       await this.getDeviceInfo()
-      this.deviceName = this.screen.deviceName
+      // nvr 通道设备名称
+      this.deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName
     } catch (e) {
       this.$message.error(e)
     } finally {

@@ -264,16 +264,25 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
-  public describePermission() {
+  public describePermission(row: any) {
     const path: any = this.$route.query.path
     const pathArr = path ? path.split(',') : []
-    const dirPath = this.isDir ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
-    const deviceId = this.isDir ? undefined : pathArr[pathArr.length - 1]
-    this.describePermissonDialogData = {
-      type: this.type,
-      groupId: this.groupId,
-      dirPath: dirPath || '0',
-      deviceId: deviceId
+    const dirPath = (this.isDir || this.isPlatformDir) ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+    const deviceId = (this.isDir || this.isPlatformDir) ? undefined : pathArr[pathArr.length - 1]
+    if (row && row.deviceId) {
+      this.describePermissonDialogData = {
+        type: row.type,
+        groupId: this.groupId,
+        dirPath: dirPath || '0',
+        deviceId: row.deviceId
+      }
+    } else {
+      this.describePermissonDialogData = {
+        type: this.type,
+        groupId: this.groupId,
+        dirPath: dirPath || '0',
+        deviceId: deviceId
+      }
     }
     this.dialog.describePermission = true
   }

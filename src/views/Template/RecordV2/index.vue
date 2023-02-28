@@ -272,6 +272,7 @@ export default class extends Vue {
         templateId: this.currentTemplate.templateId
       })
       this.renderTemplateInfo = templateInfo // 渲染模板信息
+      this.$nextTick(this.calMaxHeight)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -699,6 +700,10 @@ export default class extends Vue {
   width: 50%;
   max-width: 720px;
   height: 400px;
+
+  ::v-deep .el-table {
+    min-height: 400px;
+  }
 }
 
 .bind-left {

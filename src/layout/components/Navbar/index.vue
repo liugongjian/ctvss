@@ -83,7 +83,7 @@
           <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
              -->
-          <template v-if="checkPermission(['DescribeAi'])">
+          <template v-if="checkPermission(['ivs:GetApp'])">
             <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
               {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
               <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">

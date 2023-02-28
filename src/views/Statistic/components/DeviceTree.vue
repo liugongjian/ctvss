@@ -330,15 +330,12 @@ export default class extends Vue {
     }
 
     // 暂时要处理业务组 为tree node的情况
-    if (item.groupName || item.type === 'nvr' || item.type === 'platform' || item.type === 'dir') {
+    if (item?.groupName || item.type === 'nvr' || item.type === 'platform' || item.type === 'dir') {
       await this.loadDirChildren(item.id, _node)
       this.$nextTick(async() => {
         const dirTree: any = this.$refs.dirTree
         const result = _node.childNodes?.find((item: any) => item.data?.type === 'ipc')
-
         dirTree.setCurrentKey(result?.data?.id)
-        // dirTree.setCurrentNode(result?.data)
-        this.defaultKey = result?.data?.id
         if (result && Object.keys(result).length > 0) {
           this.$emit('treeback', result.data.id, result.data.groupInProtocol, result.data.groupId)
         }
@@ -398,9 +395,12 @@ export default class extends Vue {
       resolve(res.dirs)
       this.$nextTick(() => {
         const dirTree: any = this.$refs.dirTree
-        const result = node.childNodes?.find((item: any) => item.data?.type === 'ipc')
-
+        const _node = dirTree.getNode(node.data.id)
+        const result = _node.childNodes?.find((item: any) => item.data?.type === 'ipc')
         dirTree.setCurrentKey(result?.data?.id)
+        if (result && Object.keys(result).length > 0) {
+          this.$emit('treeback', result.data.id, result.data.groupInProtocol, result.data.groupId)
+        }
       })
     } catch (e) {
       resolve([])

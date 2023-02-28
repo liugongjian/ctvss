@@ -40,7 +40,7 @@
           <template slot-scope="scope">
             <!-- <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button> -->
-            <el-button v-permission="['*']" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
+            <el-button v-if="checkPermission(['*'])" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -61,6 +61,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'BillingResourceManagement',
@@ -69,6 +70,7 @@ import Resource from '@/views/device/components/dialogs/Resource.vue'
   }
 })
 export default class extends Vue {
+  public checkPermission = checkPermission
   private resourceId: any = ''
   private deviceName = ''
   private loading = false

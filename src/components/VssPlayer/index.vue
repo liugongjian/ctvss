@@ -34,7 +34,7 @@
         <ErrorMsg v-if="errorMsg" :error-msg="errorMsg">
           <!--用于无录像返回实时预览-->
           <LiveReplaySelector
-            v-if="hasLiveReplaySelector && !isLive"
+            v-if="hasLiveReplaySelector && !isLive && checkPermission(['ivs:GetLiveStream'], permission)"
             :is-live="isLive"
             :is-button="false"
             @dispatch="dispatch"
@@ -56,7 +56,7 @@
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
-        <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
+        <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" />
         <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
         <slot name="controlRight" />
       </template>
@@ -71,6 +71,7 @@ import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/type
 import Player from '@/components/Player/index.vue'
 import { Player as PlayerModel } from '@/components/Player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
+import { checkPermission } from '@/utils/permission'
 /**
  * 子组件库
  */
@@ -216,6 +217,12 @@ export default class extends Vue {
     default: false
   })
   private hasAxis: boolean
+
+  /* 用户权限管理 */
+  @Prop()
+  private permission: any 
+
+  private checkPermission = checkPermission
 
   /* 播放器实例 */
   private player: PlayerModel = null

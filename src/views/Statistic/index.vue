@@ -234,7 +234,7 @@
                     value-format="yyyy-MM"
                     @change="monthValueChange"
                   />
-                  <div class="statistic-box__calendar">
+                  <div v-if="recordDayInfo.status !== 'unbind' && recordDayInfo.status !== 'stop'" class="statistic-box__calendar">
                     <div class="statistic-box__calendar__chart">
                       <div class="statistic-box__content">
                         <p class="statistic-box__content__title">录制天数</p>
@@ -244,14 +244,21 @@
                     </div>
                     <div class="statistic-box__calendar__line" />
                     <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
-                      <el-tooltip v-for="item in calendarInfo" :key="item.day" placement="top" :content="`录制完整率${(item.complianceRate*100).toFixed(2)}%`">
+                      <el-tooltip v-for="item in calendarInfo" :key="item.day" placement="top" :content="getDateTipContent(item)">
                         <span class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
                           {{ item.day.split('-')[2] }}
                         </span>
                       </el-tooltip>
                     </div>
                   </div>
+                  <div v-else-if="recordDayInfo.status === 'stop'">
+                    <p>此月份未启动录像</p>
+                  </div>
+                  <div v-else-if="recordDayInfo.status === 'unbind'">
+                    <p>此月份未绑定录制模板</p>
+                  </div>
                 </div>
+
                 <div class="statistic-box__title">
                   <div class="statistic-box__title-text">丢失录像片段统计</div>
                 </div>
@@ -597,7 +604,18 @@ export default class extends Vue {
     return date
   }
 
-  private getThisClass(item: CalendarItem): string {
+  private getDateTipContent(item: CalendarItem) {
+    switch (item.status) {
+      case 'unbind':
+        return '该日未绑定录制模板'
+      case 'stop':
+        return '该日未启动录像'
+      default:
+        return `录制完整率${(item.complianceRate * 100).toFixed(2)}%`
+    }
+  }
+
+  private getThisClass(item: CalendarItem) {
     switch (item.status) {
       case 'unbind':
       case 'stop':

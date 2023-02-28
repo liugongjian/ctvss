@@ -269,21 +269,14 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
-    // console.log('时间轴上可以看到  不 recordType 变了 后端控制 查到为空就行？  🧨✨🎉', this.screen.inProtocol, this.screen.recordType)
-    // if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
-    //   // 设备不存在录像锁定功能
-
-    // }
     // 更新锁定权限，控制锁定功能
     if ((!UserModule.iamUserId || this.screen.ivsLockCloudRecord) && !this.isDialogTask) {
       // can lock
       this.canLock = true
       this.canvas && this.canvas.addEventListener('click', this.onClickLock)
-      // console.log('🎈🎈🎈🎈 注册点击锁事件 this.canLock', this.canLock)
     } else {
       this.canLock = false
       this.canvas && this.canvas.removeEventListener('click', this.onClickLock)
-      // console.log('🧨🎇🧨 删除点击锁事件')
     }
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
@@ -722,8 +715,8 @@ export default class extends Vue {
             return {
               // lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
               lockStartTime: time24Format(item.startTime * 1000),
-              // lockEndTime: (new Date(item.endTime * 1000)).toLocaleTimeString(),
-              lockEndTime: time24Format(lock.endTime * 1000, true),
+              lockEndTime: time24Format(item.endTime * 1000, true),
+              // lockEndTime: time24Format(item.endTime * 1000, true),
               deviceId: item.deviceId,
               deviceName: item.deviceName,
               startTime: lock.startTime,
@@ -801,25 +794,42 @@ export default class extends Vue {
   private onAxisMove(e: MouseEvent) {
     // 非拖拽，移动到锁位置，显示提示
     // 显示锁定提示的时候点住锁位置并拖动，始终跟随拖动位置显示提示和锁位置
-    this.axisData.locks.map((item: any) => {
-      const validX = item.x + 20
-      const validY = 20
-      if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
-        this.$nextTick(() => {
-          this.tipVisiable = true
-          this.drawTooltip(item)
-          // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
-        })
-      } else {
-        // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
-        this.tipVisiable = false
-      }
-    })
+    // this.axisData.locks.map((item: any) => {
+    //   const validX = item.x + 20
+    //   const validY = 20
+    //   if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+    //     this.$nextTick(() => {
+    //       this.tipVisiable = true
+    //       this.drawTooltip(item)
+    //       // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
+    //     })
+    //   } else {
+    //     // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
+    //     this.tipVisiable = false
+    //   }
+    // })
     if (this.axisDrag.isDragging) {
+      this.tipVisiable = false // 拖拽时隐藏tooltips
       this.notClick = true
       this.axisDrag.deltaX = this.axisDrag.startX - e.x
       this.axisDrag.startX = e.x
       this.currentTime = this.currentTime + this.axisDrag.deltaX * this.settings.ratio // 将偏移像素值转换成时间戳
+    } else {
+      // 非拖拽时再绘制tooltips
+      this.axisData.locks.map((item: any) => {
+        const validX = item.x + 20
+        const validY = 20
+        if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+          this.$nextTick(() => {
+            this.tipVisiable = true
+            this.drawTooltip(item)
+            // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
+          })
+        } else {
+          // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
+          this.tipVisiable = false
+        }
+      })
     }
     this.generateData()
     this.draw()

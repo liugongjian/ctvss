@@ -74,7 +74,7 @@ class Permission extends VuexModule implements IPermissionState {
       const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
       if (sysconfigRouteIndex > -1) {
         const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
-        sysconfigRoute.children = sysconfigRoute.children.filter(child => child.path !== '/custom-tree')
+        sysconfigRoute.children = sysconfigRoute.children.filter(child => child.path !== '/custom-tree' && child.path !== '/replay-lock-manage')
       }
     }
 

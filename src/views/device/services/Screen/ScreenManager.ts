@@ -157,6 +157,7 @@ export class ScreenManager {
       // 检查锁定权限
       // 权限相关属性
       screen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
+      screen.permission = item
     }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()
