@@ -719,8 +719,10 @@ export default class extends Vue {
               // lockEndTime: time24Format(item.endTime * 1000, true),
               deviceId: item.deviceId,
               deviceName: item.deviceName,
-              startTime: lock.startTime,
-              endTime: lock.endTime,
+              startTime: item.startTime,
+              // startTime: lock.startTime,
+              // endTime: lock.endTime,
+              endTime: item.endTime,
               anchorTime: item.time
             }
           }

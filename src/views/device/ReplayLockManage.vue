@@ -154,7 +154,10 @@ export default class extends Vue {
   }
 
   // 播放录像
-  private replay(row: any) {
+  // 后端接口没有细分，无法正常判断设备状态及正确返回报错信息，需要前端魔改
+  // 设备名称为空，判定为已被删除的设备
+  private async replay(row: any) {
+    if (row.deviceName === '') return this.$message.error('该设备已删除，无法播放')
     this.currentRecord = row
     this.showVideoDialog = true
     this.videoType = 'record'
@@ -259,7 +262,11 @@ export default class extends Vue {
     this.jumpLoading = true
     await redirectToDeviceDetail(this, row.deviceId, row.inProtocol)
   } catch(e) {
-    this.$message.error(e)
+    if (e=='Error: 没有查询到该设备') {
+      this.$message.error('该设备已删除，无法跳转设备详情')
+    } else {
+      this.$message.error(e)
+    }
   } finally {
     this.jumpLoading = false
   }
