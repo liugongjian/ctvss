@@ -54,7 +54,6 @@ export default class extends Vue {
 
   public async created() {
     try {
-      console.log('💣    ', this.record)
       this.deviceName = this.record.deviceName
       // const res: any = await getDevice({
       //   deviceId: this.record?.deviceId,
