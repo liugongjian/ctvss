@@ -170,7 +170,6 @@ export class RecordManager {
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
       this.isLoading = true
-      // console.log('here?   💣  ')
       const records = await this.getRecordList(startTime, endTime)
       // 加载录像锁列表
       // const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
@@ -278,15 +277,12 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          // console.log('是不是这儿    🚀   ')
           await this.getRecordListByDate(date, isConcat, true)
         }
         record = this.getRecordByTime(time)
       }
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
-        // if (record.isLock === 1 && !this.screen.ivsLockCloudRecord) {
-        // console.log('查看权限设置   this.screen.ivsLockCloudRecord ', this.screen.ivsLockCloudRecord)
         if (record.isLock === 1 && !this.canLock) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
@@ -386,7 +382,6 @@ export class RecordManager {
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60
           const endTime = Math.floor(new Date().getTime() / 1000)
-          // console.log('here?   🌙  ')
           const records = await this.getRecordList(startTime, endTime)
           if (records) {
             this.recordList = this.recordList.concat(records)
