@@ -208,7 +208,7 @@ export default class extends Vue {
         this.fileToText(this.selectedFile, this.reader).then(async(fileString: any) => {
           this.fileString = fileString
           try {
-            const res = await uploadCsr({ deviceCsr: fileString })
+            const res = await uploadCsr({ deviceCsr: fileString, parseOnly: !!this.currentOutId })
             this.form.deviceName = res.deviceName
             this.form.outId = res.outId
           } catch (e) {
