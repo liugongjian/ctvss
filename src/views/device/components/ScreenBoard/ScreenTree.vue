@@ -67,7 +67,7 @@
           :class="{
             'online': data.deviceStatus === 'on',
             'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
-            'no-permission': !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+            'no-permission': data.type === 'ipc' && !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
           }"
           @contextmenu="($event, node)"
         >
@@ -528,7 +528,7 @@ export default class extends Mixins(IndexMixin) {
    */
   getTitle(data: any) {
     const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
-    const title = this.isLive ? '无该设备实时预览权限' : '无该设备录像回放权限'
+    const title = this.isLive ? '无实时预览权限' : '无录像回放权限'
     if (!this.checkPermission(perms, data)) {
       return title
     } else {

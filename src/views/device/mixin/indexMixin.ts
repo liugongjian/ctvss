@@ -158,7 +158,6 @@ export default class IndexMixin extends Vue {
             }]
           })
           this.rootActions = permissionRes.result[0].iamUser.actions
-          console.log('this.rootActions: ', this.rootActions)
         }
         dirs = await this.getAuthActionsDeviceTree({
           groupId: this.currentGroupId,
@@ -220,7 +219,7 @@ export default class IndexMixin extends Vue {
     const path = this.$route.path
     if (this.advancedSearchForm.revertSearchFlag) {
       // 根据搜索结果 组装 目录树
-      this.dirList = this.transformDirList(this.dirList)
+      this.dirList = await this.transformDirList(this.dirList)
       if (blackList.indexOf(path) === -1 && this.dirList.length && isExpand) {
         let nonLeafNode: any = this.dirList[0]
         while (nonLeafNode && nonLeafNode.children && nonLeafNode.children.length) {
@@ -257,19 +256,66 @@ export default class IndexMixin extends Vue {
   /**
    * 转化搜索目录树
    */
-  public transformDirList(dirList: any) {
+  public async transformDirList(dirList: any) {
+    try {
+      this.loading.dir = true
+      dirList = this.generateDirList(dirList)
+      await this.actionDirList(dirList)
+      return dirList
+    } catch (e) {
+      console.log('e: ', e.errMessage)
+    } finally {
+      this.loading.dir = false
+    }
+  }
+
+  /**
+   * 生成带children属性的树，并填充path属性
+   * @param dirList 子节点列表
+   * @param parentPath 上级path
+   * @returns 处理后的树
+   */
+  public generateDirList(dirList: any, parentPath?: object[]) {
     return dirList.map(dir => {
-      if (dir.dirs) {
+      if (parentPath) {
+        dir.path = parentPath.concat([{
+          id: dir.id,
+          label: dir.label,
+          type: dir.type
+        }])
+      }
+      if (dir.dirs && dir.dirs.length) {
         return {
           ...dir,
-          children: this.transformDirList(dir.dirs)
+          children: this.generateDirList(dir.dirs, dir.path)
         }
       } else {
-        return {
-          ...dir
-        }
+        return dir
       }
     })
+  }
+
+  /**
+   * 生成带action的树
+   * @param dirList 子节点列表
+   */
+  public async actionDirList(dirList: any) {
+    if (UserModule.iamUserId && dirList && dirList.length) {
+      const permissionRes = await previewAuthActions({
+        targetResources: dirList.map(dir => ({
+          groupId: this.currentGroupId,
+          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
+          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
+        }))
+      })
+      for (let idx = 0, len = dirList.length; idx < len; idx++) {
+        const dir = dirList[idx]
+        if (dir.children) {
+          await this.actionDirList(dir.children)
+        }
+        Object.assign(dir, permissionRes.result[idx].iamUser.actions)
+      }
+    }
   }
 
   /**

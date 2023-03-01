@@ -51,9 +51,10 @@
           {{ row.groupDetails && row.groupDetails.groupName || '-' }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="130">
         <template slot-scope="{row}">
           <el-button type="text" :disabled="row.inherit" @click="detachUserPolicy(row)">解绑</el-button>
+          <el-button type="text" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -99,6 +100,16 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  private editPolicy(row: any) {
+    this.$router.push({
+      path: '/access-manage/policy/edit',
+      query: {
+        policyId: row.policyId,
+        policyScope: row.policyScope
+      }
+    })
   }
 
   private async getPolicyList() {
