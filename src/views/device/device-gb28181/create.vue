@@ -928,6 +928,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换gbRegionLevel字段类型
+        params.gbRegionLevel = parseInt(params.gbRegionLevel)
         // 强制转换设备端口字段类型
         params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数
