@@ -256,7 +256,7 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item v-if="isLiuzhou" prop="enabledGB35114">
+            <el-form-item v-if="isLiuzhou && form.parentDeviceId === '-1'" prop="enabledGB35114">
               <template slot="label">
                 GB35114协议:
                 <el-popover
@@ -280,7 +280,7 @@
                 :inactive-value="false"
               />
             </el-form-item>
-            <el-form-item v-if="!form.enabledGB35114" label="GB28181凭证:" prop="userName">
+            <el-form-item v-if="!form.enabledGB35114" v-show="form.parentDeviceId === '-1'" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -653,7 +653,7 @@ export default class extends Mixins(createMixin) {
     createSubDevice: 1,
     pullType: 1,
     transPriority: 'tcp',
-    parentDeviceId: '',
+    parentDeviceId: '-1',
     gbId: '',
     poleId: '',
     enabledGB35114: false,
@@ -928,6 +928,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换gbRegionLevel字段类型
+        params.gbRegionLevel = parseInt(params.gbRegionLevel)
         // 强制转换设备端口字段类型
         params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数

@@ -174,7 +174,8 @@ export class RecordManager {
       // 加载录像锁列表
       // const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
       const lockList = await this.getDeviceLockList(startTime, endTime)
-      if (date > this.currentDate) {
+      // if (date > this.currentDate) { // 使锁列表严格按照时间顺序排列
+      if (startTime >= this.currentDate) {
         this.lockList = this.lockList.concat(lockList)
       } else {
         this.lockList = lockList.concat(this.lockList)
