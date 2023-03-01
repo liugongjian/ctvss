@@ -653,7 +653,7 @@ export default class extends Mixins(createMixin) {
     createSubDevice: 1,
     pullType: 1,
     transPriority: 'tcp',
-    parentDeviceId: '',
+    parentDeviceId: '-1',
     gbId: '',
     poleId: '',
     enabledGB35114: false,
