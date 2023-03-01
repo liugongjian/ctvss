@@ -448,6 +448,10 @@ export default class extends Mixins(IndexMixin) {
           const res = await loadTreeNode({
             dirId: node!.data.id
           })
+          res.dirs = res.dirs.map(dir => ({
+            ...dir,
+            ...dir.authMap
+          }))
           data = this.setDirsStreamStatus(res.dirs)
         } else {
           data = await this.getAuthActionsDeviceTree({

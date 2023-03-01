@@ -145,6 +145,10 @@ export default class IndexMixin extends Vue {
         const res = await loadTreeNode({
           dirId: this.currentGroupId
         })
+        res.dirs = res.dirs.map(dir => ({
+          ...dir,
+          ...dir.authMap
+        }))
         dirs = this.setDirsStreamStatus(res.dirs)
       } else {
         if (UserModule.iamUserId) {
@@ -290,6 +294,10 @@ export default class IndexMixin extends Vue {
         data = await loadTreeNode({
           dirId: node.data.id
         })
+        data.dirs = data.dirs.map(dir => ({
+          ...dir,
+          ...dir.authMap
+        }))
         if (data.dirs) {
           if (this.currentGroup?.inProtocol === 'vgroup') {
             data.dirs.forEach((dir: any) => {
@@ -577,6 +585,10 @@ export default class IndexMixin extends Vue {
         res = await loadTreeNode({
           dirId: node.data.id
         })
+        res.dirs = res.dirs.map(dir => ({
+          ...dir,
+          ...dir.authMap
+        }))
         if (this.currentGroup?.inProtocol === 'vgroup') {
           res.dirs.forEach((dir: any) => {
             dir.roleId = node.data.roleId || ''
