@@ -43,6 +43,8 @@ export class Screen {
   public detailInfo: any
   // 用户所有权限
   public permission: any
+  /* 锁定录像管理切换请求接口 */
+  public isLockTask: boolean
 
   /**
    * ----------------
