@@ -546,6 +546,8 @@ export default class extends Vue {
         const pixelGap = deltaTime / this.settings.ratio
         if (pixelGap < this.pixelThreshold) {
           // 合并
+          if(deltaTime<0){
+          }
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
         } else {
