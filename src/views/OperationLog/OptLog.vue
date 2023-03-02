@@ -1,12 +1,12 @@
 <template>
   <div>
     <div v-loading="loading.form">
-      <el-form :inline="true" class="search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
+      <el-form :inline="true" class="search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter" :disabled="loading.disabled">
         <el-form-item>
           <el-radio-group v-model="btnSelected">
-            <el-radio-button label="1">近1小时</el-radio-button>
-            <el-radio-button label="2">近1天</el-radio-button>
-            <el-radio-button label="3">近7天</el-radio-button>
+            <el-radio-button :label="1">近1小时</el-radio-button>
+            <el-radio-button :label="2">近1天</el-radio-button>
+            <el-radio-button :label="3">近7天</el-radio-button>
             <el-radio-button v-show="!showTimePicker" label="4">自定义时间</el-radio-button>
           </el-radio-group>
         </el-form-item> 
@@ -126,7 +126,8 @@ import settings from '@/settings'
 export default class extends Vue {
   private loading = {
     form: false,
-    list: false
+    list: false,
+    disabled: false
   }
   private showTimePicker = false
   private logList = null
@@ -229,6 +230,7 @@ export default class extends Vue {
    */
   private async getList() {
     try {
+      this.loading.disabled = true
       const params = this.initParams()
       const res = await getOptLog(params)
       res.operationLogList.map((item: any) => {
@@ -245,6 +247,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e)
     } finally {
+      this.loading.disabled = false
       this.loading.list = false
     }
   }
@@ -287,11 +290,13 @@ export default class extends Vue {
    */
   private async handleFilter() {
     try {
+      if (+this.btnSelected !== 4) {
+        this.timeFilter(this.btnSelected)
+      } 
       if (this.filter.timeRange.length < 1) {
        throw new Error('请选择查询时间段！')
       }
       this.pager.pageNum = 1
-      this.timeFilter(this.btnSelected)
       await this.getList()
     } catch (e) {
       this.$message.error(e)

@@ -37,7 +37,7 @@ export class Record {
     this.cover = record.cover
     this.isHeatmap = record.isHeatmap
     this.fileFormat = record.fileFormat
-    this.isLock = record.isLock
+    this.isLock = record.isLock == null ? 0 : record.isLock
     this.expirationTime = record.expirationTime
   }
 }
