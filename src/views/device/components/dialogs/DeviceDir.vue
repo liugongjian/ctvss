@@ -62,11 +62,10 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/Device'
-import { getDeviceTree } from '@/api/device'
 import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getSums } from '@/utils/device'
@@ -79,6 +78,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
+  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
 
@@ -104,40 +104,27 @@ export default class extends Mixins(IndexMixin) {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
-      let res
+      let data
       if (this.isCustomTree) {
-        res = await loadTreeNode({
+        const res = await loadTreeNode({
           dirId: this.currentGroupId
         })
+        data = res.dirs
       } else {
-        res = await getDeviceTree({
+        data = await this.getAuthActionsDeviceTree({
           groupId: this.currentGroupId,
           id: 0,
-          deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-          streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-          matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
-          deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
-          searchKey: this.advancedSearchForm.searchKey || undefined
-        })
+          deviceStatusKeys: this.outerSearch.deviceStatusKeys.join(',') || undefined,
+          streamStatusKeys: this.outerSearch.streamStatusKeys.join(',') || undefined,
+          matchKeys: this.outerSearch.matchKeys.join(',') || undefined,
+          searchKey: this.outerSearch.searchKey || undefined,
+          deviceAddresses: this.outerSearch.deviceAddresses.code ? this.outerSearch.deviceAddresses.code + ',' + this.outerSearch.deviceAddresses.level : undefined
+        }, null)
       }
-      this.dirList = this.setDirsStreamStatus(res.dirs)
-      const query: any = this.$route.query
+      this.dirList = data
       // 根据搜索结果 组装 目录树（柳州搜索新增功能）
-      const outerSearch = {
-        deviceStatusKeys: (query.deviceStatusKeys || '').split(','),
-        streamStatusKeys: (query.streamStatusKeys || '').split(','),
-        matchKeys: (query.matchKeys || '').split(','),
-        searchKey: query.searchKey || '',
-        deviceAddressesCode: (query.deviceAddresses || '').split(',')[0]
-      }
-      this.revertSearchFlag = Boolean(outerSearch.searchKey ||
-        outerSearch.deviceStatusKeys.length ||
-        outerSearch.streamStatusKeys.length ||
-        outerSearch.deviceAddressesCode
-      )
-
-      if (this.revertSearchFlag) {
-        this.dirList = this.transformDirList(this.dirList)
+      if (this.outerSearch.revertSearchFlag) {
+        this.dirList = await this.transformDirList(this.dirList)
       }
     } catch (e) {
       this.dirList = []
