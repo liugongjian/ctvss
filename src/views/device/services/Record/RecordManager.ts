@@ -288,9 +288,10 @@ export class RecordManager {
         }
         record = this.getRecordByTime(time)
       }
+      console.log('康康      🔒 ', record)
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
-        if (record.isLock === 1 && !this.canLock) {
+        if ((record.isLock && record.isLock === 1) && !this.canLock) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
           this.screen.player && this.screen.player.disposePlayer()
@@ -445,7 +446,7 @@ export class RecordManager {
         templateName: record.templateName,
         cover: record.cover,
         fileFormat: record.fileFormat,
-        isLock: record.isLock || 0,
+        isLock: record.isLock == null ? 0 : record.isLock,
         expirationTime: record.expirationTime
       })
     })
