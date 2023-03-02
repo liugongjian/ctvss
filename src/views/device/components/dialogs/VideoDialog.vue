@@ -16,6 +16,7 @@
         :device-name="deviceName"
         :datetime-range="dateTimeRange"
         :is-car-task="true"
+        :is-lock-task="true"
       />
         <!-- v-if="info && type === 'record'" -->
     </div>

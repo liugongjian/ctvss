@@ -157,7 +157,7 @@ export default class extends Vue {
   // 后端接口没有细分，无法正常判断设备状态及正确返回报错信息，需要前端魔改
   // 设备名称为空，判定为已被删除的设备
   private async replay(row: any) {
-    if (row.deviceName === '') return this.$message.error('该设备已删除，无法播放')
+    // if (row.deviceName === '') return this.$message.error('该设备已删除，无法播放')
     this.currentRecord = row
     this.showVideoDialog = true
     this.videoType = 'record'

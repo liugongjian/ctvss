@@ -170,7 +170,13 @@ export class RecordManager {
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
       this.isLoading = true
-      const records = await this.getRecordList(startTime, endTime)
+      let records: any = null
+      if (this.screen.isLockTask) {
+        // 录像锁顶管理页面 播放功能
+        records = await this.getRecordList(startTime, endTime, 1)
+      } else {
+        records = await this.getRecordList(startTime, endTime)
+      }
       // 加载录像锁列表
       // const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
       const lockList = await this.getDeviceLockList(startTime, endTime)
@@ -400,7 +406,7 @@ export class RecordManager {
    * @param endTime 结束时间（时间戳/秒）
    * @returns 录像文件列表(Promise)
    */
-  private async getRecordList(startTime: number, endTime: number) {
+  private async getRecordList(startTime: number, endTime: number, containsDeleted?: number) {
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)
     startTime = parseInt(startTime + '')
@@ -411,6 +417,7 @@ export class RecordManager {
       recordType: this.screen.recordType,
       startTime,
       endTime,
+      containsDeleted: containsDeleted || undefined, // 录像锁定已经删除设备查看录像
       pageSize: 9999
     }, axiosSource.token)
 
@@ -438,7 +445,7 @@ export class RecordManager {
         templateName: record.templateName,
         cover: record.cover,
         fileFormat: record.fileFormat,
-        isLock: record.isLock,
+        isLock: record.isLock || 0,
         expirationTime: record.expirationTime
       })
     })

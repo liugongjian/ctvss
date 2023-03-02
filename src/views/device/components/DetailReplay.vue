@@ -30,6 +30,7 @@ export default class extends Vue {
   @Prop() private readonly lockPermission: boolean
   @Prop() private readonly info: any
   @Prop() private readonly permission: any
+  @Prop() private readonly isLockTask?: boolean
 
   private height = 'auto'
 
@@ -40,6 +41,7 @@ export default class extends Vue {
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
     this.screenManager.isCarTask = this.isCarTask
+    // this.screenManager.isLockTask = this.isLockTask
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
@@ -49,6 +51,7 @@ export default class extends Vue {
     screen.ivsLockCloudRecord = this.lockPermission
     screen.detailInfo = this.info
     screen.permission = this.permission
+    screen.isLockTask = this.isLockTask
 
     screen.init()
     this.calMaxHeight()

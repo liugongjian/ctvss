@@ -135,6 +135,17 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
     cancelToken
   })
 
+  // export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =>
+  // request({
+  //   url: '/device/record/list',
+  //   method: 'get',
+  //   params: {
+  //     outNetwork: UserModule.outNetwork || undefined,
+  //     ...params
+  //   },
+  //   cancelToken
+  // })
+
 /**
  * 获取检测到行人的时间段信息
  */
