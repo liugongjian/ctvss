@@ -210,7 +210,7 @@ export class RecordManager {
           }
           // 没有锁定权限禁止播放锁定片段
           // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
-          if (this.currentRecord.isLock === 1 && !this.canLock) {
+          if (this.screen.recordType === 0 && this.currentRecord.isLock === 1 && !this.canLock) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
             this.currentRecord = null
             this.screen.url = ''
@@ -288,10 +288,9 @@ export class RecordManager {
         }
         record = this.getRecordByTime(time)
       }
-      console.log('康康      🔒 ', record)
       if (record) {
         // 被锁定部分，且用户不具备权限，则不予播放
-        if ((record.isLock && record.isLock === 1) && !this.canLock) {
+        if (this.screen.recordType === 0 && record.isLock === 1 && !this.canLock) {
           this.screen.currentRecordDatetime = time
           this.currentDate = time
           this.screen.player && this.screen.player.disposePlayer()
