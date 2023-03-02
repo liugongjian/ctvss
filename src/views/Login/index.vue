@@ -3,7 +3,7 @@
     <div class="header">
       <div class="logo">
         <img src="@/assets/images/logo.svg">
-        <span class="logo__subtitle">视频监控</span>
+        <span class="logo__subtitle">智能视图服务</span>
       </div>
     </div>
     <div class="login-container__body">
