@@ -208,7 +208,7 @@ export default class extends Vue {
         this.fileToText(this.selectedFile, this.reader).then(async(fileString: any) => {
           this.fileString = fileString
           try {
-            const res = await uploadCsr({ deviceCsr: fileString, parseOnly: !!this.currentOutId })
+            const res = await uploadCsr({ deviceCsr: fileString })
             this.form.deviceName = res.deviceName
             this.form.outId = res.outId
           } catch (e) {
@@ -272,7 +272,6 @@ export default class extends Vue {
             }
             // 判断是否重新生成证书
             if (params.expireTime || params.deviceCsr) {
-              console.log(this.currentCertId)
               this.$confirm('修改证书过期时间或设备证书请求文件, 重新生成证书，将会导致设备下线！').then(async() => {
                 await updateCertificate({
                   ...params,
@@ -290,6 +289,7 @@ export default class extends Vue {
           } else {
             await generateCertificate({
               ...params,
+              deviceCsr: this.fileString,
               deviceName: this.form.deviceName,
               outId: this.form.outId
             })
