@@ -445,7 +445,7 @@ export class RecordManager {
         templateName: record.templateName,
         cover: record.cover,
         fileFormat: record.fileFormat,
-        isLock: record.isLock,
+        isLock: record.isLock || 0,
         expirationTime: record.expirationTime
       })
     })

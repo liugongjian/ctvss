@@ -314,18 +314,29 @@
     <!-- 弹层，非页面主体内容 -->
     <!-- 近7日存储用量趋势配置 -->
     <el-dialog
+      v-if="ifThresholdDialog"
       title="近7日存储用量趋势配置"
-      :visible="ifThresholdDialog"
+      :visible="true"
       width="35%"
+      :close-on-click-modal="false"
+      :close="resetThresholdInput"
       :before-close="changeThresholdDialog"
       center
     >
-      <div class="statistic-box__threshold-dialog">
+      <!-- <div class="statistic-box__threshold-dialog">
         <el-input v-model="thresholdInput" placeholder="请输入告警阈值" min="0" max="100" @input="inputChange">
           <template slot="prepend">告警阈值：</template>
           <template slot="append">%</template>
         </el-input>
-      </div>
+      </div> -->
+      <el-form ref="thresholdForm" :model="thresholdForm" :rules="rules">
+        <el-form-item label="" prop="thresholdInput">
+          <el-input v-model="thresholdForm.thresholdInput" placeholder="请输入告警阈值" autocomplete="off">
+            <template slot="prepend">告警阈值：</template>
+            <template slot="append">%</template>
+          </el-input>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sureThis">确 定</el-button>
         <el-button @click="changeThresholdDialog">取 消</el-button>
@@ -355,14 +366,17 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
 import MissTable from './components/MissTable.vue'
-import { getStatistics, getRecord, getRecordLog, setRecordThreshold,
+import {
+  getStatistics, getRecord, getRecordLog, setRecordThreshold,
   getDeviceList, exportDeviceList, getCalendarInfo,
   exportCalendarMissData
 } from '@/api/statistic'
-import { ChartInfo, CalendarListResponse, CalendarQuery,
+import {
+  ChartInfo, CalendarListResponse, CalendarQuery,
   CalendarItem, CalendarMissItem,
   ExportMissQuery,
-  RecordMissQuery } from '@/type/Statistic'
+  RecordMissQuery
+} from '@/type/Statistic'
 import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
 import { UserModule } from '@/store/modules/user'
@@ -434,6 +448,10 @@ export default class extends Vue {
 
   private searchParam = {}
 
+  private thresholdForm: any = {
+    thresholdInput: ''
+  }
+
   private listQueryForm: any = {
     groupInfo: '',
     deviceStatus: '',
@@ -448,20 +466,20 @@ export default class extends Vue {
   }
 
   private deviceStatusText = {
-    'on': '在线',
-    'off': '离线',
-    'new': '未注册'
+    on: '在线',
+    off: '离线',
+    new: '未注册'
   }
 
   private streamStatusText = {
-    'on': '在线',
-    'off': '离线'
+    on: '在线',
+    off: '离线'
   }
 
   private recordStatusText = {
-    'on': '录制中',
-    'off': '未录制',
-    'failed': '录制失败'
+    on: '录制中',
+    off: '未录制',
+    failed: '录制失败'
   }
 
   private groupList: any = []
@@ -496,6 +514,24 @@ export default class extends Vue {
     this.getMonth()
   }
 
+  private validateThresholdInput(rule, value, callback) {
+    if (!value) {
+      callback(new Error('阈值不能为空'))
+    } else if (!Number.isInteger(Number(value))) {
+      callback(new Error('请输入数字'))
+    } else if (Number(value) < 0 || Number(value) > 100) {
+      callback(new Error('请输入0到100之间的数字'))
+    } else {
+      callback()
+    }
+  }
+
+  private rules = {
+    thresholdInput: [
+      { validator: this.validateThresholdInput, trigger: 'blur' }
+    ]
+  }
+
   public get ifLiuzhou() {
     return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
@@ -519,10 +555,13 @@ export default class extends Vue {
   private changeThresholdDialog() {
     this.ifThresholdDialog = !this.ifThresholdDialog
     if (this.ifThresholdDialog) {
-      this.thresholdInput = this.recordLog.threshold
-    } else {
-      this.thresholdInput = 0
+      // this.thresholdInput = this.recordLog.threshold
+      this.thresholdForm.thresholdInput = this.recordLog.threshold
     }
+  }
+
+  private resetThresholdInput() {
+    this.thresholdForm.thresholdInput = 0
   }
 
   private async getData() {
@@ -699,6 +738,7 @@ export default class extends Vue {
     this.pager.pageNum = 1
     this.getDeviceList()
   }
+
   private handleCurrentChange(val: number) {
     this.pager.pageNum = val
     this.getDeviceList()
@@ -769,8 +809,10 @@ export default class extends Vue {
 
   private async exportMissData() {
     try {
-      const { deviceId, dateValue: [startTime, endTime],
-        ignore, inProtocol, groupId } = this.filterForm
+      const {
+        deviceId, dateValue: [startTime, endTime],
+        ignore, inProtocol, groupId
+      } = this.filterForm
       const param: ExportMissQuery = {
         deviceId,
         inProtocol,
@@ -792,20 +834,17 @@ export default class extends Vue {
     }
   }
 
-  private inputChange() {
-    this.thresholdInput = Number(this.thresholdInput.replace(/[^\d]/g, ''))
-    if (this.thresholdInput > 100) {
-      this.thresholdInput = 100
-    }
-  }
-
   private async sureThis() {
     const param = {
-      threshold: this.thresholdInput
+      threshold: this.thresholdForm.thresholdInput
     }
     try {
-      await setRecordThreshold(param)
-      this.getData()
+      (this.$refs.thresholdForm as any).validate(async(valid) => {
+        if (valid) {
+          await setRecordThreshold(param)
+          this.getData()
+        }
+      })
     } catch (error) {
       this.$message.error(error && error.message)
     } finally {

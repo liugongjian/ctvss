@@ -263,7 +263,7 @@ export default class IndexMixin extends Vue {
       await this.actionDirList(dirList)
       return dirList
     } catch (e) {
-      console.log('e: ', e.errMessage)
+      console.log('e: ', e)
     } finally {
       this.loading.dir = false
     }
