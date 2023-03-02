@@ -167,7 +167,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
@@ -192,6 +192,9 @@ import { checkPermission } from '@/utils/permission'
 export default class extends Vue {
   @Prop()
   private screen
+
+  @Inject()
+  public getActions
 
   public checkPermission = checkPermission
 
@@ -233,8 +236,12 @@ export default class extends Vue {
     ]
   }
 
+  private get actions() {
+    return this.getActions()
+  }
+
   private get controlDevicePreset() {
-    return checkPermission(['ivs:ControlDevicePreset'], screen)
+    return checkPermission(['ivs:ControlDevicePreset'], this.screen) || checkPermission(['ivs:ControlDevicePreset'], this.actions)
   }
 
   private get deviceId() {
