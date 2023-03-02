@@ -906,6 +906,31 @@ export const v2Router: RouteConfig[] = [
       }
     ]
   },
+   {
+    path: '/dosageStatistics',
+    component: Layout,
+    meta: {
+      title: '用量统计',
+      icon: 'chart',
+      breadcrumb: true,
+      perms: ['*'],
+      version: 2
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/DosageStatistics/index.vue'),
+        name: 'DosageStatistics',
+        meta: {
+          title: '用量统计',
+          icon: 'chart',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/dosageStatistics'
+        }
+      }
+    ]
+  },
   {
     path: '/sysconfig',
     component: Layout,
