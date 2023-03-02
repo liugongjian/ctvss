@@ -115,6 +115,7 @@ export default class IndexMixin extends Vue {
     const query: any = this.$route.query
     this.advancedSearchForm.deviceStatusKeys = (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
     this.advancedSearchForm.streamStatusKeys = (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
+    this.advancedSearchForm.deviceAddresses = { code: '', level: '' }
     if (query.deviceAddresses) {
       const temp = query.deviceAddresses.split(',')
       this.advancedSearchForm.deviceAddresses = {
