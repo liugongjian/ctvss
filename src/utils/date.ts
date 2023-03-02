@@ -23,12 +23,12 @@ export const durationFormat = (duration: number) => {
   if (duration < 60) {
     return `${duration}秒`
   }
-  if (duration >= 60 && duration < 3600 * 3) {
+  if (duration >= 60 && duration < 3600) {
     const minute = Math.floor(duration / 60)
     const second = duration % 60
     return second === 0 ? `${minute}分` : `${minute}分${second}秒`
   }
-  if (duration >= 3600 * 3) {
+  if (duration >= 3600) {
     const hour = Math.floor(duration / 3600)
     const minute = Math.floor(duration % 3600 / 60)
     const second = duration % 60
