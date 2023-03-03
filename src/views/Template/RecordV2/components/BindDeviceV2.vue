@@ -234,6 +234,9 @@ export default class extends Vue {
    * 如果未加载先加载绑定树
    */
   private onPreviewTreeExpand(data, node) {
+    if (node.loaded) {
+      return
+    }
     const bindTreeNode = this.bindTree.getNode(node.data.id)
     if (!bindTreeNode.loaded) {
       const previewTreeNode = this.previewTree.getNode(node.data.id)
@@ -244,6 +247,12 @@ export default class extends Vue {
         bindTreeNode.loaded = true
         bindTreeNode.expanded = true
         previewTreeNode.loading = false
+        // 如果绑定树的节点是勾选状态，需要将子节点全部设为勾选状态
+        if (bindTreeNode.checked) {
+          bindTreeNode.childNodes.forEach(node => {
+            node.checked = true
+          })
+        }
         this.$nextTick(() => {
           this.deepCopy(bindTreeNode)
         })
