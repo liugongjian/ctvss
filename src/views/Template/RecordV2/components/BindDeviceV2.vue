@@ -224,6 +224,7 @@ export default class extends Vue {
       this.$nextTick(() => {
         this.setChecked(dirs)
         this.setChecked(node)
+        node.isLeaf = node.data.isLeaf
       })
       resolve(dirs)
     }
