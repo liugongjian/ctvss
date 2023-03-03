@@ -237,7 +237,7 @@ export default class extends Vue {
   }
 
   private get actions() {
-    return this.getActions()
+    return this.getActions && this.getActions()
   }
 
   private get controlDevicePreset() {
