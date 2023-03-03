@@ -327,7 +327,7 @@ export class RecordManager {
       }
     } catch (e) {
       console.log('e ', e.code)
-      if (e.code === this.screen.ERROR.CANNOT_GET_RECORD || e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
+      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
         this.screen.errorMsg = e.message
       }
       this.screen.currentRecordDatetime = time
