@@ -242,7 +242,7 @@ export default class extends Vue {
   }
 
   private get controlDevicePreset() {
-    return checkPermission(['ivs:ControlDevicePreset'], this.screen) || checkPermission(['ivs:ControlDevicePreset'], this.actions)
+    return checkPermission(['ivs:ControlDevicePreset'], this.action || this.screen)
   }
 
   private get controlDevicePTZ() {
