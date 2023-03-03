@@ -13,8 +13,10 @@
       <div v-if="!multiple">
       <!-- <div v-if="!multiple"> -->
         <div class="unlock">
-          <div class="label"><span>设备名: </span></div>
-          <div><span>{{ deviceName }}</span></div>
+          <div v-if="deviceName!==''" class="label"><span>设备名: </span></div>
+          <div v-if="deviceName!==''"><span>{{ deviceName }}</span></div>
+          <div v-if="deviceName===''" class="label"><span>设备ID: </span></div>
+          <div v-if="deviceName===''"><span>{{ deviceId }}</span></div>
           <div class="label"><span>录像时段: </span></div>
           <div>
             <el-date-picker
@@ -85,6 +87,7 @@ export default class extends Vue {
   private unlockNum = 0
   private unlockDelNum = 0
   private deviceName = null
+  private deviceId = null
   private lockTime = null
   private originExpTime = null
   private ischecking = false
@@ -135,6 +138,7 @@ export default class extends Vue {
           this.isExpired = false
         }
         this.deviceName = this.unlockItem[0].deviceName
+        this.deviceId = this.unlockItem[0].deviceId
         this.lockTime = [new Date(this.unlockItem[0].startTime * 1000), new Date(this.unlockItem[0].endTime * 1000)]
       }
     } catch (e) {
