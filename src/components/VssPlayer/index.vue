@@ -1,11 +1,3 @@
-<!--
- * @Author: liugongjian liugongjianxin@163.com
- * @Date: 2022-12-22 16:24:09
- * @LastEditors: liugongjian liugongjianxin@163.com
- * @LastEditTime: 2023-01-05 13:58:56
- * @FilePath: \vss-user-web\src\components\VssPlayer\index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div :id="playerId" ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
     <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
@@ -64,7 +56,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch, Inject } from 'vue-property-decorator'
 import './styles/index.scss'
 import { PlayerType } from '@/components/Player/types/Player.d'
 import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
@@ -117,9 +109,15 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
+  @Inject()
+  public getActions
+
   /* 播放器类型 */
   @Prop()
   private type!: PlayerType
+
+  @Prop()
+  private screen!: Screen
 
   /* 播放流地址 */
   @Prop()
@@ -220,7 +218,7 @@ export default class extends Vue {
 
   /* 用户权限管理 */
   @Prop()
-  private permission: any 
+  private permission: any
 
   private checkPermission = checkPermission
 
@@ -257,7 +255,15 @@ export default class extends Vue {
   }
 
   private get showPTZLock() {
-    return this.player && this.isLive && this.deviceInfo.inProtocol === 'gb28181' && this.$store.state.user.tags.disablePTZ !== 'Y'
+    return this.player &&
+            this.isLive &&
+            this.deviceInfo.inProtocol === 'gb28181' &&
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            (checkPermission(['ivs:LockDevicePTZ'], this.actions) || checkPermission(['ivs:LockDevicePTZ'], this.screen))
+  }
+
+  private get actions() {
+    return this.getActions && this.getActions()
   }
 
   /* 获取播放器实例Provide */

@@ -18,6 +18,7 @@
     :has-live-replay-selector="hasLiveReplaySelector"
     :scale="screen.scale"
     :is-debug="isDebug"
+    :screen="screen"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
