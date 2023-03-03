@@ -116,7 +116,7 @@
           :class="{
             'online': data.deviceStatus === 'on',
             'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
-            'no-permission': !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+            'no-permission': data.type === 'ipc' && !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
           }"
           @contextmenu="($event, node)"
         >

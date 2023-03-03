@@ -132,6 +132,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public regionList = regionList
   public lianzhouAddress: string = ''
+
   public actions = {}
 
   public get isGb() {
@@ -491,6 +492,11 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       console.log('goSuperior: we are goto root')
       this.gotoRoot()
     }
+  }
+
+  @Provide('getActions')
+  public getActions() {
+    return this.actions
   }
 
   /**
