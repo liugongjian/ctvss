@@ -190,8 +190,10 @@ export class RecordManager {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
         if (date > this.currentDate) {
           this.recordList = this.recordList.concat(records)
-        } else {
+        } else if (date < this.currentDate) {
           this.recordList = records.concat(this.recordList)
+        } else if (date = this.currentDate) {
+          this.recordList = records
         }
         // 如果不是seek操作，默认播放第一段录像
         if (!isConcat && !isSeek) {
