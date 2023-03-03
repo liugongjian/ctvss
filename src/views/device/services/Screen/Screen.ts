@@ -105,7 +105,7 @@ export class Screen {
     NO_RECORD: '该时段没有录像',
     NO_STORE: '视频资源包未包含存储',
     OUT_OF_RANGE: '超出时间范围',
-    LOCKED: '该时段录像已被锁定'
+    LOCKED: '该时段录像已被锁定',
   }
 
   constructor() {

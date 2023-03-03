@@ -6,11 +6,12 @@ interface LogParams {
   operationName: string;
 }
 
-export const getOptLog = (params: any): Promise<any> =>
+export const getOptLog = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/logs',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 export const getOptLogById = (params: any): Promise<any> =>
