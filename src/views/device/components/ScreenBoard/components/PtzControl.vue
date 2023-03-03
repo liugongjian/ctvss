@@ -246,7 +246,7 @@ export default class extends Vue {
   }
 
   private get controlDevicePTZ() {
-    return checkPermission(['ivs:ControlDevicePTZ'], this.screen) || checkPermission(['ivs:ControlDevicePTZ'], this.actions)
+    return checkPermission(['ivs:ControlDevicePTZ'], this.action || this.screen)
   }
 
   private get deviceId() {

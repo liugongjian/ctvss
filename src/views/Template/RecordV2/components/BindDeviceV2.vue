@@ -437,7 +437,12 @@ export default class extends Vue {
    */
   private sumCheckedSize(node) {
     this.sumChildrenCheckedSize(node)
-    node.parent.data && this.sumParentCheckedSize(node.parent)
+    if (node.parent.data) {
+      this.sumParentCheckedSize(node.parent)
+    } else if (node.parent.level === 0) {
+      const previewRootNode = this.previewTree.getNode('-1')
+      previewRootNode.data.bindSize = node.checked ? node.data.totalSize : node.data.bindSize
+    }
   }
 
   /**
