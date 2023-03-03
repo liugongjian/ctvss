@@ -326,6 +326,7 @@ export class RecordManager {
         throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {
+      console.log('e ', e.code)
       if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
         this.screen.errorMsg = e.message
       }
