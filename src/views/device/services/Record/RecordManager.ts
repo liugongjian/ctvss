@@ -319,14 +319,15 @@ export class RecordManager {
         this.screen.player = null
         this.screen.isLoading = false
         if (!this.isLoading) {
-          // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
-          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          if ((this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
+            // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
+            throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          }
         }
         // 静默错误信息（不在界面上显示）
         throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {
-      console.log('e ', e.code)
       if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
         this.screen.errorMsg = e.message
       }
