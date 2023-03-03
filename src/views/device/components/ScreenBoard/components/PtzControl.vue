@@ -193,8 +193,8 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  @Inject()
-  public getActions
+  @Inject({ default: ()=>{} })
+  public getActions!: Function
 
   public checkPermission = checkPermission
 

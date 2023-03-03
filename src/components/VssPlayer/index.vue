@@ -109,8 +109,8 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
-  @Inject()
-  public getActions
+  @Inject({ default: ()=>{} })
+  public getActions!: Function
 
   /* 播放器类型 */
   @Prop()
@@ -258,6 +258,7 @@ export default class extends Vue {
     return this.player &&
             this.isLive &&
             this.deviceInfo.inProtocol === 'gb28181' &&
+            // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             (checkPermission(['ivs:LockDevicePTZ'], this.actions) || checkPermission(['ivs:LockDevicePTZ'], this.screen))
   }
