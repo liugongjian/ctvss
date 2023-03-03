@@ -45,7 +45,7 @@
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzZoom v-if="showPTZZoom" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" />
@@ -262,6 +262,13 @@ export default class extends Vue {
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             (checkPermission(['ivs:LockDevicePTZ'], this.actions) || checkPermission(['ivs:LockDevicePTZ'], this.screen))
   }
+
+  private get showPTZZoom() {
+    return this.player &&
+            this.isLive
+            && (checkPermission(['ivs:ControlDevicePTZ'], this.actions) || checkPermission(['ivs:ControlDevicePTZ'], this.screen))
+  }
+
 
   private get actions() {
     return this.getActions && this.getActions()

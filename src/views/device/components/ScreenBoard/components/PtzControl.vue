@@ -14,44 +14,44 @@
         <div class="content-right">
           <div class="ptz-ctrl">
             <div class="ctrl-l">
-              <span class="direction" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
                 <i class="icon-ptz-left-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
                 <i class="icon-ptz-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
                 <i class="icon-ptz-right-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
                 <i class="icon-ptz-left" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)">
                 <i class="icon-ptz-auto" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
                 <i class="icon-ptz-right" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
                 <i class="icon-ptz-left-down" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
                 <i class="icon-ptz-down" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
+              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
                 <i class="icon-ptz-right-down" />
               </span>
             </div>
             <div class="ctrl-r">
-              <span class="operation">
+              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation">
+              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
                 <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
                 <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
               </span>
-              <span class="operation">
+              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
                 <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
                 <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
               </span>
@@ -66,6 +66,7 @@
               :show-input-controls="false"
               :format-tooltip="formatToolTip"
               input-size="mini"
+              :disabled="!controlDevicePTZ"
             />
           </div>
           <el-tabs v-model="tabName">
@@ -193,7 +194,7 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  @Inject({ default: ()=>{} })
+  @Inject({ default: () => {} })
   public getActions!: Function
 
   public checkPermission = checkPermission
@@ -242,6 +243,10 @@ export default class extends Vue {
 
   private get controlDevicePreset() {
     return checkPermission(['ivs:ControlDevicePreset'], this.screen) || checkPermission(['ivs:ControlDevicePreset'], this.actions)
+  }
+
+  private get controlDevicePTZ() {
+    return checkPermission(['ivs:ControlDevicePTZ'], this.screen) || checkPermission(['ivs:ControlDevicePTZ'], this.actions)
   }
 
   private get deviceId() {
@@ -1055,6 +1060,20 @@ export default class extends Vue {
       .submit-button {
         margin-top: 15px;
       }
+    }
+  }
+  .disabled{
+    position: relative;
+    pointer-events: none;
+    &::after{
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #C0C4CC;
+      opacity: 0.6;
     }
   }
 }
