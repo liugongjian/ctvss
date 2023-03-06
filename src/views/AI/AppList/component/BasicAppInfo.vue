@@ -1,6 +1,6 @@
 <template>
   <div class="detail-wrap">
-    <div v-if="checkPermission(['AdminAi'])" class="detail__buttons">
+    <div v-if="checkPermission(['ivs:AdminApp'])" class="detail__buttons">
       <el-button @click="editApp(app)"><svg-icon name="edit" /> 编辑</el-button>
       <el-button @click="deleteApp(app)"><svg-icon name="trash" /> 删除</el-button>
     </div>

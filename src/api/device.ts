@@ -135,6 +135,17 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
     cancelToken
   })
 
+  // export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =>
+  // request({
+  //   url: '/device/record/list',
+  //   method: 'get',
+  //   params: {
+  //     outNetwork: UserModule.outNetwork || undefined,
+  //     ...params
+  //   },
+  //   cancelToken
+  // })
+
 /**
  * 获取检测到行人的时间段信息
  */
@@ -223,6 +234,26 @@ export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
 export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/device/record/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 设备批量绑定
+ */
+export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/batchBind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 设备批量解绑
+ */
+export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/batchUnbind',
     method: 'post',
     data: params
   })
@@ -566,11 +597,30 @@ export const unLock = (data: any): Promise<any> =>
   })
 
 /**
-* 获取录像锁列表
+* 获取设备录像锁列表
 */
-export const getLockList = (data?: any) =>
+export const getDeviceLockList = (params?: any) =>
+  request({
+    url: '/record/lock',
+    method: 'get',
+    params
+  })
+/*
+ * 获取用户锁定列表
+ */
+export const getUserLockList = (params?: any) =>
   request({
     url: '/record/lock/list',
-    method: 'post',
-    data
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取设备所在路径
+ */
+export const getDevicePath = (params: any): Promise<any> =>
+  request({
+    url: '/device/desc/path',
+    method: 'get',
+    params
   })

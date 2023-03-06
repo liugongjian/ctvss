@@ -26,7 +26,7 @@
         <ErrorMsg v-if="errorMsg" :error-msg="errorMsg">
           <!--用于无录像返回实时预览-->
           <LiveReplaySelector
-            v-if="hasLiveReplaySelector && !isLive"
+            v-if="hasLiveReplaySelector && !isLive && checkPermission(['ivs:GetLiveStream'], permission)"
             :is-live="isLive"
             :is-button="false"
             @dispatch="dispatch"
@@ -45,10 +45,10 @@
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzZoom v-if="showPTZZoom" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :is-live="isLive" :device-info="deviceInfo" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
-        <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
+        <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" />
         <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
         <slot name="controlRight" />
       </template>
@@ -56,13 +56,14 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch, Inject } from 'vue-property-decorator'
 import './styles/index.scss'
 import { PlayerType } from '@/components/Player/types/Player.d'
 import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
 import Player from '@/components/Player/index.vue'
 import { Player as PlayerModel } from '@/components/Player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
+import { checkPermission } from '@/utils/permission'
 /**
  * 子组件库
  */
@@ -108,9 +109,15 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
+  @Inject({ default: ()=>{} })
+  public getActions!: Function
+
   /* 播放器类型 */
   @Prop()
   private type!: PlayerType
+
+  @Prop()
+  private screen!: Screen
 
   /* 播放流地址 */
   @Prop()
@@ -209,6 +216,12 @@ export default class extends Vue {
   })
   private hasAxis: boolean
 
+  /* 用户权限管理 */
+  @Prop()
+  private permission: any
+
+  private checkPermission = checkPermission
+
   /* 播放器实例 */
   private player: PlayerModel = null
 
@@ -242,7 +255,23 @@ export default class extends Vue {
   }
 
   private get showPTZLock() {
-    return this.player && this.isLive && this.deviceInfo.inProtocol === 'gb28181' && this.$store.state.user.tags.disablePTZ !== 'Y'
+    return this.player &&
+            this.isLive &&
+            this.deviceInfo.inProtocol === 'gb28181' &&
+            // @ts-ignore
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            (checkPermission(['ivs:LockDevicePTZ'], this.actions) || checkPermission(['ivs:LockDevicePTZ'], this.screen))
+  }
+
+  private get showPTZZoom() {
+    return this.player &&
+            this.isLive
+            && (checkPermission(['ivs:ControlDevicePTZ'], this.actions) || checkPermission(['ivs:ControlDevicePTZ'], this.screen))
+  }
+
+
+  private get actions() {
+    return this.getActions && this.getActions()
   }
 
   /* 获取播放器实例Provide */

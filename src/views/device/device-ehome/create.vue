@@ -248,7 +248,7 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item> -->
-        <el-form-item label="配置资源包:" prop="resources">
+        <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -297,7 +297,7 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -625,13 +625,15 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         delete params.deviceType
         // 获取设备资源包
-        await updateDeviceResources({
-          deviceId: this.deviceId,
-          deviceType: this.form.deviceType,
-          inProtocol: this.inProtocol,
-          resources: this.form.resources,
-          aIApps: this.form.aIApps
-        })
+        if (!this.disableResourceTab) {
+          await updateDeviceResources({
+            deviceId: this.deviceId,
+            deviceType: this.form.deviceType,
+            inProtocol: this.inProtocol,
+            resources: this.form.resources,
+            aIApps: this.form.aIApps
+          })
+        }
         await updateDevice(params)
         this.$message.success('修改设备成功！')
       } else {

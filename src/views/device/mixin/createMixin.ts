@@ -74,6 +74,10 @@ export default class CreateMixin extends Vue {
     ]
   }
 
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   public get currentGroup() {
     return GroupModule.group
   }
@@ -117,6 +121,11 @@ export default class CreateMixin extends Vue {
 
   public get isIPC() {
     return this.form.deviceType === 'ipc'
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private get breadCrumbContent() {
@@ -388,7 +397,7 @@ export default class CreateMixin extends Vue {
             alertMsg.push(resource.msg)
           }
         }
-        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
+        if (!this.disableResourceTab && !this.isFreeUser && this.isUpdate && alertMsg.length) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',

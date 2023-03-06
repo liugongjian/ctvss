@@ -7,7 +7,9 @@
     :append-to-body="true"
     center
     @close="closeDialog"
+    
   >
+  <div v-loading="loadingForm || submitting">
     <el-form
       ref="dataForm"
       class="form"
@@ -17,11 +19,13 @@
       label-position="right"
       label-width="100px"
     >
+      <!-- v-loading="loadingForm" -->
       <el-form-item label="设备名:" class="device">
         {{ deviceName }}
       </el-form-item>
-      <el-form-item label="录像时段:" class="date-picker">
+      <el-form-item label="录像时段:" class="date-picker" prop="duration">
         <el-date-picker
+          ref="datepicker"
           v-model="form.duration"
           type="datetimerange"
           value-format="timestamp"
@@ -32,11 +36,12 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="submitting" @click="submit">
+      <el-button type="primary" @click="submit">
         确 定
       </el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
+  </div>
   </el-dialog>
 </template>
 <script lang="ts">
@@ -63,6 +68,7 @@ export default class extends Vue {
     duration: []
   }
   private deviceInfo = null
+  private loadingForm = false
 
   private rules = {
     duration: [
@@ -70,8 +76,17 @@ export default class extends Vue {
     ]
   }
 
-  private get currentGroupId() {
+  public get currentGroupId() {
     return GroupModule.group?.groupId
+  }
+
+  
+  private get recordManager() {
+    return this.screen && this.screen.recordManager
+  }
+
+  private get recordStatistic() {
+    return this.recordManager && this.recordManager.recordStatistic
   }
 
   // 获取设备信息
@@ -83,14 +98,17 @@ export default class extends Vue {
   }
 
   private pickerOptions = {
-    disabledDate: (time: any) => {
+    disabledDate: (date: any) => {
       // 约束录像起始时间和结束时间范围
-      return time.getTime() > Date.now()
-    },
-    cellClassName: (date: any) => {
       if (!this.recordStatistic) return
       const dateStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}-${prefixZero(date.getDate(), 2)}`
-      return this.recordStatistic.has(dateStr) ? 'has-records' : ''
+      return date.getTime() > Date.now() || !this.recordStatistic.has(dateStr)
+    },
+    cellClassName: (date: any) => {
+      if (!this.recordStatistic) return ''
+      if (date.getTime() > Date.now()) return ''
+      const dateStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}-${prefixZero(date.getDate(), 2)}`
+      return date.getTime() < Date.now() && this.recordStatistic.has(dateStr) ? 'has-records' : 'unpickable'
     },
     changeCalendar: (date: any) => {
       if (!this.recordManager) return
@@ -100,20 +118,16 @@ export default class extends Vue {
     }
   }
 
-  private get recordManager() {
-    return this.screen && this.screen.recordManager
-  }
-
-  private get recordStatistic() {
-    return this.recordManager && this.recordManager.recordStatistic
-  }
-
   private async created() {
     try {
+      this.loadingForm = true
       await this.getDeviceInfo()
-      this.deviceName = this.screen.deviceName
+      // nvr 通道设备名称
+      this.deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName
     } catch (e) {
       this.$message.error(e)
+    } finally {
+      this.loadingForm = false
     }
 
   }
@@ -126,19 +140,18 @@ export default class extends Vue {
         try {
           this.submitting = true
           const res = await setLock({
-            startTime: this.form.duration[0] / 1000,
-            endTime: this.form.duration[1] / 1000,
+            lockPeriod: {
+              startTime: (this.form.duration[0] / 1000).toFixed(),
+              endTime: (this.form.duration[1] / 1000).toFixed(),
+            },
             deviceId: this.screen.deviceId,
             inProtocol: this.screen.inProtocol,
             groupId: this.currentGroupId,
-            parentDeviceId: this.deviceInfo.parentDeviceId
+            parentDeviceId: this.deviceInfo.parentDeviceId,
+            deviceName: this.deviceName
           })
-          // console.log('锁完了   res: ', res)
-          if (res.locks.length > 0) {
-            // console.log('摩西摩西   ', this.screen)
-            await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate)
-            // this.screen.recordManager.getRecordListByDate
-          }
+          // 无法判断是否锁定成功
+          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, true)
         } catch (e) {
           this.$message.error(e.message)
         } finally {
@@ -157,6 +170,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+}
+
 .form {
   & .device {
     display: block;

@@ -4,9 +4,9 @@
       <el-form :inline="true" class="search-filter__form" :rules="rules" :model="filter" @keyup.enter.native="handleFilter">
         <el-form-item>
           <el-radio-group v-model="btnSelected">
-            <el-radio-button label="1">近1小时</el-radio-button>
-            <el-radio-button label="2">近1天</el-radio-button>
-            <el-radio-button label="3">近7天</el-radio-button>
+            <el-radio-button :label="1">近1小时</el-radio-button>
+            <el-radio-button :label="2">近1天</el-radio-button>
+            <el-radio-button :label="3">近7天</el-radio-button>
             <el-radio-button v-show="!showTimePicker" label="4">自定义时间</el-radio-button>
           </el-radio-group>
         </el-form-item> 
@@ -53,64 +53,66 @@
         </el-form-item>
       </el-form>
     </div>
-    <el-table height="680px" v-loading="loading.list" ref="list" :data="logList" fit @filter-change="optResFilter">
-      <el-table-column label="操作时间" min-width="200" prop="operationTime">
-        <template slot-scope="scope">
-          {{ scope.row.operationTime || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作名称" min-width="200" prop="operationName">
-        <template slot-scope="scope">
-          {{ scope.row.operationName || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column v-if="!isSub" label="操作者" min-width="200" prop="operator">
-        <template slot-scope="scope">
-          {{ scope.row.operator || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="资源名称" min-width="200" prop="resourceName">
-        <template slot-scope="scope">
-          {{ scope.row.resourceName || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column v-if="!isSub" label="资源路径" min-width="200" prop="resourcePath">
-        <template slot-scope="scope">
-          {{ scope.row.resourcePath || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作IP" min-width="200" prop="sourceIP">
-        <template slot-scope="scope">
-          {{ scope.row.sourceIP || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column v-if="false" min-width="200" prop="operationType">
-        <template slot="header">
-          <span class="filter">操作类型</span>
-          <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
-        </template>
-        <template slot-scope="scope">
-          {{ scope.row.operationType || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column v-if="false" min-width="200" prop="operationResult" :filters="optResTypefilterArray" :filter-method="filterHandler" :filter-multiple="false" fixed="right">
-        <template slot="header">
-          <span class="filter">操作结果</span>
-          <svg-icon class="filter" name="filter" width="15" height="15" />
-        </template>
-        <template slot-scope="scope">
-          {{ scope.row.operationResult }}
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      :current-page="pager.pageNum"
-      :page-size="pager.pageSize"
-      :total="pager.total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <div v-loading="loading.list">
+      <el-table height="680px" ref="list" :data="logList" fit @filter-change="optResFilter">
+        <el-table-column label="操作时间" min-width="200" prop="operationTime">
+          <template slot-scope="scope">
+            {{ scope.row.operationTime || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作名称" min-width="200" prop="operationName">
+          <template slot-scope="scope">
+            {{ scope.row.operationName || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="!isSub" label="操作者" min-width="200" prop="operator">
+          <template slot-scope="scope">
+            {{ scope.row.operator || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="资源名称" min-width="200" prop="resourceName">
+          <template slot-scope="scope">
+            {{ scope.row.resourceName || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="!isSub" label="资源路径" min-width="200" prop="resourcePath">
+          <template slot-scope="scope">
+            {{ scope.row.resourcePath || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作IP" min-width="200" prop="sourceIP">
+          <template slot-scope="scope">
+            {{ scope.row.sourceIP || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="false" min-width="200" prop="operationType">
+          <template slot="header">
+            <span class="filter">操作类型</span>
+            <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
+          </template>
+          <template slot-scope="scope">
+            {{ scope.row.operationType || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="false" min-width="200" prop="operationResult" :filters="optResTypefilterArray" :filter-method="filterHandler" :filter-multiple="false" fixed="right">
+          <template slot="header">
+            <span class="filter">操作结果</span>
+            <svg-icon class="filter" name="filter" width="15" height="15" />
+          </template>
+          <template slot-scope="scope">
+            {{ scope.row.operationResult }}
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -119,6 +121,7 @@ import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
 import { getOptLog, getOptName, exportLog } from '@/api/operationLog'
 import { optResultType } from '@/dics/optResultType'
 import settings from '@/settings'
+import axios from 'axios'
  
 @Component({
   name: 'OptLog'
@@ -126,7 +129,8 @@ import settings from '@/settings'
 export default class extends Vue {
   private loading = {
     form: false,
-    list: false
+    list: false,
+    disabled: false
   }
   private showTimePicker = false
   private logList = null
@@ -134,6 +138,9 @@ export default class extends Vue {
   // 操作结果筛选
   private optResTypefilterArray = optResultType
   private optRes = undefined
+
+  // 优化切换请求更新
+  private axiosSource = null
 
   // 只可选择最近90天
   private pickerOpts = {
@@ -229,8 +236,10 @@ export default class extends Vue {
    */
   private async getList() {
     try {
+      this.loading.disabled = true
       const params = this.initParams()
-      const res = await getOptLog(params)
+      this.axiosSource = axios.CancelToken.source()
+      const res = await getOptLog(params, this.axiosSource.token)
       res.operationLogList.map((item: any) => {
         if (item.operationResult === '0') {
           item.operationResult = '失败'
@@ -243,8 +252,10 @@ export default class extends Vue {
       this.logList = res.operationLogList
       this.pager.total = res.totalNum
     } catch (e) {
+      if (e.code === -2) return
       this.$message.error(e)
     } finally {
+      this.loading.disabled = false
       this.loading.list = false
     }
   }
@@ -287,11 +298,14 @@ export default class extends Vue {
    */
   private async handleFilter() {
     try {
+      this.axiosSource.cancel() //避免多次请求
+      if (+this.btnSelected !== 4) {
+        this.timeFilter(+this.btnSelected)
+      }
       if (this.filter.timeRange.length < 1) {
        throw new Error('请选择查询时间段！')
       }
       this.pager.pageNum = 1
-      this.timeFilter(this.btnSelected)
       await this.getList()
     } catch (e) {
       this.$message.error(e)

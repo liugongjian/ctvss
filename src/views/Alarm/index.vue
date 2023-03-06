@@ -77,7 +77,6 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
-import { checkPermission } from '@/utils/permission'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
@@ -87,7 +86,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null

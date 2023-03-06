@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
-        <el-button v-if="checkPermission(['AdminViid'])" type="primary" @click="handleCreate">添加平台</el-button>
+        <el-button v-if="checkPermission(['ivs:AdminViid'])" type="primary" @click="handleCreate">添加平台</el-button>
         <div class="filter-container__right">
           <el-button class="el-button-rect" @click="refresh">
             <svg-icon name="refresh" />
@@ -29,10 +29,10 @@
         <el-table-column prop="port" label="端口" min-width="160" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="row.isActive && checkPermission(['AdminViid'])" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
-            <el-button v-else-if="checkPermission(['AdminViid'])" type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
+            <el-button v-if="row.isActive && checkPermission(['ivs:AdminViid'])" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
+            <el-button v-else-if="checkPermission(['ivs:AdminViid'])" type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
             <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
-            <el-button v-if="checkPermission(['AdminViid'])" type="text" @click.stop="edit(row)">编辑</el-button>
+            <el-button v-if="checkPermission(['ivs:AdminViid'])" type="text" @click.stop="edit(row)">编辑</el-button>
             <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>

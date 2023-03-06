@@ -1,15 +1,15 @@
 <template>
   <div>
     <!--资源包-->
-    <div class="detail__section">
+    <div v-if="!disableResourceTab" class="detail__section">
       <div class="detail__title">
         资源包
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置</el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置</el-link>
       </div>
       <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
           视频包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置视频包</el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置视频包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -26,7 +26,7 @@
       <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog('AI')">配置AI包</el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -49,7 +49,7 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+              <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
                     <div class="disable-btn-box">
@@ -64,7 +64,7 @@
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
                 </template>
               </el-table-column>
-              <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+              <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
                     <div class="disable-btn-box">
@@ -80,7 +80,7 @@
       <el-card v-if="resources.VSS_UPLOAD_BW">
         <template slot="header">
           带宽包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="changeResourceDialog">配置带宽包</el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置带宽包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -96,23 +96,23 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="deviceType === 'ipc'" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setRecordTemplate">配置</el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setRecordTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.recordTemplate" :column="2">
         <el-descriptions-item label="模板名称">
           {{ template.recordTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item label="是否启用自动录制">
+        <el-descriptions-item label="是否启用全天录制">
           {{ template.recordTemplate.recordType === 1 ? '是':'否' }}
         </el-descriptions-item>
-        <el-descriptions-item label="录制格式">
+        <!-- <el-descriptions-item label="录制格式">
           {{ template.recordTemplate.flvParam && template.recordTemplate.flvParam.enable ? 'flv': '' }}
           {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'hls': '' }}
           {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'mp4': '' }}
-        </el-descriptions-item>
+        </el-descriptions-item> -->
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
         暂未绑定录制模板
@@ -122,7 +122,7 @@
     <div v-loading="loading.callbackTemplate" class="detail__section">
       <div class="detail__title">
         回调模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setCallbackTemplate">配置</el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setCallbackTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.callbackTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -152,7 +152,7 @@
     <div v-if="inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setAlertTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -220,7 +220,7 @@ import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.
 import SetAlertTemplate from '@/views/components/dialogs/SetAlertTemplate.vue'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
-
+import { UserModule } from '@/store/modules/user'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
@@ -238,6 +238,9 @@ import AlgoConfig from './AlgoConfig/index.vue'
 export default class extends Vue {
   @Prop() private deviceId?: String
   @Prop() private inProtocol?: String
+  @Prop() private deviceType?: string
+  @Prop()
+  private actions: object
   private checkPermission = checkPermission
 
   private resourceAiType = ResourceAiType
@@ -284,8 +287,10 @@ export default class extends Vue {
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
+    if (this.deviceType === 'ipc') {
+      this.getRecordTemplate()
+    }
     this.getCallbackTemplate()
-    this.getRecordTemplate()
     this.getAlertTemplate()
     this.getAlgoList()
     await this.getDeviceInfo()
@@ -336,6 +341,11 @@ export default class extends Vue {
 
   public get isNvr() {
     return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   /**

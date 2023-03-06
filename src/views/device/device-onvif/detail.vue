@@ -2,7 +2,7 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button v-if="checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview(checkPermission(['ScreenPreview']) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="checkPermission(['ivs:GetLiveStream', 'ivs:GetCloudRecord'], actions)" @click="goToPreview(checkPermission(['ivs:GetLiveStream'], actions) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">

@@ -120,3 +120,10 @@ export const ptzUnlock = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+export const getLockStatus = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/lock/describe',
+    method: 'get',
+    params: data
+  })

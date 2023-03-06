@@ -31,6 +31,7 @@ import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
 import settings from '@/settings'
 import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {
@@ -131,6 +132,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public regionList = regionList
   public lianzhouAddress: string = ''
+
+  public actions = {}
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
@@ -234,8 +237,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     const perms = userState.perms
     const privateUserTag = userState.tags.privateUser || ''
     const denyPerms = settings.privateDenyPerms[privateUserTag] || []
-    if (denyPerms.includes('AdminViid') ||
-        (!perms.includes('*') && !perms.includes('AdminViid'))
+    if (denyPerms.includes('ivs:AdminViid') ||
+        (!perms.includes('*') && !perms.includes('ivs:AdminViid'))
     ) {
       return false
     }
@@ -270,7 +273,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   // 详情页操作
   @Provide('detailOperate')
   public async detailOperate(type, num?) {
-    let result = false
+    let result: any = false
     let params: Device = this.info
     num && (params = {
       ...this.info,
@@ -333,6 +336,18 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       })
       if (this.isGb && this.hasViewLib) {
         await this.getViewLibInfo()
+      }
+      if (UserModule.iamUserId) {
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            groupId: this.currentGroupId,
+            dirPath: pathArr.slice(0, -1).join('/') || '0',
+            deviceId: this.deviceId
+          }]
+        })
+        this.actions = permissionRes.result[0].iamUser.actions
       }
       /**
        * 2022-03-16修改
@@ -477,6 +492,11 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       console.log('goSuperior: we are goto root')
       this.gotoRoot()
     }
+  }
+
+  @Provide('getActions')
+  public getActions() {
+    return this.actions
   }
 
   /**

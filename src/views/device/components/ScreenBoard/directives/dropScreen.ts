@@ -1,5 +1,6 @@
 import { DirectiveOptions } from 'vue'
 import { removeClass, addClass } from '@/utils'
+import { checkPermission } from '@/utils/permission'
 
 const drag: any = {
   isDragging: false,
@@ -54,6 +55,10 @@ export const dropScreen: DirectiveOptions = {
     if (view !== 'screen') return
     if (node.data.type !== 'ipc') return
     if (isLive && node.data.deviceStatus !== 'on') return
+    const perms = isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    if (!checkPermission(perms, node.data)) {
+      return
+    }
     drag.context = vnode.context
     el.node = node
     el.elm = vnode.elm

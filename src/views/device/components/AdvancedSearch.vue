@@ -71,9 +71,11 @@ import { DeviceAddress } from '@/type/Device'
 export default class extends Vue {
   @Prop()
   private searchForm!: AdvancedSearch
+
   private dialog = {
     advancedSearch: false
   }
+
   private deviceStatusList = [
     {
       label: '在线',
@@ -88,6 +90,7 @@ export default class extends Vue {
       value: 'new'
     }
   ]
+
   private streamStatusList = [
     {
       label: '在线',
@@ -102,6 +105,7 @@ export default class extends Vue {
       value: 'failed'
     }
   ]
+
   private matchKeyList = [
     {
       label: '设备名',
@@ -130,6 +134,7 @@ export default class extends Vue {
   public get highlightFilterButton() {
     return this.searchForm.deviceStatusKeys.length || this.searchForm.streamStatusKeys.length || this.searchForm.matchKeys.length || this.searchForm.deviceAddresses.code
   }
+
   private form: AdvancedSearch = {
     deviceStatusKeys: [],
     streamStatusKeys: [],

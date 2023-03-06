@@ -1,5 +1,5 @@
 <template>
-  <div v-if="container" :id="container" class="statistic__chart" />
+  <div v-if="container" :id="container" class="statistic__chart" :class="chartClasss" />
 </template>
 
 <script lang="ts">
@@ -20,6 +20,8 @@ export default class extends Vue {
 
   private currentChart: any = null
 
+  private chartClasss: string = ''
+
   mounted() {
     this.drawChart()
   }
@@ -30,15 +32,16 @@ export default class extends Vue {
   }
 
   private drawChart() {
-    console.log('123')
     const { kind, name } = this.chartInfo
 
     this.container = name
 
     this.$nextTick(() => {
       if (kind === 'pie') {
+        this.chartClasss = 'pie-chart'
         this.drawPieChart()
       } else if (kind === 'line') {
+        this.chartClasss = 'line-chart'
         this.drawLineChart()
       }
     })
@@ -176,7 +179,7 @@ export default class extends Vue {
     this.chart.line().position('day*usage').label(
       'usage', (value) => {
         return {
-          content: value + '%'
+          content: value.toFixed(2) + '%'
         }
       }
     ).color('usage', (value) => {
@@ -228,3 +231,10 @@ export default class extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  .pie-chart {
+    margin-left: auto;
+    margin-right: 10px;
+  }
+</style>

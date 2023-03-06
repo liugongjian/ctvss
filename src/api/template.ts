@@ -29,6 +29,21 @@ export const createRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+export const getTemplateDeviceTree = (params: any, cancelToken?: any): Promise<any> =>
+  request({
+    url: '/template/record/tree',
+    method: 'get',
+    params,
+    cancelToken
+  })
+
+export const getTemplateNodeDevice = (params: any): Promise<any> =>
+  request({
+    url: '/template/record/devices',
+    method: 'get',
+    params
+  })
+
 export const updateRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/update',

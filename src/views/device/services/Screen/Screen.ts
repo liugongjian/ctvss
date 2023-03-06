@@ -37,6 +37,14 @@ export class Screen {
   public deviceName?: string
   public roleId?: string
   public realGroupId?: string
+  // 用户的设备权限相关
+  public ivsLockCloudRecord?: boolean
+  // 设备管理相关信息
+  public detailInfo: any
+  // 用户所有权限
+  public permission: any
+  /* 锁定录像管理切换请求接口 */
+  public isLockTask: boolean
 
   /**
    * ----------------
@@ -68,6 +76,8 @@ export class Screen {
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
   public datetimeRange?: { startTime: number; endTime: number; }
+  /* 录像回放是否是dialog窗口形式 */
+  public isDialogTask?: boolean
 
   /**
    * ----------------
@@ -87,13 +97,15 @@ export class Screen {
   public ERROR_CODE = {
     NO_RECORD: 13,
     NO_STORE: 8,
-    OUT_OF_RANGE: 14
+    OUT_OF_RANGE: 14,
+    LOCKED: 99, // 锁定录像code，未确认有何影响
   }
 
   public ERROR = {
     NO_RECORD: '该时段没有录像',
     NO_STORE: '视频资源包未包含存储',
-    OUT_OF_RANGE: '超出时间范围'
+    OUT_OF_RANGE: '超出时间范围',
+    LOCKED: '该时段录像已被锁定',
   }
 
   constructor() {

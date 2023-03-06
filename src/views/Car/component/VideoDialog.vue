@@ -114,11 +114,13 @@ export default class extends Vue {
   max-height: 620px;
   display: flex;
   justify-content: space-evenly;
+
   .history {
     overflow-y: auto;
     overflow-x: hidden;
     width: 240px;
     height: 500px;
+
     & > div {
       margin-bottom: 8px;
       margin-left: 8px;

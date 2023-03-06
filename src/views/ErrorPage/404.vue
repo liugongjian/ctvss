@@ -31,12 +31,16 @@
           {{ message }}
         </div>
         <div class="text-404__info">
-          Please check that the URL you entered is correct, or click the button below to return to the homepage.
+          请联系主账号配置权限策略后，重新加载控制台或重新登录。
         </div>
         <a
-          href=""
           class="text-404__return-home"
-        >Back to home</a>
+          @click="back"
+        >控制台</a>
+        <a
+          class="text-404__return-login"
+          @click="logout"
+        >退出登录</a>
       </div>
     </div>
   </div>
@@ -44,18 +48,45 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { UserModule } from '@/store/modules/user'
+import { PermissionModule } from '@/store/modules/permission'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'Page404'
 })
 export default class extends Vue {
-  private message = '404 Page Not Found'
+  private message = '当前用户暂无权限'
+
+  private async back() {
+    const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+    let to = null
+    if (menuRoutes.length > 0) {
+      to = menuRoutes[0]
+    } else {
+      to = PermissionModule.dynamicRoutes[0]
+    }
+    if (to.path === '*' && to.redirect === '/404') {
+      window.location.href = ''
+    } else {
+      this.$router.push({ ...to })
+    }
+  }
+
+  private async logout() {
+    const data: any = await UserModule.LogOut()
+    if (data.iamUserId) {
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+    } else {
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .wscn-http404-container {
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   position: absolute;
   top: 40%;
   left: 50%;
@@ -248,7 +279,27 @@ export default class extends Vue {
       background: #1482f0;
       border-radius: 100px;
       text-align: center;
-      color: #ffffff;
+      color: #fff;
+      opacity: 0;
+      font-size: 14px;
+      line-height: 36px;
+      cursor: pointer;
+      animation-name: slideUp;
+      animation-duration: 0.5s;
+      animation-delay: 0.3s;
+      animation-fill-mode: forwards;
+    }
+
+    &__return-login {
+      margin-left: 10px;
+      display: block;
+      float: left;
+      width: 110px;
+      height: 36px;
+      background: #1482f0;
+      border-radius: 100px;
+      text-align: center;
+      color: #fff;
       opacity: 0;
       font-size: 14px;
       line-height: 36px;

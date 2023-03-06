@@ -129,7 +129,8 @@
   min-width: auto;
 }
 
-.el-date-picker .has-records {
+.el-date-picker .has-records,
+.el-date-range-picker .has-records {
   position: relative;
 
   &:after {
@@ -144,6 +145,13 @@
     margin-left: -3px;
   }
 }
+
+// .el-date-range-picker .unpickable div,
+// .el-date-range-picker .unpickable span {
+//   // background-color: white !important;
+//   // color: black;
+//   // cursor: pointer !important;
+// }
 
 .el-dialog {
   z-index: 100;
