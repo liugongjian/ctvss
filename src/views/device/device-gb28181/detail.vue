@@ -321,7 +321,7 @@
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :permission="actions" :info="info" :device-name="info.deviceName" :lock-permission="checkPermission(['ivs:LockCloudRecord'])" />
         </el-tab-pane>
-        <el-tab-pane v-if="checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
+        <el-tab-pane v-if="!isLiuzhou && checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">

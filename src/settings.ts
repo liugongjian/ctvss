@@ -40,7 +40,7 @@ const settings: ISettings = {
     'console.vcn.ctcdn.cn'
   ],
   privateDenyPerms: {
-    liuzhou: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminBilling'],
+    liuzhou: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminBilling', 'ivs:GetApp'],
     yeji: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminAlarm', 'ivs:frontend:AdminNotification', 'ivs:frontend:AdminBilling']
   },
   systemActionList: [
