@@ -224,6 +224,7 @@ export default class extends Vue {
       this.$nextTick(() => {
         this.setChecked(dirs)
         this.setChecked(node)
+        node.isLeaf = node.data.isLeaf
       })
       resolve(dirs)
     }
@@ -234,6 +235,9 @@ export default class extends Vue {
    * 如果未加载先加载绑定树
    */
   private onPreviewTreeExpand(data, node) {
+    if (node.loaded) {
+      return
+    }
     const bindTreeNode = this.bindTree.getNode(node.data.id)
     if (!bindTreeNode.loaded) {
       const previewTreeNode = this.previewTree.getNode(node.data.id)
@@ -244,6 +248,12 @@ export default class extends Vue {
         bindTreeNode.loaded = true
         bindTreeNode.expanded = true
         previewTreeNode.loading = false
+        // 如果绑定树的节点是勾选状态，需要将子节点全部设为勾选状态
+        if (bindTreeNode.checked) {
+          bindTreeNode.childNodes.forEach(node => {
+            node.checked = true
+          })
+        }
         this.$nextTick(() => {
           this.deepCopy(bindTreeNode)
         })
@@ -478,6 +488,10 @@ export default class extends Vue {
       return total
     }, 0)
     this.$set(parentNode.data, 'checkedSize', totalCheckedSize)
+    // 如果父级数量为0，删除预览树中对应的节点
+    if (totalCheckedSize === 0) {
+      this.previewTree.remove(parentNode.data.id)
+    }
     if (parentNode.parent && parentNode.parent.level !== 0) {
       this.sumParentCheckedSize(parentNode.parent)
     }
