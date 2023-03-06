@@ -11,10 +11,6 @@
       <template slot="leftBody">
         <alarm-tree
           ref="deviceTree"
-          v-loading="loading.tree"
-          :load="treeLoad"
-          :lazy="lazy"
-          :data="treeSearchResult"
           @handle-node="handleTreeNode"
         />
       </template>
@@ -44,8 +40,7 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
     Breadcrumb
   }
 })
-export default class extends Mixins(IndexMixin, layoutMxin) {
-  public filterVideoProtocolArr = ['gb28181']
+export default class extends Mixins(IndexMixin) {
   public parentDir = null
   public currentDir = null
   public dialog: any = {
