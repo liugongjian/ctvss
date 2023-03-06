@@ -78,7 +78,12 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
+            <additional-status
+              v-if="data.type === 'ipc'"
+              :record-status="data.recordStatus"
+              :alarm-info="data.alarmInfo"
+              :is-bind="data.isBind"
+            />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -127,7 +132,12 @@
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-            <additional-status v-if="data.type === 'ipc'" :record-status="data.recordStatus" :alarm-info="data.alarmInfo" />
+            <additional-status
+              v-if="data.type === 'ipc'"
+              :record-status="data.recordStatus"
+              :alarm-info="data.alarmInfo"
+              :is-bind="data.isBind"
+            />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
