@@ -11,6 +11,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class extends Vue {
   @Prop() private recordStatus!: number
   @Prop() private alarmInfo!: number
+  @Prop() private isBind!: number
 
   private get additionalStatus() {
     let status = 'free'
@@ -19,6 +20,8 @@ export default class extends Vue {
       // 判断是否录制中
       if (this.recordStatus === 1) {
         status = 'working'
+      } else if (this.isBind === 1) {
+        status = 'pause'
       } else {
         status = 'free'
       }
@@ -58,6 +61,10 @@ export default class extends Vue {
 
     &--free {
       display: none !important;
+    }
+
+    &--pause {
+      color: $textGrey !important;
     }
 
     &--working {
