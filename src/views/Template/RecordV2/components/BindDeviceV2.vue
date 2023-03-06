@@ -488,6 +488,10 @@ export default class extends Vue {
       return total
     }, 0)
     this.$set(parentNode.data, 'checkedSize', totalCheckedSize)
+    // 如果父级数量为0，删除预览树中对应的节点
+    if (totalCheckedSize === 0) {
+      this.previewTree.remove(parentNode.data.id)
+    }
     if (parentNode.parent && parentNode.parent.level !== 0) {
       this.sumParentCheckedSize(parentNode.parent)
     }
