@@ -260,13 +260,15 @@ export default class extends Vue {
             this.deviceInfo.inProtocol === 'gb28181' &&
             // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
-            (checkPermission(['ivs:LockDevicePTZ'], this.actions) || checkPermission(['ivs:LockDevicePTZ'], this.screen))
+            // @ts-ignore
+            checkPermission(['ivs:LockDevicePTZ'], this.actions || this.screen.permission)
   }
 
   private get showPTZZoom() {
     return this.player &&
-            this.isLive
-            && (checkPermission(['ivs:ControlDevicePTZ'], this.actions) || checkPermission(['ivs:ControlDevicePTZ'], this.screen))
+            this.isLive &&
+            // @ts-ignore
+            checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
   }
 
 

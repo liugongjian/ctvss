@@ -86,7 +86,7 @@
                     <span v-if="currentIndex.preset === index" class="handle">
                       <i v-if="preset.setFlag && controlDevicePreset" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
                       <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
-                      <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                      <i v-if="preset.setFlag && controlDevicePTZ" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
                     </span>
                   </div>
                 </template>
@@ -105,11 +105,11 @@
                       <span>{{ cruise.name | filterLength }}</span>
                     </div>
                     <span v-if="currentIndex.cruise === index" class="handle">
-                      <div v-if="cruise.setFlag" class="handle-stop">
+                      <div v-if="cruise.setFlag && controlDevicePTZ" class="handle-stop">
                         <svg-icon title="停止" name="stop" @click="stopCruise(cruise.index)" />
                       </div>
                       <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="editCruise(cruise)" />
-                      <div v-if="cruise.setFlag" class="handle-play">
+                      <div v-if="cruise.setFlag && controlDevicePTZ" class="handle-play">
                         <svg-icon title="启用" name="play" @click="handleCruise(cruise.index)" />
                       </div>
                     </span>
@@ -242,11 +242,11 @@ export default class extends Vue {
   }
 
   private get controlDevicePreset() {
-    return checkPermission(['ivs:ControlDevicePreset'], this.action || this.screen)
+    return checkPermission(['ivs:ControlDevicePreset'], this.action || this.screen.permission)
   }
 
   private get controlDevicePTZ() {
-    return checkPermission(['ivs:ControlDevicePTZ'], this.action || this.screen)
+    return checkPermission(['ivs:ControlDevicePTZ'], this.action || this.screen.permission)
   }
 
   private get deviceId() {
@@ -1062,17 +1062,19 @@ export default class extends Vue {
       }
     }
   }
-  .disabled{
+
+  .disabled {
     position: relative;
     pointer-events: none;
-    &::after{
+
+    &:after {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #C0C4CC;
+      background: #c0c4cc;
       opacity: 0.6;
     }
   }
