@@ -23,7 +23,6 @@
         <!-- TODO -->
         <preview-tree
           ref="deviceTree"
-          v-loading="loading.tree"
           :lazy="lazy"
           :data="treeSearchResult"
           @handle-node="handleTreeNode"
