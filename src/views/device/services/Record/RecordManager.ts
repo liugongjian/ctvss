@@ -226,7 +226,9 @@ export class RecordManager {
       }
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      if (isSeek) this.seek(this.screen.currentRecordDatetime, true)
+      if (isSeek) {
+        this.seek(this.screen.currentRecordDatetime, true)
+      }
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
@@ -286,7 +288,7 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          await this.getRecordListByDate(date, isConcat, true)
+          await this.getRecordListByDate(date, isConcat, false)
         }
         record = this.getRecordByTime(time)
       }
@@ -389,7 +391,7 @@ export class RecordManager {
       const interval = await this.getRecordInterval()
       if (interval) {
         this.recordInterval = setInterval(async() => {
-          if (this.currentDate < getLocaleDate().getTime() / 1000) return
+          if (this.currentDate <= getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60
           const endTime = Math.floor(new Date().getTime() / 1000)
