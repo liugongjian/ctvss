@@ -226,7 +226,7 @@ export class RecordManager {
       }
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      this.seek(this.screen.currentRecordDatetime, true)
+      if (isSeek) this.seek(this.screen.currentRecordDatetime, true)
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
