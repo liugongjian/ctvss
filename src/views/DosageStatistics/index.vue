@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-02 15:37:12
+ * @LastEditTime: 2023-03-07 16:29:04
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -18,10 +18,19 @@
                 <p>24路</p>
                 <div>接入设备总数</div>
               </div>
-              <div>
-                <line-chart />
+            </div>
+          </div>
+          <div class="dosage-statistics__info">
+            <div class="dosage-statistics__info_chart">
+              <span>设备接入详情</span>
+              <div class="dosage-statistics__info_chart_condition">
+                <span class="dosage-statistics__info_chart_condition__item dosage-statistics__info_chart_condition__item_active">今天</span>
+                <span class="dosage-statistics__info_chart_condition__item">昨天</span>
+                <span class="dosage-statistics__info_chart_condition__item">近七天</span>
+                <span class="dosage-statistics__info_chart_condition__item">近一个月</span>
               </div>
             </div>
+            <line-chart />
           </div>
         </el-tab-pane>
         <el-tab-pane label="带宽" name="bandwidth">带宽</el-tab-pane>
@@ -50,6 +59,24 @@ export default class extends Vue {
   &__info_detail {
     padding: 10px;
     position: relative;
+  }
+
+  &__info_chart {
+    margin-left: 1px;
+
+    &_condition {
+      &__item {
+        display: inline-block;
+        margin-left: -1px;
+        border: 1px solid gray;
+        padding: 0 10px;
+
+        &_active {
+          z-index: 1;
+          border: 1px solid red;
+        }
+      }
+    }
   }
 }
 </style>
