@@ -23,15 +23,18 @@ export class FlvPlayer extends Player {
     FlvJS.LoggingControl.enableWarn = false
     const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
     videoElement.controls = false
+    videoElement.muted = true
     this.container.innerHTML = ''
     this.container.append(videoElement)
     const flvPlayer = FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
+      hasAudio: this.hasAudio,
       url: this.url
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
+    // flv.play 是一个 promise
     flvPlayer.play()
     flvPlayer.on(FlvJS.Events.ERROR, (e: any) => {
       // 网络错误

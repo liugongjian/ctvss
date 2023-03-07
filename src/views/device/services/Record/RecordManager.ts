@@ -38,6 +38,8 @@ export class RecordManager {
   /* 录像锁列表 */
   public lockList: any
 
+  private localLoading = false
+
   private get currentGroupId() {
     return GroupModule.group?.groupId
   }
@@ -116,7 +118,7 @@ export class RecordManager {
         this.getLatestRecord()
       }
     } finally {
-      this.screen.isLoading = false
+      if(!this.localLoading) this.screen.isLoading = false
     }
   }
 
@@ -205,10 +207,13 @@ export class RecordManager {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            this.screen.currentRecordDatetime = records[0].startTime
-            const res = await this.getLocalUrl(records[0].startTime)
-            this.screen.codec = res.codec
-            this.screen.url = res.url
+            this.screen.player && this.screen.player.disposePlayer()
+            // this.screen.currentRecordDatetime = records[0].startTime
+            this.updateLocalUrl(records[0].startTime)
+            this.localLoading = true
+            // const res = await this.getLocalUrl(records[0].startTime)
+            // this.screen.codec = res.codec
+            // this.screen.url = res.url
           }
           // 没有锁定权限禁止播放锁定片段
           // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
@@ -224,7 +229,10 @@ export class RecordManager {
         this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
-      if (!isConcat) this.screen.isLoading = false
+      // if (!isConcat) {
+      if (!isConcat && this.screen.recordType === 0) {
+        this.screen.isLoading = false
+      }
       this.isLoading = false
       if (isSeek) {
         this.seek(this.screen.currentRecordDatetime, true)
@@ -250,7 +258,9 @@ export class RecordManager {
           this.screen.errorMsg = e.message
         }
       }
-      if (!isConcat && e.code !== -2) this.screen.isLoading = false
+      if (!isConcat && e.code !== -2) {
+        this.screen.isLoading = false
+      }
     } finally {
       this.isLoading = false
     }
@@ -321,7 +331,7 @@ export class RecordManager {
         this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        this.screen.isLoading = false
+        if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
           if ((this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
             // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
@@ -339,7 +349,8 @@ export class RecordManager {
       this.screen.recordManager.currentDate = time
       this.screen.player && this.screen.player.disposePlayer()
       this.screen.player = null
-      this.screen.isLoading = false
+      if (!this.localLoading) this.screen.isLoading = false
+      // this.screen.isLoading = false
       this.screen.url = ''
     }
   }
@@ -635,16 +646,22 @@ export class RecordManager {
    */
   private async updateLocalUrl(time: number) {
     try {
+      this.cancelAxiosSource()
       this.screen.isLoading = true
       const res = await this.getLocalUrl(time)
       this.screen.codec = res.codec
       this.screen.url = res.url
+      // 取消请求不会走下面的,不写 finally 以防止 DOM 加载状态丢失
+      this.localLoading = false
+      this.screen.isLoading = false
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.screen.errorMsg = e.message
       }
-    } finally {
-      this.screen.isLoading = false
+      if (e.code !== -2) {
+        this.localLoading = false
+        this.screen.isLoading = false
+      }
     }
   }
 

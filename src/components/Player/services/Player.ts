@@ -120,7 +120,8 @@ export class Player {
   /**
    * 销毁播放器
    */
-  public disposePlayer() {}
+  public disposePlayer() {
+  }
 
   /**
    * 初始化

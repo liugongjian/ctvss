@@ -148,7 +148,6 @@ export default class extends Vue {
    * 销毁播放器
    */
   private beforeDestroy() {
-    this.isDebug && console.log('销毁播放器')
     this.player && this.player.disposePlayer()
     document.removeEventListener('visibilitychange', this.onVisibilitychange)
   }
