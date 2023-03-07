@@ -1,12 +1,13 @@
 <template>
   <common-tree
     ref="commonTree"
+    v-loading="loading"
     :node-key="nodeKey"
     :root-key="rootKey"
     :default-key="defaultKey"
     :data="data"
     :lazy="lazy"
-    :load="load"
+    :load="treeLoad"
     :props="defaultProps"
     :empty-text="emptyText"
     :expand-on-click-node="false"
@@ -62,6 +63,16 @@ import treeMixin from '@vss/device/components/Tree/treeMixin'
   name: 'DeviceTree'
 })
 export default class extends Mixins(treeMixin) {
+  public async onTreeLoadedHook(node, res) {
+    if (node.level === 0) {
+      const pathStr =  this.$route.query.path as string
+      const pathList = pathStr ? pathStr.split(',') : []
+      window.setImmediate(() => {
+        this.loadChildren(pathList)
+      })
+    }
+    return res.dirs
+  }
 }
 </script>
 

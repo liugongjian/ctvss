@@ -58,9 +58,6 @@ export default class LayoutMixin extends Vue {
   public loading = {
     tree: false
   }
-  public filterVideoProtocolArr: any
-  public filterInProtocolArr: any
-  public filterTypeArr: any
   public getVueComponent() {
     return this
   }
@@ -122,71 +119,6 @@ export default class LayoutMixin extends Vue {
 
   public mounted() {
     DeviceManager.initAdvancedSearch(this)
-  }
-
-  /**
-   * 懒加载时加载节点方法
-   * @param node 节点信息
-   */
-  public async treeLoad(node) {
-    let res
-    // 增加 层级关系
-    if (node.level === 0) {
-      this.loading.tree = true
-      try {
-        res = await getNodeInfo({
-          id: '',
-          type: DirectoryTypeEnum.Dir,
-          inProtocol: this.deviceInType
-        })
-
-        if (typeof (this as any).initResourceStatus === 'function') {
-          this.$nextTick(() => (this as any).initResourceStatus())
-        } else {
-          const pathStr =  this.$route.query.path as string
-          const pathList = pathStr ? pathStr.split(',') : []
-          this.deviceTree.loadChildren(pathList)
-        }
-        this.deviceTree.rootSums.onlineSize = res.onlineSize
-        this.deviceTree.rootSums.totalSize = res.totalSize
-        res.dirs.map((item: any) => {
-          item.path = [{
-            id: item.id,
-            label: '',
-            type: item.type
-          }]
-        })
-      } catch (e) {
-        console.log(e)
-      }
-      this.loading.tree = false
-    } else {
-      // 增加 path 属性
-      res = await getNodeInfo({
-        id: node.data.id,
-        type: node.data.type,
-        inProtocol: this.deviceInType
-      })
-      const parentPath = this.concatPath(node)
-      res.dirs.map((item: any) => {
-        item.path = node.data.path.concat([{
-          label: node.level === 1 ? node.label : parentPath + '/' + node.label,
-          ...item
-        }])
-      })
-    }
-    // 节点过滤
-    if (Array.isArray(this.filterTypeArr) && this.filterTypeArr.length) {
-      res.dirs = res.dirs.filter((dir: any) => this.filterTypeArr.includes(dir.type))
-    }
-    if (Array.isArray(this.filterInProtocolArr) && this.filterInProtocolArr.length) {
-      res.dirs = res.dirs.filter((dir: any) => !dir.inProtocol || this.filterInProtocolArr.includes(dir.inProtocol))
-    }
-    if (Array.isArray(this.filterVideoProtocolArr) && this.filterVideoProtocolArr.length) {
-      res.dirs = res.dirs.filter((dir: any) => this.filterVideoProtocolArr.includes(dir.inVideoProtocol))
-    }
-    
-    return res.dirs
   }
 
   /**

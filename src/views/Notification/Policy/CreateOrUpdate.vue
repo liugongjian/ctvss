@@ -117,7 +117,7 @@
           />
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
-          <resource-tree
+          <resource-selector
             v-if="isPolicyLoading === false"
             :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
@@ -157,14 +157,14 @@ import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPo
 import { getAlgorithmList } from '@/api/ai-app'
 import { INotifictionPolicyForm } from '@/type/Notification'
 import { dateFormat } from '@/utils/date'
-import ResourceTree from './components/ResourceTree.vue'
+import ResourceSelector from '@/views/components/ResourceSelector.vue'
 import DestinationsTree from './components/DestinationsTree.vue'
 import { pick } from 'lodash'
 
 @Component({
   name: 'notification-policy-create-or-update',
   components: {
-    ResourceTree,
+    ResourceSelector,
     DestinationsTree
   }
 })
