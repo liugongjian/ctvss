@@ -1,11 +1,13 @@
 <template>
   <div class="billing-container">
-    <el-menu default-active="/billing/resource" class="el-menu-demo" mode="horizontal" router>
+    <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router>
       <el-menu-item index="/billing/resource">资源包管理</el-menu-item>
       <el-menu-item index="/billing/ondemand">按需计费管理</el-menu-item>
     </el-menu>
     <div>
-      <router-view />
+      <keep-alive>
+        <router-view />
+      </keep-alive>
     </div>
   </div>
 </template>

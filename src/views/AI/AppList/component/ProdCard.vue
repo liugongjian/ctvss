@@ -31,6 +31,8 @@ export default class extends Vue {
 </script>
 <style lang='scss' scoped>
 .el-card {
+  padding: 22px;
+
   ::v-deep .el-card__body {
     height: 100%;
   }
