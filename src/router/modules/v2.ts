@@ -354,7 +354,7 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -365,7 +365,7 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
         name: 'recordCreate',
         meta: {
           title: '新建录制模板',
@@ -376,7 +376,7 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
         name: 'recordUpdate',
         meta: {
           title: '编辑录制模板',
