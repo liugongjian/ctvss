@@ -103,12 +103,12 @@
             <el-table-column
               prop="userName"
               label="用户名"
-              width="120"
+              width="200"
             />
             <el-table-column
               prop="lastLoginTime"
               label="最后登录时间"
-              width="180"
+              width="220"
             >
               <!-- <template slot-scope="{row}">
                 {{ row.lastLoginTime === '-' ? row.lastLoginTime : dateFormat(Number(row.lastLoginTime)) }}
@@ -117,7 +117,7 @@
             <el-table-column
               prop="lastLoginIp"
               label="最后登录IP"
-              width="180"
+              width="220"
             >
               <template slot-scope="{row}">
                 <span v-if="row.lastLoginIp.split(',').length > 1">
@@ -139,7 +139,6 @@
             <el-table-column
               prop="lockState"
               label="锁定状态"
-              width="120"
             >
               <template slot-scope="{row}">
                 <span v-if="row.lockState === 0">
@@ -158,7 +157,7 @@
             <el-table-column
               prop="lockStartTime"
               label="锁定开始时间"
-              width="180"
+              width="220"
             >
               <!-- <template slot-scope="{row}">
                 <span>{{ dateFormat(Number(row.lockStartTime)) }}</span>
@@ -167,7 +166,7 @@
             <el-table-column
               prop="lockEndTime"
               label="锁定结束时间"
-              width="180"
+              width="220"
             >
               <!-- <template slot-scope="{row}">
                 <span v-if="row.lockEndTime === '-'">永久</span>
