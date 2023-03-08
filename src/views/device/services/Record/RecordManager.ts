@@ -572,4 +572,29 @@ export class RecordManager {
       throw new VSSError(e.code, e.message, null)
     }
   }
+
+  /**
+   * 加载/更新 本地播放源
+   * time: 秒
+   */
+     private async updateLocalUrl(time: number) {
+      try {
+        this.cancelAxiosSource()
+        this.screen.isLoading = true
+        const res = await this.getLocalUrl(time)
+        this.screen.codec = res.codec
+        this.screen.url = res.url
+        // 取消请求不会走下面的,不写 finally 以防止 DOM 加载状态丢失
+        this.localLoading = false
+        this.screen.isLoading = false
+      } catch (e) {
+        if (e.code !== -2 && e.code !== -1) {
+          this.screen.errorMsg = e.message
+        }
+        if (e.code !== -2) {
+          this.localLoading = false
+          this.screen.isLoading = false
+        }
+      }
+    }
 }
