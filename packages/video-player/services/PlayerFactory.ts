@@ -1,4 +1,5 @@
 import { PlayerConfig } from '../types/Player'
+import { Mp4Player } from './Mp4Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
@@ -34,6 +35,8 @@ export const createPlayer = (config: PlayerConfig) => {
 const initPlayer = (config: PlayerConfig) => {
   if (config.codec === CodecEnum.H264) {
     switch (config.type) {
+      case TypeEnum.MP4:
+        return new Mp4Player(config)
       case TypeEnum.FLV:
         return new FlvPlayer(config)
       case TypeEnum.HLS:
@@ -43,6 +46,8 @@ const initPlayer = (config: PlayerConfig) => {
     }
   } else {
     switch (config.type) {
+      case TypeEnum.MP4:
+        return new Mp4Player(config)
       case TypeEnum.FLV:
         if (isSupportH265()) {
           return new FlvH265Player(config)

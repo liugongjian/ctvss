@@ -18,8 +18,6 @@
         <!-- TODO -->
         <replay-tree
           ref="deviceTree"
-          v-loading="loading.tree"
-          :load="treeLoad"
           :lazy="lazy"
           :data="treeSearchResult"
           @handle-node="handleTreeNode"

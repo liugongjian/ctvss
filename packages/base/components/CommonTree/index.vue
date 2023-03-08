@@ -40,7 +40,7 @@
           :show-checkbox="hasCheckbox"
           highlight-current
           @node-click="handleNode"
-          @check="onCheckDevice"
+          @check-change="onCheckChange"
         >
           <!-- <el-tree
           :key="treeKey"
@@ -172,9 +172,6 @@ export default class extends Vue {
    */
   private initTree() {
     this.currentKey = this.rootKey
-    // const node = this.tree.getNode(this.currentKey)
-    // const data = node && node.data
-    // this.handleNode(data, node)
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
   }
@@ -206,11 +203,6 @@ export default class extends Vue {
     }
   }
 
-  private setCurrentKey(val) {
-    this.currentKey = val
-    this.tree.setCurrentKey(this.currentNodeKey)
-  }
-
   private resolveChildren = function(node, data) {
     if (!node) return
     this.tree.updateKeyChildren(node.data.id, data)
@@ -236,26 +228,44 @@ export default class extends Vue {
   }
 
   private getCheckedKeys(leafOnly = false) {
-    return this.tree.getCheckedNodes(leafOnly)
+    return this.tree.getCheckedKeys(leafOnly)
   }
 
   private setCheckedKeys(keys, leafOnly = false) {
     return this.tree.setCheckedKeys(keys, leafOnly)
   }
 
+  private setChecked(data, checked: boolean, deep = false) {
+    return this.tree.setChecked(data, checked, deep)
+  }
+
+  private getCurrentKey() {
+    return this.tree.getCurrentKey()
+  }
+
+  private getCurrentNode() {
+    return this.tree.getCurrentNode()
+  }
+
+  private setCurrentKey(key) {
+    this.currentKey = key
+    return this.tree.setCurrentKey(this.currentNodeKey)
+  }
+
+  private setCurrentNode(node) {
+    return this.tree.setCurrentNode(node)
+  }
+
+  private getNode(data) {
+    return this.tree.getNode(data)
+  }
+
   /**
    * 节点选中事件
   */
-  private onCheckDevice(data: any) {
-    const dirTree: any = this.tree
-    const nodes = dirTree.getCheckedNodes()
-    this.currentKey = data.id
-    this.tree.setCurrentKey(this.currentNodeKey)
-    this.$emit('check-device', nodes)
-  }
-
-  private setChecked(data: any, checked: boolean, deep = false) {
-    return this.tree.setChecked(data, checked, deep)
+  private onCheckChange(data: any) {
+    this.setCurrentKey(data.id || data)
+    this.$emit('check-change', data)
   }
 
 }

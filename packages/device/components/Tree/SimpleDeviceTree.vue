@@ -7,7 +7,7 @@
     :default-key="defaultKey"
     :data="data"
     :lazy="lazy"
-    :load="defaultLoad"
+    :load="treeLoad"
     :props="defaultProps"
     :empty-text="emptyText"
     @handle-node="handleNode"
@@ -36,26 +36,6 @@ import { getNodeInfo } from '@vss/device/api/dir'
   name: 'SimpleDeviceTree'
 })
 export default class extends Mixins(treeMixin) {
-  @Prop()
-  private deviceInType: DeviceInTypeEnum
-  private loading = false
-  private async defaultLoad(node) {
-    try {
-      let res
-      if (node.level === 0) {
-        this.loading = true
-        res = await getNodeInfo({ id: '', type: DirectoryTypeEnum.Dir, inProtocol: this.deviceInType })
-        this.rootSums.onlineSize = res.onlineSize
-        this.rootSums.totalSize = res.totalSize
-        this.loading = false
-      } else {
-        res = await getNodeInfo({ id: node.data.id, type: node.data.type, inProtocol: this.deviceInType })
-      }
-      return res.dirs
-    } catch (e) {
-      console.log(e)
-    }
-  }
 }
 </script>
 

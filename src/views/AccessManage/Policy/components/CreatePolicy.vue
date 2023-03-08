@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="policyLoading.resource">
+    <el-card v-loading="loading.policy">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="policyId">
           <el-input v-model="form.policyId" class="form__input" :disabled="isUpdate" />
@@ -27,42 +27,19 @@
             <el-radio label="selected">特定资源</el-radio>
           </el-radio-group>
           <div v-show="resourceType === 'selected'" class="dialog-wrap">
-            <IAMResourceTree 
-              ref="deviceTree"
-              v-loading="loading.tree"
-              class="tree-wrap"
-              :load="treeLoad"
-              :lazy="lazy"
-              :data="dirList"
-              :props="treeProp"
-              @check-device="onCheckDevice"
+            <resource-selector
+              v-if="loading.policy === false"
+              :checked-list="initResourceList"
+              :filter-type-arr="['dir']"
+              @resourceListChange="resourceListChange"
+              @resourceLoaded="resourceLoaded"
             />
-            <div class="device-wrap">
-              <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
-              <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择资源" fit>
-                <el-table-column key="name" prop="name" width="220" label="业务组/目录名称">
-                  <template slot-scope="{ row }">
-                    {{ row.name || '-' }}
-                  </template>
-                </el-table-column>
-                <el-table-column key="path" prop="path" label="所在位置">
-                  <template slot-scope="{ row }">
-                    {{ renderPath(row.path) || '' }}
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
-                  <template slot-scope="scope">
-                    <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
           </div>
         </el-form-item>
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" :loading="loading.tree || policyLoading.resource" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="loading.resource || loading.policy" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -78,18 +55,17 @@
 <script lang="ts">
 import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
 import TemplateBind from '@/views/components/TemplateBind.vue'
-import { Component, Mixins } from 'vue-property-decorator'
-import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
-import layoutMxin from '@vss/device/mixin/layoutMixin'
+import { Component, Vue } from 'vue-property-decorator'
+import ResourceSelector from '@/views/components/ResourceSelector.vue'
 
 @Component({
   name: 'CreatePolicy',
   components: {
     TemplateBind,
-    IAMResourceTree
+    ResourceSelector
   }
 })
-export default class extends Mixins(layoutMxin) {
+export default class extends Vue {
   public filterTypeArr = ['dir']
   public hasCheckbox = true
   private breadCrumbContent = ''
@@ -146,9 +122,9 @@ export default class extends Mixins(layoutMxin) {
     }
   ]
   private dirList: any = []
-  public policyLoading = {
-    dir: false,
-    resource: false
+  public loading = {
+    policy: null,
+    resource: false,
   }
   private treeProp = {
     label: 'label',
@@ -164,6 +140,7 @@ export default class extends Mixins(layoutMxin) {
     actionList: [],
     resourceList: []
   }
+  private initResourceList = []
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
@@ -207,6 +184,7 @@ export default class extends Mixins(layoutMxin) {
   private get isUpdate() {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
+
   public async created() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
@@ -219,6 +197,7 @@ export default class extends Mixins(layoutMxin) {
       if (policyId) {
         this.$set(this.form, 'policyId', policyId)
         await this.getPolicyInfo()
+        this.loading.resource = true
       } else {
         this.back()
       }
@@ -260,7 +239,7 @@ export default class extends Mixins(layoutMxin) {
    */
   private async getPolicyInfo() {
     try {
-      this.policyLoading.resource = true
+      this.loading.policy = true
       this.policyPromise = getPolicyInfo({
         policyId: this.form.policyId
       })
@@ -295,8 +274,9 @@ export default class extends Mixins(layoutMxin) {
           })
         })
       }
-      const resourceList = policyInfo.Statement[0].Resource
-      if (resourceList[0] === '*') {
+      this.initResourceList = policyInfo.Statement[0].Resource
+
+      if (this.initResourceList[0] === '*') {
         this.resourceType = 'all'
       } else {
         this.resourceType = 'selected'
@@ -305,7 +285,7 @@ export default class extends Mixins(layoutMxin) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
     } finally {
-      this.policyLoading.resource = false
+      this.loading.policy = false
     }
   }
   /**
@@ -323,50 +303,12 @@ export default class extends Mixins(layoutMxin) {
     )
   }
 
-  /**
-   * 初始化资源选中状态
-   */
-  public async initResourceStatus() {
-    this.policyPromise && this.policyPromise.then( async(policy: any) => {
-      const resourceList = JSON.parse(policy.policyDocument).Statement[0].Resource
-      if (resourceList.length) {
-        const pathList = resourceList.map((resource: any) => resource.split(':')[2].split('/'))
-        const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
-        for (let idx = 0, len = pathList.length; idx < len; idx++) {
-            await this.deviceTree.asyncLoadChildren(pathList[idx], true)
-          }
-        const tree = this.deviceTree.$refs.commonTree
-        tree.setCheckedKeys(checkedKeys)
-        this.onCheckDevice(this.getTreeCheckedNodes(tree))
-      }
-    })
+  private resourceListChange(resourceList) {
+    this.form.resourceList = resourceList
   }
 
-  /**
-   * 当设备被选中时回调，将选中的设备列出
-   */
-  private onCheckDevice(nodes: any) {
-    const list = nodes.filter((node: any) => {
-      const currentNodeParentDirId = (node.parentDirId === 0 || node.parentDirId === -1) ? 0 : node.parentDirId
-      const currentNodeParentDeviceId = (node.parentDeviceId === 0 || node.parentDeviceId === -1) ? 0 : node.parentDeviceId
-      const nodeIdsList = nodes.map((node: any) => node.id)
-      return ((currentNodeParentDirId !== 0) && nodeIdsList.indexOf(node.parentDirId) === -1) && ((currentNodeParentDeviceId !== 0) && nodeIdsList.indexOf(node.parentDeviceId) === -1)
-    })
-    this.form.resourceList = list
-  }
-
-  /**
-   * 移除设备
-   */
-  private removeDevice(device: any) {
-    const tree = this.deviceTree.$refs.commonTree
-    tree.setChecked(device.id, false, true)
-    this.onCheckDevice(this.getTreeCheckedNodes(tree))
-  }
-
-  private getTreeCheckedNodes(tree: any) {
-    const nodes = tree.getCheckedNodes()
-    return nodes
+  private resourceLoaded() {
+    this.loading.resource = false
   }
 
   /**
@@ -400,11 +342,7 @@ export default class extends Mixins(layoutMxin) {
                   Resource:
                     this.resourceType === 'all'
                       ? ['*']
-                      : this.form.resourceList.map((resource: any) => {
-                        const mainUserID = this.$store.state.user.mainUserID
-                        const pathIds = resource.path.map((obj: any) => obj.id)
-                        return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
-                      })
+                      : this.form.resourceList
                 }
               ]
             })
@@ -418,6 +356,7 @@ export default class extends Mixins(layoutMxin) {
           return false
         }
       } catch (e) {
+        console.log(e)
         this.$message.error(e && e.message)
       } finally {
         // TODO
