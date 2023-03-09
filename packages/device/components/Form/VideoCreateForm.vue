@@ -205,6 +205,7 @@
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
         <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
+        <ServiceConfig :device-type="deviceForm.deviceType" />
       </el-form-item>
     <!-- <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -231,13 +232,15 @@ import { checkVideoVisible } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
+import ServiceConfig from '@vss/device/components/ServiceConfig/index.vue'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
     CertificateSelect,
     Tags,
-    Resource
+    Resource,
+    ServiceConfig
   }
 })
 export default class extends Vue {

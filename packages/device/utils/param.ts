@@ -67,7 +67,9 @@ export function checkVideoVisible(
   }
 
   // 是否自动拉流
+  console.log(this.deviceStreamAutoPull)
   if (this.deviceStreamAutoPull === 2) {
+    console.log([DeviceEnum.DeviceStreamPullIndex as string].includes(prop))
     if ([DeviceEnum.DeviceStreamPullIndex as string].includes(prop)) return false
   }
 
