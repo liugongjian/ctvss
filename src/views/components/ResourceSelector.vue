@@ -2,13 +2,13 @@
   <div class="dialog-wrap">
     <IAMResourceTree 
       ref="deviceTree"
-      v-loading="loading.tree"
       class="tree-wrap"
-      :load="treeLoad"
-      :lazy="lazy"
-      :data="dirList"
-      :props="treeProp"
+      :checked-list="checkedList"
+      :filter-type-arr="filterTypeArr"
+      :filter-in-protocol-arr="filterInProtocolArr"
+      :filter-video-protocol-arr="filterVideoProtocolArr"
       @check-device="onCheckDevice"
+      @resource-loaded="onResourceLoaded"
     />
     <div class="device-wrap">
       <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
@@ -34,9 +34,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import IAMResourceTree from '@vss/device/components/Tree/IAMResourceTree.vue'
-import layoutMxin from '@vss/device/mixin/layoutMixin'
 
 @Component({
   name: 'source-tree',
@@ -44,42 +43,37 @@ import layoutMxin from '@vss/device/mixin/layoutMixin'
     IAMResourceTree
   }
 })
-export default class extends Mixins(layoutMxin) {
+export default class extends Vue {
   @Prop()
   private checkedList: []
 
+  @Prop({ default: () => ['dir', 'nvr', 'ipc'] })
+  public filterTypeArr
+
+  @Prop({ default: () => ['video'] })
+  public filterInProtocolArr
+
+  @Prop({ default: () => null })
+  public filterVideoProtocolArr
+
+  private handleCheck(nodes: any) {
+    this.$emit('check-device', nodes)
+  }
+
   private resourceList = []
-  private dirList: any = []
-  public filterTypeArr = ['dir', 'nvr', 'ipc']
-  public filterInProtocolArr = ['video']
-  // public loading = false
   private treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
   }
 
-  public async mounted() {
-    // await this.initResourceStatus()
-  }
-
-    /**
-   * 初始化资源选中状态
+  /**
+   * 移除设备
    */
-  public async initResourceStatus() {
-    Promise.resolve(this.checkedList).then(async(checkedList: any) => {
-      if (checkedList.length) {
-        const pathList = checkedList.map((resource: any) => resource.split(':')[2].split('/'))
-        const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
-        for (let idx = 0, len = pathList.length; idx < len; idx++) {
-            await this.deviceTree.asyncLoadChildren(pathList[idx], true)
-          }
-        const tree = this.deviceTree.$refs.commonTree
-        tree.setCheckedKeys(checkedKeys)
-        this.onCheckDevice(this.getTreeCheckedNodes(tree))
-      }
-      this.$emit('resourceLoaded')
-    })
+  private removeDevice(device: any) {
+    const tree: any = this.$refs.deviceTree
+    tree.setChecked(device.id, false, true)
+    this.onCheckDevice(tree.getCheckedNodes())
   }
 
   /**
@@ -99,19 +93,9 @@ export default class extends Mixins(layoutMxin) {
       return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
     }))
   }
-
-  /**
-   * 移除设备
-   */
-  private removeDevice(device: any) {
-    const tree = this.deviceTree.$refs.commonTree
-    tree.setChecked(device.id, false, true)
-    this.onCheckDevice(this.getTreeCheckedNodes(tree))
-  }
     
-  private getTreeCheckedNodes(tree: any) {
-    const nodes = tree.getCheckedNodes()
-    return nodes
+  private onResourceLoaded(nodes) {
+    this.$emit('resourceLoaded', nodes)
   }
 
   /**

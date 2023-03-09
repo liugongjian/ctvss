@@ -32,6 +32,9 @@ export class RecordManager {
   public pageSize?: string
   /* 录像列表加载状态（不在UI中显示转圈，只用于逻辑判断） */
   public isLoading: boolean
+
+  /* 只用于逻辑判断，本地设备录像加载状态 */
+  private localLoading = false
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
 
@@ -105,6 +108,7 @@ export class RecordManager {
       }
     } finally {
       this.screen.isLoading = false
+      if(!this.localLoading) this.screen.isLoading = false
     }
   }
 
@@ -175,10 +179,13 @@ export class RecordManager {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            this.screen.currentRecordDatetime = records[0].startTime
-            const res = await this.getLocalUrl(records[0].startTime)
-            this.screen.codec = res.codec
-            this.screen.url = res.url
+            // this.screen.currentRecordDatetime = records[0].startTime
+            // const res = await this.getLocalUrl(records[0].startTime)
+            // this.screen.codec = res.codec
+            // this.screen.url = res.url
+            this.screen.player && this.screen.player.disposePlayer()
+            this.updateLocalUrl(records[0].startTime)
+            this.localLoading = true
           }
         }
       } else if (!isConcat) {
@@ -186,7 +193,10 @@ export class RecordManager {
         this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
-      if (!isConcat) this.screen.isLoading = false
+      // if (!isConcat) this.screen.isLoading = false
+      if (!isConcat && this.screen.recordType === 0) {
+        this.screen.isLoading = false
+      }
       this.isLoading = false
       this.seek(this.screen.currentRecordDatetime, true)
       // 加载AI热力列表
@@ -280,7 +290,8 @@ export class RecordManager {
         this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        this.screen.isLoading = false
+        // this.screen.isLoading = false
+        if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
           // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
           throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
@@ -296,7 +307,8 @@ export class RecordManager {
       this.screen.recordManager.currentDate = time
       this.screen.player && this.screen.player.disposePlayer()
       this.screen.player = null
-      this.screen.isLoading = false
+      // this.screen.isLoading = false
+      if (!this.localLoading) this.screen.isLoading = false
       this.screen.url = ''
     }
   }
@@ -560,4 +572,29 @@ export class RecordManager {
       throw new VSSError(e.code, e.message, null)
     }
   }
+
+  /**
+   * 加载/更新 本地播放源
+   * time: 秒
+   */
+     private async updateLocalUrl(time: number) {
+      try {
+        this.cancelAxiosSource()
+        this.screen.isLoading = true
+        const res = await this.getLocalUrl(time)
+        this.screen.codec = res.codec
+        this.screen.url = res.url
+        // 取消请求不会走下面的,不写 finally 以防止 DOM 加载状态丢失
+        this.localLoading = false
+        this.screen.isLoading = false
+      } catch (e) {
+        if (e.code !== -2 && e.code !== -1) {
+          this.screen.errorMsg = e.message
+        }
+        if (e.code !== -2) {
+          this.localLoading = false
+          this.screen.isLoading = false
+        }
+      }
+    }
 }

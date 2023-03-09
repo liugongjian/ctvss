@@ -1,11 +1,12 @@
 <template>
   <common-tree
     ref="commonTree"
+    v-loading="loading"
     :node-key="nodeKey"
     :root-key="rootKey"
     :data="data"
     :lazy="lazy"
-    :load="load"
+    :load="treeLoad"
     :props="defaultProps"
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"

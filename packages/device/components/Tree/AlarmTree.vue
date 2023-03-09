@@ -1,12 +1,13 @@
 <template>
   <common-tree
     ref="commonTree"
+    v-loading="loading"
     :node-key="nodeKey"
     :root-key="rootKey"
     :default-key="defaultKey"
     :data="data"
     :lazy="lazy"
-    :load="load"
+    :load="treeLoad"
     :props="defaultProps"
     :empty-text="emptyText"
     :expand-on-click-node="false"
@@ -34,18 +35,24 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-// import StatusBadge from '@/components/StatusBadge/index.vue'
 import { renderAlertType } from '@/utils/device'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
 
 @Component({
-  name: 'AlarmTree',
-  // components: {
-  //   StatusBadge
-  // }
+  name: 'AlarmTree'
 })
 export default class extends Mixins(treeMixin) {
   private renderAlertType = renderAlertType
+  public async onTreeLoadedHook(node, res) {
+    if (node.level === 0) {
+      const pathStr =  this.$route.query.path as string
+      const pathList = pathStr ? pathStr.split(',') : []
+      window.setImmediate(() => {
+        this.loadChildren(pathList)
+      })
+    }
+    return res.dirs.filter((dir: any) => [this.inVideoProtocolEnum.Gb28181].includes(dir.inVideoProtocol))
+  }
 }
 </script>
 
