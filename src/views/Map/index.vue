@@ -1,7 +1,14 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{ height: `${maxHeight + 35}px` }" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }">
+      <div
+        class="device-list"
+        :style="{ height: `${maxHeight + 35}px` }"
+        :class="{
+          'device-list--collapsed': !isExpanded,
+          'device-list--dragging': dirDrag.isDragging
+        }"
+      >
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -10,11 +17,21 @@
           :style="`left: ${dirDrag.width}px`"
           @mousedown="changeWidthStart($event)"
         />
-        <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
-          <el-button class="map__add" size="small" @click="openMapEditDialog()">添加地图</el-button>
+        <div
+          ref="dirList"
+          class="device-list__left"
+          :style="`width: ${dirDrag.width}px`"
+        >
+          <el-button class="map__add" size="small" @click="openMapEditDialog()">
+            添加地图
+          </el-button>
           <el-card v-if="curMap" class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
-              <div class="choose-map" :class="map.mapId === curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
+              <div
+                class="choose-map"
+                :class="map.mapId === curMap.mapId ? 'active' : ''"
+                @click="chooseMap(map)"
+              >
                 <el-tooltip :content="map.name" placement="top">
                   <span class="map-text">{{ map.name }}</span>
                 </el-tooltip>
@@ -32,7 +49,11 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{ height: `${maxHeight-230}px` }">
+          <div
+            v-loading="loading.dir"
+            class="dir-list__tree device-list__max-height el-tree__content"
+            :style="{ height: `${maxHeight - 230}px` }"
+          >
             <el-tree
               ref="dirTree"
               :key="treeKey"
@@ -42,17 +63,30 @@
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{ data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }" @click.stop.prevent="deviceClick(data)">
+              <span
+                slot-scope="{ data }"
+                class="custom-tree-node"
+                :class="{ online: data.deviceStatus === 'on' }"
+                @click.stop.prevent="deviceClick(data)"
+              >
                 <span class="node-name">
-                  <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                  <status-badge
+                    v-if="data.streamStatus"
+                    :status="data.streamStatus"
+                  />
                   <svg-icon :name="data.type" />
                   <span
                     class="node-label"
-                    @mousedown="(e) => {
-                      mousedownHandle(e, data)
-                    }"
+                    @mousedown="
+                      (e) => {
+                        mousedownHandle(e, data)
+                      }
+                    "
                   >{{ data.name }}</span>
-                  <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
+                  <svg-icon
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    name="mark"
+                  />
                   <span class="sum-icon" />
                 </span>
                 <el-tooltip content="添加该点位至地图" placement="top">
@@ -78,29 +112,45 @@
         <div class="device-list__right">
           <div v-if="curMap" class="tools">
             <span class="left">
-              <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
+              <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{
+                isEdit ? '完成编辑' : '开启编辑'
+              }}</span>
               <template v-if="isEdit">
                 <div class="device-list__right__handleBox">
-                  <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{ 'active': toolState === item.tool }" @click="changeToolState(item.tool)">
+                  <el-tooltip
+                    v-for="item in toolType"
+                    :key="item.name"
+                    :content="item.text"
+                    placement="top"
+                  >
+                    <span
+                      class="device-list__right__handleBox__tools"
+                      :class="{ active: toolState === item.tool }"
+                      @click="changeToolState(item.tool)"
+                    >
                       <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
                 </div>
               </template>
 
-              <el-tooltip v-if="!isEdit" content="关闭所有播放窗口" placement="top">
+              <el-tooltip
+                v-if="!isEdit"
+                content="关闭所有播放窗口"
+                placement="top"
+              >
                 <span class="tools-item"><svg-icon name="close-all" @click="closeAllWindow()" /></span>
               </el-tooltip>
 
               <el-tooltip content="属性" placement="top">
                 <span class="tools-item">
                   <svg-icon
-                    v-if="showInfo" name="unfold" class="device-list__activeSvg" @click="showInfo = false"
+                    v-if="showInfo"
+                    name="unfold"
+                    class="device-list__activeSvg"
+                    @click="showInfo = false"
                   />
-                  <svg-icon
-                    v-else name="fold" @click="showInfo = true"
-                  />
+                  <svg-icon v-else name="fold" @click="showInfo = true" />
                 </span>
               </el-tooltip>
               <el-tooltip content="进入全屏" placement="top">
@@ -110,13 +160,22 @@
               </el-tooltip>
             </span>
           </div>
-          <div class="device-list__max-height" :style="{ height: `${maxHeight}px` }">
-            <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
+          <div
+            class="device-list__max-height"
+            :style="{ height: `${maxHeight}px` }"
+          >
+            <el-dialog
+              title="修改地图"
+              :visible.sync="modifyMapDialog"
+              class="dialog-text"
+            >
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
               </div>
               <div>
-                <el-checkbox v-model="modifyMapForm.center">中心坐标</el-checkbox>
+                <el-checkbox v-model="modifyMapForm.center">
+                  中心坐标
+                </el-checkbox>
                 <el-checkbox v-model="modifyMapForm.zoom">缩放</el-checkbox>
               </div>
               <span slot="footer" class="dialog-footer">
@@ -124,47 +183,113 @@
                 <el-button type="primary" @click="modifyMap">确定</el-button>
               </span>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text" :before-close="cancelAddMark">
+
+            <el-dialog
+              title="添加监控点位"
+              :visible.sync="addPositionDialog"
+              class="dialog-text"
+              :before-close="cancelAddMark"
+            >
               <div>
                 <h3>是否继承设备中的经纬度</h3>
                 <h3>如不继承则使用地图当前的中心经纬度</h3>
               </div>
               <h3>
-                <el-checkbox v-model="addPositionDialogCheck">本次编辑不再询问</el-checkbox>
+                <el-checkbox v-model="addPositionDialogCheck">
+                  本次编辑不再询问
+                </el-checkbox>
               </h3>
               <el-button @click="confirmAddMarker(true)">继承</el-button>
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addPositionDialogCheck')">
+                取消
+              </el-button>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
+
+            <el-dialog
+              title="添加监控点位"
+              :visible.sync="dragAddPositionDialog"
+              class="dialog-text"
+              :before-close="cancelAddMark"
+            >
+              <div>
+                <h3>是否继承设备中的经纬度</h3>
+                <h3>如不继承则使用鼠标所在的经纬度</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="dragAddPositionDialogCheck">
+                  本次编辑不再询问
+                </el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">继承</el-button>
+              <el-button @click="confirmDragAddPosition">不继承</el-button>
+              <el-button @click="cancelAddMark('dragAddPositionDialogCheck')">
+                取消
+              </el-button>
+            </el-dialog>
+
+            <el-dialog
+              title="添加监控点位"
+              :visible.sync="addNoPositionDialog"
+              class="dialog-text"
+              :before-close="cancelAddMark"
+            >
               <div>
                 <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
               </div>
               <h3>
-                <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+                <el-checkbox v-model="addNoPositionDialogCheck">
+                  本次编辑不再询问
+                </el-checkbox>
               </h3>
               <el-button @click="confirmAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addNoPositionDialogCheck')">
+                取消
+              </el-button>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
+
+            <el-dialog
+              title="添加监控点位"
+              :visible.sync="dragAddNoPositionDialog"
+              class="dialog-text"
+              :before-close="cancelAddMark"
+            >
               <div>
                 <h3>本设备未设置经纬度，是否使用鼠标所在的经纬度？</h3>
               </div>
               <h3>
-                <el-checkbox v-model="dragAddNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+                <el-checkbox v-model="dragAddNoPositionDialogCheck">
+                  本次编辑不再询问
+                </el-checkbox>
               </h3>
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('dragAddNoPositionDialogCheck')">
+                取消
+              </el-button>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="addRoleDeviceDialog" class="dialog-text" :before-close="cancelAddMark">
+
+            <el-dialog
+              title="添加监控点位"
+              :visible.sync="addRoleDeviceDialog"
+              class="dialog-text"
+              :before-close="cancelAddMark"
+            >
               <div>
-                <h3>本设备是其他用户通过角色分享的设备，并且未设置经纬度，无法添加到地图中。</h3>
+                <h3>
+                  本设备是其他用户通过角色分享的设备，并且未设置经纬度，无法添加到地图中。
+                </h3>
               </div>
-              <h3>
-              </h3>
+              <h3></h3>
               <el-button @click="cancelAddMark">确定</el-button>
             </el-dialog>
-            <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
+
+            <div
+              :class="[
+                'mapwrap',
+                showTitle ? '' : 'hide-title',
+                isAddCustom ? 'in-add' : ''
+              ]"
+            >
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
@@ -176,14 +301,30 @@
                 @markerlistChange="handleMarksChange"
               />
               <div v-else class="init-map">
-                <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
+                <el-button type="primary" @click="openMapEditDialog()">
+                  添加地图
+                </el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
+                <custom-info
+                  v-if="customInfoType"
+                  :key="customInfoType"
+                  :is-add="isAddCustom"
+                  :is-edit="isEdit"
+                  :custom-info-type="customInfoType"
+                  @delete="handleCustomDelete"
+                  @change="handleCustomChange"
+                  @save="changeMapInfos"
+                />
               </div>
             </div>
           </div>
-          <map-config v-if="showMapConfig" :info="mapConfigInfo" @close="showMapConfig=false" @changeMap="addOrEditMap" />
+          <map-config
+            v-if="showMapConfig"
+            :info="mapConfigInfo"
+            @close="showMapConfig = false"
+            @changeMap="addOrEditMap"
+          />
         </div>
       </div>
     </el-card>
@@ -243,6 +384,8 @@ export default class extends Mixins(IndexMixin) {
   private dragAddNoPositionDialogCheck = false
   private uselnglat = true // 是否要继承设备坐标
   private addNoPositionDialog = false
+  private dragAddPositionDialog = false
+  private dragAddPositionDialogCheck = false
   private addNoPositionDialogCheck = false
   private dragAddNoPositionDialog = false
   private addRoleDeviceDialog = false // 添加虚拟目录下的无经纬度设备的提示
@@ -286,9 +429,7 @@ export default class extends Mixins(IndexMixin) {
     return map[zoomGrade]
   }
   private rules = {
-    name: [
-      { validator: this.validateName, trigger: 'blur' }
-    ],
+    name: [{ validator: this.validateName, trigger: 'blur' }],
     longitude: [
       // { required: true, message: '请填写地图经度，[-180, 180]', trigger: 'blur' },
       { validator: this.validatelng, trigger: 'blur' }
@@ -381,15 +522,18 @@ export default class extends Mixins(IndexMixin) {
       name: 'pointer',
       text: '指针工具',
       tool: 'pointer'
-    }, {
+    },
+    {
       name: 'polygon',
       text: '多边形工具',
       tool: 'polygon'
-    }, {
+    },
+    {
       name: 'interest',
       text: '兴趣点工具',
       tool: 'interest'
-    }, {
+    },
+    {
       name: 'font',
       text: '文本工具',
       tool: 'font'
@@ -526,11 +670,18 @@ export default class extends Mixins(IndexMixin) {
       let res
       if (node.level === 0) {
         this.loading.dir = true
-        res = await getNodeInfo({ type: DirectoryTypeEnum.Dir, inProtocol: 'video' })
+        res = await getNodeInfo({
+          type: DirectoryTypeEnum.Dir,
+          inProtocol: 'video'
+        })
         // this.deviceTree.loadChildren('01')
         this.loading.dir = false
       } else {
-        res = await getNodeInfo({ id: node.data.id, type: node.data.type, inProtocol: 'video' })
+        res = await getNodeInfo({
+          id: node.data.id,
+          type: node.data.type,
+          inProtocol: 'video'
+        })
       }
       resolve(res.dirs)
     } catch (e) {
@@ -584,7 +735,7 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    *  地图进入全屏
-  */
+   */
   private fullscreenMap() {
     const mapwrap: any = document.querySelector('.mapwrap')
     const docEle: any = document.documentElement
@@ -615,7 +766,14 @@ export default class extends Mixins(IndexMixin) {
   // 判断是否全屏
   private getIfFullscreen() {
     const doc: any = document
-    return doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullscreenElement
+    return (
+      doc.webkitIsFullScreen ||
+      doc.mozFullScreen ||
+      doc.msFullscreenElement ||
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullscreenElement
+    )
   }
 
   /**
@@ -630,7 +788,8 @@ export default class extends Mixins(IndexMixin) {
     mapwrap.style.zIndex = 'initial'
     mapwrap.style.left = 'initial'
     mapwrap.style.top = 'initial'
-    setTimeout(() => { // 设置 setTimeout 确保完全退出全屏后重新计算宽高
+    setTimeout(() => {
+      // 设置 setTimeout 确保完全退出全屏后重新计算宽高
       this.$refs.mapview && this.$refs.mapview.adjustPlayWindowPos()
     }, 0)
   }
@@ -647,9 +806,14 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
-  */
+   */
   private mousedownHandle(eve: any, data: any) {
-    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) || this.showMapConfig) return
+    if (
+      !data.isLeaf ||
+      (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) ||
+      this.showMapConfig
+    )
+      return
 
     this.ifDragging = true
     const { target: ele } = eve
@@ -688,7 +852,7 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    * 鼠标松开
-  */
+   */
   private mouseupHandle(eve: any) {
     const { pageX, pageY } = eve
     const { releaseBoundaryInfo, data } = this.dragNodeInfo
@@ -696,7 +860,12 @@ export default class extends Mixins(IndexMixin) {
     const { startTop, startLeft, endTop, endLeft } = releaseBoundaryInfo
 
     // 处理可释放边界逻辑,即地图范围内可以释放
-    if (pageX >= startLeft && pageX <= endLeft && pageY >= startTop && pageY <= endTop) {
+    if (
+      pageX >= startLeft &&
+      pageX <= endLeft &&
+      pageY >= startTop &&
+      pageY <= endTop
+    ) {
       const pixelXInMap = pageX - startLeft
       const pixelYInMap = pageY - startTop
 
@@ -726,10 +895,19 @@ export default class extends Mixins(IndexMixin) {
 
   private getBoundary() {
     // 获取范围，需要处理边界
-    const releaseBoundaryWrap = document.querySelector('.mapwrap').getBoundingClientRect()
-    const moveBoundaryWrap = document.querySelector('.device-list').getBoundingClientRect()
+    const releaseBoundaryWrap = document
+      .querySelector('.mapwrap')
+      .getBoundingClientRect()
+    const moveBoundaryWrap = document
+      .querySelector('.device-list')
+      .getBoundingClientRect()
     const { top, left, right, bottom } = releaseBoundaryWrap
-    const { top: topM, left: leftM, right: rightM, bottom: bottomM } = moveBoundaryWrap
+    const {
+      top: topM,
+      left: leftM,
+      right: rightM,
+      bottom: bottomM
+    } = moveBoundaryWrap
 
     // 有效可释放边界，地图范围
     this.dragNodeInfo.releaseBoundaryInfo = {
@@ -748,17 +926,24 @@ export default class extends Mixins(IndexMixin) {
   }
 
   /**
-    * 鼠标按住的移动事件
-  */
+   * 鼠标按住的移动事件
+   */
   private startMovePoint(pageX: number, pageY: number) {
     const { ele, shiftX, shiftY } = this.dragNodeInfo
-    const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
+    const { startTop, startLeft, endTop, endLeft } =
+      this.dragNodeInfo.moveBoundaryInfo
 
     // 在边界内，则任意移动
-    if (pageX > startLeft && pageX < endLeft && pageY > startTop && pageY < endTop) {
+    if (
+      pageX > startLeft &&
+      pageX < endLeft &&
+      pageY > startTop &&
+      pageY < endTop
+    ) {
       ele.style.left = `${pageX - shiftX}px`
       ele.style.top = `${pageY - shiftY}px`
-    } else { // 边界外，取一个最大值，一个移动值
+    } else {
+      // 边界外，取一个最大值，一个移动值
       // 左右移动 超出边界
       if (pageX >= startLeft && pageX <= endLeft) {
         ele.style.left = `${pageX - shiftX}px`
@@ -786,7 +971,7 @@ export default class extends Mixins(IndexMixin) {
     const dirTree: any = this.$refs.dirTree
     const nodes = dirTree.getCheckedNodes()
     this.deviceList = nodes.filter((node: any) => {
-      return (node.type === 'ipc' && !node.sharedFlag)
+      return node.type === 'ipc' && !node.sharedFlag
     })
   }
 
@@ -849,7 +1034,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private get mapDeviceIds() {
-    return this.markerList.map(marker => marker.deviceId)
+    return this.markerList.map((marker) => marker.deviceId)
   }
 
   changeEdit(state) {
@@ -857,6 +1042,7 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
+    this.dragAddPositionDialogCheck = false
     this.changeToolState('pointer')
     const mapview = this.$refs.mapview
     mapview && mapview.changeMapClickEvent('pointer')
@@ -889,12 +1075,14 @@ export default class extends Mixins(IndexMixin) {
         showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消'
-      }).then(() => {
-        this.isEdit = true
-        this.handleMarkerOn(marker)
-      }).catch(() => {
-        console.log('取消进入编辑模式')
       })
+        .then(() => {
+          this.isEdit = true
+          this.handleMarkerOn(marker)
+        })
+        .catch(() => {
+          console.log('取消进入编辑模式')
+        })
     } else {
       this.handleMarkerOn(marker)
     }
@@ -903,11 +1091,23 @@ export default class extends Mixins(IndexMixin) {
   private async handleMarkerOn(marker) {
     this.marker = marker
     await this.getDeviceInfo()
-    if (Number(this.deviceInfo.device.deviceLongitude) && Number(this.deviceInfo.device.deviceLatitude)) {
-      if (!this.addPositionDialogCheck && !this.deviceInfo.device.isRoleShared) {
-        this.addPositionDialog = true
+
+    if (
+      Number(this.deviceInfo.deviceLongitude) &&
+      Number(this.deviceInfo.deviceLatitude)
+    ) {
+      if (this.ifDragging) {
+        if (!this.dragAddPositionDialogCheck) {
+          this.dragAddPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       } else {
-        this.confirmAddMarker(this.uselnglat)
+        if (!this.addPositionDialogCheck) {
+          this.addPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       }
     } else if (this.deviceInfo.device.isRoleShared) {
       this.addRoleDeviceDialog = true
@@ -934,9 +1134,21 @@ export default class extends Mixins(IndexMixin) {
       deviceId: id
     })
     const deviceLabel = this.deviceInfo.device.deviceName
-    const inVideoProtocol = this.deviceInfo.videos && this.deviceInfo.videos.length && this.deviceInfo.videos[0]?.inVideoProtocol
-    const videoInfo: VideoDevice = inVideoProtocol && this.deviceInfo.videos[0][dicts.InVideoProtocolModelMapping[inVideoProtocol]]
-    const streamInfo = videoInfo && videoInfo.streams.length && videoInfo.streams.find(stream => stream.streamNum === videoInfo.deviceStreamPullIndex)
+    const inVideoProtocol =
+      this.deviceInfo.videos &&
+      this.deviceInfo.videos.length &&
+      this.deviceInfo.videos[0]?.inVideoProtocol
+    const videoInfo: VideoDevice =
+      inVideoProtocol &&
+      this.deviceInfo.videos[0][
+        dicts.InVideoProtocolModelMapping[inVideoProtocol]
+      ]
+    const streamInfo =
+      videoInfo &&
+      videoInfo.streams.length &&
+      videoInfo.streams.find(
+        (stream) => stream.streamNum === videoInfo.deviceStreamPullIndex
+      )
     const deviceStatus = videoInfo && videoInfo.deviceStatus
 
     this.markerInfo = {
@@ -965,20 +1177,31 @@ export default class extends Mixins(IndexMixin) {
   private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      if (uselnglat && this.deviceInfo.device.deviceLongitude && this.deviceInfo.device.deviceLatitude) {
-        const checklnglat = this.checklng(this.deviceInfo.device.deviceLongitude) && this.checklat(this.deviceInfo.device.deviceLatitude)
+      if (
+        uselnglat &&
+        this.deviceInfo.device.deviceLongitude &&
+        this.deviceInfo.device.deviceLatitude
+      ) {
+        const checklnglat =
+          this.checklng(this.deviceInfo.device.deviceLongitude) &&
+          this.checklat(this.deviceInfo.device.deviceLatitude)
         if (!checklnglat) {
-          this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
-            confirmButtonText: '确认',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            this.markerInfo.longitude = ''
-            this.markerInfo.latitude = ''
-            this.$refs.mapview.addMarker(this.markerInfo)
-          }).catch(() => {
-            console.log('cancel')
-          })
+          this.$confirm(
+            '当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?',
+            {
+              confirmButtonText: '确认',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          )
+            .then(() => {
+              this.markerInfo.longitude = ''
+              this.markerInfo.latitude = ''
+              this.$refs.mapview.addMarker(this.markerInfo)
+            })
+            .catch(() => {
+              console.log('cancel')
+            })
         } else {
           this.markerInfo.longitude = this.deviceInfo.device.deviceLongitude
           this.markerInfo.latitude = this.deviceInfo.device.deviceLatitude
@@ -991,6 +1214,8 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.dragAddPositionDialog = false
+      this.ifDragging = false
     }
   }
 
@@ -1008,12 +1233,23 @@ export default class extends Mixins(IndexMixin) {
     this.ifDragging = false
   }
 
+  private confirmDragAddPosition() {
+    const { lat, lng } = this.dragNodeInfo
+    this.markerInfo.longitude = lng
+    this.markerInfo.latitude = lat
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.dragAddPositionDialog = false
+    this.ifDragging = false
+  }
+
   deviceClick(data) {
     if (this.showMapConfig) return
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
-      const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
+      const marker = this.markerList.filter(
+        (item) => item.deviceId === data.id
+      )[0]
       this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
       this.$refs.mapview.chooseDevice(marker)
     }
@@ -1059,7 +1295,7 @@ export default class extends Mixins(IndexMixin) {
       }
       this.mapList.push(this.curMap)
     } else {
-      this.mapList = this.mapList.map(item => {
+      this.mapList = this.mapList.map((item) => {
         if (item.mapId === mapinfo.mapId) {
           return mapinfo
         } else {
@@ -1067,7 +1303,11 @@ export default class extends Mixins(IndexMixin) {
         }
       })
       this.curMap = mapinfo
-      this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
+      this.$refs.mapview.setMapZoomAndCenter(
+        this.curMap.zoom,
+        this.curMap.longitude,
+        this.curMap.latitude
+      )
       this.$refs.mapview.renderMask(mapinfo.mask)
       this.$alertSuccess('地图修改成功')
     }
@@ -1090,7 +1330,11 @@ export default class extends Mixins(IndexMixin) {
     switch (type) {
       case 'map':
         this.curMap = info
-        this.$refs.mapview.setMapZoomAndCenter(info.zoom, info.longitude, info.latitude)
+        this.$refs.mapview.setMapZoomAndCenter(
+          info.zoom,
+          info.longitude,
+          info.latitude
+        )
         break
       case 'marker':
         this.$refs.mapview.markerChange(info)
@@ -1157,12 +1401,14 @@ export default class extends Mixins(IndexMixin) {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.handleChooseMap(map)
-        this.handleOpenMapConfig(map)
-      }).catch(() => {
-        console.log('cancel')
       })
+        .then(() => {
+          this.handleChooseMap(map)
+          this.handleOpenMapConfig(map)
+        })
+        .catch(() => {
+          console.log('cancel')
+        })
     } else {
       this.handleOpenMapConfig(map)
     }
@@ -1214,11 +1460,13 @@ export default class extends Mixins(IndexMixin) {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.handleChooseMap(map)
-      }).catch(() => {
-        console.log('cancel')
       })
+        .then(() => {
+          this.handleChooseMap(map)
+        })
+        .catch(() => {
+          console.log('cancel')
+        })
     } else {
       this.handleChooseMap(map)
     }
@@ -1231,7 +1479,7 @@ export default class extends Mixins(IndexMixin) {
       method: deleteMap,
       payload: { mapId: map.mapId },
       onSuccess: () => {
-        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
+        this.mapList = this.mapList.filter((item) => item.mapId !== map.mapId)
         if (this.mapList.length && this.curMap.mapId === map.mapId) {
           // this.curMap = this.mapList[0] || null
           this.handleChooseMap(this.mapList[0])
@@ -1250,13 +1498,16 @@ export default class extends Mixins(IndexMixin) {
   private async modifyMap() {
     let checklnglat = true
     let checkzoom = true
-    const originMap = this.mapList.filter(item => item.mapId === this.curMap.mapId)[0]
+    const originMap = this.mapList.filter(
+      (item) => item.mapId === this.curMap.mapId
+    )[0]
     try {
       const params = { ...originMap }
       if (this.modifyMapForm.center) {
         params.longitude = this.curMapInfo.longitude.toString()
         params.latitude = this.curMapInfo.latitude.toString()
-        checklnglat = this.checklng(params.longitude) && this.checklat(params.latitude)
+        checklnglat =
+          this.checklng(params.longitude) && this.checklat(params.latitude)
       }
       if (this.modifyMapForm.zoom) {
         params.zoom = this.curMapInfo.zoom.toString()
@@ -1265,14 +1516,18 @@ export default class extends Mixins(IndexMixin) {
       if (checklnglat && checkzoom) {
         await modifyMap(params)
         this.curMap = params
-        this.mapList = this.mapList.map(item => {
+        this.mapList = this.mapList.map((item) => {
           if (item.mapId === params.mapId) {
             return params
           } else {
             return item
           }
         })
-        this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
+        this.$refs.mapview.setMapZoomAndCenter(
+          this.curMap.zoom,
+          this.curMap.longitude,
+          this.curMap.latitude
+        )
         this.$alertSuccess('地图修改成功')
       } else {
         if (!checklnglat) {

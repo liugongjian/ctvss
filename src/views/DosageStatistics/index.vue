@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-07 16:29:04
+ * @LastEditTime: 2023-03-09 16:40:50
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,16 +21,7 @@
             </div>
           </div>
           <div class="dosage-statistics__info">
-            <div class="dosage-statistics__info_chart">
-              <span>设备接入详情</span>
-              <div class="dosage-statistics__info_chart_condition">
-                <span class="dosage-statistics__info_chart_condition__item dosage-statistics__info_chart_condition__item_active">今天</span>
-                <span class="dosage-statistics__info_chart_condition__item">昨天</span>
-                <span class="dosage-statistics__info_chart_condition__item">近七天</span>
-                <span class="dosage-statistics__info_chart_condition__item">近一个月</span>
-              </div>
-            </div>
-            <line-chart />
+            <period-line chart-title="设备接入详情" />
           </div>
         </el-tab-pane>
         <el-tab-pane label="带宽" name="bandwidth">带宽</el-tab-pane>
@@ -43,11 +34,12 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import PeriodLine from './components/PeriodLine.vue'
 
-import LineChart from './components/LineChart.vue'
+
 @Component({
   name: 'DosageStatistics',
-  components: { LineChart }
+  components: { PeriodLine }
 })
 export default class extends Vue {
     private activeName = 'device'
@@ -61,21 +53,37 @@ export default class extends Vue {
     position: relative;
   }
 
-  &__info_chart {
-    margin-left: 1px;
+  // &__info_chart {
+  //   &_condition {
+  //     &__item {
+  //       display: inline-block;
+  //       margin-right: -1px;
+  //       border: 1px solid gray;
+  //       padding: 0 10px;
 
-    &_condition {
-      &__item {
-        display: inline-block;
-        margin-left: -1px;
-        border: 1px solid gray;
-        padding: 0 10px;
+  //       &_active {
+  //         z-index: 1;
+  //         border: 1px solid red;
+  //         position: relative;
+  //       }
+  //     }
+  //   }
+  // }
 
-        &_active {
-          z-index: 1;
-          border: 1px solid red;
-        }
+  ::v-deep &__chart {
+    border: 1px solid gray;
+    padding: 10px;
+
+    &_period {
+      display: flex;
+
+      &_radio {
+        margin-left: auto;
       }
+    }
+
+    &_content {
+
     }
   }
 }
