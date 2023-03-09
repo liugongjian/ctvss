@@ -1351,7 +1351,10 @@ export const asyncRoutes: RouteConfig[] = [
           title: '统计信息',
           breadcrumb: false,
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          tags: {
+            privateUser: ['liuzhou']
+          }
           // groupSelector: true
         }
       },
@@ -1387,7 +1390,10 @@ export const asyncRoutes: RouteConfig[] = [
           title: '锁定录像管理',
           breadcrumb: false,
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          tags: {
+            isRecordLockAvailable: ['Y']
+          }
         }
       },
       {
