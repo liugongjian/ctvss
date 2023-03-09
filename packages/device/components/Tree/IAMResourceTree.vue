@@ -81,7 +81,7 @@ export default class extends Mixins(treeMixin) {
    */
   public async initResourceStatus() {
     Promise.resolve(this.checkedList).then(async(checkedList: any) => {
-      if (checkedList.length) {
+      if (checkedList.length && checkedList[0] !== '*') {
         const pathList = checkedList.map((resource: any) => resource.split(':')[2].split('/'))
         const checkedKeys = pathList.map((path: string[]) => path[path.length - 1])
         for (let idx = 0, len = pathList.length; idx < len; idx++) {
