@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 14:17:04
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-03 16:27:14
+ * @LastEditTime: 2023-03-09 20:41:38
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/lineChart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,8 +13,9 @@
 <script lang="ts">
 import {
   Vue,
-  // Prop,
-  Component
+  Prop,
+  Component,
+  Watch
 } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 
@@ -23,6 +24,9 @@ import { Chart } from '@antv/g2'
   components: {}
 })
 export default class extends Vue {
+
+  @Prop() private chartTitle!: string
+
   private chartData = [
     {
       date: '2023-01-23',
@@ -61,6 +65,11 @@ export default class extends Vue {
   }
 
   mounted() {
+    this.drawLine()
+  }
+
+  @Watch('chartTitle', { immediate: false })
+  private onChartTitleChange(){
     this.drawLine()
   }
 

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-09 16:33:40
+ * @LastEditTime: 2023-03-09 20:40:04
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,7 +15,7 @@
       </el-radio-group>
     </div>
     <div class="dosage-statistics__chart_content">
-      <line-chart />
+      <line-chart :chart-title="chartTitle" />
     </div>
   </div>
 </template>
@@ -39,7 +39,6 @@ export default class extends Vue {
   private currentPeriod = 'today'
 
   mounted () {
-    console.log(this.$props)
     console.log('chartTitle=-===>', this.chartTitle)
   }
 
