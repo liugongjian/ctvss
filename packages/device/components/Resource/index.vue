@@ -44,9 +44,9 @@
     <el-tab-pane :label="ResourceType[ResourceTypeEnum.AI]" :name="ResourceTypeEnum.AI">
       <!--AI包-->
       <div class="ai-create-alert">
-        <el-button v-if="resourceList[ResourceTypeEnum.AI].length > 0" type="text" @click="createAiApp">+ 添加AI应用</el-button>
+        <el-button v-if="appsNum > 0" type="text" @click="createAiApp">+ 添加AI应用</el-button>
         <el-alert
-          v-if="resourceList[ResourceTypeEnum.AI].length === 0"
+          v-if="appsNum === 0"
           type="warning"
           show-icon
         >
@@ -86,6 +86,7 @@
         </div>
         <ai-apps
           v-if="form.resource[ResourceTypeEnum.AI]"
+          ref="aiApps"
           v-model="form.aIAppsCollection"
           class="resource-apps"
           :resource-id="form.resource[ResourceTypeEnum.AI]"
@@ -120,7 +121,7 @@
         </div>
       </div>
     </el-tab-pane>
-    <dialogue :visible.sync="visible" />
+    <dialogue :visible.sync="visible" @refresh="refreshAiApps" />
   </el-tabs>
 </template>
 <script lang='ts'>
@@ -132,6 +133,7 @@ import { UserModule } from '@/store/modules/user'
 import { ResourceTypeEnum } from '@vss/device/enums/resource'
 import AiApps from './Apps.vue'
 import Dialogue from './Dialogue.vue'
+import { getAppList } from '@vss/device/api/ai-app'
 
 @Component({
   name: 'Resource',
@@ -186,6 +188,8 @@ export default class extends Vue {
 
   // 创建ai对话框
   public visible = false
+
+  private appsNum = 0
 
   /**
    * 是否为更新模式
@@ -254,6 +258,12 @@ export default class extends Vue {
       this.resourceTabType = this.defaultResourceTabType
     }
     this.getAllResourcesAndBindList()
+    this.getAiAppsNum()
+  }
+
+  private async getAiAppsNum(){
+    const { aiApps } = await getAppList({ abilityId: 0, pageSize: 9999 })
+    this.appsNum = aiApps.length
   }
 
   /**
@@ -462,8 +472,14 @@ export default class extends Vue {
     }
   }
   private createAiApp(){
-    console.log(111)
     this.visible = true
+  }
+
+  private refreshAiApps(){
+
+    // const { currentAbilityId, getAppList }: any  = this.$refs.aiApps
+    this.getAiAppsNum()
+    // currentAbilityId && getAppList && getAppList(currentAbilityId)
   }
 }
 </script>

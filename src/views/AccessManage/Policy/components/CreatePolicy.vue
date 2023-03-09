@@ -28,7 +28,7 @@
           </el-radio-group>
           <div v-show="resourceType === 'selected'" class="dialog-wrap">
             <resource-selector
-              v-if="loading.policy === false"
+              v-if="loading.policy === false || !isUpdate"
               :checked-list="initResourceList"
               :filter-type-arr="['dir']"
               @resourceListChange="resourceListChange"

@@ -1,7 +1,8 @@
 <template>
   <el-dialog
+    v-if="visible"
     title="创建AI应用"
-    :visible.sync="visible"
+    :visible="true"
     :close-on-click-modal="false"
     width="900px"
     center
@@ -26,12 +27,9 @@ export default class extends Vue {
   @Prop()
   public visible
 
-  private mounted(){
-    console.log(this.$route.query)
-  }
-
   private closeDialog(){
     this.$emit('update:visible', false)
+    this.$emit('refresh')
   }
 }
 </script>

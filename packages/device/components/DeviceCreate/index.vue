@@ -83,29 +83,6 @@
                 </el-radio>
               </el-radio-group>
             </el-form-item>
-            <!-- <el-form-item :prop="deviceEnum.OutNetworkType">
-              <template slot="label">
-                播放网络:
-                <el-popover
-                  placement="top-start"
-                  width="300"
-                  trigger="hover"
-                  :open-delay="300"
-                  content="视频调阅的网络类型"
-                >
-                  <svg-icon slot="reference" class="form-question" name="help" />
-                </el-popover>
-              </template>
-              <el-radio-group v-model="deviceForm.outNetworkType">
-                <el-radio
-                  v-for="(value, key) in outNetworkType"
-                  :key="key"
-                  :label="key"
-                >
-                  {{ value }}
-                </el-radio>
-              </el-radio-group>
-            </el-form-item> -->
             <div v-show="deviceForm.deviceInType.includes(deviceInTypeEnum.Video)">
               <div class="form-title">视频接入信息</div>
               <video-create-form
