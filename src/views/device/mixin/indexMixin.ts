@@ -581,7 +581,6 @@ export default class IndexMixin extends Vue {
         .map((dir: any) => ({
           ...dir,
           groupId: this.currentGroupId,
-          inProtocol: this.currentGroupInProtocol,
           path: node
             ? node.data.path.concat([dir])
             : [{
