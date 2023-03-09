@@ -5,6 +5,7 @@
     :close-on-click-modal="false"
     width="900px"
     center
+    append-to-body
     @close="closeDialog"
   >
     <el-form

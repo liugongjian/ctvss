@@ -205,7 +205,7 @@
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
         <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
-        <ServiceConfig :device-type="deviceForm.deviceType" />
+        <!-- <ServiceConfig :device-type="deviceForm.deviceType" /> -->
       </el-form-item>
     <!-- <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
