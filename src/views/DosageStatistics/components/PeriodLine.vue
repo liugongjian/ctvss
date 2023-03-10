@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import LineChart from './aLineChart.vue'
+import LineChart from './LineChart.vue'
 import { periods } from '@/dics/dosageStatistics'
 
 
