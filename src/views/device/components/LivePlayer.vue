@@ -14,6 +14,7 @@
     :is-loading="screen.isLoading"
     :volume="screen.volume"
     :is-muted="screen.isMuted"
+    :has-audio="screen.hasAudio"
     :has-close="hasClose"
     :has-live-replay-selector="hasLiveReplaySelector"
     :scale="screen.scale"
@@ -139,6 +140,9 @@ export default class extends Vue {
     setTimeout(() => {
       try {
         this.screen.init()
+        if (payload.hasAudio != null) {
+          this.screen.hasAudio = payload.hasAudio
+        }
       } catch {
         this.onRetry()
       }

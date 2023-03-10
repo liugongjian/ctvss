@@ -54,7 +54,7 @@ export class Player {
     this.playbackRate = config.playbackRate
     this.volume = config.volume
     this.isMuted = config.isMuted
-    this.hasAudio = null
+    this.hasAudio = config.hasAudio
     this.isPaused = null
     this.currentTime = null
     this.duration = null

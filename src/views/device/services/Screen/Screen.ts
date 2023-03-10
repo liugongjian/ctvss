@@ -17,6 +17,7 @@ export class Screen {
   public axiosSource: any
   public errorMsg?: string
   public lastIsMuted?: boolean
+  public hasAudio?: boolean
   public log?: {
     previewRequestId: string,
     previewStartTimestamp?: number
@@ -119,6 +120,7 @@ export class Screen {
     this.isLive = null
     this.isLoading = false
     this.isFullscreen = false
+    this.hasAudio = true
     this.axiosSource = null
     this.errorMsg = ''
     this.streams = []
@@ -268,6 +270,7 @@ export class Screen {
     try {
       this.isLoading = true
       this.errorMsg = null
+      this.hasAudio = true
       this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       this.url = ''

@@ -1,13 +1,12 @@
-
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
-import FlvJS from 'flv.js/src/flv.js'
+import FlvJS from '../libs/flv-hevc'
 
 /**
- * FLV播放器
+ * FLV H265播放器
  * 基于flv.js
  */
-export class FlvPlayer extends Player {
+export class FlvH265Player extends Player {
   private flv?: any
   private mseError = false
   private mseErrorCount = 0
@@ -23,18 +22,15 @@ export class FlvPlayer extends Player {
     FlvJS.LoggingControl.enableWarn = false
     const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
     videoElement.controls = false
-    videoElement.muted = true
     this.container.innerHTML = ''
     this.container.append(videoElement)
     const flvPlayer = FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
-      url: this.url,
-      hasAudio: this.hasAudio === false ? false : null
+      url: this.url
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
-    // flv.play 是一个 promise
     flvPlayer.play()
     flvPlayer.on(FlvJS.Events.ERROR, (e: any) => {
       // 网络错误
@@ -43,8 +39,8 @@ export class FlvPlayer extends Player {
         this.onRetry()
       }
       // 视频解码错误
-      if (e === FlvJS.ErrorTypes.MSE_VIDEO_ERROR && !this.mseError) {
-        this.isDebug && console.log('MSE_VIDEO_ERROR', e, this.mseErrorCount)
+      if (e === FlvJS.ErrorTypes.MSE_ERROR && !this.mseError) {
+        this.isDebug && console.log('MSE_ERROR', e, this.mseErrorCount)
         this.mseError = true
         this.mseErrorCount++
         // 先尝试reload播放器，如果5次无法继续播放，则重新渲染播放器
@@ -55,14 +51,6 @@ export class FlvPlayer extends Player {
             immediate: true
           })
         }
-      }
-      // 音频解码错误
-      if (e === FlvJS.ErrorTypes.MSE_AUDIO_ERROR) {
-        this.isDebug && console.log('MSE_AUDIO_ERROR')
-        this.onRetry({
-          immediate: true,
-          hasAudio: false
-        })
       }
     })
     flvPlayer.on(FlvJS.Events.METADATA_ARRIVED, (e: any) => {
