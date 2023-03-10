@@ -124,7 +124,8 @@ export default class extends Vue {
 .dosage-statistics {
   &__info {
     border: 1px solid $color-grey-6;
-    width: 840px;
+    // width: 840px;
+    display: inline-block;
     margin: $margin-small 0;
     border-radius: $border-radius;
     padding: $padding-primary 0;
