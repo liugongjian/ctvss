@@ -84,7 +84,7 @@ export default class extends Vue {
     }
     try {
       const res = await listGroup(params)
-      this.dataList = res.data
+      this.dataList = res.groups
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
