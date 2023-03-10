@@ -401,6 +401,7 @@ export default class extends Mixins(createMixin) {
     industryCode: '',
     networkCode: ''
   }
+
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
   private inTypeList = InType
@@ -410,6 +411,7 @@ export default class extends Mixins(createMixin) {
       value: type.toLowerCase()
     }
   })
+
   private ehomeVersionList = ['2.0']
   private multiStreamSizeList = [
     {
@@ -425,6 +427,7 @@ export default class extends Mixins(createMixin) {
       value: 3
     }
   ]
+
   private autoStreamNumList = [
     {
       label: '主码流',
@@ -558,9 +561,13 @@ export default class extends Mixins(createMixin) {
     this.setIfUseDeviceName()
     // 新增逻辑，使用设备名称时，屏蔽效验正则
     if (this.ifUseDeviceName) {
-      this.rules = { ...this.rules,
-        ...{ deviceName: [
-          { required: true, message: '请输入设备名称', trigger: 'blur' } ] } }
+      this.rules = {
+        ...this.rules,
+        ...{
+          channelName: [
+            { required: true, message: '请输入设备名称', trigger: 'blur' }]
+        }
+      }
     }
   }
 

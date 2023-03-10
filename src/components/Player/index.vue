@@ -106,6 +106,12 @@ export default class extends Vue {
   @Prop()
   private isMuted: boolean
 
+  /* 是否含音轨 */
+  @Prop({
+    default: true
+  })
+  private hasAudio: boolean
+
   /* 是否显示进度条 */
   @Prop({
     default: false
@@ -160,6 +166,7 @@ export default class extends Vue {
     try {
       this.player = createPlayer({
         type: this.type,
+        codec: this.codec,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
         isLive: this.isLive,
@@ -168,6 +175,7 @@ export default class extends Vue {
         playbackRate: this.playbackRate,
         volume: this.volume,
         isMuted: this.isMuted,
+        hasAudio: this.hasAudio,
         onRetry: this.onRetry,
         onLoadStart: this.onLoadStart,
         onCanplay: this.onCanplay

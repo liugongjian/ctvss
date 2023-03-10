@@ -294,11 +294,17 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
-    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    const currentEndtime = this.currentRecord.endTime
+    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (nextRecord) {
       if (this.currentRecord) {
-        //云端
+        // 云端
         this.currentRecord = nextRecord
+        const offsetTime = currentEndtime - nextRecord.startTime
+        // 播放下段如有重复直接跳过多余部分
+        if (offsetTime > 0) {
+          this.currentRecord.offsetTime = offsetTime + 1
+        }
         const date = getDateByTime(this.currentRecord.startTime, 's')
         this.currentDate = date
       } else {
@@ -357,6 +363,7 @@ export class RecordManager {
       endTime,
       pageSize: 9999
     }, axiosSource.token)
+
     return res.records.map((record: any, index: number) => {
       /**
        * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
@@ -376,10 +383,11 @@ export class RecordManager {
         startTime: getTimestamp(record.startTime) / 1000,
         endTime: getTimestamp(record.endTime) / 1000,
         duration: record.duration,
-        url: record.playUrl.hlsUrl,
+        url: record.playUrl[`${record.fileFormat}Url`],
         codec: record.video.codec,
         templateName: record.templateName,
-        cover: record.cover
+        cover: record.cover,
+        fileFormat: record.fileFormat
       })
     })
   }

@@ -460,7 +460,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-ga1400',
       alwaysShow: true,
       // tags: ['ga1400'],
-      perms: ['*']
+      perms: ['DescribeViid', 'AdminViid']
     },
     children: [
       {
@@ -470,7 +470,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '向上级联',
           icon: 'dot',
-          perms: ['*'],
+          perms: ['DescribeViid'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -481,7 +481,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建平台',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -492,7 +492,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑平台',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           activeMenu: '/view-service/up-platform'
         }
       }
@@ -553,7 +553,7 @@ export const asyncRoutes: RouteConfig[] = [
           name: 'certificate',
           title: 'GA1400凭证',
           icon: 'dot',
-          perms: ['*'],
+          perms: ['DescribeViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
@@ -566,7 +566,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007005',
           title: '新建GA1400凭证',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
@@ -579,7 +579,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007006',
           title: '编辑GA1400凭证',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminViid'],
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
@@ -1014,7 +1014,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
-      perms: ['*']
+      perms: ['AdminNotification']
     },
     children: [
       {
@@ -1073,7 +1073,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '告警管理',
       icon: 'menu-alarm',
-      perms: ['*'],
+      perms: ['AdminAlarm'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -1140,7 +1140,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['AdminBilling']
     },
     children: [
       {
