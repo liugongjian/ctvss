@@ -27,10 +27,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
-import { DirectoryTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
-import { getNodeInfo } from '@vss/device/api/dir'
 
 @Component({
   name: 'SimpleDeviceTree'
