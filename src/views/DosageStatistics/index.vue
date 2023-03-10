@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-09 20:47:13
+ * @LastEditTime: 2023-03-10 16:01:54
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,6 +35,24 @@
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">今日带宽用量</h2>
               <div class="dosage-statistics__info_detail">
+                <div class="dosage-statistics__info_detail_item">
+                  <p>24路</p>
+                  <div>
+                    接入设备总数
+                  </div>
+                </div>
+                <div class="dosage-statistics__info_detail_item">
+                  <p>24路</p>
+                  <div>
+                    接入设备总数
+                  </div>
+                </div>
+                <div class="dosage-statistics__info_detail_item">
+                  <p>24路</p>
+                  <div>
+                    接入设备总数
+                  </div>
+                </div>
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
                   <div>
@@ -106,36 +124,41 @@ export default class extends Vue {
 .dosage-statistics {
   &__info {
     border: 1px solid $color-grey-6;
-    width: 260px;
-    margin: 10px 0;
+    width: 840px;
+    margin: $margin-small 0;
+    border-radius: $border-radius;
+    padding: $padding-primary 0;
 
     &_title {
-      padding-left: 20px;
-      font-size: 16px;
+      padding-left: $padding-primary;
+      font-size: $text-size-large;
+      margin: 0 0 $margin-medium $margin-medium;
     }
 
     &_detail {
-      width: 200px;
-      margin: 10px auto;
-      padding: 20px 10px;
-      background-color: $color-grey-6;
+      display: grid;
+      justify-content: space-evenly;
+      grid-template-columns: repeat(auto-fill, 170px);
 
       &_item {
-        padding: 0  20px;
+        width: 170px;
+        padding: $padding-primary $padding-small;
+        background-color: $color-grey-7;
+        border-radius: $border-radius;
 
         p {
-          font-size: 20px;
+          font-size: $text-size-x-large;
           font-weight: bolder;
-          margin: 10px 0;
+          margin: $margin-small 0;
         }
 
         div {
-          font-size: 14px;
+          font-size: $text-size-medium;
           color: $color-grey-3;
         }
 
         &_icon {
-          font-size: 18px;
+          font-size: $text-size-large;
           vertical-align: top;
           cursor: pointer;
         }
@@ -162,7 +185,8 @@ export default class extends Vue {
 
   ::v-deep &__chart {
     border: 1px solid $color-grey-6;
-    padding: 20px;
+    padding: $padding-primary;
+    margin-top: $margin-medium;
 
     &_period {
       display: flex;
