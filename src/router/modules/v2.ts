@@ -857,53 +857,52 @@ export const v2Router: RouteConfig[] = [
       only: true
     },
     children: [
-        {
-          path: '',
-          component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/index.vue'),
-          name: 'Billing',
-          redirect: 'resource',
-          meta: {
-            title: '计费管理',
-            perms: ['*'],
-            icon: 'menu-billing',
-            breadcrumb: false,
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/index.vue'),
+        name: 'Billing',
+        redirect: 'resource',
+        meta: {
+          title: '计费管理',
+          perms: ['*'],
+          icon: 'menu-billing',
+          breadcrumb: false
+        },
+        children: [
+          {
+            path: 'ondemand',
+            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/OnDemand/index.vue'),
+            name: 'OnDemand',
+            meta: {
+              title: '按需计费管理',
+              icon: 'dot',
+              perms: ['*']
+            }
           },
-          children:[
-              {
-                path: 'ondemand',
-                component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/OnDemand/index.vue'),
-                name: 'OnDemand',
-                meta: {
-                  title: '按需计费管理',
-                  icon: 'dot',
-                  perms: ['*']
-                }
-              },
-              {
-                path: 'resource',
-                component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'),
-                name: 'BillingResource',
-                meta: {
-                  title: '资源包管理',
-                  icon: 'dot',
-                  perms: ['*']
-                }
-              },
-              {
-                path: 'resource/management',
-                component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'),
-                name: 'BillingResourceManagement',
-                meta: {
-                  title: '资源包管理',
-                  icon: 'dot',
-                  hidden: true,
-                  activeMenu: '/billing/resource',
-                  perms: ['*']
-                }
-              }
-            ]
-      },
-
+          {
+            path: 'resource',
+            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'),
+            name: 'BillingResource',
+            meta: {
+              title: '资源包管理',
+              icon: 'dot',
+              perms: ['*']
+            }
+          },
+          {
+            path: 'resource/management',
+            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'),
+            name: 'BillingResourceManagement',
+            meta: {
+              title: '资源包管理',
+              icon: 'dot',
+              hidden: true,
+              activeMenu: '/billing/resource',
+              perms: ['*']
+            }
+          }
+        ]
+      }
     ]
   },
   {
@@ -928,6 +927,31 @@ export const v2Router: RouteConfig[] = [
           breadcrumb: false,
           perms: ['*'],
           activeMenu: '/exportDevices'
+        }
+      }
+    ]
+  },
+  {
+    path: '/dosageStatistics',
+    component: Layout,
+    meta: {
+      title: '用量统计',
+      icon: 'chart',
+      breadcrumb: true,
+      perms: ['*'],
+      version: 2
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/DosageStatistics/index.vue'),
+        name: 'DosageStatistics',
+        meta: {
+          title: '用量统计',
+          icon: 'chart',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/dosageStatistics'
         }
       }
     ]
@@ -1001,5 +1025,5 @@ export const v2Router: RouteConfig[] = [
       perms: ['*'],
       version: 2
     }
-  },
+  }
 ]
