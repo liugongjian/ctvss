@@ -37,7 +37,7 @@
               v-loading="loading.appList"
               :data="aiApps"
               tooltip-effect="dark"
-              style="width: 100%;"
+              max-height="350"
               cell-class-name="tableCell"
               @row-click="rowClick"
               @selection-change="handleSelectionChange"
@@ -57,15 +57,6 @@
               </el-table-column>
               <el-table-column prop="description" label="描述" show-overflow-tooltip />
             </el-table>
-            <el-pagination
-              hide-on-single-page
-              :current-page="pager.pageNum"
-              :page-size="pager.pageSize"
-              :total="pager.totalNum"
-              layout="total, sizes, prev, pager, next, jumper"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
           </el-tab-pane>
         </el-tabs>
       </el-form-item>
@@ -78,31 +69,35 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
 @Component({
-  name: 'AiServiceBindingDialog',
+  name: 'IpcAiServiceBindingDialog',
   components: {
     BillingModeSelector
   }
 })
 export default class extends Vue {
+  @Prop({ default: () => [] })
+  private selectedList: Array<any>
+
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
     [BillingEnum.BillingMode]: BillingModeEnum.Packages,
-    [BillingEnum.Resource]: ''
+    [BillingEnum.ResourceId]: '',
+    [BillingEnum.Resource]: {}
   }
   
   private activeTabId: Number = 0
   private resourceAiType: any = ResourceAiType
   private tabInfo: any = []
   private aiApps: any = []
-  public selectedAppIdsSet = new Set()
-  public selectedApps: Array<any> = []
+  private selectedAppIdsSet = new Set()
+  private selectedApps: Array<any> = []
   private configForm = {
     resource: {},
     apps: []
@@ -115,11 +110,6 @@ export default class extends Vue {
   private loading = {
     appList: false,
     abilityList: false
-  }
-  private pager = {
-    pageNum: 1,
-    pageSize: 10,
-    totalNum: 0
   }
 
   private async mounted() {
@@ -149,9 +139,8 @@ export default class extends Vue {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
-      let totalApps = 0
-      aiAbilityList.forEach(element => {
-        typeof element.aiApps === 'string' ? totalApps += Number(element.aiApps) : totalApps += element.aiApps
+      aiAbilityList.forEach(aiAbility => {
+        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmName === aiAbility.name).length)
       })
       this.tabInfo = aiAbilityList
     } catch (e) {
@@ -167,9 +156,10 @@ export default class extends Vue {
   private async getAppList() {
     try {
       this.loading.appList = true
-      const { aiApps, pageNum, pageSize, totalNum } = await getAppList({ pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabId })
-      this.pager = { pageNum, pageSize, totalNum }
-      this.aiApps = aiApps
+      const { aiApps } = await getAppList({ abilityId: this.activeTabId })
+      this.aiApps = aiApps.filter(aiApp => {
+        return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
+      })
       await this.$nextTick(() => this.toggleSelection())
     } catch (e) {
       this.$message.error(e && e.message)
@@ -183,7 +173,6 @@ export default class extends Vue {
    */
   private handleSelectionChange(apps) {
     // 初始化勾选项时不触发
-    if (this.loading.appList) return
     this.aiApps.forEach(row => {
       if (apps.some(app => (app as any).id === row.id)) {
         if (!this.selectedAppIdsSet.has(row.id)) {
@@ -212,29 +201,24 @@ export default class extends Vue {
   /**
    * 提交
    */
-  private submit() {
+  private async submit() {
     const bindingForm: any = this.$refs.bindingForm
     const configForm: any = this.$refs.configForm
-    bindingForm.validate(async(valid) => {
-      if (valid && await configForm.validateConfigForm()) {
-        console.log(this.billingModeForm, this.selectedApps)
-        this.closeDialog(true)
+    const configFormValid = await configForm.validateConfigForm()
+    bindingForm.validate((valid) => {
+      if (valid && configFormValid) {
+        this.closeDialog(this.selectedApps.map(app => {
+          return {
+            ...app,
+            ...this.billingModeForm
+          }
+        }))
       }
     })
   }
 
-  private closeDialog(refresh = false) {
-    this.$emit('on-close', refresh)
-  }
-
-  private async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    this.getAppList()
-  }
-
-  private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    this.getAppList()
+  private closeDialog(data) {
+    this.$emit('on-close', data)
   }
 
   /**
@@ -251,9 +235,14 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .binding-dialog {
+  .el-form {
+    margin: 0;
+  }
+
   ::v-deep .el-dialog__body {
     max-height: 60vh;
     overflow: auto;
+    padding-top: 0;
     padding-bottom: 0;
     margin-bottom: 25px;
   }
@@ -264,7 +253,7 @@ export default class extends Vue {
 
   .el-pagination {
     ::v-deep .el-select {
-      max-width: 100px;
+      max-width: 100px !important;
     }
   }
 }
