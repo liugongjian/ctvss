@@ -672,8 +672,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      // formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
-      formulae: [this.joinDropdownlist(this.options.gbAccountList)],
+      formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.options.gbAccountList)],
       error: '请选择国标用户名'
     }
   }
@@ -683,7 +683,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.availableChannels)],
+       formulae: this.options.availableChannels.length ? [`'availableChannelsSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.availableChannels.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.options.availableChannels)],
       error: '请选择通道号'
     }
   }
@@ -693,7 +694,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.VIDEOList)],
+      formulae: this.options.VIDEOList.length ? [`'VIDEOListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.VIDEOList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.options.VIDEOList)],
       error: '请选择视频包'
     }
   }
@@ -703,7 +705,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.AIList)],
+      formulae: this.options.AIList.length ? [`'AIListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.AIList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.options.AIList)],
       error: '请选择AI包'
     }
   }
@@ -713,7 +716,8 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.BWList)],
+      formulae: this.options.BWList.length ? [`'BWListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.BWList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.options.BWList)],
       error: '请选择上行带宽包'
     }
   }
@@ -724,7 +728,8 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.regionList)],
+      formulae: this.regionList.length ? [`'RegionListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.regionList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.regionList)],
       error: '请选择接入区域'
     }
   }
@@ -735,7 +740,8 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.industryList)],
+      formulae: this.industryList.length ? [`'IndustryListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.industryList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.industryList)],
       error: '请从选项中选择所属行业'
     }
   }
@@ -746,7 +752,8 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.addressList)],
+       formulae: this.addressList.length ? [`'AddressListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.addressList.length)}$1`] : ['""'],
+      // formulae: [this.joinDropdownlist(this.addressList)],
       error: '请从选项中选择设备地址'
     }
   }
@@ -925,7 +932,7 @@ class ExportExcelTemplate {
 
   // 下载 文件流格式 表格
   public downloadFileWithBlob(fileName: string, file: any) {
-    const blob = new Blob([file.data], { type:file.headers['content-type'] })
+    const blob = new Blob([file.data], { type: file.headers['content-type'] })
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`
