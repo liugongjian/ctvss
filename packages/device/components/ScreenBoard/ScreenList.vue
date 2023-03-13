@@ -16,7 +16,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="checkPermission(['AdminRecord'])"
+                  v-if="!isVGroup && checkPermission(['AdminRecord'])"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -67,7 +67,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{ row }">
               <el-button
-                v-if="checkPermission(['AdminRecord'])"
+                v-if="!isVGroup && checkPermission(['AdminRecord'])"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"
@@ -113,6 +113,7 @@ import { durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { checkPermission } from '@/utils/permission'
+import { GroupModule } from '@/store/modules/group'
 import ResizeObserver from 'resize-observer-polyfill'
 import DeviceDir from '../DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
@@ -164,6 +165,11 @@ export default class extends Vue {
 
   private get tableContainer() {
     return this.$refs.tableContainer as any
+  }
+
+  /* 是否为虚拟业务组 */
+  private get isVGroup() {
+    return GroupModule.group?.inProtocol === 'vgroup'
   }
 
   /**
@@ -233,6 +239,7 @@ export default class extends Vue {
     const records = this.currentScreen.recordManager.getRecordListByPage(this.pager, this.screenManager.currentScreen.currentRecordDatetime)
     this.recordList = records.recordList
     this.pager.total = records.length
+    this.secToMs(this.recordList)
   }
   /**
    * 选择视频
@@ -297,6 +304,7 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
+      console.log('走   🚓', record.startTime)
       record.loading = true
       let downloadUrl
       if (record.fileFormat === 'hls') {
@@ -321,6 +329,16 @@ export default class extends Vue {
       this.$message.error(e.message)
     }
   }
+
+  /**
+   * startTime 秒转毫秒
+   */
+  private secToMs(records: any) {
+    this.records = records.map((record: any) => {
+      record.startTime = record.startTime * 1000
+    })
+  }
+
 
   /**
    * 播放录像（模态框）
