@@ -361,11 +361,11 @@
           }
         }
 
-        .el-input:not(.el-input-number > .el-input, .longlat-input),
-        .el-select,
-        .el-textarea,
-        .el-cascader,
-        .tags {
+        .el-form-item__content > .el-input:not(.el-input-number > .el-input, .longlat-input),
+        .el-form-item__content > .el-select,
+        .el-form-item__content > .el-textarea,
+        .el-form-item__content > .el-cascader,
+        .el-form-item__content > .tags {
           width: 100%;
           max-width: 420px;
         }
@@ -522,11 +522,11 @@
         }
       }
 
-      .el-input:not(.el-input-number > .el-input, .longlat-input),
-      .el-select,
-      .el-textarea,
-      .el-cascader,
-      .tags {
+      .el-form-item__content > .el-input:not(.el-input-number > .el-input, .longlat-input),
+      .el-form-item__content > .el-select,
+      .el-form-item__content > .el-textarea,
+      .el-form-item__content > .el-cascader,
+      .el-form-item__content > .tags {
         width: 420px;
       }
 

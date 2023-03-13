@@ -4,7 +4,9 @@
  export enum BillingEnum {
   BillingMode = 'billingMode',
   RecordStream = 'recordStream',
-  RecordTemplate = 'recordTemplate',
+  RecordTemplateId = 'recordTemplateId',
+  RecordTemplateName = 'recordTemplateName',
+  ResourceId = 'resourceId',
   Resource = 'resource'
 }
 
@@ -41,6 +43,7 @@ export enum ResourceTypeEnum {
  * ipc AI配置列表
  */
 export enum IpcAiConfigEnum {
+  AppId = 'AppId',
   AppName = 'AppName',
   AlgorithmName = 'algorithmName',
   AnalyseType = 'analyseType',
@@ -54,11 +57,12 @@ export enum IpcAiConfigEnum {
  * nvr配置列表
  */
 export enum NvrConfigEnum {
+  DeviceChannelNum = 'deviceChannelNum',
   ChannelName = 'channelName',
   BillingMode = 'billingMode',
   Remain = 'remain',
   ExpireTime = 'expireTime',
-  StorageConfig = 'storageConfig'
+  StorageTime = 'storageTime'
 }
 
 /**
@@ -69,5 +73,5 @@ export enum NvrConfigEnum {
   BillingMode = 'billingMode',
   BillingId = 'billingId',
   ExpireTime = 'expireTime',
-  StorageConfig = 'storageConfig'
+  StorageTime = 'storageTime'
 }

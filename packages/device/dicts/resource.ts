@@ -1,4 +1,5 @@
 import { ResourceTypeEnum } from '../enums/resource'
+import { BillingModeEnum } from '../enums/billing'
 /*
   资源包名称
 */
@@ -15,4 +16,9 @@ export const ResourceAiType = {
   'AI-100': '分钟级',
   'AI-200': '秒级',
   'AI-300': '高算力型'
+}
+
+export const BillingModeType = {
+  [BillingModeEnum.Packages]: '资源包',
+  [BillingModeEnum.OnDemand]: '按需计费'
 }
