@@ -28,7 +28,6 @@
 </template>
 <script lang="ts">
 import { Component, Mixins, Provide } from 'vue-property-decorator'
-import IndexMixin from '@/views/device/mixin/indexMixin'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import AlarmTree from '@vss/device/components/Tree/AlarmTree.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
@@ -40,7 +39,7 @@ import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
     Breadcrumb
   }
 })
-export default class extends Mixins(IndexMixin) {
+export default class extends Mixins(layoutMxin) {
   public parentDir = null
   public currentDir = null
   public dialog: any = {

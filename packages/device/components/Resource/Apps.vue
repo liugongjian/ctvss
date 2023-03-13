@@ -55,7 +55,7 @@ export default class extends Vue {
   // 所有应用列表集合
   private appCollection = {}
   // 当前能力类别
-  private currentAbilityId = null
+  public currentAbilityId = null
   // 所选应用列表与资源包的映射关系，用于切换资源包后的数据缓存
   private selectionCollection = {}
   // 克隆列表用于切换算法类型后恢复所勾选的数据
@@ -94,9 +94,9 @@ export default class extends Vue {
     if (this.savedAppCollection[this.resourceId].length) {
       if (!this.selectionCollection[this.resourceId]) {
         this.selectionCollection[this.resourceId] = {}
-        const apps = flatten(Object.values(this.appCollection))      
+        const apps = flatten(Object.values(this.appCollection))
         this.savedAppCollection[this.resourceId].forEach(app => {
-          // 找出AI应用源数据  
+          // 找出AI应用源数据
           const selectedApp: any = apps.find((sourceApp: any) => app.aIAppId === sourceApp.id)
           if (selectedApp) {
             // 得到AI应用的算法类别ID
@@ -150,7 +150,7 @@ export default class extends Vue {
   /**
    * 获取AI应用列表
    */
-  private async getAppList(abilityId) {
+  public async getAppList(abilityId) {
     try {
       this.loading = true
       const res = await getAppList({ abilityId, pageSize: 9999 })

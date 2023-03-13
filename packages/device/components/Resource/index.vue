@@ -43,6 +43,16 @@
     </el-tab-pane>
     <el-tab-pane :label="ResourceType[ResourceTypeEnum.AI]" :name="ResourceTypeEnum.AI">
       <!--AI包-->
+      <div class="ai-create-alert">
+        <el-button v-if="appsNum > 0" type="text" @click="createAiApp">+ 添加AI应用</el-button>
+        <el-alert
+          v-if="appsNum === 0"
+          type="warning"
+          show-icon
+        >
+          <div>暂无创建好的AI应用，请先<el-button type="text" @click="createAiApp">创建AI应用</el-button>后,再添加到设备上</div>
+        </el-alert>
+      </div>
       <div v-loading="loading[ResourceTypeEnum.AI]" class="resource-tabs__content">
         <el-table :data="resourceList[ResourceTypeEnum.AI]" fit @row-click="onResourceRowClick(ResourceTypeEnum.AI, ...arguments)">
           <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
@@ -76,6 +86,7 @@
         </div>
         <ai-apps
           v-if="form.resource[ResourceTypeEnum.AI]"
+          ref="aiApps"
           v-model="form.aIAppsCollection"
           class="resource-apps"
           :resource-id="form.resource[ResourceTypeEnum.AI]"
@@ -110,6 +121,7 @@
         </div>
       </div>
     </el-tab-pane>
+    <dialogue :visible.sync="visible" @refresh="refreshAiApps" />
   </el-tabs>
 </template>
 <script lang='ts'>
@@ -120,11 +132,14 @@ import { getResources, getDeviceResource } from '@vss/device/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { ResourceTypeEnum } from '@vss/device/enums/resource'
 import AiApps from './Apps.vue'
+import Dialogue from './Dialogue.vue'
+import { getAppList } from '@vss/device/api/ai-app'
 
 @Component({
   name: 'Resource',
   components: {
-    AiApps
+    AiApps,
+    Dialogue
   }
 })
 export default class extends Vue {
@@ -170,6 +185,11 @@ export default class extends Vue {
     resourceIds: [],
     appSize: 0
   }
+
+  // 创建ai对话框
+  public visible = false
+
+  private appsNum = 0
 
   /**
    * 是否为更新模式
@@ -238,6 +258,12 @@ export default class extends Vue {
       this.resourceTabType = this.defaultResourceTabType
     }
     this.getAllResourcesAndBindList()
+    this.getAiAppsNum()
+  }
+
+  private async getAiAppsNum(){
+    const { aiApps } = await getAppList({ abilityId: 0, pageSize: 9999 })
+    this.appsNum = aiApps.length
   }
 
   /**
@@ -386,14 +412,14 @@ export default class extends Vue {
    */
   public beforeSubmit(submit: Function, channelSize?: number, orginalChannelSize?: number) {
     const messages = []
-  
+
     // 判断通道数量的变化
     if (channelSize < orginalChannelSize) {
       messages.push('缩减子设备的数量将会释放相应包资源。')
     } else if (channelSize > orginalChannelSize) {
       messages.push('新增子设备将自动绑定到现有资源包。')
     }
-    
+
     // 判断是否未选资源包
     const resourceMessage: any = {
       [ResourceTypeEnum.Video]: '不绑定任何视频包，会导致设备无法上线。',
@@ -445,6 +471,16 @@ export default class extends Vue {
       submit()
     }
   }
+  private createAiApp(){
+    this.visible = true
+  }
+
+  private refreshAiApps(){
+
+    // const { currentAbilityId, getAppList }: any  = this.$refs.aiApps
+    this.getAiAppsNum()
+    // currentAbilityId && getAppList && getAppList(currentAbilityId)
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -493,6 +529,26 @@ export default class extends Vue {
 
     ::v-deep .el-table .el-table__row {
       cursor: pointer;
+    }
+
+    .ai-create-alert {
+      ::v-deep .el-alert__icon {
+        width: fit-content;
+        font-size: 20px;
+        padding-top: 2px;
+      }
+
+      ::v-deep .el-alert__description {
+        color: #333;
+
+        .el-button {
+          font-size: 12px;
+        }
+      }
+
+      .el-alert {
+        background: none;
+      }
     }
   }
 

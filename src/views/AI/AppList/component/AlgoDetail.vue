@@ -1,17 +1,31 @@
 <template>
   <el-card>
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
-      <el-form-item label="算法类型" prop="algoName">
+      <el-form-item v-if="!quickFlag" label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
+      </el-form-item>
+      <el-form-item v-if="quickFlag" label="算法类型" prop="algo">
+        <el-select
+          v-model="form.algorithmsId"
+          placeholder="请选择算法类型"
+        >
+          <el-option
+            v-for="algo in algoList"
+            :key="algo.id"
+            :label="algo.name"
+            :value="algo.id"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
-      <el-form-item label="分析类型" prop="analyseType">
+      <el-form-item label="分析频率" prop="analyseType" class="inline-form-item frequency">
         <el-select
           v-model="form.analyseType"
-          placeholder="请选择分析类型"
+          placeholder="请选择分析频率"
           :disabled="parseInt(form.associateDevices) > 0"
+          @change="resetFrequency"
         >
           <el-option
             v-for="(val, key) in analyseAiType"
@@ -21,6 +35,16 @@
           />
         </el-select>
       </el-form-item>
+      <el-select
+        v-if="frequencyUnits"
+        v-model="frequency"
+        class="interval-unit"
+        :clearable="false"
+      >
+        <el-option v-for="unit in frequencyUnits" :key="unit" :label="unit" :value="unit" />
+      </el-select>
+      <span>{{ frequencyType }}</span>
+      <br>
       <el-form-item label="生效时段" prop="effectPeriod">
         <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
@@ -206,7 +230,7 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({ step: 0 })">
+        <el-button v-if="!$route.query.id && !quickFlag" @click="changeStep({ step: 0 })">
           上一步
         </el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -224,6 +248,7 @@ import AppMixin from '../../mixin/app-mixin'
 import { FormRef } from '@vss/ai/dics'
 import AlgoConfigs from '@vss/ai/component/AlgoConfig'
 import { formRule, formTips } from '@vss/ai/util/form-helper'
+import { getAlgorithmList } from '@/api/ai-app'
 
 @Component({
   name: 'AlgoDetail',
@@ -233,6 +258,8 @@ import { formRule, formTips } from '@vss/ai/util/form-helper'
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private prod!: any
+  // 是否对话框快捷方式创建app
+  @Prop({ type: Boolean }) private quickFlag!: Boolean
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
@@ -257,6 +284,8 @@ export default class extends Mixins(AppMixin) {
     alertPeriod: 's',
     alertSilencePeriod: 's'
   }
+  private algoList = []
+  private frequency = 1
 
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
@@ -267,6 +296,28 @@ export default class extends Mixins(AppMixin) {
       delete res['AI-200']
     }
     return res
+  }
+
+  get frequencyType(){
+    switch (this.form.analyseType){
+      case 'AI-100':
+        return '分'
+      case 'AI-200':
+        return '秒'
+      default:
+        return ''
+    }
+  }
+
+  get frequencyUnits(){
+    switch (this.form.analyseType){
+      case 'AI-100':
+        return [1, 2, 5]
+      case 'AI-200':
+        return [1, 2, 5, 10, 30]
+      default:
+        return null
+    }
   }
 
   private ifShow(...codes) {
@@ -347,7 +398,6 @@ export default class extends Mixins(AppMixin) {
         ? { pvTime: '10' }
         : this.form.algorithmMetadata
       this.form = {
-        algoName: this.prod.name,
         algorithmMetadata,
         availableperiod: [],
         validateType: '无验证',
@@ -357,7 +407,20 @@ export default class extends Mixins(AppMixin) {
         alertPeriod: '0',
         alertSilencePeriod: '3'
       }
+      if (this.quickFlag){
+        await this.getAlgoList()
+        this.algoList.length > 0 && this.$set(this.form, 'algorithmsId', this.algoList[0].id)
+
+      }
+      if (this.prod) {
+        this.$set(this.form, 'algoName', this.prod.name)
+      }
     }
+  }
+
+  private async getAlgoList(){
+      const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityId: 0 })
+      this.algoList = aiAbilityAlgorithms
   }
 
   private editTransformInterval() {
@@ -433,6 +496,10 @@ export default class extends Mixins(AppMixin) {
    * 步进控制
    */
   private cancel() {
+    if (this.quickFlag){
+      this.$emit('close')
+      return
+    }
     this.backToAppList()
   }
 
@@ -501,8 +568,13 @@ export default class extends Mixins(AppMixin) {
         await updateAppInfo(param)
       } else {
         // 新建时带上算法ID
-        param = { ...param, algorithmsId: this.prod.id }
+        param = { ...param, algorithmsId: this.quickFlag ? this.form.algorithmsId : this.prod.id }
         await createApp(param)
+      }
+      if (this.quickFlag){
+        this.$emit('close')
+        this.$message.success('新建应用成功')
+        return
       }
       this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
       this.backToAppList()
@@ -543,85 +615,104 @@ export default class extends Mixins(AppMixin) {
     }
     this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
+
+  private resetFrequency(){
+    this.frequency = 1
+  }
 }
 </script>
 <style lang="scss" scoped>
-.app-container {
-  .confidence-info {
-    display: inline-block;
-    height: 45px;
-    line-height: 100%;
-    vertical-align: middle;
-    margin-left: -71px;
+// .app-container {
+.confidence-info {
+  display: inline-block;
+  height: 45px;
+  line-height: 100%;
+  vertical-align: middle;
+  margin-left: -71px;
 
-    & > span:nth-child(2) {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
-  }
-
-  .el-slider {
-    width: 500px;
-    display: inline-block;
-
-    ::v-deep .el-slider__input {
-      width: 60px;
-      margin-right: 80px;
-    }
-  }
-
-  .el-input,
-  .el-textarea,
-  .el-table {
-    width: 500px;
-  }
-
-  .tabrow-add {
-    padding-left: 180px;
-  }
-
-  .mb5 {
-    width: 500px;
-  }
-
-  .el-icon-refresh {
-    margin-left: 20px;
-    font-size: 16px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .el-button--text {
-    margin-left: 15px;
-  }
-
-  .comment {
-    padding-left: 10px;
-    color: $textGrey;
-  }
-
-  .el-form-item.is-error.el-form-item--medium {
-    margin-bottom: 20px;
-  }
-
-  .alarm {
-    width: 112px;
-    margin-right: 18px;
-
-    & + .el-select {
-      width: 80px;
-    }
-  }
-
-  .inline-form-item {
-    width: fit-content;
-    display: inline-block;
-  }
-
-  .interval-unit {
-    width: 65px;
+  & > span:nth-child(2) {
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
+
+.el-slider {
+  width: 500px;
+  display: inline-block;
+
+  ::v-deep .el-slider__input {
+    width: 60px;
+    margin-right: 80px;
+  }
+}
+
+.el-input,
+.el-textarea,
+.el-table {
+  width: 500px;
+}
+
+.tabrow-add {
+  padding-left: 180px;
+}
+
+.mb5 {
+  width: 500px;
+}
+
+.el-icon-refresh {
+  margin-left: 20px;
+  font-size: 16px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.el-button--text {
+  margin-left: 15px;
+}
+
+.comment {
+  padding-left: 10px;
+  color: $textGrey;
+}
+
+.el-form-item.is-error.el-form-item--medium {
+  margin-bottom: 20px;
+}
+
+.alarm {
+  width: 112px;
+  margin-right: 18px;
+
+  & + .el-select {
+    width: 80px;
+  }
+}
+
+.inline-form-item {
+  width: fit-content;
+  display: inline-block;
+}
+
+.interval-unit {
+  width: 65px;
+
+  & + span {
+    margin-left: 10px;
+  }
+
+  ::v-deep .el-icon-circle-close {
+    display: none;
+  }
+}
+
+.frequency {
+  .el-select {
+    width: 112px;
+    margin-right: 18px;
+  }
+}
+// }
 </style>
