@@ -150,7 +150,7 @@ export default class extends Vue {
   /**
    * 获取AI应用列表
    */
-  private async getAppList(abilityId) {
+  public async getAppList(abilityId) {
     try {
       this.loading = true
       const res = await getAppList({ abilityId, pageSize: 9999 })
