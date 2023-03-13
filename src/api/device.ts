@@ -256,7 +256,25 @@ export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+/**
+ * 设备批量绑定
+ */
+ export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+   url: '/device/record/batchBind',
+   method: 'post',
+   data: params
+ })
 
+/**
+* 设备批量解绑
+*/
+export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+   url: '/device/record/batchUnbind',
+   method: 'post',
+   data: params
+ })
 /**
  * 启用设备
  */
