@@ -2,19 +2,25 @@
   <div class="service-config">
     <el-tabs v-model="activeTab" type="card">
       <el-tab-pane label="视频" name="video">
-        <component :is="VideoConfigService" />
+        <component
+          :is="VideoConfigService" 
+          :channel-size="channelSize"
+          :device-stream-size="deviceStreamSize"
+        />
       </el-tab-pane>
       <el-tab-pane v-if="deviceType === deviceTypeEnum.Ipc" label="AI" name="ai">
-        <component :is="AiConfigService" />
+        <component
+          :is="AiConfigService"
+          :channel-size="channelSize"
+        />
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, VModel, Prop, Provide } from 'vue-property-decorator'
+import { Component, Vue, VModel, Prop, Watch } from 'vue-property-decorator'
 import { DeviceTypeEnum } from '@vss/device/enums/index'
-import AiServiceConfig from './AiServiceConfig.vue'
 import IpcVideoServiceConfig from './ipc/VideoServiceConfig.vue'
 import NvrVideoServiceConfig from './nvr/VideoServiceConfig.vue'
 import PlatformVideoServiceConfig from './platform/VideoServiceConfig.vue'
@@ -26,14 +32,18 @@ import IpcAiServiceConfig from './ipc/AiServiceConfig.vue'
     IpcVideoServiceConfig,
     NvrVideoServiceConfig,
     PlatformVideoServiceConfig,
-    IpcAiServiceConfig,
-    AiServiceConfig,
+    IpcAiServiceConfig
   }
 })
 export default class extends Vue {
   @Prop({ default: DeviceTypeEnum.Ipc })
-  @Provide()
   private deviceType: DeviceTypeEnum
+
+  @Prop({ default: 0 })
+  private channelSize: number
+
+  @Prop({ default: 0 })
+  private deviceStreamSize: number
 
   @VModel() private resource
 
@@ -56,6 +66,11 @@ export default class extends Vue {
 
   private get AiConfigService() {
     return this.AiConfigServiceDics[this.deviceType]
+  }
+
+  @Watch('deviceType')
+  private deviceTypeChange() {
+    this.activeTab = 'video'
   }
 }
 </script>

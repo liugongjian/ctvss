@@ -21,13 +21,14 @@
           <el-radio-group v-model="configForm[billingEnum.RecordStream]">
             <el-radio :label="1">主码流录制</el-radio>
             <el-radio :label="2">子码流录制</el-radio>
+            <el-radio :label="3">第三码流录制</el-radio>
             <el-radio :label="1">录制</el-radio>
             <el-radio :label="0">无录制</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="录制模板:" :prop="billingEnum.RecordTemplate">
+        <el-form-item label="录制模板:" :prop="billingEnum.RecordTemplateId">
           <el-select
-            v-model="configForm[billingEnum.RecordTemplate]"
+            v-model="configForm[billingEnum.RecordTemplateId]"
             placeholder="默认30天存储录像模板"
           >
             <el-option
@@ -40,18 +41,19 @@
         </el-form-item>
       </div>
       <div v-if="configForm[billingEnum.BillingMode] === billingModeEnum.Packages">
-        <el-form-item class="content-wrap-item" label="资源包列表:" :prop="billingEnum.Resource">
+        <el-form-item class="content-wrap-item" label="资源包列表:" :prop="billingEnum.ResourceId">
           <el-table
             ref="packagesTable"
             v-loading="loading.table"
             :data="resourceList"
             fit
+
             @row-click="tableRowClick"
           >
             <el-table-column show-overflow-tooltip :prop="packagesEnum.ResourceId" label="订单号" min-width="120" fixed="left">
               <template slot-scope="scope">
                 <span class="resource-id">
-                  <el-radio v-model="configForm[billingEnum.Resource]" :label="scope.row.resourceId" />
+                  <el-radio v-model="configForm[billingEnum.ResourceId]" :label="scope.row.resourceId" @change="configForm[billingEnum.Resource] = scope.row" />
                   {{ scope.row.workOrderNo }}
                 </span>
               </template>
@@ -108,13 +110,18 @@ export default class extends Vue {
   @Prop({ default: ResourceTypeEnum.Video })
   private resourceType: ResourceTypeEnum
 
+  @Prop({ default: 0 })
+  private deviceStreamSize: number
+
   @VModel({ 
     default: () => {
       return {
         [BillingEnum.BillingMode]: BillingModeEnum.Packages,
         [BillingEnum.RecordStream]: 1,
-        [BillingEnum.RecordTemplate]: '',
-        [BillingEnum.Resource]: ''
+        [BillingEnum.RecordTemplateId]: '',
+        [BillingEnum.RecordTemplateName]: '',
+        [BillingEnum.ResourceId]: '',
+        [BillingEnum.Resource]: {}
       }
     }
   })
@@ -125,7 +132,7 @@ export default class extends Vue {
   private rules = {
     [BillingEnum.BillingMode]: [{ required: true, message: '请选择计费模式', trigger: 'blur' }],
     [BillingEnum.RecordStream]: [{ required: true, message: '请选择录制配置', trigger: 'blur' }],
-    [BillingEnum.Resource]: [{ required: true, message: '请选择计资源包', trigger: 'blur' }],
+    [BillingEnum.ResourceId]: [{ required: true, message: '请选择计资源包', trigger: 'blur' }],
   }
 
   private loading = {
@@ -161,7 +168,8 @@ export default class extends Vue {
   }
 
   private tableRowClick(row) {
-    this.configForm[BillingEnum.Resource] = row.resourceId
+    this.configForm[BillingEnum.ResourceId] = row.resourceId
+    this.configForm[BillingEnum.Resource] = row
   }
 
   /**
@@ -169,7 +177,8 @@ export default class extends Vue {
    */
   private billingModeChange(mode: BillingModeEnum) {
     if (mode === BillingModeEnum.OnDemand) {
-      this.configForm.resource = ''
+      this.configForm[BillingEnum.ResourceId] = ''
+      this.configForm[BillingEnum.Resource] = {}
     }
   }
 

@@ -205,7 +205,11 @@
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
         <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
-        <!-- <ServiceConfig :device-type="deviceForm.deviceType" /> -->
+        <!-- <ServiceConfig
+          :device-type="deviceForm.deviceType"
+          :channel-size="videoForm.deviceChannelSize"
+          :device-stream-size="videoForm.deviceStreamSize"
+        /> -->
       </el-form-item>
     <!-- <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -464,8 +468,8 @@ export default class extends Vue {
   private checkVisible(prop) {
     return checkVideoVisible.call(
       {
-        ...this.videoForm,
         ...this.basicInfo,
+        ...this.videoForm,
         isEdit: this.isEdit,
         isIbox: this.isIbox
       }, 

@@ -140,6 +140,8 @@ export class Screen {
     this.recordManager = new RecordManager({
       screen: this
     })
+    
+    console.log(222)
   }
 
   public get deviceInfo(): DeviceInfo {
