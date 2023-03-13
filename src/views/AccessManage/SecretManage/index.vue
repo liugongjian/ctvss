@@ -131,8 +131,8 @@ export default class extends Vue {
       const { keys } = await getSecretList()
       this.dataList = keys.map(key => ({
         ...key,
-        createdTime: format(new Date(+key.createdTime), 'yyyy-dd-MM HH:mm:ss'),
-        updatedTime: format(new Date(+key.updatedTime), 'yyyy-dd-MM HH:mm:ss'),
+        createdTime: format(new Date(+key.createdTime), 'yyyy-MM-dd HH:mm:ss'),
+        updatedTime: format(new Date(+key.updatedTime), 'yyyy-MM-dd HH:mm:ss'),
       }))
       this.dialogStep = 1
     } catch (e) {
