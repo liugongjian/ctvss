@@ -11,9 +11,9 @@
         >
           <el-option
             v-for="algo in algoList"
-            :key="algo.code"
+            :key="algo.id"
             :label="algo.name"
-            :value="algo.code"
+            :value="algo.id"
           />
         </el-select>
       </el-form-item>
@@ -39,6 +39,7 @@
         v-if="frequencyUnits"
         v-model="frequency"
         class="interval-unit"
+        :clearable="false"
       >
         <el-option v-for="unit in frequencyUnits" :key="unit" :label="unit" :value="unit" />
       </el-select>
@@ -408,7 +409,7 @@ export default class extends Mixins(AppMixin) {
       }
       if (this.quickFlag){
         await this.getAlgoList()
-        this.algoList.length > 0 && this.$set(this.form, 'algorithmsId', this.algoList[0].code)
+        this.algoList.length > 0 && this.$set(this.form, 'algorithmsId', this.algoList[0].id)
 
       }
       if (this.prod) {
@@ -700,6 +701,10 @@ export default class extends Mixins(AppMixin) {
 
   & + span {
     margin-left: 10px;
+  }
+
+  ::v-deep .el-icon-circle-close {
+    display: none;
   }
 }
 
