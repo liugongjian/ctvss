@@ -13,6 +13,7 @@ import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'PtzZoom'
@@ -22,6 +23,7 @@ export default class extends ComponentMixin {
   @Prop({
     default: {}
   }) private deviceInfo: DeviceInfo
+
   @Prop({
     default: {}
   }) private streamInfo: StreamInfo
@@ -122,7 +124,7 @@ export default class extends ComponentMixin {
 
     const pointX = (e.clientX - left) * this.oCanvas.width / width
     const pointY = (e.clientY - top) * this.oCanvas.height / height
-    const curPoint = [ pointX, pointY ]
+    const curPoint = [pointX, pointY]
     // 超出边界
     if (pointX > canvasClientX + width || pointX < 0) {
       return false
@@ -191,6 +193,7 @@ export default class extends ComponentMixin {
       this.drawRect()
     }
   }
+
   private canvasMouseUp(e: MouseEvent) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
@@ -229,7 +232,9 @@ export default class extends ComponentMixin {
       midPointX,
       midPointY,
       lengthX,
-      lengthY
+      lengthY,
+      inProtocol: this.deviceInfo.inProtocol,
+      groupId: GroupModule.group?.groupId
     }
     if (lengthX !== '0' || lengthY !== '0') {
       dragCanvasZoom(param).then(() => {
@@ -237,7 +242,7 @@ export default class extends ComponentMixin {
         // this.showCanvasBox = false
         // this.oCanvas.style.cursor = 'auto'
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error(err.message)
         this.showCanvasBox = false
         this.oCanvas.style.cursor = 'auto'
       })

@@ -248,7 +248,7 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item> -->
-        <el-form-item label="配置资源包:" prop="resources">
+        <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -297,7 +297,7 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -401,6 +401,7 @@ export default class extends Mixins(createMixin) {
     industryCode: '',
     networkCode: ''
   }
+
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
   private inTypeList = InType
@@ -410,6 +411,7 @@ export default class extends Mixins(createMixin) {
       value: type.toLowerCase()
     }
   })
+
   private ehomeVersionList = ['2.0']
   private multiStreamSizeList = [
     {
@@ -425,6 +427,7 @@ export default class extends Mixins(createMixin) {
       value: 3
     }
   ]
+
   private autoStreamNumList = [
     {
       label: '主码流',
@@ -449,6 +452,7 @@ export default class extends Mixins(createMixin) {
       await this.getDeviceInfo()
     } else {
       this.form.dirId = this.dirId
+      this.form.deviceVendor = this.deviceVendorList[0]
     }
     this.form.inProtocol = this.inProtocol
     this.onGroupChange()
@@ -557,9 +561,13 @@ export default class extends Mixins(createMixin) {
     this.setIfUseDeviceName()
     // 新增逻辑，使用设备名称时，屏蔽效验正则
     if (this.ifUseDeviceName) {
-      this.rules = { ...this.rules,
-        ...{ deviceName: [
-          { required: true, message: '请输入设备名称', trigger: 'blur' } ] } }
+      this.rules = {
+        ...this.rules,
+        ...{
+          channelName: [
+            { required: true, message: '请输入设备名称', trigger: 'blur' }]
+        }
+      }
     }
   }
 
@@ -617,13 +625,15 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         delete params.deviceType
         // 获取设备资源包
-        await updateDeviceResources({
-          deviceId: this.deviceId,
-          deviceType: this.form.deviceType,
-          inProtocol: this.inProtocol,
-          resources: this.form.resources,
-          aIApps: this.form.aIApps
-        })
+        if (!this.disableResourceTab) {
+          await updateDeviceResources({
+            deviceId: this.deviceId,
+            deviceType: this.form.deviceType,
+            inProtocol: this.inProtocol,
+            resources: this.form.resources,
+            aIApps: this.form.aIApps
+          })
+        }
         await updateDevice(params)
         this.$message.success('修改设备成功！')
       } else {

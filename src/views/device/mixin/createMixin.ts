@@ -9,6 +9,7 @@ import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 import ResourceTabs from '../components/ResourceTabs.vue'
+import settings from '@/settings'
 
 @Component({
   components: {
@@ -24,6 +25,7 @@ export default class CreateMixin extends Vue {
   public tabPaneList = [
     { label: '视频接入', name: 'video' }
   ]
+
   public form: any = {}
   public resourcesMapping: any = {}
   public orginalResourceIdList: Array<string> = []
@@ -40,7 +42,7 @@ export default class CreateMixin extends Vue {
 
   public submitting = false
 
-  public deviceVendorList = ['海康', '大华', '宇视', '其他']
+  public deviceVendorList = ['海康', '大华', '宇视', '科达', '金三立', '华为', '其他']
   // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
@@ -70,6 +72,10 @@ export default class CreateMixin extends Vue {
     port: [
       { validator: this.validateDevicePort, trigger: 'blur' }
     ]
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   public get currentGroup() {
@@ -117,6 +123,11 @@ export default class CreateMixin extends Vue {
     return this.form.deviceType === 'ipc'
   }
 
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   private get breadCrumbContent() {
     let title = this.$route.meta.title
     if (this.isChannel) {
@@ -151,7 +162,7 @@ export default class CreateMixin extends Vue {
       this.activeStep = val
     } else {
       const form: any = this.$refs.dataForm
-      let validArr = ['deviceName', 'deviceType', 'gbVersion', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
+      const validArr = ['deviceName', 'deviceType', 'gbVersion', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
       let valid = true
       form.validateField(validArr, (err) => {
         if (err !== '') {
@@ -168,6 +179,7 @@ export default class CreateMixin extends Vue {
   public async handleClick(tab: any) {
     this.activeTabPane = tab.name
   }
+
   /**
    * 添加tab
    */
@@ -192,6 +204,15 @@ export default class CreateMixin extends Vue {
    * 针对ga1400标识
    */
   public get ga1400Flag() {
+    const userState = this.$store.state.user
+    const perms = userState.perms
+    const privateUserTag = userState.tags.privateUser || ''
+    const denyPerms = settings.privateDenyPerms[privateUserTag] || []
+    if (denyPerms.includes('DescribeViid') ||
+        (!perms.includes('*') && !perms.includes('DescribeViid'))
+    ) {
+      return false
+    }
     return true
     // return this.$store.state.user.tags.ga1400 === 'Y'
   }
@@ -344,7 +365,7 @@ export default class CreateMixin extends Vue {
         })
         if (!valid) return
         // 判断通道数量的变化
-        let alertMsg = []
+        const alertMsg = []
         if (this.form.channelSize < this.orginalChannelSize) {
           alertMsg.push('缩减子设备的数量将会释放相应包资源。')
         } else if (this.form.channelSize > this.orginalChannelSize) {
@@ -368,7 +389,7 @@ export default class CreateMixin extends Vue {
         this.form.resources.forEach((resource: any) => {
           hasResource[resource.resourceType].isSelect = true
         })
-        for (let key in hasResource) {
+        for (const key in hasResource) {
           if (key === 'VSS_UPLOAD_BW' && this.isPrivateInNetwork) continue
           if (key === 'VSS_AI' && this.form.inProtocol !== 'gb28181') continue
           const resource = hasResource[key]
@@ -376,7 +397,7 @@ export default class CreateMixin extends Vue {
             alertMsg.push(resource.msg)
           }
         }
-        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
+        if (!this.disableResourceTab && !this.isFreeUser && this.isUpdate && alertMsg.length) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',

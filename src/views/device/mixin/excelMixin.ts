@@ -10,11 +10,11 @@ import { ResourceAiType } from '@/dics'
 export default class ExcelMixin extends Vue {
   private workbook = null
   public resourceAiType: any = ResourceAiType
-  public exelType = ''
+  public exelType: string = ''
   public exelDeviceType: any = ''
   public exportData: any = []
-  public exelName = ''
-  public parentDeviceId = ''
+  public exelName: string = ''
+  public parentDeviceId: string = ''
   public excelInProtocol: any = ''
   public excelViews: any = [
     {
@@ -27,6 +27,7 @@ export default class ExcelMixin extends Vue {
       visibility: 'visible'
     }
   ]
+
   public regionName = ''
   public excelGroupDate: any
   private gbAccountList: any = []
@@ -42,6 +43,7 @@ export default class ExcelMixin extends Vue {
     BWList: [],
     options: []
   }
+
   // 表格字段配置
   private get excelTemplate() {
     return {
@@ -447,7 +449,7 @@ export default class ExcelMixin extends Vue {
       allowBlank: false,
       showErrorMessage: true,
       // formulae: ['"海康,大华,宇视,科达,华为,其他"'],
-      formulae: ['"海康,大华,宇视,其他"'],
+      formulae: ['"海康,大华,宇视,科达,金三立,华为,其他"'],
       error: '请选择厂商'
     },
     deviceName: {
@@ -529,6 +531,7 @@ export default class ExcelMixin extends Vue {
       error: '请选择国标用户名'
     }
   }
+
   private getAvailableChannelsValidation() {
     return {
       type: 'list',
@@ -538,6 +541,7 @@ export default class ExcelMixin extends Vue {
       error: '请选择通道号'
     }
   }
+
   private getVideoPackageValidation() {
     return {
       type: 'list',
@@ -575,17 +579,23 @@ export default class ExcelMixin extends Vue {
     // 获取资源包选项
     try {
       const VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
-      this.options.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
-      }) : []
+      this.options.VIDEOList = VIDEORes.resPkgList
+        ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
+        })
+        : []
       const AIRes: any = await getResources({ type: 'VSS_AI' })
-      this.options.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
-      }) : []
+      this.options.AIList = AIRes.resPkgList
+        ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
+        })
+        : []
       const BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
-      this.options.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
-        return `${item.bitRate}M||${item.resourceId}`
-      }) : []
+      this.options.BWList = BWRes.resPkgList
+        ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+          return `${item.bitRate}M||${item.resourceId}`
+        })
+        : []
     } catch (e) {
       console.error(e)
     }
@@ -768,9 +778,10 @@ export default class ExcelMixin extends Vue {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
-    link.download = `${fileName}.csv`
+    link.download = `${fileName}.xlsx`
     link.click()
   }
+
   // base64转blob
   public base64ToBlob(base64: any) {
     const arr = base64.split(',')
@@ -801,16 +812,4 @@ export default class ExcelMixin extends Vue {
       }
     })
   }
-
-  // 下载CSV
-  public downloadFileCSV(fileName: string, fileContent: any) {
-      const CsvString = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(fileContent)
-      const fileLinkEle = document.createElement('a')
-      fileLinkEle.setAttribute('href', CsvString)
-      fileLinkEle.setAttribute('download', fileName + '.csv')
-      document.body.appendChild(fileLinkEle)
-      fileLinkEle.click()
-      document.body.removeChild(fileLinkEle)
-  }
-
 }

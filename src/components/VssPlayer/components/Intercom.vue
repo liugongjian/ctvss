@@ -59,7 +59,7 @@
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import { startTalk, stopTalk } from '@/api/intercom'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
-import Player from '@vss/video-player/index.vue'
+import Player from '@/components/Player/index.vue'
 import { ScreenModule } from '@/store/modules/screen'
 import ComponentMixin from './mixin'
 

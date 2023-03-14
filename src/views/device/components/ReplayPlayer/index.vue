@@ -16,6 +16,7 @@
     :is-muted="screen.isMuted"
     :playback-rate="screen.playbackRate"
     :scale="screen.scale"
+    :permission="screen.permission"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     :has-axis="hasAxis"
@@ -43,11 +44,13 @@
         :has-axis="hasAxis"
         :screen="screen"
         :is-inline="true"
+        :is-dialog-task="isCarTask"
         @change="onAxisTimeChange"
       />
     </template>
     <template slot="controlRight">
-      <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
+      <Lock v-if="canLock && !isCarTask" :screen="screen" />
+      <RecordDownload v-if="checkPermission(['ivs:DownloadCloudRecord'], actions) && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -64,6 +67,8 @@ import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
 import RecordDownload from './RecordDownload.vue'
+import Lock from './RecordLock.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ReplayPlayer',
@@ -73,7 +78,8 @@ import RecordDownload from './RecordDownload.vue'
     DatePicker,
     ReplayType,
     Fullscreen,
-    RecordDownload
+    RecordDownload,
+    Lock
   }
 })
 export default class extends Vue {
@@ -96,16 +102,17 @@ export default class extends Vue {
   @Prop()
   private isCarTask: Boolean
 
+  private UserModule = UserModule
+
+  private checkPermission = checkPermission
+  private actions: any = null
+
   private url: string = null
   private type: string = null
   private codec: string = null
 
   private get recordManager() {
     return this.screen.recordManager
-  }
-
-  private get hasAdminRecord() {
-    return checkPermission(['AdminRecord'])
   }
 
   /* 当前全屏状态 */
@@ -118,18 +125,31 @@ export default class extends Vue {
     return this.screen && this.screen.recordType
   }
 
+  /* 是否具有锁定功能 */
+  private get canLock() {
+    if (this.screen.inProtocol === 'gb28181') {
+      return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    } else {
+      return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    }
+  }
+
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
     if (this.screen.recordType === 0) {
       this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
-      this.type = 'hls'
+      this.type = this.recordManager.currentRecord && this.recordManager.currentRecord.fileFormat
       this.codec = this.recordManager.currentRecord && this.recordManager.currentRecord.codec
     } else {
       this.url = this.screen.url
       this.type = 'flv'
       this.codec = this.screen.codec
     }
+  }
+
+  private mounted() {
+    this.actions = this.screen.permission
   }
 
   /**
@@ -158,6 +178,7 @@ export default class extends Vue {
     this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
+    // 锁定跳转处理 
     // 跳转到offsetTime
     if (this.recordManager.currentRecord && this.recordManager.currentRecord.offsetTime) {
       this.screen.player.seek(this.recordManager.currentRecord.offsetTime)

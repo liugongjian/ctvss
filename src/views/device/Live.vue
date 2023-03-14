@@ -23,9 +23,7 @@
             :height="maxHeight"
             :screen-manager="screenManager"
             :is-live="isLive"
-          >
-          </ScreenTreeMenu>
-          </ScreenTree>
+          />
         </div>
         <ScreenBoard
           ref="screenBoard"

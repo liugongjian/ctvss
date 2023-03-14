@@ -1,4 +1,7 @@
 import { AlertType } from '@/dics'
+import { queryGroup } from '@/api/group'
+import { getDevicePath } from '@/api/device'
+import { GroupModule } from '@/store/modules/group'
 
 export const renderAlertType = (node: any) => {
   let resultStr = ''
@@ -63,5 +66,36 @@ export const setDirsStreamStatus = (dirs: any) => {
       }
     }
     return dir
+  })
+}
+
+/**
+ * 跳转到设备详情页面
+ * @param vueInstance vue实例
+ * @param deviceId 设备ID
+ * @param inProtocol 业务组协议
+ */
+export const redirectToDeviceDetail = async(vueInstance, deviceId, inProtocol) => {
+  // 获取设备路径
+  const devicePath = await getDevicePath({
+    deviceId,
+    inProtocol
+  })
+  const pathList = devicePath.path.split('/')
+  // 返回的数组第一级为业务组ID
+  const groupId = pathList.shift()
+  const group = await queryGroup({ groupId })
+  // 设置当前业务组
+  GroupModule.SetGroup(group)
+  // 拼出设备所在路径
+  pathList.push(deviceId)
+  vueInstance.$router.push({
+    name: 'device-detail',
+    query: {
+      deviceId,
+      inProtocol,
+      type: 'ipc',
+      path: pathList.join(',')
+    }
   })
 }

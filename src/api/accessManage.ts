@@ -30,7 +30,7 @@ export const getUser = (params: any): Promise<any> =>
 
 export const getUserList = (params: any): Promise<any> =>
   request({
-    url: '/iam/user/list',
+    url: '/iam/users',
     method: 'get',
     params
   })
@@ -59,6 +59,13 @@ export const modifyGroup = (params: any): Promise<any> =>
 export const getGroup = (params: any): Promise<any> =>
   request({
     url: '/iam/group',
+    method: 'get',
+    params
+  })
+
+export const getGroupInheritedPolicies = (params: any): Promise<any> =>
+  request({
+    url: '/iam/group/inherited',
     method: 'get',
     params
   })
@@ -187,12 +194,12 @@ export const getPolicyPrincipals = (params: any): Promise<any> =>
 
 export const detachUserPolicy = (data: any): Promise<any> =>
   request({
-    url: '/iam/policy/detachUser',
+    url: '/iam/policy/detach',
     method: 'post',
     data
   })
 
-  // 获取主账号 黑白名单
+// 获取主账号 黑白名单
 export const getIpRules = (type: number): Promise<any> =>
   request({
     url: `user/iprules?type=${type}`,

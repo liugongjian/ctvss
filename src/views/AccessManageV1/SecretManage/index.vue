@@ -21,7 +21,7 @@
           </div>
           <el-table :data="dataList" fit>
             <el-table-column label="密钥" min-width="300">
-              <template slot-scope="{ row }">
+              <template slot-scope="{row}">
                 <div>
                   <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
                   <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
@@ -45,7 +45,7 @@
             <el-table-column prop="createdTime" label="创建时间" min-width="160" />
             <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
             <el-table-column label="状态">
-              <template slot-scope="{ row }">
+              <template slot-scope="{row}">
                 <status-badge :status="row.status ? 'on' : 'warning'" />
                 {{ secretStatus[row.status] || "已启用" }}
               </template>

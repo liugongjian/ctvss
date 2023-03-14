@@ -329,7 +329,8 @@ export default class extends Vue {
    * 监听设备详情
    */
   @Watch('value', {
-    deep: true
+    deep: true,
+    immediate: true
   })
   private onDeviceChange(resources: any) {
     resources.forEach((resource: any) => {

@@ -193,7 +193,7 @@
             />
           </el-form-item>
         </div>
-        <div v-show="activeStep === 1" class="step-container">
+        <div v-if="activeStep === 1" class="step-container">
           <el-tabs
             v-model="activeTabPane"
             type="card"
@@ -256,7 +256,31 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item label="GB28181凭证:" prop="userName">
+            <el-form-item v-if="isLiuzhou && form.parentDeviceId === '-1'" prop="enabledGB35114">
+              <template slot="label">
+                GB35114协议:
+                <el-popover
+                  placement="top-start"
+                  title="GB35114协议"
+                  width="400"
+                  trigger="hover"
+                  :open-delay="300"
+                  :content="tips.enabledGB35114"
+                >
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
+                </el-popover>
+              </template>
+              <el-switch
+                v-model="form.enabledGB35114"
+                :active-value="true"
+                :inactive-value="false"
+              />
+            </el-form-item>
+            <el-form-item v-if="!form.enabledGB35114" v-show="form.parentDeviceId === '-1'" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -338,7 +362,7 @@
             >
               <el-input v-model="form.poleId" />
             </el-form-item>
-            <el-form-item label="配置资源包:" prop="resources">
+            <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
               <ResourceTabs
                 v-model="form.resources"
                 :is-update="isUpdate"
@@ -465,7 +489,7 @@
         <el-form-item label="杆号:" prop="poleId">
           <el-input v-model="form.poleId" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
@@ -534,8 +558,8 @@ import {
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import CreateGb28181Certificate from '@vss/device/components/Certificate/Gb28181/components/CreateDialog.vue'
-import CreateGa1400Certificate from '@vss/device/components/Certificate/Ga1400/components/CreateDialog.vue'
+import CreateGb28181Certificate from '@/views/Certificate/Gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from '@/views/Certificate/Ga1400/components/CreateDialog.vue'
 import { ViewLib2Device } from '../viewLibParamsTransform'
 
 @Component({
@@ -594,6 +618,7 @@ export default class extends Mixins(createMixin) {
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
+
   private gbVersionList = ['2011', '2016']
   private deviceTypeList = Object.values(DeviceGb28181Type).map((type) => {
     return {
@@ -601,10 +626,12 @@ export default class extends Mixins(createMixin) {
       value: type.toLowerCase()
     }
   })
+
   private apeTypeList = [
     // { label: '视频卡口', value: 'Tollgate' },
     { label: '视图采集设备', value: 'APE' }
   ]
+
   private gbAccountList = []
   private ga1400AccountList = []
   public form: any = {
@@ -626,9 +653,10 @@ export default class extends Mixins(createMixin) {
     createSubDevice: 1,
     pullType: 1,
     transPriority: 'tcp',
-    parentDeviceId: '',
+    parentDeviceId: '-1',
     gbId: '',
     poleId: '',
+    enabledGB35114: false,
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -650,6 +678,7 @@ export default class extends Mixins(createMixin) {
     createGb28181Certificate: false,
     createGa1400Certificate: false
   }
+
   private hasViewLib = false
 
   private created() {
@@ -659,8 +688,10 @@ export default class extends Mixins(createMixin) {
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.isChannel && !this.isUpdate && (this.form.deviceVendor = this.deviceVendorList[0])
     } else {
       this.form.dirId = this.dirId
+      this.form.deviceVendor = this.deviceVendorList[0]
     }
     this.form.inProtocol = this.inProtocol
     this.getGbAccounts()
@@ -709,6 +740,7 @@ export default class extends Mixins(createMixin) {
             'parentDeviceId',
             'gbId',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'serialNumber',
@@ -808,6 +840,7 @@ export default class extends Mixins(createMixin) {
       this.loading.account = false
     }
   }
+
   /**
    * 获取ga1400账号
    */
@@ -835,7 +868,7 @@ export default class extends Mixins(createMixin) {
       this.rules = {
         ...this.rules,
         ...{
-          deviceName: [
+          channelName: [
             { required: true, message: '请输入设备名称', trigger: 'blur' }
           ]
         }
@@ -885,6 +918,7 @@ export default class extends Mixins(createMixin) {
             'macAddr',
             'pullType',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'gbId',
@@ -894,6 +928,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换gbRegionLevel字段类型
+        params.gbRegionLevel = parseInt(params.gbRegionLevel)
         // 强制转换设备端口字段类型
         params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数
@@ -921,6 +957,11 @@ export default class extends Mixins(createMixin) {
             transPriority: this.form.transPriority
           })
         }
+        // 使用35114不需要国标凭证
+        if (this.form.enabledGB35114) {
+          delete params.userName
+          delete params.password
+        }
       } else {
         // NVR通道
         params = Object.assign(
@@ -942,13 +983,15 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         delete params.deviceType
         // 获取设备资源包
-        await updateDeviceResources({
-          deviceId: this.deviceId,
-          deviceType: this.form.deviceType,
-          inProtocol: this.inProtocol,
-          resources: this.form.resources,
-          aIApps: this.form.aIApps
-        })
+        if (!this.disableResourceTab) {
+          await updateDeviceResources({
+            deviceId: this.deviceId,
+            deviceType: this.form.deviceType,
+            inProtocol: this.inProtocol,
+            resources: this.form.resources,
+            aIApps: this.form.aIApps
+          })
+        }
         // 更新设备信息
         await updateDevice(params)
         // 更新视图库
@@ -985,7 +1028,7 @@ export default class extends Mixins(createMixin) {
    */
   private async createOrUpdateViewLib() {
     if (this.tabPaneList.length !== 1) {
-      let params = {
+      const params = {
         inProtocol: this.ga1400Form.inProtocol,
         apeType: this.ga1400Form.apeType,
         certId: this.ga1400Form.certId,
@@ -1011,11 +1054,12 @@ export default class extends Mixins(createMixin) {
       await createViewLib(params)
     }
   }
+
   /**
    * 获取视图库信息
    */
   private async getViewLibInfo() {
-    console.log(this.hasViewLib)
+    // console.log(this.hasViewLib)
     const { data } = await getViewLibInfo({ deviceId: this.deviceId })
     this.tabPaneList.push({ label: '视图接入', name: 'view' })
     this.ga1400Form.apeType = data.apeType
@@ -1028,8 +1072,8 @@ export default class extends Mixins(createMixin) {
    * 校验MAC地址
    */
   private async validateMacAddr(rule: any, value: string, callback: Function) {
-    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
-    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    const reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    const reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
     if (value && !reg1.test(value) && !reg2.test(value)) {
       callback(new Error('请输入规范MAC地址'))
     } else {

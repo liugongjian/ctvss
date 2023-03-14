@@ -29,11 +29,12 @@ export class FlvPlayer extends Player {
     const flvPlayer = FlvJS.createPlayer({
       type: 'flv',
       isLive: true,
-      hasAudio: this.hasAudio,
-      url: this.url
+      url: this.url,
+      hasAudio: this.hasAudio === false ? false : null
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
+    // flv.play 是一个 promise
     flvPlayer.play()
     flvPlayer.on(FlvJS.Events.ERROR, (e: any) => {
       // 网络错误
@@ -42,8 +43,8 @@ export class FlvPlayer extends Player {
         this.onRetry()
       }
       // 视频解码错误
-      if (e === FlvJS.ErrorTypes.MSE_ERROR && !this.mseError) {
-        this.isDebug && console.log('MSE_ERROR', e, this.mseErrorCount)
+      if (e === FlvJS.ErrorTypes.MSE_VIDEO_ERROR && !this.mseError) {
+        this.isDebug && console.log('MSE_VIDEO_ERROR', e, this.mseErrorCount)
         this.mseError = true
         this.mseErrorCount++
         // 先尝试reload播放器，如果5次无法继续播放，则重新渲染播放器
@@ -54,6 +55,14 @@ export class FlvPlayer extends Player {
             immediate: true
           })
         }
+      }
+      // 音频解码错误
+      if (e === FlvJS.ErrorTypes.MSE_AUDIO_ERROR) {
+        this.isDebug && console.log('MSE_AUDIO_ERROR')
+        this.onRetry({
+          immediate: true,
+          hasAudio: false
+        })
       }
     })
     flvPlayer.on(FlvJS.Events.METADATA_ARRIVED, (e: any) => {
@@ -115,5 +124,37 @@ export class FlvPlayer extends Player {
     this.flv && this.flv.destroy()
     this.flv = null
     this.isLoading = false
+  }
+
+  /**
+   * 回调事件
+   * 当进行预加载
+   */
+  public onBuffered() {
+    if (this.video.buffered.length) {
+      this.bufferedTime = this.video.buffered.end(this.video.buffered.length - 1)
+      this.config.onBuffered && this.config.onBuffered(this.bufferedTime)
+      this.isLive && this.catchTime()
+    }
+  }
+
+  /**
+   * 解决直播延时累加，进行追帧设置
+   */
+  public catchTime() {
+    const delta = this.bufferedTime - this.currentTime
+
+    // 延迟过大，通过跳帧的方式更新视频
+    if (delta > 10 || delta < 0) {
+      this.seek(this.bufferedTime)
+      return
+    }
+
+    // 追帧
+    if (delta > 1) {
+      this.setPlaybackRate(1.2)
+    } else {
+      this.setPlaybackRate(1)
+    }
   }
 }

@@ -14,19 +14,24 @@ import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
+import DescribePermission from '../components/dialogs/DescribePermission.vue'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {
     StatusBadge,
     MoveDir,
     UploadExcel,
-    Resource
+    Resource,
+    DescribePermission
   }
 })
 export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
+  public deviceActions = {}
   public dirStats: any = null
   public selectedDeviceList: Array<Device> = []
   public currentDevice?: Device | null = null
@@ -61,8 +66,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public dialog = {
     moveDir: false,
     uploadExcel: false,
-    resource: false
+    resource: false,
+    describePermission: false
   }
+  public describePermissonDialogData = {}
   public eventsList = []
   public keyword = ''
   public filter: any = {
@@ -215,6 +222,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     return buttons
   }
 
+  get isMainUser() {
+    return !UserModule.iamUserId
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
     this.reset()
@@ -251,6 +262,33 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   @Watch('deviceList.length')
   public onDeviceListChange(data: any) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
+  public describePermission(row: any) {
+    const path: any = this.$route.query.path
+    const pathArr = path ? path.split(',') : []
+    const dirPath = (this.isDir || this.isPlatformDir) ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+    const deviceId = (this.isDir || this.isPlatformDir) ? undefined : pathArr[pathArr.length - 1]
+    if (row && row.deviceId) {
+      this.describePermissonDialogData = {
+        type: row.type,
+        groupId: this.groupId,
+        dirPath: dirPath || '0',
+        deviceId: row.deviceId
+      }
+    } else {
+      this.describePermissonDialogData = {
+        type: this.type,
+        groupId: this.groupId,
+        dirPath: dirPath || '0',
+        deviceId: deviceId
+      }
+    }
+    this.dialog.describePermission = true
+  }
+
+  public closePreviewDialog() {
+    this.dialog.describePermission = false
   }
 
   public reset() {
@@ -306,6 +344,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public init() {
     this.parentDeviceId = ''
     if (!this.groupId || !this.inProtocol) return
+
+    if (UserModule.iamUserId) {
+      this.getDeviceActions()
+    }
     switch (this.type) {
       case 'platform':
         this.getDeviceInfo(this.type)
@@ -384,6 +426,22 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
             }
             return true
           })
+          // 查询nvr通道的权限
+          if (UserModule.iamUserId && deviceList.length) {
+            const path: any = this.$route.query.path
+            const pathArr = path ? path.split(',') : []
+            const permissionRes = await previewAuthActions({
+              targetResources: deviceList.map((device: any) => ({
+                groupId: this.groupId,
+                dirPath: pathArr.join('/') || '0',
+                deviceId: device.deviceId
+              }))
+            })
+            deviceList = deviceList.map((device: any, index: number) => ({
+              ...device,
+              ...permissionRes.result[index].iamUser.actions
+            }))
+          }
         }
         this.deviceList = deviceList
       } else if (type === 'ipc') {
@@ -408,6 +466,26 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     }
   }
 
+  /**
+   * 获取当前设备权限
+   */
+  public async getDeviceActions() {
+    try {
+      const type = this.type
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.groupId,
+          dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
+          deviceId: this.deviceId || undefined
+        }]
+      })
+      this.deviceActions = permissionRes.result[0].iamUser.actions
+    } catch (err) {
+      this.$message.error(err && err.message)
+    }
+  }
   /**
    * 加载设备列表
    */
@@ -439,6 +517,21 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
       res = await getDevices(params, axiosSource.token)
+      if (UserModule.iamUserId && res.devices.length) {
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: res.devices.map((device: any) => ({
+            groupId: this.groupId,
+            dirPath: pathArr.join('/') || '0',
+            deviceId: device.deviceId
+          }))
+        })
+        res.devices = res.devices.map((device: any, index: number) => ({
+          ...device,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+      }
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {
