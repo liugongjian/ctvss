@@ -72,7 +72,7 @@ export default class extends Vue {
     ]
   }
 
-  private showName: string = ''
+  private showName = ''
 
   mounted() {
     this.initState()

@@ -28,7 +28,7 @@
               label="IP"
               width="180"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span v-if="row.blackIpList.length > 1">
                   <el-tooltip class="item" effect="dark" placement="top-start">
                     <div slot="content">
@@ -47,7 +47,7 @@
               label="锁定开始时间"
               width="180"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ dateFormat(Number(row.createTime)) }}</span>
               </template>
             </el-table-column>
@@ -55,7 +55,7 @@
               prop="expireTime"
               label="锁定结束时间"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span v-if="row.expireTime === '-1'">永久</span>
                 <span v-else>{{ dateFormat(Number(row.expireTime)) }}</span>
               </template>
@@ -64,7 +64,7 @@
               prop="address"
               label="操作"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-button type="text" @click.stop.prevent="relieveLock(row)">解除锁定</el-button>
               </template>
             </el-table-column>
@@ -119,7 +119,7 @@
               label="最后登录IP"
               width="220"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span v-if="row.lastLoginIp.split(',').length > 1">
                   <el-tooltip class="item" effect="dark" :content="row.lastLoginIp" placement="top-start">
                     <span> {{ row.lastLoginIp.split(',')[0] }}</span>
@@ -132,7 +132,7 @@
               prop="isOnline"
               label="在线状态"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 {{ row.isOnline ? '在线' : '离线' }}
               </template>
             </el-table-column>
@@ -140,7 +140,7 @@
               prop="lockState"
               label="锁定状态"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span v-if="row.lockState === 0">
                   {{ lockStateToText[row.lockState] }}
                 </span>
@@ -178,7 +178,7 @@
               label="操作"
               width="220"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-button v-if="row.lockState !== 0" type="text" @click.stop.prevent="relieveLock(row)">解除锁定</el-button>
                 <el-button v-else type="text" @click.stop.prevent="changeCustomDialog(row)">锁定</el-button>
                 <el-button type="text" @click.stop.prevent="changeShowListDrawer(row)">查看访问日志</el-button>
@@ -225,23 +225,23 @@ import { dateFormat } from '@/utils/date'
   }
 })
 export default class extends Vue {
-  private activeName: string = 'ipManage'
+  private activeName = 'ipManage'
 
   private dateFormat = dateFormat
 
-  private showIpDialog: boolean = false
+  private showIpDialog = false
   private ipDataForDialog = {}
 
   private ipTableData = []
   private tableData = []
 
-  private showCustomDialog: boolean = false
+  private showCustomDialog = false
 
-  private showListDrawer: boolean = false
+  private showListDrawer = false
 
   private ipAccessRules: any = {}
 
-  private drawerInfo: string = ''
+  private drawerInfo = ''
 
   private lockStateToText = {
     0: '未锁定',

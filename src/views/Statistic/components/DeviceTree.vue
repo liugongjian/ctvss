@@ -1,5 +1,5 @@
 <template>
-  <div class="statistic-box__device__tree" :style="{height: `${maxHeight}px`}">
+  <div class="statistic-box__device__tree" :style="{ height: `${maxHeight}px` }">
     <div
       class="device-list__handle"
       :style="`left: ${dirDrag.width}px`"
@@ -16,7 +16,7 @@
           </el-tooltip>
         </div>
         <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
-          <div class="dir-list__tree--root" :class="{'actived': isRootDir}">
+          <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }">
             <svg-icon name="component" width="12px" />
             根目录
             <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
@@ -35,9 +35,9 @@
             @node-click="deviceRouter"
           >
             <span
-              slot-scope="{node, data}"
+              slot-scope="{ node, data }"
               class="custom-tree-node"
-              :class="{'online': data.deviceStatus === 'on','not-allowed': !data.groupName && data.type !== 'ipc'}"
+              :class="{ 'online': data.deviceStatus === 'on','not-allowed': !data.groupName && data.type !== 'ipc' }"
             >
               <span class="node-name">
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -98,7 +98,7 @@ export default class extends Vue {
   public isExpanded = true
 
   public defaultKey = null
-  private maxHeight: number = 0
+  private maxHeight = 0
   private currentGroup = {}
 
   public loading = {
@@ -274,7 +274,7 @@ export default class extends Vue {
   public async loadDirChildren(key: string, node: any) {
     try {
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: node.data.groupId || '',
         id: node.data.groupName ? 0 : node.data.id,
         type: node.data.type
@@ -298,7 +298,7 @@ export default class extends Vue {
    * 获取树菜单路径
    */
   public getDirPath(node: any) {
-    let path: any = []
+    const path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node.data
       if (data && data.id) {

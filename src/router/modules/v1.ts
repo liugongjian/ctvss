@@ -1083,6 +1083,21 @@ export const v1Router: RouteConfig[] = [
       version: 1
     },
     children: [
+       {
+        path: '/statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            privateUser: ['liuzhou']
+          }
+          // groupSelector: true
+        }
+      },
       {
         path: '/statistic',
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
