@@ -4,6 +4,7 @@
       <el-form label-position="top">
         <el-form-item label="视频格式">
           <el-select v-model="form.type">
+            <el-option value="mp4" label="Mp4" />
             <el-option value="flv" label="FLV" />
             <el-option value="hls" label="HLS" />
             <el-option value="rtc" label="Webrtc" />
@@ -52,29 +53,37 @@
         :is-auto-play="true"
         :is-live="form.isLive"
         :is-ws="form.isWs"
+        :has-audio="form.hasAudio"
         @dispatch="onPlayerDispatch"
       />
-      <!-- <Player
+    </div>
+    <!-- <div class="player__body">
+      <VssPlayer
+        v-if="url"
         ref="player"
         :url="url"
         :type="form.type"
         :codec="form.codec"
+        :has-progress="true"
+        :device-info="form.deviceInfo"
+        :is-debug="true"
+        :is-auto-play="true"
         :is-live="form.isLive"
-      /> -->
-    </div>
+        :is-ws="form.isWs"
+        @dispatch="onPlayerDispatch"
+      />
+    </div> -->
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import VssPlayer from './index.vue'
-import Player from '@vss/video-player/index.vue'
 
 @Component({
   name: 'PlayerDebug',
   components: {
-    VssPlayer,
-    Player
+    VssPlayer
   }
 })
 export default class extends Vue {
@@ -82,14 +91,15 @@ export default class extends Vue {
     codec: 'h264',
     type: 'flv',
     videoName: 'TestVideo',
-    isLive: false,
-    isWs: false,
+    isLive: true,
+    isWs: true,
+    hasAudio: true,
     deviceInfo: {
       deviceName: 'TestVideo',
       deviceId: '123',
-      inProtocol: 'gb28181'
+      inProtocol: 'gb281812'
     },
-    url: 'https://liveplay.lanzhou.vcn.ctyun.cn/live/29942067077591243_101.flv'
+    url: 'http://42.81.162.130:18080/vss-resource10-1/29942159419404414/record/1646755201_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AEZOKBBKZWIE4IZMR3HM%2F20220309%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220309T014107Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7418620afbd9e979a5c73db6effe581e546950cc3bd55646871e6d65ef5a7636'
     // url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/395591776819757060.flv'
     // url: 'https://changchun.vcn.ctyun.cn/vss-work_order_10-1/29941957555937375/record/1644292818_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=M5NB4DWSTUYHO2W5V3XZ%2F20220305%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220305T015112Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a2ae9b8d55952be9dd767a01bfab753f85f6b6b15102611564b57e8db9d84f7b'
     // url: 'https://guangzhou.vcn.ctyun.cn/vss-work_order_10-2/29941953260967657/record/1646668800_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GAA6CGT2MMHD06Z2KWQX%2F20220308%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220308T061504Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=620384a6b4d5cb0544ea7c64db307aecc18b20b3ddbd3d5745b1f6e87fd5aa33'
@@ -98,10 +108,42 @@ export default class extends Vue {
 
   private generate() {
     this.url = ''
+    this.form.hasAudio = true
 
     this.$nextTick(() => {
       this.url = this.form.url
     })
+  }
+
+  private onPlayerDispatch(event: PlayerEvent) {
+    switch (event.eventType) {
+      case 'retry':
+        this.onRetry(event.payload)
+        break
+    }
+  }
+
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(payload?) {
+    let timeout = 30 * 1000
+    if (payload && payload.immediate) {
+      timeout = 100
+    }
+    setTimeout(() => {
+      try {
+        this.url = ''
+        if (payload.hasAudio != null) {
+          this.form.hasAudio = payload.hasAudio
+        }
+        this.$nextTick(() => {
+          this.url = this.form.url
+        })
+      } catch {
+        this.onRetry()
+      }
+    }, timeout)
   }
 }
 </script>

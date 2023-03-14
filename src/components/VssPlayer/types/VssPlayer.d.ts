@@ -4,12 +4,13 @@ export interface PlayerEvent {
 }
 
 export interface DeviceInfo {
-  deviceId: number | string;
+  deviceId: number;
   inProtocol: string;
   deviceName: string;
   roleId?: string;
   realGroupId?: string;
   realGroupInProtocol?: string;
+  ptzLockStatus?: number
 }
 export interface Stream {
   label?: string;
