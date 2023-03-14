@@ -70,8 +70,10 @@ export enum NvrConfigEnum {
  */
  export enum PlatformConfigEnum {
   DeviceName = 'deviceName',
+  DeviceId = 'deviceId',
   BillingMode = 'billingMode',
   BillingId = 'billingId',
   ExpireTime = 'expireTime',
-  StorageTime = 'storageTime'
+  StorageTime = 'storageTime',
+  Path = 'path'
 }

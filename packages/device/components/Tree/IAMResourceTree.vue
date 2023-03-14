@@ -16,7 +16,7 @@
   >
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
-      <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
+      <svg-icon v-else :name="data.type" />
     </template>
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}

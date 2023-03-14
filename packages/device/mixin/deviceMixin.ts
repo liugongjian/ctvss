@@ -95,6 +95,7 @@ export default class DeviceMixin extends Vue {
       }
       // 部分内容更新, 如果区域不在编辑中的状态，则允许更新这部分内容
       if (editSections && !editSections.basicInfo) {
+        this.device.inNetworkType = res.inNetworkType
         this.device.device = res.device
       }
       if (editSections && !editSections.videoInfo) {
