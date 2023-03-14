@@ -5,7 +5,6 @@ import { getGa1400CertificateList } from '../../api/certificate'
 
 import { ResourceAiType } from '../../dicts/resource'
 import { getIndustryList } from '../../api/dict'
-import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
 class ExportExcelTemplate {
   private excelName = ''
   private workbook: any
@@ -39,7 +38,10 @@ class ExportExcelTemplate {
     VIDEOList: [],
     BWList: [],
     options: [],
-    AIList: []
+    AIList: [],
+    regionList: [],
+    industryList: [],
+    addressList: []
   }
 
   private excelExplain = `
@@ -672,8 +674,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      // formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
-      formulae: [this.joinDropdownlist(this.options.gbAccountList)],
+      formulae: [this.joinDropdownlist(this.options.gbAccountList, 'gbAccountList')],
       error: '请选择国标用户名'
     }
   }
@@ -683,7 +684,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.availableChannels)],
+      formulae: [this.joinDropdownlist(this.options.availableChannels, 'availableChannels')],
       error: '请选择通道号'
     }
   }
@@ -693,7 +694,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.VIDEOList)],
+      formulae: [this.joinDropdownlist(this.options.VIDEOList, 'VIDEOList')],
       error: '请选择视频包'
     }
   }
@@ -703,7 +704,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.AIList)],
+      formulae: [this.joinDropdownlist(this.options.AIList, 'AIList')],
       error: '请选择AI包'
     }
   }
@@ -713,7 +714,7 @@ class ExportExcelTemplate {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.options.BWList)],
+      formulae: [this.joinDropdownlist(this.options.BWList, 'BWList')],
       error: '请选择上行带宽包'
     }
   }
@@ -724,7 +725,7 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.regionList)],
+      formulae: [this.joinDropdownlist(this.options.regionList, 'regionList')],
       error: '请选择接入区域'
     }
   }
@@ -735,7 +736,7 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.industryList)],
+      formulae: [this.joinDropdownlist(this.options.industryList, 'industryList')],
       error: '请从选项中选择所属行业'
     }
   }
@@ -746,21 +747,23 @@ class ExportExcelTemplate {
       allowBlank: false,
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [this.joinDropdownlist(this.addressList)],
+      formulae: [this.joinDropdownlist(this.options.addressList, 'addressList')],
       error: '请从选项中选择设备地址'
     }
   }
 
   // 动态校验 formulae值 转换处理
-  public joinDropdownlist = (data: any) => {
-    return data.length ? '"' + data.join(',') + '"' : '""'
+  public joinDropdownlist = (data: any, name: string) => {
+    console.log([`${name}Sheet!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`])
+    return data.length ? [`${name}Sheet!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`] : ['""']
+    // return data.length ? '"' + data.join(',') + '"' : '""'
   }
 
   // 调接口获取下拉数据 --- start ---
   private async getRegionList() {
     try {
       const regionList = await getRegions()
-      this.regionList = regionList
+      this.options.regionList = regionList
         ?.map((item: any) => {
           return item.children.map((val: any) => {
             return `${item.value}/${val.label}`
@@ -775,7 +778,7 @@ class ExportExcelTemplate {
   private async getIndustry() {
     try {
       const industryList = await getIndustryList()
-      this.industryList = industryList.data.map((item: any) => item.name)
+      this.options.industryList = industryList.data.map((item: any) => item.name)
     } catch (e) {
       console.error(e)
     }
@@ -816,9 +819,11 @@ class ExportExcelTemplate {
       const res = await getGa1400CertificateList({
         pageSize: 1000
       })
-      res.data.forEach((account: any) => {
-        this.options.gbAccountList.push(account.username)
+      const gbAccountList = res?.data?.map((item: any)=>{
+        return item.username
       })
+      this.options.gbAccountList = gbAccountList
+
     } catch (e) {
       console.error(e)
     }
@@ -839,14 +844,18 @@ class ExportExcelTemplate {
     //   }
     // }
 
-    // 生成额外sheet存储动态选项  暂时关闭
-    // for (const key in this.options) {
-    //   if (this.options[key].length) {
-    //     const sheet = this.workbook.addWorksheet(`${key}Sheet`)
-    //     sheet.addRow(this.options[key])
-    //     sheet.state = 'hidden'
-    //   }
-    // }
+    // 生成额外sheet存储动态选项  
+    for (const key in this.options) {
+      if (this.options[key].length) {
+        const sheet = this.workbook.addWorksheet(`${key}Sheet`)
+        // sheet.columns = [
+        //   { header: key, key, width: 20 }
+        // ]
+        sheet.addRow(this.options[key])
+        // const col = sheet.getColumn(key)
+        sheet.state = 'hidden'
+      }
+    }
   }
   // 调接口获取下拉数据 --- end ---
 
@@ -855,7 +864,7 @@ class ExportExcelTemplate {
    * @memberof 导出模板
    */
   public async exportTemplate(addressList: any) {
-    this.addressList = addressList
+    this.options.addressList = addressList
 
     await this.getRegionList()
 
@@ -925,7 +934,7 @@ class ExportExcelTemplate {
 
   // 下载 文件流格式 表格
   public downloadFileWithBlob(fileName: string, file: any) {
-    const blob = new Blob([file.data], { type:file.headers['content-type'] })
+    const blob = new Blob([file.data], { type: file.headers['content-type'] })
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`

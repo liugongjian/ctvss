@@ -1,5 +1,5 @@
 import { getResources } from '@/api/billing'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component
 export default class ResourceMixin extends Vue {
@@ -11,16 +11,22 @@ export default class ResourceMixin extends Vue {
     this.getResource()
   }
 
+  @Watch('$route.path', { immediate: true })
+  public pathChange(){
+    this.dataList = []
+    this.getResource()
+  }
+
   /**
    * 加载资源包列表
    */
   public async getResource() {
     try {
       this.loading = true
-      let params: any = {
+      const params: any = {
         type: this.type
       }
-      let res: any = await getResources(params)
+      const res: any = await getResources(params)
       this.dataList = res.resPkgList
     } catch (e) {
       console.log(e)

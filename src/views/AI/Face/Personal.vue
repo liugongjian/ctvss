@@ -119,7 +119,7 @@ export default class extends Vue {
     }
     try {
       const res = await listPerson(params)
-      this.dataList = res.data
+      this.dataList = res.persons
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
@@ -216,21 +216,24 @@ export default class extends Vue {
 .pageHeader {
   display: inline-block;
   max-width: 200px;
-  overflow: hidden;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: bottom;
 }
+
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 .personal-info__table {
   margin-top: 10px;
+
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
