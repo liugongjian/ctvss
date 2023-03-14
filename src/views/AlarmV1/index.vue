@@ -2,7 +2,12 @@
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div v-if="$route.query.inProtocol !== 'gb28181'" class="warning-info">暂仅支持国标协议的设备告警信息查询</div>
-      <div v-show="$route.query.inProtocol === 'gb28181'" class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}" :style="{height: `${maxHeight}px`}">
+      <div
+        v-show="$route.query.inProtocol === 'gb28181'"
+        class="device-list"
+        :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}"
+        :style="{height: `${maxHeight}px`}"
+      >
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
