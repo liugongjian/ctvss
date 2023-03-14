@@ -35,7 +35,7 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .billing-container {
-  z-index: 51;
+  z-index: 19;
 
   .el-menu {
     padding-left: 23px;

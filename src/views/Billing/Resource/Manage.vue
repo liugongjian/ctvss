@@ -94,7 +94,8 @@ export default class extends Vue {
 
   @Watch('$route.path', { immediate: true })
   public pathChange(){
-    this.getData()
+    this.dataList = []
+    this.$nextTick( () => this.getData() )
   }
 
   private back() {
@@ -134,9 +135,9 @@ export default class extends Vue {
     }
   }
 
-  private async mounted() {
-    this.getData()
-  }
+  // private async mounted() {
+  //   this.getData()
+  // }
 
   private getData(){
     this.breadCrumbContent = this.$route.meta.title
