@@ -25,4 +25,5 @@ export interface Group {
   gbRegionLevel?: string;
   industryCode?: string;
   networkCode?: string;
+  isCustomTree?: boolean;
 }
