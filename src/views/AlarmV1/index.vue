@@ -87,7 +87,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null

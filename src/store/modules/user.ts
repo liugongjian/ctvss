@@ -124,16 +124,19 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({ rawError: true })
-  public async Login(userInfo: { mainUserID?: string, userName: string, password: string }) {
-    const { mainUserID, password } = userInfo
-    let { userName } = userInfo
+  public async Login(userInfo: { mainUserID?: string, userName: string, password: string, captchaId: string, captcha: string }) {
+    let { mainUserID, userName, password, captchaId, captcha } = userInfo
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
       userName: encrypt(userName),
       password: encrypt(password),
+      captchaId,
+      captcha,
+      platform: 'web',
       version: '2.0'
     })
+
     setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
     setUsername(userName)
@@ -146,7 +149,6 @@ class User extends VuexModule implements IUserState {
     GroupModule.ResetGroupListIndex()
     return data
   }
-
   // 获取用户配置信息
   @Action({ rawError: true })
   public async getUserConfigInfo() {
