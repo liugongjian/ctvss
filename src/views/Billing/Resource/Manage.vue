@@ -92,6 +92,11 @@ export default class extends Vue {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
+  @Watch('$route.path', { immediate: true })
+  public pathChange(){
+    this.getData()
+  }
+  
   private back() {
     const params: any = this.$route.params
     this.$router.push({
