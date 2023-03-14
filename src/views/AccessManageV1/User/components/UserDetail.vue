@@ -130,6 +130,7 @@ export default class extends Mixins(DashboardMixin) {
       query: {
         type: 'edit',
         userId: this.detail['iamUserId'],
+        groupId: this.$route.query.groupId,
         subUserLoginLink: this.subUserLoginLink
       }
     })

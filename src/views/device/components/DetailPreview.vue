@@ -28,6 +28,7 @@ export default class extends Vue {
   @Prop() private deviceName?: string
   @Prop() private streams?: Stream[]
   @Prop() private streamSize?: number
+  @Prop() private streamNum?: number
 
   private height = 'auto'
 
@@ -42,7 +43,7 @@ export default class extends Vue {
     screen.inProtocol = this.inProtocol
     screen.streams = this.streams
     screen.streamSize = this.streamSize
-    screen.streamNum = 1
+    screen.streamNum = this.streamNum || 1
     screen.isLive = true
     screen.streams = this.screenManager.fillStreams(screen)
     screen.init()

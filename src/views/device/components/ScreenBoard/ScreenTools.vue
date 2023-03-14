@@ -1,5 +1,5 @@
 <template>
-  <div class="screen-tools" :class="{ 'hidden-axis': !showAxis }">
+  <div class="screen-tools" :class="{'hidden-axis': !showAxis}">
     <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
@@ -17,11 +17,11 @@
         <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1 && !isCarTask" :screen="currentScreen" />
       </div>
     </div>
-    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="showAxis" :screen="currentScreen" :is-dialog-task="isDialogTask" :disabled="!enableAxis" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Prop } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@/store/modules/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
@@ -51,6 +51,9 @@ import ViewSelector from './components/ViewSelector.vue'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  @Prop()
+  private isDialogTask?: boolean
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
@@ -116,6 +119,7 @@ export default class extends Vue {
 
   /**
    * 是否是车辆管理中的录像回放，是则隐去部分功能按钮
+   * 锁定录像管理页面的录像回放也走这里，用于控制锁定功能按钮
    *  */
   private get isCarTask() {
     return this.screenManager.isCarTask

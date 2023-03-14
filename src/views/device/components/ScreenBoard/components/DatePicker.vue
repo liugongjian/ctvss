@@ -81,7 +81,7 @@ export default class extends Vue {
     disabledDate: (time: any) => {
       // 约束录像起始时间和结束时间范围
       if (this.screen.datetimeRange) {
-        return time.getTime() < getDateByTime(this.screen.datetimeRange.startTime * 1000) || time.getTime() > this.screen.datetimeRange.endTime * 1000
+        return time.getTime() < getDateByTime(this.screen.datetimeRange.startTime * 1000) || time.getTime() > this.screen.datetimeRange.endTime * 1000 - 1000
       } else {
         return time.getTime() > Date.now()
       }

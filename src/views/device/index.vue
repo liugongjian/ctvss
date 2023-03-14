@@ -11,22 +11,22 @@
           @mousedown="changeWidthStart($event)"
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
-          <div class="dir-list" :style="`width: ${dirDrag.width}px`">
+          <div v-loading="loading.dir" class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
+            <div class="dir-list__tree device-list__max-height">
               <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
                 <svg-icon name="component" width="12px" />
                 根目录
@@ -61,24 +61,30 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    <additional-status
+                      v-if="data.type === 'ipc'"
+                      :record-status="data.recordStatus"
+                      :alarm-info="data.alarmInfo"
+                      :is-bind="data.isBind"
+                    />
                     {{ node.label }}
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
-                    <template v-if="data.type !== 'ipc'">
+                  <div v-if="!isVGroup" class="tools">
+                    <template v-if="data.type !== 'ipc' && checkPermission(['ivs:UpdateDevice'], data)">
                       <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('sortChildren', data, node)"><svg-icon name="sort" /></el-button>
                       </el-tooltip>
                     </template>
-                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['AdminDevice'])">
-                      <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                    <template v-if="data.type === 'dir' && !isVGroup">
+                      <el-tooltip v-if="checkPermission(['ivs:UpdateDevice'], data)" class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
                       </el-tooltip>
-                      <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                      <el-tooltip v-if="checkPermission(['ivs:UpdateDevice'], data)" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
                       </el-tooltip>
-                      <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                      <el-tooltip v-if="checkPermission(['ivs:DeleteDevice'], data)" class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
                     </template>
@@ -110,12 +116,18 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    <additional-status
+                      v-if="data.type === 'ipc'"
+                      :record-status="data.recordStatus"
+                      :alarm-info="data.alarmInfo"
+                      :is-bind="data.isBind"
+                    />
                     {{ node.label }}
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
-                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['AdminDevice'])">
+                  <div v-if="!isVGroup" class="tools">
+                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['ivs:UpdateDevice'], data)">
                       <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
                       </el-tooltip>
@@ -124,8 +136,8 @@
                 </span>
               </el-tree>
             </div>
-            <!-- 国标才展示 -->
-            <advanced-search v-if="currentGroup.inProtocol === 'gb28181'" :search-form="advancedSearchForm" @search="doSearch" />
+            <!-- 虚拟业务组暂不支持搜索 -->
+            <advanced-search v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" />
           </div>
         </div>
         <div class="device-list__right">
@@ -146,6 +158,7 @@
         </div>
       </div>
     </el-card>
+    <record-events v-if="dialog.recordEvents" :in-protocol="currentGroupInProtocol" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('recordEvents', ...arguments)" />
     <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
     <sort-children v-if="dialog.sortChildren" :in-protocol="currentGroupInProtocol" :current-dir="sortDir" :group-id="currentGroupId" @on-close="closeDialog('sortChildren', ...arguments)" />
   </div>
@@ -156,11 +169,12 @@ import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
+import RecordEvents from './components/dialogs/RecordEvents.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import AdditionalStatus from './components/AdditionalStatus.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
-import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { exportSearchResult } from '@/api/device'
 
@@ -170,11 +184,12 @@ import { exportSearchResult } from '@/api/device'
     CreateDir,
     StatusBadge,
     SortChildren,
-    AdvancedSearch
+    AdvancedSearch,
+    AdditionalStatus,
+    RecordEvents
   }
 })
 export default class extends Mixins(IndexMixin) {
-  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private getSums = getSums
   private parentDir = null
@@ -182,6 +197,7 @@ export default class extends Mixins(IndexMixin) {
   private sortDir: any = null
   private sortNode = null
   private dialog = {
+    recordEvents: false,
     createDir: false,
     sortChildren: false
   }
@@ -259,6 +275,12 @@ export default class extends Mixins(IndexMixin) {
         }
         this.dialog.createDir = true
         break
+      case 'recordEvents':
+        if (payload) {
+          this.currentDir = payload
+        }
+        this.dialog.recordEvents = true
+        break
       case 'sortChildren':
         if (payload) {
           this.sortDir = payload
@@ -285,6 +307,7 @@ export default class extends Mixins(IndexMixin) {
           (this.sortDir.id === this.$route.query.dirId || this.sortDir.id === this.$route.query.deviceId) && DeviceModule.SetIsSorted(true)
         }
         break
+      case 'recordEvents':
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
@@ -315,7 +338,7 @@ export default class extends Mixins(IndexMixin) {
   public async exportSearchResult() {
     try {
       const search = this.advancedSearchForm
-      let data: any = {
+      const data: any = {
         groupId: this.currentGroupId,
         inProtocol: this.currentGroupInProtocol,
         deviceStatusKeys: search.deviceStatusKeys.join(',') || undefined,
@@ -328,7 +351,7 @@ export default class extends Mixins(IndexMixin) {
         pageSize: 5000,
         pageNum: 1
       }
-      var res = await exportSearchResult(data)
+      const res = await exportSearchResult(data)
       this.downloadFileUrl(`${data.inProtocol}导出设备表格`, res.exportFile)
     } catch (e) {
       console.log(e)
@@ -338,7 +361,7 @@ export default class extends Mixins(IndexMixin) {
   // 下载表格
   public downloadFileUrl(fileName: string, file: any) {
     const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
-    var link = document.createElement('a')
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${fileName}.xlsx`
     link.click()
@@ -346,15 +369,19 @@ export default class extends Mixins(IndexMixin) {
 
   // base64转blob
   public base64ToBlob(base64: any) {
-    var arr = base64.split(',')
-    var mime = arr[0].match(/:(.*?);/)[1]
-    var bstr = atob(arr[1])
-    var n = bstr.length
-    var u8arr = new Uint8Array(n)
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }
     return new Blob([u8arr], { type: mime })
+  }
+
+  private recordMessageEvent() {
+    console.log(111)
   }
 }
 </script>

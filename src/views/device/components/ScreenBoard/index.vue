@@ -22,7 +22,7 @@
       <PtzControl v-if="isLive" :screen="currentScreen" />
     </div>
     <ScreenList v-else />
-    <ScreenTools v-if="hasScreenTool" />
+    <ScreenTools v-if="hasScreenTool" :is-dialog-task="isDialogTask" />
   </div>
 </template>
 <script lang="ts">
@@ -62,6 +62,9 @@ export default class extends Vue {
     default: false
   })
   private isSingle
+
+  @Prop()
+  private isDialogTask?: boolean
 
   /* 日志写入定时器 */
   private flushLogsInterval = null

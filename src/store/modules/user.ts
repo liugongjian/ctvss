@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { encrypt } from '@/utils/encrypt'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, getIAMUserMergedPolicies, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import { resetRouter } from '@/router'
@@ -250,7 +250,7 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
-      this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
+      this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 1 : 1)
     }
 
     let data: any = null
@@ -258,32 +258,71 @@ class User extends VuexModule implements IUserState {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       this.SET_NAME(data.iamUserName)
       setUsername(data.iamUserName)
-      const policy = JSON.parse(data.policyDocument || '{}')
-      try {
-        const actionList = policy.Statement[0].Action
-        const resourceList = policy.Statement[0].Resource
-        if (actionList[0] === 'vss:*') {
-          data.perms = ['*']
-          data.resource = ['*']
-        } else if (actionList[0] === 'vss:Get*') {
-          data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
-          data.resource = ['*']
-          data.resourcesSet = new Set()
-        } else {
-          data.perms = actionList
-          data.resource = resourceList
-          const tempSet = new Set()
-          resourceList.forEach((resource: any) => {
-            const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
-            idArr.forEach((id: any) => tempSet.add(id))
-          })
-          data.resourcesSet = tempSet
+      if (this.version === 2) {
+        const policy = JSON.parse(data.policyDocument || '{}')
+        try {
+          const actionList = policy.Statement[0].Action
+          const resourceList = policy.Statement[0].Resource
+          if (actionList[0] === 'vss:*') {
+            data.perms = ['*']
+            data.resource = ['*']
+          } else if (actionList[0] === 'vss:Get*') {
+            data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
+            data.resource = ['*']
+            data.resourcesSet = new Set()
+          } else {
+            data.perms = actionList
+            data.resource = resourceList
+            const tempSet = new Set()
+            resourceList.forEach((resource: any) => {
+              const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+              idArr.forEach((id: any) => tempSet.add(id))
+            })
+            data.resourcesSet = tempSet
+          }
+        } catch (e) {
+          data = {
+            perms: ['*'],
+            resource: ['*'],
+            resourcesSet: new Set()
+          }
         }
-      } catch (e) {
-        data = {
-          perms: ['*'],
-          resource: ['*'],
-          resourcesSet: new Set()
+      } else {
+        const mergedPolicy: any = await getIAMUserMergedPolicies()
+        const policy = JSON.parse(mergedPolicy.policyDocument || '{}')
+        try {
+          const allowStatments = policy.Statement.filter((statement: any) => statement.Effect === 'Allow')
+          const tempActionList = allowStatments.reduce((pre, cur) => {
+            return pre.concat(cur.Action)
+          }, [])
+  
+          const actionList = [...new Set(tempActionList)]
+          const resourceList = policy.Statement[0].Resource
+          if (actionList.includes('ivs:*')) {
+            data.perms = ['*']
+            data.resource = ['*']
+          } else if (actionList.includes('ivs:Get*')) {
+            const getActions = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionKey)
+            data.perms = [...new Set(actionList.filter(action => action !== 'ivs:Get*').concat(getActions))]
+            console.log('data.perms: ', data.perms)
+            data.resource = ['*']
+            data.resourcesSet = new Set()
+          } else {
+            data.perms = actionList
+            data.resource = resourceList
+            const tempSet = new Set()
+            resourceList.forEach((resource: any) => {
+              const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+              idArr.forEach((id: any) => tempSet.add(id))
+            })
+            data.resourcesSet = tempSet
+          }
+        } catch (e) {
+          data = {
+            perms: [],
+            resource: [],
+            resourcesSet: new Set()
+          }
         }
       }
     } else {
