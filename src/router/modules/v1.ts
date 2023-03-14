@@ -831,6 +831,18 @@ export const v1Router: RouteConfig[] = [
           activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
+      },
+       {
+        path: 'accessRestriction',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/AccessRestriction/index.vue'),
+        name: 'AccessRestrictionManage',
+        meta: {
+          title: '访问限制',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/accessRestriction',
+          perms: ['*']
+        }
       }
     ]
   },
@@ -1037,6 +1049,21 @@ export const v1Router: RouteConfig[] = [
       version: 1
     },
     children: [
+       {
+        path: '/statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: false,
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            privateUser: ['liuzhou']
+          }
+          // groupSelector: true
+        }
+      },
       {
         path: '',
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
