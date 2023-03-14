@@ -1,5 +1,5 @@
 import { getResources } from '@/api/billing'
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class ResourceMixin extends Vue {
@@ -10,13 +10,6 @@ export default class ResourceMixin extends Vue {
   public mounted() {
     this.getResource()
   }
-
-  @Watch('$route.path', { immediate: true })
-  public pathChange(){
-    this.dataList = []
-    this.getResource()
-  }
-
   /**
    * 加载资源包列表
    */
@@ -39,7 +32,6 @@ export default class ResourceMixin extends Vue {
    * 资源包管理
    */
   public rowClick(row: any, type: string) {
-    debugger
     this.$router.push({
       name: 'BillingResourceManagement',
       query: {
