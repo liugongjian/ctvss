@@ -41,7 +41,7 @@
           </el-table>
           <!-- 遮罩层  （星期 --- 时间段） -->
           <div class="time-mask" :class="'row' + '-' + (i + 1)" :style="{'top': i * 44 + 'px'}" v-for="weekday, i in weekdays" :key="i">
-            <span v-for="duration, index in weekday" :key="index" :style="duration.durationStyle" @click.native.stop="showStick">
+            <span v-for="duration, index in weekday" :key="index" :style="duration.durationStyle">
               <span v-if="stickVisiable" class="stick"/>
               <span v-if="stickVisiable" class="stick"/>
             </span>
@@ -100,7 +100,8 @@ export default class extends Vue {
   // private dayList = [{
   //   startX: 0,
   //   endX: 230,
-  //   style: {width: Math.abs(endX - startX)px,等}
+  //   style: {width: Math.abs(endX - startX)px,等},
+  //    moveable: false // 是否可以拖拽绘制
   // }, {
   //   startX: 250,
   //   end:X 630
@@ -269,31 +270,33 @@ export default class extends Vue {
     // if (this.startTimeValidate(weekdayList, clickTime)) {
     if (this.startTimeValidate(this.weekdays[row - 1], clickTime)) {
       this.currentStartTime = clickTime
-      this.startPos = e.clientX // 当前次拖动的开始位置
+      // this.startPos = e.clientX // 当前次拖动的开始位置
+      this.startPos = e.offsetX // 当前次拖动的开始位置
       // 固定当前所在行
       this.currentWeekday = row
       // 允许拖拽
       this.moveFlag = true
       // 创建时间段单元
-      let duration = {
+      let duration: any = {
         startX: this.startPos,
         endX: this.startPos,
         durationStyle: {
           'width': 0, // 初始
           'left': this.startPos + 'px',
-          'background-color': 'rgba(1,1,1,0.2)'
+          'background-color': 'rgba(1,1,1,0.2)',
         },
         startTime: clickTime, // 分钟
-        endTime: -1
+        endTime: -1,
+        moveable: true
       }
+      // this.$set(duration.durationStyle, 'left', e.clientX)
       // weekdayList.push(duration)
       this.weekdays[row - 1].push(duration)
-      console.log('weekdayList', this.weekdays[row - 1])
+      console.log('duration.durationStyle 🤡', duration.durationStyle.left)
     } else {
       // 无效判定\重置
       this.resetMouse()
     }
-    
   }
 
 // 拖拽
@@ -302,14 +305,15 @@ export default class extends Vue {
     // 拖动的时候就开始生成拖选区域
     if (e.clientX != this.startPos) {
       // 绘制区域
-      console.log('标定星期      拖动区域      ', this.currentWeekday, this.weekdays[this.currentWeekday - 1])
+      console.log('拖拽计算   重绘矩形', e.clientX, e.offsetX, e.layerX)
       // 寻找未闭合的duration，即当前duration,并计算数据
       // this.setWeekday(this.currentWeekday).map((item: any, i: any) => {
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
-        if (item.endTime === -1 && item.startX === item.endX) {
+        if (item.moveable) {
+          this.stickVisiable = true
           // 数据计算与属性更新
           item = this.dynamicProp(item, e)
-          console.log('👈🖱👉   item', item)
+          // console.log('👈🖱👉   item', item)
         }
       })
     }
@@ -317,9 +321,16 @@ export default class extends Vue {
   }
   
   private handleMouseup(e: any) {
-    console.log('👆      ', e)
+    // console.log('👆      ', e)
     // 如果结束点位置和开始点一致，删除绘制
-
+    this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
+      if (item.moveable) {
+        // 数据计算与属性更新
+        item = this.dynamicProp(item, e)
+        item.moveable = false
+        console.log('最终的 🔚 duration', e, item)
+      }
+    })
     // 重置
     this.resetMouse()
     // 固定结束sitck、更新比对数据信息
@@ -328,10 +339,13 @@ export default class extends Vue {
   // 属性计算和更新
   private dynamicProp(currentDuration: any,e: any) {
     let pixelOffsetX =  e.offsetX > 0 ? e.offsetX : 0
-    let width = Math.abs(currentDuration.startX - e.clientX) // duration 宽度
+    // let width = Math.abs(currentDuration.startX - e.clientX) // duration 宽度
+    let width = Math.abs(currentDuration.startX - e.offsetX) // duration 宽度
     currentDuration.durationStyle.width = width + 'px'
-    currentDuration.durationStyle.left = Math.min(pixelOffsetX, currentDuration.durationStyle.left) + 'px'
+    currentDuration.durationStyle.left = Math.min(pixelOffsetX, +((currentDuration.durationStyle.left).slice(0,-2))) + 'px'
+    // this.$set(currentDuration.durationStyle, 'left', Math.min(pixelOffsetX, currentDuration.durationStyle.left) + 'px')
     currentDuration.startTime = Math.min(pixelOffsetX * 2, currentDuration.startTime)
+    currentDuration.endTime = Math.max(pixelOffsetX * 2, currentDuration.startTime)
     currentDuration.endX = e.clientX
     return currentDuration
   }
