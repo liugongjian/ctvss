@@ -271,7 +271,6 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      console.log('屎粑粑   🐕', record.startTime)
       record.loading = true
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
