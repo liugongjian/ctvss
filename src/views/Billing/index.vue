@@ -1,8 +1,8 @@
 <template>
   <div class="billing-container">
-    <el-menu :default-active="$route.path" class="el-menu-demo" mode="horizontal" router>
-      <el-menu-item index="/billing/resource">资源包管理</el-menu-item>
-      <el-menu-item index="/billing/ondemand">按需计费管理</el-menu-item>
+    <el-menu :default-active="activePath" class="el-menu-demo" mode="horizontal" router>
+      <el-menu-item :index="paths.resource">资源包管理</el-menu-item>
+      <el-menu-item :index="paths.ondemand">按需计费管理</el-menu-item>
     </el-menu>
     <div>
       <keep-alive>
@@ -23,6 +23,14 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class extends Vue {
+    private paths = {
+      resource: '/billing/resource',
+      ondemand: '/billing/ondemand'
+    }
+
+    private get activePath(){
+      return this.$route.path.startsWith(this.paths.resource) ? this.paths.resource : this.paths.ondemand
+    }
 }
 </script>
 <style lang="scss" scoped>

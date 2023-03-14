@@ -13,7 +13,7 @@
     <div class="device-wrap">
       <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
       <el-table ref="deviceTable" :data="resourceList" empty-text="暂无选择资源" fit>
-        <el-table-column key="name" prop="name" width="220" label="业务组/目录名称/设备名称">
+        <el-table-column key="name" prop="name" width="220" label="目录名称/设备名称">
           <template slot-scope="{ row }">
             {{ row.name || '-' }}
           </template>

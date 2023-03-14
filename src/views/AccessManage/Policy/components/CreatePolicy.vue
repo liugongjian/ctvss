@@ -149,6 +149,9 @@ export default class extends Vue {
       { required: true, message: '请输入策略名称', trigger: 'blur' },
       { validator: this.validatePolicyName, trigger: 'blur' }
     ],
+    desc: [
+      { validator: this.validatePolicyDesc, trigger: 'blur' }
+    ],
     actionList: [{ validator: this.validatorActionList, trigger: 'blur' }],
     resourceList: [{ validator: this.validateResourceList, trigger: 'blur' }]
   }
@@ -160,6 +163,14 @@ export default class extends Vue {
           '策略名称格式错误。2-32位，可包含大小写字母、数字、中文、中划线、空格。'
         )
       )
+    } else {
+      callback()
+    }
+  }
+
+  private validatePolicyDesc(rule: any, value: string, callback: Function) {
+    if (value.length > 255) {
+      callback(new Error('策略描述最多255个字符！'))
     } else {
       callback()
     }
@@ -347,7 +358,7 @@ export default class extends Vue {
               ]
             })
           }
-          ;(await this.form.policyId) ? editPolicy(data) : createPolicy(data)
+          ;await (this.form.policyId ? editPolicy(data) : createPolicy(data))
           this.$message.success(
             `${this.form.policyId ? '编辑策略成功！' : '创建策略成功！'}`
           )

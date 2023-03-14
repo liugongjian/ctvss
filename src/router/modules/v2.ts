@@ -866,6 +866,8 @@ export const v2Router: RouteConfig[] = [
           title: '计费管理',
           perms: ['*'],
           icon: 'menu-billing',
+          hidden: true,
+          activeMenu: '/billing',
           breadcrumb: false
         },
         children: [
@@ -876,6 +878,8 @@ export const v2Router: RouteConfig[] = [
             meta: {
               title: '按需计费管理',
               icon: 'dot',
+              hidden: true,
+              activeMenu: '/billing',
               perms: ['*']
             }
           },
@@ -886,6 +890,8 @@ export const v2Router: RouteConfig[] = [
             meta: {
               title: '资源包管理',
               icon: 'dot',
+              hidden: true,
+              activeMenu: '/billing',
               perms: ['*']
             }
           },
@@ -897,7 +903,7 @@ export const v2Router: RouteConfig[] = [
               title: '资源包管理',
               icon: 'dot',
               hidden: true,
-              activeMenu: '/billing/resource',
+              activeMenu: '/billing',
               perms: ['*']
             }
           }
