@@ -39,7 +39,6 @@ export default class ResourceMixin extends Vue {
    * 资源包管理
    */
   public rowClick(row: any, type: string) {
-    debugger
     this.$router.push({
       name: 'BillingResourceManagement',
       query: {

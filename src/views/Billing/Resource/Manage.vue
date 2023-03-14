@@ -96,7 +96,7 @@ export default class extends Vue {
   public pathChange(){
     this.getData()
   }
-  
+
   private back() {
     const params: any = this.$route.params
     this.$router.push({
