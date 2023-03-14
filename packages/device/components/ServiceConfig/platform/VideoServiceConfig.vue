@@ -1,11 +1,11 @@
 <template>
   <div class="video-service-config">
-    <el-button type="text">+ 配置设备</el-button>
+    <el-button type="text" @click="bindingDevice">+ 配置设备</el-button>
     <span class="config-title">已配置设备：</span>
     <el-table
       ref="nvrTable"
       v-loading="loading"
-      :data="platformSelectedList"
+      :data="selectedList"
       fit
     >
       <el-table-column show-overflow-tooltip :prop="platformConfigEnum.ChannelName" label="已配置设备" min-width="120">
@@ -24,36 +24,79 @@
         </template>
       </el-table-column>
       <el-table-column :prop="platformConfigEnum.ExpireTime" label="到期时间" min-width="170" />
-      <el-table-column :prop="platformConfigEnum.StorageConfig" label="存储配置">
+      <el-table-column :prop="platformConfigEnum.StorageTime" label="存储配置">
         <template slot-scope="scope">
-          {{ scope.row[platformConfigEnum.StorageConfig] }}
+          {{ scope.row[platformConfigEnum.StorageTime] }}
         </template>
       </el-table-column>
       <el-table-column label="操作" prop="action" width="80" fixed="right">
         <el-button type="text">删除</el-button>
       </el-table-column>
     </el-table>
+    <VideoServiceBindingDialog
+      v-if="showBindingDialog"
+      :selected-list="selectedList"
+      :device-stream-size="deviceStreamSize"
+      @on-close="closeDialog"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, PlatformConfigEnum } from '@vss/device/enums/billing'
+import VideoServiceBindingDialog from './VideoServiceBindingDialog.vue'
 @Component({
-  name: 'PlatformVideoServiceConfig'
+  name: 'PlatformVideoServiceConfig',
+  components: {
+    VideoServiceBindingDialog
+  }
 })
 export default class extends Vue {
+  @Prop({ default: 0 })
+  private channelSize: number
+
+  @Prop({ default: 0 })
+  private deviceStreamSize: number
+
   private platformConfigEnum = PlatformConfigEnum
 
   private loading = false
+  private showBindingDialog = false
+  private selectedList = []
 
-  private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
-    [BillingEnum.RecordStream]: 1,
-    [BillingEnum.RecordTemplate]: '',
-    [BillingEnum.Resource]: ''
+  private async mounted() {
+    await this.getConfigList()
   }
-  private platformSelectedList = [{}]
+
+  private async getConfigList() {
+    try {
+      this.loading = true
+      await new Promise(resolve => {
+        setTimeout(() => {
+          resolve(this.selectedList = [])
+        }, 500)
+      })
+    } catch (e) {
+      this.$message.error(e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  private bindingDevice() {
+    this.showBindingDialog = true
+  }
+
+  private unBindingDevice(deviceId: number) {
+    const target = this.selectedList.findIndex(device => device.deviceChannelNum === deviceId)
+    if (target >= 0) this.selectedList.splice(target, 1)
+  }
+
+  private closeDialog(data) {
+    console.log(data)
+    this.showBindingDialog = false
+  }
 }
 </script>
 <style lang="scss" scoped>

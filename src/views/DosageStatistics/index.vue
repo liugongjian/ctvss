@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-10 16:01:54
+ * @LastEditTime: 2023-03-10 16:53:59
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -124,7 +124,6 @@ export default class extends Vue {
 .dosage-statistics {
   &__info {
     border: 1px solid $color-grey-6;
-    // width: 840px;
     display: inline-block;
     margin: $margin-small 0;
     border-radius: $border-radius;
@@ -137,15 +136,16 @@ export default class extends Vue {
     }
 
     &_detail {
-      display: grid;
+      display: flex;
       justify-content: space-evenly;
-      grid-template-columns: repeat(auto-fill, 170px);
+      padding: 0 $padding-primary;
 
       &_item {
         width: 170px;
         padding: $padding-primary $padding-small;
         background-color: $color-grey-7;
         border-radius: $border-radius;
+        margin: 0 $margin-medium;
 
         p {
           font-size: $text-size-x-large;
