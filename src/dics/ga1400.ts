@@ -1,8 +1,22 @@
 // import { parseISO, lightFormat } from 'date-fns'
+// 返回该信息是否展示
+export const isShow = function(val, key) {
+  // 对返回1970的日期进行处理
+  if (typeof val === 'string' && val.startsWith('1970-')) {
+    return false
+  }
+  if (['leftTopX', 'leftTopY', 'rightBtmX', 'rightBtmY'].includes(key)) {
+    return true
+  }
+  if (!val) {
+    return false
+  }
 
-const formatTime = function(isoTime) {
-  // return lightFormat(parseISO(isoTime), 'yyyy-MM-dd HH:mm:ss')
-  return isoTime
+  return true
+}
+
+const formatTime = function(strTime) {
+  return strTime
 }
 
 const isOrNot = function(n) {
