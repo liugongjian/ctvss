@@ -1065,6 +1065,17 @@ export const v1Router: RouteConfig[] = [
         }
       },
       {
+        path: '/custom-tree',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
+          breadcrumb: false,
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
+      {
         path: '',
         component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',

@@ -39,6 +39,17 @@ export const getSums = (data: any) => {
 }
 
 /**
+ * 获取自定义设备数统计信息
+ */
+export const getTotalOfTree = (data: any) => {
+  if (~['nvr', 'dir', 'platform', 'platformDir', 'top-group'].indexOf(data.type)) {
+    return ` (${data.onlineSize}/${data.totalSize})`
+  } else {
+    return ''
+  }
+}
+
+/**
  * 设置目录树设备流状态
  */
 export const setDirsStreamStatus = (dirs: any) => {
