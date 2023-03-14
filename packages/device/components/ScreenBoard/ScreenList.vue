@@ -304,7 +304,6 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      console.log('走   🚓', record.startTime)
       record.loading = true
       let downloadUrl
       if (record.fileFormat === 'hls') {
