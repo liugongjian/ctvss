@@ -98,6 +98,11 @@ export function checkVideoVisible(
     }
   }
 
+  // platform下设备特殊处理
+  if (this.deviceFrom === DeviceTypeEnum.Platform) {
+    if ([DeviceEnum.InOrgRegion, DeviceEnum.IndustryCode].includes(prop)) return false
+  }
+
   // 默认使用字典过滤
   return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }

@@ -52,7 +52,7 @@
         />
       </el-form-item>
     </el-form>
-    <div slot="footer" style="overflow: hidden;">
+    <div slot="footer">
       <el-button type="primary" @click="submit">确 定</el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
     </div>
@@ -196,6 +196,10 @@ export default class extends Vue {
 .binding-dialog {
   .el-form {
     margin: 0;
+
+    .el-form-item {
+      max-width: 100%;
+    }
   }
 
   ::v-deep .el-dialog__body {

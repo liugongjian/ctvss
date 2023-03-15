@@ -120,7 +120,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     3: '第三码流'
   }
   public regionList = regionList
-  public lianzhouAddress: string = ''
+  public lianzhouAddress = ''
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
@@ -290,7 +290,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     if (!statusArr) {
       return false
     }
-    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    const statusObj = statusArr.find((status: any) => status.streamNum === num)
     if (!statusObj) {
       return false
     } else {
@@ -356,7 +356,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         resourcesMapping[resource.resourceType] = true
       })
       const resources = []
-      for (let key in resourcesMapping) {
+      for (const key in resourcesMapping) {
         resources.push({
           label: key,
           value: resourcesMapping[key]
@@ -399,7 +399,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     try {
       this.loading.groupInfo = true
       this.groupInfo = await queryGroup({
-        groupId: this.currentGroupId
+        groupId: this.realGroupId || this.currentGroupId
       })
     } catch (e) {
       console.error(e)

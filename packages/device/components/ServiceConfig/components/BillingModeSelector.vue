@@ -19,10 +19,10 @@
       <div v-if="configForm[billingEnum.BillingMode] === billingModeEnum.OnDemand && resourceType === resourceTypeEnum.Video">
         <el-form-item label="录制配置:" :prop="billingEnum.RecordStream">
           <el-radio-group v-model="configForm[billingEnum.RecordStream]">
-            <el-radio :label="1">主码流录制</el-radio>
-            <el-radio :label="2">子码流录制</el-radio>
-            <el-radio :label="3">第三码流录制</el-radio>
-            <el-radio :label="1">录制</el-radio>
+            <el-radio v-if="deviceStreamSize !== 1" :label="1">主码流录制</el-radio>
+            <el-radio v-if="deviceStreamSize >= 2" :label="2">子码流录制</el-radio>
+            <el-radio v-if="deviceStreamSize >= 3" :label="3">第三码流录制</el-radio>
+            <el-radio v-if="deviceStreamSize === 1" :label="1">录制</el-radio>
             <el-radio :label="0">无录制</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, VModel } from 'vue-property-decorator'
+import { Component, Vue, Prop, VModel, Watch } from 'vue-property-decorator'
 import { ResourceAiType } from '@vss/device/dicts/resource'
 import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import { getResources } from '@vss/device/api/billing'
@@ -137,6 +137,13 @@ export default class extends Vue {
 
   private loading = {
     table: false
+  }
+
+  @Watch('deviceStreamSize')
+  private deviceStreamSizeChange() {
+    if (this.configForm[BillingEnum.RecordStream] !== 0) {
+      this.configForm[BillingEnum.RecordStream] = 1
+    }
   }
 
   private mounted() {
@@ -207,6 +214,10 @@ export default class extends Vue {
         .el-select {
           width: 200px !important;
         }
+      }
+
+      ::v-deep .el-table__row {
+        cursor: pointer;
       }
     }
 
