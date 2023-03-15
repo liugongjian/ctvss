@@ -237,32 +237,34 @@ export default class extends Mixins(DashboardMixin) {
         startTime: start.getTime(),
         endTime: end.getTime()
       })
-      // const res = {
-      //   upBandwidthHistory: { '2023-02-13': 7, '2023-02-14': 0, '2023-02-15': 0, '2023-02-16': 0, '2023-02-17': 0, '2023-02-18': 0, '2023-02-19': 0, '2023-02-20': 2, '2023-02-21': 0, '2023-02-22': 0, '2023-02-23': 0, '2023-02-24': 7, '2023-02-25': 0, '2023-02-26': 0, '2023-02-27': 0, '2023-02-28': 0, '2023-03-01': 0, '2023-03-02': 0, '2023-03-03': 0, '2023-03-04': 0, '2023-03-05': 0, '2023-03-06': 0, '2023-03-07': 0, '2023-03-08': 0, '2023-03-09': 0, '2023-03-10': 0, '2023-03-11': 0, '2023-03-12': 0, '2023-03-13': 0, '2023-03-14': 0 },
-      //   downBandwidthHistory: { '2023-02-13': 7, '2023-02-14': 7, '2023-02-15': 7, '2023-02-16': 7, '2023-02-17': 7, '2023-02-18': 7, '2023-02-19': 7, '2023-02-20': 9, '2023-02-21': 9, '2023-02-22': 9, '2023-02-23': 9, '2023-02-24': 16, '2023-02-25': 16, '2023-02-26': 16, '2023-02-27': 16, '2023-02-28': 16, '2023-03-01': 16, '2023-03-02': 16, '2023-03-03': 16, '2023-03-04': 16, '2023-03-05': 16, '2023-03-06': 16, '2023-03-07': 16, '2023-03-08': 16, '2023-03-09': 16, '2023-03-10': 16, '2023-03-11': 16, '2023-03-12': 16, '2023-03-13': 16, '2023-03-14': 16 }
-      // }
 
       const result = []
 
-      for (const key in res.upBandwidthHistory) {
+      // 后台返回数据 两个都可能为空 所以补救一下
+      const upBandwidthKeys = Object.keys(res.upBandwidthHistory)
+      const downBandwidthKeys = Object.keys(res.downBandwidthHistory)
+
+      const finalData = upBandwidthKeys.length > downBandwidthKeys.length ? res.upBandwidthHistory : res.downBandwidthHistory
+
+      for (const key in finalData) {
         const upData = res.upBandwidthHistory[key]
         const downData = res.downBandwidthHistory[key]
         result.push(
           {
             time: key,
             type: '上行带宽峰值',
-            value: upData
+            value: upData || 0
           },
           {
             time: key,
             type: '下行带宽峰值',
-            value: downData
+            value: downData || 0
           }
         )
       }
 
       this.bandWidthData = result
-      this.drawBandWidth()
+      this.chart ? this.chart.changeData(this.bandWidthData) : this.drawBandWidth()
     } catch (error) {
       this.$message.error(error && error.message)
     } finally {
@@ -281,7 +283,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.scale('value', {
       alias: '带宽使用统计',
       formatter: (val: any) => {
-        return val + '台'
+        return val + 'Mbps'
       },
       range: [0, 1],
       tickMethod: (scale: any) => {
