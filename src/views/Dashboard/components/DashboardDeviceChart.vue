@@ -281,7 +281,7 @@ export default class extends Mixins(DashboardMixin) {
     })
     this.chart.data(this.bandWidthData)
     this.chart.scale('value', {
-      alias: '带宽使用统计',
+      alias: '带宽峰值（Mbps）',
       formatter: (val: any) => {
         return val + 'Mbps'
       },
