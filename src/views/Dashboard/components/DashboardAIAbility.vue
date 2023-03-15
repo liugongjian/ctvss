@@ -3,7 +3,7 @@
     <template slot="header">
       <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/visualization-dashboard')">可视化大屏</el-button>
     </template>
-    <div v-if="checkPermission(['DescribeAi'])">
+    <div v-if="checkPermission(['ivs:GetApp'])">
       <div v-for="item in aiInfos" :key="item.name">
         <p class="dashboard-wrap-overview__cell__head">{{ item.name }}</p>
         <div class="dashboard-wrap-overview__cell__list">

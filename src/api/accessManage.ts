@@ -202,7 +202,7 @@ export const detachUserPolicy = (data: any): Promise<any> =>
 // 获取主账号 黑白名单
 export const getIpRules = (type: number): Promise<any> =>
   request({
-    url: `user/iprules?type=${type}`,
+    url: `/user/iprules?type=${type}`,
     method: 'get'
   })
 

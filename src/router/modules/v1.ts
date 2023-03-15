@@ -1076,7 +1076,7 @@ export const v1Router: RouteConfig[] = [
     path: '/sysconfig',
     component: Layout,
     meta: {
-      title: '系统设置',
+      title: '系统管理',
       breadcrumb: true,
       icon: 'menu-system',
       perms: ['*'],
