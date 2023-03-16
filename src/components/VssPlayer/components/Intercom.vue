@@ -158,9 +158,10 @@ export default class extends ComponentMixin {
       }
     } else {
       this.audioKey = this.randomKey()
+      const transPriority = this.deviceInfo.inProtocol === 'ehome' ? 'tcp' : 'UDP'
       const param = {
         deviceId: this.intercomInfo.deviceId,
-        transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
+        transPriority, // 先使用UDP，等流媒体侧兼容之后再使用参数
         inProtocol: this.intercomInfo.inProtocol,
         audioKey: this.audioKey
       }
@@ -173,7 +174,12 @@ export default class extends ComponentMixin {
         this.cannotStop = false
         const { streamServerAddr } = res
         const ifwss = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
+
+        const arr = this.intercomInfo.url?.split('/')
+        const streamName = arr ? arr[arr.length - 1].split('.')[0] : ''
+        const wsQuery = this.deviceInfo.inProtocol === 'ehome' ? streamName : this.intercomInfo.deviceId
+        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${wsQuery}`
+
         try {
           this.ws = new WebSocket(wsUrl)
           this.ws.onopen = (e: any) => {
@@ -218,7 +224,8 @@ export default class extends ComponentMixin {
         this.last = nowTime
         const param = {
           deviceId: this.intercomInfo.deviceId,
-          audioKey: this.audioKey
+          audioKey: this.audioKey,
+          inProtocol: this.intercomInfo.inProtocol
         }
         this.stopRecord()
         stopTalk(param).then(() => {
@@ -367,6 +374,8 @@ export default class extends ComponentMixin {
     video {
       width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用
+      height: 100%;
+      object-fit: fill;
     }
 
     .controls {
@@ -407,7 +416,7 @@ export default class extends ComponentMixin {
 
 .intercom-player {
   width: 70%;
-  height: 70%;
+  // height: 70%;
   background-color: #000;
 }
 

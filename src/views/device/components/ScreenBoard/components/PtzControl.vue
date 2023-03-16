@@ -47,14 +47,16 @@
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
-                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
-                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
-              </span>
-              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
-                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
-                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
-              </span>
+              <div v-if="!['ehome'].includes(screen.inProtocol)">
+                <span class="operation" :class="{'disabled': !controlDevicePTZ}">
+                  <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
+                  <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
+                </span>
+                <span class="operation" :class="{'disabled': !controlDevicePTZ}">
+                  <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
+                  <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
+                </span>
+              </div>
             </div>
           </div>
           <div class="ptz-slider">
@@ -69,7 +71,7 @@
               :disabled="!controlDevicePTZ"
             />
           </div>
-          <el-tabs v-model="tabName">
+          <el-tabs v-if="!['ehome'].includes(screen.inProtocol)" v-model="tabName">
             <el-tab-pane label="预置位" name="preset">
               <div v-loading="loading.preset" class="ptz-tab-container">
                 <template v-for="(preset, index) in presets">
@@ -254,7 +256,7 @@ export default class extends Vue {
   }
 
   private get disablePTZ() {
-    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || this.screen.inProtocol !== 'gb28181'
+    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || !['gb28181', 'ehome'].includes(this.screen.inProtocol)
   }
 
   @Watch('presets')

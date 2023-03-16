@@ -43,7 +43,7 @@
       <template slot="controlRight">
         <StreamSelector :stream-info="player && streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
-        <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
+        <Intercom v-if="player && isLive && (deviceInfo.inProtocol === 'gb28181' || deviceInfo.inProtocol === 'ehome')" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <PtzZoom v-if="showPTZZoom" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
@@ -110,7 +110,7 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
-  @Inject({ default: ()=>{} })
+  @Inject({ default: () => {} })
   public getActions!: Function
 
   /* 播放器类型 */
@@ -277,7 +277,6 @@ export default class extends Vue {
             // @ts-ignore
             checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
   }
-
 
   private get actions() {
     return this.getActions && this.getActions()
