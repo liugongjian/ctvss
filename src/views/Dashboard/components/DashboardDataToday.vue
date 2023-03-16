@@ -16,14 +16,14 @@
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
-        <p class="dashboard-wrap-overview__cell__head">今日上行流量峰值</p>
+        <p class="dashboard-wrap-overview__cell__head">今日上行带宽峰值</p>
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.upstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.upstreamBandwidth)[1] }}
         </p>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
-        <p class="dashboard-wrap-overview__cell__head">今日下行流量峰值</p>
+        <p class="dashboard-wrap-overview__cell__head">今日上行带宽峰值</p>
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.downstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.downstreamBandwidth)[1] }}
         </p>
