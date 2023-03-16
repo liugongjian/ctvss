@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-15 19:06:10
+ * @LastEditTime: 2023-03-16 15:20:30
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -58,6 +58,13 @@ export default class extends Vue {
     }
   }
 
+  private timeDics = {
+    today: 0 ,
+    yesterday: 1,
+    seven:7,
+    month:30
+  }
+
   private get chartTitle(){
     return this.kindToText[this.chartKind]['name']
   }
@@ -76,7 +83,8 @@ export default class extends Vue {
 
   private timeIntervalChange(){
     console.log('val----->', this.currentPeriod)
-    const endTime = new Date()
+    const todayEarly = new Date(new Date().setHours(0,0,0,0))
+    
   }
 
   private getDeviceData(){
