@@ -40,21 +40,23 @@
             <el-table-column width="60" />
           </el-table>
           <!-- 遮罩层1 拖选事件  （星期 --- 时间段） -->
-          <div class="time-mask" :class="'row' + '-' + (i + 1)" :style="{'top': i * 44 + 'px'}" v-for="weekday, i in weekdays" :key="i">
-            <span v-for="duration, index in weekday" :key="index" class="duration-default" :style="duration.durationStyle">
-              <span v-if="stickVisiable" class="stick"/>
-              <span v-if="stickVisiable" class="stick"/>
+          <!-- <div class="time-mask" :class="'row' + '-' + (i + 1)" :style="{'top': i * 44 + 'px'}" v-for="weekday, i in weekdays" :key="i"> -->
+          <div class="time-mask" :class="'row-' + (i + 1)" :style="{'top': i * 44 + 'px', 'display': dragMaskStyle.display}" v-for="weekday, i in weekdays" :key="i">
+            <span v-for="duration, index in weekday" :key="index" class="duration-default" :class="'row-'+(i+1)+'-col-'+index" :style="duration.durationStyle">
+              <span v-if="i+1===currentDragRow && index===currentDragCol" class="stick" />
+              <span v-if="i+1===currentDragRow && index===currentDragCol" class="stick" />
             </span>
           </div>
           <!-- 遮罩层2 点击事件 -->
-          <div class="time-mask-click" :class="'row' + '-' + (i + 1)" :style="{'top': i * 44 + 'px'}" v-for="weekday, i in weekdays" :key="i+0.1">
-            <span v-for="duration, index in weekday" :key="index" class="duration-default" :style="duration.durationStyle" @click="clickDuration">
-              <span v-if="stickVisiable" class="stick"/>
-              <span v-if="stickVisiable" class="stick"/>
+          <!-- 是否触发了点击层，应该在 mouse down 和 mouse up 的时候一起判断以区分拖拽和点击 -->
+          <div class="time-mask-click" :class="'row-' + (i + 1) + '-click'" :style="{'top': i * 44 + 'px', 'display': clickMaskStyle.display}" v-for="weekday, i in weekdays" :key="i+0.1">
+            <span v-for="duration, index in weekday" :key="index+0.2" class="duration-click" :class="'row-'+(i+1)+'-col-'+index+'-click'" :style="duration.durationStyle" @click="clickDuration">
+              <span v-if="i+1===currentClickRow && index===currentClickCol" class="stick"/>
+              <span v-if="i+1===currentClickRow && index===currentClickCol" class="stick"/>
             </span>
           </div>
-          <!-- duration上方操作栏 -->
-          <div class="operation-mask">
+          <!-- duration上方操作栏与遮罩层2绑定出现 -->
+          <div class="operation-mask" v-if="showOpt">
             <el-time-picker 
               is-range
               v-model="durationTime"
@@ -141,12 +143,26 @@ export default class extends Vue {
 
   private startPos = -1
   private moveFlag = false
-  private stickVisiable = false
+
+  private currentDragRow = -1
+  private currentDragCol = -1
+  private currentClickRow = -1
+  private currentClickCol = -1
 
   private currentStartTime = -1 // min -1：无效
   private currentWeekday = -1 // 1-7  星期一 -- 星期日 -1：未选择或无效
 
   private durationTime: any = null
+  private showOpt = false
+
+  private showDragWrap = true
+  private showClickWrap = false
+  private dragMaskStyle: any = {
+    display: 'flex'
+  }
+  private clickMaskStyle: any = {
+    display: 'none'
+  }
 
   private pickerOptions = {
     step: '00:01',
@@ -228,7 +244,54 @@ export default class extends Vue {
         this.StrList = []
         this.SunList = []
       }
+      // 重置遮罩层
+      this.dragMaskStyle = {
+        display: 'flex'
+      }
+      this.clickMaskStyle = {
+        display: 'none'
+      }
     }
+  }
+
+  @Watch('showClickWrap', {
+    immediate: true
+  })
+  private onShowClickWrap() {
+    this.$nextTick(() => {
+      console.log('click  层', this.showClickWrap)
+      if (this.showClickWrap) {
+        const clickmask: any = document.getElementsByClassName('time-mask-click')
+        for(let i = 0; i < clickmask.length; i++) {
+          clickmask[i].addEventListener('mousedown', this.handleMousedown, true)
+          // clickmask[i].addEventListener('mousemove', this.handleMousemove, true)
+          clickmask[i].addEventListener('mouseup', this.handleClickMouseup, true)
+        }
+      } else {
+        console.log('.....')
+          this.clickMaskStyle.display = 'none'
+      }
+    })
+  }
+
+  @Watch('showDragWrap', {
+    immediate: true
+  })
+  private onShowDragWrap() {
+    this.$nextTick(() => {
+      console.log('drag  层', this.showDragWrap)
+      if (this.showDragWrap) {
+        const customers: any = document.getElementsByClassName('time-mask')
+        for(let i = 0; i < customers.length; i++) {
+          customers[i].addEventListener('mousedown', this.handleMousedown, true)
+          customers[i].addEventListener('mousemove', this.handleMousemove, true)
+          customers[i].addEventListener('mouseup', this.handleMouseup, true)
+        }
+      } else {
+        this.dragMaskStyle.display = 'none'
+        
+      }
+    })
   }
 
   private mounted() {
@@ -337,6 +400,8 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
+    //  拖拽的时候显示拖拽层，隐藏点击层
+    // 判断鼠标的点是否在可拖拽区域，或者是选中了某个duration
     // 确定单元格
     const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
     const row = target.split('-')[1]
@@ -345,8 +410,15 @@ export default class extends Vue {
     let pixelOffsetY =  e.offsetY > 0 ? e.offsetY : 0
     // 起始时间
     let clickTime = pixelOffsetX * 2 // 分钟
-    // 判断是否可以作为有效起始时间
+    // 判断是否可以作为拖拽的有效起始时间
+    console.log('handleMousedown     ', target, row, this.weekdays[row - 1])
     if (this.startTimeValidate(this.weekdays[row - 1], clickTime)) {
+      // 显示拖拽层，隐藏点击层
+      console.log('点在了 可拖拽区域   置为 drag 层')
+      this.showClickWrap = false
+      this.showDragWrap = true
+      this.clickMaskStyle.display = 'none'
+      this.dragMaskStyle.display = 'flex'
       this.currentStartTime = clickTime
       this.startPos = e.offsetX // 当前次拖动的开始位置
       // 固定当前所在行
@@ -367,9 +439,15 @@ export default class extends Vue {
         moveable: true
       }
       this.weekdays[row - 1].push(duration)
-      this.stickVisiable = true // 画出stick
     } else {
       // 无效判定\重置
+      // 点击事件选中了某个duration
+      // 显示点击层,隐藏拖拽层
+      console.log('点在了duration上    置为点击层 激活寻找对应duration')
+      this.showClickWrap = true
+      this.showDragWrap = false
+      this.clickMaskStyle.display = 'flex'
+      this.dragMaskStyle.display = 'none'
       this.resetMouse()
     }
   }
@@ -378,6 +456,8 @@ export default class extends Vue {
   private handleMousemove(e: any) {
     if (!this.moveFlag) return
     // console.log('拖拽计算 👈🖱👉  重绘矩形', e.target.classList, e.offsetX, e.layerX)
+    // 隐藏OPT
+    this.showOpt = false
     // 拖动的时候就开始生成拖选区域
       // 绘制区域
       // 寻找未闭合的duration，即当前duration,并计算数据
@@ -420,6 +500,40 @@ export default class extends Vue {
     // 固定结束sitck、更新比对数据信息
   }
 
+  // 当显示 click层后，通过mouse up事件来判断选中了哪个duration
+  private handleClickMouseup(e: any) {
+    console.log('click 层的 mmouse up', e)
+    let {row, index} = this.findDuration(e)
+    // 修改duration样式
+    this.currentClickRow = row
+    this.currentClickCol = index
+    // 重置drag层的stick
+    this.currentDragRow = -1
+    this.currentDragCol = -1
+  }
+
+  // 寻找特定duration
+  private findDuration(e: any) {
+     // 确定单元格
+    const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
+    const row = target.split('-')[1]
+    console.log('target   ', target)
+    // 计算时间
+    let pixelOffsetX =  e.offsetX > 0 ? e.offsetX : 0
+    // 起始时间
+    let clickTime = pixelOffsetX * 2 // 分钟
+    // 确定duration
+    let index = -1
+    console.log('find   row  this.weekdays[row - 1]', row, this.weekdays[row - 1])
+    this.weekdays[row - 1].map((item: any, i: any) => {
+      if (item.startTime <= clickTime && item.endTime >= clickTime) index = i
+    })
+    return {
+      row: row,
+      index: index
+    }
+  }
+
   // 属性计算和更新
   private dynamicProp(currentDuration: any,e: any) {
     let currentOffsetX =  e.offsetX > 0 ? e.offsetX : 0
@@ -459,6 +573,15 @@ export default class extends Vue {
       currentDuration.startTime = Math.min(currentTime, this.currentStartTime)
     }
     currentDuration.durationStyle.width = width + 'px'
+    // 拖拽时显示 对应 duration 的 stick
+    let {row, index} = this.findDuration(e)
+    console.log('row index', row, index)
+    this.currentDragRow = row
+    this.currentDragCol = index
+    // 重置click层的stick
+    this.currentClickRow = -1
+    this.currentClickCol = -1
+    const duration: any = document.getElementsByClassName('row-'+row+'-col-'+index)
     return currentDuration
   }
 
@@ -472,6 +595,8 @@ export default class extends Vue {
 
   // 校验起始时间有效性
   private startTimeValidate(weekdayList: any, currentTime: number) {
+    console.log('🐻  weekdayList   click   drag ', weekdayList, this.clickMaskStyle.display, this.dragMaskStyle.display)
+    if (weekdayList.length === 0) return true
     return !weekdayList.some((item: any) => {
       return item.startTime <= currentTime && currentTime <= item.endTime
     })
@@ -518,6 +643,12 @@ export default class extends Vue {
   // 点击duration
   private clickDuration(e) {
     console.log('点击啦     ⚡', e)
+    // 显示点击层，隐藏拖拽层
+    this.showClickWrap = true
+    this.showDragWrap = false
+    this.showOpt = true
+    this.clickMaskStyle.display = 'flex'
+    this.dragMaskStyle.display = 'none'
     // 点击之后绘制
   }
 }
@@ -526,10 +657,10 @@ export default class extends Vue {
 .time-mask {
   width: 720px;
   height: 44px;
-  background-color: rgba(175, 85, 85, 50%);
+  background-color: rgba(175, 85, 85);
   position: absolute;
   left: 60px;
-  display: flex;
+  // display: flex;
   cursor: pointer;
   justify-content: space-between;
 }
@@ -539,10 +670,10 @@ export default class extends Vue {
   height: 44px;
   position: absolute;
   left: 60px;
-  display: flex;
+  // display: flex;
   cursor: pointer;
   justify-content: space-between;
-  background-color: rgba(87, 148, 52, 70%);
+  background-color: rgba(87, 148, 52);
 }
 
 .stick {
@@ -559,6 +690,14 @@ export default class extends Vue {
   display: flex;
   justify-content: space-between;
   pointer-events: none;
+}
+
+.duration-click {
+  background-color: rgba(1, 1, 1, 20%);
+  position: absolute;
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .select-footer {
