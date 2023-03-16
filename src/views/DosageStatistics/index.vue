@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-10 16:53:59
+ * @LastEditTime: 2023-03-15 16:58:43
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,7 @@
                 </div>
               </div>
             </div>
-            <period-line chart-title="设备接入详情" />
+            <period-line chart-kind="device" />
           </div>
         </el-tab-pane>
 
@@ -61,7 +61,7 @@
                 </div>
               </div>
             </div>
-            <period-line chart-title="带宽用量详情" />
+            <period-line chart-kind="bandwidth" />
           </div>
         </el-tab-pane>
 
@@ -81,7 +81,7 @@
                 </div>
               </div>
             </div>
-            <period-line chart-title="存储用量详情" />
+            <period-line chart-kind="storage" />
           </div>
         </el-tab-pane>
 
@@ -98,7 +98,7 @@
                 </div>
               </div>
             </div>
-            <period-line chart-title="AI服务用量详情" />
+            <period-line chart-kind="service" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -109,6 +109,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import PeriodLine from './components/PeriodLine.vue'
+import { getDeviceStatistics } from '@/api/dosageStatistics'
 
 
 @Component({
@@ -117,6 +118,19 @@ import PeriodLine from './components/PeriodLine.vue'
 })
 export default class extends Vue {
     private activeName = 'device'
+
+      mounted () {
+    this.getDevice()
+  }
+
+  private async getDevice(){
+    try {
+      const res = await getDeviceStatistics()
+      const { deviceNum } = res
+    } catch (error) {
+      this.$message.error(error && error.message)
+    }
+  }
 }
 </script>
 
@@ -195,10 +209,6 @@ export default class extends Vue {
       &_radio {
         margin-left: auto;
       }
-    }
-
-    &_content {
-
     }
   }
 }
