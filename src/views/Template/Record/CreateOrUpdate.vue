@@ -19,7 +19,7 @@
         <el-form-item label="录制类别:" required prop="recordType">
           <el-radio-group v-model="form.recordType">
             <el-radio :label="1">全天录制</el-radio>
-            <el-radio :label="2">按需录制</el-radio>
+            <el-radio :label="2">手动录制</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="录制文件类型:" class="record-form-item">
@@ -78,6 +78,7 @@ export default class extends Vue {
       { validator: this.validateTemplateName, trigger: 'blur' }
     ]
   }
+
   private storageTimeList = [
     {
       label: '3天',
@@ -108,6 +109,7 @@ export default class extends Vue {
       value: 0
     }
   ]
+
   private storageTypeList = Object.values(RecordStorageType)
   private intervalReg = /^[1-9][0-9]*$/
   private timeReg = /^(([1-9][0-9]*)|[0-9])$/
@@ -119,11 +121,13 @@ export default class extends Vue {
     formatList: [],
     storageTime: 30 // 最小 30 天
   }
+
   // HARDCODE: 针对天翼看家单独判断
   private placeHolder = {
     default: 'Prefix/{DeviceId}/{StartTime}/{StartTime}_{EndTime}',
     kanjia: 'Prefix/{DeviceId}_{StartTime}_{StreamType}_{StreamCode}'
   }
+
   private setHeaderClass() {
     return 'background: white'
   }
@@ -143,7 +147,7 @@ export default class extends Vue {
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
     this.createOrUpdateFlag = this.$route.path !== '/template/record/update'
-    let query: any = this.$route.query
+    const query: any = this.$route.query
     if (query.templateId) {
       this.$set(this.form, 'templateId', query.templateId)
       this.loading = true
@@ -216,7 +220,7 @@ export default class extends Vue {
       }
       this.$nextTick(() => {
         selectedRows.forEach(row => {
-          (this.$refs['formatTable'] as any).toggleRowSelection(row, true)
+          (this.$refs.formatTable as any).toggleRowSelection(row, true)
         })
       })
       this.loading = false
@@ -238,7 +242,7 @@ export default class extends Vue {
         storageTime: 30 * 24 * 60
       })
       this.$nextTick(() => {
-        (this.$refs['formatTable'] as any).toggleRowSelection(this.form.formatList[0], true)
+        (this.$refs.formatTable as any).toggleRowSelection(this.form.formatList[0], true)
       })
     }
   }

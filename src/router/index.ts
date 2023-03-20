@@ -703,10 +703,8 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['*']
     },
     children: [
+      // 柳州版本录制模板
       {
-        // path: 'record',
-        // component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
-        // name: 'record',
         path: 'record',
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
         name: 'record',
@@ -714,7 +712,10 @@ export const asyncRoutes: RouteConfig[] = [
           title: '录制模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/template/record'
+          activeMenu: '/template/record',
+          tags: {
+            privateUser: ['liuzhou']
+          }
         }
         // children: [
         //   {
@@ -730,6 +731,18 @@ export const asyncRoutes: RouteConfig[] = [
         //   },
         // ]
       },
+      // 现网版本录制模板
+      {
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/index.vue'),
+        name: 'record',
+        meta: {
+          title: '录制模板',
+          icon: 'dot',
+          perms: ['ivs:frontend:RecordTemplate'],
+          activeMenu: '/template/record'
+        }
+      },
       {
         path: 'record/create',
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Record/CreateOrUpdate.vue'),
@@ -737,7 +750,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -748,7 +761,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -1160,6 +1173,61 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/operation-center',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '运营中心',
+      icon: 'menu-alarm',
+      perms: ['*'],
+      alwaysShow: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: 'alarm',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
+        name: 'Alarm',
+        meta: {
+          title: '设备告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
+            name: 'AlarmList',
+            meta: {
+              title: '设备告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/alarm',
+              groupSelector: true
+            }
+          }
+        ]
+      },
+      {
+        path: 'statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            privateUser: ['liuzhou']
+          }
+        }
+      }
+    ]
+  },
+  {
     path: '/notification',
     component: Layout,
     redirect: 'noredirect',
@@ -1218,46 +1286,6 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/notification/policy',
           perms: ['ivs:frontend:AdminNotification']
         }
-      }
-    ]
-  },
-  {
-    path: '/alarm',
-    component: Layout,
-    meta: {
-      title: '告警管理',
-      icon: 'menu-alarm',
-      perms: ['ivs:frontend:AdminAlarm'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: true
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
-        name: 'Alarm',
-        meta: {
-          title: '告警管理',
-          icon: 'menu-alarm',
-          breadcrumb: false,
-          perms: ['ivs:frontend:AdminAlarm'],
-          groupSelector: true
-        },
-        children: [
-          {
-            path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
-            name: 'AlarmList',
-            meta: {
-              title: '告警信息列表',
-              breadcrumb: false,
-              perms: ['ivs:frontend:AdminAlarm'],
-              activeMenu: '/alarm',
-              groupSelector: true
-            }
-          }
-        ]
       }
     ]
   },
@@ -1346,57 +1374,19 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  // {
-  //   path: '/statistic',
-  //   component: Layout,
-  //   meta: {
-  //     title: '统计信息',
-  //     breadcrumb: true,
-  //     icon: 'menu-system',
-  //     perms: ['*']
-  //   },
-  //   children: [
-  //     {
-  //       path: '',
-  //       component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-  //       name: 'statistic',
-  //       meta: {
-  //         title: '统计信息',
-  //         breadcrumb: false,
-  //         icon: 'chart',
-  //         perms: ['*'],
-  //         groupSelector: true
-  //       }
-  //     }
-  //   ]
-  // },
   {
     path: '/sysconfig',
     component: Layout,
     meta: {
       title: '系统管理',
       breadcrumb: true,
+      alwaysShow: true,
       icon: 'menu-system',
       perms: ['*']
     },
     children: [
       {
-        path: '/statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-        name: 'statistic',
-        meta: {
-          title: '统计信息',
-          breadcrumb: false,
-          icon: 'dot',
-          perms: ['*'],
-          tags: {
-            privateUser: ['liuzhou']
-          }
-          // groupSelector: true
-        }
-      },
-      {
-        path: 'operation-log',
+        path: '/operation-log',
         component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
         name: 'operation-log',
         meta: {
@@ -1404,8 +1394,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '操作日志',
           icon: 'dot',
           breadcrumb: false,
-          perms: ['*'],
-          activeMenu: '/operation-log'
+          perms: ['*']
         }
       },
       {

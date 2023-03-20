@@ -56,6 +56,7 @@
             :formatter="dateFormatInTable"
           />
           <el-table-column
+            v-if="isLiuzhou"
             label="过期时间"
             prop="expirationTime"
             min-width="180"
@@ -140,6 +141,10 @@ export default class extends Vue {
   private get canLock() {
     // 国标下设备   不受限制
     return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   // private get canLock() {
@@ -239,6 +244,7 @@ export default class extends Vue {
     this.pager.total = records.length
     this.secToMs(this.recordList)
   }
+
   /**
    * 选择视频
    * @param screen 视频

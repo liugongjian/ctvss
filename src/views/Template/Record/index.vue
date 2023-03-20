@@ -32,7 +32,7 @@
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
         <el-table-column prop="storeType" label="录制类别" width="120">
           <template slot-scope="{row}">
-            <span>{{ row.recordType === 1 ? '自动录制' : '手动录制' }}</span>
+            <span>{{ row.recordType === 1 ? '全天录制' : '手动录制' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="模板备注" min-width="260" />
@@ -80,6 +80,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+
   private dateFormatInTable = dateFormatInTable
   private showViewBindDialog = false
   private currentTemplateId: any
@@ -96,21 +97,25 @@ export default class extends Vue {
   private async refresh() {
     await this.getList()
   }
+
   private async viewBind(row: RecordTemplate) {
     this.currentTemplateId = row.templateId
     this.showViewBindDialog = true
   }
+
   private async closeViewBind() {
     this.currentTemplateId = ''
     this.showViewBindDialog = false
   }
+
   private setHeaderClass() {
     return 'background: white'
   }
+
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const params = {
         templateName: this.recordTemplateName || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
