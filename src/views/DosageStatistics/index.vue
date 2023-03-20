@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-15 16:58:43
+ * @LastEditTime: 2023-03-20 09:26:10
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,7 +26,8 @@
                 </div>
               </div>
             </div>
-            <period-line chart-kind="device" />
+            <line-chart chart-kind="device" />
+            <!-- <period-line chart-kind="device" /> -->
           </div>
         </el-tab-pane>
 
@@ -108,18 +109,22 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import PeriodLine from './components/PeriodLine.vue'
+// import PeriodLine from './components/PeriodLine.vue'
+import LineChart from './components/LineWithPoint.vue'
 import { getDeviceStatistics } from '@/api/dosageStatistics'
 
 
 @Component({
   name: 'DosageStatistics',
-  components: { PeriodLine }
+  components: { 
+    // PeriodLine,
+  LineChart 
+  }
 })
 export default class extends Vue {
     private activeName = 'device'
 
-      mounted () {
+  mounted () {
     this.getDevice()
   }
 

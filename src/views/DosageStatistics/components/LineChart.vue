@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 14:17:04
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-15 15:23:15
+ * @LastEditTime: 2023-03-17 11:00:43
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/lineChart.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,46 +22,32 @@ export default class extends Vue {
   @Prop() private chartTitle!: string
 
   private chartData = [
-    [
-      {
-        date: '2023-01-24',
-        total: 19
-      },
-      {
-        date: '2023-01-24',
-        use: 12
-      }
-    ],
-    [
-      {
-        date: '2023-01-25',
-        total: 17
-      },
-      {
-        date: '2023-01-25',
-        use: 17
-      }
-    ],
-    [
-      {
-        date: '2023-01-27',
-        total: 6
-      },
-      {
-        date: '2023-01-27',
-        use: 3
-      }
-    ],
-    [
-      {
-        date: '2023-01-28',
-        total: 21
-      },
-      {
-        date: '2023-01-28',
-        use: 7
-      }
-    ]
+    {
+      date: '2023-01-23',
+      total: 110,
+      use: 10
+    },
+    {
+      date: '2023-01-24',
+      total: 19,
+      use: 12
+    },
+    {
+      date: '2023-01-25',
+      total: 17,
+      use: 17
+    },
+    {
+      date: '2023-01-27',
+      total: 6,
+      use: 3
+    },
+    {
+      date: '2023-01-28',
+      total: 21,
+      use: 7
+    }
+
   ]
 
   private chart: any = null
@@ -124,24 +110,7 @@ export default class extends Vue {
       }
     })
 
-    this.chart.axis('use', {
-      label: {
-        style: {
-          fill: '#333',
-          fontSize: 12
-        }
-      },
-      title: {
-        offset: 60
-      },
-      grid: {
-        line: {
-          style: {
-            stroke: '#eee'
-          }
-        }
-      }
-    })
+    this.chart.axis('use', false)
 
     this.chart.axis('date', {
       label: {
@@ -182,112 +151,119 @@ export default class extends Vue {
       ]
     })
 
-    // this.chart
-    //   .line()
-    //   .position('date*total')
-    //   .color(this.lineColor.total)
-    //   .tooltip('date*total*use')
+    this.chart
+      .line()
+      .position('date*total')
+      .color(this.lineColor.total)
+      .tooltip('date*total*use')
 
-    // this.chart
-    //   .line()
-    //   .position('date*use')
-    //   .color(this.lineColor.use)
-    //   .tooltip('date*use')
+    this.chart
+      .line()
+      .position('date*use')
+      .color(this.lineColor.use)
+      .tooltip('date*use')
 
     this.chart.tooltip({
       // showCrosshairs: true, // 展示 Tooltip 辅助线
-      shared: true
-      // containerTpl: `
-      //   <div class="g2-tooltip">
-      //     <div class="g2-tooltip-title"></div>
-      //     <ul class="g2-tooltip-list"></ul>
-      //   </div>`,
-      // itemTpl: `
-      //     <li class="g2-tooltip-list-item item-{name}">
-      //       <span class="g2-tooltip-marker" ></span>
-      //       <span class="g2-tooltip-name">{name}</span>:<span class="g2-tooltip-value">{value}</span>
-      //     </li>`
+      // shared: true
+      containerTpl: `
+        <div class="g2-tooltip">
+          <div class="g2-tooltip-title"></div>
+          <ul class="g2-tooltip-list"></ul>
+        </div>`,
+      itemTpl: `
+          <li class="g2-tooltip-list-item item-{name}">
+            <span class="g2-tooltip-marker" ></span>
+            <span class="g2-tooltip-name">{name}</span>:<span class="g2-tooltip-value">{value}</span>
+            <ul class="g2-tooltip-list">
+               <li class="g2-tooltip-list-item item-{name}">
+                <span class="g2-tooltip-marker" ></span>
+                <span class="g2-tooltip-name">{name}</span>:<span class="g2-tooltip-value">{value}</span>
+              </li>
+            </ul>
+          </li>
+          `
     })
 
-    // this.chart
-    //   .point()
-    //   .position('date*total')
-    //   .color('total', () => {
-    //     return this.lineColor.total
-    //   })
-    //   .shape('circle')
-    //   .style({ stroke: '#fff', lineWidth: 1 })
-    //   .tooltip('date*total*use')
+    this.chart
+      .point()
+      .position('date*total')
+      .color('total', () => {
+        return this.lineColor.total
+      })
+      .shape('circle')
+      .style({ stroke: '#fff', lineWidth: 1 })
+      .tooltip('date*total*use')
 
-    // this.chart
-    //   .point()
-    //   .position('date*use')
-    //   .color(this.lineColor.use)
-    //   .shape('circle')
-    //   .style({ stroke: '#fff', lineWidth: 1 })
-    //   .tooltip('date*use')
+    this.chart
+      .point()
+      .position('date*use')
+      .color(this.lineColor.use)
+      .shape('circle')
+      .style({ stroke: '#fff', lineWidth: 1 })
+      .tooltip('date*use')
 
     // this.chart.removeInteraction('tooltip')
     // this.chart.removeInteraction('legend-filter')
     // this.chart.interaction('legend-visible-filter')
 
-    // this.chart.interaction('element-highlight')
+    this.chart.interaction('element-highlight')
 
-    // this.chart.interaction('active-region')
+    this.chart.interaction('active-region')
 
     // legend 图例的点击事件 因为line自定义而不起作用，所以，曲线救国
-    // this.chart.on('legend-item:click', (ev: any) => {
-    //   const item = ev?.target?.get('delegateObject').item
-    //   const id = item?.id
+    this.chart.on('legend-item:click', (ev: any) => {
+      const item = ev?.target?.get('delegateObject').item
+      const id = item?.id
 
-    //   // 使用find 默认返回第一个，也就是line，实际上有两个值 一个是line 一个是point
-    //   const graph = this.chart.geometries.filter(
-    //     (w) => w.getAttribute('position').getFields()[1] === id
-    //   )
-    //   if (graph) {
-    //     graph.forEach((ele) => {
-    //       ele.changeVisible(!item.unchecked)
-    //     })
-    //   }
-    // })
-
-    this.chart.legend({
-      offsetY: 5,
-      itemSpacing: 30,
-      items: [
-        {
-          id: '1',
-          name: '设备总数',
-          value: 'use',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#6780B2'
-            },
-            spacing: 5
-          }
-        },
-        {
-          id: '2',
-          name: '新增设备数',
-          value: 'total',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#E4BC00'
-            },
-            spacing: 5
-          }
-        }
-      ],
-      itemName: {
-        style: {
-          fill: '#505050'
-          // fontSize: 14
-        },
-        formatter: (text: any, item: any) => item.name
+      // 使用find 默认返回第一个，也就是line，实际上有两个值 一个是line 一个是point
+      const graph = this.chart.geometries.filter(
+        (w) => w.getAttribute('position').getFields()[1] === id
+      )
+      if (graph) {
+        graph.forEach((ele) => {
+          ele.changeVisible(!item.unchecked)
+        })
       }
     })
+
+    // this.chart.legend({
+    //   offsetY: 5,
+    //   itemSpacing: 30,
+    //   items: [
+    //     {
+    //       id: '1',
+    //       name: '设备总数',
+    //       value: 'use',
+    //       marker: {
+    //         symbol: 'square',
+    //         style: {
+    //           fill: '#6780B2'
+    //         },
+    //         spacing: 5
+    //       }
+    //     },
+    //     {
+    //       id: '2',
+    //       name: '新增设备数',
+    //       value: 'total',
+    //       marker: {
+    //         symbol: 'square',
+    //         style: {
+    //           fill: '#E4BC00'
+    //         },
+    //         spacing: 5
+    //       }
+    //     }
+    //   ],
+    //   itemName: {
+    //     style: {
+    //       fill: '#505050'
+    //       // fontSize: 14
+    //     },
+    //     formatter: (text: any, item: any) => item.name
+    //   }
+    // })
 
     this.chart.render()
 
