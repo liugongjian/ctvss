@@ -9,7 +9,7 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期"
       />
-      <!-- <span>事件级别:</span>
+      <span>事件级别:</span>
       <el-select v-model="search.errorLevel">
         <el-option
           v-for="(item, index) in errorLevelList"
@@ -17,7 +17,7 @@
           :label="item.label"
           :value="item.value"
         />
-      </el-select> -->
+      </el-select>
       <span>事件类型:</span>
       <el-select v-model="search.eventType">
         <el-option
@@ -39,7 +39,7 @@
     <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @select="handleSelectionChange" @select-all="handleSelectionChange">
       <el-table-column v-if="isLiuzhou" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
-      <!-- <el-table-column prop="errorLevel" label="事件级别" min-width="100" /> -->
+      <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
       <el-table-column prop="eventType" label="事件类型" min-width="100" />
       <el-table-column prop="errorMessage" label="异常提示" min-width="300" />
       <el-table-column v-if="isLiuzhou" label="操作" prop="action" class-name="col-action" width="100" fixed="right">

@@ -126,7 +126,7 @@ export default class extends Vue {
   }
 
   public get isRecordLockAvailable() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.isRecordLockAvailable === 'Y'
+    return UserModule.tags && UserModule.tags.isRecordLockAvailable === 'Y'
   }
 
   /* 是否具有锁定功能 */

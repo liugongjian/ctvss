@@ -1,8 +1,9 @@
 <template>
-  <svg-icon class="additional-status" :class="`additional-status--${additionalStatus}`" :name="iconName" @click.stop="clickEvent" />
+  <svg-icon v-if="isLiuzhou" class="additional-status" :class="`additional-status--${additionalStatus}`" :name="iconName" @click.stop="clickEvent" />
 </template>
 
 <script lang="ts">
+import { UserModule } from '@/store/modules/user'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
@@ -38,6 +39,10 @@ export default class extends Vue {
 
   private get iconName() {
     return this.additionalStatus === 'warning' ? 'alarm2' : 'record'
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private clickEvent() {
