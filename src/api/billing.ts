@@ -47,3 +47,24 @@ export const getResourceIdAttachedAppIds = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+//  查询已开通计费项
+export const getBillOfOndemand = (): Promise<any> =>
+  request({
+    url: '/resource/ondemand',
+    method: 'get'
+  })
+
+//  查询计费模式变更历史
+export const getBillTypeLogs =  (): Promise<any> =>
+  request({
+    url: '/resource/bWOndemandLog',
+    method: 'get'
+  })
+
+//  查询用户是否开通按需计费
+export const getIsOndemand = (): Promise<any> =>
+  request({
+    url: '/resource/ondemandSubscribe',
+    method: 'get'
+  })
