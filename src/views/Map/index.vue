@@ -1048,13 +1048,13 @@ export default class extends Mixins(IndexMixin) {
     const { type, mapinfo } = infos
     if (type === 'add') {
       this.curMap = mapinfo
+      this.mapList.push(this.curMap)
       this.changeEdit(false)
       this.customInfoType = 'map'
       if (this.mapList.length > 0) {
         this.$refs.mapview.setMap(this.curMap)
         this.$refs.mapview.closeAllPlayer()
       }
-      this.mapList.push(this.curMap)
     } else {
       this.mapList = this.mapList.map(item => {
         if (item.mapId === mapinfo.mapId) {
