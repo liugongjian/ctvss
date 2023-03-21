@@ -331,7 +331,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Watch, Ref } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 // import { getGroups } from '@/api/group'
 import { renderAlertType, getSums } from '@/utils/device'
@@ -441,8 +441,6 @@ export default class extends Mixins(IndexMixin) {
     ]
   }
   private ifMapDisabled = false
-
-  @Ref('mapList') private mapListDom: any
 
   private validateName(rule: any, value: string, callback: Function) {
     const val = value.trim()
