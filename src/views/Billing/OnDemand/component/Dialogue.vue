@@ -4,6 +4,7 @@
     append-to-body
     :visible.sync="outerVisible"
     custom-class="outer-dialog-charge"
+    @close="cancelOuter"
   >
     <el-form
       ref="dataForm"
@@ -31,6 +32,7 @@
       :visible.sync="innerVisible"
       append-to-body
       custom-class="inner-dialog-charge"
+      @close="innerVisible = false"
     >
       <el-alert
         :title="warnText"
@@ -45,7 +47,7 @@
     </el-dialog>
     <div slot="footer" class="dialog-footer">
       <el-button type="primary" @click="innerVisible = true">确 定</el-button>
-      <el-button @click="outerVisible = false">取 消</el-button>
+      <el-button @click="cancelOuter">取 消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -84,6 +86,10 @@ export default class extends Vue {
     // await提交
     this.outerVisible = this.innerVisible = false
     this.loading = false
+    this.$emit('update:visible', false)
+  }
+
+  private cancelOuter(){
     this.$emit('update:visible', false)
   }
 
