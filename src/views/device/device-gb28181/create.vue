@@ -256,7 +256,7 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item v-if="isLiuzhou && form.parentDeviceId === '-1'" prop="enabledGB35114">
+            <el-form-item v-if="form.parentDeviceId === '-1'" prop="enabledGB35114">
               <template slot="label">
                 GB35114协议:
                 <el-popover
