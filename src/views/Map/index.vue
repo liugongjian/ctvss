@@ -25,7 +25,7 @@
           <el-button class="map__add" size="small" @click="openMapEditDialog()">
             添加地图
           </el-button>
-          <el-card v-if="curMap" class="map__user">
+          <el-card v-if="curMap" ref="mapList" class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
               <div
                 class="choose-map"
@@ -331,7 +331,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Ref } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 // import { getGroups } from '@/api/group'
 import { renderAlertType, getSums } from '@/utils/device'
@@ -366,6 +366,7 @@ export default class extends Mixins(IndexMixin) {
     dirTree: any
     mapform: any
     deviceWrap: any
+    mapList: any
   }
   private renderAlertType = renderAlertType
   private getSums = getSums
@@ -440,6 +441,8 @@ export default class extends Mixins(IndexMixin) {
     ]
   }
   private ifMapDisabled = false
+
+  @Ref('mapList') private mapListDom: any
 
   private validateName(rule: any, value: string, callback: Function) {
     const val = value.trim()
@@ -1287,13 +1290,19 @@ export default class extends Mixins(IndexMixin) {
     const { type, mapinfo } = infos
     if (type === 'add') {
       this.curMap = mapinfo
+      this.mapList.push(this.curMap)
       this.changeEdit(false)
       this.customInfoType = 'map'
       if (this.mapList.length > 0) {
         this.$refs.mapview.setMap(this.curMap)
         this.$refs.mapview.closeAllPlayer()
+        // 跳转到新建地图位置
+        this.$nextTick(() => {
+          const mapItems = this.$refs.mapList.$el.querySelectorAll('.choose-map')
+          const lastMapItem = mapItems[mapItems.length - 1]
+          this.$refs.mapList.$el.scrollTop = lastMapItem.offsetTop
+        })
       }
-      this.mapList.push(this.curMap)
     } else {
       this.mapList = this.mapList.map((item) => {
         if (item.mapId === mapinfo.mapId) {
