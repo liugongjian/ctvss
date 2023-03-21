@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-20 14:03:37
+ * @LastEditTime: 2023-03-20 17:24:54
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,6 +22,11 @@ export default class extends Vue {
   private chart: any = null
 
   private currentChart: any = null
+
+  private lineColor: any = {
+    total: '#2fc25b',
+    demand: '#1890ff'
+  }  
 
   mounted() {
     this.drawLine()
@@ -188,35 +193,35 @@ export default class extends Vue {
               },
               {
                 timestamp: '1679037600',
-                value: '100'
+                value: '130'
               },
               {
                 timestamp: '1679037900',
-                value: '100'
+                value: '200'
               },
               {
                 timestamp: '1679038200',
-                value: '100'
+                value: '250'
               },
               {
                 timestamp: '1679038500',
-                value: '100'
+                value: '140'
               },
               {
                 timestamp: '1679038800',
-                value: '100'
+                value: '170'
               },
               {
                 timestamp: '1679039100',
-                value: '100'
+                value: '180'
               },
               {
                 timestamp: '1679039400',
-                value: '100'
+                value: '120'
               },
               {
                 timestamp: '1679039700',
-                value: '100'
+                value: '190'
               },
               {
                 timestamp: '1679040000',
@@ -300,18 +305,33 @@ export default class extends Vue {
       data: { deviceSamples }
     } = res
 
-    const [online, total] = deviceSamples
+    const [demand, total] = deviceSamples
 
-    const { samples: onlineData } = online
 
-    const testData = onlineData.map((item: any) => {
+    const { samples: demandSamples } = demand
+    const { samples: totalSamples } = total
+
+    const demandData = demandSamples.map((item: any) => {
+      const time = new Date(item.timestamp * 1000)
       return {
-        time: new Date(item.timestamp * 1000),
+        time,
+        type: '新增设备数',
         ...item
       }
     })
 
-    console.log('testData----->', testData)
+    const totalData = totalSamples.map((item: any) => {
+      const time = new Date(item.timestamp * 1000)
+      return {
+        time,
+        type: '设备总数',
+        ...item
+      }
+    })
+
+    const testData = [...demandData, ...totalData]
+
+    
 
     this.chart.data(testData)
 
@@ -334,8 +354,7 @@ export default class extends Vue {
       }
     })
 
-    // 绘制折线图
-    this.chart.line().position('time*value')
+   
 
     // 绘制X轴和Y轴
     this.chart.axis('time', {
@@ -345,9 +364,11 @@ export default class extends Vue {
       },
       grid: null
     })
+    
     this.chart.axis('value', {
       title: {
-        offset: 40
+        offset: 40,
+        text: '设备接入数量',
       }
     })
 
@@ -356,6 +377,46 @@ export default class extends Vue {
       showCrosshairs: true,
       shared: true
     })
+
+    this.chart.legend({
+      offsetY: 5,
+      itemSpacing: 30,
+      items: [
+        {
+          id: 'total',
+          name: '设备总数',
+          value: 'total',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: this.lineColor.total
+            },
+            spacing: 5
+          }
+        },
+        {
+          id: 'demand',
+          name: '新增设备数',
+          value: 'demand',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: this.lineColor.demand
+            },
+            spacing: 5
+          }
+        }
+      ],
+      itemName: {
+        style: {
+          fill: '#505050'
+        },
+        formatter: (text: any, item: any) => item.name
+      }
+    })
+
+     // 绘制折线图
+    this.chart.line().position('time*value').color('type', [this.lineColor.total, this.lineColor.demand])
 
     this.chart.render()
   }

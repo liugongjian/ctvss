@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-20 09:26:10
+ * @LastEditTime: 2023-03-21 09:18:59
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -109,7 +109,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-// import PeriodLine from './components/PeriodLine.vue'
+import PeriodLine from './components/PeriodLine.vue'
 import LineChart from './components/LineWithPoint.vue'
 import { getDeviceStatistics } from '@/api/dosageStatistics'
 
@@ -117,7 +117,7 @@ import { getDeviceStatistics } from '@/api/dosageStatistics'
 @Component({
   name: 'DosageStatistics',
   components: { 
-    // PeriodLine,
+    PeriodLine,
   LineChart 
   }
 })
