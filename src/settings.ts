@@ -227,14 +227,15 @@ const settings: ISettings = {
       actionKey: 'ivs:AdminCar',
       actionDesc: '拥有车辆管理权限，并展示车辆管理菜单',
       resourceType: ['directory', 'device', 'channel']
-    },
-    // 电视墙
-    {
-      actionName: '电视墙管理',
-      actionKey: 'ivs:AdminVideoWall',
-      actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单',
-      resourceType: '*'
     }
+    // 电视墙
+    // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）
+    // {
+    //   actionName: '电视墙管理',
+    //   actionKey: 'ivs:AdminVideoWall',
+    //   actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单',
+    //   resourceType: '*'
+    // }
   ]
 }
 

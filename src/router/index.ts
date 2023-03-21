@@ -1221,7 +1221,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           perms: ['*'],
           tags: {
-            privateUser: ['liuzhou']
+            privateUser: ['isShowRecordInfo']
           }
         }
       }
