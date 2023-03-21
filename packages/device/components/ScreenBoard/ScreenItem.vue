@@ -9,6 +9,7 @@
     <template v-if="screen.deviceId">
       <LivePlayer
         v-if="screen.isLive"
+        :key="screen.key"
         :screen="screen"
         :has-close="hasClose"
         :is-debug="false"
@@ -20,6 +21,7 @@
       </LivePlayer>
       <ReplayPlayer
         v-else
+        :key="screen.key"
         :screen="screen"
         :has-axis="hasAxis"
         :has-close="hasClose"
