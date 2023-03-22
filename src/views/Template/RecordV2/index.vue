@@ -210,7 +210,245 @@ export default class extends Vue {
   private currentTemplate: any = null
   private deviceListMain: any = []
 
-  private templates: any = []
+  // private templates: any = []
+
+  // -----------------------
+  private templates: any = [
+    {
+        "templateName": "cillum ex2",
+        "description": "ullamco veniam dolor anim",
+        "recordType": 1,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 666,
+            "storageTime": 666,
+            "path": "ut "
+        },
+        "flvParam": {
+            "enable": 1,
+            "interval": 666,
+            "storageTime": 500,
+            "path": "commodo incididunt Lorem"
+        },
+        "mpParam": {
+            "enable": 1,
+            "interval": 666,
+            "storageTime": 666,
+            "path": "tempor aliquip ipsum"
+        },
+        "templateId": "578352066935832576",
+        "createdTime": "2022-10-20 17:17:37",
+        "updatedTime": "2022-10-20 17:30:59",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "cillum ex111112",
+        "description": "ullamco veniam dolor anim",
+        "recordType": 2,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": 20501595,
+            "path": "ut "
+        },
+        "flvParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": 500,
+            "path": "commodo incididunt Lorem"
+        },
+        "mpParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": 222222,
+            "path": "tempor aliquip ipsum"
+        },
+        "templateId": "579018018794946560",
+        "createdTime": "2022-10-21 14:49:44",
+        "updatedTime": "2022-10-21 14:49:44",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "zhulhtest_01",
+        "description": "",
+        "recordType": 1,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 1800,
+            "storageTime": 2592000,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "flvParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "mpParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "templateId": "582940474990870528",
+        "createdTime": "2022-10-26 21:40:18",
+        "updatedTime": "2022-10-26 21:40:18",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "zhulhtest_02",
+        "description": "",
+        "recordType": 2,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 1800,
+            "storageTime": 2592000,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "flvParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "mpParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "templateId": "582940560890216448",
+        "createdTime": "2022-10-26 21:40:28",
+        "updatedTime": "2022-10-26 21:40:34",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "测试录制5分钟",
+        "description": "",
+        "recordType": 1,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 300,
+            "storageTime": 2592000,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "flvParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "mpParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "templateId": "584174900133101568",
+        "createdTime": "2022-10-28 13:35:24",
+        "updatedTime": "2022-10-28 13:35:24",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "手动的模板",
+        "description": "",
+        "recordType": 2,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 300,
+            "storageTime": 2592000,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "flvParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "mpParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "templateId": "584298148514725888",
+        "createdTime": "2022-10-28 17:34:32",
+        "updatedTime": "2022-10-28 17:34:32",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "zzztt ex112211112",
+        "description": "ullamco veniam dolor anim",
+        "recordType": 1,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": 20501595,
+            "path": "ut "
+        },
+        "flvParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": -93068194,
+            "path": "commodo incididunt Lorem"
+        },
+        "mpParam": {
+            "enable": 1,
+            "interval": 500,
+            "storageTime": 222222,
+            "path": "tempor aliquip ipsum"
+        },
+        "templateId": "587268839953055744",
+        "createdTime": "2022-11-01 17:38:26",
+        "updatedTime": "2022-11-01 17:38:26",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    },
+    {
+        "templateName": "录制测试模版",
+        "description": "",
+        "recordType": 1,
+        "hlsParam": {
+            "enable": 1,
+            "interval": 300,
+            "storageTime": 2592000,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "flvParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "mpParam": {
+            "enable": 0,
+            "interval": 1800,
+            "storageTime": 0,
+            "path": "{DeviceId}/record/{StartTime}"
+        },
+        "templateId": "589379610223591424",
+        "createdTime": "2022-11-04 13:53:52",
+        "updatedTime": "2022-11-04 13:53:52",
+        "user": "",
+        "innerIamUserId": "",
+        "mainUserId": ""
+    }
+]
+// -----------------------
+
   private renderTemplateInfo: any = {}
   private axiosSource = null
 
@@ -218,11 +456,37 @@ export default class extends Vue {
     this.handleDevice = true
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-    this.init()
+    // this.init()
+    this.testinit()
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  private testinit() {
+    this.$nextTick(() => {
+        if (this.templates.length) {
+          // 默认选中第一个模板
+          if (!this.currentTemplate) {
+            this.currentTemplate = this.templates[0]
+          } else {
+            const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
+            this.currentTemplate = currentTemplate || this.templates[0]
+          }
+          this.$nextTick(() => {
+            this.scrollToActived()
+          })
+          this.defaultDevice = true
+          this.isDelete = false
+          this.bindDevice = false
+          // 加载第一项的模板信息和设备树
+          this.initBindDevice()
+          this.initTemplateInfo()
+        } else {
+          this.currentTemplate = null
+        }
+      })
   }
 
   // 获取1模板列表并初始化2模板信息和3设备树

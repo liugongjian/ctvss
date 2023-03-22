@@ -24,7 +24,7 @@
         <el-form-item
           v-if="form.recordType==3"
         >
-          <el-table class="custom-time" border :show-header='false' :cell-class-name="cellClassName" :data="customRecordList" @cell-click="cellClick" style="min-width: 782px; width: 782px; font-size: 12px;">
+          <el-table class="loop-time" border :show-header='false' :cell-class-name="cellClassName" :data="customRecordList" style="min-width: 782px; width: 782px; font-size: 12px;">
             <el-table-column width="60" prop="weekday" />
             <el-table-column width="60" />
             <el-table-column width="60" />
@@ -67,13 +67,14 @@
               value-format="timestamp"
               format="HH:mm"
               :picker-options="pickerOptions"
+              @change="timepickerChange"
             />
             <el-popover
               placement="bottom"
               trigger="click"
               width="180"
               popper-class="popover-cus"
-              @show="checkCopy"
+              @show="checkedDayCopy"
             >
               <el-checkbox-group
                 v-model="checkedDays"
@@ -106,11 +107,48 @@
                 class="opt-select"
               />
             </el-select> -->
-            <el-button><svg-icon name="delete" /></el-button>
+            <el-button @click="deleteLoop"><svg-icon name="delete" /></el-button>
+          </div>
+        </el-form-item>
+        <el-form-item
+          v-if="form.recordType==4">
+          <div
+            v-for="datePicker, index in customDates"
+            :key="index"
+            class="custom-picker"
+          >
+            <el-date-picker
+              v-model="datePicker.startTime"
+              type="datetime"
+              placeholder="选择时间"
+              value-format="timestamp"
+              format="yyyy-MM-dd HH:mm"
+              :picker-options="customPickerOptionsStart(index, customDates)"
+              @change="(time) => customTimepickerChangeStart(time, index)"
+            >
+            </el-date-picker>
+            -
+            <el-date-picker
+              v-model="datePicker.endTime"
+              type="datetime"
+              placeholder="选择时间"
+              value-format="timestamp"
+              format="yyyy-MM-dd HH:mm"
+              :picker-options="customPickerOptionsEnd(index, customDates)"
+              @change="(time) => customTimepickerChangeEnd(time, index)"
+            >
+            </el-date-picker>
+            <el-button style="margin-left: 30px;" v-if="index!==0" @click="customDates.splice(index, 1)"><svg-icon name="delete" /></el-button>
+          </div>
+          <div v-if="showCusTips" style="color: red;">
+            {{cusTips}}
+          </div>
+          <div>
+            <el-button type="text" @click="addCustomDate" :disabled="customDates.length >= 10">＋ 增加生效周期</el-button>
           </div>
         </el-form-item>
         <el-form-item label="存储时长:" prop="storageTime" class="record-form-item">
-          <el-input v-model.number="form.storageTime" type="number" min="0" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
+          <el-input v-model.number="form.storageTime" type="number" min="30" oninput="value=value.replace(/[^\d]/g,'')" style="width: 150px;"><span slot="suffix">天</span></el-input>
         </el-form-item>
         <el-form-item label="模板备注" prop="description">
           <el-input v-model="form.description" style="width: 463px;" type="textarea" maxlength="255" :autosize="{minRows: 3, maxRows: 5}" placeholder="请输入备注" />
@@ -183,7 +221,9 @@ export default class extends Vue {
 
   private currentDragDuration = {
     row: -1,
-    col: -1
+    col: -1,
+    startTimeX: -1, // duration 开始时间
+    endTimeX: -1, // duration 结束时间
   }
 
   private currentMouseDownDuration = {
@@ -195,6 +235,7 @@ export default class extends Vue {
   private currentWeekday = -1 // 1-7  星期一 -- 星期日 -1：未选择或无效
 
   private durationTime: any = null
+  private currentClickDurationTime: any = null // 保存当前duration的起止时间，用于OPT
   private showOpt = false
 
   private outRange = false
@@ -266,6 +307,15 @@ export default class extends Vue {
     ]
   }
 
+  // -----指定时间相关
+  private customDates = [{
+    startTime: null, // 选择时间用的
+    endTime: null, 
+  }]
+
+  private cusTips = ''
+  private showCusTips = false
+
   @Watch('form.recordType', {
     immediate: true
   })
@@ -284,7 +334,7 @@ export default class extends Vue {
       document.body.addEventListener('mouseup', this.handleMouseup, false)
       // document.body.addEventListener('mousemove', this.handleMousemove, false)
     } else {
-      // 清空
+      // 清空 循环相关数据
       if (this.weekdays) {
         this.MonList = []
         this.TusList = []
@@ -303,6 +353,17 @@ export default class extends Vue {
         display: 'none'
       }
     }
+    // ---------------
+    // 清空 指定相关数据
+    if (+this.form.recordType !== 4) {
+      this.customDates = [{
+        startTime: null,
+        endTime: null
+      }]
+      this.showCusTips = false
+      this.cusTips = ''
+    }
+      
   }
 
   @Watch('showClickWrap', {
@@ -310,7 +371,6 @@ export default class extends Vue {
   })
   private onShowClickWrap() {
     this.$nextTick(() => {
-      // console.log('click  层', this.showClickWrap)
       if (this.showClickWrap) {
         const clickmask: any = document.getElementsByClassName('time-mask-click')
         for(let i = 0; i < clickmask.length; i++) {
@@ -319,9 +379,7 @@ export default class extends Vue {
           clickmask[i].addEventListener('mouseup', this.handleClickMouseup, false)
           clickmask[i].addEventListener('mouseleave', this.handleMouseLeave, false)
         }
-        // console.log('click 只绑定 mouse up')
       } else {
-        // console.log('.....')
           this.clickMaskStyle.display = 'none'
       }
     })
@@ -332,13 +390,12 @@ export default class extends Vue {
   })
   private onShowDragWrap() {
     this.$nextTick(() => {
-      // console.log('drag  层', this.showDragWrap)
       if (this.showDragWrap) {
         const customers: any = document.getElementsByClassName('time-mask')
         for(let i = 0; i < customers.length; i++) {
-          customers[i].addEventListener('mousedown', this.handleMousedown, true)
-          customers[i].addEventListener('mousemove', this.handleMousemove, true)
-          customers[i].addEventListener('mouseup', this.handleMouseup, true)
+          customers[i].addEventListener('mousedown', this.handleMousedown, false)
+          customers[i].addEventListener('mousemove', this.handleMousemove, false)
+          customers[i].addEventListener('mouseup', this.handleMouseup, false)
         }
       } else {
         this.dragMaskStyle.display = 'none'
@@ -371,6 +428,7 @@ export default class extends Vue {
 
   private async submit() {
     const form: any = this.$refs.dataForm
+    // console.log('看看数据      🍎 form, this.weekdays, this.customDates', this.form, this.weekdays, this.customDates)
     form.validate(async(valid: any) => {
       if (valid) {
         try {
@@ -378,19 +436,40 @@ export default class extends Vue {
           // 提交时,不允许操作 模板列表
           this.$emit('on-submit', false)
           let templateId = this.templateId
+          let weekTimeSections: any = undefined
+          let specTimeSections: any = undefined
+          if (this.form.recordType === 3) {
+            weekTimeSections = this.tidyLoopData()
+          }
+          if (this.form.recordType === 4) {
+            if(this.customDates.some((item: any) => {
+              return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
+            })) {
+              this.showCusTips = true
+              this.cusTips = '请检查所选时间！'
+              return
+            }
+            specTimeSections = this.customDates
+          }
           if (this.createOrUpdateFlag) {
             const params = {
               ...this.form,
+              weekTimeSections: weekTimeSections,
+              specTimeSections: specTimeSections,
               storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
+            // console.log('太久太久      🚧', params)
             const res = await createRecordTemplate(params)
             templateId = res.templateId
             this.$message.success('新建模板成功!')
           } else {
             const params = {
               ...this.form,
+              weekTimeSections: weekTimeSections,
+              specTimeSections: specTimeSections,
               storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
+            // console.log('太久太久      🚧', params)
             await updateRecordTemplate(params)
             this.$message.success('修改模板成功!')
           }
@@ -442,9 +521,6 @@ export default class extends Vue {
   * 定制录制时长 
   * 
    */
-  private cellClick(row: any, column: any, cell: any, event: any) {
-    console.log('🎶     🎶', row.index, column.index)
-  }
 
   private cellClassName({row, column, rowIndex, columnIndex}) {
     row.index = rowIndex + 1
@@ -453,7 +529,6 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
-    console.log('在拖拽区域外释放鼠标🖱 this.moveFlag', this.moveFlag)
     if (this.moveFlag) {
       // 在拖拽区域外释放鼠标,删除该绘制状态
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
@@ -474,7 +549,6 @@ export default class extends Vue {
     // 起始时间
     let clickTime = pixelOffsetX * 2 // 分钟
     // 判断是否可以作为拖拽的有效起始时间
-    // console.log('handleMousedown     ', target, row, this.weekdays[row - 1], pixelOffsetX, e)
     // 还要加一个判断，判断在click层是否点到了duration
     if (this.startTimeValidate(this.weekdays[row - 1], clickTime)) {
       // 显示拖拽层，隐藏点击层
@@ -483,7 +557,6 @@ export default class extends Vue {
       this.clickMaskStyle.display = 'none'
       this.dragMaskStyle.display = 'flex'
       this.currentStartTime = clickTime
-      console.log('人头马    XO ', this.currentStartTime)
       this.startPos = e.offsetX // 当前次拖动的开始位置
       // 固定当前所在行
       this.currentWeekday = row
@@ -507,7 +580,6 @@ export default class extends Vue {
       // 无效判定\重置
       // 点击事件选中了某个duration
       // 显示点击层,隐藏拖拽层
-      console.log('点在了duration上  mousedown 不做识别, 只识别click的 duration, 但是切换是在这里切换 置为点击层 激活寻找对应duration')
       // 设置当前点击点，以方便 click 层判断
       let {row, index} = this.findDuration(e)
       this.currentMouseDownDuration.row = row
@@ -516,7 +588,6 @@ export default class extends Vue {
       this.showDragWrap = false
       this.clickMaskStyle.display = 'flex'
       this.dragMaskStyle.display = 'none'
-      console.log('🔥 ')
       this.resetMouse()
     }
   }
@@ -524,28 +595,30 @@ export default class extends Vue {
 // 拖拽
   private handleMousemove(e: any) {
     if (!this.moveFlag) return
-    // console.log('拖拽计算 👈🖱👉  重绘矩形', e.target.classList, e.offsetX, e.layerX)
     // 隐藏OPT
     this.showOpt = false
     // 拖动的时候就开始生成拖选区域
-      // 绘制区域
-      // 寻找未闭合的duration，即当前duration,并计算数据
-      let index = -1
-      this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
-        if (item.moveable) {
-          // 数据计算与属性更新
-          item = this.dynamicProp(item, e)
-          index = i
-        }
-      })
-      // 保存当前duration信息
-      console.log('duration   drag 信息', this.currentDragDuration.row, this.currentDragDuration.col, this.currentWeekday, index)
+    // 绘制区域
+    // 寻找未闭合的duration，即当前duration,并计算数据
+    let index = -1
+    let startTimeX = -1
+    let endTimeX = -1
+    this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
+      if (item.moveable) {
+        // 数据计算与属性更新
+        item = this.dynamicProp(item, e)
+        index = i
+        startTimeX = item.endX > item.startX ? item.startX : item.endX
+        endTimeX =  item.endX > item.startX ? item.endX : item.startX
+      }
+    })
+    // 保存当前duration信息
+    this.currentDragDuration.startTimeX = startTimeX
+    this.currentDragDuration.endTimeX = endTimeX
     // }
-    // console.log('👈🖱👉  this.outRange', this.outRange) 拦截不到正确的识别信息
   }
   
   private handleMouseup(e: any) {
-    console.log('抬起鼠标   this.outRange', this.outRange)
     if (!this.moveFlag) return
     // 如果只是点击没有移动，则清空当前操作
     // 如果结束点位置和开始点一致，删除绘制
@@ -562,21 +635,42 @@ export default class extends Vue {
     if (resetFlag) return
     let optLeft = -1
     let currentMouseupIndex = -1
-    console.log('mouse up       this.outRange   💪', this.outRange, this.currentDragDuration.row, this.currentDragDuration.col)
-    !this.outRange && this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
+    this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
       if (item.moveable) {
-        // 数据计算与属性更新
-        item = this.dynamicProp(item, e)
-        item.moveable = false
         // duration start time表示拖拽结束后,duration的开始时间
         // duration end time表示拖拽结束后,duration的结束时间
         item.durationStartTime = item.endX > item.startX ? item.startX * 2 : item.endX * 2
         item.durationEndTime = item.endX > item.startX ? item.endX * 2 : item.startX * 2
-        optLeft = item.durationStartTime / 2
-        currentMouseupIndex = i
-        console.log('拖拽结束   最终的 🔚 duration  ', item)
+        if (this.outRange) {
+          // 越界
+          optLeft = this.currentDragDuration.startTimeX
+        } else {
+          // 数据计算与属性更新
+          item = this.dynamicProp(item, e)
+          optLeft = item.durationStartTime / 2
+          currentMouseupIndex = i
+        }
+        item.moveable = false
+        // 将最终的数据更新到OPT上
+        const timestamp = (new Date((new Date()).toLocaleDateString())).getTime() // 当天零点毫秒
+        this.durationTime = [timestamp + item.durationStartTime * 1000 * 60, timestamp + item.durationEndTime * 1000 * 60]
+        this.currentClickDurationTime = [timestamp + item.durationStartTime * 1000 * 60, timestamp + item.durationEndTime * 1000 * 60]
       }
     })
+    // !this.outRange && this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
+    //   if (item.moveable) {
+    //     // 数据计算与属性更新
+    //     item = this.dynamicProp(item, e)
+    //     item.moveable = false
+    //     // duration start time表示拖拽结束后,duration的开始时间
+    //     // duration end time表示拖拽结束后,duration的结束时间
+    //     item.durationStartTime = item.endX > item.startX ? item.startX * 2 : item.endX * 2
+    //     item.durationEndTime = item.endX > item.startX ? item.endX * 2 : item.startX * 2
+    //     optLeft = item.durationStartTime / 2
+    //     currentMouseupIndex = i
+    //   }
+    // })
+    // this.outRange && (optLeft = this.currentDragDuration.startTimeX)
     // 显示 OPT操作框
     // 设置 stick 激活状态
     this.currentDragRow = this.currentDragDuration.row
@@ -591,7 +685,6 @@ export default class extends Vue {
     // 拖拽完成之后就跳转到 click 层
     // 设置 click 层的 stick
     let {row} = this.outRange ? {row: this.currentDragDuration.row} : this.findDuration(e)
-    console.log('🐖 row, this.currentDragDuration.col', row, this.currentDragDuration.col)
     this.currentMouseDownDuration.row = row
     // this.currentMouseDownDuration.col = index
     this.currentMouseDownDuration.col = this.outRange ? this.currentDragDuration.col : currentMouseupIndex
@@ -600,15 +693,13 @@ export default class extends Vue {
     this.clickMaskStyle.display = 'flex'
     this.dragMaskStyle.display = 'none'
     this.currentClickRow = row
-    // this.currentClickCol = index
-    this.currentClickCol = currentMouseupIndex
+    this.currentClickCol = this.outRange ? this.currentDragDuration.col : currentMouseupIndex
     // 给stick绑定拖拽事件，当拖拽的时候切回drag页面
     // 重置
     this.resetMouse()
     // 重置 drag 相关数据
     this.currentDragDuration.row = -1
     this.currentDragDuration.col = -1
-    // console.log('hhhh   -')
     // this.startPosClickFix = -1
   }
 
@@ -652,7 +743,8 @@ export default class extends Vue {
     const row = +target.split('-')[1]
     const type = target.split('-').length
     const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
-    return {target, row, type, clickOffsetX}
+    const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
+    return {target, row, type, clickOffsetX, clickOffsetWidth}
   }
 
   // 属性计算和更新
@@ -692,7 +784,6 @@ export default class extends Vue {
       // 更新 endTime前 startTime后  
       // endtime表示拖拽结束的时间
       // starttime表示拖拽开始的时间
-      
       currentDuration.endTime = Math.max(currentTime, this.currentStartTime, this.startPosClickFix * 2)
       currentDuration.startTime = Math.min(currentTime, this.currentStartTime)
       // currentDuration.endTime = currentDuration.endX * 2
@@ -722,7 +813,6 @@ export default class extends Vue {
     this.currentMouseDownDuration.col = -1
     this.showOpt = false
     // const duration: any = document.getElementsByClassName('row-'+row+'-col-'+index)
-    console.log('算')
     return currentDuration
   }
 
@@ -797,14 +887,11 @@ export default class extends Vue {
    * clickDuration
   */
  private handleClickMousedown(e: any) {
-  // console.log('检查是否需要切换到 drag 层', e)
   // 直接通过target的class判断
   const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
-  // console.log('🍃', target.split('-').length)
   const type = target.split('-').length
   if (type === 3) {
     // 切换到 drag 层
-    // console.log('切换到 drag 层', e.offsetX)
     this.startPosClickFix = -1
     this.showClickWrap = false
     this.showDragWrap = true
@@ -910,7 +997,7 @@ export default class extends Vue {
     // 在这里判断点击事件是否发生在 click 层的 duration 上
     // 激活 stick
     // 确定单元格
-    const {target, row, clickOffsetX} = this.getDurationDomInfo(e)
+    const {target, row, clickOffsetX, clickOffsetWidth} = this.getDurationDomInfo(e)
     this.currentMouseDownDuration.row = row
     this.currentMouseDownDuration.col = +target.split('-')[3]
     this.currentClickRow = this.currentMouseDownDuration.row
@@ -922,6 +1009,12 @@ export default class extends Vue {
       'z-index': 1
     }
     // 设置当前锁定的duration
+    // 更新OPT时间
+    const timestamp = (new Date((new Date()).toLocaleDateString())).getTime() // 当天零点毫秒
+    const startTime = clickOffsetX * 2 * 60 * 1000 + timestamp
+    const endTime = (clickOffsetX + clickOffsetWidth) * 2 * 60 * 1000 + timestamp
+    this.durationTime = [startTime, endTime]
+    this.currentClickDurationTime = [startTime, endTime]
     this.showOpt = true
     this.resetMouse()
     // 点击之后绘制
@@ -949,37 +1042,13 @@ export default class extends Vue {
       this.currentDragCol = -1
       this.currentDragDuration.row = -1
       this.currentDragDuration.col = -1
-      // console.log('mo   -')
       // this.startPosClickFix === -1
     })
   }
 
-  // 添加按钮
-  // private addButton(show: any) {
-  //   if (show) {
-  //     const ref: any = this.$refs.selector
-  //     let popper = ref.$refs.popper.$el
-  //     console.log('.....       ', ref, popper)
-  //     if (!Array.from(popper.children).some((item: any) => item.className === 'el-cascader-menu__list')) {
-  //       const el: any = document.createElement('ul');
-  //       el.className = 'el-cascader-menu__list';
-  //       el.style = 'border-top: solid 1px #E4E7ED; padding:0; color: #606266;';
-  //       el.innerHTML = `<li class="el-cascader-node" style="height:38px;line-height: 38px">
-  //       <button class="el-cascader-node__label confirm" style="margin-left: 10px">确定</button>
-  //       <button class="el-cascader-node__label reset" style="margin-left: 10px">重置</button>
-  //       </li>`
-  //       popper.appendChild(el)
-  //       el.onclick = (e: any) => {
-  //         console.log('⭐', e)
-  //       }
-  //     }
-  //   }
-  // }
-
   // 处理拖拽超出正常区域的情况
   private handleMouseLeave(e: any) {
     const list: any = e.toElement.classList
-    console.log('list   e', list, e)
     let inRange = false
     for(let i = 0; i < list.length; i++) {
       if(list[i].indexOf('time-mask') >= 0) {
@@ -987,9 +1056,7 @@ export default class extends Vue {
         break
       }
     }
-    console.log('inrange ', inRange)
-    if (!inRange) {
-      console.log('拖拽崩了        🦅  最后拖在哪里是哪里')
+    if (!inRange && this.moveFlag) {
       this.outRange = true
     } else {
       this.outRange = false
@@ -1000,9 +1067,31 @@ export default class extends Vue {
   /**
    *  opt 复制校验
    * */ 
-  private checkCopy() {
+  private checkedDayCopy() {
+    this.checkedDays = [] //重置
     // 定位当前duration
-    console.log('⛄    复制校验', this.currentClickCol, this.currentClickRow)
+    const duration = this.weekdays[this.currentClickRow - 1][this.currentClickCol]
+    // 排序
+    const sortWeekdays = this.weekdays.map((day: any, index: number) => {
+      if (day.length < 2) return day
+      return day.sort(function(a: any, b: any) {
+        return (a.durationStartTime - b.durationStartTime)
+      })
+    })
+    // 筛选设置disabled
+    sortWeekdays.map((day: any, index: number) => {
+      const len = day.length
+      const weekday = this.week[index]
+      weekday.disabled = true
+      if (len === 0) weekday.disabled = false
+      if (len > 0) {
+        if (duration.durationEndTime < day[0].durationStartTime) weekday.disabled = false
+        if (duration.durationStartTime > day[len - 1].durationEndTime) weekday.disabled = false
+        for(let i = 0; i < len - 1; i++) {
+          if (day[i].durationEndTime < duration.durationStartTime && day[i + 1].durationStartTime > duration.durationEndTime) weekday.disabled = false
+        }
+      }
+    })
   }
 
   private checkedDayChange() {
@@ -1010,15 +1099,224 @@ export default class extends Vue {
   }
 
   private selectClick() {
-    console.log('哟西', this.checkedDays)
+    if (this.checkedDays.length === 0) return
+    // 当前duration
+    const duration = this.weekdays[this.currentClickRow - 1][this.currentClickCol]
+    for (let i = 0; i < this.checkedDays.length; i++) {
+      this.weekdays[this.checkedDays[i] - 1].push(duration)
+    }
     // 关闭opt,进行复制和渲染
     this.showOpt = false
-
   }
 
   private selectClean() {
-    console.log('重置')
+    this.checkedDays = []
   }
+
+  // time picker 变化
+  // 时间选择器的时间是根据当天的时间换算成24小时的，需要及时更新当天的时间
+  private timepickerChange(times: any) {
+    // 校验修改的时间是否有效
+    // 转换时间，剔除日期的影响
+    const checkStartTime = (times[0] - (new Date((new Date()).toLocaleDateString())).getTime()) / 1000 / 60 // 分钟
+    const checkEndTime = (times[1] - (new Date((new Date()).toLocaleDateString())).getTime()) / 1000 / 60 // 分钟
+    const isCovered = this.weekdays[this.currentClickRow - 1].some((item: any, index: any) => {
+      if (index !== this.currentClickCol) {
+        const flag1 = checkStartTime <= item.durationStartTime && checkEndTime >= item.durationStartTime 
+        const flag2 = checkStartTime <= item.durationEndTime && checkEndTime >= item.durationEndTime 
+        const flag3 = checkStartTime >= item.durationStartTime && checkEndTime <= item.durationEndTime
+        return flag1 || flag2 || flag3
+      }
+    })
+    if (isCovered) {
+      // 有覆盖情况,还原时间,提示错误
+      this.durationTime = [this.currentClickDurationTime[0], this.currentClickDurationTime[1]]      
+      return this.$message.error('设置时间段存在重叠部分！')
+    } else {
+      // 无覆盖情况，更新 duration
+      const width = (checkEndTime - checkStartTime) / 2
+      const duration: any = {
+        durationStartTime: checkStartTime,
+        durationEndTime: checkEndTime,
+        startX: checkStartTime / 2,
+        endX: checkEndTime / 2,
+        durationStyle: {
+          'width': width + 'px', // 更新
+          'left': checkStartTime / 2 + 'px'
+        },
+        startTime: checkStartTime, // 分钟
+        endTime: checkEndTime,
+        moveable: false
+      }
+      // 更新 currentClickDurationTime
+      this.currentClickDurationTime = [times[0], times[1]]
+      this.weekdays[this.currentClickRow - 1].splice(this.currentClickCol, 1, duration)
+    }
+  }
+
+  // 整理循环定时录制数据
+  private tidyLoopData() {
+    const weekTimeSections: any = this.weekdays.map((day: any, index: any) => {
+      return day.map((item: any) => {
+        return {
+          dayofWeek: index + 1,
+          startTime: item.durationStartTime * 60, // 秒
+          endTime: item.durationEndTime * 60 // 秒
+        }
+      })
+    })
+    return {
+      recordType: 3,
+      weekTimeSections: weekTimeSections,
+      storageTime: this.form.storageTime
+    }
+  }
+
+  // 删除 循环定时录制的 某个duration
+  private deleteLoop() {
+    console.log('删除咯  😜')
+    this.weekdays[this.currentClickRow - 1].splice(this.currentClickCol, 1)
+    this.showOpt = false
+    this.durationTime = []
+  }
+
+  // ---------------------------
+  /**
+   * 指定时间录制相关
+   */
+  private customTimepickerChangeStart(time: any, index: any) {
+    if (time <= 0) {
+      this.$nextTick(() => {
+        this.showCusTips = true
+        this.cusTips = '存在空白时间，请选择时间'
+      })
+      return 
+    }
+    this.showCusTips = false // 重置
+    this.cusTips = '' // 重置
+    // 检查时间有效性
+    const timeNow = (new Date()).getTime()
+    if (time <= timeNow) {
+      this.$nextTick(() => {
+        this.showCusTips = true
+        this.cusTips = '开始时间不能晚于当前时间'
+      })
+    }
+    const endTime = this.customDates[index]['endTime'] || -1
+    if (endTime > 0) {
+      if (time >= endTime) {
+        this.$nextTick(() => {
+          this.showCusTips = true
+          this.cusTips = '开始时间不能晚于或等于结束时间'
+        })
+        return
+      } else if (Math.abs(endTime - time) >= (6 * 24 * 60 * 60 * 1000)) {
+        this.$nextTick(() => {
+          this.showCusTips = true
+          this.cusTips = '时间跨度不能超过7天'
+        })
+        return
+      } else {
+        // 与其他项校验是否交叉
+        this.customDates.forEach((item: any, index: number) => {
+          if (item.startTime > 0 && item.endTime > 0 && endTime > 0) {
+            if ((time < item.startTime && endTime > item.startTime) || (time < item.endTime && endTime > item.endTime) || (time > item.startTime && endTime < item.endTime)) {
+              this.$nextTick(() => {
+                this.showCusTips = true
+                this.cusTips = '生效时间之间不能有交叉，请检查！'
+              })
+            }
+          } else {
+            this.$nextTick(() => {
+              this.showCusTips = true
+              this.cusTips = '请选择时间'
+            })
+          }
+        })
+      }
+    }
+  }
+
+  private customTimepickerChangeEnd(time: any, index: any) {
+    if (time <= 0) {
+      this.$nextTick(() => {
+        this.showCusTips = true
+        this.cusTips = '存在空白时间，请选择时间'
+      })
+      return 
+    }
+    this.showCusTips = false // 重置
+    this.cusTips = '' // 重置
+    // 检查时间有效性
+    const timeNow = (new Date()).getTime()
+    if (time <= timeNow) {
+      this.$nextTick(() => {
+        this.showCusTips = true
+        this.cusTips = '结束时间不能早于或等于当前时间'
+      })
+    }
+    const startTime = this.customDates[index]['startTime'] || -1
+    if (startTime > 0) {
+      if (time <= startTime) {
+        this.$nextTick(() => {
+          this.showCusTips = true
+          this.cusTips = '结束时间不能早于或等于开始时间'
+        })
+        return
+      }
+    }
+    // 与其他项校验是否交叉
+    this.customDates.forEach((item: any, index: number) => {
+      if (item.startTime > 0 && item.endTime > 0 && startTime > 0) {
+        if ((startTime < item.startTime && time > item.startTime) || (startTime < item.endTime && time > item.endTime) || (startTime > item.startTime && time < item.endTime)) {
+          this.$nextTick(() => {
+            this.showCusTips = true
+            this.cusTips = '生效时间之间不能有交叉，请检查！'
+          })
+        }
+      } else {
+        this.$nextTick(() => {
+          this.showCusTips = true
+          this.cusTips = '存在空白时间，请选择时间'
+        })
+      }
+    })
+  }
+
+  // 时间选择器联动
+  private customPickerOptionsStart(index: number, customDates: any) {
+    return {
+      disabledDate(time: any) {
+        return time < new Date(new Date(Date.now()).toLocaleDateString()).getTime()  // 零点
+      }
+    }
+  }
+
+  private customPickerOptionsEnd(index: number, customDates: any) {
+    return {
+      disabledDate(time: any) {
+        let startTime = customDates[index]['startTime'] || -1
+        if (startTime > 0) {
+          startTime = new Date((new Date(startTime)).toLocaleDateString()).getTime() // 零点
+          return time < startTime || time > startTime + 6 * 24 * 60 * 60 * 1000
+        } else {
+          return time <= Date.now()
+        }
+      }
+    }
+  }
+
+  private addCustomDate() {
+    if (this.customDates.length < 10) {
+      this.$nextTick(() => {
+        this.customDates.push({
+          startTime: null,
+          endTime: null
+        })
+      })
+    }
+  }
+
 }
 </script>
 <style lang="scss">
@@ -1027,6 +1325,10 @@ export default class extends Vue {
 }
 </style>
 <style lang="scss" scoped>
+.custom-picker {
+  margin-bottom: 10px;
+}
+
 .checkboxs {
   display: grid;
   height: 222px;
