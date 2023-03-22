@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-22 16:16:05
+ * @LastEditTime: 2023-03-22 19:58:25
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -56,7 +56,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import LineChart from './LineChart.vue'
 import LinePoint from './LineWithPoint.vue'
 import { periods } from '@/dics/dosageStatistics'
 import {
@@ -68,7 +67,6 @@ import { format } from 'date-fns'
 @Component({
   name: 'PeriodLine',
   components: {
-    LineChart,
     LinePoint
   }
 })
