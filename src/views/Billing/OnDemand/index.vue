@@ -118,6 +118,14 @@ export default class extends Vue {
 
   private billingType = billingType
 
+  @Watch('$route.path')
+  public pathChange(){
+    this.$nextTick(() => {
+      if(this.$route.path ==='/billing/ondemand'){
+        this.getData()
+      }
+    })
+  }
 
   private mounted(){
     this.getData()
