@@ -97,6 +97,8 @@ class Permission extends VuexModule implements IPermissionState {
       // 子账号管理员
       // 过滤 访问管理 一级菜单
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
+      // 过滤 视图级联 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/view-service')
       // 过滤 消息推送 一级菜单
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/notification')
       // 过滤 系统管理 一级菜单 下的 自定义设备树 & 录像锁定管理 二级菜单

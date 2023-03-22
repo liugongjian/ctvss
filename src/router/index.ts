@@ -490,7 +490,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'menu-ga1400',
       alwaysShow: true,
       // tags: ['ga1400'],
-      perms: ['ivs:GetViid', 'ivs:AdminViid']
+      perms: ['*']
     },
     children: [
       {
@@ -500,7 +500,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '向上级联',
           icon: 'dot',
-          perms: ['ivs:GetViid'],
+          perms: ['*'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -511,7 +511,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建平台',
           hidden: true,
-          perms: ['ivs:AdminViid'],
+          perms: ['*'],
           activeMenu: '/view-service/up-platform'
         }
       },
@@ -522,7 +522,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑平台',
           hidden: true,
-          perms: ['ivs:AdminViid'],
+          perms: ['*'],
           activeMenu: '/view-service/up-platform'
         }
       }
