@@ -19,8 +19,18 @@
             </template>
             <div class="desc-button">
               <div>
-                <div v-if="billInfo['VSS_UPLOAD_BW_OD']">上行带宽({{billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType]}})</div>
-                <div v-if="billInfo['VSS_DOWNLOAD_BW_OD']">下行带宽({{billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType]}})</div>
+                <div v-if="billInfo['VSS_UPLOAD_BW_OD']">
+                  上行带宽
+                  <span v-if="billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType] && billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType].length > 0">
+                    {{'(' + billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType] + ')'}}
+                    </span>
+                </div>
+                <div v-if="billInfo['VSS_DOWNLOAD_BW_OD']">
+                  下行带宽
+                  <span v-if="billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType] && billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType].length > 0">
+                    ({{'(' + billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType] + ')'}})
+                  </span>
+                </div>
               </div>
               <!-- <div><el-button type="text" @click="changeChargeType">变更带宽计费类型</el-button></div> -->
             </div>
@@ -29,13 +39,13 @@
             <template slot="label">
               存储
             </template>
-            <div v-if="billInfo['VSS_STORAGE_OD'].storageType === 2">
+            <div v-if="billInfo['VSS_STORAGE_OD'].storageType === '2'">
               <div>视频存储费</div>
               <div>视图存储费</div>
             </div>
             <div v-else>
-              <div v-if="billInfo['VSS_STORAGE_OD'].storageType === 0">视频存储费</div>
-              <div v-if="billInfo['VSS_STORAGE_OD'].storageType === 1">视图存储费</div>
+              <div v-if="billInfo['VSS_STORAGE_OD'].storageType === '0'">视频存储费</div>
+              <div v-if="billInfo['VSS_STORAGE_OD'].storageType === '1'">视图存储费</div>
             </div>
           </el-descriptions-item>
           <el-descriptions-item v-if="billInfo && billInfo['VSS_AI_OD']">
@@ -82,7 +92,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import Dialogue  from './component/Dialogue.vue'
 import { getBillOfOndemand, getBillTypeLogs, getIsOndemand } from '@/api/billing'
 import { resourceTypes, billingType } from '@/dics'
@@ -100,7 +110,7 @@ export default class extends Vue {
   private dialogueVisible = false
   private tableData = []
 
-  private billInfo
+  private billInfo = {}
 
   private isSubscribe = false
 
@@ -108,26 +118,39 @@ export default class extends Vue {
 
   private billingType = billingType
 
-  private async mounted(){
+
+  private mounted(){
+    this.getData()
+  }
+
+  private async getData(){
+    this.resetData()
     const { isSubscribe } = await getIsOndemand()
-    this.isSubscribe = isSubscribe
+    this.isSubscribe = isSubscribe === '1'
     if(isSubscribe){
       getBillOfOndemand().then(res =>{
-        if(res.resources){
-          res.resources.forEach(resource => {
+        if(res.onDemandResources){
+          res.onDemandResources.forEach(resource => {
             this.$set(this.billInfo, resource.resourceType, resource)
           })
         }
       })
       getBillTypeLogs().then(res => {
         this.tableData = res.historyRecords.map(record => ({
-          billingType: record.billingType,
-          updateTime: dateFormat(record.updateTime),
-          effectiveTime: dateFormat(record.effectiveTime)
+          billingType: record.billingType === 'dayPeak' ? '带宽计费类型：日峰值带宽' : '带宽计费类型：按流量',
+          updateTime: dateFormat(+record.updateTime * 1000),
+          effectiveTime: dateFormat(+record.effectiveTime * 1000)
         }))
       })
     }
   }
+
+  private resetData(){
+    this.isSubscribe = false
+    this.billInfo = {}
+    this.tableData = []
+  }
+
 
   private changeChargeType(){
     this.dialogueVisible = true
