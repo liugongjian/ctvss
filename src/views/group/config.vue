@@ -54,7 +54,7 @@
           :group-id="form.groupId"
           :actions="actions"
           :in-protocol="form.inProtocol"
-          :disable-record-template="true"
+          :disable-record-template="disableRecordTemplate"
         />
       </el-tab-pane>
     </el-tabs>
@@ -137,6 +137,13 @@ export default class extends Vue {
    */
   private get deviceAddress() {
     return this.form.gbRegionNames && this.form.gbRegionNames.reverse().join('/')
+  }
+
+  /**
+   * 是否禁用录制模板绑定
+   */
+  private get disableRecordTemplate() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private async mounted() {
