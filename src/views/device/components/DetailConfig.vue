@@ -288,9 +288,7 @@ export default class extends Vue {
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
-    if (this.deviceType === 'ipc') {
-      this.getRecordTemplate()
-    }
+    this.getRecordTemplate()
     this.getCallbackTemplate()
     this.getAlertTemplate()
     this.getAlgoList()
