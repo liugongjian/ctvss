@@ -182,6 +182,7 @@
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :device-id="deviceId"
+      :device-type="deviceType"
       :in-protocol="inProtocol"
       :template-id="recordTemplateId"
       @on-close="closeSetRecordTemplateDialog"

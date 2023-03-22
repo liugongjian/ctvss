@@ -161,7 +161,7 @@ export default class extends Vue {
 
   private async mounted() {
     this.getStreamTemplate()
-    if (this.disableRecordTemplate) {
+    if (!this.disableRecordTemplate) {
       this.getRecordTemplate()
     }
     // this.getAITemplate()

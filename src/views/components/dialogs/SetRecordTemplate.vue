@@ -50,6 +50,7 @@ import { formatSeconds } from '@/utils/interval'
 export default class extends Vue {
   @Prop() private groupId?: string
   @Prop() private deviceId?: String
+  @Prop() private deviceType?: String
   @Prop() private templateId?: string
   @Prop() private inProtocol?: string
   private dialogVisible = true
@@ -86,7 +87,7 @@ export default class extends Vue {
         await setDeviceRecordTemplate(params)
       }
       this.bindTemplateId = row.templateId
-      if (row.recordType === 2) {
+      if (row.recordType === 2 && this.deviceType === 'ipc') {
         this.startRecord()
       }
     } catch (e) {
