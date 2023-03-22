@@ -174,21 +174,22 @@ const settings: ISettings = {
       resourceType: ['directory', 'device', 'channel']
     },
     // 视图级联服务(视图级联服务可放入向上级联，作为一种协议进行控制)
-    {
-      actionName: '查看视图服务',
-      actionKey: 'ivs:GetViid',
-      actionDesc: '具有视图服务菜单',
-      actionType: 'GET',
-      denyAutoSelected: ['ivs:AdminViid'],
-      resourceType: ['directory', 'device', 'channel']
-    },
-    {
-      actionName: '管理视图服务',
-      actionKey: 'ivs:AdminViid',
-      actionDesc: '具有视图服务的管理权限',
-      allowAutoSelected: ['ivs:GetViid'],
-      resourceType: ['directory', 'device', 'channel']
-    },
+    // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）
+    // {
+    //   actionName: '查看视图服务',
+    //   actionKey: 'ivs:GetViid',
+    //   actionDesc: '具有视图服务菜单',
+    //   actionType: 'GET',
+    //   denyAutoSelected: ['ivs:AdminViid'],
+    //   resourceType: ['directory', 'device', 'channel']
+    // },
+    // {
+    //   actionName: '管理视图服务',
+    //   actionKey: 'ivs:AdminViid',
+    //   actionDesc: '具有视图服务的管理权限',
+    //   allowAutoSelected: ['ivs:GetViid'],
+    //   resourceType: ['directory', 'device', 'channel']
+    // },
     // 视图分析（原AI功能）
     {
       actionName: '查询行业场景应用',

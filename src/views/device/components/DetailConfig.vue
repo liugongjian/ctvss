@@ -96,7 +96,7 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-if="deviceType === 'ipc'" v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="!disableRecordTemplate" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
         <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setRecordTemplate">配置</el-link>
@@ -343,8 +343,17 @@ export default class extends Vue {
     return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
   }
 
-  // 隐藏资源包配置
+  /**
+   * 是否禁用资源包配置
+   */
   public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
+  /**
+   * 是否禁用录制模板绑定
+   */
+  private get disableRecordTemplate() {
     return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
