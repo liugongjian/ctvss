@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-20 17:24:54
+ * @LastEditTime: 2023-03-22 16:31:03
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 
 @Component({
@@ -19,17 +19,83 @@ import { Chart } from '@antv/g2'
   components: {}
 })
 export default class extends Vue {
+  @Prop({ default: {} }) private lineData?: any
+
   private chart: any = null
 
   private currentChart: any = null
 
+  private drawData: any = {}
+
   private lineColor: any = {
     total: '#2fc25b',
     demand: '#1890ff'
-  }  
+  }
 
-  mounted() {
-    this.drawLine()
+  private kindToChartAxis = {
+    device: {
+      total: '设备总数',
+      demand: '新增设备数'
+    },
+    bandwidth: {
+      total: '带宽用量详情',
+      demand: 'getBandwidthData'
+    },
+    storage: {
+      total: '存储用量详情',
+      demand: 'getStorageData'
+    },
+    service: {
+      'AI-100': {
+        total: '分钟级总用量用量详情',
+        demand: '分钟级用量详情'
+      },
+      'AI-200': {
+        total: '分钟级总用量用量详情',
+        demand: '秒级用量详情'
+      },
+      'AI-300': {
+        total: '分钟级总用量用量详情',
+        demand: '高算力用量详情'
+      }
+    }
+  }
+
+  @Watch('lineData', { deep: true, immediate: true })
+  private onLineDataChange(val) {
+    console.log('val---->', val)
+    if (!val) return
+    this.$nextTick(() => {
+      this.formatterData()
+    })
+  }
+
+  // mounted() {
+  //   this.drawLine()
+  // }
+
+  private formatterData() {
+    const { chartKind } = this.lineData
+    if (chartKind === 'device') {
+      const { demandData, totalData, currentPeriod } = this.lineData
+      this.drawData = {
+        total: this.kindToChartAxis[chartKind].total,
+        demand: this.kindToChartAxis[chartKind].demand,
+        data: [...demandData, ...totalData],
+        currentPeriod
+      }
+    } else {
+      const { selection, demandData, totalData, currentPeriod } = this.lineData
+      this.drawData = {
+        total: this.kindToChartAxis[chartKind][selection].total,
+        demand: this.kindToChartAxis[chartKind][selection].demand,
+        data: [...demandData, ...totalData],
+        currentPeriod
+      }
+    }
+
+    this.chart ? this.chart.changeData(this.drawData.data) : this.drawLine()
+    // this.drawLine()
   }
 
   private drawLine() {
@@ -40,310 +106,31 @@ export default class extends Vue {
       padding: [30, 50, 50, 50]
     })
 
-    const res = {
-      code: 0,
-      message: '',
-      requestId: 'b710e1f689924f71bf5dfcebd33c35c0',
-      data: {
-        requestId: '20e9acb9ac0345c495d4997ab0ba067e',
-        deviceSamples: [
-          {
-            type: 'on-demand',
-            samples: [
-              {
-                timestamp: '1679035800',
-                value: '10'
-              },
-              {
-                timestamp: '1679036100',
-                value: '100'
-              },
-              {
-                timestamp: '1679036100',
-                value: '100'
-              },
-              {
-                timestamp: '1679036400',
-                value: '0'
-              },
-              {
-                timestamp: '1679036700',
-                value: '0'
-              },
-              {
-                timestamp: '1679037000',
-                value: '24'
-              },
-              {
-                timestamp: '1679037300',
-                value: '100'
-              },
-              {
-                timestamp: '1679037600',
-                value: '55'
-              },
-              {
-                timestamp: '1679037900',
-                value: '10'
-              },
-              {
-                timestamp: '1679038200',
-                value: '200'
-              },
-              {
-                timestamp: '1679038500',
-                value: '70'
-              },
-              {
-                timestamp: '1679038800',
-                value: '60'
-              },
-              {
-                timestamp: '1679039100',
-                value: '55'
-              },
-              {
-                timestamp: '1679039400',
-                value: '66'
-              },
-              {
-                timestamp: '1679039700',
-                value: '22'
-              },
-              {
-                timestamp: '1679040000',
-                value: '33'
-              },
-              {
-                timestamp: '1679040300',
-                value: '100'
-              },
-              {
-                timestamp: '1679040600',
-                value: '44'
-              },
-              {
-                timestamp: '1679040900',
-                value: '100'
-              },
-              {
-                timestamp: '1679041200',
-                value: '55'
-              },
-              {
-                timestamp: '1679041500',
-                value: '100'
-              },
-              {
-                timestamp: '1679041800',
-                value: '77'
-              },
-              {
-                timestamp: '1679042100',
-                value: '100'
-              },
-              {
-                timestamp: '1679042400',
-                value: '100'
-              },
-              {
-                timestamp: '1679042700',
-                value: '100'
-              },
-              {
-                timestamp: '1679043000',
-                value: '100'
-              },
-              {
-                timestamp: '1679043300',
-                value: '100'
-              },
-              {
-                timestamp: '1679043600',
-                value: '100'
-              },
-              {
-                timestamp: '1679043900',
-                value: '100'
-              },
-              {
-                timestamp: '1679044500',
-                value: '100'
-              },
-              {
-                timestamp: '1679044800',
-                value: '100'
-              },
-              {
-                timestamp: '1679045100',
-                value: '100'
-              },
-              {
-                timestamp: '1679045400',
-                value: '100'
-              }
-            ]
-          },
-          {
-            type: 'total',
-            samples: [
-              {
-                timestamp: '1679037300',
-                value: '100'
-              },
-              {
-                timestamp: '1679037600',
-                value: '130'
-              },
-              {
-                timestamp: '1679037900',
-                value: '200'
-              },
-              {
-                timestamp: '1679038200',
-                value: '250'
-              },
-              {
-                timestamp: '1679038500',
-                value: '140'
-              },
-              {
-                timestamp: '1679038800',
-                value: '170'
-              },
-              {
-                timestamp: '1679039100',
-                value: '180'
-              },
-              {
-                timestamp: '1679039400',
-                value: '120'
-              },
-              {
-                timestamp: '1679039700',
-                value: '190'
-              },
-              {
-                timestamp: '1679040000',
-                value: '100'
-              },
-              {
-                timestamp: '1679040300',
-                value: '100'
-              },
-              {
-                timestamp: '1679040600',
-                value: '100'
-              },
-              {
-                timestamp: '1679040900',
-                value: '100'
-              },
-              {
-                timestamp: '1679041200',
-                value: '100'
-              },
-              {
-                timestamp: '1679041500',
-                value: '100'
-              },
-              {
-                timestamp: '1679041800',
-                value: '100'
-              },
-              {
-                timestamp: '1679042100',
-                value: '100'
-              },
-              {
-                timestamp: '1679042400',
-                value: '100'
-              },
-              {
-                timestamp: '1679042700',
-                value: '100'
-              },
-              {
-                timestamp: '1679043000',
-                value: '100'
-              },
-              {
-                timestamp: '1679043300',
-                value: '100'
-              },
-              {
-                timestamp: '1679043600',
-                value: '100'
-              },
-              {
-                timestamp: '1679043900',
-                value: '100'
-              },
-              {
-                timestamp: '1679044500',
-                value: '100'
-              },
-              {
-                timestamp: '1679044800',
-                value: '100'
-              },
-              {
-                timestamp: '1679045100',
-                value: '100'
-              },
-              {
-                timestamp: '1679045400',
-                value: '100'
-              }
-            ]
-          }
-        ]
-      }
-    }
-
-    const {
-      data: { deviceSamples }
-    } = res
-
-    const [demand, total] = deviceSamples
-
-
-    const { samples: demandSamples } = demand
-    const { samples: totalSamples } = total
-
-    const demandData = demandSamples.map((item: any) => {
-      const time = new Date(item.timestamp * 1000)
-      return {
-        time,
-        type: '新增设备数',
-        ...item
-      }
-    })
-
-    const totalData = totalSamples.map((item: any) => {
-      const time = new Date(item.timestamp * 1000)
-      return {
-        time,
-        type: '设备总数',
-        ...item
-      }
-    })
-
-    const testData = [...demandData, ...totalData]
-
-    
-
-    this.chart.data(testData)
+    this.chart.data(this.drawData.data)
 
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
-        tickInterval: 60 * 60 * 1000,
         range: [0.05, 0.95],
         formatter: (val) => {
-          const hour = new Date(val).getHours()
-          const minute = (new Date(val).getMinutes()).toString().padStart(2, '0')
-          return `${hour}:${minute}`
+          if (
+            this.drawData.currentPeriod === 'today' ||
+            this.drawData.currentPeriod === 'yesterday'
+          ) {
+            const hour = new Date(val).getHours()
+            const minute = new Date(val)
+              .getMinutes()
+              .toString()
+              .padStart(2, '0')
+            return `${hour}:${minute}`
+          } else {
+            const year = new Date(val).getFullYear()
+            const month = (new Date(val).getMonth() + 1)
+              .toString()
+              .padStart(2, '0')
+            const day = new Date(val).getDate().toString().padStart(2, '0')
+            return `${year}-${month}-${day}`
+          }
         }
       },
       value: {
@@ -354,8 +141,6 @@ export default class extends Vue {
       }
     })
 
-   
-
     // 绘制X轴和Y轴
     this.chart.axis('time', {
       label: {
@@ -364,11 +149,11 @@ export default class extends Vue {
       },
       grid: null
     })
-    
+
     this.chart.axis('value', {
       title: {
         offset: 40,
-        text: '设备接入数量',
+        text: '设备接入数量'
       }
     })
 
@@ -384,7 +169,7 @@ export default class extends Vue {
       items: [
         {
           id: 'total',
-          name: '设备总数',
+          name: this.drawData.total,
           value: 'total',
           marker: {
             symbol: 'square',
@@ -396,7 +181,7 @@ export default class extends Vue {
         },
         {
           id: 'demand',
-          name: '新增设备数',
+          name: this.drawData.demand,
           value: 'demand',
           marker: {
             symbol: 'square',
@@ -415,8 +200,11 @@ export default class extends Vue {
       }
     })
 
-     // 绘制折线图
-    this.chart.line().position('time*value').color('type', [this.lineColor.total, this.lineColor.demand])
+    // 绘制折线图
+    this.chart
+      .line()
+      .position('time*value')
+      .color('type', [this.lineColor.total, this.lineColor.demand])
 
     this.chart.render()
   }

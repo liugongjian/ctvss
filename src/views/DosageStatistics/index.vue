@@ -2,32 +2,38 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-21 09:18:59
+ * @LastEditTime: 2023-03-22 10:24:17
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div id="container" class="app-container dosage-statistics">
     <el-card>
-      <el-tabs v-model="activeName">
+      <el-tabs v-model="activeName" @tab-click="changeTab">
         <el-tab-pane label="设备" name="device">
           <div v-if="activeName === 'device'">
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">今日设备接入</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
+                  <p>{{ deviceNum }}</p>
                   <div>
-                    接入设备总数 
-                    <el-tooltip class="item" effect="dark" content="接入详情：总设备数+在用设备数" placement="top">
-                      <i class="el-icon-info dosage-statistics__info_detail_item_icon" />
+                    接入设备总数
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="接入详情：总设备数+在用设备数"
+                      placement="top"
+                    >
+                      <i
+                        class="el-icon-info dosage-statistics__info_detail_item_icon"
+                      />
                     </el-tooltip>
                   </div>
                 </div>
               </div>
             </div>
-            <line-chart chart-kind="device" />
-            <!-- <period-line chart-kind="device" /> -->
+            <period-line chart-kind="device" />
           </div>
         </el-tab-pane>
 
@@ -38,27 +44,19 @@
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
-                  <div>
-                    接入设备总数
-                  </div>
+                  <div>接入设备总数</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
-                  <div>
-                    接入设备总数
-                  </div>
+                  <div>接入设备总数</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
-                  <div>
-                    接入设备总数
-                  </div>
+                  <div>接入设备总数</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
-                  <div>
-                    接入设备总数
-                  </div>
+                  <div>接入设备总数</div>
                 </div>
               </div>
             </div>
@@ -74,9 +72,16 @@
                 <div class="dosage-statistics__info_detail_item">
                   <p>24路</p>
                   <div>
-                    接入设备总数 
-                    <el-tooltip class="item" effect="dark" content="接入详情：总设备数+在用设备数" placement="top">
-                      <i class="el-icon-info dosage-statistics__info_detail_item_icon" />
+                    接入设备总数
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="接入详情：总设备数+在用设备数"
+                      placement="top"
+                    >
+                      <i
+                        class="el-icon-info dosage-statistics__info_detail_item_icon"
+                      />
                     </el-tooltip>
                   </div>
                 </div>
@@ -91,11 +96,9 @@
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">今日设备接入</h2>
               <div class="dosage-statistics__info_detail">
-                <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>
-                    接入设备总数
-                  </div>
+                <div v-for="item in volumes" :key="item.type" class="dosage-statistics__info_detail_item">
+                  <p>{{ item.value }}</p>
+                  <div>{{ ResourceAiType[item.type] }}</div>
                 </div>
               </div>
             </div>
@@ -110,28 +113,68 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import PeriodLine from './components/PeriodLine.vue'
-import LineChart from './components/LineWithPoint.vue'
-import { getDeviceStatistics } from '@/api/dosageStatistics'
 
+import { getDeviceStatistics, getAIStatistics } from '@/api/dosageStatistics'
 
 @Component({
   name: 'DosageStatistics',
-  components: { 
-    PeriodLine,
-  LineChart 
+  components: {
+    PeriodLine
   }
 })
 export default class extends Vue {
-    private activeName = 'device'
+  private activeName = 'device'
 
-  mounted () {
+  private deviceNum = 0
+
+  private volumes: any = {}
+
+  private  ResourceAiType = {
+  'AI-100': '分钟级算力单元',
+  'AI-200': '秒级算力单元',
+  'AI-300': '高算力单元'
+}
+
+  private tabsInfo = {
+    device: {
+      func: 'getDevice'
+    },
+    bandwidth: {
+      func: 'getBandwidth'
+    },
+    storage: {
+      func: 'getStorage'
+    },
+    service: {
+      func: 'getService'
+    }
+  }
+
+  mounted() {
     this.getDevice()
   }
 
-  private async getDevice(){
+  private changeTab(){
+    console.log('this.activeName--->', this.activeName)
+    this[this.tabsInfo[this.activeName]['func']]()
+  }
+
+  private async getDevice() {
     try {
       const res = await getDeviceStatistics()
       const { deviceNum } = res
+      this.deviceNum = deviceNum
+    } catch (error) {
+      this.$message.error(error && error.message)
+    }
+  }
+
+  private async getService(){
+     try {
+      const res = await getAIStatistics()
+      console.log('res---->', res)
+      const { volumes } = res
+      this.volumes = volumes
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -211,7 +254,11 @@ export default class extends Vue {
     &_period {
       display: flex;
 
-      &_radio {
+      &_select {
+        margin-right: 20px;
+      }
+
+      &_condition {
         margin-left: auto;
       }
     }

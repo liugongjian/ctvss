@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-17 09:48:19
+ * @LastEditTime: 2023-03-22 16:16:05
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,12 +10,46 @@
   <div v-loading="ifLoading" class="dosage-statistics__chart">
     <div class="dosage-statistics__chart_period">
       <span>{{ chartTitle }}</span>
-      <el-radio-group v-model="currentPeriod" size="mini" class="dosage-statistics__chart_period_radio" @input="timeIntervalChange">
-        <el-radio-button v-for="item in periods" :key="item.value" :label="item.value">{{ item.label }}</el-radio-button>
-      </el-radio-group>
+      <div class="dosage-statistics__chart_period_condition">
+        <el-select
+          v-if="ifShowSelect"
+          v-model="selection"
+          size="mini"
+          placeholder="请选择"
+          class="dosage-statistics__chart_period_select"
+          @change="getData"
+        >
+          <el-option
+            v-for="item in options[chartKind]"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
+        <el-radio-group
+          v-model="currentPeriod"
+          size="mini"
+          class="dosage-statistics__chart_period_radio"
+          @input="timeIntervalChange"
+        >
+          <el-radio-button
+            v-for="item in periods"
+            :key="item.value"
+            :label="item.value"
+          >
+            {{ item.label }}
+          </el-radio-button>
+        </el-radio-group>
+      </div>
     </div>
     <div class="dosage-statistics__chart_content">
-      <line-chart :chart-title="chartTitle" />
+      <line-point
+        v-if="Object.keys(lineData).length > 0"
+        :key="chartKind"
+        :chart-kind="chartKind"
+        :line-data="lineData"
+      />
     </div>
   </div>
 </template>
@@ -23,22 +57,76 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import LineChart from './LineChart.vue'
+import LinePoint from './LineWithPoint.vue'
 import { periods } from '@/dics/dosageStatistics'
-import { getDeviceHistoryStatistics } from '@/api/dosageStatistics'
-
+import {
+  getDeviceHistoryStatistics,
+  getAIHistoryStatistics
+} from '@/api/dosageStatistics'
+import { format } from 'date-fns'
 
 @Component({
   name: 'PeriodLine',
-  components: { LineChart }
+  components: {
+    LineChart,
+    LinePoint
+  }
 })
-
 export default class extends Vue {
-
   @Prop() private chartKind!: string
 
   private periods = periods
   private currentPeriod = 'today'
   private ifLoading = false
+
+  private lineData = {}
+
+  private options = {
+    bandwidth: [
+      {
+        value: '',
+        label: '上行流量'
+      },
+      {
+        value: '',
+        label: '上行带宽'
+      },
+      {
+        value: '',
+        label: '下行流量'
+      },
+      {
+        value: '',
+        label: '下行带宽'
+      }
+    ],
+    storage: [
+      {
+        value: '',
+        label: '视频存储'
+      },
+      {
+        value: '',
+        label: '视图存储'
+      }
+    ],
+    service: [
+      {
+        value: 'AI-100',
+        label: '分钟级'
+      },
+      {
+        value: 'AI-200',
+        label: '秒级'
+      },
+      {
+        value: 'AI-300',
+        label: '高算力'
+      }
+    ]
+  }
+
+  private selection = ''
 
   private param: any = {
     StartTime: 0,
@@ -70,58 +158,98 @@ export default class extends Vue {
 
   private timeDics = {
     today: {
-      StartTime: this.todayEarly,
-      EndTime: new Date().getTime()
+      startTime: this.todayEarly,
+      endTime: new Date().getTime()
     },
     yesterday: {
-      StartTime: this.todayEarly - this.MILLISECONDS_PER_DAY,
-      EndTime: this.todayEarly - 1000
+      startTime: this.todayEarly - this.MILLISECONDS_PER_DAY,
+      endTime: this.todayEarly - 1000
     },
     seven: {
-      StartTime: this.todayEarly - 7 * this.MILLISECONDS_PER_DAY,
-      EndTime: new Date().getTime()
+      startTime: this.todayEarly - 7 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
     },
     month: {
-      StartTime: this.todayEarly - 30 * this.MILLISECONDS_PER_DAY,
-      EndTime: new Date().getTime()
+      startTime: this.todayEarly - 30 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
     }
   }
 
-  private get chartTitle(){
+  private get chartTitle() {
     return this.kindToText[this.chartKind]['name']
   }
 
-  mounted () {
-    // this.timeIntervalChange()
+  private get ifShowSelect() {
+    return this.chartKind !== 'device'
   }
 
-  // private getTimeInterval(){
-    
-  // }
+  mounted() {
+    this.selection =
+      this.chartKind !== 'device' ? this.options[this.chartKind][0].value : ''
+    this.timeIntervalChange()
+  }
 
-  private getData(){
-    this[this.kindToText[this.chartKind]['func']]()
-  } 
+  private async getData() {
+    await this[this.kindToText[this.chartKind]['func']]()
+  }
 
-  private timeIntervalChange(){
-
-    const { StartTime, EndTime } = this.timeDics[this.currentPeriod]
+  private async timeIntervalChange() {
+    const { startTime, endTime } = this.timeDics[this.currentPeriod]
 
     this.param = {
-      StartTime,
-      EndTime
+      startTime: startTime,
+      endTime: endTime
     }
-    
-    this.getData()
 
-    console.log('timeIntervalChange------>', this.currentPeriod, this.param)
+    await this.getData()
   }
 
-  private async getDeviceData(){
+  private async getDeviceData() {
     try {
       this.ifLoading = true
-      const res = await getDeviceHistoryStatistics( this.param)
-      console.log('getDeviceData---res---->', res)
+      const { startTime, endTime } = this.param
+      const param = {
+        startTime: format(startTime, 'yyyy-MM-dd'),
+        endTime: format(endTime, 'yyyy-MM-dd')
+      }
+
+      const res = await getDeviceHistoryStatistics(param)
+
+      console.log(res)
+
+      const { deviceSamples } = res
+
+      const [demand, total] = deviceSamples
+
+      const { samples: demandSamples } = demand
+      const { samples: totalSamples } = total
+
+      const demandData = demandSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: '新增设备数',
+          ...item
+        }
+      })
+
+      const totalData = totalSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: '设备总数',
+          ...item
+        }
+      })
+
+      this.lineData = {
+        currentPeriod: this.currentPeriod,
+        chartKind: this.chartKind,
+        selection: this.selection,
+        demandData,
+        totalData,
+        ...res
+      }
     } catch (error) {
       this.$message.error(error && error.message)
     } finally {
@@ -129,17 +257,54 @@ export default class extends Vue {
     }
   }
 
-  private getBandwidthData(){
+  private async getBandwidthData() {
     console.log('getBandwidthData')
   }
 
-  private getStorageData(){
+  private async getStorageData() {
     console.log('getStorageData')
   }
 
-  private getServiceData(){
+  private async getServiceData() {
     console.log('getServiceData')
-  }
+    try {
+      this.ifLoading = true
+      const { startTime, endTime } = this.param
 
+      const param = {
+        analysisType: this.selection,
+        startTime: startTime.toString(),
+        endTime: endTime.toString()
+      }
+      const res = await getAIHistoryStatistics(param)
+
+      const { aIDemandStatistic, aITotalStatistic } = res
+      // this.currentPeriod
+      const demandData = Object.keys(aIDemandStatistic)?.map((item) => ({
+        time: item,
+        type: '使用量',
+        value: aIDemandStatistic[item]
+      }))
+
+      const totalData = Object.keys(aITotalStatistic)?.map((item) => ({
+        time: item,
+        type: '总用量',
+        value: aIDemandStatistic[item]
+      }))
+
+      this.lineData = {
+        currentPeriod: this.currentPeriod,
+        chartKind: this.chartKind,
+        selection: this.selection,
+        demandData,
+        totalData,
+        ...res
+      }
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.ifLoading = false
+    }
+  }
 }
 </script>
