@@ -83,7 +83,7 @@ const settings: ISettings = {
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
       allowAutoSelected: ['ivs:GetGroup'],
-      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord'],
+      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:GetApp', 'ivs:GetMap', 'ivs:AdminCar'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -98,6 +98,7 @@ const settings: ISettings = {
       actionKey: 'ivs:UpdateDevice',
       actionDesc: '拥有设备的修改权限，并展示设备管理菜单',
       allowAutoSelected: ['ivs:GetDevice'],
+      denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -196,6 +197,7 @@ const settings: ISettings = {
       actionKey: 'ivs:GetApp',
       actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
       actionType: 'GET',
+      allowAutoSelected: ['ivs:GetDevice'],
       denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
@@ -203,7 +205,7 @@ const settings: ISettings = {
       actionName: '管理行业场景应用',
       actionKey: 'ivs:AdminApp',
       actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
-      allowAutoSelected: ['ivs:GetApp'],
+      allowAutoSelected: ['ivs:GetApp', 'ivs:UpdateDevice'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 电子地图
@@ -211,6 +213,7 @@ const settings: ISettings = {
       actionName: '查看电子地图',
       actionKey: 'ivs:GetMap',
       actionDesc: '拥有电子地图的查看权限，并展示电子地图菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       actionType: 'GET',
       resourceType: '*'
     },
@@ -227,6 +230,7 @@ const settings: ISettings = {
       actionName: '车辆管理',
       actionKey: 'ivs:AdminCar',
       actionDesc: '拥有车辆管理权限，并展示车辆管理菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       resourceType: ['directory', 'device', 'channel']
     }
     // 电视墙
