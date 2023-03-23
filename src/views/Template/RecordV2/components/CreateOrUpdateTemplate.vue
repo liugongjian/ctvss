@@ -1,6 +1,6 @@
 <template>
   <div v-loading="submitting" class="app-container">
-    <el-page-header content="新建录制模板" @back="back" />
+    <el-page-header :content="createOrUpdateFlag ? '新建录制模板' : '编辑录制模板'" @back="back" />
     <div class="body">
       <el-form
         ref="dataForm"
@@ -16,13 +16,13 @@
         <el-form-item label="录制类别:" prop="recordType">
           <el-radio-group v-model="form.recordType">
             <el-radio :label="1">全天录制</el-radio>
-            <el-radio :label="3">循环定时录制</el-radio>
-            <el-radio :label="4">指定时间录制</el-radio>
-            <el-radio :label="2">手动录制</el-radio>
+            <el-radio :label="2">循环定时录制</el-radio>
+            <el-radio :label="3">指定时间录制</el-radio>
+            <el-radio :label="5">手动录制</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item
-          v-if="form.recordType==3"
+          v-if="form.recordType==2"
         >
           <el-table class="loop-time" border :show-header='false' :cell-class-name="cellClassName" :data="customRecordList" style="min-width: 782px; width: 782px; font-size: 12px;">
             <el-table-column width="60" prop="weekday" />
@@ -111,7 +111,7 @@
           </div>
         </el-form-item>
         <el-form-item
-          v-if="form.recordType==4">
+          v-if="form.recordType==3">
           <div
             v-for="datePicker, index in customDates"
             :key="index"
@@ -304,6 +304,9 @@ export default class extends Vue {
     storageTime: [
       { required: true, message: '请填写存储时长', trigger: 'blur' },
       { validator: this.validateStorageTime, trigger: 'blur' }
+    ],
+    recordType: [
+      { required: true,message: '请选择录制类别', trigger: 'blur'  }
     ]
   }
 
@@ -320,7 +323,7 @@ export default class extends Vue {
     immediate: true
   })
   private onTypeChange() {
-    if (+this.form.recordType === 3) {
+    if (+this.form.recordType === 2) {
       // 绑定鼠标事件
       this.$nextTick(() => {
         const customers: any = document.getElementsByClassName('time-mask')
@@ -330,6 +333,7 @@ export default class extends Vue {
           // customers[i].addEventListener('mouseup', this.handleMouseup, false)
           customers[i].addEventListener('mouseleave', this.handleMouseLeave, true)
         }
+        console.log('注册拖拽层事件', customers)
       })
       document.body.addEventListener('mouseup', this.handleMouseup, false)
       // document.body.addEventListener('mousemove', this.handleMousemove, false)
@@ -355,7 +359,7 @@ export default class extends Vue {
     }
     // ---------------
     // 清空 指定相关数据
-    if (+this.form.recordType !== 4) {
+    if (+this.form.recordType !== 3) {
       this.customDates = [{
         startTime: null,
         endTime: null
@@ -379,8 +383,9 @@ export default class extends Vue {
           clickmask[i].addEventListener('mouseup', this.handleClickMouseup, false)
           clickmask[i].addEventListener('mouseleave', this.handleMouseLeave, false)
         }
+        console.log('注册点击层事件')
       } else {
-          this.clickMaskStyle.display = 'none'
+        this.clickMaskStyle.display = 'none'
       }
     })
   }
@@ -415,13 +420,22 @@ export default class extends Vue {
         storageTime: 30
       }
     } else {
-    // 编辑
+      console.log('编辑    this.formData ', this.formData)
+      // 编辑
       this.form = {
         templateId: this.templateId,
         templateName: this.formData.templateName,
         description: this.formData.description,
-        recordType: this.formData.recordType,
-        storageTime: this.formData.storageTime / 60 / 60 / 24 // 秒 --> 天
+        recordType: this.formData.recordModes[0].recordType,
+        storageTime: +this.formData.recordModes[0].storageTime / 60 / 60 / 24 // 秒 --> 天
+      }
+      // 构建循环录制数据
+      if (this.formData.recordModes[0].recordType === 2) {
+        this.buildLoopData(this.formData.recordModes[0].weekTimeSections)
+      }
+      // 构建定时录制数据
+      if (this.formData.recordModes[0].recordType === 3) {
+        this.buildCusData(this.formData.recordModes[0].specTimeSections)
       }
     }
   }
@@ -433,44 +447,22 @@ export default class extends Vue {
       if (valid) {
         try {
           let templateId = this.templateId
-          let weekTimeSections: any = undefined
-          let specTimeSections: any = undefined
-          if (this.form.recordType === 3) {
-            weekTimeSections = this.tidyLoopData()
+          let recordModes: any = undefined
+          if (this.form.recordType === 2) {
+            recordModes = this.tidyLoopData()
           }
-          if (this.form.recordType === 4) {
-            // if(this.customDates.some((item: any) => {
-            //   return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
-            // }) || this.showCusTips) {
-            //   this.showCusTips = true
-            //   this.cusTips = '请检查所选时间！'
-            //   return
-            // }
-            // // 重新检查
-            // for(let i = 0; i < this.customDates.length; i++) {
-
-            // }
-            // this.customDates.map((item: any, index: any) => {
-            //   this.customTimepickerChangeStart(item.startTime, index)
-            //   this.customTimepickerChangeEnd(item.endTime, index)
-            // })
-            console.log('为什么    🐎', this.cusSubmitCheck())
+          if (this.form.recordType === 3) {
             if (this.cusSubmitCheck()) return
-            specTimeSections = this.tidyCusDate()
+            recordModes = this.tidyCusDate()
           }
           this.submitting = true
           // 提交时,不允许操作 模板列表
           this.$emit('on-submit', false)
           if (this.createOrUpdateFlag) {
             const params = {
-              ...this.form,
-              recordModes: [{
-                recordType: this.form.recordType,
-                weekTimeSections: weekTimeSections,
-                specTimeSections: specTimeSections,
-                storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天                
-              }]
-              
+              templateName: this.form.templateName,
+              description: this.form.description,
+              recordModes: [recordModes]
             }
             // console.log('太久太久      🚧', params)
             const res = await createRecordTemplate(params)
@@ -478,13 +470,9 @@ export default class extends Vue {
             this.$message.success('新建模板成功!')
           } else {
             const params = {
-              ...this.form,
-              recordModes: [{
-                recordType: this.form.recordType,
-                weekTimeSections: weekTimeSections,
-                specTimeSections: specTimeSections,
-                storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
-              }]
+              templateName: this.form.templateName,
+              description: this.form.description,
+              recordModes: [recordModes]
               // weekTimeSections: weekTimeSections,
               // specTimeSections: specTimeSections,
               // storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
@@ -549,6 +537,7 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
+    console.log('。。。。。。。为啥   ', this.weekdays)
     if (this.moveFlag) {
       // 在拖拽区域外释放鼠标,删除该绘制状态
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
@@ -856,6 +845,7 @@ export default class extends Vue {
 
   // 校验拖拽时间有效性
   private dragTimeValidate(weekdayList: any, currentTime: number, fixTime: number) {
+    console.log('不缺分一下吗？    ', weekdayList)
     if (weekdayList.some((item: any) => {
       // return currentTime <= item.endTime && !item.moveable && fixTime > item.endTime
       return currentTime <= item.durationEndTime && !item.moveable && fixTime >= item.durationEndTime
@@ -1176,20 +1166,21 @@ export default class extends Vue {
 
   // 整理循环定时录制数据
   private tidyLoopData() {
-    const weekTimeSections: any = this.weekdays.map((day: any, index: any) => {
+    let recordModes: any = {
+      recordType: 2,
+      weekTimeSections: [],
+      storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
+    }
+    this.weekdays.map((day: any, index: any) => {
       return day.map((item: any) => {
-        return {
+        recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
           startTime: item.durationStartTime * 60, // 秒
           endTime: item.durationEndTime * 60 // 秒
-        }
+        })
       })
     })
-    return {
-      recordType: 3,
-      weekTimeSections: weekTimeSections,
-      storageTime: this.form.storageTime
-    }
+    return recordModes
   }
 
   // 删除 循环定时录制的 某个duration
@@ -1340,12 +1331,18 @@ export default class extends Vue {
   // 整理指定时间录制时间
   private tidyCusDate() {
     console.log('不能进')
-    return this.customDates.map((item: any) => {
-      return {
+    let recordModes: any = {
+      recordType: 3,
+      specTimeSections: [],
+      storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
+    }
+    this.customDates.map((item: any) => {
+      recordModes.specTimeSections.push({
         startTime: Math.floor(item.startTime / 1000),  // ms -> s
         endTime: Math.floor(item.endTime / 1000)
-      } 
+      }) 
     })
+    return recordModes
   }
 
   private cusSubmitCheck() {
@@ -1364,6 +1361,43 @@ export default class extends Vue {
       if (this.showCusTips) return flag = true
     }
     return flag
+  }
+
+  // --------------------------------
+  // 初始化编辑数据
+  private buildLoopData(loop: any) {
+    loop.map((duration: any) => {
+      let width = (duration.endTime - duration.startTime) / 60 / 2
+      let data = {
+        startX: duration.startTime / 60 / 2,
+        endX: duration.endTime / 60 / 2,
+        durationStyle: {
+          'width': width + 'px',
+          'left': duration.startTime / 60 / 2 + 'px'
+        },
+        startTime: duration.startTime / 60, // 分钟
+        endTime: duration.endTime / 60,
+        moveable: false,
+        durationStartTime: duration.startTime / 60, 
+        durationEndTime: duration.endTime / 60
+      }
+      this.weekdays[duration.dayofWeek - 1].push(data)
+    })
+    // 展示click层
+    this.showClickWrap = true
+    this.showDragWrap = false
+    this.clickMaskStyle.display = 'flex'
+    this.dragMaskStyle.display = 'none'
+    // this.resetMouse()
+  }
+
+  private buildCusData(cus: any) {
+    cus.map((duration: any) => {
+      this.customDates.push({
+        startTime: duration.startTime * 1000,
+        endTime: duration.endTime * 1000
+      })
+    })
   }
 
 }

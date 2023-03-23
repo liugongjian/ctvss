@@ -22,7 +22,7 @@
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
-                  <li v-for="template in templates" :key="template.templateId" :class="{ 'actived': currentTemplate && (currentTemplate.templateId === template.templateId) }" @click="selectTemplate(template)">
+                  <li v-for="template in templates" :key="template.recordTemplateId" :class="{ 'actived': currentTemplate && (currentTemplate.recordTemplateId === template.recordTemplateId) }" @click="selectTemplate(template)">
                     <span> {{ template.templateName }}</span><div class="tools">
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
@@ -49,8 +49,8 @@
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
               <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 + '天' }}</el-descriptions-item>
-              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval / 60 + '分钟' }}</el-descriptions-item>
-              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '全天录制' : '手动录制' }}</el-descriptions-item>
+              <el-descriptions-item label="周期时长">{{ Math.ceil(+renderTemplateInfo.fileDuration / 60) + '分钟' }}</el-descriptions-item>
+              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
             <el-descriptions label-class-name="has-no-colon" :column="1">
@@ -142,7 +142,7 @@
               v-if="type === 'video'"
               :create-or-update-flag="createOrUpdateFlag"
               :form-data="currentTemplate"
-              :template-id="currentTemplate.templateId"
+              :template-id="currentTemplate.recordTemplateId"
               @on-close="createClose"
               @on-submit="templateSubmit"
             />
@@ -300,15 +300,22 @@ export default class extends Vue {
   private async initTemplateInfo() {
     try {
       this.loading.templateInfo = true
-<<<<<<< HEAD:src/views/Template/RecordV2/index.vue
       let templateInfo = await queryRecordTemplate({
-        templateId: this.currentTemplate.recordTemplateId
-=======
-      const templateInfo = await queryRecordTemplate({
-        templateId: this.currentTemplate.templateId
->>>>>>> 78056632b2b5f96c4542150e19a908f97d7bc5bf:src/views/Template/RecordV2/RecordTemplate.vue
+        recordTemplateId: this.currentTemplate.recordTemplateId
       })
       this.renderTemplateInfo = templateInfo // 渲染模板信息
+      if (templateInfo.recordModes[0].recordType === 1) {
+        this.renderTemplateInfo.recordType = '全天录制'
+      } else if (templateInfo.recordModes[0].recordType === 2) {
+        this.renderTemplateInfo.recordType = '循环定时录制'
+      } else if (templateInfo.recordModes[0].recordType === 3) {
+        this.renderTemplateInfo.recordType = '指定时间录制'
+      } else if (templateInfo.recordModes[0].recordType === 4) {
+        this.renderTemplateInfo.recordType = '事件录制'
+      } else if (templateInfo.recordModes[0].recordType === 5) {
+        this.renderTemplateInfo.recordType = '手动录制'
+      }
+      this.renderTemplateInfo.storageTime = templateInfo.recordModes[0].storageTime
       this.$nextTick(this.calMaxHeight)
     } catch (e) {
       this.$message.error(e)
@@ -479,7 +486,7 @@ export default class extends Vue {
       type: '录制模板',
       msg: `确定删除录制模板"${row.templateName}"`,
       method: deleteRecordTemplate,
-      payload: { templateId: row.recordTemplateId },
+      payload: { recordTemplateId: row.recordTemplateId },
       onSuccess: this.init
     })
   }
