@@ -107,11 +107,11 @@
                       <span>{{ cruise.name | filterLength }}</span>
                     </div>
                     <span v-if="currentIndex.cruise === index" class="handle">
-                      <div v-if="cruise.setFlag && controlDevicePTZ" class="handle-stop">
+                      <div v-if="cruise.setFlag && controlDevicePreset" class="handle-stop">
                         <svg-icon title="停止" name="stop" @click="stopCruise(cruise.index)" />
                       </div>
                       <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="editCruise(cruise)" />
-                      <div v-if="cruise.setFlag && controlDevicePTZ" class="handle-play">
+                      <div v-if="cruise.setFlag && controlDevicePreset" class="handle-play">
                         <svg-icon title="启用" name="play" @click="handleCruise(cruise.index)" />
                       </div>
                     </span>
