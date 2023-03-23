@@ -432,9 +432,6 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (valid) {
         try {
-          this.submitting = true
-          // 提交时,不允许操作 模板列表
-          this.$emit('on-submit', false)
           let templateId = this.templateId
           let weekTimeSections: any = undefined
           let specTimeSections: any = undefined
@@ -442,21 +439,38 @@ export default class extends Vue {
             weekTimeSections = this.tidyLoopData()
           }
           if (this.form.recordType === 4) {
-            if(this.customDates.some((item: any) => {
-              return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
-            })) {
-              this.showCusTips = true
-              this.cusTips = '请检查所选时间！'
-              return
-            }
-            specTimeSections = this.customDates
+            // if(this.customDates.some((item: any) => {
+            //   return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
+            // }) || this.showCusTips) {
+            //   this.showCusTips = true
+            //   this.cusTips = '请检查所选时间！'
+            //   return
+            // }
+            // // 重新检查
+            // for(let i = 0; i < this.customDates.length; i++) {
+
+            // }
+            // this.customDates.map((item: any, index: any) => {
+            //   this.customTimepickerChangeStart(item.startTime, index)
+            //   this.customTimepickerChangeEnd(item.endTime, index)
+            // })
+            console.log('为什么    🐎', this.cusSubmitCheck())
+            if (this.cusSubmitCheck()) return
+            specTimeSections = this.tidyCusDate()
           }
+          this.submitting = true
+          // 提交时,不允许操作 模板列表
+          this.$emit('on-submit', false)
           if (this.createOrUpdateFlag) {
             const params = {
               ...this.form,
-              weekTimeSections: weekTimeSections,
-              specTimeSections: specTimeSections,
-              storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
+              recordModes: [{
+                recordType: this.form.recordType,
+                weekTimeSections: weekTimeSections,
+                specTimeSections: specTimeSections,
+                storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天                
+              }]
+              
             }
             // console.log('太久太久      🚧', params)
             const res = await createRecordTemplate(params)
@@ -465,9 +479,15 @@ export default class extends Vue {
           } else {
             const params = {
               ...this.form,
-              weekTimeSections: weekTimeSections,
-              specTimeSections: specTimeSections,
-              storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
+              recordModes: [{
+                recordType: this.form.recordType,
+                weekTimeSections: weekTimeSections,
+                specTimeSections: specTimeSections,
+                storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
+              }]
+              // weekTimeSections: weekTimeSections,
+              // specTimeSections: specTimeSections,
+              // storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
             // console.log('太久太久      🚧', params)
             await updateRecordTemplate(params)
@@ -1186,10 +1206,10 @@ export default class extends Vue {
    */
   private customTimepickerChangeStart(time: any, index: any) {
     if (time <= 0) {
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         this.showCusTips = true
         this.cusTips = '存在空白时间，请选择时间'
-      })
+      // })
       return 
     }
     this.showCusTips = false // 重置
@@ -1197,40 +1217,40 @@ export default class extends Vue {
     // 检查时间有效性
     const timeNow = (new Date()).getTime()
     if (time <= timeNow) {
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         this.showCusTips = true
         this.cusTips = '开始时间不能晚于当前时间'
-      })
+      // })
     }
     const endTime = this.customDates[index]['endTime'] || -1
     if (endTime > 0) {
       if (time >= endTime) {
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
           this.showCusTips = true
           this.cusTips = '开始时间不能晚于或等于结束时间'
-        })
+        // })
         return
       } else if (Math.abs(endTime - time) >= (6 * 24 * 60 * 60 * 1000)) {
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
           this.showCusTips = true
           this.cusTips = '时间跨度不能超过7天'
-        })
+        // })
         return
       } else {
         // 与其他项校验是否交叉
         this.customDates.forEach((item: any, index: number) => {
           if (item.startTime > 0 && item.endTime > 0 && endTime > 0) {
             if ((time < item.startTime && endTime > item.startTime) || (time < item.endTime && endTime > item.endTime) || (time > item.startTime && endTime < item.endTime)) {
-              this.$nextTick(() => {
+              // this.$nextTick(() => {
                 this.showCusTips = true
                 this.cusTips = '生效时间之间不能有交叉，请检查！'
-              })
+              // })
             }
           } else {
-            this.$nextTick(() => {
+            // this.$nextTick(() => {
               this.showCusTips = true
               this.cusTips = '请选择时间'
-            })
+            // })
           }
         })
       }
@@ -1239,10 +1259,10 @@ export default class extends Vue {
 
   private customTimepickerChangeEnd(time: any, index: any) {
     if (time <= 0) {
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         this.showCusTips = true
         this.cusTips = '存在空白时间，请选择时间'
-      })
+      // })
       return 
     }
     this.showCusTips = false // 重置
@@ -1250,18 +1270,18 @@ export default class extends Vue {
     // 检查时间有效性
     const timeNow = (new Date()).getTime()
     if (time <= timeNow) {
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         this.showCusTips = true
         this.cusTips = '结束时间不能早于或等于当前时间'
-      })
+      // })
     }
     const startTime = this.customDates[index]['startTime'] || -1
     if (startTime > 0) {
       if (time <= startTime) {
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
           this.showCusTips = true
           this.cusTips = '结束时间不能早于或等于开始时间'
-        })
+        // })
         return
       }
     }
@@ -1269,16 +1289,16 @@ export default class extends Vue {
     this.customDates.forEach((item: any, index: number) => {
       if (item.startTime > 0 && item.endTime > 0 && startTime > 0) {
         if ((startTime < item.startTime && time > item.startTime) || (startTime < item.endTime && time > item.endTime) || (startTime > item.startTime && time < item.endTime)) {
-          this.$nextTick(() => {
+          // this.$nextTick(() => {
             this.showCusTips = true
             this.cusTips = '生效时间之间不能有交叉，请检查！'
-          })
+          // })
         }
       } else {
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
           this.showCusTips = true
           this.cusTips = '存在空白时间，请选择时间'
-        })
+        // })
       }
     })
   }
@@ -1315,6 +1335,35 @@ export default class extends Vue {
         })
       })
     }
+  }
+
+  // 整理指定时间录制时间
+  private tidyCusDate() {
+    console.log('不能进')
+    return this.customDates.map((item: any) => {
+      return {
+        startTime: Math.floor(item.startTime / 1000),  // ms -> s
+        endTime: Math.floor(item.endTime / 1000)
+      } 
+    })
+  }
+
+  private cusSubmitCheck() {
+    let flag = false
+    if(this.customDates.some((item: any) => {
+      return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
+    }) || this.showCusTips) {
+      this.showCusTips = true
+      this.cusTips = '请检查所选时间！'
+      return flag = true
+    }
+    for(let i = 0; i < this.customDates.length; i++) {
+      this.customTimepickerChangeStart(this.customDates[i].startTime, i)
+      if (this.showCusTips) return flag = true
+      this.customTimepickerChangeEnd(this.customDates[i].endTime, i)
+      if (this.showCusTips) return flag = true
+    }
+    return flag
   }
 
 }
