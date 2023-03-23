@@ -28,7 +28,7 @@
               </div>
               <draw-chart :chart-info="recordOnlineInfo" />
             </el-col>
-            <el-col :span="5">
+            <el-col v-if="ifLiuzhou" :span="5">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">
                   存储容量
