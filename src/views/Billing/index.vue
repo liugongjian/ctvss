@@ -35,8 +35,6 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .billing-container {
-  z-index: 19;
-
   .el-menu {
     padding-left: 23px;
 
@@ -52,5 +50,12 @@ export default class extends Vue {
       color: $primary;
     }
   }
+}
+</style>
+
+<style lang="scss">
+.navbar--BillingResource,
+.navbar--OnDemand {
+  box-shadow: none !important;
 }
 </style>

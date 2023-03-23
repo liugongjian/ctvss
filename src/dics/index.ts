@@ -291,3 +291,17 @@ export const Network = {
   'internal': '互联网',
   'private': '专线网络'
 }
+
+
+export const resourceTypes = {
+  'VSS_UPLOAD_BW_OD': 'VSS_UPLOAD_BW_OD',
+  'VSS_DOWNLOAD_BW_OD': 'VSS_DOWNLOAD_BW_OD',
+  'VSS_VIDEO_OD': 'VSS_VIDEO_OD',
+  'VSS_STORAGE_OD': 'VSS_STORAGE_OD',
+  'VSS_AI_OD': 'VSS_AI_OD',
+}
+
+export const billingType = {
+  dayPeak: '按带宽日峰值计费',
+  traffic: '按流量计费'
+}

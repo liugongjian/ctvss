@@ -1,7 +1,11 @@
 <template>
   <div class="app-container">
+    <el-menu :default-active="type" class="navigation-menu" mode="horizontal" @select="navigatePage">
+      <el-menu-item index="video">视频录制模板</el-menu-item>
+      <el-menu-item index="viid">视图存储模板</el-menu-item>
+    </el-menu>
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{minHeight: `${minHeight}px`}" :class="{'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ minHeight: `${minHeight}px` }" :class="{ 'device-list--dragging': dirDrag.isDragging }">
         <div
           class="device-list__handle"
           :style="`left: ${dirDrag.width}px`"
@@ -18,7 +22,7 @@
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
-                  <li v-for="template in templates" :key="template.templateId" :class="{'actived': currentTemplate && (currentTemplate.templateId === template.templateId)}" @click="selectTemplate(template)">
+                  <li v-for="template in templates" :key="template.templateId" :class="{ 'actived': currentTemplate && (currentTemplate.templateId === template.templateId) }" @click="selectTemplate(template)">
                     <span> {{ template.templateName }}</span><div class="tools">
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
@@ -87,9 +91,9 @@
                       @check-change="handleCheck"
                     >
                       <span
-                        slot-scope="{node, data}"
+                        slot-scope="{ node, data }"
                         class="custom-tree-node"
-                        :class="{'online': data.deviceStatus === 'on'}"
+                        :class="{ 'online': data.deviceStatus === 'on' }"
                       >
                         <span class="node-name">
                           <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -134,7 +138,21 @@
             </div>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
-            <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
+            <create-or-update-template
+              v-if="type === 'video'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              :template-id="currentTemplate.templateId"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
+            <create-or-update-viid-template
+              v-if="type === 'viid'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
           </div>
         </div>
       </div>
@@ -143,22 +161,26 @@
 </template>
 <script lang="ts">
 import axios from 'axios'
-import { Component, Vue, Ref } from 'vue-property-decorator'
+import { Component, Vue, Ref, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import BindDevice from './components/BindDeviceV2.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
+import CreateOrUpdateViidTemplate from './components/CreateOrUpdateViidTemplate.vue'
 
 @Component({
-  name: 'CustomDeviceTree',
+  name: 'RecordTemplate',
   components: {
     BindDevice,
     StatusBadge,
-    CreateOrUpdateTemplate
+    CreateOrUpdateTemplate,
+    CreateOrUpdateViidTemplate
   }
 })
 export default class extends Vue {
+  @Prop() private type: string
+
   @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
@@ -226,12 +248,21 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  // 切换页面
+  private navigatePage(index) {
+    if (index === 'video') {
+      this.$router.push('/template/record-video')
+    } else {
+      this.$router.push('/template/record-viid')
+    }
+  }
+
   // 获取1模板列表并初始化2模板信息和3设备树
   private async init() {
     try {
       // 设置初始化展示页面结构
       this.loading.template = true
-      let res = await getRecordTemplates({
+      const res = await getRecordTemplates({
         pageSize: 999
       }) // 获取模板列表
       this.templates = res.recordTemplates
@@ -269,8 +300,13 @@ export default class extends Vue {
   private async initTemplateInfo() {
     try {
       this.loading.templateInfo = true
+<<<<<<< HEAD:src/views/Template/RecordV2/index.vue
       let templateInfo = await queryRecordTemplate({
         templateId: this.currentTemplate.recordTemplateId
+=======
+      const templateInfo = await queryRecordTemplate({
+        templateId: this.currentTemplate.templateId
+>>>>>>> 78056632b2b5f96c4542150e19a908f97d7bc5bf:src/views/Template/RecordV2/RecordTemplate.vue
       })
       this.renderTemplateInfo = templateInfo // 渲染模板信息
       this.$nextTick(this.calMaxHeight)
@@ -426,7 +462,7 @@ export default class extends Vue {
    */
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
-      let item = nodes.data
+      const item = nodes.data
       this.setNodesChecked(item, checked)
     } else {
       nodes.map((item: any) => {
@@ -683,6 +719,16 @@ export default class extends Vue {
 
 </style>
 <style lang="scss" scoped>
+.navigation-menu {
+  background: none;
+  margin-bottom: 12px;
+
+  .el-menu-item {
+    height: 40px;
+    line-height: 40px;
+  }
+}
+
 .right-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;

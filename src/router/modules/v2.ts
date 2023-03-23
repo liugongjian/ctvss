@@ -353,36 +353,26 @@ export const v2Router: RouteConfig[] = [
     },
     children: [
       {
-        path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
-        name: 'record',
+        path: 'record-video',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'),
+        name: 'RecordVideo',
         meta: {
           title: '录制模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/template/record'
+          activeMenu: '/template/record-video'
         }
       },
       {
-        path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
-        name: 'recordCreate',
+        path: 'record-viid',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Viid.vue'),
+        name: 'RecordViid',
         meta: {
-          title: '新建录制模板',
+          title: '录制模板',
+          icon: 'dot',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/template/record'
-        }
-      },
-      {
-        path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
-        name: 'recordUpdate',
-        meta: {
-          title: '编辑录制模板',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/template/record'
+          activeMenu: '/template/record-video'
         }
       },
       {
