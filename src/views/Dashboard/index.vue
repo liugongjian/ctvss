@@ -1,8 +1,17 @@
+<!--
+ * @Author: zhaodan zhaodan@telecom.cn
+ * @Date: 2023-03-21 10:53:22
+ * @LastEditors: zhaodan zhaodan@telecom.cn
+ * @LastEditTime: 2023-03-23 10:28:17
+ * @FilePath: /vss-user-web/src/views/Dashboard/index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div id="container" class="app-container">
     <div class="dashboard-wrap-overview">
       <div class="dashboard-wrap-overview__left">
         <DashboardDataToday />
+        <DashboardTodayData />
         <DashboardFlowAndDevice :height="34" />
         <DashboardResourcePackage @ai-change="aiChange" />
       </div>
@@ -22,6 +31,7 @@ import DashboardFlowAndDevice from '@/views/Dashboard/components/DashboardFlowAn
 import DashboardAIAbility from '@/views/Dashboard/components/DashboardAIAbility.vue'
 import DashboardDataToday from '@/views/Dashboard/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/Dashboard/components/DashboardResourcePackage.vue'
+import DashboardTodayData from './components/DashboardTodayData.vue'
 import { Component, Vue } from 'vue-property-decorator'
 @Component({
   name: 'Dashboard',
@@ -31,7 +41,8 @@ import { Component, Vue } from 'vue-property-decorator'
     DashboardFlowAndDevice,
     DashboardAIAbility,
     DashboardDataToday,
-    DashboardResourcePackage
+    DashboardResourcePackage,
+    DashboardTodayData
   }
 })
 export default class extends Vue {

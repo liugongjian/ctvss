@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-22 19:58:25
+ * @LastEditTime: 2023-03-23 14:15:52
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -222,23 +222,25 @@ export default class extends Vue {
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
 
-      const demandData = demandSamples.map((item: any) => {
+     const totalData = totalSamples.map((item: any) => {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '新增设备数',
+          type: '总设备数',
           ...item
         }
       })
 
-      const totalData = totalSamples.map((item: any) => {
+      const demandData = demandSamples.map((item: any) => {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '设备总数',
+          type: '按需计费设备数',
           ...item
         }
       })
+
+     
 
       this.lineData = {
         currentPeriod: this.currentPeriod,
