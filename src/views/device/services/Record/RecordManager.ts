@@ -676,8 +676,8 @@ export class RecordManager {
         deviceId: this.screen.deviceId,
         inProtocol: this.screen.inProtocol,
         groupId: this.currentGroupId,
-        startTime,
-        endTime,
+        startTime: Math.round(startTime),
+        endTime: Math.round(endTime),
         recordType: this.screen.recordType
       })
       return res.lockPeriods
