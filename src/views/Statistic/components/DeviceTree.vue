@@ -173,7 +173,7 @@ export default class extends Vue {
           groupInProtocol: item.inProtocol,
           ...item
         }
-      })
+      }).filter((group: any) => group.groupInProtocol !== 'vgroup')
       this.currentGroup = groupsList[0]
       this.dirList = groupsList
 
