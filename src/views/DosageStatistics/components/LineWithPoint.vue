@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-23 14:24:50
+ * @LastEditTime: 2023-03-24 16:45:54
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -42,8 +42,14 @@ export default class extends Vue {
       demand: 'getBandwidthData'
     },
     storage: {
-      total: '存储用量详情',
-      demand: 'getStorageData'
+      video: {
+        total: '视频存储量详情',
+        demand: '视频存储量'
+      },
+      viid: {
+        total: '视图存储量详情',
+        demand: '视图存储量'
+      }
     },
     service: {
       'AI-100': {
@@ -63,7 +69,6 @@ export default class extends Vue {
 
   @Watch('lineData', { deep: true, immediate: true })
   private onLineDataChange(val) {
-    console.log('val---->', val)
     if (!val) return
     this.$nextTick(() => {
       this.formatterData()
@@ -107,7 +112,6 @@ export default class extends Vue {
     })
 
     this.chart.data(this.drawData.data)
-
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
@@ -204,7 +208,7 @@ export default class extends Vue {
     this.chart
       .line()
       .position('time*value')
-      .color('type', [this.lineColor.demand, this.lineColor.total ])
+      .color('type', [this.lineColor.demand, this.lineColor.total])
 
     this.chart.render()
   }

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-23 15:30:38
+ * @LastEditTime: 2023-03-24 09:06:12
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,8 +16,10 @@
       <div class="dashboard-wrap-overview__item_content">
         <div class="dashboard-wrap-overview__item_content_detail">
           <div id="pieChartToday"></div>
-          <div id="pieChartStorage"></div>
         </div>
+        <!-- <div class="dashboard-wrap-overview__item_content_detail">
+          <div id="pieChartStorage"></div>
+        </div> -->
 
         <div class="dashboard-wrap-overview__item_content_detail">
           <el-row :gutter="20">
@@ -84,6 +86,13 @@ export default class extends Mixins(DashboardMixin) {
     upstreamBandwidth: 0
   }
 
+  private pieTodayToText = {
+    offline: '离线',
+    online: '在线',
+    unregistered: '未注册',
+    deactivate: '停用'
+  }
+
   private mounted() {
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
@@ -99,21 +108,24 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const res = await getDeviceStates()
       console.log('res--getDeviceS--->', res)
-      const { offline, online, sum, unregistered } = res
+      const { offline, online, sum, unregistered, deactivate } = res
       const data = {
         offline,
         online,
-        sum,
+        deactivate,
         unregistered
       }
-      this.pieDataToday = Object.keys(data).map((item)=>({
-        type: item,
-        value: data[item]
+
+      this.pieDataToday = Object.keys(data).map((item) => ({
+        item: item,
+        value: data[item],
+        percent: data[item] / sum,
+        text: ''
       }))
 
-      
-
-      this.drawPieToday()
+      this.chartToday
+        ? this.chartToday.changeData(this.pieDataToday)
+        : this.drawPieToday()
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -153,55 +165,69 @@ export default class extends Mixins(DashboardMixin) {
     this.chartToday = new Chart({
       container: 'pieChartToday',
       autoFit: true,
-      height: 300,
-      width: 200
+      height: 150,
+      width: 250
     })
 
     this.chartToday.data(this.pieDataToday)
-    console.log('this.pieDataToday----->', this.pieDataToday)
+
+    this.chartToday.scale('percent', {
+      formatter: (val) => {
+        val = val * 100 + '%'
+        return val
+      }
+    })
+
     this.chartToday.coordinate('theta', {
       radius: 0.5,
-      innerRadius: 0.3
+      innerRadius: 0.6
     })
 
     this.chartToday.tooltip({
-      showMarkers: false
+      showTitle: false,
+      showMarkers: false,
+      itemTpl:
+        '<li class="g2-tooltip-list-item"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
     })
 
     this.chartToday
       .interval()
       .adjust('stack')
-      .position('value')
-      .color('type', ['#063d8a', '#1770d6', '#47abfc', '#38c060'])
-      .style({ opacity: 0.4 })
-      // .state({
-      //   active: {
-      //     style: (element) => {
-      //       const shape = element.shape
-      //       return {
-      //         matrix: Util.zoom(shape, 1.1)
-      //       }
-      //     }
-      //   }
-      // })
-      .label('type', (val) => {
-        // const opacity = val === '四线及以下' ? 1 : 0.5
+      .position('percent')
+      .color('item')
+      .label('percent', (percent) => {
         return {
-          offset: -10,
-          style: {
-            // opacity,
-            fill: 'white',
-            fontSize: 12,
-            shadowBlur: 2,
-            shadowColor: 'rgba(0, 0, 0, .45)'
+          layout: [
+            { percent: 'pie-spider' },
+            {
+              percent: 'limit-in-plot',
+              cfg: { action: 'translate' }
+            }
+          ],
+          labelHeight: 20,
+          labelLine: {
+            style: {
+              lineWidth: 0.5
+            }
           },
-          content: (obj) => {
-            return obj.type + '\n' + obj.value + '%'
+          content: (data) => {
+            return `${this.pieTodayToText[data.item]}: ${(
+              percent * 100
+            ).toFixed(2)}%`
           }
         }
       })
+      .tooltip('item*percent*value', (item, percent, value) => {
+        percent = (percent * 100).toFixed(2) + '%'
+        return {
+          name: this.pieTodayToText[item],
+          value: value
+        }
+      })
 
-    this.chartToday.interaction('element-single-selected')
+    this.chartToday.legend(false)
+
+    this.chartToday.interaction('element-active')
 
     this.chartToday.render()
   }
@@ -222,14 +248,21 @@ export default class extends Mixins(DashboardMixin) {
     }
 
     &_content {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-gap: 10px;
+
+      &_detail {
+        // flex: 1;
+      }
 
       &_data {
         line-height: 30px;
         background-color: $color-grey-7;
-        padding: 15px;
+        padding: $padding-medium;
         border-radius: $border-radius;
         font-size: $text-size-medium;
+        text-align: center;
 
         span {
           font-weight: bolder;

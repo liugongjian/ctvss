@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-22 10:24:17
+ * @LastEditTime: 2023-03-24 16:31:47
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -70,20 +70,16 @@
               <h2 class="dosage-statistics__info_title">今日设备接入</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>
-                    接入设备总数
-                    <el-tooltip
-                      class="item"
-                      effect="dark"
-                      content="接入详情：总设备数+在用设备数"
-                      placement="top"
-                    >
-                      <i
-                        class="el-icon-info dosage-statistics__info_detail_item_icon"
-                      />
-                    </el-tooltip>
-                  </div>
+                  <p>{{ storage.totalStorage }} GB</p>
+                  <div>当前存储量</div>
+                </div>
+                <div class="dosage-statistics__info_detail_item">
+                  <p>{{ storage.videoStorage }} GB</p>
+                  <div>视频存储量</div>
+                </div>
+                <div class="dosage-statistics__info_detail_item">
+                  <p>{{ storage.viidStorage }} GB</p>
+                  <div>视图存储量</div>
                 </div>
               </div>
             </div>
@@ -96,7 +92,11 @@
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">今日设备接入</h2>
               <div class="dosage-statistics__info_detail">
-                <div v-for="item in volumes" :key="item.type" class="dosage-statistics__info_detail_item">
+                <div
+                  v-for="item in volumes"
+                  :key="item.type"
+                  class="dosage-statistics__info_detail_item"
+                >
                   <p>{{ item.value }}</p>
                   <div>{{ ResourceAiType[item.type] }}</div>
                 </div>
@@ -114,7 +114,11 @@
 import { Vue, Component } from 'vue-property-decorator'
 import PeriodLine from './components/PeriodLine.vue'
 
-import { getDeviceStatistics, getAIStatistics } from '@/api/dosageStatistics'
+import {
+  getDeviceStatistics,
+  getAIStatistics,
+  getStorageStatistics
+} from '@/api/dosageStatistics'
 
 @Component({
   name: 'DosageStatistics',
@@ -129,12 +133,18 @@ export default class extends Vue {
 
   private volumes: any = {}
 
-  private  ResourceAiType = {
-  'AI-100': '分钟级算力单元',
-  'AI-200': '秒级算力单元',
-  'AI-300': '高算力单元'
-}
+  private storage: any = {
+    totalStorage: 0,
+    videoStorage: 0,
+    viidStorage: 0
+  }
 
+  private ResourceAiType = {
+    'AI-100': '分钟级算力单元',
+    'AI-200': '秒级算力单元',
+    'AI-300': '高算力单元'
+  }
+  
   private tabsInfo = {
     device: {
       func: 'getDevice'
@@ -154,7 +164,7 @@ export default class extends Vue {
     this.getDevice()
   }
 
-  private changeTab(){
+  private changeTab() {
     console.log('this.activeName--->', this.activeName)
     this[this.tabsInfo[this.activeName]['func']]()
   }
@@ -169,12 +179,22 @@ export default class extends Vue {
     }
   }
 
-  private async getService(){
-     try {
+  private async getService() {
+    try {
       const res = await getAIStatistics()
-      console.log('res---->', res)
       const { volumes } = res
       this.volumes = volumes
+    } catch (error) {
+      this.$message.error(error && error.message)
+    }
+  }
+
+  private async getStorage() {
+    try {
+      const res = await getStorageStatistics()
+      console.log('res---->', res)
+      const { totalStorage, videoStorage, viidStorage } = res
+      this.storage = { totalStorage, videoStorage, viidStorage }
     } catch (error) {
       this.$message.error(error && error.message)
     }
