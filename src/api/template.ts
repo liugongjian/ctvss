@@ -31,7 +31,8 @@ export const createRecordTemplate = (params: any): Promise<any> =>
 
 export const getTemplateDeviceTree = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/template/record/tree',
+    // url: '/template/record/tree',
+    url: '/template/tree', //和视图库合成一个接口
     method: 'get',
     params,
     cancelToken

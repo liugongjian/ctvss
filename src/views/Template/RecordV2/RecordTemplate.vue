@@ -1,7 +1,11 @@
 <template>
   <div class="app-container">
+    <el-menu :default-active="type" class="navigation-menu" mode="horizontal" @select="navigatePage">
+      <el-menu-item index="video">视频录制模板</el-menu-item>
+      <el-menu-item index="viid">视图存储模板</el-menu-item>
+    </el-menu>
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{minHeight: `${minHeight}px`}" :class="{'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ minHeight: `${minHeight}px` }" :class="{ 'device-list--dragging': dirDrag.isDragging }">
         <div
           class="device-list__handle"
           :style="`left: ${dirDrag.width}px`"
@@ -18,7 +22,7 @@
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
-                  <li v-for="template in templates" :key="template.templateId" :class="{'actived': currentTemplate && (currentTemplate.templateId === template.templateId)}" @click="selectTemplate(template)">
+                  <li v-for="template in templates" :key="template.recordTemplateId" :class="{ 'actived': currentTemplate && (currentTemplate.recordTemplateId === template.recordTemplateId) }" @click="selectTemplate(template)">
                     <span> {{ template.templateName }}</span><div class="tools">
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
@@ -45,8 +49,8 @@
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
               <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 + '天' }}</el-descriptions-item>
-              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval / 60 + '分钟' }}</el-descriptions-item>
-              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '全天录制' : '手动录制' }}</el-descriptions-item>
+              <el-descriptions-item label="周期时长">{{ Math.ceil(+renderTemplateInfo.fileDuration / 60) + '分钟' }}</el-descriptions-item>
+              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
             <el-descriptions label-class-name="has-no-colon" :column="1">
@@ -87,9 +91,9 @@
                       @check-change="handleCheck"
                     >
                       <span
-                        slot-scope="{node, data}"
+                        slot-scope="{ node, data }"
                         class="custom-tree-node"
-                        :class="{'online': data.deviceStatus === 'on'}"
+                        :class="{ 'online': data.deviceStatus === 'on' }"
                       >
                         <span class="node-name">
                           <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -134,7 +138,21 @@
             </div>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
-            <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
+            <create-or-update-template
+              v-if="type === 'video'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              :template-id="currentTemplate.recordTemplateId"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
+            <create-or-update-viid-template
+              v-if="type === 'viid'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
           </div>
         </div>
       </div>
@@ -143,22 +161,26 @@
 </template>
 <script lang="ts">
 import axios from 'axios'
-import { Component, Vue, Ref } from 'vue-property-decorator'
+import { Component, Vue, Ref, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import BindDevice from './components/BindDeviceV2.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
+import CreateOrUpdateViidTemplate from './components/CreateOrUpdateViidTemplate.vue'
 
 @Component({
-  name: 'CustomDeviceTree',
+  name: 'RecordTemplate',
   components: {
     BindDevice,
     StatusBadge,
-    CreateOrUpdateTemplate
+    CreateOrUpdateTemplate,
+    CreateOrUpdateViidTemplate
   }
 })
 export default class extends Vue {
+  @Prop() private type: string
+
   @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
@@ -211,6 +233,7 @@ export default class extends Vue {
   private deviceListMain: any = []
 
   private templates: any = []
+
   private renderTemplateInfo: any = {}
   private axiosSource = null
 
@@ -225,15 +248,24 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  // 切换页面
+  private navigatePage(index) {
+    if (index === 'video') {
+      this.$router.push('/template/record-video')
+    } else {
+      this.$router.push('/template/record-viid')
+    }
+  }
+
   // 获取1模板列表并初始化2模板信息和3设备树
   private async init() {
     try {
       // 设置初始化展示页面结构
       this.loading.template = true
-      let res = await getRecordTemplates({
+      const res = await getRecordTemplates({
         pageSize: 999
       }) // 获取模板列表
-      this.templates = res.templates
+      this.templates = res.recordTemplates
       this.loading.template = false
       this.$nextTick(() => {
         if (this.templates.length) {
@@ -241,7 +273,7 @@ export default class extends Vue {
           if (!this.currentTemplate) {
             this.currentTemplate = this.templates[0]
           } else {
-            const currentTemplate = this.templates.find(template => template.templateId === this.currentTemplate.templateId)
+            const currentTemplate = this.templates.find(template => template.recordTemplateId === this.currentTemplate.recordTemplateId)
             this.currentTemplate = currentTemplate || this.templates[0]
           }
           this.$nextTick(() => {
@@ -269,9 +301,21 @@ export default class extends Vue {
     try {
       this.loading.templateInfo = true
       let templateInfo = await queryRecordTemplate({
-        templateId: this.currentTemplate.templateId
+        recordTemplateId: this.currentTemplate.recordTemplateId
       })
       this.renderTemplateInfo = templateInfo // 渲染模板信息
+      if (templateInfo.recordModes[0].recordType === 1) {
+        this.renderTemplateInfo.recordType = '全天录制'
+      } else if (templateInfo.recordModes[0].recordType === 2) {
+        this.renderTemplateInfo.recordType = '循环定时录制'
+      } else if (templateInfo.recordModes[0].recordType === 3) {
+        this.renderTemplateInfo.recordType = '指定时间录制'
+      } else if (templateInfo.recordModes[0].recordType === 4) {
+        this.renderTemplateInfo.recordType = '事件录制'
+      } else if (templateInfo.recordModes[0].recordType === 5) {
+        this.renderTemplateInfo.recordType = '手动录制'
+      }
+      this.renderTemplateInfo.storageTime = templateInfo.recordModes[0].storageTime
       this.$nextTick(this.calMaxHeight)
     } catch (e) {
       this.$message.error(e)
@@ -364,7 +408,7 @@ export default class extends Vue {
       this.loading.templateDeviceTree = true
       this.axiosSource = axios.CancelToken.source()
       const res = await getTemplateDeviceTree({
-        templateId: this.currentTemplate.templateId,
+        templateId: this.currentTemplate.recordTemplateId,
         groupId: 0,
         id: 0,
         bind: true
@@ -425,7 +469,7 @@ export default class extends Vue {
    */
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
-      let item = nodes.data
+      const item = nodes.data
       this.setNodesChecked(item, checked)
     } else {
       nodes.map((item: any) => {
@@ -442,7 +486,7 @@ export default class extends Vue {
       type: '录制模板',
       msg: `确定删除录制模板"${row.templateName}"`,
       method: deleteRecordTemplate,
-      payload: { templateId: row.templateId },
+      payload: { recordTemplateId: row.recordTemplateId },
       onSuccess: this.init
     })
   }
@@ -465,7 +509,7 @@ export default class extends Vue {
       const data: any = node.data
       const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
-        templateId: this.currentTemplate.templateId,
+        templateId: this.currentTemplate.recordTemplateId,
         groupId: rootId,
         id: data.id,
         type: data.type,
@@ -497,7 +541,7 @@ export default class extends Vue {
           return data
         })
         await unbindDeviceRecordTemplateBatch({
-          templateId: this.currentTemplate.templateId,
+          templateId: this.currentTemplate.recordTemplateId,
           devices: delDataList
         })
         this.$message({
@@ -621,7 +665,7 @@ export default class extends Vue {
     if (payload.isRefresh) {
       // 更新页面
       this.currentTemplate = {
-        templateId: payload.templateId
+        recordTemplateId: payload.recordTemplateId
       }
       this.init()
     }
@@ -682,6 +726,16 @@ export default class extends Vue {
 
 </style>
 <style lang="scss" scoped>
+.navigation-menu {
+  background: none;
+  margin-bottom: 12px;
+
+  .el-menu-item {
+    height: 40px;
+    line-height: 40px;
+  }
+}
+
 .right-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;
