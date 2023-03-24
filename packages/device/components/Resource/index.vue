@@ -43,7 +43,7 @@
     </el-tab-pane>
     <el-tab-pane :label="ResourceType[ResourceTypeEnum.AI]" :name="ResourceTypeEnum.AI">
       <!--AI包-->
-      <div class="ai-create-alert">
+      <!-- <div class="ai-create-alert">
         <el-button v-if="appsNum > 0" type="text" @click="createAiApp">+ 添加AI应用</el-button>
         <el-alert
           v-if="appsNum === 0"
@@ -52,7 +52,7 @@
         >
           <div>暂无创建好的AI应用，请先<el-button type="text" @click="createAiApp">创建AI应用</el-button>后,再添加到设备上</div>
         </el-alert>
-      </div>
+      </div> -->
       <div v-loading="loading[ResourceTypeEnum.AI]" class="resource-tabs__content">
         <el-table :data="resourceList[ResourceTypeEnum.AI]" fit @row-click="onResourceRowClick(ResourceTypeEnum.AI, ...arguments)">
           <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
@@ -258,7 +258,7 @@ export default class extends Vue {
       this.resourceTabType = this.defaultResourceTabType
     }
     this.getAllResourcesAndBindList()
-    this.getAiAppsNum()
+    // this.getAiAppsNum()
   }
 
   private async getAiAppsNum(){
