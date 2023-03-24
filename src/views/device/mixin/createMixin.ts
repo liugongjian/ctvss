@@ -82,6 +82,10 @@ export default class CreateMixin extends Vue {
     return GroupModule.group
   }
 
+  public get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
   public get inProtocol() {
     return this.$route.query.inProtocol
   }

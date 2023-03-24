@@ -321,6 +321,7 @@
             :is-update="isUpdate"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
+            :actions="actions"
             :device-id="deviceId"
             :form-info="form"
             :vss-ai-apps="form.vssAIApps"
@@ -350,6 +351,8 @@ import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getEhomeList } from '@/api/certificate/ehome'
 import CreateEhomeCertificate from '@/views/certificate/ehome/components/CreateDialog.vue'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   name: 'CreateEhomeDevice',
@@ -493,12 +496,27 @@ export default class extends Mixins(createMixin) {
     this.getIfUseDeviceName()
   }
 
+  public actions = {}
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
       this.form.dirId = this.dirId
       this.form.deviceVendor = this.deviceVendorList[0]
+    }
+    // 获取权限数据-用于配置资源包，是否显示AI包
+    if (UserModule.iamUserId) {
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.currentGroupId,
+          dirPath: (this.isUpdate ? pathArr.slice(0, -1).join('/') : pathArr.join('/')) || '0',
+          deviceId: this.isUpdate ? this.deviceId : undefined
+        }]
+      })
+      this.actions = permissionRes.result[0].iamUser.actions
     }
     this.form.inProtocol = this.inProtocol
     this.getEhomeAccounts()
