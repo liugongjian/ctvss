@@ -194,7 +194,7 @@ export class RecordManager {
           this.recordList = this.recordList.concat(records)
         } else if (date < this.currentDate) {
           this.recordList = records.concat(this.recordList)
-        } else if (date = this.currentDate) {
+        } else if (date === this.currentDate) {
           this.recordList = records
         }
         // 如果不是seek操作，默认播放第一段录像
@@ -219,9 +219,9 @@ export class RecordManager {
           // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
           if (this.screen.recordType === 0 && this.currentRecord.isLock === 1 && !this.canLock) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
-            this.currentRecord = null
-            this.screen.url = ''
-            this.screen.errorMsg = this.screen.ERROR.LOCKED
+            // this.currentRecord = null
+            // this.screen.url = ''
+            // this.screen.errorMsg = this.screen.ERROR.LOCKED
           }
         }
       } else if (!isConcat) {
@@ -230,9 +230,9 @@ export class RecordManager {
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
       // if (!isConcat) {
-      if (!isConcat && this.screen.recordType === 0) {
-        this.screen.isLoading = false
-      }
+      // if (!isConcat && this.screen.recordType === 0) {
+      //   this.screen.isLoading = false
+      // }
       this.isLoading = false
       if (isSeek) {
         this.seek(this.screen.currentRecordDatetime, true)
@@ -263,6 +263,7 @@ export class RecordManager {
       }
     } finally {
       this.isLoading = false
+      this.screen.isLoading = false
     }
   }
 
