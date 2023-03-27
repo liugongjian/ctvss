@@ -118,7 +118,7 @@ export class RecordManager {
         this.getLatestRecord()
       }
     } finally {
-      if(!this.localLoading) this.screen.isLoading = false
+      if (!this.localLoading) this.screen.isLoading = false
     }
   }
 
@@ -333,7 +333,7 @@ export class RecordManager {
         this.screen.player = null
         if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
-          if ((this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
+          if (!UserModule.iamUserId || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
             // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
             throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
           }

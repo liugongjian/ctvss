@@ -277,7 +277,7 @@ export default class extends Vue {
         await this.deepLoad(childNode.data.id, node.checked)
         this.deepCopy(node)
       }
-      this.totalCheckedSize = node.data.totalSize
+      this.totalCheckedSize = node.checked ? node.data.totalSize : 0
     } else if (node.isLeaf || node.loaded) {
       // 如果是叶子节点更新上层, 将上层全部拷贝到预览树
       this.deepCheck(node)
@@ -488,8 +488,8 @@ export default class extends Vue {
       return total
     }, 0)
     this.$set(parentNode.data, 'checkedSize', totalCheckedSize)
-    // 如果父级数量为0，删除预览树中对应的节点
-    if (totalCheckedSize === 0) {
+    // 如果父级数量为0，删除预览树中对应的节点，但是不能删除根节点
+    if (totalCheckedSize === 0 && parentNode.level !== 1) {
       this.previewTree.remove(parentNode.data.id)
     }
     if (parentNode.parent && parentNode.parent.level !== 0) {
@@ -497,8 +497,10 @@ export default class extends Vue {
     }
     if (parentNode.level === 1) {
       const previewRootNode = this.previewTree.getNode('-1')
-      previewRootNode.data.bindSize = totalCheckedSize
-      this.totalCheckedSize = totalCheckedSize
+      if (previewRootNode) {
+        previewRootNode.data.bindSize = totalCheckedSize
+        this.totalCheckedSize = totalCheckedSize
+      }
     }
   }
 
@@ -539,11 +541,13 @@ export default class extends Vue {
           inProtocol: item.inProtocol
         }
       })
-      await setDeviceRecordTemplateBatch({
-        templateId: this.currentTemplate.templateId,
-        devices: devices,
-        startRecord: this.quickStart
-      })
+      if (devices.length) {
+        await setDeviceRecordTemplateBatch({
+          templateId: this.currentTemplate.templateId,
+          devices: devices,
+          startRecord: this.quickStart
+        })
+      }
       this.$message.success('批量绑定设备成功！')
       this.$emit('on-close', true)
     } catch (e) {

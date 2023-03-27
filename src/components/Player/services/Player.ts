@@ -13,6 +13,8 @@ export class Player {
   /* H265播放器画布 */
   public canvas: HTMLCanvasElement
   /* 播放器类型 */
+  public codec: string
+  /* 播放器类型 */
   public type: PlayerType
   /* 播放流地址 */
   public url: string
@@ -47,6 +49,7 @@ export class Player {
     this.config = config
     this.container = config.container
     this.type = config.type
+    this.codec = config.codec
     this.url = config.url
     this.isLive = config.isLive
     this.isDebug = config.isDebug
