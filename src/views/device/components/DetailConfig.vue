@@ -351,9 +351,10 @@ export default class extends Vue {
 
   /**
    * 是否禁用录制模板绑定
+   * Liuzhou用户TAG仅IPC显示录制绑定模板，其他用户支持所有设备类型绑定录制模板
    */
   private get disableRecordTemplate() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+    return (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou') && (['ipc'].indexOf(this.deviceType) === -1)
   }
 
   /**
