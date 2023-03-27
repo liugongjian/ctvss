@@ -38,7 +38,7 @@ export class RecordManager {
   /* 录像锁列表 */
   public lockList: any
 
-  private localLoading = false
+  // private localLoading = false
 
   private get currentGroupId() {
     return GroupModule.group?.groupId
@@ -118,7 +118,7 @@ export class RecordManager {
         this.getLatestRecord()
       }
     } finally {
-      if (!this.localLoading) this.screen.isLoading = false
+      this.screen.isLoading = false
     }
   }
 
@@ -209,8 +209,8 @@ export class RecordManager {
           } else {
             this.screen.player && this.screen.player.disposePlayer()
             // this.screen.currentRecordDatetime = records[0].startTime
-            this.updateLocalUrl(records[0].startTime)
-            this.localLoading = true
+            await this.updateLocalUrl(records[0].startTime)
+            // this.localLoading = true
             // const res = await this.getLocalUrl(records[0].startTime)
             // this.screen.codec = res.codec
             // this.screen.url = res.url
@@ -233,10 +233,12 @@ export class RecordManager {
       // if (!isConcat && this.screen.recordType === 0) {
       //   this.screen.isLoading = false
       // }
+      if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      if (isSeek) {
-        this.seek(this.screen.currentRecordDatetime, true)
-      }
+      // this.screen.isLoading = false
+      // if (isSeek) {
+      //   this.seek(this.screen.currentRecordDatetime, true)
+      // }
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
@@ -263,7 +265,7 @@ export class RecordManager {
       }
     } finally {
       this.isLoading = false
-      this.screen.isLoading = false
+      // this.screen.isLoading = false
     }
   }
 
@@ -299,7 +301,7 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          await this.getRecordListByDate(date, isConcat, false)
+          await this.getRecordListByDate(date, isConcat, true)
         }
         record = this.getRecordByTime(time)
       }
@@ -324,7 +326,7 @@ export class RecordManager {
               this.screen.player.seek(time - this.currentRecord.startTime)
             }
           } else { // 本地录像
-            this.updateLocalUrl(time)
+            await this.updateLocalUrl(time)
           }
         }
       } else {
@@ -332,7 +334,7 @@ export class RecordManager {
         this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        if (!this.localLoading) this.screen.isLoading = false
+        // if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
           if (!UserModule.iamUserId || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
             // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
@@ -350,9 +352,11 @@ export class RecordManager {
       this.screen.recordManager.currentDate = time
       this.screen.player && this.screen.player.disposePlayer()
       this.screen.player = null
-      if (!this.localLoading) this.screen.isLoading = false
+      // if (!this.localLoading) this.screen.isLoading = false
       // this.screen.isLoading = false
       this.screen.url = ''
+    } finally {
+      this.screen.isLoading = false
     }
   }
 
@@ -360,6 +364,7 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
+    if (this.screen.recordType === 1) return
     const currentEndtime = this.currentRecord.endTime
     // const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     // next record which is unlocked
@@ -653,14 +658,14 @@ export class RecordManager {
       this.screen.codec = res.codec
       this.screen.url = res.url
       // 取消请求不会走下面的,不写 finally 以防止 DOM 加载状态丢失
-      this.localLoading = false
+      // this.localLoading = false
       this.screen.isLoading = false
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.screen.errorMsg = e.message
       }
       if (e.code !== -2) {
-        this.localLoading = false
+        // this.localLoading = false
         this.screen.isLoading = false
       }
     }
