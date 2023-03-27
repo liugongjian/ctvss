@@ -33,6 +33,7 @@ declare global {
 }
 
 export interface markerObject {
+  AuthMap: Object,
   longitude: number,
   latitude: number,
   deviceId: string,

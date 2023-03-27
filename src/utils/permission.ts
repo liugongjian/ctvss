@@ -26,7 +26,7 @@ export const checkPermission = (value: string[], data?: any): boolean => {
       if (item) {
         dataPerms = Object.keys(item)
           .filter((key: string) => key.startsWith('ivs:'))
-          .filter((permKey: string) => item[permKey].auth)
+          .filter((permKey: string) => item[permKey].auth || item[permKey].Auth)
       }
       const perms = dataPerms || UserModule.perms
       const neededPermissions = value

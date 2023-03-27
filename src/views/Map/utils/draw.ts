@@ -27,13 +27,14 @@ export const drawCamera = (markerOptions: markerObject, options) => {
     if (!options.isEdit) {
       let previewIcon = ''
       let replayIcon = ''
-      if (checkPermission(['ScreenPreview'])) {
+      let noPermission = '<div class="marker-options" style="width: 80px;"><span>无权限</span></div>'
+      if (checkPermission(['ivs:GetLiveStream'], markerOptions.AuthMap)) {
         previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker()" title="实时预览"><i class="icon icon_preview"></i></span>`
       }
-      if (checkPermission(['ReplayRecord'])) {
+      if (checkPermission(['ivs:GetCloudRecord'], markerOptions.AuthMap)) {
         replayIcon = '<span class="icon-wrap" onclick="replayMarker()" title="录像回放"><i class="icon icon_replay"></i></span>'
       }
-      optionDiv = createNode(`<div class="marker-options">${previewIcon}${replayIcon}</div>`)
+      optionDiv = createNode((previewIcon + replayIcon) ? `<div class="marker-options">${previewIcon}${replayIcon}</div>` : noPermission)
     } else { // 编辑状态
       markerContent.setAttribute('class', 'marker-containt marker-camera selected')
       const deleteIcon = `<i class="icon icon_delete" onclick="deleteDevice('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
