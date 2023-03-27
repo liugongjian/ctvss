@@ -368,6 +368,7 @@
                 :is-update="isUpdate"
                 :in-protocol="form.inProtocol"
                 :is-private-in-network="isPrivateInNetwork"
+                :actions="actions"
                 :device-id="form.deviceId"
                 :form-info="form"
                 :vss-ai-apps="form.vssAIApps"
