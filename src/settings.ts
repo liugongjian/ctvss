@@ -193,18 +193,18 @@ const settings: ISettings = {
     // },
     // 视图分析（原AI功能）
     {
-      actionName: '查询行业场景应用',
+      actionName: '查看AI应用',
       actionKey: 'ivs:GetApp',
-      actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
+      actionDesc: '拥有AI应用的查看权限，并展示AI管理菜单',
       actionType: 'GET',
       allowAutoSelected: ['ivs:GetDevice'],
       denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
-      actionName: '管理行业场景应用',
+      actionName: '管理AI应用',
       actionKey: 'ivs:AdminApp',
-      actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
+      actionDesc: '拥有AI应用的管理权限，并展示AI管理菜单',
       allowAutoSelected: ['ivs:GetApp', 'ivs:UpdateDevice'],
       resourceType: ['directory', 'device', 'channel']
     },

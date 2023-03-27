@@ -26,7 +26,7 @@
       <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions) && checkPermission(['ivs:GetApp'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -36,7 +36,7 @@
             {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
+            <el-table :data="algoListData" :empty-text="emptyText">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
@@ -203,7 +203,13 @@
       @on-close="closeAlertTemplateDialog"
     />
 
-    <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="deviceInfo"
+      :algo-tab-type-default="algoTabTypeDefault"
+      :actions="actions"
+      @on-close="closeResourceDialog"
+    />
   </div>
 </template>
 
@@ -245,6 +251,14 @@ export default class extends Vue {
   private checkPermission = checkPermission
 
   private resourceAiType = ResourceAiType
+
+  private get emptyText() {
+    if (!checkPermission(['ivs:GetApp'], this.actions)) {
+      return '当前子账号无 查看AI应用 的权限，请联系主账号进行配置！'
+    } else {
+      return '当前设备暂未绑定AI应用'
+    }
+  }
 
   private loading = {
     recordTemplate: false,
