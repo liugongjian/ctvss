@@ -40,7 +40,7 @@
           <template slot-scope="scope">
             <!-- <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button> -->
-            <el-button v-if="checkPermission(['*'])" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
+            <el-button v-if="checkPermission(['ivs:UpdateDevice'], scope.row)" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
           </template>
         </el-table-column>
       </el-table>
