@@ -38,6 +38,7 @@ const settings: ISettings = {
     '182.43.127.35',
     '182.43.127.36',
     'console.vcn.ctyun.cn',
+    'console.vaas.ctyun.cn',
     'console.vcn.ctcdn.cn'
   ],
   privateDenyPerms: {
