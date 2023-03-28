@@ -2,42 +2,53 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:46:30
+ * @LastEditTime: 2023-03-27 09:38:30
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="dashboard-wrap-overview__item">
     <el-card>
-      <el-radio-group
-        v-model="currentPeriod"
-        size="mini"
-        class="dashboard-wrap-overview__item_period_radio"
-        @input="(val) => periodChange('', val)"
-      >
-        <el-radio-button
-          v-for="item in periods"
-          :key="item.value"
-          :label="item.value"
-        >
-          {{ item.label }}
-        </el-radio-button>
-      </el-radio-group>
-
-      <el-dropdown size="mini" @command="(val) => periodChange('service', val)">
-        <el-button plain size="mini">
-          AI服务<i class="el-icon-arrow-down el-icon--right"></i>
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item
-            v-for="item in serviceOption"
-            :key="item.value"
-            :command="item.value"
+      <div class="dashboard-wrap-overview__item_period_content">
+        <div class="dashboard-wrap-overview__item_period_title">今日用量</div>
+        <div class="dashboard-wrap-overview__item_period_detail">
+          <el-radio-group
+            v-model="currentPeriod"
+            size="mini"
+            class="dashboard-wrap-overview__item_period_radio"
+            @input="(val) => periodChange('', val)"
           >
-            {{ item.label }}
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+            <el-radio-button
+              v-for="item in periods"
+              :key="item.value"
+              :label="item.value"
+            >
+              {{ item.label }}
+            </el-radio-button>
+          </el-radio-group>
+
+          <el-dropdown
+            size="mini"
+            @command="(val) => periodChange('service', val)"
+          >
+            <el-button plain size="mini">
+              AI服务<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-for="item in serviceOption"
+                :key="item.value"
+                :command="item.value"
+              >
+                {{ item.label }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+        <div class="dashboard-wrap-overview__item_period_to_detail" @click="toDosageStatistics">
+          用量详情 >>
+        </div>
+      </div>
       <div>
         <line-point
           v-if="Object.keys(lineData).length > 0"
@@ -167,7 +178,6 @@ export default class extends Vue {
         totalData,
         ...res
       }
-
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -177,7 +187,7 @@ export default class extends Vue {
     console.log('getBandwidthData')
   }
 
-   private async getStorageData() {
+  private async getStorageData() {
     console.log('getStorageData')
     try {
       this.ifLoading = true
@@ -244,7 +254,7 @@ export default class extends Vue {
       const res = await getAIHistoryStatistics(param)
 
       const { aIDemandStatistic, aITotalStatistic } = res
-      
+
       const demandData = Object.keys(aIDemandStatistic)?.map((item) => ({
         time: item,
         type: '使用量',
@@ -271,5 +281,49 @@ export default class extends Vue {
       this.ifLoading = false
     }
   }
+
+  private toDosageStatistics(){
+    console.log('this.chartKind--->', this.chartKind)
+    this.$router.push({
+      name: 'DosageStatistics',
+      query: {
+        tab: this.chartKind
+      }
+    })
+  }
 }
 </script>
+<style lang="scss" scoped>
+.dashboard-wrap-overview {
+  &__item {
+    ::v-deep {
+      .el-dropdown {
+        vertical-align: middle;
+      }
+    }
+
+    &_period {
+      &_content {
+        display: flex;
+        line-height: 1;
+      }
+
+      &_title {
+        padding: $padding-small $padding-medium;
+      }
+
+      &_detail {
+        flex: 1;
+        text-align: center;
+      }
+
+      &_to_detail {
+        margin-left: auto;
+        padding: $padding-small $padding-medium;
+        color: $primary;
+        cursor: pointer;
+      }
+    }
+  }
+}
+</style>
