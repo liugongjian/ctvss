@@ -190,15 +190,21 @@ export class RecordManager {
       }
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1) return
         if (date > this.currentDate) {
           this.recordList = this.recordList.concat(records)
         } else if (date < this.currentDate) {
           this.recordList = records.concat(this.recordList)
         } else if (date === this.currentDate) {
-          this.recordList = records
+          if (this.recordList.length) {
+            if (date > this.recordList[0].startTime) this.recordList = this.recordList.concat(records)
+            if (date < this.recordList[0].startTime) this.recordList = records.concat(this.recordList)
+          } else {
+            this.recordList = records
+          }
         }
         // 如果不是seek操作，默认播放第一段录像
-        if (!isConcat && !isSeek) {
+        if (!isConcat && !isSeek && date === this.currentDate) {
           /**
          * 0云端：获取第一段录像
          * 1本地：获取URL
@@ -460,8 +466,8 @@ export class RecordManager {
         }
       }
       return new Record({
-        startTime: getTimestamp(record.startTime) / 1000,
-        endTime: getTimestamp(record.endTime) / 1000,
+        startTime: parseInt('' + getTimestamp(record.startTime) / 1000),
+        endTime: parseInt('' + getTimestamp(record.endTime) / 1000),
         duration: record.duration,
         url: record.playUrl[`${record.fileFormat}Url`],
         codec: record.video.codec,
