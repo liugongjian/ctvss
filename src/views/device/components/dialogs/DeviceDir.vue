@@ -124,7 +124,10 @@ export default class extends Mixins(IndexMixin) {
         const res = await loadTreeNode({
           dirId: this.currentGroupId
         })
-        data = res.dirs
+        data = res.dirs.map(dir => ({
+          ...dir,
+          ...dir.authMap
+        }))
       } else {
         const query: any = this.$route.query
         const addressArr = (query.deviceAddresses || '').split(',')
