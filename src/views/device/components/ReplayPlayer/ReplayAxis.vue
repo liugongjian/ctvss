@@ -966,7 +966,7 @@ export default class extends Vue {
       this.tipVisiable = false //关闭tool tips
       if (isUnlocked) {
         const date = getDateByTime(this.currentTime, 's')
-        await this.screen.recordManager.getRecordListByDate(date, false, true) // 重新加载 lock list  
+        await this.screen.recordManager.getRecordListByDate(date, false, false, true) // 重新加载 lock list  
       }
     } catch (e) {
       this.$message.error(e)

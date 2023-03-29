@@ -127,7 +127,7 @@ export class RecordManager {
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
-  public async getRecordListByDate(date: number, isConcat = false, isSeek = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSeek = false, lockSeek = false) {
     try {
       if (!this.screen.deviceId && !isConcat) {
         this.currentDate = date
@@ -190,7 +190,8 @@ export class RecordManager {
       }
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1) return
+        // 考虑锁状态的更替
+        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1 && records.isLock === records[0].isLock) return 
         if (date > this.currentDate) {
           this.recordList = this.recordList.concat(records)
         } else if (date < this.currentDate) {
@@ -243,8 +244,9 @@ export class RecordManager {
       this.isLoading = false
       // this.screen.isLoading = false
       // if (isSeek) {
-      //   this.seek(this.screen.currentRecordDatetime, true)
-      // }
+      if (lockSeek) {
+        this.seek(this.screen.currentRecordDatetime, true)
+      }
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
