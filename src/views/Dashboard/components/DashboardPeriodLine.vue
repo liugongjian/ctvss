@@ -1,70 +1,65 @@
 <!--
  * @Author: zhaodan zhaodan@telecom.cn
- * @Date: 2023-03-09 15:23:42
+ * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:36:58
- * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
+ * @LastEditTime: 2023-03-24 16:46:30
+ * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-  <div v-loading="ifLoading" class="dosage-statistics__chart">
-    <div class="dosage-statistics__chart_period">
-      <span>{{ chartTitle }}</span>
-      <div class="dosage-statistics__chart_period_condition">
-        <el-select
-          v-if="ifShowSelect"
-          v-model="selection"
-          size="mini"
-          placeholder="请选择"
-          class="dosage-statistics__chart_period_select"
-          @change="getData"
+  <div class="dashboard-wrap-overview__item">
+    <el-card>
+      <el-radio-group
+        v-model="currentPeriod"
+        size="mini"
+        class="dashboard-wrap-overview__item_period_radio"
+        @input="(val) => periodChange('', val)"
+      >
+        <el-radio-button
+          v-for="item in periods"
+          :key="item.value"
+          :label="item.value"
         >
-          <el-option
-            v-for="item in options[chartKind]"
+          {{ item.label }}
+        </el-radio-button>
+      </el-radio-group>
+
+      <el-dropdown size="mini" @command="(val) => periodChange('service', val)">
+        <el-button plain size="mini">
+          AI服务<i class="el-icon-arrow-down el-icon--right"></i>
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item
+            v-for="item in serviceOption"
             :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
-        <el-radio-group
-          v-model="currentPeriod"
-          size="mini"
-          class="dosage-statistics__chart_period_radio"
-          @input="timeIntervalChange"
-        >
-          <el-radio-button
-            v-for="item in periods"
-            :key="item.value"
-            :label="item.value"
+            :command="item.value"
           >
             {{ item.label }}
-          </el-radio-button>
-        </el-radio-group>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <div>
+        <line-point
+          v-if="Object.keys(lineData).length > 0"
+          :key="chartKind"
+          :chart-kind="chartKind"
+          :line-data="lineData"
+        />
       </div>
-    </div>
-    <div class="dosage-statistics__chart_content">
-      <line-point
-        v-if="Object.keys(lineData).length > 0"
-        :key="chartKind"
-        :chart-kind="chartKind"
-        :line-data="lineData"
-      />
-    </div>
+    </el-card>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
-import LinePoint from './LineWithPoint.vue'
-import { periods } from '@/dics/dosageStatistics'
+import { Vue, Component } from 'vue-property-decorator'
+import LinePoint from '@/views/DosageStatistics/components/LineWithPoint.vue'
+import { Options, KindToText } from '@/dics/periodLine'
 import {
   getDeviceHistoryStatistics,
   getAIHistoryStatistics,
   getStorageHistoryStatistics
 } from '@/api/dosageStatistics'
 
-import { Options, KindToText } from '@/dics/periodLine'
 import { format } from 'date-fns'
 
 @Component({
@@ -74,84 +69,69 @@ import { format } from 'date-fns'
   }
 })
 export default class extends Vue {
-  @Prop() private chartKind!: string
-
-  private periods = periods
-  private options = Options
   private kindToText = KindToText
-  private currentPeriod = 'today'
-  private ifLoading = false
+  private periods: any = []
+
+  private currentPeriod = 'device'
+
+  private deviceOption = {
+    value: 'device',
+    label: '设备'
+  }
+
+  private chartKind = 'device'
+
+  private serviceOption: any = []
 
   private lineData = {}
 
-  private selection = ''
-
-  private param: any = {
-    StartTime: 0,
-    EndTime: 0
-  }
-
-  private MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
-
-  private todayEarly = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
-
-  private timeDics = {
-    today: {
-      startTime: this.todayEarly,
-      endTime: new Date().getTime()
-    },
-    yesterday: {
-      startTime: this.todayEarly - this.MILLISECONDS_PER_DAY,
-      endTime: this.todayEarly - 1000
-    },
-    seven: {
-      startTime: this.todayEarly - 7 * this.MILLISECONDS_PER_DAY,
-      endTime: new Date().getTime()
-    },
-    month: {
-      startTime: this.todayEarly - 30 * this.MILLISECONDS_PER_DAY,
-      endTime: new Date().getTime()
-    }
-  }
-
-  private get chartTitle() {
-    return this.kindToText[this.chartKind]['name']
-  }
-
-  private get ifShowSelect() {
-    return this.chartKind !== 'device'
+  private param = {
+    startTime: new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
+    endTime: new Date().getTime()
   }
 
   mounted() {
-    this.selection =
-      this.chartKind !== 'device' ? this.options[this.chartKind][0].value : ''
-    this.timeIntervalChange()
+    this.initDraw()
+    this.getData()
   }
 
   private async getData() {
     await this[this.kindToText[this.chartKind]['func']]()
   }
 
-  private async timeIntervalChange() {
-    const { startTime, endTime } = this.timeDics[this.currentPeriod]
+  private initDraw() {
+    const { bandwidth, storage, service } = Options
+    const device = {
+      value: 'device',
+      label: '设备',
+      kind: 'device'
+    }
+    this.periods = [device, ...bandwidth, ...storage]
+    this.serviceOption = [...service]
+  }
 
-    this.param = {
-      startTime: startTime,
-      endTime: endTime
+  private periodChange(period: string, selection?: string) {
+    if (!period) {
+      const per = this.periods.find((item) => item.value === selection)
+      this.chartKind = per.kind
     }
 
-    await this.getData()
+    this.selection = selection
+    if (period === 'service') {
+      this.currentPeriod = ''
+      this.chartKind = 'service'
+    }
+
+    this.getData()
   }
 
   private async getDeviceData() {
     try {
-      this.ifLoading = true
       const { startTime, endTime } = this.param
       const param = {
         startTime: format(startTime, 'yyyy-MM-dd'),
         endTime: format(endTime, 'yyyy-MM-dd')
       }
-
       const res = await getDeviceHistoryStatistics(param)
 
       const { deviceSamples } = res
@@ -180,17 +160,16 @@ export default class extends Vue {
       })
 
       this.lineData = {
-        currentPeriod: this.currentPeriod,
+        currentPeriod: 'today',
         chartKind: this.chartKind,
         selection: this.selection,
         demandData,
         totalData,
         ...res
       }
+
     } catch (error) {
       this.$message.error(error && error.message)
-    } finally {
-      this.ifLoading = false
     }
   }
 
@@ -198,7 +177,7 @@ export default class extends Vue {
     console.log('getBandwidthData')
   }
 
-  private async getStorageData() {
+   private async getStorageData() {
     console.log('getStorageData')
     try {
       this.ifLoading = true
@@ -237,7 +216,7 @@ export default class extends Vue {
       })
 
       this.lineData = {
-        currentPeriod: this.currentPeriod,
+        currentPeriod: 'today',
         chartKind: this.chartKind,
         selection: this.selection,
         demandData,
@@ -265,7 +244,7 @@ export default class extends Vue {
       const res = await getAIHistoryStatistics(param)
 
       const { aIDemandStatistic, aITotalStatistic } = res
-      // this.currentPeriod
+      
       const demandData = Object.keys(aIDemandStatistic)?.map((item) => ({
         time: item,
         type: '使用量',
@@ -279,7 +258,7 @@ export default class extends Vue {
       }))
 
       this.lineData = {
-        currentPeriod: this.currentPeriod,
+        currentPeriod: 'today',
         chartKind: this.chartKind,
         selection: this.selection,
         demandData,

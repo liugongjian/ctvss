@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-15 15:24:03
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-22 10:20:02
+ * @LastEditTime: 2023-03-24 16:24:21
  * @FilePath: /vss-user-web/src/api/dosageStatistics.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -30,12 +30,26 @@ export const getAIStatistics = (): Promise<any> =>
     method: 'get'
   })
 
-  // 根据条件获取AI服务用量
-  export const getAIHistoryStatistics = (data: any): Promise<any> =>
+// 根据条件获取AI服务用量
+export const getAIHistoryStatistics = (data: any): Promise<any> =>
   request({
     url: '/statistics/ai/volumes',
     method: 'POST',
     data
   })
 
+// 今日存储用量
+export const getStorageStatistics = (): Promise<any> =>
+  request({
+    url: '/statistics/current/storage',
+    method: 'get'
+  })
+
+// 根据条件获取存储折线图数据
+export const getStorageHistoryStatistics = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/history/storage',
+    method: 'get',
+    params
+  })
 
