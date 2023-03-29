@@ -143,8 +143,8 @@ export default class extends Vue {
             lockPeriod: {
               // startTime: (this.form.duration[0] / 1000).toFixed(),
               // endTime: (this.form.duration[1] / 1000).toFixed(),
-              startTime: '' + Math.round(this.form.duration[0] / 1000),
-              endTime: '' + Math.round(this.form.duration[1] / 1000),
+              startTime: parseInt('' + this.form.duration[0] / 1000),
+              endTime: parseInt('' + this.form.duration[1] / 1000),
             },
             deviceId: this.screen.deviceId,
             inProtocol: this.screen.inProtocol,
@@ -153,7 +153,7 @@ export default class extends Vue {
             deviceName: this.deviceName
           })
           // 无法判断是否锁定成功
-          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, true)
+          await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, false, true)
         } catch (e) {
           this.$message.error(e.message)
         } finally {
