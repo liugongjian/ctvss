@@ -43,7 +43,7 @@ import { AIApp } from '@vss/device/type/Resource'
 })
 export default class extends Vue {
   // 所选AI应用
-  @VModel() private savedAppCollection: { [resourceId: string ]: AIApp[] }
+  @VModel() private savedAppCollection: { [resourceId: string ]: any[] }
   // 当前AI资源包ID
   @Prop() private resourceId: string
   // 当前AI资源包算力
