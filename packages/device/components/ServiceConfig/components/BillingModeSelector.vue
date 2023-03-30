@@ -292,9 +292,7 @@ export default class extends Vue {
     const configForm: any = this.$refs.configForm
     return new Promise((resolve) => {
       configForm.validate((valid) => {
-        if (valid) {
-          resolve('')
-        }
+        resolve(valid)
       })
     })
   }

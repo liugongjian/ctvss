@@ -12,7 +12,7 @@
         </el-button>
       </div>
     </div>
-    <div v-if="hasServiceConfig || configMode === configModeEnum.Edit" class="service-config">
+    <div v-if="hasServiceConfig || configMode === configModeEnum.Edit" v-loading="loading" class="service-config">
       <service-config
         ref="serviceConfig"
         v-model="resource"
@@ -26,7 +26,7 @@
         :device-stream-size="videoInfo && videoInfo.deviceStreamSize"
       />
       <div v-if="configMode === configModeEnum.Edit" class="service-config__edit__footer">
-        <el-button v-loading="loading" size="mini" type="primary" @click="submit">确 定</el-button>
+        <el-button size="mini" type="primary" @click="submit">确 定</el-button>
         <el-button v-if="!loading" size="mini" @click="cancel">取 消</el-button>
       </div>
     </div>

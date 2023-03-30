@@ -1,5 +1,5 @@
 <template>
-  <div class="detail-wrap__edit">
+  <div v-loading="loading" class="detail-wrap__edit">
     <viid-create-form ref="form" :device-form="basicInfo" :device="device" :is-edit="true" />
     <div class="detail-wrap__edit__footer">
       <el-button size="medium" type="primary" @click="submit">确 定</el-button>
@@ -25,6 +25,8 @@ import { pick } from 'lodash'
 })
 export default class extends Vue {
   @Prop() private device: Device
+
+  private loading = false
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
@@ -77,12 +79,15 @@ export default class extends Vue {
     }
     params.viids = [ viidDevice ]
     try {
+      this.loading = true
       await updateDevice(params)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
       this.$emit('updateDevice')
     } catch (e) {
       this.$alertError(e.message)
+    } finally {
+      this.loading = false
     }
   }
 }

@@ -63,7 +63,8 @@ export default class extends Vue {
 
   public async validateConfigForm() {
     const config: any = this.$refs.configForm
-    return await config.validateConfigForm()
+    await config.validateConfigForm()
+    return ''
   }
 }
 </script>

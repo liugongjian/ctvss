@@ -1,8 +1,8 @@
 <template>
-  <div class="detail-wrap__edit">
-    <video-create-form ref="form" :device-form="basicInfo" :device="device" :is-ibox="isIbox" :is-edit="true" @loaded="loading.resource = false" />
+  <div v-loading="loading" class="detail-wrap__edit">
+    <video-create-form ref="form" :device-form="basicInfo" :device="device" :is-ibox="isIbox" :is-edit="true" />
     <div class="detail-wrap__edit__footer">
-      <el-button size="medium" type="primary" :loading="loading.resource" @click="submit">确 定</el-button>
+      <el-button v-loading="loading" size="medium" type="primary" @click="submit">确 定</el-button>
       <el-button size="medium" @click="cancel">取 消</el-button>
     </div>
   </div>
@@ -29,16 +29,7 @@ export default class extends Vue {
   @Prop({ default: () => updateDevice }) private updateDeviceApi: (params: any) => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
-  private loading = {
-    resource: false
-  }
-
-  private mounted() {
-    // 不是Ibox的情况需要等待资源包加载完成
-    // if (!this.isIbox) {
-    //   this.loading.resource = true
-    // }
-  }
+  private loading = false
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
@@ -107,14 +98,16 @@ export default class extends Vue {
       resource: form.videoForm.resource
     }
     try {
-      // IBOX不提交资源包更新
-      !this.isIbox && await updateDeviceResource(resourceParams)
+      this.loading = true
+      await updateDeviceResource(resourceParams)
       await this.updateDeviceApi(params)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
       this.$emit('updateDevice')
     } catch (e) {
       this.$alertError(e.message)
+    } finally {
+      this.loading = false
     }
   }
 
