@@ -92,7 +92,7 @@ export default class extends Vue {
         title = '两当县智慧蜂业视频AI能力平台'
         break
       default:
-        title = '天翼云视频云网平台'
+        title = '天翼云智能视图服务'
     }
     return title
   }

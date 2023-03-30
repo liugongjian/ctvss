@@ -26,7 +26,7 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: '视频监控',
+  title: '智能视图服务',
   showSettings: true,
   showTagsView: true,
   fixedHeader: false,
