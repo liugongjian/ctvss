@@ -93,7 +93,7 @@ import NvrVideoServiceConfig from './nvr/VideoServiceConfig.vue'
 import PlatformVideoServiceConfig from './platform/VideoServiceConfig.vue'
 import IpcAiServiceConfig from './ipc/AiServiceConfig.vue'
 import IpcViidServiceConfig from './ipc/ViidServiceConfig.vue'
-import { getResources, getDeviceResource } from '@vss/device/api/billing'
+import { getResources, getDeviceResource, ondemandSubscribe } from '@vss/device/api/billing'
 
 @Component({
   name: 'ServiceConfig',
@@ -135,14 +135,14 @@ export default class extends Vue {
     configMode: ConfigModeEnum.Create,
     activeTab: ResourceTypeEnum.Video,
     deviceType: DeviceTypeEnum.Ipc,
+    deviceId: '',
     inVideoProtocol: '',
     channelSize: 0,
     deviceStreamSize: 0,
     initInfo: {},
+    hasOndemand: false,
     [ResourceTypeEnum.Video]: [], //用户拥有的视频包
-    [ResourceTypeEnum.StorageOD]: [], //用户拥有存储按需包
     [ResourceTypeEnum.AI]: [], //用户拥有的AI包
-    [ResourceTypeEnum.AIOD]: [], //用户拥有的AI按需包
   })
 
   @VModel({ 
@@ -206,15 +206,15 @@ export default class extends Vue {
   }
 
   private get videoServiceUsable() {
-    return  (!!this.configManager[ResourceTypeEnum.Video].length || !!this.configManager[ResourceTypeEnum.StorageOD].length) && this.initFlag
+    return  (!!this.configManager[ResourceTypeEnum.Video].length || this.configManager.hasOndemand) && this.initFlag
   }
 
   private get aiServiceUsable() {
-    return (this.configManager[ResourceTypeEnum.AI].length || this.configManager[ResourceTypeEnum.AIOD]) && this.initFlag
+    return (this.configManager[ResourceTypeEnum.AI].length || this.configManager.hasOndemand) && this.initFlag
   }
 
   private get viidServiceUsable() {
-    return !!this.configManager[ResourceTypeEnum.StorageOD].length && this.initFlag
+    return this.configManager.hasOndemand && this.initFlag
   }
 
   @Watch('configMode', { immediate: true })
@@ -242,19 +242,15 @@ export default class extends Vue {
     this.configManager.deviceStreamSize = this.deviceStreamSize
   }
 
-  @Watch('tabs', { immediate: true })
-  private async tabsChange(cur, pre) {
-    if (cur && pre && cur.join(',') === pre.join(',')) return
-    // tab数量变化重置tab选项
-    this.configManager.activeTab = this.tabs[0]
-    console.log(this.hasViidTab)
-    // 更新ConfigManager
-    await this.initConfigManager()
-  }
-
   private async mounted() {
-    console.log(this.deviceId, this.tabs)
-    this.initDeviceResource()
+    this.initFlag = false
+    this.loading = true
+    console.log(this.deviceId, this.tabs, '000000000000')
+    this.configManager.activeTab = this.tabs[0]
+    await this.initDeviceResource()
+    await this.initConfigManager()
+    this.initFlag = true
+    this.loading = false
   }
 
   /**
@@ -263,8 +259,6 @@ export default class extends Vue {
   public async initDeviceResource() {
     if (this.configMode === ConfigModeEnum.Create) return
     try {
-      this.loading = true
-      this.initFlag = false
       const res = await getDeviceResource({
         deviceId: this.deviceId,
         deviceType: this.deviceType
@@ -273,9 +267,6 @@ export default class extends Vue {
       console.log(this.configManager.initInfo)
     } catch (e) {
       console.log(e && e.message)
-    } finally {
-      this.loading = false
-      this.initFlag = true
     }
   }
 
@@ -286,30 +277,35 @@ export default class extends Vue {
     this.configManager.configMode = this.configMode
     this.configManager.channelSize = this.channelSize
     this.configManager.deviceStreamSize = this.deviceStreamSize
+    this.configManager.deviceId = this.deviceId
     this.configManager.inVideoProtocol = this.inVideoProtocol
     const initPackagesQueue = new Set()
     if (this.hasVideoTab) {
       // 视频查询存视频包、储按需包
-      !this.configManager[ResourceTypeEnum.Video].length && initPackagesQueue.add(ResourceTypeEnum.Video)
-      !this.configManager[ResourceTypeEnum.StorageOD].length && initPackagesQueue.add(ResourceTypeEnum.StorageOD)
+      initPackagesQueue.add(ResourceTypeEnum.Video)
       if (this.hasAiTab) {
         // AI须查询AI包、AI按需包
-        !this.configManager[ResourceTypeEnum.AI].length && initPackagesQueue.add(ResourceTypeEnum.AI)
-        !this.configManager[ResourceTypeEnum.AIOD].length && initPackagesQueue.add( ResourceTypeEnum.AIOD)
+        initPackagesQueue.add(ResourceTypeEnum.AI)
       }
-    } 
-    if (this.hasViidTab) {
-      // 视图需查询存储按需包
-      !this.configManager[ResourceTypeEnum.StorageOD].length && initPackagesQueue.add(ResourceTypeEnum.StorageOD)
     }
-    this.loading = true
+    // 初始化按需
+    await this.initOndemand()
+    // 初始化资源包
     const initPackages = []
     console.log(initPackagesQueue)
     initPackagesQueue.forEach(async(resourceType: ResourceTypeEnum) => {
       initPackages.push(this.initPackages(resourceType))
     })
     await Promise.all(initPackages)
-    this.loading = false
+  }
+
+  private async initOndemand() {
+    try {
+      const res = await ondemandSubscribe()
+      this.configManager.hasOndemand = res.isSubscribe === '1'
+    } catch (e) {
+      console.log(e && e.message)
+    }
   }
 
   private async initPackages(resourceType: ResourceTypeEnum) {
@@ -325,7 +321,6 @@ export default class extends Vue {
       })
     } catch (e) {
       console.log(e && e.message)
-      // this.$message.error(e.message)
     }
   }
 

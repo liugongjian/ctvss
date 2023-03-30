@@ -150,12 +150,11 @@ export default class extends Vue {
   private recordStreamType = RecordStreamType
   private recordTemplateList = []
   private resourceList = []
-  private onDemandList = []
   private rules = {
     [BillingEnum.BillingMode]: [{ required: true, message: '请选择计费模式', trigger: 'blur' }],
     [BillingEnum.RecordTemplateId]: [{ required: true, message: '请选择录制模板', trigger: 'blur' }],
     [BillingEnum.RecordStream]: [{ required: true, message: '请选择录制配置', trigger: 'blur' }],
-    [BillingEnum.ResourceId]: [{ required: true, message: '请选择计资源包', trigger: 'blur' }],
+    [BillingEnum.ResourceId]: [{ required: true, message: '请选择资源包', trigger: 'blur' }],
   }
   private unBindingInfo = {
     [ResourceTypeEnum.Video]: '停用视频服务后将立刻停止设备接入，不能进行实时预览。已存储的录像可继续回看。',
@@ -194,16 +193,7 @@ export default class extends Vue {
   }
 
   private get hasOnDemandMode() {
-    let flag = false
-    switch (this.resourceType) {
-      case ResourceTypeEnum.Video:
-      case ResourceTypeEnum.Viid:
-        flag = !!this.configManager[ResourceTypeEnum.StorageOD].length
-        break
-      case ResourceTypeEnum.AI:
-        flag = !!this.configManager[ResourceTypeEnum.AIOD].length
-        break
-    }
+    const flag = this.configManager.hasOndemand
     if (!this.configForm[BillingEnum.BillingMode] && flag && !this.hasPagckagesMode) this.configForm[BillingEnum.BillingMode] = BillingModeEnum.OnDemand
     return flag
   }
@@ -241,18 +231,6 @@ export default class extends Vue {
     }
   }
 
-  @Watch('configForm.billingMode', { immediate: true })
-  private billingModeChange(mode: BillingModeEnum, pre) {
-    if (pre && mode === BillingModeEnum.OnDemand) {
-      this.configForm[BillingEnum.ResourceId] = (this.configManager[ResourceTypeEnum.StorageOD][0] && this.configManager[ResourceTypeEnum.StorageOD][0]['resourceId']) || ''
-      this.configForm[BillingEnum.Resource] = this.configManager[ResourceTypeEnum.StorageOD][0] || {}
-    }
-    if (pre && mode === BillingModeEnum.Packages) {
-      this.configForm[BillingEnum.ResourceId] = ''
-      this.configForm[BillingEnum.Resource] = {}
-    }
-  }
-
   private async mounted() {
     console.log('mounted')
     await this.getResources(this.resourceType)
@@ -274,8 +252,6 @@ export default class extends Vue {
         }
       })
       this.resourceList = list
-      const onDemandType = this.resourceType === ResourceTypeEnum.AI ? ResourceTypeEnum.AIOD : ResourceTypeEnum.StorageOD
-      this.onDemandList = [...this.configManager[onDemandType]]
     }
   }
 

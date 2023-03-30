@@ -108,7 +108,7 @@ export default class extends Vue {
       return {
         billingMode: item.billingMode,
         channelNum: item.channelNum + '',
-        resourceId: item.resourceId,
+        resourceId: item.billingMode === BillingModeEnum.Packages ? item.resourceId : '',
         recordNum: item.recordStream,
         templateId: item.recordTemplateId
       }

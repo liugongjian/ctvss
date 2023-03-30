@@ -51,7 +51,22 @@ export default class extends Vue {
     if (form.validateViidForm()) {
       const params: DeviceForm = {
         device: {
-          deviceId: this.basicInfo.deviceId
+          ...pick(this.basicInfo, [
+            DeviceEnum.DeviceId,
+            DeviceEnum.DeviceType,
+            DeviceEnum.DeviceName,
+            DeviceEnum.DeviceLongitude,
+            DeviceEnum.DeviceLatitude,
+            DeviceEnum.DeviceIp,
+            DeviceEnum.DevicePort,
+            DeviceEnum.DeviceMac,
+            DeviceEnum.DevicePoleId,
+            DeviceEnum.DeviceSerialNumber,
+            DeviceEnum.DeviceModel,
+            DeviceEnum.Description,
+            DeviceEnum.DeviceVendor,
+            DeviceEnum.DeviceChannelSize
+          ])
         }
       }
       // 补充视图接入信息
@@ -75,7 +90,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

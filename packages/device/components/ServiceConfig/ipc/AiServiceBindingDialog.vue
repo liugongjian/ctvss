@@ -4,6 +4,7 @@
     title="绑定AI应用"
     center
     :visible="true"
+    append-to-body
     @close="closeDialog"
   >
     <el-form
@@ -231,10 +232,10 @@ export default class extends Vue {
   }
 
   /**
-   * 校验经纬度
+   * 校验app
    */
   private validateApps(rule: any, value: string, callback: Function) {
-    const remainDeviceCount = this.billingModeForm[BillingEnum.Resource]['remainDeviceCount']
+    const remainDeviceCount = this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages ? this.billingModeForm[BillingEnum.Resource]['remainDeviceCount'] : Infinity
     if (!this.selectedApps.length) {
       callback(new Error('请选择AI应用'))
     } else if (remainDeviceCount !== undefined && this.selectedApps.length > remainDeviceCount) {

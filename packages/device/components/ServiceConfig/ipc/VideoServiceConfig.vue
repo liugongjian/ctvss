@@ -41,6 +41,7 @@ export default class extends Vue {
       case BillingModeEnum.OnDemand:
         bindingInfo['recordNum'] = form[BillingEnum.RecordStream]
         bindingInfo['templateId'] = form[BillingEnum.RecordTemplateId]
+        break
       case BillingModeEnum.Packages:
         bindingInfo['resourceId'] = form[BillingEnum.ResourceId]
         break
@@ -61,9 +62,8 @@ export default class extends Vue {
   }
 
   public async validateConfigForm() {
-    if (!this.billingModeForm[BillingEnum.ResourceId]) {
-      return new Error('请完善服务配置')
-    }
+    const config: any = this.$refs.configForm
+    return await config.validateConfigForm()
   }
 }
 </script>

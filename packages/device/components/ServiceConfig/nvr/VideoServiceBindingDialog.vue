@@ -4,6 +4,7 @@
     title="配置通道"
     center
     :visible="true"
+    append-to-body
     @close="closeDialog"
   >
     <el-form
@@ -186,10 +187,10 @@ export default class extends Vue {
   }
 
   /**
-   * 校验经纬度
+   * 校验channel
    */
   private validateChannels(rule: any, value: string, callback: Function) {
-    const remainDeviceCount = this.billingModeForm[BillingEnum.Resource]['remainDeviceCount']
+    const remainDeviceCount = this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages ? this.billingModeForm[BillingEnum.Resource]['remainDeviceCount'] : Infinity
     if (!this.selectedChannels.length) {
       callback(new Error('请选择通道'))
     } else if (remainDeviceCount !== undefined && this.selectedChannels.length > remainDeviceCount) {

@@ -55,8 +55,8 @@
           <template slot-scope="{ row }">
             <el-button v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'" type="text" @click="openCanvasDialog(row)">算法配置</el-button>
             <el-button :disabled="row[ipcAiConfigEnum.Status] === '1'" type="text" @click="unBindingApp(row.id)">删除</el-button>
-            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '0'" type="text" @click="unBindingApp(row)">启用</el-button>
-            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '1'" type="text" @click="unBindingApp(row)">停用</el-button>
+            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '0'" type="text" @click="changeRunningStatus(row)">启用</el-button>
+            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '1'" type="text" @click="changeRunningStatus(row)">停用</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -243,7 +243,7 @@ export default class extends Vue {
             [IpcAiConfigEnum.AnalyseType]: item.analyseType,
             [IpcAiConfigEnum.AnalyseRate]: item.analyseType,  
             [IpcAiConfigEnum.BillingMode]: item.billingMode,
-            [IpcAiConfigEnum.ResourceId]: item.resourceId,
+            [IpcAiConfigEnum.ResourceId]: '',
             [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
             [IpcAiConfigEnum.Status]: `${item.resource['status']}`
           }
@@ -297,10 +297,11 @@ export default class extends Vue {
     this.loading.table = true
     const status = parseInt(rowInfo.status)
     const param = {
-      inProtocol: this.inVideoProtocol,
-      deviceId: this.deviceId,
-      appIds: [rowInfo.id]
+      inProtocol: this.configManager.inVideoProtocol,
+      deviceId: this.configManager.deviceId,
+      appIds: [rowInfo.appId]
     }
+    console.log(rowInfo)
     // startAppResource
     if (status) {
       stopAppResource(param)

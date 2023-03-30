@@ -11,15 +11,19 @@ export const getResources = (params: any): Promise<any> =>
   })
 
 /**
+ * 判断是否支持按需加载
+ * @param params 
+ * @returns 
+ */
+export const ondemandSubscribe = (): Promise<any> =>
+  request({
+    url: '/resource/ondemandSubscribe',
+    method: 'get'
+  })
+
+/**
  * 设备查询绑定资源包列表
  */
-// export const getDeviceResource = (params: any): Promise<any> =>
-//   request({
-//     url: '/resource/bind/list',
-//     method: 'get',
-//     params
-//   })
-
 export const getDeviceResource = (params: any): Promise<any> =>
   request({
     url: '/device/resource/list',
@@ -30,13 +34,6 @@ export const getDeviceResource = (params: any): Promise<any> =>
 /**
  * 更新设备资源包
  */
-// export const updateDeviceResource = (params: any): Promise<any> =>
-//   request({
-//     url: '/resource/bind/change',
-//     method: 'post',
-//     data: params
-//   })
-
 export const updateDeviceResource = (params: any): Promise<any> =>
   request({
     url: '/resource/update',
