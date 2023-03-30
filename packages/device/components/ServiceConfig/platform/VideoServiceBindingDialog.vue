@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="binding-dialog"
-    title="配置通道"
+    title="平台设备配置"
     center
     :visible="true"
     @close="closeDialog"
@@ -17,7 +17,6 @@
           ref="configForm"
           v-model="billingModeForm"
           :resource-type="resourceTypeEnum.Video"
-          :device-stream-size="deviceStreamSize"
         />
       </el-form-item>
       <div class="resource-title">
@@ -54,19 +53,13 @@ import DeviceResourceTree from '@vss/device/components/Tree/DeviceResourceTree.v
   }
 })
 export default class extends Vue {
-  @Prop({ default: 0 })
-  private deviceStreamSize: number
-
   @Prop({ default: () => [] })
   private selectedList: Array<any>
-
-  @Prop({ default: 0 })
-  private channelSize: number
 
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
+    [BillingEnum.BillingMode]: '',
     [BillingEnum.RecordStream]: 1,
     [BillingEnum.RecordTemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
@@ -141,8 +134,11 @@ export default class extends Vue {
    * 校验经纬度
    */
   private validateDevices(rule: any, value: string, callback: Function) {
+    const remainDeviceCount = this.billingModeForm[BillingEnum.Resource]['remainDeviceCount']
     if (!this.selectedDevices.length) {
       callback(new Error('请选择设备'))
+    } else if (remainDeviceCount !== undefined && this.selectedDevices.length > remainDeviceCount) {
+      callback(new Error('所选的设备数量须不大于资源包剩余数量'))
     } else {
       callback()
     }
@@ -158,7 +154,7 @@ export default class extends Vue {
       color: $textGrey;
 
       &__after {
-        color: #aaa;
+        color: $primary;
       }
     }
   }
@@ -185,7 +181,6 @@ export default class extends Vue {
     max-height: 65vh;
     overflow: auto;
     padding-top: 0;
-    padding-bottom: 0;
     margin-bottom: 25px;
   }
 

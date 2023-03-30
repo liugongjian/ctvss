@@ -1,6 +1,6 @@
 <template>
   <div class="detail-wrap__edit">
-    <viid-create-form ref="form" :device-form="basicInfo" :device="device" />
+    <viid-create-form ref="form" :device-form="basicInfo" :device="device" :is-edit="true" />
     <div class="detail-wrap__edit__footer">
       <el-button size="medium" type="primary" @click="submit">确 定</el-button>
       <el-button size="medium" @click="cancel">取 消</el-button>
@@ -33,9 +33,7 @@ export default class extends Vue {
 
   private async submit() {
     const form = this.$refs.form as ViidCreateForm
-    if (await form.validateViidForm()) {
-      this.doSubmit()
-    }
+    await form.validateViidForm() && this.doSubmit()
   }
 
   private cancel() {
@@ -50,7 +48,22 @@ export default class extends Vue {
     // 设备参数
     const params: DeviceForm = {
       device: {
-        deviceId: this.basicInfo.deviceId
+        ...pick(this.basicInfo, [
+          DeviceEnum.DeviceId,
+          DeviceEnum.DeviceType,
+          DeviceEnum.DeviceName,
+          DeviceEnum.DeviceLongitude,
+          DeviceEnum.DeviceLatitude,
+          DeviceEnum.DeviceIp,
+          DeviceEnum.DevicePort,
+          DeviceEnum.DeviceMac,
+          DeviceEnum.DevicePoleId,
+          DeviceEnum.DeviceSerialNumber,
+          DeviceEnum.DeviceModel,
+          DeviceEnum.Description,
+          DeviceEnum.DeviceVendor,
+          DeviceEnum.DeviceChannelSize
+        ]),
       }
     }
     const viidDevice: ViidDeviceForm = {

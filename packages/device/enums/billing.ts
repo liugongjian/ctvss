@@ -1,4 +1,13 @@
 /**
+ * 服务配置模式
+ */
+export enum ConfigModeEnum {
+  Create = 'creat',
+  Edit = 'edit',
+  View = 'view'
+}
+
+/**
  * 计费
  */
  export enum BillingEnum {
@@ -15,7 +24,8 @@
  */
 export enum BillingModeEnum {
   Packages = 'packages',
-  OnDemand = 'onDemand'
+  OnDemand = 'onDemand',
+  UnBinding = 'unBinding'
 }
 
 /**
@@ -36,7 +46,10 @@ export enum PackagesEnum {
  */
 export enum ResourceTypeEnum {
   Video = 'VSS_VIDEO',
-  AI = 'VSS_AI'
+  AI = 'VSS_AI',
+  Viid = 'VSS_VIID',
+  StorageOD = 'VSS_STORAGE_OD',
+  AIOD = 'VSS_AI_OD'
 }
 
 /**
@@ -49,18 +62,23 @@ export enum IpcAiConfigEnum {
   AnalyseType = 'analyseType',
   AnalyseRate = 'analyseRate',
   BillingMode = 'billingMode',
-  Remain = 'remain',
-  RemainZones = 'remainZones'
+  ResourceId = 'resourceId',
+  RemainDeviceCount = 'remainDeviceCount',
+  TotalDeviceCount = 'totalDeviceCount',
+  ConfigCheckArea = 'configCheckArea',
+  Status = 'status'
 }
 
 /**
  * nvr配置列表
  */
 export enum NvrConfigEnum {
-  DeviceChannelNum = 'deviceChannelNum',
+  ChannelNum = 'channelNum',
   ChannelName = 'channelName',
   BillingMode = 'billingMode',
-  Remain = 'remain',
+  RemainDeviceCount = 'remainDeviceCount',
+  TotalDeviceCount = 'totalDeviceCount',
+  ResourceId = 'resourceId',
   ExpireTime = 'expireTime',
   StorageTime = 'storageTime'
 }
@@ -68,7 +86,7 @@ export enum NvrConfigEnum {
 /**
  * platform配置列表
  */
- export enum PlatformConfigEnum {
+export enum PlatformConfigEnum {
   DeviceName = 'deviceName',
   DeviceId = 'deviceId',
   BillingMode = 'billingMode',

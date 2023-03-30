@@ -42,6 +42,17 @@
       <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.Port">
         <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
       </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="服务配置:" :prop="deviceEnum.Resource">
+        <service-config
+          ref="serviceConfig"
+          v-model="viidForm.resource"
+          :config-mode="isEdit ? configModeEnum.Edit : configModeEnum.Create"
+          :tabs="[resourceTypeEnum.Viid]"
+          :device-id="deviceForm.deviceId"
+          :device-type="deviceForm.deviceType"
+          :device-in-type="deviceInTypeEnum.Viid"
+        />
+      </el-form-item>
     </div>
   </el-form>
 </template>
@@ -49,24 +60,31 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InViidProtocol, ViidDeviceTypeByDeviceType, InViidProtocolModelMapping } from '@vss/device/dicts/index'
-import { DeviceEnum, InViidProtocolEnum } from '@vss/device/enums/index'
+import { DeviceEnum, DeviceInTypeEnum, InViidProtocolEnum } from '@vss/device/enums/index'
+import { ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
 import { Device, ViidDevice, DeviceBasicForm, ViidDeviceForm } from '@vss/device/type/Device'
 import { checkViidVisible } from '@vss/device/utils/param'
 import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
+import ServiceConfig from '@vss/device/components/ServiceConfig/index.vue'
 
 @Component({
   name: 'ViidCreateForm',
   components: {
-    CertificateSelect
+    CertificateSelect,
+    ServiceConfig
   }
 })
 export default class extends Vue {
   @Prop() private device: Device
   @Prop({ default: {} })
   private deviceForm: DeviceBasicForm
+  @Prop({ default: false }) private isEdit: boolean
 
   private deviceEnum = DeviceEnum
+  private deviceInTypeEnum = DeviceInTypeEnum
   private inViidProtocolEnum = InViidProtocolEnum
+  private resourceTypeEnum = ResourceTypeEnum
+  private configModeEnum = ConfigModeEnum
   private inViidProtocol = InViidProtocol
   private viidDeviceTypeByDeviceType = ViidDeviceTypeByDeviceType
   private ga1400AccountList = []
@@ -92,6 +110,9 @@ export default class extends Vue {
     [DeviceEnum.Port]: [
       { required: true, message: '请输入端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
+    ],
+    [DeviceEnum.Resource]: [
+      { validator: this.validateResource, trigger: 'change' }
     ]
   }
 
@@ -119,7 +140,8 @@ export default class extends Vue {
       [DeviceEnum.DeviceType]: this.viidInfo.deviceType,
       [DeviceEnum.InUserId]: this.viidInfo.inUserId,
       [DeviceEnum.Ip]: this.viidInfo.ip,
-      [DeviceEnum.Port]: +this.viidInfo.port === 0 ? null : this.viidInfo.port
+      [DeviceEnum.Port]: +this.viidInfo.port === 0 ? null : this.viidInfo.port,
+      [DeviceEnum.Resource]: { viid: [] }
     }
   }
 
@@ -175,6 +197,19 @@ export default class extends Vue {
       callback(new Error('设备端口仅支持数字'))
     } else if (value === 0) {
       callback(new Error('设备端口号不能为0'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验服务配置
+   */
+  public async validateResource(rule: any, value: string, callback: Function) {
+    const serviceConfig = this.$refs.serviceConfig as any
+    const valid = await serviceConfig.validateServiceConfig()
+    if (valid) {
+      callback(valid)
     } else {
       callback()
     }

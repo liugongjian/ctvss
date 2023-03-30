@@ -1,20 +1,32 @@
-/**
- * 资源包
- */
-type Resource = {
-  resourceIds: number[]
-  aIApps: AIApp[]
-}
+// /**
+//  * 资源包
+//  */
+// type Resource = {
+//   resourceIds: number[]
+//   aIApps: AIApp[]
+// }
+
+// /**
+//  * AI应用
+//  */
+// type AIApp = {
+//   aIAppId: string
+//   aIType: string
+// }
 
 /**
- * AI应用
+ * 服务配置
  */
-type AIApp = {
-  aIAppId: string
-  aIType: string
+ type Resource = {
+  video?: any[]
+  aI?: any[]
+  viid?: any[]
 }
 
 export {
-  Resource,
-  AIApp
+  Resource
+}
+
+export {
+  Resource
 }

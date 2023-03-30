@@ -301,7 +301,8 @@ export const DeviceTypeDenyParamsForVideo = {
     DeviceEnum.DeviceSerialNumber,
     DeviceEnum.DeviceModel,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort
+    DeviceEnum.DevicePort,
+    DeviceEnum.Resource
   ])
 }
 
@@ -333,7 +334,8 @@ export const InViidProtocolCreateParams = {
     DeviceEnum.DeviceType,
     DeviceEnum.InUserId,
     DeviceEnum.Ip,
-    DeviceEnum.Port
+    DeviceEnum.Port,
+    DeviceEnum.Resource
   ])
 }
 
@@ -381,13 +383,15 @@ export const DeviceTypeDenyParamsForViid = {
     DeviceEnum.PlatformName,
     DeviceEnum.OutId,
     DeviceEnum.Ip,
-    DeviceEnum.Port
+    DeviceEnum.Port,
+    DeviceEnum.Resource
   ]),
   [DeviceTypeEnum.Platform]: new Set([
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceName,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort
+    DeviceEnum.DevicePort,
+    DeviceEnum.Resource
   ])
 }
 
@@ -446,7 +450,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StopDevices,
     ToolsEnum.DeleteDevices,
     ToolsEnum.MoveDevices,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
     ToolsEnum.ReplayVideo
@@ -469,7 +473,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StartRecord,
     ToolsEnum.StopRecord,
     ToolsEnum.MoveDevice,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
     ToolsEnum.ReplayVideo,
@@ -491,7 +495,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.MoveDevice,
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
@@ -508,7 +512,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.MoveDevice,
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
-    ToolsEnum.UpdateResource
+    // ToolsEnum.UpdateResource
   ]),
   [DirectoryTypeEnum.Role]: new Set([
     ToolsEnum.SyncDeviceStatus,

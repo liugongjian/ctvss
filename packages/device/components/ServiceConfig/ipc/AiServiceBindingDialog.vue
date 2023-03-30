@@ -4,6 +4,7 @@
     title="绑定AI应用"
     center
     :visible="true"
+    append-to-body
     @close="closeDialog"
   >
     <el-form
@@ -16,9 +17,14 @@
         <billing-mode-selector
           ref="configForm"
           v-model="billingModeForm"
+          :real-package-remain="realPackageRemain"
           :resource-type="resourceTypeEnum.AI"
         />
       </el-form-item>
+      <div class="resource-title">
+        <span class="config-title">待配置AI应用：</span>
+        <span class="config-title__after">{{ `已选中 ${selectedApps.length} 项` }}</span>
+      </div>
       <el-form-item prop="apps">
         <el-tabs
           v-model="activeTabId"
@@ -69,11 +75,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
+import { watch } from 'fs'
 @Component({
   name: 'IpcAiServiceBindingDialog',
   components: {
@@ -84,10 +91,13 @@ export default class extends Vue {
   @Prop({ default: () => [] })
   private selectedList: Array<any>
 
+  @Prop({ default: () => new Object() })
+  private realPackageRemain
+
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
+    [BillingEnum.BillingMode]: '',
     [BillingEnum.ResourceId]: '',
     [BillingEnum.Resource]: {}
   }
@@ -110,6 +120,11 @@ export default class extends Vue {
   private loading = {
     appList: false,
     abilityList: false
+  }
+
+  @Watch('billingModeForm.billingMode')
+  private billingModeChange() {
+    this.getAppList()
   }
 
   private async mounted() {
@@ -160,6 +175,9 @@ export default class extends Vue {
       this.aiApps = aiApps.filter(aiApp => {
         return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
       })
+      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
+        this.aiApps = this.aiApps.filter(item => item.analyseType !== 'AI-300')
+      }
       await this.$nextTick(() => this.toggleSelection())
     } catch (e) {
       this.$message.error(e && e.message)
@@ -173,6 +191,7 @@ export default class extends Vue {
    */
   private handleSelectionChange(apps) {
     // 初始化勾选项时不触发
+    if (this.loading.appList) return
     this.aiApps.forEach(row => {
       if (apps.some(app => (app as any).id === row.id)) {
         if (!this.selectedAppIdsSet.has(row.id)) {
@@ -222,11 +241,14 @@ export default class extends Vue {
   }
 
   /**
-   * 校验经纬度
+   * 校验app
    */
   private validateApps(rule: any, value: string, callback: Function) {
+    const remainDeviceCount = this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages ? this.billingModeForm[BillingEnum.Resource]['remainDeviceCount'] : Infinity
     if (!this.selectedApps.length) {
       callback(new Error('请选择AI应用'))
+    } else if (remainDeviceCount !== undefined && this.selectedApps.length > remainDeviceCount) {
+      callback(new Error('所选的AI应用数量须不大于AI资源包剩余数量'))
     } else {
       callback()
     }
@@ -243,11 +265,23 @@ export default class extends Vue {
     }
   }
 
+  .resource-title {
+    display: flex;
+    margin-bottom: 10px;
+
+    .config-title {
+      color: $textGrey;
+
+      &__after {
+        color: $primary;
+      }
+    }
+  }
+
   ::v-deep .el-dialog__body {
     max-height: 60vh;
     overflow: auto;
     padding-top: 0;
-    padding-bottom: 0;
     margin-bottom: 25px;
   }
 
