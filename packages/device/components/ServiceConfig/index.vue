@@ -243,12 +243,16 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    this.init()
+  }
+
+  public async init() {
     this.initFlag = false
     this.loading = true
     console.log(this.deviceId, this.tabs, '000000000000')
     this.configManager.activeTab = this.tabs[0]
-    await this.initDeviceResource()
     await this.initConfigManager()
+    await this.initDeviceResource()
     this.initFlag = true
     this.loading = false
   }

@@ -54,7 +54,7 @@
         <el-table-column label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
             <el-button v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'" type="text" @click="openCanvasDialog(row)">算法配置</el-button>
-            <el-button :disabled="row[ipcAiConfigEnum.Status] === '1'" type="text" @click="unBindingApp(row.id)">删除</el-button>
+            <el-button :disabled="row[ipcAiConfigEnum.Status] !== '0'" type="text" @click="unBindingApp(row.id)">删除</el-button>
             <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '0'" type="text" @click="changeRunningStatus(row)">启用</el-button>
             <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '1'" type="text" @click="changeRunningStatus(row)">停用</el-button>
           </template>
@@ -234,7 +234,7 @@ export default class extends Vue {
             [IpcAiConfigEnum.RemainDeviceCount]: item.resource['remainDeviceCount'],
             [IpcAiConfigEnum.TotalDeviceCount]: item.resource['totalDeviceCount'],
             [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
-            [IpcAiConfigEnum.Status]: `${item.resource['status']}`
+            [IpcAiConfigEnum.Status]: '0'
           }
           : {
             [IpcAiConfigEnum.AppId]: item.id,
@@ -245,7 +245,7 @@ export default class extends Vue {
             [IpcAiConfigEnum.BillingMode]: item.billingMode,
             [IpcAiConfigEnum.ResourceId]: '',
             [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
-            [IpcAiConfigEnum.Status]: `${item.resource['status']}`
+            [IpcAiConfigEnum.Status]: '0'
           }
       }))
     )

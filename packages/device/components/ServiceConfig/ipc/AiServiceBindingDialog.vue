@@ -75,11 +75,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
+import { watch } from 'fs'
 @Component({
   name: 'IpcAiServiceBindingDialog',
   components: {
@@ -119,6 +120,11 @@ export default class extends Vue {
   private loading = {
     appList: false,
     abilityList: false
+  }
+
+  @Watch('billingModeForm.billingMode')
+  private billingModeChange() {
+    this.getAppList()
   }
 
   private async mounted() {
@@ -169,6 +175,9 @@ export default class extends Vue {
       this.aiApps = aiApps.filter(aiApp => {
         return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
       })
+      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
+        this.aiApps = this.aiApps.filter(item => item.analyseType !== 'AI-300')
+      }
       await this.$nextTick(() => this.toggleSelection())
     } catch (e) {
       this.$message.error(e && e.message)
@@ -258,6 +267,7 @@ export default class extends Vue {
 
   .resource-title {
     display: flex;
+    margin-bottom: 10px;
 
     .config-title {
       color: $textGrey;

@@ -131,7 +131,7 @@ export default class extends Vue {
           resource: this.resource
         })
         this.configMode = ConfigModeEnum.View
-        serviceConfig.initDeviceResource()
+        serviceConfig.init()
       } catch (e) {
         console.log(e)
       } finally {
@@ -142,6 +142,8 @@ export default class extends Vue {
 
   private cancel() {
     this.configMode = ConfigModeEnum.View
+    const serviceConfig = this.$refs.serviceConfig as any
+    serviceConfig.init()
   }
   
 }
