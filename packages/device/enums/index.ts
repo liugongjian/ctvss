@@ -74,6 +74,7 @@ export enum DeviceEnum {
   AIApps = 'aIApps',
   AnalyseType = 'analyseType',
   RemainDeviceCount = 'remainDeviceCount',
+  Service = 'service',
   CreatedTime = 'createdTime',
   UpdatedTime = 'updatedTime',
   IsOnline = 'isOnline',

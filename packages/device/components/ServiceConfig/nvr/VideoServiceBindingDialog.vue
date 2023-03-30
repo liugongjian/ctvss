@@ -16,10 +16,14 @@
         <billing-mode-selector
           ref="configForm"
           v-model="billingModeForm"
+          :real-package-remain="realPackageRemain"
           :resource-type="resourceTypeEnum.Video"
-          :device-stream-size="deviceStreamSize"
         />
       </el-form-item>
+      <div class="resource-title">
+        <span class="config-title">待配置通道：</span>
+        <span class="config-title__after">{{ `已选中 ${selectedChannels.length} 项` }}</span>
+      </div>
       <el-form-item prop="channels">
         <el-table
           ref="channelTable"
@@ -38,7 +42,7 @@
             </template>
           </el-table-column>
           <el-table-column label="通道号" min-width="120">
-            <template slot-scope="scope">{{ `D${scope.row.deviceChannelNum}` }}</template>
+            <template slot-scope="scope">{{ `D${scope.row.channelNum}` }}</template>
           </el-table-column>
         </el-table>
         <el-pagination
@@ -60,7 +64,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Inject, Prop } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 @Component({
@@ -70,20 +74,20 @@ import BillingModeSelector from '../components/BillingModeSelector.vue'
   }
 })
 export default class extends Vue {
-  @Prop({ default: 0 })
-  private deviceStreamSize: number
+  @Inject({ default: () => new Object() })
+  private configManager
 
   @Prop({ default: () => [] })
   private selectedList: Array<any>
 
-  @Prop({ default: 0 })
-  private channelSize: number
+  @Prop({ default: () => new Object() })
+  private realPackageRemain
 
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
-    [BillingEnum.RecordStream]: 1,
+    [BillingEnum.BillingMode]: '',
+    [BillingEnum.RecordStream]: '1',
     [BillingEnum.RecordTemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
     [BillingEnum.ResourceId]: '',
@@ -108,7 +112,8 @@ export default class extends Vue {
 
   private get channelList() {
     return this.getChannelList().filter(channel => {
-      return this.selectedList.findIndex(item => item.deviceChannelNum === channel.deviceChannelNum) === -1
+      console.log(channel)
+      return this.selectedList.findIndex(item => item.channelNum === channel.channelNum) === -1
     })
   }
 
@@ -129,9 +134,9 @@ export default class extends Vue {
   private getChannelList(): any[] {
     const tempList = []
     let count = 1
-    while (count <= this.channelSize) {
+    while (count <= this.configManager.channelSize) {
       tempList.push({
-        deviceChannelNum: count,
+        channelNum: count + '',
         name: `通道${count}`
       })
       count++
@@ -184,8 +189,11 @@ export default class extends Vue {
    * 校验经纬度
    */
   private validateChannels(rule: any, value: string, callback: Function) {
+    const remainDeviceCount = this.billingModeForm[BillingEnum.Resource]['remainDeviceCount']
     if (!this.selectedChannels.length) {
       callback(new Error('请选择通道'))
+    } else if (remainDeviceCount !== undefined && this.selectedChannels.length > remainDeviceCount) {
+      callback(new Error('所选的通道数量须不大于资源包剩余数量'))
     } else {
       callback()
     }
@@ -202,11 +210,22 @@ export default class extends Vue {
     }
   }
 
+  .resource-title {
+    display: flex;
+
+    .config-title {
+      color: $textGrey;
+
+      &__after {
+        color: $primary;
+      }
+    }
+  }
+
   ::v-deep .el-dialog__body {
     max-height: 65vh;
     overflow: auto;
     padding-top: 0;
-    padding-bottom: 0;
     margin-bottom: 25px;
   }
 

@@ -301,7 +301,8 @@ export const DeviceTypeDenyParamsForVideo = {
     DeviceEnum.DeviceSerialNumber,
     DeviceEnum.DeviceModel,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort
+    DeviceEnum.DevicePort,
+    DeviceEnum.Resource
   ])
 }
 
@@ -333,7 +334,8 @@ export const InViidProtocolCreateParams = {
     DeviceEnum.DeviceType,
     DeviceEnum.InUserId,
     DeviceEnum.Ip,
-    DeviceEnum.Port
+    DeviceEnum.Port,
+    DeviceEnum.Resource
   ])
 }
 
@@ -381,13 +383,15 @@ export const DeviceTypeDenyParamsForViid = {
     DeviceEnum.PlatformName,
     DeviceEnum.OutId,
     DeviceEnum.Ip,
-    DeviceEnum.Port
+    DeviceEnum.Port,
+    DeviceEnum.Resource
   ]),
   [DeviceTypeEnum.Platform]: new Set([
     DeviceEnum.DeviceInType,
     DeviceEnum.DeviceName,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort
+    DeviceEnum.DevicePort,
+    DeviceEnum.Resource
   ])
 }
 

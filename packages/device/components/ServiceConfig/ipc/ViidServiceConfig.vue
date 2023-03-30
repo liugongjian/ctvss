@@ -1,15 +1,15 @@
 <template>
-  <div class="video-service-config">
+  <div class="viid-service-config">
     <billing-mode-selector
       ref="configForm"
       v-model="billingModeForm"
-      :resource-type="resourceTypeEnum.Video"
+      :resource-type="resourceTypeEnum.Viid"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 @Component({
@@ -25,7 +25,6 @@ export default class extends Vue {
   private resourceTypeEnum = ResourceTypeEnum
   private billingModeForm = {
     [BillingEnum.BillingMode]: '',
-    [BillingEnum.RecordStream]: '1',
     [BillingEnum.RecordTemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
     [BillingEnum.ResourceId]: '',
@@ -39,29 +38,24 @@ export default class extends Vue {
     }
     switch (form[BillingEnum.BillingMode]) {
       case BillingModeEnum.OnDemand:
-        bindingInfo['recordNum'] = form[BillingEnum.RecordStream]
-        bindingInfo['templateId'] = form[BillingEnum.RecordTemplateId]
-      case BillingModeEnum.Packages:
         bindingInfo['resourceId'] = form[BillingEnum.ResourceId]
-        break
+        bindingInfo['templateId'] = form[BillingEnum.RecordTemplateId]
     }
     this.$emit('config-change', [bindingInfo])
   }
 
   private mounted() {
-    const videoInfo = this.configManager.initInfo.video
-    if (videoInfo && videoInfo.length) {
-      const info = videoInfo[0]
+    const viidInfo = this.configManager.initInfo.viid
+    if (viidInfo && viidInfo.length) {
+      const info = viidInfo[0]
       this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
-      this.billingModeForm[BillingEnum.RecordStream] = info.recordNum
       this.billingModeForm[BillingEnum.RecordTemplateId] = info.templateId
       this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
     }
-    console.log(this.billingModeForm)
   }
 
   public async validateConfigForm() {
-    if (!this.billingModeForm[BillingEnum.ResourceId]) {
+    if (!this.billingModeForm[BillingEnum.RecordTemplateId]) {
       return new Error('请完善服务配置')
     }
   }

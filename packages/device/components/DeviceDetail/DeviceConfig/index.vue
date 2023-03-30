@@ -1,7 +1,8 @@
 <template>
-  <div v-if="deviceId" class="config-container">
-    <resource-template-info v-if="!isIbox" :device-id="deviceId" :device="device" />
-    <record-template-info v-if="!isIbox" :device-id="deviceId" />
+  <div v-if="deviceId && isLoaded" class="config-container">
+    <service-info v-if="deviceType !== deviceTypeEnum.Platform" :device-id="deviceId" :device="device" />
+    <!-- <resource-template-info v-if="!isIbox" :device-id="deviceId" :device="device" />
+    <record-template-info v-if="!isIbox" :device-id="deviceId" /> -->
     <callback-template-info :device-id="deviceId" />
     <alert-template-info v-if="!isIbox && inProtocol === InVideoProtocolEnum.Gb28181" :device-id="deviceId" />
   </div>
@@ -9,6 +10,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
+import ServiceInfo from '@vss/device/components/DeviceDetail/DeviceConfig/ServiceInfo.vue'
 import ResourceTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/ResourceTemplateInfo.vue' 
 import RecordTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/RecordTemplateInfo.vue' 
 import CallbackTemplateInfo from '@vss/device/components/DeviceDetail/DeviceConfig/CallbackTemplateInfo.vue' 
@@ -19,6 +21,7 @@ import { InVideoProtocolEnum } from '@vss/device/enums/index'
 @Component({
   name: 'DeviceConfig',
   components: {
+    ServiceInfo,
     ResourceTemplateInfo,
     RecordTemplateInfo,
     CallbackTemplateInfo,
@@ -28,8 +31,11 @@ import { InVideoProtocolEnum } from '@vss/device/enums/index'
 export default class extends Mixins(detailMixin) {
   private InVideoProtocolEnum = InVideoProtocolEnum
 
-  public async mounted() {
+  private isLoaded = false
+
+  public async created() {
     await this.getDevice()
+    this.isLoaded = true
   }
 }
 </script>

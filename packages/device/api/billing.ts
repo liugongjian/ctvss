@@ -13,9 +13,16 @@ export const getResources = (params: any): Promise<any> =>
 /**
  * 设备查询绑定资源包列表
  */
+// export const getDeviceResource = (params: any): Promise<any> =>
+//   request({
+//     url: '/resource/bind/list',
+//     method: 'get',
+//     params
+//   })
+
 export const getDeviceResource = (params: any): Promise<any> =>
   request({
-    url: '/resource/bind/list',
+    url: '/device/resource/list',
     method: 'get',
     params
   })
@@ -23,9 +30,16 @@ export const getDeviceResource = (params: any): Promise<any> =>
 /**
  * 更新设备资源包
  */
+// export const updateDeviceResource = (params: any): Promise<any> =>
+//   request({
+//     url: '/resource/bind/change',
+//     method: 'post',
+//     data: params
+//   })
+
 export const updateDeviceResource = (params: any): Promise<any> =>
   request({
-    url: '/resource/bind/change',
+    url: '/resource/update',
     method: 'post',
     data: params
   })

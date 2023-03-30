@@ -35,9 +35,9 @@ export default class extends Vue {
 
   private mounted() {
     // 不是Ibox的情况需要等待资源包加载完成
-    if (!this.isIbox) {
-      this.loading.resource = true
-    }
+    // if (!this.isIbox) {
+    //   this.loading.resource = true
+    // }
   }
 
   // 设备基本信息
@@ -50,11 +50,12 @@ export default class extends Vue {
    */
   private async submit() {
     const form = this.$refs.form as VideoCreateForm
-    if (!this.isIbox) {
-      await form.validateVideoForm() && form.beforeSubmit(this.doSubmit)
-    } else {
-      await form.validateVideoForm() && this.doSubmit()
-    }
+    // if (!this.isIbox) {
+    //   await form.validateVideoForm() && form.beforeSubmit(this.doSubmit)
+    // } else {
+    //   await form.validateVideoForm() && this.doSubmit()
+    // }
+    await form.validateVideoForm() && this.doSubmit()
   }
 
   /**
@@ -89,7 +90,8 @@ export default class extends Vue {
     // 资源包参数
     const resourceParams = {
       deviceId: this.basicInfo.deviceId,
-      ...form.videoForm.resource
+      deviceType: this.basicInfo.deviceType,
+      resource: form.videoForm.resource
     }
     try {
       // IBOX不提交资源包更新
