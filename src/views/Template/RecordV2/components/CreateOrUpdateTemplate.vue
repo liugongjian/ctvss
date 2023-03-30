@@ -78,7 +78,6 @@
             >
               <el-checkbox-group
                 v-model="checkedDays"
-                @change="checkedDayChange"
                 class="checkboxs"
               >
                 <el-checkbox
@@ -333,13 +332,12 @@ export default class extends Vue {
           // customers[i].addEventListener('mouseup', this.handleMouseup, false)
           customers[i].addEventListener('mouseleave', this.handleMouseLeave, true)
         }
-        console.log('注册拖拽层事件', customers)
       })
       document.body.addEventListener('mouseup', this.handleMouseup, false)
       // document.body.addEventListener('mousemove', this.handleMousemove, false)
     } else {
-      // 清空 循环相关数据
-      if (this.weekdays) {
+      // 清空 循环相关数据,新建清空，编辑保留
+      if (this.weekdays && this.createOrUpdateFlag) {
         this.MonList = []
         this.TusList = []
         this.WesList = []
@@ -383,7 +381,6 @@ export default class extends Vue {
           clickmask[i].addEventListener('mouseup', this.handleClickMouseup, false)
           clickmask[i].addEventListener('mouseleave', this.handleMouseLeave, false)
         }
-        console.log('注册点击层事件')
       } else {
         this.clickMaskStyle.display = 'none'
       }
@@ -420,40 +417,47 @@ export default class extends Vue {
         storageTime: 30
       }
     } else {
-      console.log('编辑    this.formData ', this.formData)
       // 编辑
       this.form = {
         templateId: this.templateId,
         templateName: this.formData.templateName,
         description: this.formData.description,
-        recordType: this.formData.recordModes[0].recordType,
-        storageTime: +this.formData.recordModes[0].storageTime / 60 / 60 / 24 // 秒 --> 天
+        recordType: this.formData.recordType,
+        storageTime: +this.formData.storageTime / 60 / 60 / 24 // 秒 --> 天
       }
       // 构建循环录制数据
-      if (this.formData.recordModes[0].recordType === 2) {
-        this.buildLoopData(this.formData.recordModes[0].weekTimeSections)
+      if (this.formData.recordType === 2) {
+        // 2 数据不可清除
+        this.fixDataType = 2
+        this.buildLoopData(this.formData.weekTimeSections)
       }
       // 构建定时录制数据
-      if (this.formData.recordModes[0].recordType === 3) {
-        this.buildCusData(this.formData.recordModes[0].specTimeSections)
+      if (this.formData.recordType === 3) {
+        this.fixDataType = 3
+        this.buildCusData(this.formData.specTimeSections)
       }
     }
   }
 
   private async submit() {
     const form: any = this.$refs.dataForm
-    // console.log('看看数据      🍎 form, this.weekdays, this.customDates', this.form, this.weekdays, this.customDates)
     form.validate(async(valid: any) => {
       if (valid) {
         try {
           let templateId = this.templateId
           let recordModes: any = undefined
+          if (this.form.recordType === 1) {
+            recordModes = this.tidyNormalData(1)
+          }
           if (this.form.recordType === 2) {
             recordModes = this.tidyLoopData()
           }
           if (this.form.recordType === 3) {
             if (this.cusSubmitCheck()) return
             recordModes = this.tidyCusDate()
+          }
+          if (this.form.recordType === 5) {
+            recordModes = this.tidyNormalData(5)
           }
           this.submitting = true
           // 提交时,不允许操作 模板列表
@@ -462,9 +466,8 @@ export default class extends Vue {
             const params = {
               templateName: this.form.templateName,
               description: this.form.description,
-              recordModes: [recordModes]
+              ...recordModes
             }
-            // console.log('太久太久      🚧', params)
             const res = await createRecordTemplate(params)
             templateId = res.templateId
             this.$message.success('新建模板成功!')
@@ -472,12 +475,12 @@ export default class extends Vue {
             const params = {
               templateName: this.form.templateName,
               description: this.form.description,
-              recordModes: [recordModes]
+              templateId: templateId,
+              ...recordModes
               // weekTimeSections: weekTimeSections,
               // specTimeSections: specTimeSections,
               // storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
-            // console.log('太久太久      🚧', params)
             await updateRecordTemplate(params)
             this.$message.success('修改模板成功!')
           }
@@ -537,7 +540,6 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
-    console.log('。。。。。。。为啥   ', this.weekdays)
     if (this.moveFlag) {
       // 在拖拽区域外释放鼠标,删除该绘制状态
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
@@ -845,7 +847,6 @@ export default class extends Vue {
 
   // 校验拖拽时间有效性
   private dragTimeValidate(weekdayList: any, currentTime: number, fixTime: number) {
-    console.log('不缺分一下吗？    ', weekdayList)
     if (weekdayList.some((item: any) => {
       // return currentTime <= item.endTime && !item.moveable && fixTime > item.endTime
       return currentTime <= item.durationEndTime && !item.moveable && fixTime >= item.durationEndTime
@@ -1104,10 +1105,6 @@ export default class extends Vue {
     })
   }
 
-  private checkedDayChange() {
-    console.log('勾选变化', this.checkedDays)
-  }
-
   private selectClick() {
     if (this.checkedDays.length === 0) return
     // 当前duration
@@ -1164,6 +1161,14 @@ export default class extends Vue {
     }
   }
 
+  // 整理全天录制和手动录制
+  private tidyNormalData(recordType: number) {
+    return {
+      recordType: recordType,
+      storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
+    }
+  }
+
   // 整理循环定时录制数据
   private tidyLoopData() {
     let recordModes: any = {
@@ -1185,7 +1190,6 @@ export default class extends Vue {
 
   // 删除 循环定时录制的 某个duration
   private deleteLoop() {
-    console.log('删除咯  😜')
     this.weekdays[this.currentClickRow - 1].splice(this.currentClickCol, 1)
     this.showOpt = false
     this.durationTime = []
@@ -1330,7 +1334,6 @@ export default class extends Vue {
 
   // 整理指定时间录制时间
   private tidyCusDate() {
-    console.log('不能进')
     let recordModes: any = {
       recordType: 3,
       specTimeSections: [],
@@ -1434,7 +1437,8 @@ export default class extends Vue {
 .time-mask {
   width: 720px;
   height: 44px;
-  background-color: rgba(175, 85, 85, 10%);
+  // background-color: rgba(175, 85, 85, 10%);
+  background-color: transparent;
   position: absolute;
   left: 60px;
   // display: flex;
@@ -1450,13 +1454,14 @@ export default class extends Vue {
   // display: flex;
   cursor: pointer;
   justify-content: space-between;
-  background-color: rgba(87, 148, 52, 10%);
+  // background-color: rgba(87, 148, 52, 10%);
+  background-color: transparent;
 }
 
 .stick {
   width: 2px;
   height: 44px;
-  background-color: black;
+  background-color: rgba(1, 4, 206);
   pointer-events: none; // 禁止接收鼠标事件
 }
 
@@ -1464,12 +1469,12 @@ export default class extends Vue {
 .stick-right {
   width: 2px;
   height: 44px;
-  background-color: turquoise;
+  background-color: rgba(1, 4, 206);
   cursor: col-resize;
 }
 
 .duration-default {
-  background-color: rgba(1, 1, 1, 20%);
+  background-color: rgba(66, 124, 231, 69.9%);
   position: absolute;
   height: 44px;
   display: flex;
@@ -1478,7 +1483,7 @@ export default class extends Vue {
 }
 
 .duration-click {
-  background-color: rgba(1, 1, 1, 20%);
+  background-color: rgba(66, 124, 231, 69.9%);
   position: absolute;
   height: 44px;
   display: flex;
