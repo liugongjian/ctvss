@@ -11,7 +11,7 @@
           node-key="id"
           lazy
           highlight-current
-          empty-text="暂无已绑定设备"
+          empty-text="暂无设备"
           :load="loadSubDeviceLeft"
           :props="treeProp"
           show-checkbox
@@ -181,7 +181,7 @@ export default class extends Vue {
       try {
         this.loading.deviceTree = true
         const res = await getTemplateDeviceTree({
-          templateId: this.currentTemplate.templateId,
+          templateId: this.currentTemplate.recordTemplateId,
           groupId: 0,
           id: 0,
           bind: false
@@ -398,7 +398,7 @@ export default class extends Vue {
       const data: any = node.data
       const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
-        templateId: this.currentTemplate.templateId,
+        templateId: this.currentTemplate.recordTemplateId,
         groupId: rootId,
         id: data.id,
         type: data.type,
@@ -540,7 +540,7 @@ export default class extends Vue {
         }
       })
       await setDeviceRecordTemplateBatch({
-        templateId: this.currentTemplate.templateId,
+        templateId: this.currentTemplate.recordTemplateId,
         devices: devices,
         startRecord: this.quickStart
       })

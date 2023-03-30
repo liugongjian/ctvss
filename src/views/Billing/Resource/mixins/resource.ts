@@ -11,8 +11,8 @@ export default class ResourceMixin extends Vue {
     this.getResource()
   }
 
-  @Watch('$route.path', { immediate: true })
-  public pathChange(){
+  @Watch('$route.path')
+  public pathChange() {
     this.dataList = []
     this.getResource()
   }
