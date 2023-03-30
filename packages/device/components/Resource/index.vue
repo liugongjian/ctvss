@@ -126,7 +126,7 @@
 </template>
 <script lang='ts'>
 import { Component, Prop, Watch, VModel, Vue } from 'vue-property-decorator'
-import { Resource } from '@vss/device/type/Resource'
+// import { Resource } from '@vss/device/type/Resource'
 import { ResourceType, ResourceAiType } from '@vss/device/dicts/resource'
 import { getResources, getDeviceResource } from '@vss/device/api/billing'
 import { UserModule } from '@/store/modules/user'

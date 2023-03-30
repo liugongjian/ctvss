@@ -36,7 +36,7 @@ import { Component, Prop, Watch, VModel, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@vss/device/dicts/resource'
 import { getAbilityList, getAppList } from '@vss/device/api/ai-app'
 import { cloneDeep, flatten } from 'lodash'
-import { AIApp } from '@vss/device/type/Resource'
+// import { AIApp } from '@vss/device/type/Resource'
 
 @Component({
   name: 'ResourceApps'

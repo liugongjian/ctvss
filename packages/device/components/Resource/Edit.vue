@@ -33,7 +33,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Resource as ResourceType } from '@vss/device/type/Resource'
+// import { Resource as ResourceType } from '@vss/device/type/Resource'
 import { ResourceTypeEnum } from '@vss/device/enums/resource'
 import Resource from './index.vue'
 import { updateDeviceResource } from '@vss/device/api/billing'
