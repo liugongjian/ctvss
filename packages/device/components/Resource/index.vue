@@ -143,7 +143,7 @@ import { getAppList } from '@vss/device/api/ai-app'
   }
 })
 export default class extends Vue {
-  @VModel() private resource?: Resource
+  @VModel() private resource?: any
   // 设备ID
   @Prop() private deviceId?: boolean
   // 是否为私有接入网络
