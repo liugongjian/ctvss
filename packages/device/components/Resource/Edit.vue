@@ -53,7 +53,7 @@ export default class extends Vue {
   private submitting = false
   private loading = true
   private form = {
-    resource: null as ResourceType
+    resource: null as any
   }
   private rules = {
     resource: [
@@ -69,7 +69,7 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate((valid) => {
       if (valid) {
-        const resourceForm = this.$refs.resourceForm as Resource
+        const resourceForm = this.$refs.resourceForm as any
         resourceForm.beforeSubmit(this.doSubmit)
       }
     })
@@ -107,7 +107,7 @@ export default class extends Vue {
    * 校验资源包
    */
   public validateResource(rule: any, value: string, callback: Function) {
-    const resourceForm = this.$refs.resourceForm as Resource
+    const resourceForm = this.$refs.resourceForm as any
     const res = resourceForm.validate()
     if (!res.result) {
       callback(new Error(res.message))
