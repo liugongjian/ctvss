@@ -450,7 +450,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StopDevices,
     ToolsEnum.DeleteDevices,
     ToolsEnum.MoveDevices,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
     ToolsEnum.ReplayVideo
@@ -473,7 +473,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.StartRecord,
     ToolsEnum.StopRecord,
     ToolsEnum.MoveDevice,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents,
     ToolsEnum.PreviewVideo,
     ToolsEnum.ReplayVideo,
@@ -495,7 +495,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.MoveDevice,
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
-    ToolsEnum.UpdateResource,
+    // ToolsEnum.UpdateResource,
     ToolsEnum.PreviewEvents
   ]),
   [DirectoryTypeEnum.Platform]: new Set([
@@ -512,7 +512,7 @@ export const DeviceListToolsAllowParams = {
     ToolsEnum.MoveDevice,
     ToolsEnum.StartDevices,
     ToolsEnum.StopDevices,
-    ToolsEnum.UpdateResource
+    // ToolsEnum.UpdateResource
   ]),
   [DirectoryTypeEnum.Role]: new Set([
     ToolsEnum.SyncDeviceStatus,
