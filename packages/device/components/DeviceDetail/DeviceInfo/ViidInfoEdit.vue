@@ -12,6 +12,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic, DeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
 import { InViidProtocolModelMapping } from '@vss/device/dicts/index'
 import { InViidProtocolCreateParams } from '@vss/device/settings'
+import { updateDeviceResource } from '@vss/device/api/billing'
 import { updateDevice } from '@vss/device/api/device'
 import { DeviceEnum } from '@vss/device/enums'
 import ViidCreateForm from '../../Form/ViidCreateForm.vue'
@@ -78,8 +79,16 @@ export default class extends Vue {
       ...pick(form.viidForm, [...InViidProtocolCreateParams[form.viidForm.inViidProtocol]])
     }
     params.viids = [ viidDevice ]
+
+    // 资源包参数
+    const resourceParams = {
+      deviceId: this.basicInfo.deviceId,
+      deviceType: this.basicInfo.deviceType,
+      resource: form.viidForm.resource
+    }
     try {
       this.loading = true
+      await updateDeviceResource(resourceParams)
       await updateDevice(params)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
