@@ -105,6 +105,7 @@ export default class extends Vue {
       }
     })
     this.$emit('config-change', selectedList.map(item => {
+      console.log()
       return {
         billingMode: item.billingMode,
         channelNum: item.channelNum + '',
@@ -178,7 +179,7 @@ export default class extends Vue {
             [NvrConfigEnum.ChannelNum]: item.channelNum,
             [NvrConfigEnum.ChannelName]: item.name,
             [NvrConfigEnum.BillingMode]: item.billingMode,
-            [NvrConfigEnum.ResourceId]: item.resourceId,
+            [NvrConfigEnum.RecordTemplateId]: item.recordTemplateId,
             [NvrConfigEnum.ExpireTime]: '永久',
             [NvrConfigEnum.StorageTime]: item.RecordTemplateName || '默认30天存储录像模板'
           }

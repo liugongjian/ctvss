@@ -79,6 +79,7 @@ export enum NvrConfigEnum {
   RemainDeviceCount = 'remainDeviceCount',
   TotalDeviceCount = 'totalDeviceCount',
   ResourceId = 'resourceId',
+  RecordTemplateId = 'recordTemplateId',
   ExpireTime = 'expireTime',
   StorageTime = 'storageTime'
 }
