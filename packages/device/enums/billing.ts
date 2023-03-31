@@ -13,7 +13,7 @@ export enum ConfigModeEnum {
  export enum BillingEnum {
   BillingMode = 'billingMode',
   RecordStream = 'recordStream',
-  RecordTemplateId = 'recordTemplateId',
+  TemplateId = 'templateId',
   RecordTemplateName = 'recordTemplateName',
   ResourceId = 'resourceId',
   Resource = 'resource'
@@ -79,7 +79,7 @@ export enum NvrConfigEnum {
   RemainDeviceCount = 'remainDeviceCount',
   TotalDeviceCount = 'totalDeviceCount',
   ResourceId = 'resourceId',
-  RecordTemplateId = 'recordTemplateId',
+  TemplateId = 'templateId',
   ExpireTime = 'expireTime',
   StorageTime = 'storageTime'
 }

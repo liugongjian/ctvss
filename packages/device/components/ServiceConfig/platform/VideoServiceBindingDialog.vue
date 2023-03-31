@@ -61,7 +61,7 @@ export default class extends Vue {
   private billingModeForm = {
     [BillingEnum.BillingMode]: '',
     [BillingEnum.RecordStream]: 1,
-    [BillingEnum.RecordTemplateId]: '',
+    [BillingEnum.TemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
     [BillingEnum.ResourceId]: '',
     [BillingEnum.Resource]: {}

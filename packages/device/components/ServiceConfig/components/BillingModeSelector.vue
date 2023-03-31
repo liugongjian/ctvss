@@ -28,12 +28,12 @@
           <el-radio :label="0">{{ recordStreamType['0'] }}</el-radio>
         </el-radio-group>
       </el-form-item> -->
-      <el-form-item v-if="hasRecordTemplateConfig" label="录制模板:" :prop="billingEnum.RecordTemplateId">
+      <el-form-item v-if="hasRecordTemplateConfig" label="录制模板:" :prop="billingEnum.TemplateId">
         <span v-show="isView">{{ templateName }}</span>
         <el-select
           v-show="!isView"
           ref="templateSelector"
-          v-model="configForm[billingEnum.RecordTemplateId]"
+          v-model="configForm[billingEnum.TemplateId]"
           v-loading="loading.recordTemplate"
         >
           <el-option
@@ -130,7 +130,7 @@ export default class extends Vue {
       return {
         [BillingEnum.BillingMode]: BillingModeEnum.Packages,
         [BillingEnum.RecordStream]: '1',
-        [BillingEnum.RecordTemplateId]: '',
+        [BillingEnum.TemplateId]: '',
         [BillingEnum.RecordTemplateName]: '',
         [BillingEnum.ResourceId]: '',
         [BillingEnum.Resource]: {}
@@ -152,7 +152,7 @@ export default class extends Vue {
   private resourceList = []
   private rules = {
     [BillingEnum.BillingMode]: [{ required: true, message: '请选择计费模式', trigger: 'blur' }],
-    [BillingEnum.RecordTemplateId]: [{ required: true, message: '请选择录制模板', trigger: 'blur' }],
+    [BillingEnum.TemplateId]: [{ required: true, message: '请选择录制模板', trigger: 'blur' }],
     [BillingEnum.RecordStream]: [{ required: true, message: '请选择录制配置', trigger: 'blur' }],
     [BillingEnum.ResourceId]: [{ required: true, message: '请选择资源包', trigger: 'blur' }],
   }
@@ -171,7 +171,7 @@ export default class extends Vue {
   }
 
   private get templateName() {
-    const curTemp = this.recordTemplateList.find(item => item.templateId === this.configForm.recordTemplateId)
+    const curTemp = this.recordTemplateList.find(item => item.templateId === this.configForm.templateId)
     return curTemp ? curTemp.templateName : ''
   }
 
@@ -269,8 +269,8 @@ export default class extends Vue {
         return
       }
       this.recordTemplateList = res.templates
-      if (this.recordTemplateList.length && !+this.configForm[BillingEnum.RecordTemplateId]) {
-        this.configForm[BillingEnum.RecordTemplateId] = this.recordTemplateList[0].templateId
+      if (this.recordTemplateList.length && !+this.configForm[BillingEnum.TemplateId]) {
+        this.configForm[BillingEnum.TemplateId] = this.recordTemplateList[0].templateId
       }
     } catch (e) {
       console.log(e)
