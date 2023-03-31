@@ -99,8 +99,8 @@ export default class extends Vue {
     }
     try {
       this.loading = true
-      await updateDeviceResource(resourceParams)
       await this.updateDeviceApi(params)
+      await updateDeviceResource(resourceParams)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
       this.$emit('updateDevice')

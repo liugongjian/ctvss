@@ -161,7 +161,7 @@ export default class extends Vue {
     this.$emit('config-change', selectedList.map(item => {
       return {
         billingMode: item.billingMode,
-        aIAppId: item.AppId,
+        appId: item.AppId,
         analyseType: item.analyseType,
         resourceId: item.resourceId
       }
