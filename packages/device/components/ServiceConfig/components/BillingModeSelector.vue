@@ -232,7 +232,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    console.log('mounted')
     await this.getResources(this.resourceType)
     this.getRecordTemplate()
   }
@@ -270,7 +269,7 @@ export default class extends Vue {
         return
       }
       this.recordTemplateList = res.templates
-      if (this.recordTemplateList.length) {
+      if (this.recordTemplateList.length && !+this.configForm[BillingEnum.RecordTemplateId]) {
         this.configForm[BillingEnum.RecordTemplateId] = this.recordTemplateList[0].templateId
       }
     } catch (e) {

@@ -58,7 +58,7 @@ export default class extends Vue {
       this.billingModeForm[BillingEnum.RecordTemplateId] = info.templateId
       this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
     }
-    console.log(this.billingModeForm)
+    console.log(this.billingModeForm, 2222222)
   }
 
   public async validateConfigForm() {
