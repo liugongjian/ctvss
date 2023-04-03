@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-27 09:38:30
+ * @LastEditTime: 2023-04-03 16:02:27
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -25,25 +25,24 @@
             >
               {{ item.label }}
             </el-radio-button>
+            <el-dropdown
+              size="mini"
+              @command="(val) => periodChange('service', val)"
+            >
+              <el-button plain size="mini">
+                AI服务<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item
+                  v-for="item in serviceOption"
+                  :key="item.value"
+                  :command="item.value"
+                >
+                  {{ item.label }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </el-radio-group>
-
-          <el-dropdown
-            size="mini"
-            @command="(val) => periodChange('service', val)"
-          >
-            <el-button plain size="mini">
-              AI服务<i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item
-                v-for="item in serviceOption"
-                :key="item.value"
-                :command="item.value"
-              >
-                {{ item.label }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
         </div>
         <div class="dashboard-wrap-overview__item_period_to_detail" @click="toDosageStatistics">
           用量详情 >>
@@ -297,8 +296,30 @@ export default class extends Vue {
 .dashboard-wrap-overview {
   &__item {
     ::v-deep {
+      .el-radio-button--mini {
+        .el-radio-button__inner {
+          border-left: 1px solid #ddd;
+          margin-left: -1px;
+        }
+
+        &:last-child .el-radio-button__inner {
+          border-radius: 0;
+        }
+
+        .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+          border-left: 1px solid #fa8334;
+        }
+      }
+
       .el-dropdown {
         vertical-align: middle;
+        height: 28px;
+        margin-left: -1px;
+
+        .el-button--mini {
+          border-radius: 0 2px 2px 0;
+          height: 28px;
+        }
       }
     }
 
