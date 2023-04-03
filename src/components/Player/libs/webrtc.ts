@@ -116,7 +116,7 @@ export const prepareUrl = (url: string) => {
   var schema = urlObject.userQuery.schema
   schema = schema ? schema + ':' : window.location.protocol
 
-  var port = urlObject.port || 1985
+  var port = urlObject.port || 80
   if (schema === 'https:') {
     port = urlObject.port || 443
   }
