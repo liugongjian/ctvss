@@ -36,7 +36,7 @@
             {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="algoListData" :empty-text="emptyText">
+            <el-table :data="hasGetAppPermission ? algoListData : []" :empty-text="emptyText">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
@@ -258,6 +258,10 @@ export default class extends Vue {
     } else {
       return '当前设备暂未绑定AI应用'
     }
+  }
+
+  private get hasGetAppPermission() {
+    return checkPermission(['ivs:GetApp'], this.actions)
   }
 
   private loading = {
