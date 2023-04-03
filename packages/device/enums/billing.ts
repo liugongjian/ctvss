@@ -58,7 +58,7 @@ export enum ResourceTypeEnum {
 export enum IpcAiConfigEnum {
   AppId = 'appId',
   AppName = 'appName',
-  AlgorithmName = 'algorithmName',
+  AlgorithmType = 'algorithmType',
   AnalyseType = 'analyseType',
   AnalyseRate = 'analyseRate',
   BillingMode = 'billingMode',
