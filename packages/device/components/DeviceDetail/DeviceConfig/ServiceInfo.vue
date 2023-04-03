@@ -24,6 +24,7 @@
         :in-video-protocol="inVideoProtocol"
         :channel-size="basicInfo && basicInfo.deviceChannelSize"
         :device-stream-size="videoInfo && videoInfo.deviceStreamSize"
+        @force-update="forceUpdate"
       />
       <div v-if="configMode === configModeEnum.Edit" class="service-config__edit__footer">
         <el-button size="mini" type="primary" @click="submit">确 定</el-button>
@@ -115,7 +116,9 @@ export default class extends Vue {
     return tabs
   }
 
-  private mounted
+  private forceUpdate() {
+    this.submit()
+  }
 
   private async submit() {
     const serviceConfig = this.$refs.serviceConfig as any

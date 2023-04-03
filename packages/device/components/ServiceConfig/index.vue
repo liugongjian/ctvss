@@ -14,12 +14,13 @@
           你的账户下无可用视频资源包且未开通按需计费，无法启用服务。
         </div>
       </div>
-      <div v-if="hasAiTab && configManager.initInfo.aI && configManager.initInfo.aI.length">
+      <div v-show="hasAiTab && configManager.initInfo.aI && configManager.initInfo.aI.length">
         <span class="service-config__view-title">AI</span>
         <component
           :is="AiConfigService"
           v-if="aiServiceUsable"
           ref="config"
+          @force-update="forceUpdate"
           @config-change="configChange('aI', $event)"
         />
         <div v-else class="config-info">
@@ -326,6 +327,12 @@ export default class extends Vue {
     } catch (e) {
       console.log(e && e.message)
     }
+  }
+
+  private forceUpdate() {
+    window.setImmediate(() => {
+      this.$emit('force-update')
+    })
   }
 
   private configChange(type, data) {

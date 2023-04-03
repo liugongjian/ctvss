@@ -56,8 +56,8 @@ export enum ResourceTypeEnum {
  * ipc AI配置列表
  */
 export enum IpcAiConfigEnum {
-  AppId = 'AppId',
-  AppName = 'AppName',
+  AppId = 'appId',
+  AppName = 'appName',
   AlgorithmName = 'algorithmName',
   AnalyseType = 'analyseType',
   AnalyseRate = 'analyseRate',

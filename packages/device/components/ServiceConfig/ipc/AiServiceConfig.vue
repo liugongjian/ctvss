@@ -161,11 +161,12 @@ export default class extends Vue {
     this.$emit('config-change', selectedList.map(item => {
       return {
         billingMode: item.billingMode,
-        appId: item.AppId,
+        appId: item.appId,
         analyseType: item.analyseType,
         resourceId: item.resourceId
       }
     }))
+    console.log(this.realSelectedList)
   }
 
   private async mounted() {
@@ -189,6 +190,7 @@ export default class extends Vue {
           }
         })
         this.selectedList = res
+        console.log(res)
       }
     } catch (e) {
       this.$message.error(e.message)
@@ -216,6 +218,9 @@ export default class extends Vue {
   private unBindingApp(appId: number) {
     const target = this.selectedList.findIndex(app => app.id === appId)
     if (target >= 0) this.selectedList.splice(target, 1)
+    if (this.configManager.configMode === ConfigModeEnum.View) {
+      this.$emit('force-update')
+    }
   }
 
   private closeDialog(data) {
