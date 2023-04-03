@@ -99,7 +99,7 @@ const parseRtmpUrl = (rtmpUrl: string) => {
         ret.port = 443
       } else {
         // For WebRTC, SRS use 1985 as default API port.
-        ret.port = 1985
+        ret.port = 80
       }
     }
   }

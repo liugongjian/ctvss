@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:31:47
+ * @LastEditTime: 2023-03-28 14:51:41
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -43,20 +43,20 @@
               <h2 class="dosage-statistics__info_title">今日带宽用量</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>接入设备总数</div>
+                  <p>0GB</p>
+                  <div>上行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>接入设备总数</div>
+                  <p>0GB</p>
+                  <div>上行带宽峰值</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>接入设备总数</div>
+                  <p>0GB</p>
+                  <div>下行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>24路</p>
-                  <div>接入设备总数</div>
+                  <p>0GB</p>
+                  <div>下行带宽峰值</div>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import PeriodLine from './components/PeriodLine.vue'
 
 import {
@@ -127,7 +127,7 @@ import {
   }
 })
 export default class extends Vue {
-  private activeName = 'device'
+  private activeName: any = ''
 
   private deviceNum = 0
 
@@ -160,14 +160,29 @@ export default class extends Vue {
     }
   }
 
-  mounted() {
-    this.getDevice()
+    @Watch('activeName', { immediate: true })
+  private onActiveNameChange(val: string){
+    if (!val) return 
+    this[this.tabsInfo[val]['func']]()
   }
 
-  private changeTab() {
-    console.log('this.activeName--->', this.activeName)
-    this[this.tabsInfo[this.activeName]['func']]()
+  mounted() {
+    this.initActiveName()
   }
+
+  private initActiveName(){
+    const { tab } = this.$route.query
+    this.activeName = tab ? tab : 'device'
+  }
+
+  private changeTab(){
+    this.$router.push({
+      query: {
+        tab: this.activeName
+      }
+    })
+  }
+
 
   private async getDevice() {
     try {
@@ -192,12 +207,15 @@ export default class extends Vue {
   private async getStorage() {
     try {
       const res = await getStorageStatistics()
-      console.log('res---->', res)
       const { totalStorage, videoStorage, viidStorage } = res
       this.storage = { totalStorage, videoStorage, viidStorage }
     } catch (error) {
       this.$message.error(error && error.message)
     }
+  }
+
+  private async getBandwidth(){
+    console.log('等啊等')
   }
 }
 </script>
