@@ -197,6 +197,7 @@ type VideoDeviceForm = VideoDevice & {
  */
 type ViidDeviceForm = ViidDevice & {
   [DeviceEnum.InViidProtocol]?: string
+  [DeviceEnum.Resource]?: Resource
 }
 
 /**

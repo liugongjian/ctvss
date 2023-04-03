@@ -1,6 +1,6 @@
 <template>
   <div v-loading="submitting" class="app-container">
-    <el-page-header content="新建录制模板" @back="back" />
+    <el-page-header :content="createOrUpdateFlag ? '新建视图存储模板' : '编辑视图存储模板'" @back="back" />
     <div class="body">
       <el-form
         ref="dataForm"
@@ -13,10 +13,21 @@
           <el-input v-model="form.templateName" :disabled="!createOrUpdateFlag" style="width: 463px;" placeholder="请输入模板名称" />
           <div v-if="createOrUpdateFlag" class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。模板名称不能重复。</div>
         </el-form-item>
+        <el-form-item label="存储时长" prop="storageTime">
+          <el-select v-model="form.storageTime" placeholder="请选择">
+            <el-option
+              v-for="time in timeRange"
+              :key="time.value"            
+              :label="time.label"            
+              :value="time.value"            
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="模板备注" prop="description">
           <el-input v-model="form.description" style="width: 463px;" type="textarea" maxlength="255" :autosize="{ minRows: 3, maxRows: 5 }" placeholder="请输入备注" />
         </el-form-item>
-        <el-form-item label="">
+        <el-form-item>
           <el-button type="primary" @click="submit">{{ createOrUpdateFlag ? '新建' : '确定' }}</el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
@@ -26,7 +37,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { updateRecordTemplate, createRecordTemplate } from '@/api/template'
+import { updateRecordTemplate, createRecordTemplate, createViidRecordTemplate, updateViidRecordTemplate } from '@/api/template'
 
 @Component({
   name: 'create-or-update-record-template'
@@ -41,6 +52,47 @@ export default class extends Vue {
 
   private form: any = {}
   private submitting = false
+
+  private timeRange = [
+    {
+      value: 7,
+      label: '7天'
+    },
+    {
+      value: 15,
+      label: '15天'
+    },
+    {
+      value: 30,
+      label: '30天'
+    },
+    {
+      value: 90,
+      label: '90天'
+    },
+    {
+      value: 180,
+      label: '180天'
+    },
+    {
+      value: 365,
+      label: '365天'
+    },
+    {
+      value: 1800,
+      label: '1800天'
+    }
+  ]
+
+  private rules = {
+    templateName: [
+      { required: true, message: '请输入录制模板名称', trigger: 'blur' },
+      { validator: this.validateTemplateName, trigger: 'blur' }
+    ],
+    storageTime: [
+      { required: true, message: '请选择存储时长', trigger: 'blur' },
+    ] 
+  }
 
   private mounted() {
     if (this.createOrUpdateFlag) {
@@ -78,15 +130,17 @@ export default class extends Vue {
               ...this.form,
               storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
-            const res = await createRecordTemplate(params)
+            const res = await createViidRecordTemplate(params)
             templateId = res.templateId
             this.$message.success('新建模板成功!')
           } else {
             const params = {
+              templateId: templateId,
               ...this.form,
               storageTime: this.form.storageTime * 24 * 60 * 60 // 秒 --> 天
             }
-            await updateRecordTemplate(params)
+            console.log(';?   ', params)
+            await updateViidRecordTemplate(params)
             this.$message.success('修改模板成功!')
           }
           this.submitting = false
@@ -119,14 +173,6 @@ export default class extends Vue {
       callback(new Error('录制模板名称格式错误'))
     } else if (/^[\s]|[\s]$/.test(value)) {
       callback(new Error('不能以空格作为名称的首尾。'))
-    } else {
-      callback()
-    }
-  }
-
-  private validateStorageTime(rule: any, value: number, callback: Function) {
-    if (value > 1095) {
-      callback(new Error('存储时长输入过长，最大时长不超过1095天'))
     } else {
       callback()
     }

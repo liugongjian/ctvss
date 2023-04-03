@@ -8,49 +8,59 @@
       label-width="110px"
     >
       <el-form-item label="计费模式:" :prop="billingEnum.BillingMode">
+        <span v-show="isView">{{ billingModeType[configForm[billingEnum.BillingMode]] }}</span>
         <el-select
+          v-show="!isView"
           v-model="configForm[billingEnum.BillingMode]"
-          @change="billingModeChange"
         >
-          <el-option :key="billingModeEnum.Packages" label="资源包" :value="billingModeEnum.Packages" />
-          <el-option :key="billingModeEnum.OnDemand" label="按需计费" :value="billingModeEnum.OnDemand" />
+          <el-option v-if="hasPagckagesMode" :key="billingModeEnum.Packages" :label="billingModeType[billingModeEnum.Packages]" :value="billingModeEnum.Packages" />
+          <el-option v-if="hasOnDemandMode" :key="billingModeEnum.OnDemand" :label="billingModeType[billingModeEnum.OnDemand]" :value="billingModeEnum.OnDemand" />
+          <el-option v-if="hasUnBindingMode" :key="billingModeEnum.UnBinding" :label="billingModeType[billingModeEnum.UnBinding]" :value="billingModeEnum.UnBinding" />
         </el-select>
       </el-form-item>
-      <div v-if="configForm[billingEnum.BillingMode] === billingModeEnum.OnDemand && resourceType === resourceTypeEnum.Video">
-        <el-form-item label="录制配置:" :prop="billingEnum.RecordStream">
-          <el-radio-group v-model="configForm[billingEnum.RecordStream]">
-            <el-radio v-if="deviceStreamSize !== 1" :label="1">主码流录制</el-radio>
-            <el-radio v-if="deviceStreamSize >= 2" :label="2">子码流录制</el-radio>
-            <el-radio v-if="deviceStreamSize >= 3" :label="3">第三码流录制</el-radio>
-            <el-radio v-if="deviceStreamSize === 1" :label="1">录制</el-radio>
-            <el-radio :label="0">无录制</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="录制模板:" :prop="billingEnum.RecordTemplateId">
-          <el-select
-            v-model="configForm[billingEnum.RecordTemplateId]"
-            placeholder="默认30天存储录像模板"
-          >
-            <el-option
-              v-for="(item, index) in recordTemplateList"
-              :key="index"
-              :label="item.name"
-              :value="item.id"
-            />
-          </el-select>
-        </el-form-item>
-      </div>
-      <div v-if="configForm[billingEnum.BillingMode] === billingModeEnum.Packages">
+      <!-- <el-form-item v-if="hasRecordStreamConfig" label="录制配置:" :prop="billingEnum.RecordStream">
+        <span v-show="isView">{{ (configManager.deviceStreamSize === 1 ? recordStreamType : recordStreamsType)[configForm[billingEnum.RecordStream]] }}</span>
+        <el-radio-group v-show="!isView" v-model="configForm[billingEnum.RecordStream]">
+          <el-radio v-if="configManager.deviceStreamSize !== 1" :label="1">{{ recordStreamType['1'] }}</el-radio>
+          <el-radio v-if="configManager.deviceStreamSize >= 2" :label="2">{{ recordStreamType['2'] }}</el-radio>
+          <el-radio v-if="configManager.deviceStreamSize >= 3" :label="3">{{ recordStreamType['3'] }}</el-radio>
+          <el-radio v-if="configManager.deviceStreamSize === 1" :label="1">{{ recordStreamType['1'] }}</el-radio>
+          <el-radio :label="0">{{ recordStreamType['0'] }}</el-radio>
+        </el-radio-group>
+      </el-form-item> -->
+      <el-form-item v-if="hasRecordTemplateConfig" label="录制模板:" :prop="billingEnum.TemplateId">
+        <span v-show="isView">{{ templateName }}</span>
+        <el-select
+          v-show="!isView"
+          ref="templateSelector"
+          v-model="configForm[billingEnum.TemplateId]"
+          v-loading="loading.recordTemplate"
+        >
+          <el-option
+            v-for="item in recordTemplateList"
+            :key="item.templateId"
+            :label="item.templateName"
+            :value="item.templateId"
+          />
+        </el-select>
+      </el-form-item>
+      <div v-if="hasPackagesTable">
         <el-form-item class="content-wrap-item" label="资源包列表:" :prop="billingEnum.ResourceId">
           <el-table
             ref="packagesTable"
             v-loading="loading.table"
-            :data="resourceList"
+            :data="resourceInfoList"
             fit
-
             @row-click="tableRowClick"
           >
-            <el-table-column show-overflow-tooltip :prop="packagesEnum.ResourceId" label="订单号" min-width="120" fixed="left">
+            <el-table-column v-if="isView" show-overflow-tooltip :prop="packagesEnum.ResourceId" label="订单号" min-width="120" fixed="left">
+              <template slot-scope="scope">
+                <span class="resource-id">
+                  {{ scope.row.workOrderNo }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column v-else show-overflow-tooltip :prop="packagesEnum.ResourceId" label="订单号" min-width="120" fixed="left">
               <template slot-scope="scope">
                 <span class="resource-id">
                   <el-radio v-model="configForm[billingEnum.ResourceId]" :label="scope.row.resourceId" @change="configForm[billingEnum.Resource] = scope.row" />
@@ -89,36 +99,38 @@
         </el-form-item>
       </div>
     </el-form>
+    <span v-if="configForm[billingEnum.BillingMode] === billingModeEnum.UnBinding" class="config-info">
+      <i class="el-icon-warning-outline" />
+      {{ unBindingInfo[resourceType] }}
+    </span>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, VModel, Watch } from 'vue-property-decorator'
-import { ResourceAiType } from '@vss/device/dicts/resource'
-import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
-import { getResources } from '@vss/device/api/billing'
+import { Component, Vue, Prop, VModel, Watch, Inject } from 'vue-property-decorator'
+import { ResourceAiType, BillingModeType, RecordStreamType, RecordStreamsType } from '@vss/device/dicts/resource'
+import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
+import { DeviceTypeEnum } from '@vss/device/enums/index'
+import { getStorageTemplate, getRecordTemplates } from '@vss/device/api/template'
 @Component({
   name: 'BillingModeSelector'
 })
 export default class extends Vue {
-  private billingEnum = BillingEnum
-  private billingModeEnum = BillingModeEnum
-  private packagesEnum = PackagesEnum
-  private resourceTypeEnum = ResourceTypeEnum
-  private resourceAiType = ResourceAiType
+  @Inject({ default: () => new Object() })
+  private configManager
 
   @Prop({ default: ResourceTypeEnum.Video })
   private resourceType: ResourceTypeEnum
 
-  @Prop({ default: 0 })
-  private deviceStreamSize: number
+  @Prop({ default: () => new Object() })
+  private realPackageRemain
 
   @VModel({ 
     default: () => {
       return {
         [BillingEnum.BillingMode]: BillingModeEnum.Packages,
-        [BillingEnum.RecordStream]: 1,
-        [BillingEnum.RecordTemplateId]: '',
+        [BillingEnum.RecordStream]: '1',
+        [BillingEnum.TemplateId]: '',
         [BillingEnum.RecordTemplateName]: '',
         [BillingEnum.ResourceId]: '',
         [BillingEnum.Resource]: {}
@@ -126,28 +138,102 @@ export default class extends Vue {
     }
   })
   private configForm
-  
+
+  private deviceTypeEnum = DeviceTypeEnum
+  private billingEnum = BillingEnum
+  private billingModeEnum = BillingModeEnum
+  private packagesEnum = PackagesEnum
+  private resourceTypeEnum = ResourceTypeEnum
+  private resourceAiType = ResourceAiType
+  private billingModeType = BillingModeType
+  private recordStreamsType = RecordStreamsType
+  private recordStreamType = RecordStreamType
   private recordTemplateList = []
   private resourceList = []
   private rules = {
     [BillingEnum.BillingMode]: [{ required: true, message: '请选择计费模式', trigger: 'blur' }],
+    [BillingEnum.TemplateId]: [{ required: true, message: '请选择录制模板', trigger: 'blur' }],
     [BillingEnum.RecordStream]: [{ required: true, message: '请选择录制配置', trigger: 'blur' }],
-    [BillingEnum.ResourceId]: [{ required: true, message: '请选择计资源包', trigger: 'blur' }],
+    [BillingEnum.ResourceId]: [{ required: true, message: '请选择资源包', trigger: 'blur' }],
+  }
+  private unBindingInfo = {
+    [ResourceTypeEnum.Video]: '停用视频服务后将立刻停止设备接入，不能进行实时预览。已存储的录像可继续回看。',
+    [ResourceTypeEnum.Viid]: '停用视图服务',
   }
 
   private loading = {
-    table: false
+    table: false,
+    recordTemplate: false
   }
 
-  @Watch('deviceStreamSize')
+  private get isView() {
+    return this.configManager.configMode === ConfigModeEnum.View
+  }
+
+  private get templateName() {
+    const curTemp = this.recordTemplateList.find(item => item.templateId === this.configForm.templateId)
+    return curTemp ? curTemp.templateName : ''
+  }
+
+  private get hasPagckagesMode() {
+    let flag = false
+    switch (this.resourceType) {
+      case ResourceTypeEnum.Video:
+        flag = !!this.configManager[ResourceTypeEnum.Video].length
+        break
+      case ResourceTypeEnum.AI:
+        flag = !!this.configManager[ResourceTypeEnum.AI].length
+        break
+      case ResourceTypeEnum.Viid:
+        flag = false
+        break
+    }
+    if (!this.configForm[BillingEnum.BillingMode] && flag) this.configForm[BillingEnum.BillingMode] = BillingModeEnum.Packages
+    return flag
+  }
+
+  private get hasOnDemandMode() {
+    const flag = this.configManager.hasOndemand
+    if (!this.configForm[BillingEnum.BillingMode] && flag && !this.hasPagckagesMode) this.configForm[BillingEnum.BillingMode] = BillingModeEnum.OnDemand
+    return flag
+  }
+
+  private get hasUnBindingMode() {
+    // 仅IPC编辑时能选停用，AItab时除外
+    return this.configManager.configMode === 
+      ConfigModeEnum.Edit && 
+      (![ResourceTypeEnum.AI].includes(this.resourceType) && this.configManager.deviceType === DeviceTypeEnum.Ipc)
+  }
+
+  private get hasRecordStreamConfig() {
+    // 按需模式下仅IPC拥有录制码流选择
+    return [BillingModeEnum.OnDemand].includes(this.configForm[BillingEnum.BillingMode]) && [ResourceTypeEnum.Video].includes(this.resourceType)
+  }
+
+  private get hasRecordTemplateConfig() {
+    // 按需模式下仅视频与视图能配录制模板
+    return [BillingModeEnum.OnDemand].includes(this.configForm[BillingEnum.BillingMode]) && [ResourceTypeEnum.Video, ResourceTypeEnum.Viid].includes(this.resourceType)
+  }
+
+  private get hasPackagesTable() {
+    // 资源包模式拥有资源包table
+    return [BillingModeEnum.Packages].includes(this.configForm[BillingEnum.BillingMode])
+  }
+
+  private get resourceInfoList() {
+    return this.configManager.configMode === ConfigModeEnum.View ? this.resourceList.filter(item => item.resourceId === this.configForm.resourceId) : this.resourceList
+  }
+
+  @Watch('configManager.deviceStreamSize')
   private deviceStreamSizeChange() {
     if (this.configForm[BillingEnum.RecordStream] !== 0) {
       this.configForm[BillingEnum.RecordStream] = 1
     }
   }
 
-  private mounted() {
-    this.getResources(this.resourceType)
+  private async mounted() {
+    await this.getResources(this.resourceType)
+    this.getRecordTemplate()
   }
 
   /**
@@ -155,38 +241,47 @@ export default class extends Vue {
    * @param resourceType 资源包类型
    */
   private async getResources(resourceType: ResourceTypeEnum) {
-    try {
-      this.loading.table = true
-      const res = await getResources({
-        type: resourceType
-      })
-      // 过滤已过期的资源包
-      const list = res.resPkgList.filter((resource: any) => {
-        if (new Date().getTime() < new Date(resource.expireTime).getTime()) {
-          return resource
+    if (resourceType === ResourceTypeEnum.Viid) return
+    const list = [...this.configManager[resourceType]]
+    // 更新资源包实际remain
+    if (Array.isArray(list)) {
+      list.forEach(resource => {
+        if (this.realPackageRemain[resource.resourceId] !== undefined) {
+          resource.remainDeviceCount = this.realPackageRemain[resource.resourceId]
         }
       })
       this.resourceList = list
+    }
+  }
+
+  /**
+   * 获取录制模板
+   */
+  private async getRecordTemplate() {
+    try {
+      this.loading.recordTemplate = true
+      let res
+      if (this.resourceType === ResourceTypeEnum.Video) {
+        res = await getRecordTemplates({})
+      } else if (this.resourceType === ResourceTypeEnum.Viid) {
+        res = await getStorageTemplate({})
+      } else {
+        return
+      }
+      this.recordTemplateList = res.templates
+      if (this.recordTemplateList.length && !+this.configForm[BillingEnum.TemplateId]) {
+        this.configForm[BillingEnum.TemplateId] = this.recordTemplateList[0].templateId
+      }
     } catch (e) {
-      this.$message.error(e.message)
+      console.log(e)
     } finally {
-      this.loading.table = false
+      this.loading.recordTemplate = false
     }
   }
 
   private tableRowClick(row) {
     this.configForm[BillingEnum.ResourceId] = row.resourceId
     this.configForm[BillingEnum.Resource] = row
-  }
-
-  /**
-   * 计费模式变化
-   */
-  private billingModeChange(mode: BillingModeEnum) {
-    if (mode === BillingModeEnum.OnDemand) {
-      this.configForm[BillingEnum.ResourceId] = ''
-      this.configForm[BillingEnum.Resource] = {}
-    }
   }
 
   /**
@@ -238,6 +333,11 @@ export default class extends Vue {
         margin-left: 0 !important;
       }
     }
+  }
+
+  .config-info {
+    line-height: 50px;
+    color: $textGrey;
   }
 }
 </style>

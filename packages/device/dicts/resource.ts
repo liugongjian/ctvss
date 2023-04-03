@@ -18,7 +18,29 @@ export const ResourceAiType = {
   'AI-300': '高算力型'
 }
 
+/**
+ * 计费模式
+ */
 export const BillingModeType = {
   [BillingModeEnum.Packages]: '资源包',
-  [BillingModeEnum.OnDemand]: '按需计费'
+  [BillingModeEnum.OnDemand]: '按需计费',
+  [BillingModeEnum.UnBinding]: '停用'
+}
+
+/**
+ * 录制码流(单)
+ */
+export const RecordStreamType = {
+  '0': '无录制',
+  '1': '录制'
+}
+
+/**
+ * 录制码流(多)
+ */
+ export const RecordStreamsType = {
+  '0': '无录制',
+  '1': '主码流',
+  '2': '子码流',
+  '3': '第三码流'
 }

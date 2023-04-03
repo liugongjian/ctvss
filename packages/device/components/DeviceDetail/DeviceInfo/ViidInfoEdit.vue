@@ -1,6 +1,6 @@
 <template>
-  <div class="detail-wrap__edit">
-    <viid-create-form ref="form" :device-form="basicInfo" :device="device" />
+  <div v-loading="loading" class="detail-wrap__edit">
+    <viid-create-form ref="form" :device-form="basicInfo" :device="device" :is-edit="true" />
     <div class="detail-wrap__edit__footer">
       <el-button size="medium" type="primary" @click="submit">确 定</el-button>
       <el-button size="medium" @click="cancel">取 消</el-button>
@@ -12,6 +12,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic, DeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
 import { InViidProtocolModelMapping } from '@vss/device/dicts/index'
 import { InViidProtocolCreateParams } from '@vss/device/settings'
+import { updateDeviceResource } from '@vss/device/api/billing'
 import { updateDevice } from '@vss/device/api/device'
 import { DeviceEnum } from '@vss/device/enums'
 import ViidCreateForm from '../../Form/ViidCreateForm.vue'
@@ -26,6 +27,8 @@ import { pick } from 'lodash'
 export default class extends Vue {
   @Prop() private device: Device
 
+  private loading = false
+
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
     return this.device[DeviceEnum.Device]
@@ -33,9 +36,7 @@ export default class extends Vue {
 
   private async submit() {
     const form = this.$refs.form as ViidCreateForm
-    if (await form.validateViidForm()) {
-      this.doSubmit()
-    }
+    await form.validateViidForm() && this.doSubmit()
   }
 
   private cancel() {
@@ -50,7 +51,22 @@ export default class extends Vue {
     // 设备参数
     const params: DeviceForm = {
       device: {
-        deviceId: this.basicInfo.deviceId
+        ...pick(this.basicInfo, [
+          DeviceEnum.DeviceId,
+          DeviceEnum.DeviceType,
+          DeviceEnum.DeviceName,
+          DeviceEnum.DeviceLongitude,
+          DeviceEnum.DeviceLatitude,
+          DeviceEnum.DeviceIp,
+          DeviceEnum.DevicePort,
+          DeviceEnum.DeviceMac,
+          DeviceEnum.DevicePoleId,
+          DeviceEnum.DeviceSerialNumber,
+          DeviceEnum.DeviceModel,
+          DeviceEnum.Description,
+          DeviceEnum.DeviceVendor,
+          DeviceEnum.DeviceChannelSize
+        ]),
       }
     }
     const viidDevice: ViidDeviceForm = {
@@ -63,13 +79,24 @@ export default class extends Vue {
       ...pick(form.viidForm, [...InViidProtocolCreateParams[form.viidForm.inViidProtocol]])
     }
     params.viids = [ viidDevice ]
+
+    // 资源包参数
+    const resourceParams = {
+      deviceId: this.basicInfo.deviceId,
+      deviceType: this.basicInfo.deviceType,
+      resource: form.viidForm.resource
+    }
     try {
+      this.loading = true
       await updateDevice(params)
+      await updateDeviceResource(resourceParams)
       this.$alertSuccess('更新成功!')
       this.$emit('cancel')
       this.$emit('updateDevice')
     } catch (e) {
       this.$alertError(e.message)
+    } finally {
+      this.loading = false
     }
   }
 }

@@ -10,6 +10,7 @@ export default class DeviceMixin extends Vue {
   @Prop({ default: () => getDevice }) public getDeviceApi: () => Promise<any>
   @Prop({ default: false }) public isIbox: boolean
 
+  private deviceTypeEnum = DeviceTypeEnum
 
   // 如果无法从路由获取deviceId
   public deviceIdSecondary
