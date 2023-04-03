@@ -80,7 +80,6 @@ import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enum
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
-import { watch } from 'fs'
 @Component({
   name: 'IpcAiServiceBindingDialog',
   components: {
@@ -155,7 +154,7 @@ export default class extends Vue {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
       aiAbilityList.forEach(aiAbility => {
-        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmName === aiAbility.name).length)
+        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmType === aiAbility.name).length)
       })
       this.tabInfo = aiAbilityList
     } catch (e) {
@@ -173,7 +172,7 @@ export default class extends Vue {
       this.loading.appList = true
       const { aiApps } = await getAppList({ abilityId: this.activeTabId })
       this.aiApps = aiApps.filter(aiApp => {
-        return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
+        return this.selectedList.findIndex(item => item.appId === aiApp.id) === -1
       })
       if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
         this.aiApps = this.aiApps.filter(item => item.analyseType !== 'AI-300')
