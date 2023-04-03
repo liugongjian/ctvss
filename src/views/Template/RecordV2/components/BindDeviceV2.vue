@@ -542,22 +542,12 @@ export default class extends Vue {
           inProtocol: item.inProtocol
         }
       })
-      // 临时测试接口，应该合并只有setDeviceRecordTemplateBatch
-      if (this.type === 'viid') {
-        await setViidDeviceRecordTemplateBatch({
+      await setDeviceRecordTemplateBatch({
         inProtocol: this.type,
         templateId: this.currentTemplate.templateId,
         devices: devices,
         startRecord: this.quickStart
       })
-      } else {
-        await setDeviceRecordTemplateBatch({
-          inProtocol: this.type,
-          templateId: this.currentTemplate.templateId,
-          devices: devices,
-          startRecord: this.quickStart
-        })
-      }
       this.$message.success('批量绑定设备成功！')
       this.$emit('on-close', true)
     } catch (e) {
