@@ -502,8 +502,8 @@ export default class extends Vue {
   private async deleteTemplate(row: any) {
     if (this.type === 'video') {
       this.$alertDelete({
-        type: '录制模板',
-        msg: `确定删除录制模板"${row.templateName}"`,
+        type: '视频录制模板',
+        msg: `确定删除视频录制模板"${row.templateName}"`,
         method: deleteRecordTemplate,
         payload: { templateId: row.templateId },
         onSuccess: this.init
@@ -511,8 +511,8 @@ export default class extends Vue {
     }
     if (this.type === 'viid') {
       this.$alertDelete({
-        type: '录制模板',
-        msg: `确定删除视图模板"${row.templateName}"`,
+        type: '视图存储模板',
+        msg: `确定删除视图存储模板"${row.templateName}"`,
         method: deleteViidRecordTemplate,
         payload: { templateId: row.templateId },
         onSuccess: this.init
