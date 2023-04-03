@@ -25,7 +25,7 @@
             {{ resourceAiType[row[ipcAiConfigEnum.AnalyseType]] }}
           </template>
         </el-table-column>
-        <el-table-column :prop="ipcAiConfigEnum.AnalyseRate" label="分析频率">
+        <el-table-column v-if="false" :prop="ipcAiConfigEnum.AnalyseRate" label="分析频率">
           <template slot-scope="{ row }">
             {{ row[ipcAiConfigEnum.AnalyseRate] }}
           </template>
