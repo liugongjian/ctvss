@@ -1,6 +1,6 @@
 <template>
   <div v-loading="submitting" class="app-container">
-    <el-page-header content="新建录制模板" @back="back" />
+    <el-page-header :content="createOrUpdateFlag ? '新建录制模板' : '编辑录制模板'" @back="back" />
     <div class="body">
       <el-form
         ref="dataForm"
