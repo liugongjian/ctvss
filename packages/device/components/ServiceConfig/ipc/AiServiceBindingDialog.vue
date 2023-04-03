@@ -154,7 +154,7 @@ export default class extends Vue {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
       aiAbilityList.forEach(aiAbility => {
-        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmType === aiAbility.name).length)
+        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.abilityName === aiAbility.name).length)
       })
       this.tabInfo = aiAbilityList
     } catch (e) {

@@ -59,6 +59,7 @@ export enum IpcAiConfigEnum {
   AppId = 'appId',
   AppName = 'appName',
   AlgorithmType = 'algorithmType',
+  AbilityName = 'abilityName',
   AnalyseType = 'analyseType',
   AnalyseRate = 'analyseRate',
   BillingMode = 'billingMode',

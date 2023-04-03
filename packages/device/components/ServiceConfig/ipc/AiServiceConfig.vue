@@ -229,7 +229,8 @@ export default class extends Vue {
           ? {
             [IpcAiConfigEnum.AppId]: item.id,
             [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmType]: item.abilityName,
+            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+            [IpcAiConfigEnum.AbilityName]: item.abilityName,
             [IpcAiConfigEnum.AnalyseType]: item.analyseType,
             [IpcAiConfigEnum.AnalyseRate]: item.analyseType,
             [IpcAiConfigEnum.BillingMode]: item.billingMode,
@@ -242,7 +243,8 @@ export default class extends Vue {
           : {
             [IpcAiConfigEnum.AppId]: item.id,
             [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmType]: item.abilityName,
+            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+            [IpcAiConfigEnum.AbilityName]: item.abilityName,
             [IpcAiConfigEnum.AnalyseType]: item.analyseType,
             [IpcAiConfigEnum.AnalyseRate]: item.analyseType,  
             [IpcAiConfigEnum.BillingMode]: item.billingMode,
