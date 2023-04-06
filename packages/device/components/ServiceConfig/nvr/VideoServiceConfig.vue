@@ -26,7 +26,7 @@
       <el-table-column :prop="nvrConfigEnum.ExpireTime" label="到期时间" min-width="160" />
       <el-table-column show-overflow-tooltip :prop="nvrConfigEnum.StorageTime" label="存储配置">
         <template slot-scope="{ row }">
-          {{ row[nvrConfigEnum.StorageTime] }}
+          {{ row[nvrConfigEnum.StorageTime] + (row.billingMode === billingModeEnum.Packages ? '天' : '') }}
         </template>
       </el-table-column>
       <el-table-column v-if="!isView" label="操作" prop="action" width="80" fixed="right">
@@ -109,7 +109,7 @@ export default class extends Vue {
         billingMode: item.billingMode,
         channelNum: item.channelNum + '',
         resourceId: item.billingMode === BillingModeEnum.Packages ? item.resourceId : '',
-        recordNum: item.recordStream,
+        recordNum: item.recordNum,
         templateId: item.templateId
       }
     }))
@@ -163,25 +163,42 @@ export default class extends Vue {
     this.showBindingDialog = false
     Array.isArray(data) && (
       this.selectedList.push(...data.map(item => {
-        return item.billingMode === BillingModeEnum.Packages
-          ? {
-            [NvrConfigEnum.ChannelNum]: item.channelNum,
-            [NvrConfigEnum.ChannelName]: item.name,
-            [NvrConfigEnum.BillingMode]: item.billingMode,
-            [NvrConfigEnum.ResourceId]: item.resourceId,
-            [NvrConfigEnum.RemainDeviceCount]: item.resource['remainDeviceCount'],
-            [NvrConfigEnum.TotalDeviceCount]: item.resource['totalDeviceCount'],
-            [NvrConfigEnum.ExpireTime]: item.resource['expireTime'],
-            [NvrConfigEnum.StorageTime]: `${item.resource['storageTime']}天`
-          }
-          : {
-            [NvrConfigEnum.ChannelNum]: item.channelNum,
-            [NvrConfigEnum.ChannelName]: item.name,
-            [NvrConfigEnum.BillingMode]: item.billingMode,
-            [NvrConfigEnum.TemplateId]: item.templateId,
-            [NvrConfigEnum.ExpireTime]: '永久',
-            [NvrConfigEnum.StorageTime]: item.RecordTemplateName || '默认30天存储录像模板'
-          }
+        let res
+        switch (item.billingMode) {
+          case BillingModeEnum.Packages:
+            res = {
+              [NvrConfigEnum.ChannelNum]: item.channelNum,
+              [NvrConfigEnum.ChannelName]: item.name,
+              [NvrConfigEnum.BillingMode]: item.billingMode,
+              [NvrConfigEnum.ResourceId]: item.resourceId,
+              [NvrConfigEnum.RemainDeviceCount]: item.resource['remainDeviceCount'],
+              [NvrConfigEnum.TotalDeviceCount]: item.resource['totalDeviceCount'],
+              [NvrConfigEnum.ExpireTime]: item.resource['expireTime'],
+              [NvrConfigEnum.StorageTime]: item.resource['storageTime']
+            }
+            break
+          case BillingModeEnum.OnDemand:
+            res = {
+              [NvrConfigEnum.ChannelNum]: item.channelNum,
+              [NvrConfigEnum.ChannelName]: item.name,
+              [NvrConfigEnum.BillingMode]: item.billingMode,
+              [NvrConfigEnum.TemplateId]: item.templateId,
+              [NvrConfigEnum.ExpireTime]: '永久',
+              [NvrConfigEnum.StorageTime]: item.templateName || '-'
+            }
+            break
+          case BillingModeEnum.UnBinding:
+            res = {
+              [NvrConfigEnum.ChannelNum]: item.channelNum,
+              [NvrConfigEnum.ChannelName]: item.name,
+              [NvrConfigEnum.BillingMode]: item.billingMode,
+              [NvrConfigEnum.TemplateId]: item.templateId,
+              [NvrConfigEnum.ExpireTime]: '-',
+              [NvrConfigEnum.StorageTime]: '-'
+            }
+            break
+        }
+        return res
       }))
     )
   }

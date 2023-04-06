@@ -12,7 +12,7 @@ export enum ConfigModeEnum {
  */
  export enum BillingEnum {
   BillingMode = 'billingMode',
-  RecordStream = 'recordStream',
+  RecordNum = 'recordNum',
   TemplateId = 'templateId',
   RecordTemplateName = 'recordTemplateName',
   ResourceId = 'resourceId',
