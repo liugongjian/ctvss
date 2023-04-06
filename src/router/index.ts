@@ -1377,6 +1377,7 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/sysconfig',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       title: '系统管理',
       breadcrumb: true,
@@ -1386,49 +1387,52 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '/operation-log',
-        component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
+        path: 'operation-log',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'),
         name: 'operation-log',
         meta: {
-          id: '20210424150201001101',
           title: '操作日志',
           icon: 'dot',
-          breadcrumb: false,
+          breadcrumb: true,
+          activeMenu: '/sysconfig/operation-log',
           perms: ['*']
         }
       },
       {
-        path: '/custom-tree',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        path: 'custom-tree',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
         name: 'CustomTree',
         meta: {
           title: '自定义设备树',
-          breadcrumb: false,
+          breadcrumb: true,
+          activeMenu: '/sysconfig/custom-tree',
           icon: 'dot',
           perms: ['*']
         }
       },
       {
-        path: '/replay-lock-manage',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
+        path: 'replay-lock-manage',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
         name: 'ReplayLockManage',
         meta: {
           title: '锁定录像管理',
-          breadcrumb: false,
+          breadcrumb: true,
           icon: 'dot',
           perms: ['*'],
+          activeMenu: '/sysconfig/replay-lock-manage',
           tags: {
             isRecordLockAvailable: ['Y']
           }
         }
       },
       {
-        path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
+        path: 'system-config',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',
         meta: {
           title: '系统设置',
-          breadcrumb: false,
+          breadcrumb: true,
+          activeMenu: '/sysconfig/system-config',
           icon: 'dot',
           perms: ['*']
         }
