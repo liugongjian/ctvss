@@ -35,13 +35,13 @@
           <el-tab-pane
             v-for="item in tabInfo"
             :key="item.id"
-            :label="item.name+' ('+item.aiApps+')'"
+            :label="item.name+` (${aiAppsObj[item.id] ? aiAppsObj[item.id].length : 0})`"
             :name="item.id"
           >
             <el-table
               :ref="`appTable${item.id}`"
               v-loading="loading.appList"
-              :data="aiApps"
+              :data="aiAppsObj[item.id]"
               tooltip-effect="dark"
               max-height="350"
               cell-class-name="tableCell"
@@ -80,7 +80,6 @@ import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enum
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
-import { watch } from 'fs'
 @Component({
   name: 'IpcAiServiceBindingDialog',
   components: {
@@ -102,10 +101,11 @@ export default class extends Vue {
     [BillingEnum.Resource]: {}
   }
   
-  private activeTabId: Number = 0
+  private activeTabId: any = 0
   private resourceAiType: any = ResourceAiType
   private tabInfo: any = []
-  private aiApps: any = []
+  private aiAppsObj: any = {}
+  private aiAppsBaseObj: any = {}
   private selectedAppIdsSet = new Set()
   private selectedApps: Array<any> = []
   private configForm = {
@@ -124,20 +124,21 @@ export default class extends Vue {
 
   @Watch('billingModeForm.billingMode')
   private billingModeChange() {
-    this.getAppList()
+    this.appListInit()
   }
 
   private async mounted() {
     await this.getAbilityList()
     this.activeTabId = this.tabInfo[0] && this.tabInfo[0].id
     await this.getAppList()
+    this.appListInit()
   }
 
   /**
    * 切换Tab
    */
   private async handleTabType() {
-    this.getAppList()
+    this.appListInit()
   }
 
   /**
@@ -154,9 +155,6 @@ export default class extends Vue {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
-      aiAbilityList.forEach(aiAbility => {
-        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmName === aiAbility.name).length)
-      })
       this.tabInfo = aiAbilityList
     } catch (e) {
       this.$message.error(e && e.message)
@@ -171,14 +169,14 @@ export default class extends Vue {
   private async getAppList() {
     try {
       this.loading.appList = true
-      const { aiApps } = await getAppList({ abilityId: this.activeTabId })
-      this.aiApps = aiApps.filter(aiApp => {
-        return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
+      const promiseArray = []
+      this.tabInfo.forEach(info => {
+        promiseArray.push(getAppList({ abilityId: info.id }))
       })
-      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
-        this.aiApps = this.aiApps.filter(item => item.analyseType !== 'AI-300')
-      }
-      await this.$nextTick(() => this.toggleSelection())
+      const resArray = await Promise.all(promiseArray)
+      this.tabInfo.forEach((info, index) => {
+        this.aiAppsBaseObj[info.id] = resArray[index]['aiApps']
+      })
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -187,12 +185,29 @@ export default class extends Vue {
   }
 
   /**
+   * 查询应用列表
+   */
+  private async appListInit() {
+    this.loading.appList = true
+    for (const tabId in this.aiAppsBaseObj) {
+      this.aiAppsObj[tabId] = this.aiAppsBaseObj[tabId].filter(aiApp => {
+        return this.selectedList.findIndex(item => item.appId === aiApp.id) === -1
+      })
+      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
+        this.aiAppsObj[tabId] = this.aiAppsObj[tabId].filter(item => item.analyseType !== 'AI-300')
+      }
+    }
+    await this.$nextTick(() => this.toggleSelection())
+    this.loading.appList = false
+  }
+
+  /**
    * 表格多选框变化
    */
   private handleSelectionChange(apps) {
     // 初始化勾选项时不触发
     if (this.loading.appList) return
-    this.aiApps.forEach(row => {
+    this.aiAppsObj[this.activeTabId + ''].forEach(row => {
       if (apps.some(app => (app as any).id === row.id)) {
         if (!this.selectedAppIdsSet.has(row.id)) {
           this.selectedAppIdsSet.add(row.id)
@@ -210,7 +225,7 @@ export default class extends Vue {
    * 初始化选择默认勾选项
    */
   private toggleSelection() {
-    this.aiApps.forEach(row => {
+    this.aiAppsObj[this.activeTabId + ''] && this.aiAppsObj[this.activeTabId + ''].forEach(row => {
       if (this.selectedAppIdsSet.has(row.id)) {
         (this.$refs[`appTable${this.activeTabId}`][0] as any).toggleRowSelection(row)
       }

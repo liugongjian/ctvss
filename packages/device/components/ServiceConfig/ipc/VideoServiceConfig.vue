@@ -25,7 +25,7 @@ export default class extends Vue {
   private resourceTypeEnum = ResourceTypeEnum
   private billingModeForm = {
     [BillingEnum.BillingMode]: '',
-    [BillingEnum.RecordStream]: '1',
+    [BillingEnum.RecordNum]: '1',
     [BillingEnum.TemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
     [BillingEnum.ResourceId]: '',
@@ -39,7 +39,7 @@ export default class extends Vue {
     }
     switch (form[BillingEnum.BillingMode]) {
       case BillingModeEnum.OnDemand:
-        bindingInfo['recordNum'] = form[BillingEnum.RecordStream]
+        bindingInfo['recordNum'] = form[BillingEnum.RecordNum]
         bindingInfo['templateId'] = form[BillingEnum.TemplateId]
         break
       case BillingModeEnum.Packages:
@@ -54,7 +54,7 @@ export default class extends Vue {
     if (videoInfo && videoInfo.length) {
       const info = videoInfo[0]
       this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
-      this.billingModeForm[BillingEnum.RecordStream] = info.recordNum
+      this.billingModeForm[BillingEnum.RecordNum] = info.recordNum
       this.billingModeForm[BillingEnum.TemplateId] = info.templateId
       this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
     }

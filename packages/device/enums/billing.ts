@@ -12,7 +12,7 @@ export enum ConfigModeEnum {
  */
  export enum BillingEnum {
   BillingMode = 'billingMode',
-  RecordStream = 'recordStream',
+  RecordNum = 'recordNum',
   TemplateId = 'templateId',
   RecordTemplateName = 'recordTemplateName',
   ResourceId = 'resourceId',
@@ -58,7 +58,8 @@ export enum ResourceTypeEnum {
 export enum IpcAiConfigEnum {
   AppId = 'appId',
   AppName = 'appName',
-  AlgorithmName = 'algorithmName',
+  AlgorithmType = 'algorithmType',
+  AbilityName = 'abilityName',
   AnalyseType = 'analyseType',
   AnalyseRate = 'analyseRate',
   BillingMode = 'billingMode',

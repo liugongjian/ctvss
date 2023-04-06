@@ -15,9 +15,9 @@
             {{ row[ipcAiConfigEnum.AppName] }}
           </template>
         </el-table-column>
-        <el-table-column :prop="ipcAiConfigEnum.AlgorithmName" label="算法类型">
+        <el-table-column :prop="ipcAiConfigEnum.AlgorithmType" label="算法类型">
           <template slot-scope="{ row }">
-            {{ row[ipcAiConfigEnum.AlgorithmName] }}
+            {{ row[ipcAiConfigEnum.AlgorithmType] }}
           </template>
         </el-table-column>
         <el-table-column :prop="ipcAiConfigEnum.AnalyseType" label="分析类型">
@@ -166,7 +166,6 @@ export default class extends Vue {
         resourceId: item.resourceId
       }
     }))
-    console.log(this.realSelectedList)
   }
 
   private async mounted() {
@@ -190,7 +189,6 @@ export default class extends Vue {
           }
         })
         this.selectedList = res
-        console.log(res)
       }
     } catch (e) {
       this.$message.error(e.message)
@@ -231,7 +229,8 @@ export default class extends Vue {
           ? {
             [IpcAiConfigEnum.AppId]: item.id,
             [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmName]: item.abilityName,
+            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+            [IpcAiConfigEnum.AbilityName]: item.abilityName,
             [IpcAiConfigEnum.AnalyseType]: item.analyseType,
             [IpcAiConfigEnum.AnalyseRate]: item.analyseType,
             [IpcAiConfigEnum.BillingMode]: item.billingMode,
@@ -244,7 +243,8 @@ export default class extends Vue {
           : {
             [IpcAiConfigEnum.AppId]: item.id,
             [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmName]: item.abilityName,
+            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+            [IpcAiConfigEnum.AbilityName]: item.abilityName,
             [IpcAiConfigEnum.AnalyseType]: item.analyseType,
             [IpcAiConfigEnum.AnalyseRate]: item.analyseType,  
             [IpcAiConfigEnum.BillingMode]: item.billingMode,

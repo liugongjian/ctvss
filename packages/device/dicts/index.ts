@@ -74,6 +74,7 @@ export const DeviceStatus = {
 */
 export const VideoStatus = {
   'on': '在线',
+  'unBinding': '停用',
   'off': '离线',
   'new': '未注册'
 }
@@ -102,6 +103,7 @@ export const RecordStatus = {
 */
 export const ViidStatus = {
   'on': '在线',
+  'unBinding': '停用',
   'off': '离线'
 }
 
