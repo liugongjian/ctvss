@@ -5,7 +5,7 @@
       :model="configForm"
       :rules="rules"
       label-position="left"
-      label-width="110px"
+      label-width="125px"
     >
       <el-form-item label="计费模式:" :prop="billingEnum.BillingMode">
         <span v-show="isView">{{ billingModeType[configForm[billingEnum.BillingMode]] }}</span>
@@ -30,7 +30,7 @@
           <el-radio label="0">{{ recordStreamType['0'] }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="hasRecordTemplateConfig" label="录制模板:" :prop="billingEnum.TemplateId">
+      <el-form-item v-if="hasRecordTemplateConfig" :label="templateTitle" :prop="billingEnum.TemplateId">
         <span v-show="isView">{{ templateName }}</span>
         <el-select
           v-show="!isView"
@@ -175,6 +175,19 @@ export default class extends Vue {
   private get templateName() {
     const curTemp = this.recordTemplateList.find(item => item.templateId === this.configForm.templateId)
     return curTemp ? curTemp.templateName : ''
+  }
+
+  private get templateTitle() {
+    let title = ''
+    switch (this.resourceType) {
+      case ResourceTypeEnum.Video:
+        title = '录制模板:'
+        break
+      case ResourceTypeEnum.Viid:
+        title = '视图存储模板:'
+        break
+    }
+    return title
   }
 
   private get hasPagckagesMode() {
