@@ -56,7 +56,7 @@
 <script lang="ts">
 import path from 'path'
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Route, RouteConfig } from 'vue-router'
+import { RouteConfig } from 'vue-router'
 import { isExternal } from '@/utils/validate'
 import SidebarItemLink from './SidebarItemLink.vue'
 
@@ -107,7 +107,7 @@ export default class extends Vue {
       return null
     }
     if (this.item.children) {
-      for (let child of this.item.children) {
+      for (const child of this.item.children) {
         if (!child.meta || !child.meta.hidden) {
           return child
         }
@@ -136,7 +136,7 @@ export default class extends Vue {
 }
 
 .full-mode {
-  .nest-menu .el-submenu>.el-submenu__title,
+  .nest-menu .el-submenu > .el-submenu__title,
   .el-submenu .el-menu-item {
     min-width: $sideBarWidth !important;
     background-color: $subMenuBg !important;
@@ -161,14 +161,14 @@ export default class extends Vue {
     .el-submenu {
       overflow: hidden;
 
-      &>.el-submenu__title {
-        padding: 0px !important;
+      & > .el-submenu__title {
+        padding: 0 !important;
 
         .el-submenu__icon-arrow {
           display: none;
         }
 
-        &>span {
+        & > span {
           visibility: hidden;
         }
       }

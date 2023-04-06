@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vss-user-web
+  namespace: vss-test-3
+  labels:
+    app: vss-user-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vss-user-web
+  template:
+    metadata:
+      labels:
+        app: vss-user-web
+    spec:
+      containers:
+      - name: vss-user-web
+        image: 10.95.123.130:7080/ctyun/vss-user-web:temptag
+        imagePullPolicy: Always
+        command:
+          - nginx
+        args:
+          - '-g daemon off;'
+        ports:
+        - containerPort: 80
+      nodeSelector:
+        kubernetes.io/hostname: 10.95.13.196
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vss-user-web-service
+  namespace: vss-test-3
+  labels:
+    name: vss-user-web-service
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    nodePort: 32191
+  selector:
+    app: vss-user-web

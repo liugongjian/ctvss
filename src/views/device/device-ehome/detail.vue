@@ -10,6 +10,7 @@
               :is-vgroup="isVGroup"
               :is-nvr="isNVR"
               :is-auto-created="isAutoCreated"
+              :actions="actions"
             />
             <!-- <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
@@ -91,6 +92,12 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="设备MAC地址">
                     {{ info.macAddr || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="版本">
+                    {{ info.ehomeVersion === '5.0' ? 'ISUP5.0' : 'EHOME2.0' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.ehomeVersion === '5.0'" label="凭证名称">
+                    {{ info.userName || '-' }}
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
@@ -178,9 +185,9 @@
           <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
-          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
+          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" :device-type="info.deviceType" :actions="actions" />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetLiveStream'], actions)" label="实时预览" name="preview">
           <detail-preview
             v-if="activeName==='preview'"
             :device-id="deviceId"
@@ -188,17 +195,27 @@
             :device-name="info.deviceName"
             :streams="info.deviceStreams"
             :stream-size="info.multiStreamSize"
+            :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
-          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :info="info" :permission="actions" :lock-permission="checkPermission(['ivs:LockCloudRecord'])" :device-name="info.deviceName" />
         </el-tab-pane>
-        <el-tab-pane label="AI分析" name="ai">
+        <el-tab-pane v-if="!isLiuzhou && checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <!-- <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane> -->
       </el-tabs>
     </div>
-    <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="info"
+      :actions="actions"
+      :algo-tab-type-default="algoTabTypeDefault"
+      @on-close="closeResourceDialog"
+    />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" @on-close="closeDialog('moveDir')" />
   </div>

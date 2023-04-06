@@ -7,7 +7,11 @@
       <el-table v-show="deviceList.length" key="show-role-table" :height="tableMaxHeight" :data="deviceList" empty-text="暂无授权角色" fit class="device-list__table" @row-click="rowClick">
         <el-table-column label="角色ID" prop="deviceId" />
         <el-table-column label="角色名" prop="deviceName" />
-        <el-table-column label="角色描述" prop="description" />
+        <el-table-column label="角色描述" prop="description">
+          <template slot-scope="row">
+            {{ row.description || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column label="角色授权账号" prop="userName" />
         <el-table-column prop="createdTime" label="创建时间" align="center" />
       </el-table>
@@ -74,6 +78,7 @@ export default class extends Mixins(listMixin) {
 <style lang="scss" scoped>
 .group-name {
   cursor: pointer;
+
   &__id {
     color: $primary;
   }

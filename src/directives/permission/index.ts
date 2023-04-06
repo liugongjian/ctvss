@@ -2,6 +2,10 @@ import { DirectiveOptions } from 'vue'
 import { UserModule } from '@/store/modules/user'
 
 function checkPermission(el: any, binding: any) {
+  // 主账号拥有所有权限
+  if (!UserModule.iamUserId) {
+    return true
+  }
   const { value } = binding
   const perms = UserModule.perms
   if (value && value instanceof Array && value.length > 0) {

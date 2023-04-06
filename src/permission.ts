@@ -21,6 +21,7 @@ const getPageTitle = (key: string) => {
 router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Start progress bar
   NProgress.start()
+  console.log('to: ', to, ' from: ', from)
 
   if (innerWhiteList.some(url => to.path.startsWith(url))) {
     if (UserModule.casLoginId) {
@@ -59,18 +60,23 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
     // Check whether the user has obtained his permission
     if (UserModule.perms.length === 0) {
       try {
-        // Note: perms must be a object array! such as: ['*'] or ['GET']
+        // Note: perms must be a string array! such as: ['*'] or ['GET']
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
+        if (!perms.length) {
+          Message.error('当前子用户暂无权限，请联系主账号配置权限策略！')
+          if (to.path === '/404') {
+            return next()
+          }
+        }
         const iamUserId = UserModule.iamUserId
         const tagObject = UserModule.tags || ({})
-        const tags = Object.keys(tagObject).filter(key => UserModule.tags[key] === 'Y')
         const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
         // Generate accessible routes map based on tags and perms and denyPerms
-        PermissionModule.GenerateRoutes({ tags, perms, denyPerms, iamUserId })
+        PermissionModule.GenerateRoutes({ tagObject, perms, denyPerms, iamUserId })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+        if (to.path === '/404' || (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard')) {
           const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
           if (menuRoutes.length > 0) {
             to = menuRoutes[0]
@@ -85,16 +91,33 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         // Set the replace: true, so the navigation will not leave a history record
         next({ ...to, replace: true })
       } catch (err) {
+        const loginType = loginService.getLoginType()
         // Remove token and redirect to login page
         UserModule.ResetToken()
         Message.error(err || 'Has Error')
-        window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
-        NProgress.done()
+
+        console.log('loginType:', loginType)
+        if (loginType === 'sub') {
+          next(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)
+        } else if (loginType === 'main') {
+          next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+        } else {
+          if (loginService.casUrl.login) {
+            window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
+          } else {
+            next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+            NProgress.done()
+          }
+        }
       }
     } else {
+      if (!to.matched.length) {
+        next({ path: '/404', replace: true })
+      } else {
       // 单点登录菜单高亮
-      UserModule.casLoginId && casService.activeCasMenu(to)
-      next()
+        UserModule.casLoginId && casService.activeCasMenu(to)
+        next()
+      }
     }
   } else {
     // Other pages that do not have permission to access are redirected to the login page.

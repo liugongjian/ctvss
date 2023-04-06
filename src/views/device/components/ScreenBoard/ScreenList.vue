@@ -15,7 +15,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                  v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -56,6 +56,12 @@
             :formatter="dateFormatInTable"
           />
           <el-table-column
+            v-if="isLiuzhou"
+            label="过期时间"
+            prop="expirationTime"
+            min-width="180"
+          />
+          <el-table-column
             label="时长"
             prop="duration"
             :formatter="durationFormatInTable"
@@ -63,14 +69,20 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['AdminRecord'])"
-                :disabled="row.loading"
+                v-if="!isVGroup && checkPermission(['ivs:GetCloudRecord'], actions) && checkPermission(['ivs:DownloadCloudRecord'], actions)"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
                 type="text"
                 @click="downloadReplay(row)"
               >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 下载录像
               </el-button>
-              <el-button type="text" @click="playReplay(row)">
+              <el-button
+                type="text"
+                :disabled="row.loading || (!canLock && row.isLock === 1)"
+                @click="playReplay(row)"
+              >
+                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
                 播放录像
               </el-button>
             </template>
@@ -89,7 +101,7 @@
     <div v-else class="tip-select-device">
       <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
-    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <device-dir v-if="dialogs.deviceDir" :is-live="screenManager.isLive" @on-close="onDeviceDirClose" />
     <el-dialog
       v-if="dialogs.play"
       class="video-player"
@@ -112,6 +124,8 @@ import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
+import { addLog } from '@/api/operationLog'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ScreenList',
@@ -123,6 +137,23 @@ import VssPlayer from '@/components/VssPlayer/index.vue'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  private get canLock() {
+    // 国标下设备   不受限制
+    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
+  }
+
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
+  // private get canLock() {
+  //   if (this.screenManager.currentScreen.inProtocol === 'gb28181') {
+  //     return this.screenManager.currentScreen.recordType === 1 ? false : (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   } else {
+  //     return (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //   }
+  // }
 
   private pager = {
     pageNum: 1,
@@ -141,6 +172,7 @@ export default class extends Vue {
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private checkPermission = checkPermission
+  private actions: any = null
 
   /* 当前分页后的录像列表 */
   private recordList: Record[] = null
@@ -170,6 +202,8 @@ export default class extends Vue {
   })
   private async getRecordList() {
     try {
+      // 更新权限
+      this.actions = this.currentScreen.permission
       // 没有加载录像直接进入录像列表时，没有 recordManager
       if (!this.currentScreen.recordManager) return
       this.resetPager()
@@ -178,6 +212,7 @@ export default class extends Vue {
         this.recordList = []
         return
       }
+      this.recordList = []
       this.getRecordListByPage()
     } catch (e) {
       this.$message.error(e)
@@ -185,6 +220,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.actions = this.screenManager.currentScreen.permission
     this.getRecordListByPage()
   }
 
@@ -208,6 +244,7 @@ export default class extends Vue {
     this.pager.total = records.length
     this.secToMs(this.recordList)
   }
+
   /**
    * 选择视频
    * @param screen 视频
@@ -291,6 +328,12 @@ export default class extends Vue {
         link.remove()
       }
       record.loading = false
+      const recordTypeName = this.currentScreen.recordType === 0 ? '云端' : '设备'
+      addLog({
+        deviceId: this.currentScreen.deviceId.toString(),
+        inProtocol: this.currentScreen.inProtocol,
+        operationName: `下载${recordTypeName}录像`
+      })
     } catch (e) {
       this.$message.error(e.message)
     }
@@ -303,6 +346,12 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = true
     this.currentListRecord = record
+    const recordTypeName = this.currentScreen.recordType === 0 ? '云端' : '设备'
+    addLog({
+      deviceId: this.currentScreen.deviceId.toString(),
+      inProtocol: this.currentScreen.inProtocol,
+      operationName: `播放${recordTypeName}录像`
+    })
   }
 
   /**

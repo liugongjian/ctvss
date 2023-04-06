@@ -135,6 +135,17 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
     cancelToken
   })
 
+  // export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =>
+  // request({
+  //   url: '/device/record/list',
+  //   method: 'get',
+  //   params: {
+  //     outNetwork: UserModule.outNetwork || undefined,
+  //     ...params
+  //   },
+  //   cancelToken
+  // })
+
 /**
  * 获取检测到行人的时间段信息
  */
@@ -223,6 +234,26 @@ export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
 export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/device/record/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 设备批量绑定
+ */
+export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/batchBind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 设备批量解绑
+ */
+export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/batchUnbind',
     method: 'post',
     data: params
   })
@@ -382,11 +413,11 @@ export const getAddressArea = (params: any, cancelToken: any): Promise<any> =>
  * 获取子地址列表, 返回地址列表
  */
 export const getChildAddress = async(id: any, level: number, cancelToken: any) => {
-  let params: any = {
+  const params: any = {
     pid: id,
     level
   }
-  let res = await getAddressArea(params, cancelToken)
+  const res = await getAddressArea(params, cancelToken)
   let list = []
   if (res.areas.length) {
     list = res.areas.map((item: any) => {
@@ -471,6 +502,16 @@ export const getDeviceEvents = (params: any): Promise<any> =>
     params
   })
 
+/**
+ * 忽略设备事件
+ */
+export const ignoreEvents = (params: any): Promise<any> =>
+  request({
+    url: '/device/alarm/event/ignore',
+    method: 'post',
+    data: params
+  })
+
 // player组件  缩放
 export const dragCanvasZoom = (params: any): Promise<any> =>
   request({
@@ -533,4 +574,53 @@ export const getViewDetail = (params: any): Promise<any> =>
   request({
     url: '/viid/videoImages/' + `${params.deviceId}/${params.type}/${params.id}`,
     method: 'get'
+  })
+
+/**
+*  提交录像锁定时段
+*/
+export const setLock = (data: any): Promise<any> =>
+  request({
+    url: '/record/lock',
+    method: 'post',
+    data
+  })
+
+/**
+* 提交解锁录像
+*/
+export const unLock = (data: any): Promise<any> =>
+  request({
+    url: '/record/unlock',
+    method: 'post',
+    data
+  })
+
+/**
+* 获取设备录像锁列表
+*/
+export const getDeviceLockList = (params?: any) =>
+  request({
+    url: '/record/lock',
+    method: 'get',
+    params
+  })
+/*
+ * 获取用户锁定列表
+ */
+export const getUserLockList = (params?: any) =>
+  request({
+    url: '/record/lock/list',
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取设备所在路径
+ */
+export const getDevicePath = (params: any): Promise<any> =>
+  request({
+    url: '/device/desc/path',
+    method: 'get',
+    params
   })

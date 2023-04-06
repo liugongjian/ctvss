@@ -256,7 +256,31 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item label="GB28181凭证:" prop="userName">
+            <el-form-item v-if="form.parentDeviceId === '-1'" prop="enabledGB35114">
+              <template slot="label">
+                GB35114协议:
+                <el-popover
+                  placement="top-start"
+                  title="GB35114协议"
+                  width="400"
+                  trigger="hover"
+                  :open-delay="300"
+                  :content="tips.enabledGB35114"
+                >
+                  <svg-icon
+                    slot="reference"
+                    class="form-question"
+                    name="help"
+                  />
+                </el-popover>
+              </template>
+              <el-switch
+                v-model="form.enabledGB35114"
+                :active-value="true"
+                :inactive-value="false"
+              />
+            </el-form-item>
+            <el-form-item v-if="!form.enabledGB35114" v-show="form.parentDeviceId === '-1'" label="GB28181凭证:" prop="userName">
               <el-select v-model="form.userName" :loading="loading.account">
                 <el-option
                   v-for="item in gbAccountList"
@@ -338,12 +362,13 @@
             >
               <el-input v-model="form.poleId" />
             </el-form-item>
-            <el-form-item label="配置资源包:" prop="resources">
+            <el-form-item v-if="!disableResourceTab" label="配置资源包:" prop="resources">
               <ResourceTabs
                 v-model="form.resources"
                 :is-update="isUpdate"
                 :in-protocol="form.inProtocol"
                 :is-private-in-network="isPrivateInNetwork"
+                :actions="actions"
                 :device-id="form.deviceId"
                 :form-info="form"
                 :vss-ai-apps="form.vssAIApps"
@@ -465,10 +490,11 @@
         <el-form-item label="杆号:" prop="poleId">
           <el-input v-model="form.poleId" />
         </el-form-item>
-        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+        <el-form-item v-if="isUpdate && !disableResourceTab" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
+            :actions="actions"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
             :device-id="deviceId"
@@ -537,6 +563,8 @@ import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 import { ViewLib2Device } from '../viewLibParamsTransform'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -629,9 +657,10 @@ export default class extends Mixins(createMixin) {
     createSubDevice: 1,
     pullType: 1,
     transPriority: 'tcp',
-    parentDeviceId: '',
+    parentDeviceId: '-1',
     gbId: '',
     poleId: '',
+    enabledGB35114: false,
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -660,6 +689,8 @@ export default class extends Mixins(createMixin) {
     this.getIfUseDeviceName()
   }
 
+  public actions = {}
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -667,6 +698,19 @@ export default class extends Mixins(createMixin) {
     } else {
       this.form.dirId = this.dirId
       this.form.deviceVendor = this.deviceVendorList[0]
+    }
+    // 获取权限数据-用于配置资源包，是否显示AI包
+    if (UserModule.iamUserId) {
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.currentGroupId,
+          dirPath: (this.isUpdate ? pathArr.slice(0, -1).join('/') : pathArr.join('/')) || '0',
+          deviceId: this.isUpdate ? this.deviceId : undefined
+        }]
+      })
+      this.actions = permissionRes.result[0].iamUser.actions
     }
     this.form.inProtocol = this.inProtocol
     this.getGbAccounts()
@@ -715,6 +759,7 @@ export default class extends Mixins(createMixin) {
             'parentDeviceId',
             'gbId',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'serialNumber',
@@ -892,6 +937,7 @@ export default class extends Mixins(createMixin) {
             'macAddr',
             'pullType',
             'userName',
+            'enabledGB35114',
             'deviceLongitude',
             'deviceLatitude',
             'gbId',
@@ -901,6 +947,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换gbRegionLevel字段类型
+        params.gbRegionLevel = parseInt(params.gbRegionLevel)
         // 强制转换设备端口字段类型
         params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数
@@ -928,6 +976,11 @@ export default class extends Mixins(createMixin) {
             transPriority: this.form.transPriority
           })
         }
+        // 使用35114不需要国标凭证
+        if (this.form.enabledGB35114) {
+          delete params.userName
+          delete params.password
+        }
       } else {
         // NVR通道
         params = Object.assign(
@@ -949,13 +1002,15 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         delete params.deviceType
         // 获取设备资源包
-        await updateDeviceResources({
-          deviceId: this.deviceId,
-          deviceType: this.form.deviceType,
-          inProtocol: this.inProtocol,
-          resources: this.form.resources,
-          aIApps: this.form.aIApps
-        })
+        if (!this.disableResourceTab) {
+          await updateDeviceResources({
+            deviceId: this.deviceId,
+            deviceType: this.form.deviceType,
+            inProtocol: this.inProtocol,
+            resources: this.form.resources,
+            aIApps: this.form.aIApps
+          })
+        }
         // 更新设备信息
         await updateDevice(params)
         // 更新视图库

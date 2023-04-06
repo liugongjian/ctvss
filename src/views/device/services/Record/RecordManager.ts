@@ -5,9 +5,10 @@ import axios, { CancelTokenSource } from 'axios'
 import { Record } from './Record'
 import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
+import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale, getDeviceLockList } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { VSSError } from '@/utils/error'
+import { GroupModule } from '@/store/modules/group'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -34,11 +35,24 @@ export class RecordManager {
   public isLoading: boolean
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
+  /* 录像锁列表 */
+  public lockList: any
+
+  // private localLoading = false
+
+  private get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
+  private get canLock() {
+    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
+  }
 
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
     this.heatmapList = []
+    this.lockList = []
     this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
@@ -113,7 +127,7 @@ export class RecordManager {
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
-  public async getRecordListByDate(date: number, isConcat = false, isSeek = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSeek = false, lockSeek = false) {
     try {
       if (!this.screen.deviceId && !isConcat) {
         this.currentDate = date
@@ -124,6 +138,7 @@ export class RecordManager {
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.recordList = []
+        this.lockList = []
         this.heatmapList = []
         this.currentRecord = null
         this.screen.player && this.screen.player.pause()
@@ -157,16 +172,40 @@ export class RecordManager {
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
       this.isLoading = true
-      const records = await this.getRecordList(startTime, endTime)
+      let records: any = null
+      if (this.screen.isLockTask) {
+        // 录像锁顶管理页面 播放功能
+        records = await this.getRecordList(startTime, endTime, 1)
+      } else {
+        records = await this.getRecordList(startTime, endTime)
+      }
+      // 加载录像锁列表
+      // const lockList = await this.getDeviceLockList(date, date + 24 * 60 * 60)
+      const lockList = await this.getDeviceLockList(startTime, endTime)
+      // if (date > this.currentDate) { // 使锁列表严格按照时间顺序排列
+      if (startTime >= this.currentDate) {
+        this.lockList = this.lockList.concat(lockList)
+      } else {
+        this.lockList = lockList.concat(this.lockList)
+      }
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        // 考虑锁状态的更替
+        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1 && records.isLock === records[0].isLock) return 
         if (date > this.currentDate) {
           this.recordList = this.recordList.concat(records)
-        } else {
+        } else if (date < this.currentDate) {
           this.recordList = records.concat(this.recordList)
+        } else if (date === this.currentDate) {
+          if (this.recordList.length) {
+            if (date > this.recordList[0].startTime) this.recordList = this.recordList.concat(records)
+            if (date < this.recordList[0].startTime) this.recordList = records.concat(this.recordList)
+          } else {
+            this.recordList = records
+          }
         }
         // 如果不是seek操作，默认播放第一段录像
-        if (!isConcat && !isSeek) {
+        if (!isConcat && !isSeek && date === this.currentDate) {
           /**
          * 0云端：获取第一段录像
          * 1本地：获取URL
@@ -175,10 +214,21 @@ export class RecordManager {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            this.screen.currentRecordDatetime = records[0].startTime
-            const res = await this.getLocalUrl(records[0].startTime)
-            this.screen.codec = res.codec
-            this.screen.url = res.url
+            this.screen.player && this.screen.player.disposePlayer()
+            // this.screen.currentRecordDatetime = records[0].startTime
+            await this.updateLocalUrl(records[0].startTime)
+            // this.localLoading = true
+            // const res = await this.getLocalUrl(records[0].startTime)
+            // this.screen.codec = res.codec
+            // this.screen.url = res.url
+          }
+          // 没有锁定权限禁止播放锁定片段
+          // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+          if (this.screen.recordType === 0 && this.currentRecord.isLock === 1 && !this.canLock) {
+            throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
+            // this.currentRecord = null
+            // this.screen.url = ''
+            // this.screen.errorMsg = this.screen.ERROR.LOCKED
           }
         }
       } else if (!isConcat) {
@@ -186,9 +236,17 @@ export class RecordManager {
         this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
+      // if (!isConcat) {
+      // if (!isConcat && this.screen.recordType === 0) {
+      //   this.screen.isLoading = false
+      // }
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      this.seek(this.screen.currentRecordDatetime, true)
+      // this.screen.isLoading = false
+      // if (isSeek) {
+      if (lockSeek) {
+        this.seek(this.screen.currentRecordDatetime, true)
+      }
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
@@ -210,14 +268,18 @@ export class RecordManager {
           this.screen.errorMsg = e.message
         }
       }
-      if (!isConcat && e.code !== -2) this.screen.isLoading = false
+      if (!isConcat && e.code !== -2) {
+        this.screen.isLoading = false
+      }
     } finally {
       this.isLoading = false
+      // this.screen.isLoading = false
     }
   }
 
   /**
    * 跳转到指定的时间
+   * 跳转检查，如当前录像片段已经被锁定则提示
    * 1) 获取指定时间的录像片段，在录像列表中寻找，如果未找到则根据日期添加新列表
    * 2) 如果指定时间的录像!==当前片段，切换currentRecord，并设置初始时间
    * 3) 如果指定时间的录像===当前片段，执行seek()
@@ -251,42 +313,58 @@ export class RecordManager {
         }
         record = this.getRecordByTime(time)
       }
-
       if (record) {
-        if (this.screen.recordType === 0) { // 云端录像
-          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
-            this.currentRecord = record
-            this.currentRecord.offsetTime = time - record.startTime
-          } else {
-            this.currentRecord.offsetTime = null
-            this.screen.player.seek(time - this.currentRecord.startTime)
+        // 被锁定部分，且用户不具备权限，则不予播放
+        if (this.screen.recordType === 0 && record.isLock === 1 && !this.canLock) {
+          this.screen.currentRecordDatetime = time
+          this.currentDate = time
+          this.screen.player && this.screen.player.disposePlayer()
+          this.screen.player = null
+          this.screen.isLoading = false
+          if (!this.isLoading) {
+            throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
           }
-        } else { // 本地录像
-          this.updateLocalUrl(time)
+        } else {
+          if (this.screen.recordType === 0) { // 云端录像
+            if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+              this.currentRecord = record
+              this.currentRecord.offsetTime = time - record.startTime
+            } else {
+              this.currentRecord.offsetTime = null
+              this.screen.player.seek(time - this.currentRecord.startTime)
+            }
+          } else { // 本地录像
+            await this.updateLocalUrl(time)
+          }
         }
       } else {
         this.screen.currentRecordDatetime = time
         this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        this.screen.isLoading = false
+        // if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
-          // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
-          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          if (!UserModule.iamUserId || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
+            // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
+            throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          }
         }
         // 静默错误信息（不在界面上显示）
         throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {
-      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE) {
+      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
         this.screen.errorMsg = e.message
       }
       this.screen.currentRecordDatetime = time
       this.screen.recordManager.currentDate = time
       this.screen.player && this.screen.player.disposePlayer()
       this.screen.player = null
-      this.screen.isLoading = false
+      // if (!this.localLoading) this.screen.isLoading = false
+      // this.screen.isLoading = false
       this.screen.url = ''
+    } finally {
+      this.screen.isLoading = false
     }
   }
 
@@ -294,8 +372,15 @@ export class RecordManager {
    * 播放下一段
    */
   public playNextRecord() {
+    if (this.screen.recordType === 1) return
     const currentEndtime = this.currentRecord.endTime
-    const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    // const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    // next record which is unlocked
+    // also if user's permission = 1, then all records are availabel
+    let nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    if (!this.canLock) {
+      nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
+    }
     if (nextRecord) {
       if (this.currentRecord) {
         // 云端
@@ -316,6 +401,9 @@ export class RecordManager {
 
   /**
    * 定时轮询新录像 && 录像中行人时间段信息
+   *
+   *
+   *
    * 1) 如果当前时间小于今日0点，则不加载最新录像
    * 1) 获取录制规则
    * 2) 获取最后一段录像的endTime作为最新录像的startTime查询参数
@@ -328,8 +416,7 @@ export class RecordManager {
       const interval = await this.getRecordInterval()
       if (interval) {
         this.recordInterval = setInterval(async() => {
-          console.log('定时轮询新录像', this.screen.deviceId)
-          if (this.currentDate < getLocaleDate().getTime() / 1000) return
+          if (this.currentDate <= getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60
           const endTime = Math.floor(new Date().getTime() / 1000)
@@ -350,7 +437,7 @@ export class RecordManager {
    * @param endTime 结束时间（时间戳/秒）
    * @returns 录像文件列表(Promise)
    */
-  private async getRecordList(startTime: number, endTime: number) {
+  private async getRecordList(startTime: number, endTime: number, containsDeleted?: number) {
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)
     startTime = parseInt(startTime + '')
@@ -361,6 +448,7 @@ export class RecordManager {
       recordType: this.screen.recordType,
       startTime,
       endTime,
+      containsDeleted: containsDeleted || undefined, // 录像锁定已经删除设备查看录像
       pageSize: 9999
     }, axiosSource.token)
 
@@ -380,14 +468,16 @@ export class RecordManager {
         }
       }
       return new Record({
-        startTime: getTimestamp(record.startTime) / 1000,
-        endTime: getTimestamp(record.endTime) / 1000,
+        startTime: parseInt('' + getTimestamp(record.startTime) / 1000),
+        endTime: parseInt('' + getTimestamp(record.endTime) / 1000),
         duration: record.duration,
         url: record.playUrl[`${record.fileFormat}Url`],
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover,
-        fileFormat: record.fileFormat
+        fileFormat: record.fileFormat,
+        isLock: record.isLock == null ? 0 : record.isLock,
+        expirationTime: record.expirationTime
       })
     })
   }
@@ -570,16 +660,43 @@ export class RecordManager {
    */
   private async updateLocalUrl(time: number) {
     try {
+      this.cancelAxiosSource()
       this.screen.isLoading = true
       const res = await this.getLocalUrl(time)
       this.screen.codec = res.codec
       this.screen.url = res.url
+      // 取消请求不会走下面的,不写 finally 以防止 DOM 加载状态丢失
+      // this.localLoading = false
+      this.screen.isLoading = false
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.screen.errorMsg = e.message
       }
-    } finally {
-      this.screen.isLoading = false
+      if (e.code !== -2) {
+        // this.localLoading = false
+        this.screen.isLoading = false
+      }
+    }
+  }
+
+  /**
+   * =================================
+   * 录像锁相关
+   * =================================
+   */
+  private async getDeviceLockList(startTime: number, endTime: number, pageSize?: number, pageNum?: number) {
+    try {
+      const res: any = await getDeviceLockList({
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        groupId: this.currentGroupId,
+        startTime: Math.round(startTime),
+        endTime: Math.round(endTime),
+        recordType: this.screen.recordType
+      })
+      return res.lockPeriods
+    } catch (e) {
+      this.screen.errorMsg = e.message
     }
   }
 }

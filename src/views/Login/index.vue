@@ -99,6 +99,19 @@
               </span>
             </el-form-item>
           </el-tooltip>
+          <div class="validate">
+            <el-form-item prop="captcha" class="validate__input">
+              <el-input
+                ref="captcha"
+                v-model="loginForm.captcha"
+                placeholder="请输入验证码"
+                name="captcha"
+                type="text"
+                tabindex="3"
+              />
+            </el-form-item>
+            <img :src="captchaImg" class="validate__pic" @click="refreshCaptcha">
+          </div>
           <div class="button-group">
             <el-button
               class="button-group__login"
@@ -164,6 +177,7 @@ import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { removeTicket } from '@/utils/cookies'
 import * as loginService from '@/services/loginService'
+import { getCaptcha } from '@/api/users'
 
 @Component({
   name: 'Login'
@@ -197,17 +211,27 @@ export default class extends Vue {
       callback()
     }
   }
+  private validateCaptcha = (rule: any, value: string, callback: Function) => {
+    if (!value) {
+      callback(new Error('验证码不能为空'))
+    } else {
+      callback()
+    }
+  }
+
   private loginForm = {
     mainUserID: '',
     mainUserName: '',
     userName: '',
-    password: ''
+    password: '',
+    captcha: ''
   }
   private loginRules = {
     mainUserID: [{ validator: this.validateMainUserId, trigger: 'blur' }],
     userName: [{ validator: this.validateUsername, trigger: 'blur' }],
     mainUserName: [{ validator: this.validateMainUsername, trigger: 'blur' }],
-    password: [{ validator: this.validatePassword, trigger: 'blur' }]
+    password: [{ validator: this.validatePassword, trigger: 'blur' }],
+    captcha: [{ validator: this.validateCaptcha, trigger: 'blur' }]
   }
   private passwordType = 'password'
   private loading = false
@@ -216,6 +240,8 @@ export default class extends Vue {
   private redirect?: string
   private otherQuery: Dictionary<string> = {}
   private subUserLogin = false
+  private captchaId = ''
+  private captchaImg = ''
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
@@ -234,6 +260,7 @@ export default class extends Vue {
   }
 
   mounted() {
+    this.refreshCaptcha()
     if (this.loginForm.userName === '') {
       (this.$refs.userName as Input).focus()
     } else if (this.loginForm.password === '') {
@@ -301,6 +328,16 @@ export default class extends Vue {
     })
   }
 
+  private async refreshCaptcha() {
+    try {
+      const data = await getCaptcha()
+      this.captchaId = data.captchaId
+      this.captchaImg = data.img
+    } catch (e) {
+      this.$message.error('获取验证码图片失败，请点击刷新!')
+    }
+  }
+
   private handleLogin() {
     (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
       if (valid) {
@@ -310,7 +347,10 @@ export default class extends Vue {
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
           const loginData: any = {
-            password: this.loginForm.password
+            password: this.loginForm.password,
+            captchaId: this.captchaId,
+            captcha: this.loginForm.captcha,
+            platform: 'web'
           }
           if (this.subUserLogin) {
             loginData.mainUserID = this.loginForm.mainUserID
@@ -320,6 +360,9 @@ export default class extends Vue {
           }
           const result: any = await UserModule.Login(loginData)
           removeTicket(loginService.casUrl.type)
+          if (this.subUserLogin && result.mutualLogoutNotify) {
+            this.$message.warning(result.mutualLogoutNotify)
+          }
           if (this.subUserLogin && result.code === 8) {
             this.$router.push({
               path: '/reset-password',
@@ -338,6 +381,7 @@ export default class extends Vue {
               query: this.$route.query
             })
           } else {
+            this.refreshCaptcha()
             this.$message.error('登录失败，失败原因：' + err.message)
           }
         } finally {
@@ -520,6 +564,29 @@ export default class extends Vue {
   @media only screen and (max-width: 470px) {
     .thirdparty-button {
       display: none;
+    }
+  }
+
+  .validate {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+
+    &__input {
+      flex-grow: 1;
+      margin-bottom: 0;
+
+      ::v-deep .el-form-item__content {
+        line-height: 48px;
+      }
+    }
+
+    &__pic {
+      margin-left: 9px;
+      min-width: 85px;
+      height: 50px;
+      border-radius: 4px;
+      background: rgba(238, 238, 238, 100%);
     }
   }
 

@@ -1,5 +1,5 @@
 diff --git a/node_modules/element-ui/lib/element-ui.common.js b/node_modules/element-ui/lib/element-ui.common.js
-index 6534063..2031b19 100644
+index 6534063..ad156ed 100644
 --- a/node_modules/element-ui/lib/element-ui.common.js
 +++ b/node_modules/element-ui/lib/element-ui.common.js
 @@ -1156,7 +1156,9 @@ var util_ = __webpack_require__(2);
@@ -41,7 +41,38 @@ index 6534063..2031b19 100644
      },
      handleShortcutClick: function handleShortcutClick(shortcut) {
        if (shortcut.onClick) {
-@@ -42425,7 +42431,8 @@ var descriptions_row_extends = Object.assign || function (target) { for (var i =
+@@ -19721,12 +19727,14 @@ var date_rangevue_type_script_lang_js_calcDefaultValue = function calcDefaultVal
+     // leftPrev*, rightNext* need to take care of `unlinkPanels`
+     leftPrevYear: function leftPrevYear() {
+       this.leftDate = Object(date_util_["prevYear"])(this.leftDate);
++      this.changeCalendar && this.changeCalendar(this.leftDate);
+       if (!this.unlinkPanels) {
+         this.rightDate = Object(date_util_["nextMonth"])(this.leftDate);
+       }
+     },
+     leftPrevMonth: function leftPrevMonth() {
+       this.leftDate = Object(date_util_["prevMonth"])(this.leftDate);
++      this.changeCalendar && this.changeCalendar(this.leftDate);
+       if (!this.unlinkPanels) {
+         this.rightDate = Object(date_util_["nextMonth"])(this.leftDate);
+       }
+@@ -19738,6 +19746,7 @@ var date_rangevue_type_script_lang_js_calcDefaultValue = function calcDefaultVal
+       } else {
+         this.rightDate = Object(date_util_["nextYear"])(this.rightDate);
+       }
++      this.changeCalendar && this.changeCalendar(this.rightDate);
+     },
+     rightNextMonth: function rightNextMonth() {
+       if (!this.unlinkPanels) {
+@@ -19746,6 +19755,7 @@ var date_rangevue_type_script_lang_js_calcDefaultValue = function calcDefaultVal
+       } else {
+         this.rightDate = Object(date_util_["nextMonth"])(this.rightDate);
+       }
++      this.changeCalendar && this.changeCalendar(this.rightDate);
+     },
+ 
+ 
+@@ -42425,7 +42435,8 @@ var descriptions_row_extends = Object.assign || function (target) { for (var i =
                  }, _ref3[item.labelClassName] = true, _ref3),
                  style: item.labelStyle
                },

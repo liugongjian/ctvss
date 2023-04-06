@@ -4,11 +4,16 @@ const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
 const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
-  local: 'http://192.168.245.1:8081', // 本地环境
+  // local: 'http://192.168.245.1:8081', // 本地环境
+  // local: 'http://172.24.6.64:18888', // 本地环境
+  local: 'http://172.24.6.59:8081', // 本地环境
   dev: 'http://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9067', // 开发环境dev-1
   test: 'http://182.43.127.35:9080', // 测试环境
-  test1: 'http://182.43.127.35:9060', // 测试环境test-1
+  // test1: 'http://182.43.127.35:9060', // 测试环境test-1
+  test1: 'http://182.43.127.36:9060', // 测试环境test-1
+  // devrefactor: 'http://182.43.127.35:9062', // 开发环境dev-refactor
+  // testrefactor: 'http://182.43.127.36:9060', // 重构-测试环境
   test2: 'http://182.43.127.35:9061', // 测试环境test-2
   test3: 'http://182.43.127.35:9062', // 测试环境test-3
   test4: 'http://182.43.127.35:9063', // 测试环境test-4
@@ -16,7 +21,7 @@ const serverAddressMapping = {
   prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {
-  local: 8081,
+  local: 18888,
   dev: 9190,
   dev1: 9067,
   test: 9080,

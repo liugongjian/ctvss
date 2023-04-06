@@ -36,7 +36,7 @@
               <el-select v-model="searchForm.userGroup" />
               <el-select v-model="searchForm.userGroup" />
             </div> -->
-            <el-select v-model="searchForm.userGroup">
+            <el-select v-model="searchForm.userGroup" :disabled="isSubUser">
               <el-option
                 v-for="(item, index) in userGroupOptions"
                 :key="index"
@@ -131,6 +131,7 @@ import { INotifictionPolicy } from '@/type/Notification'
 import { dateFormatInTable } from '@/utils/date'
 import { getNotificationHistory } from '@/api/notification'
 import { getGroupList } from '@/api/accessManage'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'notification-history-list'
@@ -151,13 +152,15 @@ export default class extends Vue {
     { value: '', label: '所有类型' },
     { value: '1', label: '设备消息' },
     // { value: '2', label: '资源包消息' },
-    { value: '3', label: 'AI消息' }
+    { value: '3', label: 'AI消息' },
+    { value: '4', label: '平台设备消息' }
   ]
 
   private sourceMap = {
     1: '设备消息',
     2: '资源包消息',
-    3: 'AI消息'
+    3: 'AI消息',
+    4: '平台事件消息'
   }
 
   private userGroupOptions = []
@@ -179,6 +182,10 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
+  }
+
+  get isSubUser() {
+    return !!UserModule.iamUserId
   }
 
   private dateFormatInTable = dateFormatInTable

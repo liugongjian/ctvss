@@ -42,7 +42,7 @@ export default class CreateMixin extends Vue {
 
   public submitting = false
 
-  public deviceVendorList = ['海康', '大华', '宇视', '其他']
+  public deviceVendorList = ['海康', '大华', '宇视', '科达', '金三立', '华为', '其他']
   // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
@@ -74,8 +74,16 @@ export default class CreateMixin extends Vue {
     ]
   }
 
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   public get currentGroup() {
     return GroupModule.group
+  }
+
+  public get currentGroupId() {
+    return GroupModule.group?.groupId
   }
 
   public get inProtocol() {
@@ -117,6 +125,11 @@ export default class CreateMixin extends Vue {
 
   public get isIPC() {
     return this.form.deviceType === 'ipc'
+  }
+
+  // 隐藏资源包配置
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
   }
 
   private get breadCrumbContent() {
@@ -388,7 +401,7 @@ export default class CreateMixin extends Vue {
             alertMsg.push(resource.msg)
           }
         }
-        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
+        if (!this.disableResourceTab && !this.isFreeUser && this.isUpdate && alertMsg.length) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',

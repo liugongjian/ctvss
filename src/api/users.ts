@@ -20,6 +20,12 @@ export const getIAMUserInfo = (params: any) =>
     params
   })
 
+export const getIAMUserMergedPolicies = () =>
+  request({
+    url: '/iam/user/mergedPolicy',
+    method: 'post'
+  })
+
 export const getUserByName = (username: string) =>
   request({
     url: `/users/${username}`,
@@ -97,4 +103,13 @@ export const updatetUserConfig = (data: any): Promise<any> =>
     url: '/user/config/createOrUpdate',
     method: 'post',
     data
+  })
+
+/**
+ * 获取验证码
+ */
+export const getCaptcha = (): Promise<any> =>
+  request({
+    url: '/user/captcha',
+    method: 'get'
   })

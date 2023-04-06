@@ -23,12 +23,12 @@ export const durationFormat = (duration: number) => {
   if (duration < 60) {
     return `${duration}秒`
   }
-  if (duration >= 60 && duration < 3600 * 3) {
+  if (duration >= 60 && duration < 3600) {
     const minute = Math.floor(duration / 60)
     const second = duration % 60
     return second === 0 ? `${minute}分` : `${minute}分${second}秒`
   }
-  if (duration >= 3600 * 3) {
+  if (duration >= 3600) {
     const hour = Math.floor(duration / 3600)
     const minute = Math.floor(duration % 3600 / 60)
     const second = duration % 60
@@ -156,3 +156,18 @@ export const isCrossDays = (moveStartTime: number, moveEndTime: number) => {
   if (moveStartTime === moveEndTime) return false
   return new Date(moveStartTime).getDate() - new Date(moveEndTime).getDate() !== 0
 }
+
+
+/**
+ * 转换成 YYYY-MM-DD 24小时 时间格式
+ */
+export const time24Format = (time: number, isTrans?: boolean) => {
+  const front = (new Date(time)).toLocaleDateString().replaceAll('/','-')
+  let end = (new Date(time)).toLocaleString().split(' ')[1]
+  /* 将晚上12点转换成24：00：00 */
+  if (isTrans) {
+    return end === '00:00:00' ? '24:00:00' : end
+  }
+  return front + ' ' + end
+}
+

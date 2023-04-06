@@ -9,22 +9,27 @@
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
+import { DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import { isIE } from '@/utils/browser'
 import ComponentMixin from './mixin'
+import { addLog } from '@/api/operationLog'
 
 @Component({
   name: 'Snapshot'
 })
 export default class extends ComponentMixin {
   @Prop()
-  private name: string
+  private deviceInfo: DeviceInfo
+
+  @Prop()
+  private isLive: boolean
 
   /**
    * 截图保存
    */
   private snapshot() {
     if (!this.player) return
-    const name = this.name || 'snapshot'
+    const name = this.deviceInfo.deviceName || 'snapshot'
     const canvas = this.getCanvas()
 
     // IE兼容下载、未加载出视频时点击截图无效
@@ -48,11 +53,17 @@ export default class extends ComponentMixin {
       $link.href = canvas.toDataURL('image/png')
       $link.click()
     }
+    const typeName = this.isLive ? '预览' : '录像'
+    addLog({
+      deviceId: this.deviceInfo.deviceId.toString(),
+      inProtocol: this.deviceInfo.inProtocol,
+      operationName: `${typeName}截图`
+    })
   }
 
   private getCanvas(): HTMLCanvasElement {
     let canvas: HTMLCanvasElement
-    if (this.player.type === 'h265') {
+    if (this.player.codec === 'h265') {
       /**
        * 需要修改EasyWasmPlayer.js
        * 在getContext webgl 增加 preserveDrawingBuffer: true
