@@ -14,10 +14,17 @@
           <el-input v-model="form.name" />
         </el-form-item>
         <el-form-item label="SIP服务国标编码:" prop="sipId">
-          <el-input v-model="form.sipId" placeholder="请输入20位SIP服务国标编码" @change="onSipIdChange" />
+          <el-input
+            v-model="form.sipId"
+            placeholder="请输入20位SIP服务国标编码"
+            @change="onSipIdChange"
+          />
         </el-form-item>
         <el-form-item label="SIP服务国标域:" prop="sipDomain">
-          <el-input v-model="form.sipDomain" placeholder="SIP服务国标域默认截取SIP服务国标编码的前10位" />
+          <el-input
+            v-model="form.sipDomain"
+            placeholder="SIP服务国标域默认截取SIP服务国标编码的前10位"
+          />
         </el-form-item>
         <el-form-item label="SIP服务IP:" prop="sipIp">
           <el-input v-model="form.sipIp" />
@@ -62,12 +69,20 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.enabledNat" :active-value="1" :inactive-value="0" />
+          <el-switch
+            v-model="form.enabledNat"
+            :active-value="1"
+            :inactive-value="0"
+          />
         </el-form-item>
         <el-form-item v-if="form.enabledNat === 1" label="本地IP:" prop="natIp">
           <el-input v-model="form.natIp" />
         </el-form-item>
-        <el-form-item v-if="form.enabledNat === 1" label="本地端口:" prop="natPort">
+        <el-form-item
+          v-if="form.enabledNat === 1"
+          label="本地端口:"
+          prop="natPort"
+        >
           <el-input v-model="form.natPort" />
         </el-form-item>
         <el-form-item label="网络类型:" prop="cascadeNetWork">
@@ -82,8 +97,17 @@
         <el-form-item v-if="form.isAuth" label="SIP认证用户名:" prop="sipUser">
           <el-input v-model="form.sipUser" placeholder="默认使用设备国标编号" />
         </el-form-item>
-        <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
-          <el-input v-model="form.sipPassword" />
+        <el-form-item
+          v-if="form.isAuth"
+          label="SIP认证密码:"
+          prop="sipPassword"
+        >
+          <el-input
+            v-model="form.sipPassword"
+            type="password"
+            autocomplete="new-password"
+            :placeholder="placeholder"
+          />
         </el-form-item>
         <el-form-item label="级联方式:" prop="cascadeType">
           <el-radio-group v-model.number="form.cascadeType">
@@ -93,13 +117,16 @@
         </el-form-item>
         <el-form-item prop="industryCode" label="所属行业">
           <el-select v-model="form.industryCode" placeholder="请选择所属行业">
-            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+            <el-option
+              v-for="(item, index) in industryList"
+              :key="index"
+              :label="item.name"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item prop="cascadeRegion" class="form-with-tip">
-          <template slot="label">
-            上级级联区域:
-          </template>
+          <template slot="label"> 上级级联区域: </template>
           <AddressCascader
             :code="form.gbRegion"
             :level="form.gbRegionLevel"
@@ -172,27 +199,41 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
-          <div v-if="form.enableLocalChannelName" class="cname-tip">该功能仅限GB28181协议、EHOME协议，按钮开启时，其他协议无法获取到设备侧的实际名称</div>
+          <el-switch
+            v-model="form.enableLocalChannelName"
+            :active-value="1"
+            :inactive-value="0"
+          />
+          <div v-if="form.enableLocalChannelName" class="cname-tip">
+            该功能仅限GB28181协议、EHOME协议，按钮开启时，其他协议无法获取到设备侧的实际名称
+          </div>
         </el-form-item>
         <el-form-item label="描述:" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入设备描述，如设备用途"
+          />
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submit">
+            确定
+          </el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceAddress } from '@/type/Device'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import AddressCascader from '@/views/components/AddressCascader.vue'
+import { encrypt } from '@/utils/encrypt'
 
 @Component({
   name: 'CreateUpPlatform',
@@ -232,10 +273,10 @@ export default class extends Vue {
   private loading = false
   private regionList = []
 
+  private placeholder = ''
+
   private rules = {
-    name: [
-      { required: true, message: '请输入级联平台名称', trigger: 'blur' }
-    ],
+    name: [{ required: true, message: '请输入级联平台名称', trigger: 'blur' }],
     sipId: [
       { required: true, message: '请输入SIP服务国标编码', trigger: 'blur' },
       { validator: this.validateSipId, trigger: 'blur' }
@@ -251,12 +292,8 @@ export default class extends Vue {
     cascadeRegion: [
       { required: true, message: '请选择级联区域', trigger: 'blur' }
     ],
-    gbId: [
-      { validator: this.validateGbId, trigger: 'blur' }
-    ],
-    natIp: [
-      { validator: this.validateNetIp, trigger: 'blur' }
-    ],
+    gbId: [{ validator: this.validateGbId, trigger: 'blur' }],
+    natIp: [{ validator: this.validateNetIp, trigger: 'blur' }],
     registerInterval: [
       { required: true, message: '请输入注册周期（秒）', trigger: 'blur' },
       { validator: this.validateRegisterInterval, trigger: 'blur' }
@@ -316,7 +353,12 @@ export default class extends Vue {
     if (platform.sipUser) {
       platform.isAuth = true
     }
-    platform.cascadeRegion = this.getRegionPath(this.regionList, platform.cascadeRegion)
+    platform.cascadeRegion = this.getRegionPath(
+      this.regionList,
+      platform.cascadeRegion
+    )
+    platform.sipPassword = ''
+    this.placeholder = '······'
     this.form = Object.assign(this.form, platform)
   }
 
@@ -358,16 +400,20 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
+    form.validate(async (valid: any) => {
       if (valid) {
         try {
           this.submitting = true
           const params = Object.assign({}, this.form)
-          params.cascadeRegion = this.form.cascadeRegion && this.form.cascadeRegion[1]
-          params.permissionSet = this.form.permissionSet && this.form.permissionSet.join(',')
+          params.cascadeRegion =
+            this.form.cascadeRegion && this.form.cascadeRegion[1]
+          params.permissionSet =
+            this.form.permissionSet && this.form.permissionSet.join(',')
           if (!params.isAuth) {
             params.sipUser = ''
             params.sipPassword = ''
+          } else {
+            params.sipPassword = encrypt(params.sipPassword)
           }
           if (params.natPort === '') {
             params.natPort = 0
@@ -395,7 +441,11 @@ export default class extends Vue {
   private getRegionPath(regions: any, target: string) {
     let path: Array<any> = []
     try {
-      const _find: any = function(path: Array<string>, children: any, parentValue: any) {
+      const _find: any = function (
+        path: Array<string>,
+        children: any,
+        parentValue: any
+      ) {
         for (let i = 0; i < children.length; i++) {
           const item = children[i]
           item.children && _find(path, item.children, item.value)
@@ -407,7 +457,7 @@ export default class extends Vue {
         }
       }
       _find(path, regions, null)
-    // eslint-disable-next-line no-empty
+      // eslint-disable-next-line no-empty
     } catch (e) {}
     return path
   }
@@ -438,7 +488,12 @@ export default class extends Vue {
    * 校验SIP服务IP格式
    */
   private validateSipIp(rule: any, value: string, callback: Function) {
-    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+    if (
+      value &&
+      !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(
+        value
+      )
+    ) {
       callback(new Error('SIP服务IP格式不正确'))
     } else {
       callback()
@@ -460,7 +515,12 @@ export default class extends Vue {
    * 校验本地IP格式
    */
   private validateNetIp(rule: any, value: string, callback: Function) {
-    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+    if (
+      value &&
+      !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(
+        value
+      )
+    ) {
       callback(new Error('本地IP格式不正确'))
     } else {
       callback()
@@ -470,7 +530,11 @@ export default class extends Vue {
   /**
    * 校验注册周期（秒）格式
    */
-  private validateRegisterInterval(rule: any, value: number, callback: Function) {
+  private validateRegisterInterval(
+    rule: any,
+    value: number,
+    callback: Function
+  ) {
     if (value < 300) {
       callback(new Error('注册周期不小于300秒'))
     } else {
@@ -481,7 +545,11 @@ export default class extends Vue {
   /**
    * 校验心跳周期（秒）格式
    */
-  private validateHeartbeatInterval(rule: any, value: number, callback: Function) {
+  private validateHeartbeatInterval(
+    rule: any,
+    value: number,
+    callback: Function
+  ) {
     if (value < 60) {
       callback(new Error('心跳周期不小于60秒'))
     } else {
@@ -497,9 +565,10 @@ export default class extends Vue {
   ::v-deep .el-textarea {
     width: 400px;
   }
-  .cname-tip{
-      font-size: 14px;
-      color: #888888;
+
+  .cname-tip {
+    font-size: 14px;
+    color: #888;
   }
 }
 </style>
