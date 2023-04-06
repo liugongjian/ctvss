@@ -213,9 +213,15 @@ export default class extends Vue {
 
   private get hasRecordTemplateConfig() {
     // 按需模式下仅视频与视图能配录制模板
-    return [BillingModeEnum.OnDemand].includes(this.configForm[BillingEnum.BillingMode])
-      && [ResourceTypeEnum.Video, ResourceTypeEnum.Viid].includes(this.resourceType)
-      && this.configForm[BillingEnum.RecordNum] === '1'
+    let flag = false
+    if ([BillingModeEnum.OnDemand].includes(this.configForm[BillingEnum.BillingMode])) {
+      if ([ResourceTypeEnum.Video].includes(this.resourceType) && this.configForm[BillingEnum.RecordNum] === '1') {
+        flag = true
+      } else if ([ResourceTypeEnum.Viid].includes(this.resourceType)) {
+        flag = true
+      }
+    }
+    return flag
   }
 
   private get hasPackagesTable() {
