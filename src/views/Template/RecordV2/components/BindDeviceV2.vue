@@ -11,7 +11,7 @@
           node-key="id"
           lazy
           highlight-current
-          empty-text="暂无已绑定设备"
+          empty-text="暂无设备"
           :load="loadSubDeviceLeft"
           :props="treeProp"
           show-checkbox
@@ -102,7 +102,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator'
 import { getTemplateDeviceTree } from '@/api/template'
-import { setDeviceRecordTemplateBatch } from '@/api/device'
+import { setDeviceRecordTemplateBatch, setViidDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { cloneDeep } from 'lodash'
 
@@ -114,6 +114,7 @@ import { cloneDeep } from 'lodash'
 })
 export default class extends Vue {
   @Prop()private currentTemplate: any
+  @Prop()private type: any
 
   @Ref('bindWrap') private bindWrap
   @Ref('bindTree') private bindTree
@@ -182,6 +183,7 @@ export default class extends Vue {
         this.loading.deviceTree = true
         const res = await getTemplateDeviceTree({
           templateId: this.currentTemplate.templateId,
+          inProtocol: this.type,
           groupId: 0,
           id: 0,
           bind: false
@@ -399,6 +401,7 @@ export default class extends Vue {
       const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
+        inProtocol: this.type,
         groupId: rootId,
         id: data.id,
         type: data.type,
@@ -540,6 +543,7 @@ export default class extends Vue {
         }
       })
       await setDeviceRecordTemplateBatch({
+        inProtocol: this.type,
         templateId: this.currentTemplate.templateId,
         devices: devices,
         startRecord: this.quickStart

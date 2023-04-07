@@ -95,7 +95,7 @@ export default class extends Vue {
   @Watch('$route.path', { immediate: true })
   public pathChange(){
     this.dataList = []
-    this.$nextTick( () => this.getData() )
+    this.$nextTick(() => this.getData())
   }
 
   private back() {

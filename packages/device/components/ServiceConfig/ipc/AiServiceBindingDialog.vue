@@ -4,6 +4,7 @@
     title="绑定AI应用"
     center
     :visible="true"
+    append-to-body
     @close="closeDialog"
   >
     <el-form
@@ -16,9 +17,14 @@
         <billing-mode-selector
           ref="configForm"
           v-model="billingModeForm"
+          :real-package-remain="realPackageRemain"
           :resource-type="resourceTypeEnum.AI"
         />
       </el-form-item>
+      <div class="resource-title">
+        <span class="config-title">待配置AI应用：</span>
+        <span class="config-title__after">{{ `已选中 ${selectedApps.length} 项` }}</span>
+      </div>
       <el-form-item prop="apps">
         <el-tabs
           v-model="activeTabId"
@@ -29,13 +35,13 @@
           <el-tab-pane
             v-for="item in tabInfo"
             :key="item.id"
-            :label="item.name+' ('+item.aiApps+')'"
+            :label="item.name+` (${aiAppsObj[item.id] ? aiAppsObj[item.id].length : 0})`"
             :name="item.id"
           >
             <el-table
               :ref="`appTable${item.id}`"
               v-loading="loading.appList"
-              :data="aiApps"
+              :data="aiAppsObj[item.id]"
               tooltip-effect="dark"
               max-height="350"
               cell-class-name="tableCell"
@@ -61,7 +67,7 @@
         </el-tabs>
       </el-form-item>
     </el-form>
-    <div slot="footer" style="overflow: hidden;">
+    <div slot="footer">
       <el-button type="primary" @click="submit">确 定</el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
     </div>
@@ -69,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
@@ -84,18 +90,22 @@ export default class extends Vue {
   @Prop({ default: () => [] })
   private selectedList: Array<any>
 
+  @Prop({ default: () => new Object() })
+  private realPackageRemain
+
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
+    [BillingEnum.BillingMode]: '',
     [BillingEnum.ResourceId]: '',
     [BillingEnum.Resource]: {}
   }
   
-  private activeTabId: Number = 0
+  private activeTabId: any = 0
   private resourceAiType: any = ResourceAiType
   private tabInfo: any = []
-  private aiApps: any = []
+  private aiAppsObj: any = {}
+  private aiAppsBaseObj: any = {}
   private selectedAppIdsSet = new Set()
   private selectedApps: Array<any> = []
   private configForm = {
@@ -112,17 +122,23 @@ export default class extends Vue {
     abilityList: false
   }
 
+  @Watch('billingModeForm.billingMode')
+  private billingModeChange() {
+    this.appListInit()
+  }
+
   private async mounted() {
     await this.getAbilityList()
     this.activeTabId = this.tabInfo[0] && this.tabInfo[0].id
     await this.getAppList()
+    this.appListInit()
   }
 
   /**
    * 切换Tab
    */
   private async handleTabType() {
-    this.getAppList()
+    this.appListInit()
   }
 
   /**
@@ -139,9 +155,6 @@ export default class extends Vue {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
-      aiAbilityList.forEach(aiAbility => {
-        aiAbility.aiApps = Math.abs(aiAbility.aiApps - this.selectedList.filter(item => item.algorithmName === aiAbility.name).length)
-      })
       this.tabInfo = aiAbilityList
     } catch (e) {
       this.$message.error(e && e.message)
@@ -156,11 +169,14 @@ export default class extends Vue {
   private async getAppList() {
     try {
       this.loading.appList = true
-      const { aiApps } = await getAppList({ abilityId: this.activeTabId })
-      this.aiApps = aiApps.filter(aiApp => {
-        return this.selectedList.findIndex(item => item.AppId === aiApp.id) === -1
+      const promiseArray = []
+      this.tabInfo.forEach(info => {
+        promiseArray.push(getAppList({ abilityId: info.id }))
       })
-      await this.$nextTick(() => this.toggleSelection())
+      const resArray = await Promise.all(promiseArray)
+      this.tabInfo.forEach((info, index) => {
+        this.aiAppsBaseObj[info.id] = resArray[index]['aiApps']
+      })
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -169,11 +185,29 @@ export default class extends Vue {
   }
 
   /**
+   * 查询应用列表
+   */
+  private async appListInit() {
+    this.loading.appList = true
+    for (const tabId in this.aiAppsBaseObj) {
+      this.aiAppsObj[tabId] = this.aiAppsBaseObj[tabId].filter(aiApp => {
+        return this.selectedList.findIndex(item => item.appId === aiApp.id) === -1
+      })
+      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
+        this.aiAppsObj[tabId] = this.aiAppsObj[tabId].filter(item => item.analyseType !== 'AI-300')
+      }
+    }
+    await this.$nextTick(() => this.toggleSelection())
+    this.loading.appList = false
+  }
+
+  /**
    * 表格多选框变化
    */
   private handleSelectionChange(apps) {
     // 初始化勾选项时不触发
-    this.aiApps.forEach(row => {
+    if (this.loading.appList) return
+    this.aiAppsObj[this.activeTabId + ''].forEach(row => {
       if (apps.some(app => (app as any).id === row.id)) {
         if (!this.selectedAppIdsSet.has(row.id)) {
           this.selectedAppIdsSet.add(row.id)
@@ -191,7 +225,7 @@ export default class extends Vue {
    * 初始化选择默认勾选项
    */
   private toggleSelection() {
-    this.aiApps.forEach(row => {
+    this.aiAppsObj[this.activeTabId + ''] && this.aiAppsObj[this.activeTabId + ''].forEach(row => {
       if (this.selectedAppIdsSet.has(row.id)) {
         (this.$refs[`appTable${this.activeTabId}`][0] as any).toggleRowSelection(row)
       }
@@ -222,11 +256,14 @@ export default class extends Vue {
   }
 
   /**
-   * 校验经纬度
+   * 校验app
    */
   private validateApps(rule: any, value: string, callback: Function) {
+    const remainDeviceCount = this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages ? this.billingModeForm[BillingEnum.Resource]['remainDeviceCount'] : Infinity
     if (!this.selectedApps.length) {
       callback(new Error('请选择AI应用'))
+    } else if (remainDeviceCount !== undefined && this.selectedApps.length > remainDeviceCount) {
+      callback(new Error('所选的AI应用数量须不大于AI资源包剩余数量'))
     } else {
       callback()
     }
@@ -237,13 +274,29 @@ export default class extends Vue {
 .binding-dialog {
   .el-form {
     margin: 0;
+
+    .el-form-item {
+      max-width: 100%;
+    }
+  }
+
+  .resource-title {
+    display: flex;
+    margin-bottom: 10px;
+
+    .config-title {
+      color: $textGrey;
+
+      &__after {
+        color: $primary;
+      }
+    }
   }
 
   ::v-deep .el-dialog__body {
     max-height: 60vh;
     overflow: auto;
     padding-top: 0;
-    padding-bottom: 0;
     margin-bottom: 25px;
   }
 

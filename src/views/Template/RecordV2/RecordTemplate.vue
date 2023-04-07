@@ -1,7 +1,11 @@
 <template>
   <div class="app-container">
+    <el-menu :default-active="type" class="navigation-menu" mode="horizontal" @select="navigatePage">
+      <el-menu-item index="video">视频录制模板</el-menu-item>
+      <el-menu-item index="viid">视图存储模板</el-menu-item>
+    </el-menu>
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{minHeight: `${minHeight}px`}" :class="{'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ minHeight: `${minHeight}px` }" :class="{ 'device-list--dragging': dirDrag.isDragging }">
         <div
           class="device-list__handle"
           :style="`left: ${dirDrag.width}px`"
@@ -10,7 +14,7 @@
         <div class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list__tools">
             <span class="left-title">模板列表</span>
-            <el-tooltip class="item new-template" effect="dark" content="新建录制模板" placement="top" :open-delay="300">
+            <el-tooltip class="item new-template" effect="dark" content="新建模板" placement="top" :open-delay="300">
               <el-button :disabled="createTemplateDisable" @click="createTemplate">+ 新建</el-button>
             </el-tooltip>
           </div>
@@ -18,13 +22,14 @@
             <div class="dir-list" :style="`width: ${dirDrag.width}px`">
               <div v-loading="loading.template" class="template-list">
                 <ul>
-                  <li v-for="template in templates" :key="template.templateId" :class="{'actived': currentTemplate && (currentTemplate.templateId === template.templateId)}" @click="selectTemplate(template)">
-                    <span> {{ template.templateName }}</span><div class="tools">
+                  <li v-for="template in templates" :key="template.templateId" :class="{ 'actived': currentTemplate && (currentTemplate.templateId === template.templateId) }" @click="selectTemplate(template)">
+                    <span> {{ template.templateName }}</span>
+                    <div class="tools">
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
                       </el-tooltip> -->
                       <el-tooltip class="item" effect="dark" content="删除模板" placement="top" :open-delay="300">
-                        <el-button type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
+                        <el-button :disabled="+template.templateType == 1" type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
                     </div>
                   </li>
@@ -34,19 +39,19 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div v-if="mainCard">
+          <div v-if="mainCard && currentTemplate">
             <el-descriptions v-loading="loading.templateInfo" :column="2" border label-class-name="description__label" content-class-name="description__content">
               <template slot="title">
                 <span class="title">模板信息</span>
               </template>
               <template slot="extra">
-                <el-button type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
+                <el-button :disabled="+currentTemplate.templateType == 1" type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
               </template>
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
               <el-descriptions-item label="存储时长">{{ renderTemplateInfo.storageTime / 24 / 60 / 60 + '天' }}</el-descriptions-item>
-              <el-descriptions-item label="周期时长">{{ renderTemplateInfo.interval / 60 + '分钟' }}</el-descriptions-item>
-              <el-descriptions-item label="录制类别">{{ renderTemplateInfo.recordType === 1 ? '全天录制' : '手动录制' }}</el-descriptions-item>
+              <el-descriptions-item v-if="type === 'video'" label="周期时长">{{ Math.ceil(+renderTemplateInfo.fileDuration / 60) + '分钟' }}</el-descriptions-item>
+              <el-descriptions-item v-if="type === 'video'" label="录制类别">{{ renderTemplateInfo.recordType }}</el-descriptions-item>
               <el-descriptions-item label="备注">{{ renderTemplateInfo.description }}</el-descriptions-item>
             </el-descriptions>
             <el-descriptions label-class-name="has-no-colon" :column="1">
@@ -56,7 +61,7 @@
               <el-descriptions-item v-if="handleDevice" colon="false">
                 <!-- <el-descriptions-item colon="false"> -->
                 <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
-                <el-button :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
+                <el-button v-if="type === 'video'" :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
               </el-descriptions-item>
             </el-descriptions>
             <div ref="bindContainer" class="bind-container">
@@ -87,9 +92,9 @@
                       @check-change="handleCheck"
                     >
                       <span
-                        slot-scope="{node, data}"
+                        slot-scope="{ node, data }"
                         class="custom-tree-node"
-                        :class="{'online': data.deviceStatus === 'on'}"
+                        :class="{ 'online': data.deviceStatus === 'on' }"
                       >
                         <span class="node-name">
                           <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -130,11 +135,26 @@
                 </div>
               </div>
               <!-- 绑定的设备 -->
-              <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" />
+              <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" :type="type" />
             </div>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
-            <create-or-update-template :create-or-update-flag="createOrUpdateFlag" :form-data="currentTemplate" :template-id="currentTemplate.templateId" @on-close="createClose" @on-submit="templateSubmit" />
+            <create-or-update-template
+              v-if="type === 'video'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              :template-id="currentTemplate.templateId"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
+            <create-or-update-viid-template
+              v-if="type === 'viid'"
+              :create-or-update-flag="createOrUpdateFlag"
+              :form-data="currentTemplate"
+              :template-id="currentTemplate.templateId"
+              @on-close="createClose"
+              @on-submit="templateSubmit"
+            />
           </div>
         </div>
       </div>
@@ -143,22 +163,26 @@
 </template>
 <script lang="ts">
 import axios from 'axios'
-import { Component, Vue, Ref } from 'vue-property-decorator'
-import { getRecordTemplates, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate } from '@/api/template'
+import { Component, Vue, Ref, Prop } from 'vue-property-decorator'
+import { getRecordTemplates, queryViidRecordTemplate, queryRecordTemplate, getTemplateDeviceTree, deleteRecordTemplate, getViidRecordTemplates, deleteViidRecordTemplate } from '@/api/template'
 import { unbindDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import BindDevice from './components/BindDeviceV2.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
+import CreateOrUpdateViidTemplate from './components/CreateOrUpdateViidTemplate.vue'
 
 @Component({
-  name: 'CustomDeviceTree',
+  name: 'RecordTemplate',
   components: {
     BindDevice,
     StatusBadge,
-    CreateOrUpdateTemplate
+    CreateOrUpdateTemplate,
+    CreateOrUpdateViidTemplate
   }
 })
 export default class extends Vue {
+  @Prop() private type: string
+
   @Ref('deviceWrap') private deviceWrap
   @Ref('bindContainer') private bindContainer
   @Ref('bindTreeMain') private bindTreeMain
@@ -210,19 +234,29 @@ export default class extends Vue {
   private currentTemplate: any = null
   private deviceListMain: any = []
 
-  private templates: any = []
+  private templates: any = null
+
   private renderTemplateInfo: any = {}
   private axiosSource = null
 
-  private mounted() {
+  private async created() {
     this.handleDevice = true
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-    this.init()
+    await this.init()
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  // 切换页面
+  private navigatePage(index) {
+    if (index === 'video') {
+      this.$router.push('/template/record-video')
+    } else {
+      this.$router.push('/template/record-viid')
+    }
   }
 
   // 获取1模板列表并初始化2模板信息和3设备树
@@ -230,12 +264,19 @@ export default class extends Vue {
     try {
       // 设置初始化展示页面结构
       this.loading.template = true
-      let res = await getRecordTemplates({
-        pageSize: 999
-      }) // 获取模板列表
-      this.templates = res.templates
-      this.loading.template = false
-      this.$nextTick(() => {
+      this.$nextTick(async() => {
+        let res: any = null
+        if(this.type === 'video') {
+          res = await getRecordTemplates({
+            pageSize: 999
+          }) // 获取模板列表
+        }
+        if(this.type === 'viid') {
+          res = await getViidRecordTemplates({
+            pageSize: 999
+          }) // 获取模板列表
+        }
+        this.templates = res.templates
         if (this.templates.length) {
           // 默认选中第一个模板
           if (!this.currentTemplate) {
@@ -256,6 +297,7 @@ export default class extends Vue {
         } else {
           this.currentTemplate = null
         }
+        this.loading.template = false
       })
     } catch (e) {
       this.$message.error(e)
@@ -268,10 +310,30 @@ export default class extends Vue {
   private async initTemplateInfo() {
     try {
       this.loading.templateInfo = true
-      let templateInfo = await queryRecordTemplate({
-        templateId: this.currentTemplate.templateId
-      })
+      let templateInfo: any = null
+      if (this.type === 'video') {
+        templateInfo = await queryRecordTemplate({
+          templateId: this.currentTemplate.templateId
+        })
+      }
+      if (this.type === 'viid') {
+        templateInfo = await queryViidRecordTemplate({
+          templateId: this.currentTemplate.templateId
+        })
+      }
       this.renderTemplateInfo = templateInfo // 渲染模板信息
+      if (templateInfo.recordType === 1) {
+        this.renderTemplateInfo.recordType = '全天录制'
+      } else if (templateInfo.recordType === 2) {
+        this.renderTemplateInfo.recordType = '循环定时录制'
+      } else if (templateInfo.recordType === 3) {
+        this.renderTemplateInfo.recordType = '指定时间录制'
+      } else if (templateInfo.recordType === 4) {
+        this.renderTemplateInfo.recordType = '事件录制'
+      } else if (templateInfo.recordType === 5) {
+        this.renderTemplateInfo.recordType = '手动录制'
+      }
+      this.renderTemplateInfo.storageTime = templateInfo.storageTime
       this.$nextTick(this.calMaxHeight)
     } catch (e) {
       this.$message.error(e)
@@ -365,6 +427,7 @@ export default class extends Vue {
       this.axiosSource = axios.CancelToken.source()
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
+        inProtocol: this.type,
         groupId: 0,
         id: 0,
         bind: true
@@ -425,7 +488,7 @@ export default class extends Vue {
    */
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
-      let item = nodes.data
+      const item = nodes.data
       this.setNodesChecked(item, checked)
     } else {
       nodes.map((item: any) => {
@@ -438,13 +501,24 @@ export default class extends Vue {
    * 删除模板
    */
   private async deleteTemplate(row: any) {
-    this.$alertDelete({
-      type: '录制模板',
-      msg: `确定删除录制模板"${row.templateName}"`,
-      method: deleteRecordTemplate,
-      payload: { templateId: row.templateId },
-      onSuccess: this.init
-    })
+    if (this.type === 'video') {
+      this.$alertDelete({
+        type: '视频录制模板',
+        msg: `确定删除视频录制模板"${row.templateName}"`,
+        method: deleteRecordTemplate,
+        payload: { templateId: row.templateId },
+        onSuccess: this.init
+      })
+    }
+    if (this.type === 'viid') {
+      this.$alertDelete({
+        type: '视图存储模板',
+        msg: `确定删除视图存储模板"${row.templateName}"`,
+        method: deleteViidRecordTemplate,
+        payload: { templateId: row.templateId },
+        onSuccess: this.init
+      })
+    }
   }
 
   /**
@@ -466,6 +540,7 @@ export default class extends Vue {
       const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
+        inProtocol: this.type,
         groupId: rootId,
         id: data.id,
         type: data.type,
@@ -662,6 +737,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss">
+.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus {
+  background-color: transparent;
+}
+
 .edit-template {
   height: 100%;
   overflow: auto;
@@ -682,6 +762,16 @@ export default class extends Vue {
 
 </style>
 <style lang="scss" scoped>
+.navigation-menu {
+  background: none;
+  margin-bottom: 12px;
+
+  .el-menu-item {
+    height: 40px;
+    line-height: 40px;
+  }
+}
+
 .right-tree {
   border: 1px solid $borderGrey;
   border-radius: 4px;

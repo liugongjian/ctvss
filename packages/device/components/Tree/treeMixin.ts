@@ -165,7 +165,7 @@ export default class TreeMixin extends Vue {
    * node点击事件
    * @param data node信息
    */
-  public handleNode(data: any) {
+  public handleNode(data: any, node: any, component: any) {
     this.$emit('handle-node', data)
   }
 
@@ -185,27 +185,27 @@ export default class TreeMixin extends Vue {
     return this.commonTree.setCheckedKeys(keys, leafOnly)
   }
 
-  private setChecked(data, checked: boolean, deep = false) {
+  public setChecked(data, checked: boolean, deep = false) {
     return this.commonTree.setChecked(data, checked, deep)
   }
 
-  private getCurrentKey() {
+  public getCurrentKey() {
     return this.commonTree.getCurrentKey()
   }
 
-  private getCurrentNode() {
+  public getCurrentNode() {
     return this.commonTree.getCurrentNode()
   }
 
-  private setCurrentKey(key) {
+  public setCurrentKey(key) {
     return this.commonTree.setCurrentKey(key)
   }
 
-  private setCurrentNode(node) {
+  public setCurrentNode(node) {
     return this.commonTree.setCurrentNode(node)
   }
 
-  private getNode(data) {
+  public getNode(data) {
     return this.commonTree.getNode(data)
   }
 

@@ -213,6 +213,8 @@ const statusPolling = function (state, param: any) {
 const syncDeviceStatus = async function (getVueComponent, id, type) {
   const state = getVueComponent()
   let deviceIdAndTypes = []
+  
+  console.log(state.deviceList)
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
       [DeviceEnum.DeviceId]: id,
@@ -310,7 +312,7 @@ const exportDeviceFile = async function (state, data: any) {
       }
       const deviceIds = deviceArr.map((device: any) =>  device[DeviceEnum.DeviceId]  )
       const param = {
-        deviceIds:deviceIds.join(',')
+        deviceIds: deviceIds.join(',')
       }
       console.log(param)
       res = await exportDeviceOption(param)

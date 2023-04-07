@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     class="binding-dialog"
-    title="配置通道"
+    title="平台设备配置"
     center
     :visible="true"
     @close="closeDialog"
@@ -17,42 +17,23 @@
           ref="configForm"
           v-model="billingModeForm"
           :resource-type="resourceTypeEnum.Video"
-          :device-stream-size="deviceStreamSize"
         />
       </el-form-item>
-      <el-form-item prop="channels">
-        <el-table
-          ref="channelTable"
-          :data="channelList"
-          tooltip-effect="dark"
-          style="width: 100%;"
-          cell-class-name="tableCell"
-          @row-click="rowClick"
-          @selection-change="handleSelectionChange"
-          @select-all="handleSelectionChange"
-        >
-          <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" fixed="left" />
-          <el-table-column label="待配置通道" min-width="120">
-            <template slot-scope="scope">
-              <span class="app-name">{{ scope.row.name }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="通道号" min-width="120">
-            <template slot-scope="scope">{{ `D${scope.row.deviceChannelNum}` }}</template>
-          </el-table-column>
-        </el-table>
-        <el-pagination
-          v-if="pager.totalNum > pager.pageSize"
-          :current-page="pager.pageNum"
-          :page-size="pager.pageSize"
-          :total="pager.totalNum"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+      <div class="resource-title">
+        <span class="config-title">待配置设备：</span>
+        <span class="config-title__after">{{ `已选中 ${selectedDevices.length} 项` }}</span>
+      </div>
+      <el-form-item prop="devices">
+        <div class="resource-container">
+          <DeviceResourceTree
+            class="resource-selector"
+            :checked-list="selectedList"
+            @check-device="onCheckDevice"
+          />
+        </div>
       </el-form-item>
     </el-form>
-    <div slot="footer" style="overflow: hidden;">
+    <div slot="footer">
       <el-button type="primary" @click="submit">确 定</el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
     </div>
@@ -63,41 +44,37 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enums/billing'
 import BillingModeSelector from '../components/BillingModeSelector.vue'
+import DeviceResourceTree from '@vss/device/components/Tree/DeviceResourceTree.vue'
 @Component({
   name: 'PlatformVideoServiceBindingDialog',
   components: {
-    BillingModeSelector
+    BillingModeSelector,
+    DeviceResourceTree
   }
 })
 export default class extends Vue {
-  @Prop({ default: 0 })
-  private deviceStreamSize: number
-
   @Prop({ default: () => [] })
   private selectedList: Array<any>
-
-  @Prop({ default: 0 })
-  private channelSize: number
 
   private resourceTypeEnum = ResourceTypeEnum
   private billingEnum = BillingEnum
   private billingModeForm = {
-    [BillingEnum.BillingMode]: BillingModeEnum.Packages,
-    [BillingEnum.RecordStream]: 1,
-    [BillingEnum.RecordTemplateId]: '',
+    [BillingEnum.BillingMode]: '',
+    [BillingEnum.RecordNum]: 1,
+    [BillingEnum.TemplateId]: '',
     [BillingEnum.RecordTemplateName]: '',
     [BillingEnum.ResourceId]: '',
     [BillingEnum.Resource]: {}
   }
   
-  public selectedChannels: Array<any> = []
+  public selectedDevices: Array<any> = []
   private configForm = {
     resource: {},
-    channels: []
+    devices: []
   }
   private rules = {
-    channels: [
-      { validator: this.validateChannels }
+    devices: [
+      { validator: this.validateDevices }
     ]
   }
   private pager = {
@@ -112,38 +89,11 @@ export default class extends Vue {
     })
   }
 
-  private async mounted() {
-    this.getChannelList()
-  }
-
   /**
-   * 点击表行勾选当前行
+   * 树选择器变化
    */
-  private rowClick(row) {
-    (this.$refs['channelTable'] as any).toggleRowSelection(row)
-  }
-
-  /**
-   * 查询待配置通道列表
-   */
-  private getChannelList(): any[] {
-    const tempList = []
-    let count = 1
-    while (count <= this.channelSize) {
-      tempList.push({
-        deviceChannelNum: count,
-        name: `通道${count}`
-      })
-      count++
-    }
-    return tempList
-  }
-
-  /**
-   * 表格多选框变化
-   */
-  private handleSelectionChange(channels) {
-    this.selectedChannels = channels
+  private onCheckDevice(device) {
+    this.selectedDevices = device
   }
 
   /**
@@ -155,9 +105,9 @@ export default class extends Vue {
     const bindingForm: any = this.$refs.bindingForm
     bindingForm.validate((valid) => {
       if (valid && configFormValid) {
-        this.closeDialog(this.selectedChannels.map(channel => {
+        this.closeDialog(this.selectedDevices.map(device => {
           return {
-            ...channel,
+            ...device,
             ...this.billingModeForm
           }
         }))
@@ -183,9 +133,12 @@ export default class extends Vue {
   /**
    * 校验经纬度
    */
-  private validateChannels(rule: any, value: string, callback: Function) {
-    if (!this.selectedChannels.length) {
-      callback(new Error('请选择通道'))
+  private validateDevices(rule: any, value: string, callback: Function) {
+    const remainDeviceCount = this.billingModeForm[BillingEnum.Resource]['remainDeviceCount']
+    if (!this.selectedDevices.length) {
+      callback(new Error('请选择设备'))
+    } else if (remainDeviceCount !== undefined && this.selectedDevices.length > remainDeviceCount) {
+      callback(new Error('所选的设备数量须不大于资源包剩余数量'))
     } else {
       callback()
     }
@@ -194,15 +147,40 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .binding-dialog {
+  .resource-title {
+    display: flex;
+
+    .config-title {
+      color: $textGrey;
+
+      &__after {
+        color: $primary;
+      }
+    }
+  }
+
+  .resource-container {
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    overflow: auto;
+
+    .resource-selector {
+      height: 30vh;
+    }
+  }
+
   .el-form {
     margin: 0;
+
+    .el-form-item {
+      max-width: 100%;
+    }
   }
 
   ::v-deep .el-dialog__body {
     max-height: 65vh;
     overflow: auto;
     padding-top: 0;
-    padding-bottom: 0;
     margin-bottom: 25px;
   }
 

@@ -60,7 +60,22 @@ export default class extends Vue {
       }
       const params: DeviceForm = {
         [DeviceEnum.Device]: {
-          deviceId: this.device.device.deviceId
+          ...pick(this.basicInfo, [
+            DeviceEnum.DeviceId,
+            DeviceEnum.DeviceType,
+            DeviceEnum.DeviceName,
+            DeviceEnum.DeviceLongitude,
+            DeviceEnum.DeviceLatitude,
+            DeviceEnum.DeviceIp,
+            DeviceEnum.DevicePort,
+            DeviceEnum.DeviceMac,
+            DeviceEnum.DevicePoleId,
+            DeviceEnum.DeviceSerialNumber,
+            DeviceEnum.DeviceModel,
+            DeviceEnum.Description,
+            DeviceEnum.DeviceVendor,
+            DeviceEnum.DeviceChannelSize
+          ]),
         },
         [DeviceEnum.Resource]: videoForm.resource,
       }
@@ -81,7 +96,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

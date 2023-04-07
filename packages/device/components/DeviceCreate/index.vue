@@ -473,8 +473,12 @@ export default class extends Mixins(deviceFormMixin) {
             DeviceEnum.NetworkCode
           ])
         },
-        [DeviceEnum.Resource]: this.videoForm.resource
+        [DeviceEnum.Resource]: {
+          ...this.videoForm.resource,
+          ...this.viidForm.resource
+        }
       }
+      console.log(this.viidForm)
       // 补充视频接入信息
       if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
         const videoDevice: VideoDeviceForm = {
@@ -501,6 +505,8 @@ export default class extends Mixins(deviceFormMixin) {
         viidDevice[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
           ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
         }
+        // 删除视图中的Resource
+        delete viidDevice[InViidProtocolModelMapping[this.viidForm.inViidProtocol]].resource
         params.viids = [viidDevice]
       }
       this.loading.submit = true

@@ -94,7 +94,7 @@
           <el-input v-model.number="videoForm.devicePort" />
         </el-form-item>
       </template>
-      <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">
+      <el-form-item v-if="checkVisible(deviceEnum.DeviceStreamSize) && videoForm[deviceEnum.VideoVendor] !== '其他'" label="主子码流数量:" :prop="deviceEnum.DeviceStreamSize">
         <template slot="label">
           主子码流数量:
           <el-popover
@@ -143,7 +143,7 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="checkVisible(deviceEnum.DeviceStreamPullIndex)"
+        v-if="checkVisible(deviceEnum.DeviceStreamPullIndex) && videoForm[deviceEnum.VideoVendor] !== '其他'"
         label="自动拉取码流:"
         :prop="deviceEnum.DeviceStreamPullIndex"
       >
@@ -203,13 +203,20 @@
           用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
         </div>
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
+      <!-- <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="配置资源包:" :prop="deviceEnum.Resource">
         <resource ref="resourceForm" v-model="videoForm.resource" :device-id="deviceId" @loaded="$emit('loaded')" />
-        <!-- <ServiceConfig
+      </el-form-item> -->
+      <el-form-item v-if="checkVisible(deviceEnum.Resource)" class="full-row" label="服务配置:" :prop="deviceEnum.Resource">
+        <service-config
+          ref="serviceConfig"
+          v-model="videoForm.resource"
+          :config-mode="isEdit ? configModeEnum.Edit : configModeEnum.Create"
+          :tabs="[resourceTypeEnum.Video, resourceTypeEnum.AI]"
+          :device-id="deviceForm.deviceId"
           :device-type="deviceForm.deviceType"
           :channel-size="videoForm.deviceChannelSize"
           :device-stream-size="videoForm.deviceStreamSize"
-        /> -->
+        />
       </el-form-item>
     <!-- <div v-adaptive-hiding="adaptiveHideTag" class="show-more" :class="{ 'show-more--expanded': showMore }">
       <el-form-item>
@@ -228,6 +235,7 @@
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { DeviceEnum, InTypeEnum, InVideoProtocolEnum, DeviceTypeEnum, InNetworkTypeEnum } from '@vss/device/enums/index'
+import { ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
 import { InVideoProtocolModelMapping, InVideoProtocolByDeviceType, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex, VersionByInVideoProtocol } from '@vss/device/dicts'
 import { Device, DeviceBasic, VideoDevice, DeviceBasicForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { DeviceTips } from '@vss/device/dicts/tips'
@@ -257,6 +265,8 @@ export default class extends Vue {
   private deviceTypeEnum = DeviceTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
   private inNetworkTypeEnum = InNetworkTypeEnum
+  private resourceTypeEnum = ResourceTypeEnum
+  private configModeEnum = ConfigModeEnum
   private tips = DeviceTips
   private deviceVendor = DeviceVendor
   private inVideoProtocolByDeviceType = InVideoProtocolByDeviceType
@@ -361,7 +371,8 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] }
+      // [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] },
+      [DeviceEnum.Resource]: { video: [], aI: [] }
     }
     
     if (this.isEdit) {
@@ -509,14 +520,27 @@ export default class extends Vue {
     }
   }
 
+  // /**
+  //  * 校验资源包
+  //  */
+  // public validateResource(rule: any, value: string, callback: Function) {
+  //   const resourceForm = this.$refs.resourceForm as Resource
+  //   const res = resourceForm.validate(this.videoForm.deviceChannelSize, this.orginalChannelSize)
+  //   if (!res.result) {
+  //     callback(new Error(res.message))
+  //   } else {
+  //     callback()
+  //   }
+  // }
+
   /**
-   * 校验资源包
+   * 校验服务配置
    */
-  public validateResource(rule: any, value: string, callback: Function) {
-    const resourceForm = this.$refs.resourceForm as Resource
-    const res = resourceForm.validate(this.videoForm.deviceChannelSize, this.orginalChannelSize)
-    if (!res.result) {
-      callback(new Error(res.message))
+  public async validateResource(rule: any, value: string, callback: Function) {
+    const serviceConfig = this.$refs.serviceConfig as any
+    const valid = await serviceConfig.validateServiceConfig()
+    if (valid) {
+      callback(valid)
     } else {
       callback()
     }
@@ -527,7 +551,7 @@ export default class extends Vue {
    */
   public validateDeviceIp(rule: any, value: string, callback: Function) {
     if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
-      callback(new Error('设备IP格式不正确'))
+      callback('')
     } else {
       callback()
     }
