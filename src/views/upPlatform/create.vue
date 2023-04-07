@@ -358,7 +358,7 @@ export default class extends Vue {
       platform.cascadeRegion
     )
     platform.sipPassword = ''
-    this.placeholder = '······'
+    this.placeholder = '••••••'
     this.form = Object.assign(this.form, platform)
   }
 
@@ -400,7 +400,7 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate(async (valid: any) => {
+    form.validate(async(valid: any) => {
       if (valid) {
         try {
           this.submitting = true
@@ -441,7 +441,7 @@ export default class extends Vue {
   private getRegionPath(regions: any, target: string) {
     let path: Array<any> = []
     try {
-      const _find: any = function (
+      const _find: any = function(
         path: Array<string>,
         children: any,
         parentValue: any
@@ -569,6 +569,16 @@ export default class extends Vue {
   .cname-tip {
     font-size: 14px;
     color: #888;
+  }
+
+  ::v-deep .el-input__inner[type='password'] {
+    &::placeholder {
+      color: #333;
+    }
+
+    &:focus::placeholder {
+      color: transparent;
+    }
   }
 }
 </style>
