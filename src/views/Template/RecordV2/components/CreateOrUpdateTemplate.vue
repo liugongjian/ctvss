@@ -686,10 +686,12 @@ export default class extends Vue {
     // 设置 stick 激活状态
     this.currentDragRow = this.currentDragDuration.row
     this.currentDragCol = this.currentDragDuration.col
+    const {wrap} = this.getDurationDomInfo(e)
     this.optStyle = {
       'position': 'absolute',
       'left': optLeft + 60 + 'px',
-      'top': this.currentDragRow * 44 - 84 + 'px',
+      // 'top': this.currentDragRow * 44 - 84 + 'px',
+      'top': wrap ? this.currentDragRow * 44 - 84 - 36 + 'px' : this.currentDragRow * 44 - 84 + 'px',
       'z-index': 1
     }
     this.showOpt = true
@@ -750,12 +752,14 @@ export default class extends Vue {
 
   // 确定单元格
   private getDurationDomInfo(e: any) {
+    const a: any = document.body
+    const wrap = Math.abs(window.innerWidth - e.clientX) < 340
     const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
     const row = +target.split('-')[1]
     const type = target.split('-').length
     const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
     const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
-    return {target, row, type, clickOffsetX, clickOffsetWidth}
+    return {target, row, type, clickOffsetX, clickOffsetWidth, wrap}
   }
 
   // 属性计算和更新
@@ -1008,7 +1012,7 @@ export default class extends Vue {
     // 在这里判断点击事件是否发生在 click 层的 duration 上
     // 激活 stick
     // 确定单元格
-    const {target, row, clickOffsetX, clickOffsetWidth} = this.getDurationDomInfo(e)
+    const {target, row, clickOffsetX, clickOffsetWidth, wrap} = this.getDurationDomInfo(e)
     this.currentMouseDownDuration.row = row
     this.currentMouseDownDuration.col = +target.split('-')[3]
     this.currentClickRow = this.currentMouseDownDuration.row
@@ -1016,7 +1020,7 @@ export default class extends Vue {
     this.optStyle = {
       'position': 'absolute',
       'left': clickOffsetX + 60 + 'px',
-      'top': this.currentClickRow * 44 - 84 + 'px',
+      'top': wrap ? this.currentClickRow * 44 - 84 - 36 + 'px' : this.currentClickRow * 44 - 84 + 'px',
       'z-index': 1
     }
     // 设置当前锁定的duration
@@ -1041,10 +1045,12 @@ export default class extends Vue {
       // drag 层过渡到 click 层
       this.currentClickRow = row
       this.currentClickCol = index
+      const {wrap} = this.getDurationDomInfo(e)
       this.optStyle = {
         'position': 'absolute',
         'left': clickOffsetX + 60 + 'px',
-        'top': this.currentClickRow * 44 - 84 + 'px',
+        'top': wrap ? this.currentClickRow * 44 - 84 - 36 + 'px' : this.currentClickRow * 44 - 84 + 'px',
+        // 'top': this.currentClickRow * 44 - 84 + 'px',
         'z-index': 1
       }
       this.showOpt = true
@@ -1129,9 +1135,9 @@ export default class extends Vue {
     const checkEndTime = (times[1] - (new Date((new Date()).toLocaleDateString())).getTime()) / 1000 / 60 // 分钟
     const isCovered = this.weekdays[this.currentClickRow - 1].some((item: any, index: any) => {
       if (index !== this.currentClickCol) {
-        const flag1 = checkStartTime <= item.durationStartTime && checkEndTime >= item.durationStartTime 
-        const flag2 = checkStartTime <= item.durationEndTime && checkEndTime >= item.durationEndTime 
-        const flag3 = checkStartTime >= item.durationStartTime && checkEndTime <= item.durationEndTime
+        const flag1 = checkStartTime < item.durationStartTime && checkEndTime > item.durationStartTime 
+        const flag2 = checkStartTime < item.durationEndTime && checkEndTime > item.durationEndTime 
+        const flag3 = checkStartTime > item.durationStartTime && checkEndTime < item.durationEndTime
         return flag1 || flag2 || flag3
       }
     })
@@ -1409,6 +1415,10 @@ export default class extends Vue {
 .popover-cus {
   padding: 0;
 }
+
+.el-range-editor--medium.el-input__inner {
+  width: 200px;
+}
 </style>
 <style lang="scss" scoped>
 .custom-picker {
@@ -1496,4 +1506,5 @@ export default class extends Vue {
   padding: 5px;
   display: flex;
 }
+
 </style>

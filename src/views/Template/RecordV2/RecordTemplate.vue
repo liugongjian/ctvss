@@ -23,12 +23,13 @@
               <div v-loading="loading.template" class="template-list">
                 <ul>
                   <li v-for="template in templates" :key="template.templateId" :class="{ 'actived': currentTemplate && (currentTemplate.templateId === template.templateId) }" @click="selectTemplate(template)">
-                    <span> {{ template.templateName }}</span><div class="tools">
+                    <span> {{ template.templateName }}</span>
+                    <div class="tools">
                       <!-- <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
                       </el-tooltip> -->
                       <el-tooltip class="item" effect="dark" content="删除模板" placement="top" :open-delay="300">
-                        <el-button :disabled="+template.templateType===1" type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
+                        <el-button :disabled="+template.templateType == 1" type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
                     </div>
                   </li>
@@ -38,13 +39,13 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div v-if="mainCard">
+          <div v-if="mainCard && currentTemplate">
             <el-descriptions v-loading="loading.templateInfo" :column="2" border label-class-name="description__label" content-class-name="description__content">
               <template slot="title">
                 <span class="title">模板信息</span>
               </template>
               <template slot="extra">
-                <el-button :disabled="+currentTemplate.templateType===1" type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
+                <el-button :disabled="+currentTemplate.templateType == 1" type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
               </template>
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
@@ -233,16 +234,16 @@ export default class extends Vue {
   private currentTemplate: any = null
   private deviceListMain: any = []
 
-  private templates: any = []
+  private templates: any = null
 
   private renderTemplateInfo: any = {}
   private axiosSource = null
 
-  private mounted() {
+  private async created() {
     this.handleDevice = true
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-    this.init()
+    await this.init()
   }
 
   private destroyed() {
@@ -263,20 +264,19 @@ export default class extends Vue {
     try {
       // 设置初始化展示页面结构
       this.loading.template = true
-      let res: any = null
-      if(this.type === 'video') {
-        res = await getRecordTemplates({
-          pageSize: 999
-        }) // 获取模板列表
-      }
-      if(this.type === 'viid') {
-        res = await getViidRecordTemplates({
-          pageSize: 999
-        }) // 获取模板列表
-      }
-      this.templates = res.templates
-      this.loading.template = false
-      this.$nextTick(() => {
+      this.$nextTick(async() => {
+        let res: any = null
+        if(this.type === 'video') {
+          res = await getRecordTemplates({
+            pageSize: 999
+          }) // 获取模板列表
+        }
+        if(this.type === 'viid') {
+          res = await getViidRecordTemplates({
+            pageSize: 999
+          }) // 获取模板列表
+        }
+        this.templates = res.templates
         if (this.templates.length) {
           // 默认选中第一个模板
           if (!this.currentTemplate) {
@@ -297,6 +297,7 @@ export default class extends Vue {
         } else {
           this.currentTemplate = null
         }
+        this.loading.template = false
       })
     } catch (e) {
       this.$message.error(e)

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:36:58
+ * @LastEditTime: 2023-04-06 16:53:59
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -61,7 +61,8 @@ import { periods } from '@/dics/dosageStatistics'
 import {
   getDeviceHistoryStatistics,
   getAIHistoryStatistics,
-  getStorageHistoryStatistics
+  getStorageHistoryStatistics,
+  getBandwidthHistoryStatistics
 } from '@/api/dosageStatistics'
 
 import { Options, KindToText } from '@/dics/periodLine'
@@ -156,7 +157,9 @@ export default class extends Vue {
 
       const { deviceSamples } = res
 
-      const [demand, total] = deviceSamples
+      // const [demand, total] = deviceSamples
+      const total = deviceSamples.find((item) => item.type === 'total')
+      const demand = deviceSamples.find((item) => item.type === 'on-demand')
 
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
@@ -195,11 +198,60 @@ export default class extends Vue {
   }
 
   private async getBandwidthData() {
-    console.log('getBandwidthData')
+    try {
+      this.ifLoading = true
+      const { startTime, endTime } = this.param
+      const param = {
+        type: this.selection,
+        startTime: format(startTime, 'yyyy-MM-dd'),
+        endTime: format(endTime, 'yyyy-MM-dd')
+      }
+
+      const res = await getBandwidthHistoryStatistics(param)
+      const { bwSamples } = res
+
+      const total = bwSamples.find((item) => item.type === 'total')
+      const demand = bwSamples.find((item) => item.type === 'on-demand')
+
+      const { samples: demandSamples } = demand
+      const { samples: totalSamples } = total
+
+      const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
+
+      const totalData = totalSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: '今日总用量详情',
+          ...item
+        }
+      })
+
+      const demandData = demandSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: `${title}按需用量详情`,
+          ...item
+        }
+      })
+
+      this.lineData = {
+        currentPeriod: this.currentPeriod,
+        chartKind: this.chartKind,
+        selection: this.selection,
+        demandData,
+        totalData,
+        ...res
+      }
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.ifLoading = false
+    }
   }
 
   private async getStorageData() {
-    console.log('getStorageData')
     try {
       this.ifLoading = true
       const { startTime, endTime } = this.param
@@ -210,10 +262,11 @@ export default class extends Vue {
       }
 
       const res = await getStorageHistoryStatistics(param)
-      console.log('res---->', res)
       const { storageSamples } = res
+      const total = storageSamples.find((item) => item.type === 'total')
+      const demand = storageSamples.find((item) => item.type === 'on-demand')
 
-      const [demand, total] = storageSamples
+      // const [demand, total] = storageSamples
 
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
@@ -252,7 +305,6 @@ export default class extends Vue {
   }
 
   private async getServiceData() {
-    console.log('getServiceData')
     try {
       this.ifLoading = true
       const { startTime, endTime } = this.param
