@@ -1,7 +1,12 @@
 <template>
   <div v-loading="loading.tab" class="ai-service-config">
     <div v-if="appNums > 0">
-      <el-button v-if="selectedList.length < appNums && !isView" type="text" @click="bindingApp">+ 绑定AI应用</el-button>
+      <el-button
+        v-if="selectedList.length < appNums && !isView"
+        type="text"
+        @click="bindingApp"
+        >+ 绑定AI应用</el-button
+      >
       <span class="config-title">已配置应用：</span>
       <el-table
         ref="nvrTable"
@@ -10,7 +15,12 @@
         max-height="300"
         fit
       >
-        <el-table-column show-overflow-tooltip :prop="ipcAiConfigEnum.AppName" label="已添加应用" min-width="120">
+        <el-table-column
+          show-overflow-tooltip
+          :prop="ipcAiConfigEnum.AppName"
+          label="已添加应用"
+          min-width="120"
+        >
           <template slot-scope="{ row }">
             {{ row[ipcAiConfigEnum.AppName] }}
           </template>
@@ -25,7 +35,11 @@
             {{ resourceAiType[row[ipcAiConfigEnum.AnalyseType]] }}
           </template>
         </el-table-column>
-        <el-table-column v-if="false" :prop="ipcAiConfigEnum.AnalyseRate" label="分析频率">
+        <el-table-column
+          v-if="false"
+          :prop="ipcAiConfigEnum.AnalyseRate"
+          label="分析频率"
+        >
           <template slot-scope="{ row }">
             {{ row[ipcAiConfigEnum.AnalyseRate] }}
           </template>
@@ -40,23 +54,48 @@
             {{ remain(row) }}
           </template>
         </el-table-column>
-        <el-table-column :prop="ipcAiConfigEnum.ConfigCheckArea" label="待配置检测区域">
+        <el-table-column
+          :prop="ipcAiConfigEnum.ConfigCheckArea"
+          label="待配置检测区域"
+        >
           <template slot-scope="{ row }">
-            {{ row[ipcAiConfigEnum.ConfigCheckArea] === 'true' ? '是': '否' }}
+            {{ row[ipcAiConfigEnum.ConfigCheckArea] === 'true' ? '是' : '否' }}
           </template>
         </el-table-column>
         <el-table-column :prop="ipcAiConfigEnum.Status" label="状态">
           <template slot-scope="{ row }">
-            <status-badge :status="row[ipcAiConfigEnum.Status] === '0' ? 'off' : 'on'" />
+            <status-badge
+              :status="row[ipcAiConfigEnum.Status] === '0' ? 'off' : 'on'"
+            />
             {{ row[ipcAiConfigEnum.Status] === '0' ? '停用' : '启用' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
-            <el-button v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'" type="text" @click="openCanvasDialog(row)">算法配置</el-button>
-            <el-button :disabled="row[ipcAiConfigEnum.Status] !== '0'" type="text" @click="unBindingApp(row.id)">删除</el-button>
-            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '0'" type="text" @click="changeRunningStatus(row)">启用</el-button>
-            <el-button v-if="isView && row[ipcAiConfigEnum.Status] === '1'" type="text" @click="changeRunningStatus(row)">停用</el-button>
+            <el-button
+              v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'"
+              type="text"
+              @click="openCanvasDialog(row)"
+              >算法配置</el-button
+            >
+            <el-button
+              :disabled="row[ipcAiConfigEnum.Status] !== '0'"
+              type="text"
+              @click="unBindingApp(row.id)"
+              >删除</el-button
+            >
+            <el-button
+              v-if="isView && row[ipcAiConfigEnum.Status] === '0'"
+              type="text"
+              @click="changeRunningStatus(row)"
+              >启用</el-button
+            >
+            <el-button
+              v-if="isView && row[ipcAiConfigEnum.Status] === '1'"
+              type="text"
+              @click="changeRunningStatus(row)"
+              >停用</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -83,17 +122,26 @@
       <span class="config-description">
         <i class="el-icon-warning-outline" />
         暂无创建好的AI应用，请先
-        <el-button type="text" @click="showCreateAiAppDialog = true">创建AI应用</el-button>
+        <el-button type="text" @click="showCreateAiAppDialog = true"
+          >创建AI应用</el-button
+        >
         后，再添加到设备上。
       </span>
     </div>
-    <ai-app-create-dialog v-model="showCreateAiAppDialog" @refresh="getAppNums" />
+    <ai-app-create-dialog
+      v-model="showCreateAiAppDialog"
+      @refresh="getAppNums"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { BillingModeEnum, IpcAiConfigEnum, ConfigModeEnum } from '@vss/device/enums/billing'
+import {
+  BillingModeEnum,
+  IpcAiConfigEnum,
+  ConfigModeEnum
+} from '@vss/device/enums/billing'
 import { BillingModeType, ResourceAiType } from '@vss/device/dicts/resource'
 import { getAppList } from '@vss/ai/api'
 import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
@@ -114,8 +162,9 @@ export default class extends Vue {
   private ipcAiConfigEnum = IpcAiConfigEnum
   private billingModeType = BillingModeType
   private resourceAiType = ResourceAiType
-  
-  private configDescription = '待配置检测区域的应用需在视频流上线后手动进行区域框选并启用AI分析，其他应用将在视频流上线后将自动启用AI分析'
+
+  private configDescription =
+    '待配置检测区域的应用需在视频流上线后手动进行区域框选并启用AI分析，其他应用将在视频流上线后将自动启用AI分析'
   private showBindingDialog = false
   private showCreateAiAppDialog = false
 
@@ -136,7 +185,11 @@ export default class extends Vue {
   private frameImage = null
 
   private remain(row) {
-    return row[IpcAiConfigEnum.BillingMode] === BillingModeEnum.Packages ? `${row[IpcAiConfigEnum.RemainDeviceCount]}路 / ${row[IpcAiConfigEnum.TotalDeviceCount]}路` : '-'
+    return row[IpcAiConfigEnum.BillingMode] === BillingModeEnum.Packages
+      ? `${row[IpcAiConfigEnum.RemainDeviceCount]}路 / ${
+          row[IpcAiConfigEnum.TotalDeviceCount]
+        }路`
+      : '-'
   }
 
   private get isView() {
@@ -146,30 +199,36 @@ export default class extends Vue {
   @Watch('selectedList', { deep: true })
   private selectedListChange(selectedList) {
     this.realPackageRemainObj = { ...this.initPackageRemainObj }
-    selectedList.forEach(item => {
+    selectedList.forEach((item) => {
       if (item.billingMode === BillingModeEnum.Packages) {
         if (this.initPackageRemainObj[item.resourceId] === undefined) {
           this.initPackageRemainObj[item.resourceId] = +item.remainDeviceCount
-          this.realPackageRemainObj[item.resourceId] = +item.remainDeviceCount - 1
+          this.realPackageRemainObj[item.resourceId] =
+            +item.remainDeviceCount - 1
         } else {
-          this.realPackageRemainObj[item.resourceId] = this.realPackageRemainObj[item.resourceId] - 1
+          this.realPackageRemainObj[item.resourceId] =
+            this.realPackageRemainObj[item.resourceId] - 1
         }
       }
     })
-    this.realSelectedList = selectedList.map(item => {
+    this.realSelectedList = selectedList.map((item) => {
       return {
         ...item,
-        [IpcAiConfigEnum.RemainDeviceCount]: this.realPackageRemainObj[item.resourceId]
+        [IpcAiConfigEnum.RemainDeviceCount]:
+          this.realPackageRemainObj[item.resourceId]
       }
     })
-    this.$emit('config-change', selectedList.map(item => {
-      return {
-        billingMode: item.billingMode,
-        appId: item.appId,
-        analyseType: item.analyseType,
-        resourceId: item.resourceId
-      }
-    }))
+    this.$emit(
+      'config-change',
+      selectedList.map((item) => {
+        return {
+          billingMode: item.billingMode,
+          appId: item.appId,
+          analyseType: item.analyseType,
+          resourceId: item.resourceId
+        }
+      })
+    )
   }
 
   private async mounted() {
@@ -182,10 +241,11 @@ export default class extends Vue {
       const aiInfo = this.configManager.initInfo.aI
       if (aiInfo && aiInfo.length) {
         const res = aiInfo
-        res.forEach(item => {
+        res.forEach((item) => {
           if (item.billingMode === BillingModeEnum.Packages) {
             if (this.initPackageRemainObj[item.resourceId] === undefined) {
-              this.initPackageRemainObj[item.resourceId] = +item.remainDeviceCount + 1
+              this.initPackageRemainObj[item.resourceId] =
+                +item.remainDeviceCount + 1
             } else {
               this.initPackageRemainObj[item.resourceId]++
             }
@@ -218,7 +278,7 @@ export default class extends Vue {
   }
 
   private unBindingApp(appId: number) {
-    const target = this.selectedList.findIndex(app => app.id === appId)
+    const target = this.selectedList.findIndex((app) => app.id === appId)
     if (target >= 0) this.selectedList.splice(target, 1)
     if (this.configManager.configMode === ConfigModeEnum.View) {
       this.$emit('force-update')
@@ -227,37 +287,40 @@ export default class extends Vue {
 
   private closeDialog(data) {
     this.showBindingDialog = false
-    Array.isArray(data) && (
-      this.selectedList.push(...data.map(item => {
-        return item.billingMode === BillingModeEnum.Packages
-          ? {
-            [IpcAiConfigEnum.AppId]: item.id,
-            [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
-            [IpcAiConfigEnum.AbilityName]: item.abilityName,
-            [IpcAiConfigEnum.AnalyseType]: item.analyseType,
-            [IpcAiConfigEnum.AnalyseRate]: item.analyseType,
-            [IpcAiConfigEnum.BillingMode]: item.billingMode,
-            [IpcAiConfigEnum.ResourceId]: item.resourceId,
-            [IpcAiConfigEnum.RemainDeviceCount]: item.resource['remainDeviceCount'],
-            [IpcAiConfigEnum.TotalDeviceCount]: item.resource['totalDeviceCount'],
-            [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
-            [IpcAiConfigEnum.Status]: '0'
-          }
-          : {
-            [IpcAiConfigEnum.AppId]: item.id,
-            [IpcAiConfigEnum.AppName]: item.name,
-            [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
-            [IpcAiConfigEnum.AbilityName]: item.abilityName,
-            [IpcAiConfigEnum.AnalyseType]: item.analyseType,
-            [IpcAiConfigEnum.AnalyseRate]: item.analyseType,  
-            [IpcAiConfigEnum.BillingMode]: item.billingMode,
-            [IpcAiConfigEnum.ResourceId]: '',
-            [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
-            [IpcAiConfigEnum.Status]: '0'
-          }
-      }))
-    )
+    Array.isArray(data) &&
+      this.selectedList.push(
+        ...data.map((item) => {
+          return item.billingMode === BillingModeEnum.Packages
+            ? {
+                [IpcAiConfigEnum.AppId]: item.id,
+                [IpcAiConfigEnum.AppName]: item.name,
+                [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+                [IpcAiConfigEnum.AbilityName]: item.abilityName,
+                [IpcAiConfigEnum.AnalyseType]: item.analyseType,
+                [IpcAiConfigEnum.AnalyseRate]: item.analyseType,
+                [IpcAiConfigEnum.BillingMode]: item.billingMode,
+                [IpcAiConfigEnum.ResourceId]: item.resourceId,
+                [IpcAiConfigEnum.RemainDeviceCount]:
+                  item.resource['remainDeviceCount'],
+                [IpcAiConfigEnum.TotalDeviceCount]:
+                  item.resource['totalDeviceCount'],
+                [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
+                [IpcAiConfigEnum.Status]: '0'
+              }
+            : {
+                [IpcAiConfigEnum.AppId]: item.id,
+                [IpcAiConfigEnum.AppName]: item.name,
+                [IpcAiConfigEnum.AlgorithmType]: item.algorithm.name,
+                [IpcAiConfigEnum.AbilityName]: item.abilityName,
+                [IpcAiConfigEnum.AnalyseType]: item.analyseType,
+                [IpcAiConfigEnum.AnalyseRate]: item.analyseType,
+                [IpcAiConfigEnum.BillingMode]: item.billingMode,
+                [IpcAiConfigEnum.ResourceId]: '',
+                [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
+                [IpcAiConfigEnum.Status]: '0'
+              }
+        })
+      )
   }
 
   /**
@@ -290,7 +353,7 @@ export default class extends Vue {
         this.$alertError(e.message)
       })
   }
-  
+
   /**
    * 关闭画框弹窗
    */
