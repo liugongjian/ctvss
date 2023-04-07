@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:45:54
+ * @LastEditTime: 2023-04-06 16:52:39
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -38,8 +38,22 @@ export default class extends Vue {
       demand: '按需计费设备数'
     },
     bandwidth: {
-      total: '带宽用量详情',
-      demand: 'getBandwidthData'
+      upload_bandwidth: {
+        total: '总用量详情',
+        demand: '上行带宽按需用量详情'
+      },
+      download_bandwidth: {
+        total: '总用量详情',
+        demand: '下行带宽按需用量详情'
+      },
+      upload_traffic: {
+        total: '总用量详情',
+        demand: '上行流量按需用量详情'
+      },
+      download_traffic: {
+        total: '总用量详情',
+        demand: '下行流量按需用量详情'
+      }
     },
     storage: {
       video: {
@@ -57,11 +71,11 @@ export default class extends Vue {
         demand: '分钟级用量详情'
       },
       'AI-200': {
-        total: '分钟级总用量用量详情',
+        total: '秒级总用量用量详情',
         demand: '秒级用量详情'
       },
       'AI-300': {
-        total: '分钟级总用量用量详情',
+        total: '高算力总用量用量详情',
         demand: '高算力用量详情'
       }
     }
@@ -99,11 +113,14 @@ export default class extends Vue {
       }
     }
 
-    this.chart ? this.chart.changeData(this.drawData.data) : this.drawLine()
-    // this.drawLine()
+    // this.chart ? this.chart.changeData(this.drawData.data) : this.drawLine()
+    this.drawLine()
   }
 
   private drawLine() {
+    // 使chart图表重新渲染，changeData不更新legend
+    this.currentChart && this.currentChart.destroy()
+
     this.chart = new Chart({
       container: 'containerLine',
       autoFit: true,
@@ -154,12 +171,12 @@ export default class extends Vue {
       grid: null
     })
 
-    this.chart.axis('value', {
-      title: {
-        offset: 40,
-        text: '设备接入数量'
-      }
-    })
+    // this.chart.axis('value', {
+    //   title: {
+    //     offset: 40,
+    //     text: '设备接入数量'
+    //   }
+    // })
 
     // 绘制tooltip
     this.chart.tooltip({
@@ -211,6 +228,8 @@ export default class extends Vue {
       .color('type', [this.lineColor.demand, this.lineColor.total])
 
     this.chart.render()
+
+    this.currentChart = this.chart
   }
 }
 </script>

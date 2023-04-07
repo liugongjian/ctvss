@@ -2,29 +2,29 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:09:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 16:33:29
+ * @LastEditTime: 2023-04-06 14:44:58
  * @FilePath: /vss-user-web/src/dics/periodLine.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 export const Options = {
   bandwidth: [
     {
-      value: 'upstreamBandwidth',
-      label: '上行流量',
-      kind: 'bandwidth'
-    },
-    {
-      value: 'realUpstreamBandwidth',
+      value: 'upload_bandwidth',
       label: '上行带宽',
       kind: 'bandwidth'
     },
     {
-      value: 'downstreamBandwidth',
+      value: 'upload_traffic',
+      label: '上行流量',
+      kind: 'bandwidth'
+    },
+    {
+      value: 'download_traffic',
       label: '下行流量',
       kind: 'bandwidth'
     },
     {
-      value: 'realDownstreamBandwidth',
+      value: 'download_bandwidth',
       label: '下行带宽',
       kind: 'bandwidth'
     }
