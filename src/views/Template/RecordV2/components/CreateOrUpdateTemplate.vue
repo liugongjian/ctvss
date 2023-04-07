@@ -407,6 +407,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    window.addEventListener('resize', this.calOptY)
     if (this.createOrUpdateFlag) {
     // 新建
       this.form = {
@@ -438,6 +439,10 @@ export default class extends Vue {
       }
     }
   }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calOptY)
+  } 
 
   private async submit() {
     const form: any = this.$refs.dataForm
@@ -525,6 +530,26 @@ export default class extends Vue {
     } else {
       callback()
     }
+  }
+
+  // 计算OPT显示高度
+  private calOptY() {
+    const opt: any = document.getElementsByClassName('operation-mask')[0]
+    if (this.showOpt && opt) {
+      const height = opt.clientHeight
+      if (height === 72) {
+        // currentClickRow 是准的
+        this.optStyle.top = this.currentClickRow * 44 - 84 - 36 + 'px'
+      }
+      if (height === 36) {
+        this.optStyle.top = this.currentClickRow * 44 - 84 + 'px'
+      }
+    }
+  }
+
+  private optWrap(left: number) {
+    const body: any = document.getElementsByClassName('body')[0]
+    return left + 560 > body.clientWidth
   }
 
   /**
@@ -686,7 +711,7 @@ export default class extends Vue {
     // 设置 stick 激活状态
     this.currentDragRow = this.currentDragDuration.row
     this.currentDragCol = this.currentDragDuration.col
-    const {wrap} = this.getDurationDomInfo(e)
+    const wrap = this.optWrap(optLeft)
     this.optStyle = {
       'position': 'absolute',
       'left': optLeft + 60 + 'px',
@@ -752,14 +777,12 @@ export default class extends Vue {
 
   // 确定单元格
   private getDurationDomInfo(e: any) {
-    const a: any = document.body
-    const wrap = Math.abs(window.innerWidth - e.clientX) < 340
     const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
     const row = +target.split('-')[1]
     const type = target.split('-').length
     const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
     const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
-    return {target, row, type, clickOffsetX, clickOffsetWidth, wrap}
+    return {target, row, type, clickOffsetX, clickOffsetWidth}
   }
 
   // 属性计算和更新
@@ -1012,14 +1035,16 @@ export default class extends Vue {
     // 在这里判断点击事件是否发生在 click 层的 duration 上
     // 激活 stick
     // 确定单元格
-    const {target, row, clickOffsetX, clickOffsetWidth, wrap} = this.getDurationDomInfo(e)
+    const {target, row, clickOffsetX, clickOffsetWidth} = this.getDurationDomInfo(e)
     this.currentMouseDownDuration.row = row
     this.currentMouseDownDuration.col = +target.split('-')[3]
     this.currentClickRow = this.currentMouseDownDuration.row
     this.currentClickCol = this.currentMouseDownDuration.col
+    const wrap = this.optWrap(clickOffsetX)
     this.optStyle = {
       'position': 'absolute',
       'left': clickOffsetX + 60 + 'px',
+      // 'top': this.currentClickRow * 44 - 84 + 'px',
       'top': wrap ? this.currentClickRow * 44 - 84 - 36 + 'px' : this.currentClickRow * 44 - 84 + 'px',
       'z-index': 1
     }
@@ -1045,7 +1070,7 @@ export default class extends Vue {
       // drag 层过渡到 click 层
       this.currentClickRow = row
       this.currentClickCol = index
-      const {wrap} = this.getDurationDomInfo(e)
+      const wrap = this.optWrap(clickOffsetX)
       this.optStyle = {
         'position': 'absolute',
         'left': clickOffsetX + 60 + 'px',
