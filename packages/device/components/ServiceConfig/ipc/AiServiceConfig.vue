@@ -83,10 +83,11 @@
       <span class="config-description">
         <i class="el-icon-warning-outline" />
         暂无创建好的AI应用，请先
-        <el-button type="text">创建AI应用</el-button>
+        <el-button type="text" @click="showCreateAiAppDialog = true">创建AI应用</el-button>
         后，再添加到设备上。
       </span>
     </div>
+    <ai-app-create-dialog v-model="showCreateAiAppDialog" @refresh="getAppNums" />
   </div>
 </template>
 
@@ -96,12 +97,14 @@ import { BillingModeEnum, IpcAiConfigEnum, ConfigModeEnum } from '@vss/device/en
 import { BillingModeType, ResourceAiType } from '@vss/device/dicts/resource'
 import { getAppList } from '@vss/ai/api'
 import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
+import AiAppCreateDialog from './AiAppCreateDialog.vue'
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { startAppResource, stopAppResource } from '@vss/device/api/device'
 @Component({
   name: 'IpcAiServiceConfig',
   components: {
-    AiServiceBindingDialog
+    AiServiceBindingDialog,
+    AiAppCreateDialog
   }
 })
 export default class extends Vue {
@@ -114,6 +117,7 @@ export default class extends Vue {
   
   private configDescription = '待配置检测区域的应用需在视频流上线后手动进行区域框选并启用AI分析，其他应用将在视频流上线后将自动启用AI分析'
   private showBindingDialog = false
+  private showCreateAiAppDialog = false
 
   private appNums = 0
   private selectedList = []
@@ -170,7 +174,6 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getAppNums()
-    this.appNums && this.getConfigList()
   }
 
   private async getConfigList() {
@@ -202,6 +205,7 @@ export default class extends Vue {
       this.loading.tab = true
       const { totalNum } = await getAppList({ abilityId: 0 })
       this.appNums = totalNum
+      this.appNums && this.getConfigList()
     } catch (e) {
       this.$message.error(e.message)
     } finally {
