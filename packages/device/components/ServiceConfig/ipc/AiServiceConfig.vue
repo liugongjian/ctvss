@@ -104,10 +104,10 @@
           </template>
         </el-table-column>
       </el-table>
-      <span v-if="!isView" class="config-description">
+      <!-- <span v-if="!isView" class="config-description">
         <i class="el-icon-warning-outline" />
         {{ configDescription }}
-      </span>
+      </span> -->
       <AiServiceBindingDialog
         v-if="showBindingDialog"
         :selected-list="selectedList"

@@ -124,7 +124,10 @@ export default class extends Vue {
   }
 
   @Watch('billingModeForm.billingMode')
-  private billingModeChange() {
+  private billingModeChange(val) {
+    if (val === BillingModeEnum.OnDemand) {
+      this.aIType = 'AI-200'
+    }
     this.appListInit()
   }
 
