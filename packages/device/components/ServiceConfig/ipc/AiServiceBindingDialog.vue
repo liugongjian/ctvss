@@ -124,7 +124,10 @@ export default class extends Vue {
   }
 
   @Watch('billingModeForm.billingMode')
-  private billingModeChange() {
+  private billingModeChange(val) {
+    if (val === BillingModeEnum.OnDemand) {
+      this.aIType = 'AI-200'
+    }
     this.appListInit()
   }
 
@@ -204,7 +207,7 @@ export default class extends Vue {
         if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages && item.analyseType <= this.aIType) {
           // 根据资源包算力过滤AI应用
           return true
-        } else if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand && item.analyseType === 'AI-300') {
+        } else if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand && item.analyseType !== 'AI-300') {
           // 按需包仅支持高算力AI应用
           return true
         } else {
