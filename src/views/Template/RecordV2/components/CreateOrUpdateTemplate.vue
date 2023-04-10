@@ -241,6 +241,8 @@ export default class extends Vue {
 
   private copyDay: any = null
 
+  private oriCusData: any = null
+
   private showDragWrap = true
   private showClickWrap = false
   private dragMaskStyle: any = {
@@ -433,6 +435,7 @@ export default class extends Vue {
         this.buildLoopData(this.formData.weekTimeSections)
       }
       // 构建定时录制数据
+      // 原始数据时间可能会小于当前时间导致无法提交
       if (this.formData.recordType === 3) {
         this.fixDataType = 3
         this.buildCusData(this.formData.specTimeSections)
@@ -1231,6 +1234,8 @@ export default class extends Vue {
    * 指定时间录制相关
    */
   private customTimepickerChangeStart(time: any, index: any) {
+    // 原始数据不检查
+    if (this.oriCusData[index] && this.oriCusData[index].startTime === time) return
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
@@ -1284,6 +1289,8 @@ export default class extends Vue {
   }
 
   private customTimepickerChangeEnd(time: any, index: any) {
+    // 原始数据不检查
+    if (this.oriCusData[index] && this.oriCusData[index].endTime === time) return
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
@@ -1433,6 +1440,8 @@ export default class extends Vue {
         endTime: duration.endTime * 1000
       })
     })
+    // 如果是原始的数据没有修改则不判断
+    this.oriCusData = JSON.parse(JSON.stringify(this.customDates))
   }
 
 }
