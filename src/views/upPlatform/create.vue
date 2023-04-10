@@ -423,6 +423,7 @@ export default class extends Vue {
                 ? encrypt(params.sipPassword)
                 : params.sipPasswordOrigin
               : ''
+            delete params.sipPasswordOrigin
             await updatePlatform(params)
             this.$message.success('修改向上级联平台成功！')
           } else {
