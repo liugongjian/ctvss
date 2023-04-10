@@ -357,7 +357,7 @@ export default class extends Vue {
     }
     // ---------------
     // 清空 指定相关数据
-    if (+this.form.recordType !== 3) {
+    if (+this.form.recordType !== 3 && this.createOrUpdateFlag) {
       this.customDates = [{
         startTime: null,
         endTime: null
@@ -1426,6 +1426,7 @@ export default class extends Vue {
   }
 
   private buildCusData(cus: any) {
+    this.customDates.pop()
     cus.map((duration: any) => {
       this.customDates.push({
         startTime: duration.startTime * 1000,
