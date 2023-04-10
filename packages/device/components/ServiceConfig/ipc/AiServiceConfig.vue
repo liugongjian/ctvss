@@ -5,8 +5,9 @@
         v-if="selectedList.length < appNums && !isView"
         type="text"
         @click="bindingApp"
-        >+ 绑定AI应用</el-button
       >
+        + 绑定AI应用
+      </el-button>
       <span class="config-title">已配置应用：</span>
       <el-table
         ref="nvrTable"
@@ -76,26 +77,30 @@
               v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'"
               type="text"
               @click="openCanvasDialog(row)"
-              >算法配置</el-button
             >
+              算法配置
+            </el-button>
             <el-button
               :disabled="row[ipcAiConfigEnum.Status] !== '0'"
               type="text"
               @click="unBindingApp(row.id)"
-              >删除</el-button
             >
+              删除
+            </el-button>
             <el-button
               v-if="isView && row[ipcAiConfigEnum.Status] === '0'"
               type="text"
               @click="changeRunningStatus(row)"
-              >启用</el-button
             >
+              启用
+            </el-button>
             <el-button
               v-if="isView && row[ipcAiConfigEnum.Status] === '1'"
               type="text"
               @click="changeRunningStatus(row)"
-              >停用</el-button
             >
+              停用
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -122,9 +127,7 @@
       <span class="config-description">
         <i class="el-icon-warning-outline" />
         暂无创建好的AI应用，请先
-        <el-button type="text" @click="showCreateAiAppDialog = true"
-          >创建AI应用</el-button
-        >
+        <el-button type="text" @click="showCreateAiAppDialog = true">创建AI应用</el-button>
         后，再添加到设备上。
       </span>
     </div>
