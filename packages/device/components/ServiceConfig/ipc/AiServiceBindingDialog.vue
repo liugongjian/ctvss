@@ -106,6 +106,7 @@ export default class extends Vue {
   private tabInfo: any = []
   private aiAppsObj: any = {}
   private aiAppsBaseObj: any = {}
+  private aIType = ''
   private selectedAppIdsSet = new Set()
   private selectedApps: Array<any> = []
   private configForm = {
@@ -123,7 +124,16 @@ export default class extends Vue {
   }
 
   @Watch('billingModeForm.billingMode')
-  private billingModeChange() {
+  private billingModeChange(val) {
+    if (val === BillingModeEnum.OnDemand) {
+      this.aIType = 'AI-200'
+    }
+    this.appListInit()
+  }
+
+  @Watch('billingModeForm.resource', { deep: true })
+  private resourceChange(resource) {
+    this.aIType = resource.aIType
     this.appListInit()
   }
 
@@ -193,9 +203,21 @@ export default class extends Vue {
       this.aiAppsObj[tabId] = this.aiAppsBaseObj[tabId].filter(aiApp => {
         return this.selectedList.findIndex(item => item.appId === aiApp.id) === -1
       })
-      if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand) {
-        this.aiAppsObj[tabId] = this.aiAppsObj[tabId].filter(item => item.analyseType !== 'AI-300')
-      }
+      this.aIType && (this.aiAppsObj[tabId] = this.aiAppsObj[tabId].filter(item => {
+        if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.Packages && item.analyseType <= this.aIType) {
+          // 根据资源包算力过滤AI应用
+          return true
+        } else if (this.billingModeForm[BillingEnum.BillingMode] === BillingModeEnum.OnDemand && item.analyseType !== 'AI-300') {
+          // 按需包仅支持高算力AI应用
+          return true
+        } else {
+          // 被过滤的AI应用从已选项删除
+          this.selectedAppIdsSet.delete(item.id)
+          const target = this.selectedApps.findIndex(app => app.id === item.id)
+          if (target >= 0) this.selectedApps.splice(target, 1)
+          return false
+        }
+      }))
     }
     await this.$nextTick(() => this.toggleSelection())
     this.loading.appList = false

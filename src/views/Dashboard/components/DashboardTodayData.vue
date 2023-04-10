@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-03 15:25:42
+ * @LastEditTime: 2023-04-06 14:38:53
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -131,7 +131,7 @@ export default class extends Mixins(DashboardMixin) {
   private async getDevice() {
     try {
       const res = await getDeviceStates()
-      const { offline, online, sum, unregistered, deactivate } = res
+      const { offline = 0, online = 0, sum = 0, unregistered = 0, deactivate = 0 } = res
       const data = {
         offline,
         online,
@@ -177,7 +177,6 @@ export default class extends Mixins(DashboardMixin) {
   private async getStorage() {
     try {
       const res = await getUserStorage()
-      console.log('res--getUserStorage--->', res)
       const { totalBytes, totalUsage } = res
       this.pieDataStorage = [
         {
