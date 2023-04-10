@@ -338,6 +338,8 @@ export default class extends Vue {
       document.body.addEventListener('mouseup', this.handleMouseup, false)
       // document.body.addEventListener('mousemove', this.handleMousemove, false)
     } else {
+      // 注销 body 注册事件
+      document.body.removeEventListener('mouseup', this.handleMouseup)
       // 清空 循环相关数据,新建清空，编辑保留
       if (this.weekdays && this.createOrUpdateFlag) {
         this.MonList = []
@@ -568,6 +570,7 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
+    if(this.form.recordType!==2) return
     if (this.moveFlag) {
       // 在拖拽区域外释放鼠标,删除该绘制状态
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
@@ -633,6 +636,7 @@ export default class extends Vue {
 
 // 拖拽
   private handleMousemove(e: any) {
+    if(this.form.recordType!==2) return
     if (!this.moveFlag) return
     // 隐藏OPT
     this.showOpt = false
@@ -658,6 +662,7 @@ export default class extends Vue {
   }
   
   private handleMouseup(e: any) {
+    if(this.form.recordType!==2) return
     if (!this.moveFlag) return
     // 如果只是点击没有移动，则清空当前操作
     // 如果结束点位置和开始点一致，删除绘制
@@ -928,6 +933,7 @@ export default class extends Vue {
    * clickDuration
   */
  private handleClickMousedown(e: any) {
+  if(this.form.recordType!==2) return
   // 直接通过target的class判断
   const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
   const type = target.split('-').length
@@ -1065,6 +1071,7 @@ export default class extends Vue {
 
   // 当显示 click层后，通过mouse up事件来判断选中了哪个duration
   private handleClickMouseup(e: any) {
+    if(this.form.recordType!==2) return
     let {row, index, clickOffsetX} = this.findDuration(e)
     // 点击后有移动鼠标到其他非起始duration位置，则不做判定
     if (row !== this.currentMouseDownDuration.row || index !== this.currentMouseDownDuration.col) return
@@ -1093,6 +1100,7 @@ export default class extends Vue {
 
   // 处理拖拽超出正常区域的情况
   private handleMouseLeave(e: any) {
+    if(this.form.recordType!==2) return
     const list: any = e.toElement.classList
     let inRange = false
     for(let i = 0; i < list.length; i++) {
@@ -1235,7 +1243,7 @@ export default class extends Vue {
    */
   private customTimepickerChangeStart(time: any, index: any) {
     // 原始数据不检查
-    if (this.oriCusData[index] && this.oriCusData[index].startTime === time) return
+    if (this.oriCusData && this.oriCusData.length - 1 >= index && this.oriCusData[index].startTime === time) return
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
@@ -1290,7 +1298,7 @@ export default class extends Vue {
 
   private customTimepickerChangeEnd(time: any, index: any) {
     // 原始数据不检查
-    if (this.oriCusData[index] && this.oriCusData[index].endTime === time) return
+    if (this.oriCusData && this.oriCusData.length - 1 >= index && this.oriCusData[index].endTime === time) return
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
