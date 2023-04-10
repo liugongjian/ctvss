@@ -357,6 +357,7 @@ export default class extends Vue {
       this.regionList,
       platform.cascadeRegion
     )
+    platform.sipPasswordOrigin = platform.sipPassword
     platform.sipPassword = ''
     this.placeholder = '••••••'
     this.form = Object.assign(this.form, platform)
@@ -400,7 +401,7 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
+    form.validate(async (valid: any) => {
       if (valid) {
         try {
           this.submitting = true
@@ -412,16 +413,22 @@ export default class extends Vue {
           if (!params.isAuth) {
             params.sipUser = ''
             params.sipPassword = ''
-          } else {
-            params.sipPassword = encrypt(params.sipPassword)
           }
           if (params.natPort === '') {
             params.natPort = 0
           }
           if (this.isUpdate) {
+            params.sipPassword = params.isAuth
+              ? params.sipPassword.length > 0
+                ? encrypt(params.sipPassword)
+                : params.sipPasswordOrigin
+              : ''
             await updatePlatform(params)
             this.$message.success('修改向上级联平台成功！')
           } else {
+            params.sipPassword = params.isAuth
+              ? encrypt(params.sipPassword)
+              : ''
             await createPlatform(params)
             this.$message.success('创建向上级联平台成功！')
           }
@@ -441,7 +448,7 @@ export default class extends Vue {
   private getRegionPath(regions: any, target: string) {
     let path: Array<any> = []
     try {
-      const _find: any = function(
+      const _find: any = function (
         path: Array<string>,
         children: any,
         parentValue: any
