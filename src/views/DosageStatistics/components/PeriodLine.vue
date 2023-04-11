@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-06 16:53:59
+ * @LastEditTime: 2023-04-11 10:31:20
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -222,7 +222,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '今日总用量详情',
+          type: `${title}总用量详情`,
           ...item
         }
       })
@@ -275,7 +275,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '存储用量详情',
+          type: '存储总用量详情',
           ...item
         }
       })
@@ -284,7 +284,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '今日存储用量',
+          type: '存储按需用量',
           ...item
         }
       })
