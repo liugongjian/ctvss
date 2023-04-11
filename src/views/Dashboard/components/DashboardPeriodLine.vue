@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 10:42:14
+ * @LastEditTime: 2023-04-11 16:43:05
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,7 +10,7 @@
   <div class="dashboard-wrap-overview__item">
     <el-card>
       <div class="dashboard-wrap-overview__item_period_content">
-        <div class="dashboard-wrap-overview__item_period_title">今日用量</div>
+        <div class="dashboard-wrap-overview__item_period_title">{{ chartTitle }}</div>
         <div class="dashboard-wrap-overview__item_period_detail">
           <el-radio-group
             v-model="currentPeriod"
@@ -101,6 +101,10 @@ export default class extends Vue {
     endTime: new Date().getTime()
   }
 
+  private get chartTitle() {
+    return this.kindToText[this.chartKind]['name']
+  }
+  
   mounted() {
     this.initDraw()
     this.getData()

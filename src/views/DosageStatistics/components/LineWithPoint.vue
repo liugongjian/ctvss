@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 13:54:24
+ * @LastEditTime: 2023-04-11 16:39:37
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,7 +41,7 @@ export default class extends Vue {
     bandwidth: {
       upload_bandwidth: {
         total: '总用量详情',
-        demand: '上行带宽按需用量详情'
+        demand: '上行带宽按需用量详情',
       },
       download_bandwidth: {
         total: '总用量详情',
@@ -159,15 +159,16 @@ export default class extends Vue {
         type: 'linear',
         range: [0, 0.95],
         min: 0,
-        // nice: true,
+        nice: true,
         formatter: (val)=>{
           const { chartKind } = this.lineData
           if (chartKind === 'bandwidth'){
-            return formatBandWidth(val)
+            return formatBandWidth(val).replace(/[a-zA-Z]+/g, '')
           } else if (chartKind === 'storage'){
-            return formatStorage(val)
+            return formatStorage(val).replace(/[a-zA-Z]+/g, '')
           }
           return val
+          // replace(/[a-zA-Z]+/g,"");
         }
       }
     })
@@ -188,7 +189,10 @@ export default class extends Vue {
       label: {
         autoRotate: true,
         offset: 20,
-        rotate: 20
+        // rotate: 20
+        formatter: (text: string)=>{
+          return parseInt(text, 10)
+        }
       },
     })
 

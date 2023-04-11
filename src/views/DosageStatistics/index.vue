@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 10:38:02
+ * @LastEditTime: 2023-04-11 16:30:31
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -43,7 +43,7 @@
               <h2 class="dosage-statistics__info_title">今日带宽用量</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.uploadTrafficValue }}</p>
+                  <p>{{ splitBandWidth(bandwidth.uploadTrafficValue)[0] }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}</p>
                   <div>上行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
@@ -51,7 +51,7 @@
                   <div>上行带宽峰值</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.downloadTrafficValue }}</p>
+                  <p>{{ splitBandWidth( bandwidth.downloadTrafficValue)[0] }}{{ splitBandWidth( bandwidth.downloadTrafficValue)[1] }}</p>
                   <div>下行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
@@ -179,6 +179,12 @@ export default class extends Vue {
   mounted() {
     this.initActiveName()
   }
+
+  private splitBandWidth(bandwidth) {
+    if (bandwidth === 0) return []
+    return [bandwidth.substr(0, bandwidth.length - 4), `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`]
+  }
+
 
   private initActiveName() {
     const { tab } = this.$route.query
