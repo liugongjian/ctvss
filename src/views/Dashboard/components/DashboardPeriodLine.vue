@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-03 16:02:27
+ * @LastEditTime: 2023-04-11 10:42:14
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -67,7 +67,8 @@ import { Options, KindToText } from '@/dics/periodLine'
 import {
   getDeviceHistoryStatistics,
   getAIHistoryStatistics,
-  getStorageHistoryStatistics
+  getStorageHistoryStatistics,
+  getBandwidthHistoryStatistics
 } from '@/api/dosageStatistics'
 
 import { format } from 'date-fns'
@@ -183,7 +184,57 @@ export default class extends Vue {
   }
 
   private async getBandwidthData() {
-    console.log('getBandwidthData')
+    try {
+      this.ifLoading = true
+      const { startTime, endTime } = this.param
+      const param = {
+        type: this.selection,
+        startTime: format(startTime, 'yyyy-MM-dd'),
+        endTime: format(endTime, 'yyyy-MM-dd')
+      }
+
+      const res = await getBandwidthHistoryStatistics(param)
+      const { bwSamples } = res
+
+      const total = bwSamples.find((item) => item.type === 'total')
+      const demand = bwSamples.find((item) => item.type === 'on-demand')
+
+      const { samples: demandSamples } = demand
+      const { samples: totalSamples } = total
+
+      const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
+
+      const totalData = totalSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: `${title}总用量详情`,
+          ...item
+        }
+      })
+
+      const demandData = demandSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: `${title}按需用量详情`,
+          ...item
+        }
+      })
+
+      this.lineData = {
+        currentPeriod: this.currentPeriod,
+        chartKind: this.chartKind,
+        selection: this.selection,
+        demandData,
+        totalData,
+        ...res
+      }
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.ifLoading = false
+    }
   }
 
   private async getStorageData() {
