@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 15:23:45
+ * @LastEditTime: 2023-04-11 16:33:07
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,7 +41,7 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 上行流量峰值
-                <span>{{ bandWidthData.upstreamBandwidth }}</span>
+                <span>{{ splitBandWidth(bandWidthData.upstreamBandwidth)[0] }}{{ splitBandWidth(bandWidthData.upstreamBandwidth)[1] }}</span>
               </div>
             </el-col>
           </el-row>
@@ -55,7 +55,7 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 下行流量峰值
-                <span>{{ bandWidthData.downstreamBandwidth }}</span>
+                <span>{{ splitBandWidth(bandWidthData.downstreamBandwidth)[0] }}{{ splitBandWidth(bandWidthData.downstreamBandwidth)[1] }}</span>
               </div>
             </el-col>
           </el-row>
@@ -118,6 +118,11 @@ export default class extends Mixins(DashboardMixin) {
   private mounted() {
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
+  }
+
+   private splitBandWidth(bandwidth) {
+    if (bandwidth === 0) return []
+    return [bandwidth.substr(0, bandwidth.length - 4), `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`]
   }
 
   private getData() {
