@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-07 10:12:11
+ * @LastEditTime: 2023-04-11 10:38:02
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,7 @@
         <el-tab-pane label="设备" name="device">
           <div v-if="activeName === 'device'">
             <div class="dosage-statistics__info">
-              <h2 class="dosage-statistics__info_title">今日设备接入</h2>
+              <h2 class="dosage-statistics__info_title">当前设备接入</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
                   <p>{{ deviceNum }}</p>
@@ -22,7 +22,7 @@
                     <el-tooltip
                       class="item"
                       effect="dark"
-                      content="接入详情：总设备数+在用设备数"
+                      content="接入总设备数为用户所有的IPC设备、NVR设备以及级联平台设备的通道数总和"
                       placement="top"
                     >
                       <i
@@ -43,19 +43,19 @@
               <h2 class="dosage-statistics__info_title">今日带宽用量</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.uploadTrafficValue }}GB</p>
+                  <p>{{ bandwidth.uploadTrafficValue }}</p>
                   <div>上行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.uploadBandWidthPeakValue }}GB</p>
+                  <p>{{ bandwidth.uploadBandWidthPeakValue }}</p>
                   <div>上行带宽峰值</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.downloadTrafficValue }}GB</p>
+                  <p>{{ bandwidth.downloadTrafficValue }}</p>
                   <div>下行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ bandwidth.downloadBandWidthPeakValue }}GB</p>
+                  <p>{{ bandwidth.downloadBandWidthPeakValue }}</p>
                   <div>下行带宽峰值</div>
                 </div>
               </div>
@@ -70,15 +70,15 @@
               <h2 class="dosage-statistics__info_title">今日存储用量</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ storage.totalStorage }} GB</p>
+                  <p>{{ storage.totalStorage }}</p>
                   <div>当前存储量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ storage.videoStorage }} GB</p>
+                  <p>{{ storage.videoStorage }}</p>
                   <div>视频存储量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ storage.viidStorage }} GB</p>
+                  <p>{{ storage.viidStorage }}</p>
                   <div>视图存储量</div>
                 </div>
               </div>
@@ -120,6 +120,8 @@ import {
   getStorageStatistics,
   getBandwidthStatistics
 } from '@/api/dosageStatistics'
+
+import { formatStorage, formatBandWidth } from '@/utils/number'
 
 @Component({
   name: 'DosageStatistics',
@@ -215,7 +217,11 @@ export default class extends Vue {
     try {
       const res = await getStorageStatistics()
       const { totalStorage, videoStorage, viidStorage } = res
-      this.storage = { totalStorage, videoStorage, viidStorage }
+      this.storage = {
+        totalStorage: formatStorage(totalStorage),
+        videoStorage: formatStorage(videoStorage),
+        viidStorage: formatStorage(viidStorage)
+      }
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -231,10 +237,10 @@ export default class extends Vue {
         downloadTrafficValue
       } = res
       this.bandwidth = {
-        uploadBandWidthPeakValue,
-        downloadBandWidthPeakValue,
-        uploadTrafficValue,
-        downloadTrafficValue
+        uploadBandWidthPeakValue: formatBandWidth(uploadBandWidthPeakValue),
+        downloadBandWidthPeakValue: formatBandWidth(downloadBandWidthPeakValue),
+        uploadTrafficValue: formatBandWidth(uploadTrafficValue),
+        downloadTrafficValue: formatBandWidth(downloadTrafficValue)
       }
     } catch (error) {
       this.$message.error(error && error.message)

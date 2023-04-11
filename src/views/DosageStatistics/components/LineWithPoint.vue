@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-06 16:52:39
+ * @LastEditTime: 2023-04-11 13:54:24
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
+import { formatStorage, formatBandWidth } from '@/utils/number'
 
 @Component({
   name: 'LineChart',
@@ -113,7 +114,6 @@ export default class extends Vue {
       }
     }
 
-    // this.chart ? this.chart.changeData(this.drawData.data) : this.drawLine()
     this.drawLine()
   }
 
@@ -124,6 +124,7 @@ export default class extends Vue {
     this.chart = new Chart({
       container: 'containerLine',
       autoFit: true,
+      width: 760,
       height: 500,
       padding: [30, 50, 50, 50]
     })
@@ -132,7 +133,7 @@ export default class extends Vue {
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
-        range: [0.05, 0.95],
+        range: [0, 0.95],
         formatter: (val) => {
           if (
             this.drawData.currentPeriod === 'today' ||
@@ -158,25 +159,38 @@ export default class extends Vue {
         type: 'linear',
         range: [0, 0.95],
         min: 0,
-        nice: true
+        // nice: true,
+        formatter: (val)=>{
+          const { chartKind } = this.lineData
+          if (chartKind === 'bandwidth'){
+            return formatBandWidth(val)
+          } else if (chartKind === 'storage'){
+            return formatStorage(val)
+          }
+          return val
+        }
       }
     })
 
     // 绘制X轴和Y轴
     this.chart.axis('time', {
       label: {
-        autoRotate: false,
-        offset: 14
+        autoRotate: true,
+        offset: 14,
+        formatter: (text: string) => {
+          return `${text.split(':')[0]}:00`
+        }
       },
       grid: null
     })
 
-    // this.chart.axis('value', {
-    //   title: {
-    //     offset: 40,
-    //     text: '设备接入数量'
-    //   }
-    // })
+    this.chart.axis('value', {
+      label: {
+        autoRotate: true,
+        offset: 20,
+        rotate: 20
+      },
+    })
 
     // 绘制tooltip
     this.chart.tooltip({

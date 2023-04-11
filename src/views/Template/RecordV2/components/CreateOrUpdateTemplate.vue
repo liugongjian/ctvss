@@ -137,7 +137,7 @@
               @change="(time) => customTimepickerChangeEnd(time, index)"
             >
             </el-date-picker>
-            <el-button style="margin-left: 30px;" v-if="index!==0" @click="customDates.splice(index, 1)"><svg-icon name="delete" /></el-button>
+            <el-button style="margin-left: 30px;" v-if="index!==0" @click="delCusCheck(index)"><svg-icon name="delete" /></el-button>
           </div>
           <div v-if="showCusTips" style="color: red;">
             {{cusTips}}
@@ -163,7 +163,6 @@
 <script lang='ts'>
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { updateRecordTemplate, createRecordTemplate } from '@/api/template'
-import { time } from 'console'
 
 @Component({
   name: 'create-or-update-record-template'
@@ -338,6 +337,8 @@ export default class extends Vue {
       document.body.addEventListener('mouseup', this.handleMouseup, false)
       // document.body.addEventListener('mousemove', this.handleMousemove, false)
     } else {
+      // 注销 body 注册事件
+      document.body.removeEventListener('mouseup', this.handleMouseup)
       // 清空 循环相关数据,新建清空，编辑保留
       if (this.weekdays && this.createOrUpdateFlag) {
         this.MonList = []
@@ -568,6 +569,7 @@ export default class extends Vue {
   }
 
   private handleMousedown(e: any) {
+    if(this.form.recordType!==2) return
     if (this.moveFlag) {
       // 在拖拽区域外释放鼠标,删除该绘制状态
       this.weekdays[this.currentWeekday - 1].map((item: any, i: any) => {
@@ -633,6 +635,7 @@ export default class extends Vue {
 
 // 拖拽
   private handleMousemove(e: any) {
+    if(this.form.recordType!==2) return
     if (!this.moveFlag) return
     // 隐藏OPT
     this.showOpt = false
@@ -658,6 +661,7 @@ export default class extends Vue {
   }
   
   private handleMouseup(e: any) {
+    if(this.form.recordType!==2) return
     if (!this.moveFlag) return
     // 如果只是点击没有移动，则清空当前操作
     // 如果结束点位置和开始点一致，删除绘制
@@ -928,6 +932,7 @@ export default class extends Vue {
    * clickDuration
   */
  private handleClickMousedown(e: any) {
+  if(this.form.recordType!==2) return
   // 直接通过target的class判断
   const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
   const type = target.split('-').length
@@ -1065,6 +1070,7 @@ export default class extends Vue {
 
   // 当显示 click层后，通过mouse up事件来判断选中了哪个duration
   private handleClickMouseup(e: any) {
+    if(this.form.recordType!==2) return
     let {row, index, clickOffsetX} = this.findDuration(e)
     // 点击后有移动鼠标到其他非起始duration位置，则不做判定
     if (row !== this.currentMouseDownDuration.row || index !== this.currentMouseDownDuration.col) return
@@ -1093,6 +1099,7 @@ export default class extends Vue {
 
   // 处理拖拽超出正常区域的情况
   private handleMouseLeave(e: any) {
+    if(this.form.recordType!==2) return
     const list: any = e.toElement.classList
     let inRange = false
     for(let i = 0; i < list.length; i++) {
@@ -1116,8 +1123,10 @@ export default class extends Vue {
     this.checkedDays = [] //重置
     // 定位当前duration
     const duration = this.weekdays[this.currentClickRow - 1][this.currentClickCol]
+    const sortWeekdays: any = JSON.parse(JSON.stringify(this.weekdays))
     // 排序
-    const sortWeekdays = this.weekdays.map((day: any, index: number) => {
+    // const sortWeekdays = this.weekdays.map((day: any, index: number) => {
+    sortWeekdays.map((day: any, index: number) => {
       if (day.length < 2) return day
       return day.sort(function(a: any, b: any) {
         return (a.durationStartTime - b.durationStartTime)
@@ -1227,6 +1236,14 @@ export default class extends Vue {
     this.weekdays[this.currentClickRow - 1].splice(this.currentClickCol, 1)
     this.showOpt = false
     this.durationTime = []
+    // 重置
+    this.currentClickRow = -1
+    this.currentClickCol = -1
+    this.currentMouseDownDuration.row = -1
+    this.currentMouseDownDuration.col = -1
+    this.currentDragDuration.row = -1
+    this.currentDragDuration.col = -1
+    this.resetMouse()
   }
 
   // ---------------------------
@@ -1235,7 +1252,11 @@ export default class extends Vue {
    */
   private customTimepickerChangeStart(time: any, index: any) {
     // 原始数据不检查
-    if (this.oriCusData[index] && this.oriCusData[index].startTime === time) return
+    if (this.oriCusData && this.oriCusData.length - 1 >= index && this.oriCusData[index].startTime === time) {
+      this.showCusTips = false // 重置
+      this.cusTips = '' // 重置
+      return
+    }
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
@@ -1261,7 +1282,7 @@ export default class extends Vue {
           this.cusTips = '开始时间不能晚于或等于结束时间'
         // })
         return
-      } else if (Math.abs(endTime - time) >= (6 * 24 * 60 * 60 * 1000)) {
+      } else if (Math.abs(endTime - time) > (6 * 24 * 60 * 60 * 1000)) {
         // this.$nextTick(() => {
           this.showCusTips = true
           this.cusTips = '时间跨度不能超过7天'
@@ -1290,7 +1311,11 @@ export default class extends Vue {
 
   private customTimepickerChangeEnd(time: any, index: any) {
     // 原始数据不检查
-    if (this.oriCusData[index] && this.oriCusData[index].endTime === time) return
+    if (this.oriCusData && this.oriCusData.length - 1 >= index && this.oriCusData[index].endTime === time) {
+      this.showCusTips = false // 重置
+      this.cusTips = '' // 重置
+      return
+    }
     if (time <= 0) {
       // this.$nextTick(() => {
         this.showCusTips = true
@@ -1384,6 +1409,25 @@ export default class extends Vue {
       }) 
     })
     return recordModes
+  }
+
+  private delCusCheck(index: number) {
+    this.showCusTips = false // 重置后重新判断
+    this.customDates.splice(index, 1)
+    // 删除后校验
+    if(this.customDates.some((item: any) => {
+      return item.startTime <= 0 || item.startTime == null || item.endTime <= 0 || item.endTime == null
+    })) {
+      this.showCusTips = true
+      this.cusTips = '请检查所选时间！'
+      // return flag = true
+    }
+    for(let i = 0; i < this.customDates.length; i++) {
+      this.customTimepickerChangeStart(this.customDates[i].startTime, i)
+      // if (this.showCusTips) return flag = true
+      this.customTimepickerChangeEnd(this.customDates[i].endTime, i)
+      // if (this.showCusTips) return flag = true
+    }
   }
 
   private cusSubmitCheck() {
@@ -1506,7 +1550,7 @@ export default class extends Vue {
 .stick {
   width: 2px;
   height: 44px;
-  background-color: rgba(1, 4, 206);
+  background-color: rgb(1, 4, 206);
   pointer-events: none; // 禁止接收鼠标事件
 }
 
