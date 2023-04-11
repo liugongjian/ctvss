@@ -1,9 +1,6 @@
 <template>
   <fragment>
-    <el-form-item
-      label="时间窗口"
-      prop="algorithmMetadata.timeSlide"
-    >
+    <el-form-item label="时间窗口" prop="algorithmMetadata.timeSlide">
       <el-select
         v-model="form.algorithmMetadata.timeSlide"
         placeholder="请选择时间窗口"
@@ -49,90 +46,88 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.app-container {
-  .confidence-info {
-    display: inline-block;
-    height: 45px;
-    line-height: 100%;
-    vertical-align: middle;
-    margin-left: -71px;
+.confidence-info {
+  display: inline-block;
+  height: 45px;
+  line-height: 100%;
+  vertical-align: middle;
+  margin-left: -71px;
 
-    & > span:nth-child(2) {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+  & > span:nth-child(2) {
+    margin-left: 10px;
+    margin-right: 10px;
   }
+}
 
-  .el-slider {
-    width: 500px;
-    display: inline-block;
+.el-slider {
+  width: 500px;
+  display: inline-block;
 
-    ::v-deep .el-slider__input {
-      width: 60px;
-      margin-right: 80px;
-    }
+  ::v-deep .el-slider__input {
+    width: 60px;
+    margin-right: 80px;
   }
+}
 
-  .el-input,
-  .el-textarea,
-  .el-table {
-    width: 500px;
+.el-input,
+.el-textarea,
+.el-table {
+  width: 500px;
+}
+
+.tabrow-add {
+  padding-left: 180px;
+}
+
+.mb5 {
+  width: 500px;
+}
+
+.el-icon-refresh {
+  margin-left: 20px;
+  font-size: 16px;
+
+  &:hover {
+    cursor: pointer;
   }
+}
 
-  .tabrow-add {
-    padding-left: 180px;
+.el-button--text {
+  margin-left: 15px;
+}
+
+.comment {
+  padding-left: 10px;
+  color: $textGrey;
+}
+
+.el-form-item.is-error.el-form-item--medium {
+  margin-bottom: 20px;
+}
+
+.alarm {
+  width: 112px;
+  margin-right: 18px;
+
+  & + .el-select {
+    width: 80px;
   }
+}
 
-  .mb5 {
-    width: 500px;
-  }
+.inline-form-item {
+  width: fit-content;
+  display: inline-block;
+}
 
-  .el-icon-refresh {
-    margin-left: 20px;
-    font-size: 16px;
+.interval-unit {
+  width: 65px;
+}
 
-    &:hover {
-      cursor: pointer;
-    }
-  }
+.city-gov-type {
+  width: 500px;
 
-  .el-button--text {
-    margin-left: 15px;
-  }
-
-  .comment {
-    padding-left: 10px;
-    color: $textGrey;
-  }
-
-  .el-form-item.is-error.el-form-item--medium {
-    margin-bottom: 20px;
-  }
-
-  .alarm {
-    width: 112px;
-    margin-right: 18px;
-
-    & + .el-select {
-      width: 80px;
-    }
-  }
-
-  .inline-form-item {
-    width: fit-content;
-    display: inline-block;
-  }
-
-  .interval-unit {
-    width: 65px;
-  }
-
-  .city-gov-type {
-    width: 500px;
-
-    ::v-deep .el-tag {
-      margin-right: 8px;
-    }
+  ::v-deep .el-tag {
+    margin-right: 8px;
   }
 }
 </style>
