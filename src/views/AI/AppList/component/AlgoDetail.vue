@@ -335,7 +335,11 @@ export default class extends Mixins(AppMixin) {
   }
 
   get algoCode() {
-    return this.prod?.code || (this.form.algorithm && this.form.algorithm.code)
+    return (
+      this.prod?.code ||
+      (this.form.algorithm && this.form.algorithm.code) ||
+      this.algoList.find((algo) => algo.id === this.form.algorithmsId)?.code
+    )
   }
 
   get formComponent() {
