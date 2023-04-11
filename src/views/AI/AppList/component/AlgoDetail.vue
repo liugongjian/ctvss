@@ -335,11 +335,17 @@ export default class extends Mixins(AppMixin) {
   }
 
   get algoCode() {
-    return this.prod?.code || (this.form.algorithm && this.form.algorithm.code)
+    console.log(this.algoList[this.form.algorithmsId - 1])
+    return (
+      this.prod?.code ||
+      (this.form.algorithm && this.form.algorithm.code) ||
+      this.algoList.find((algo) => algo.id === this.form.algorithmsId)?.code
+    )
   }
 
   get formComponent() {
     const names = Object.keys(AlgoConfigs.components)
+    console.log('this.algoCode:', this.algoCode)
     if (names.includes('form' + this.algoCode)) {
       return 'form' + this.algoCode
     } else if (FormRef[this.algoCode]) {
