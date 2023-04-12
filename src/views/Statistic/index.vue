@@ -218,10 +218,10 @@
       <el-tab-pane label="设备统计" name="device">
         <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
           <div class="statistic-box__left">
-            <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" />
+            <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" @noback="setNoStatistic" />
           </div>
           <div class="statistic-box__right">
-            <el-tabs v-model="activeTab">
+            <el-tabs v-if="ifShowStatistic" v-model="activeTab">
               <el-tab-pane v-loading="calendarLoading" label="录像统计" name="record">
                 <div class="statistic-box__title">
                   <div class="statistic-box__title-text">设备录像统计</div>
@@ -434,6 +434,8 @@ export default class extends Vue {
 
   private dayMissTableData: CalendarMissItem[] = []
   private dialogDayMissData: CalendarMissItem[] = []
+
+  private ifShowStatistic: boolean = false
 
   private deviceId: string = ''
 
@@ -654,7 +656,8 @@ export default class extends Vue {
       case 'stop':
         return '该日未启动录像'
       default:
-        return `录制完整率${(item.complianceRate * 100).toFixed(2)}%`
+        // return `录制完整率${(item.complianceRate * 100).toFixed(2)}%`
+        return `录制完整率${Number((item.complianceRate * 100).toString().match(/^\d+(?:\.\d{0,2})?/))}%`
     }
   }
 
@@ -695,6 +698,11 @@ export default class extends Vue {
     this.deviceId = deviceId
     this.inProtocol = inProtocol
     this.groupId = groupId
+    this.ifShowStatistic = true
+  }
+
+  private setNoStatistic() {
+    this.ifShowStatistic = false
   }
 
   // 获取 日历及图表 信息
