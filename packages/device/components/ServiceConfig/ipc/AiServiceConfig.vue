@@ -382,8 +382,8 @@ export default class extends Vue {
       stopAppResource(param)
         .then(() => {
           this.loading.table = false
-          this.$message.success(`停用 ${rowInfo.name} 成功！`)
-          this.getAIAppList()
+          this.$message.success('停用成功！')
+          this.$emit('force-update')
         })
         .catch((e) => {
           this.loading.table = false
@@ -395,8 +395,8 @@ export default class extends Vue {
       startAppResource(param)
         .then(() => {
           this.loading.table = false
-          this.$message.success(`启用 ${rowInfo.name} 成功！`)
-          this.getAIAppList()
+          this.$message.success('启用成功！')
+          this.$emit('force-update')
         })
         .catch((e) => {
           this.loading.table = false

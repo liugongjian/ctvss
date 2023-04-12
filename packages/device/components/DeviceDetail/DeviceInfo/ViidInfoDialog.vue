@@ -48,6 +48,7 @@ export default class extends Vue {
 
   private async submit() {
     const form = this.$refs.form as ViidCreateForm
+    const viidForm = form.viidForm
     if (form.validateViidForm()) {
       const params: DeviceForm = {
         device: {
@@ -67,17 +68,18 @@ export default class extends Vue {
             DeviceEnum.DeviceVendor,
             DeviceEnum.DeviceChannelSize
           ])
-        }
+        },
+        [DeviceEnum.Resource]: viidForm.resource,
       }
       // 补充视图接入信息
       const viidDevice: ViidDeviceForm = {
-        ...pick(form.viidForm, [
+        ...pick(viidForm, [
           DeviceEnum.InViidProtocol
         ])
       }
       // 补充协议信息
       viidDevice[InViidProtocolModelMapping[form.viidForm.inViidProtocol]] = {
-        ...pick(form.viidForm, [...InViidProtocolAllowParams[form.viidForm.inViidProtocol]])
+        ...pick(viidForm, [...InViidProtocolAllowParams[form.viidForm.inViidProtocol]])
       }
       params.viids = [ viidDevice ]
       try {

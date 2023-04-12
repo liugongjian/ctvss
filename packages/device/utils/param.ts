@@ -265,6 +265,7 @@ export function checkDeviceTabsVisible(type: DeviceTypeEnum | DirectoryTypeEnum,
     allowFlag = ![
       DeviceDetailTab.DevicePreview,
       DeviceDetailTab.DeviceReplay,
+      DeviceDetailTab.DeviceEvents,
       DeviceDetailTab.DeviceAi
     ].includes(prop)
   }

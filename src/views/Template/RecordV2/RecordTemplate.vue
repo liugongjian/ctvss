@@ -737,6 +737,28 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss">
+.node-dir {
+  .svg-icon {
+    display: none;
+
+    &:last-child {
+      display: inline;
+    }
+  }
+}
+
+.is-expanded > .el-tree-node__content {
+  .node-dir {
+    .svg-icon {
+      display: none;
+
+      &:first-child {
+        display: inline;
+      }
+    }
+  }
+}
+
 .el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
 .el-menu--horizontal > .el-menu-item:not(.is-disabled):focus {
   background-color: transparent;
