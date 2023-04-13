@@ -516,7 +516,7 @@ export default class extends Vue {
     })
     let msg = `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？`
     if (bindedCheck) {
-      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？这些设备在切换新模板时，已存在的历史录像将修改过期时间，使用新的模板存储时长策略。'
+      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
     }
     this.$confirm(msg, '提示', {
       confirmButtonText: '确定',
@@ -552,6 +552,8 @@ export default class extends Vue {
       this.$emit('on-close', true)
     } catch (e) {
       this.$message.error(e)
+      // 关闭绑定页面
+      this.closeDialog(false)
     }
   }
 
