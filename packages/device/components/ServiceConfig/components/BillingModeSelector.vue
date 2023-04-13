@@ -101,7 +101,7 @@
         </el-form-item>
       </div>
     </el-form>
-    <span v-if="configForm[billingEnum.BillingMode] === billingModeEnum.UnBinding" class="config-info">
+    <span v-if="configForm[billingEnum.BillingMode] === billingModeEnum.UnBinding && !isView" class="config-info">
       <i class="el-icon-warning-outline" />
       {{ unBindingInfo[resourceType] }}
     </span>
@@ -159,8 +159,8 @@ export default class extends Vue {
     [BillingEnum.ResourceId]: [{ required: true, message: '请选择资源包', trigger: 'blur' }],
   }
   private unBindingInfo = {
-    [ResourceTypeEnum.Video]: '停用视频服务后将立刻停止设备接入，不能进行实时预览。已存储的录像可继续回看。',
-    [ResourceTypeEnum.Viid]: '停用视图服务',
+    [ResourceTypeEnum.Video]: '停用视频服务后将立刻停止设备接入，无法观看视频流，如果您配置了AI分析，AI分析服务也将停用。',
+    [ResourceTypeEnum.Viid]: '停用视图服务。',
   }
 
   private loading = {

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 16:39:37
+ * @LastEditTime: 2023-04-13 10:03:05
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -40,44 +40,44 @@ export default class extends Vue {
     },
     bandwidth: {
       upload_bandwidth: {
-        total: '总用量详情',
-        demand: '上行带宽按需用量详情',
+        total: '总用量',
+        demand: '按需用量',
       },
       download_bandwidth: {
-        total: '总用量详情',
-        demand: '下行带宽按需用量详情'
+        total: '总用量',
+        demand: '按需用量'
       },
       upload_traffic: {
-        total: '总用量详情',
-        demand: '上行流量按需用量详情'
+        total: '总用量',
+        demand: '按需用量'
       },
       download_traffic: {
-        total: '总用量详情',
-        demand: '下行流量按需用量详情'
+        total: '总用量',
+        demand: '按需用量'
       }
     },
     storage: {
       video: {
-        total: '视频存储量详情',
-        demand: '视频存储量'
+        total: '总用量',
+        demand: '按需用量'
       },
       viid: {
-        total: '视图存储量详情',
-        demand: '视图存储量'
+        total: '总用量',
+        demand: '按需用量'
       }
     },
     service: {
       'AI-100': {
-        total: '分钟级总用量用量详情',
-        demand: '分钟级用量详情'
+        total: '总用量',
+        demand: '按需用量'
       },
       'AI-200': {
-        total: '秒级总用量用量详情',
-        demand: '秒级用量详情'
+        total: '总用量',
+        demand: '按需用量'
       },
       'AI-300': {
-        total: '高算力总用量用量详情',
-        demand: '高算力用量详情'
+        total: '总用量',
+        demand: '按需用量'
       }
     }
   }
