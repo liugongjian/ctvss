@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-02 10:19:02
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 16:30:31
+ * @LastEditTime: 2023-04-12 17:15:10
  * @FilePath: /vss-user-web/src/views/DosageStatistics/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -69,10 +69,10 @@
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">今日存储用量</h2>
               <div class="dosage-statistics__info_detail">
-                <div class="dosage-statistics__info_detail_item">
+                <!-- <div class="dosage-statistics__info_detail_item">
                   <p>{{ storage.totalStorage }}</p>
                   <div>当前存储量</div>
-                </div>
+                </div> -->
                 <div class="dosage-statistics__info_detail_item">
                   <p>{{ storage.videoStorage }}</p>
                   <div>视频存储量</div>
