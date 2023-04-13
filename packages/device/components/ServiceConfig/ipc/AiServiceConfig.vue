@@ -382,26 +382,26 @@ export default class extends Vue {
       stopAppResource(param)
         .then(() => {
           this.loading.table = false
-          this.$message.success('停用成功！')
+          this.$message.success(`停用 ${rowInfo.appName} 成功！`)
           this.$emit('force-update')
         })
         .catch((e) => {
           this.loading.table = false
           this.$message.error(
-            `停用 ${rowInfo.name} 失败，原因：${e && e.message}`
+            `停用 ${rowInfo.appName} 失败，原因：${e && e.message}`
           )
         })
     } else {
       startAppResource(param)
         .then(() => {
           this.loading.table = false
-          this.$message.success('启用成功！')
+          this.$message.success(`启用 ${rowInfo.appName} 成功！`)
           this.$emit('force-update')
         })
         .catch((e) => {
           this.loading.table = false
           this.$message.error(
-            `启用 ${rowInfo.name} 失败，原因：${e && e.message}`
+            `启用 ${rowInfo.appName} 失败，原因：${e && e.message}`
           )
         })
     }
