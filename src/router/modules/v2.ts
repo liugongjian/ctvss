@@ -714,6 +714,18 @@ export const v2Router: RouteConfig[] = [
           activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
+      },
+      {
+        path: 'accessRestriction',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/AccessRestriction/index.vue'),
+        name: 'AccessRestrictionManage',
+        meta: {
+          title: '访问限制',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/accessRestriction',
+          perms: ['*']
+        }
       }
     ]
   },
