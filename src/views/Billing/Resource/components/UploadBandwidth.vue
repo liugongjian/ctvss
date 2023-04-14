@@ -1,14 +1,9 @@
 <template>
   <div>
-    <el-table
-      v-loading="loading"
-      class="resource-table"
-      :data="dataList"
-      @row-click="rowClick($event, 'uploadBandwidth')"
-    >
+    <el-table v-loading="loading" :data="dataList">
       <el-table-column show-overflow-tooltip prop="workOrderNo" label="订单号">
         <template slot-scope="scope">
-          <span class="device-id">{{ scope.row.workOrderNo }}</span>
+          <span>{{ scope.row.workOrderNo }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="bandWidth" label="上行带宽总量">
