@@ -56,6 +56,12 @@
             :formatter="dateFormatInTable"
           />
           <el-table-column
+            label="过期时间"
+            prop="endTime"
+            min-width="180"
+            :formatter="dateFormatInTable"
+          />
+          <el-table-column
             label="时长"
             prop="duration"
             :formatter="durationFormatInTable"
@@ -313,6 +319,7 @@ export default class extends Vue {
   private secToMs(records: any) {
     this.records = records.map((record: any) => {
       record.startTime = record.startTime * 1000
+      record.endTime = record.endTime * 1000
     })
   }
 
