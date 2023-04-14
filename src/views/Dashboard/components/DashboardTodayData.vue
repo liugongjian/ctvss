@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-11 16:33:07
+ * @LastEditTime: 2023-04-13 16:20:45
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -31,31 +31,41 @@
         </div>
 
         <div class="dashboard-wrap-overview__item_content_detail">
-          <el-row :gutter="20">
+          <el-row :gutter="10">
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时上行带宽
-                <span>{{ bandWidthData.realUpstreamBandwidth }}</span>
+                <div>{{ bandWidthData.realUpstreamBandwidth }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 上行流量峰值
-                <span>{{ splitBandWidth(bandWidthData.upstreamBandwidth)[0] }}{{ splitBandWidth(bandWidthData.upstreamBandwidth)[1] }}</span>
+                <div>
+                  {{ splitBandWidth(bandWidthData.upstreamBandwidth)[0]
+                  }}{{
+                    splitBandWidth(bandWidthData.upstreamBandwidth)[1]
+                  }}
+                </div>
               </div>
             </el-col>
-          </el-row>
-          <el-row :gutter="20">
+            <!-- </el-row>
+          <el-row :gutter="20"> -->
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时下行带宽
-                <span>{{ bandWidthData.realDownstreamBandwidth }}</span>
+                <div>{{ bandWidthData.realDownstreamBandwidth }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 下行流量峰值
-                <span>{{ splitBandWidth(bandWidthData.downstreamBandwidth)[0] }}{{ splitBandWidth(bandWidthData.downstreamBandwidth)[1] }}</span>
+                <div>
+                  {{ splitBandWidth(bandWidthData.downstreamBandwidth)[0]
+                  }}{{
+                    splitBandWidth(bandWidthData.downstreamBandwidth)[1]
+                  }}
+                </div>
               </div>
             </el-col>
           </el-row>
@@ -113,30 +123,50 @@ export default class extends Mixins(DashboardMixin) {
 
   private get storageFlag() {
     return this.$store.state.user.tags.showStorageUsage === 'Y'
+    // return false
   }
 
   private mounted() {
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
-  }
-
-   private splitBandWidth(bandwidth) {
-    if (bandwidth === 0) return []
-    return [bandwidth.substr(0, bandwidth.length - 4), `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`]
+    // this.chartHandle()
   }
 
   private getData() {
     this.getDevice()
-    this.getBandwidth()
-    if (this.storageFlag) {
-      this.getStorage()
-    }
+    this.chartHandle()
+  }
+
+  private chartHandle() {
+    const init = document.createEvent('Event')
+    init.initEvent('resize', true, true)
+    window.dispatchEvent(init)
+    this.$nextTick(() => {
+      this.getBandwidth()
+      if (this.storageFlag) {
+        this.getStorage()
+      }
+    })
+  }
+
+  private splitBandWidth(bandwidth) {
+    if (bandwidth === 0) return []
+    return [
+      bandwidth.substr(0, bandwidth.length - 4),
+      `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`
+    ]
   }
 
   private async getDevice() {
     try {
       const res = await getDeviceStates()
-      const { offline = 0, online = 0, sum = 0, unregistered = 0, deactivate = 0 } = res
+      const {
+        offline = 0,
+        online = 0,
+        sum = 0,
+        unregistered = 0,
+        deactivate = 0
+      } = res
       const data = {
         offline,
         online,
@@ -208,11 +238,10 @@ export default class extends Mixins(DashboardMixin) {
     this.chartToday = new Chart({
       container: 'pieChartToday',
       autoFit: true,
-      height: 150,
-      width: 250
+      width: 800,
+      height: 260
     })
 
-    
     this.chartToday.scale('percent', {
       formatter: (val) => {
         val = val * 100 + '%'
@@ -271,7 +300,6 @@ export default class extends Mixins(DashboardMixin) {
             }
           },
           content: (data) => {
-            console.log('data----->', data)
             return `${this.pieTodayToText[data.item]}:${data.value}`
             // return `${this.pieTodayToText[data.item]}: ${(
             //   percent * 100
@@ -298,8 +326,8 @@ export default class extends Mixins(DashboardMixin) {
     this.chartStorage = new Chart({
       container: 'pieChartStorage',
       autoFit: true,
-      height: 150,
-      width: 250
+      width: 800,
+      height: 260
     })
 
     this.chartStorage.data(this.pieDataStorage)
@@ -398,15 +426,68 @@ export default class extends Mixins(DashboardMixin) {
     }
 
     &_content {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      grid-gap: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      text-align: center;
 
       &_detail {
+        flex: 1;
+        margin-bottom: 10px;
+        min-width: 260px;
+
         &_pie {
           text-align: center;
         }
+
+        &:last-child {
+          margin-top: 20px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          // min-width: 500px;
+          ::v-deep {
+            .el-row {
+              // display: flex;
+              // justify-content: space-between;
+              // text-align: center;
+              // flex-wrap: wrap;
+
+              .el-col {
+                // flex: 1 2 35%;
+                // flex: 1;
+                // flex-grow: 2;
+                width: 50%;
+                min-width: 130px;
+                margin-bottom: 10px;
+              }
+            }
+          }
+        }
       }
+
+      // @media screen and (max-width: 1280px) {
+      //   .dashboard-wrap-overview_content_detail {
+      //     &:last-child {
+      //       ::v-deep {
+      //         // .el-row {
+      //         //   display: flex;
+      //         //   justify-content: space-between;
+      //         //   text-align: center;
+      //         //   flex-wrap: wrap;
+
+      //         .el-col {
+      //           // flex: 1 2 50%;
+      //           flex: 1;
+      //           // flex-grow: 2;
+      //           width: 25%;
+      //           min-width: 130px;
+      //           margin-bottom: 10px;
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
 
       &_data {
         line-height: 30px;
@@ -416,7 +497,7 @@ export default class extends Mixins(DashboardMixin) {
         font-size: $text-size-medium;
         text-align: center;
 
-        span {
+        div {
           font-weight: bolder;
           font-size: $text-size-large;
         }

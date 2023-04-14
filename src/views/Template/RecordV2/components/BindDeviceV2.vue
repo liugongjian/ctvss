@@ -269,6 +269,7 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
+
     this.submitable = false
     const node = this.bindTree.getNode(data.id)
     if (data.id === '-1') {
@@ -279,7 +280,9 @@ export default class extends Vue {
         await this.deepLoad(childNode.data.id, node.checked)
         this.deepCopy(node)
       }
-      this.totalCheckedSize = node.data.totalSize
+      this.$nextTick(() => {
+        this.totalCheckedSize = node.checked ? node.data.totalSize : node.data.checkedSize
+      })
     } else if (node.isLeaf || node.loaded) {
       // 如果是叶子节点更新上层, 将上层全部拷贝到预览树
       this.deepCheck(node)

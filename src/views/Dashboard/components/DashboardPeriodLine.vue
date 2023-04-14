@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-13 10:01:14
+ * @LastEditTime: 2023-04-13 16:22:54
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,42 +11,42 @@
     <el-card>
       <div class="dashboard-wrap-overview__item_period_content">
         <div class="dashboard-wrap-overview__item_period_title">{{ chartTitle }}</div>
-        <div class="dashboard-wrap-overview__item_period_detail">
-          <el-radio-group
-            v-model="currentPeriod"
-            size="mini"
-            class="dashboard-wrap-overview__item_period_radio"
-            @input="(val) => periodChange('', val)"
-          >
-            <el-radio-button
-              v-for="item in periods"
-              :key="item.value"
-              :label="item.value"
-            >
-              {{ item.label }}
-            </el-radio-button>
-            <el-dropdown
-              size="mini"
-              @command="(val) => periodChange('service', val)"
-            >
-              <el-button plain size="mini">
-                AI服务<i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item
-                  v-for="item in serviceOption"
-                  :key="item.value"
-                  :command="item.value"
-                >
-                  {{ item.label }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </el-radio-group>
-        </div>
         <div class="dashboard-wrap-overview__item_period_to_detail" @click="toDosageStatistics">
           用量详情 >>
         </div>
+      </div>
+      <div class="dashboard-wrap-overview__item_period_detail">
+        <el-radio-group
+          v-model="currentPeriod"
+          size="mini"
+          class="dashboard-wrap-overview__item_period_radio"
+          @input="(val) => periodChange('', val)"
+        >
+          <el-radio-button
+            v-for="item in periods"
+            :key="item.value"
+            :label="item.value"
+          >
+            {{ item.label }}
+          </el-radio-button>
+          <el-dropdown
+            size="mini"
+            @command="(val) => periodChange('service', val)"
+          >
+            <el-button plain size="mini">
+              AI服务<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-for="item in serviceOption"
+                :key="item.value"
+                :command="item.value"
+              >
+                {{ item.label }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-radio-group>
       </div>
       <div>
         <line-point
@@ -353,6 +353,7 @@ export default class extends Vue {
         .el-radio-button__inner {
           border-left: 1px solid #ddd;
           margin-left: -1px;
+          padding: $padding-small $padding-small;
         }
 
         &:last-child .el-radio-button__inner {
@@ -366,12 +367,12 @@ export default class extends Vue {
 
       .el-dropdown {
         vertical-align: middle;
-        height: 28px;
+        height: 30px;
         margin-left: -1px;
 
         .el-button--mini {
           border-radius: 0 2px 2px 0;
-          height: 28px;
+          height: 30px;
         }
       }
     }
@@ -383,12 +384,15 @@ export default class extends Vue {
       }
 
       &_title {
-        padding: $padding-small $padding-medium;
+        padding: $padding-small $padding-small;
+        font-weight: 600;
+        font-size: $text-size-medium;
       }
 
       &_detail {
-        flex: 1;
-        text-align: center;
+        // flex: 1;
+        // text-align: center;
+        padding: $padding-small $padding-small;
       }
 
       &_to_detail {
