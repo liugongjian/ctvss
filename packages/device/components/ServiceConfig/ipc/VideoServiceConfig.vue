@@ -54,7 +54,7 @@ export default class extends Vue {
     if (videoInfo && videoInfo.length) {
       const info = videoInfo[0]
       this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
-      this.billingModeForm[BillingEnum.RecordNum] = info.recordNum
+      this.billingModeForm[BillingEnum.RecordNum] = info.recordNum || '1'
       this.billingModeForm[BillingEnum.TemplateId] = info.templateId
       this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
     }
