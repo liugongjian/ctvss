@@ -81,7 +81,7 @@ export default class extends Vue {
 
   private goRouter(type: any) {
     this.$router.push({
-      path: 'billing/resource',
+      path: '/billing/resource',
       query: {
         type
       }
