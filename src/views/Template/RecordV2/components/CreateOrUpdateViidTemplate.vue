@@ -141,7 +141,8 @@ export default class extends Vue {
         } catch (e) {
           this.submitting = false
           this.$emit('on-submit', true)
-          this.$message.error(e)
+          // this.$message.error(e)
+          this.$message.error(e.message)
         }
       }
     })
