@@ -16,15 +16,15 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getAlertTemplateDetails } from '@vss/device/api/template'
+import { getAlertTemplateDetails } from '@/api/template'
 
 @Component({
   name: 'alert-details'
 })
 export default class extends Vue {
-  private breadCrumbContent: string = ''
-  private loading: boolean = false
-  private templateId: string = ''
+  private breadCrumbContent = ''
+  private loading = false
+  private templateId = ''
   private details: any = {
     templateName: '',
     alarmPriority: '',
@@ -102,7 +102,7 @@ export default class extends Vue {
   private async getTemplateDetails() {
     try {
       this.loading = true
-      let query: any = this.$route.query
+      const query: any = this.$route.query
       this.templateId = query.templateId
       this.details = await getAlertTemplateDetails({ templateId: this.templateId })
     } catch (e) {
@@ -126,14 +126,14 @@ export default class extends Vue {
         arr = Object.keys(value)
         break
     }
-    let res: any = []
+    const res: any = []
     arr.forEach((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str)
+      const obj = this[`${type}Options`].find((item: any) => item.value === str)
       if (obj) {
-        let resStr = obj.label
+        const resStr = obj.label
         if (value[str] && Object.keys(value[str]).length) {
           Object.keys(value[str]).forEach((str1: any) => {
-            let resStr1 = resStr + '/' + obj.children.find((item: any) => item.value === str1)?.label
+            const resStr1 = resStr + '/' + obj.children.find((item: any) => item.value === str1)?.label
             res.push(resStr1)
           })
         } else {

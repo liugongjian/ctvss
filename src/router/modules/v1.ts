@@ -540,6 +540,22 @@ export const v1Router: RouteConfig[] = [
       version: 1
     },
     children: [
+      // 柳州版本录制模板
+      {
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/RecordV2/index.vue'),
+        name: 'record',
+        meta: {
+          title: '录制模板',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/template/record',
+          tags: {
+            privateUser: ['liuzhou']
+          }
+        }
+      },
+      // 现网版本录制模板
       {
         path: 'record',
         component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'),
@@ -547,7 +563,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '录制模板',
           icon: 'dot',
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -558,7 +574,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '新建录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -569,7 +585,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '编辑录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -604,6 +620,28 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           activeMenu: '/template/callback'
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        name: 'AICreate',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
+        }
+      },
+      {
+        path: 'ai/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        name: 'aiUpdate',
+        meta: {
+          title: '编辑AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
         }
       },
       {

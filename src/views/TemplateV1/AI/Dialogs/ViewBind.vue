@@ -46,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getRecordBind } from '@/api/template'
+import { getAIBindList } from '@/api/template'
 
 @Component({
   name: 'ViewBind'
@@ -69,13 +69,13 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.getRecordBindMethod()
+    this.getCallbackBindMethod()
   }
   private filterHandler(value: string, row: any, column: any) {
     const prop = column['property']
     return row[prop] === value
   }
-  private async getRecordBindMethod() {
+  private async getCallbackBindMethod() {
     try {
       this.loading = true
       let params = {
@@ -83,7 +83,7 @@ export default class extends Vue {
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      const res = await getRecordBind(params)
+      const res = await getAIBindList(params)
       this.loading = false
       this.bindData = res.bind
       this.pager.total = res.totalNum
@@ -97,12 +97,12 @@ export default class extends Vue {
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getRecordBindMethod()
+    await this.getCallbackBindMethod()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getRecordBindMethod()
+    await this.getCallbackBindMethod()
   }
 
   private closeDialog() {

@@ -16,12 +16,12 @@
             <el-table :data="scope.row.formatList" border size="mini" :header-cell-style="setHeaderClass">
               <el-table-column prop="formatType" label="存储格式" align="center" />
               <el-table-column prop="interval" label="周期时长" align="center">
-                <template slot-scope="{ row }">
+                <template slot-scope="{row}">
                   <span>{{ row.interval + '分钟' }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="storageTime" label="存储时长" align="center">
-                <template slot-scope="{ row }">
+                <template slot-scope="{row}">
                   <span>{{ row.storageTime ? row.storageTime / 60 / 24 + '天' : '永久存储' }}</span>
                 </template>
               </el-table-column>
@@ -31,12 +31,12 @@
         </el-table-column>
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
         <el-table-column prop="storeType" label="录制类别" width="120">
-          <template slot-scope="{ row }">
-            <span>{{ row.recordType === 1 ? '自动录制' : '按需录制' }}</span>
+          <template slot-scope="{row}">
+            <span>{{ row.recordType === 1 ? '全天录制' : '手动录制' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="模板备注" min-width="260" />
-        <el-table-column prop="createdTime" label="创建时间" width="200" :formatter="dateFormatInTable" />
+        <el-table-column prop="createdTime" label="创建时间" width="200" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
@@ -59,9 +59,9 @@
 </template>
 
 <script lang='ts'>
-import { deleteRecordTemplate, getRecordTemplates } from '@vss/device/api/template'
+import { deleteRecordTemplate, getRecordTemplates } from '@/api/template'
 import { RecordTemplate } from '@/type/Template'
-import { dateFormatInTable } from '@vss/base/utils/date'
+import { dateFormatInTable } from '@/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'
 
@@ -80,6 +80,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+
   private dateFormatInTable = dateFormatInTable
   private showViewBindDialog = false
   private currentTemplateId: any
@@ -96,17 +97,21 @@ export default class extends Vue {
   private async refresh() {
     await this.getList()
   }
+
   private async viewBind(row: RecordTemplate) {
     this.currentTemplateId = row.templateId
     this.showViewBindDialog = true
   }
+
   private async closeViewBind() {
     this.currentTemplateId = ''
     this.showViewBindDialog = false
   }
+
   private setHeaderClass() {
     return 'background: white'
   }
+
   private async getList() {
     try {
       this.loading = true
@@ -124,7 +129,9 @@ export default class extends Vue {
           recordType: template.recordType,
           createdTime: template.createdTime,
           description: template.description,
-          formatList: []
+          formatList: [],
+          storageTime: template.storageTime,
+          interval: template.interval
         }
         if (template.hlsParam && template.hlsParam.enable) {
           rowData.formatList.push({

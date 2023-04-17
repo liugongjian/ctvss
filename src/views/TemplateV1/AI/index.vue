@@ -2,9 +2,9 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">新建回调模板</el-button>
+        <el-button type="primary" @click="handleCreate">新建AI模板</el-button>
         <div class="filter-container__right">
-          <el-input v-model="callbackTemplateName" class="filter-container__search-group" placeholder="请输入回调模板名称" @keyup.enter.native="handleFilter">
+          <el-input v-model="aiTemplateName" class="filter-container__search-group" placeholder="请输入AI模板名称" @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -12,8 +12,14 @@
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
-        <el-table-column prop="description" label="模板备注" min-width="260" />
+        <el-table-column prop="description" label="模板概要" min-width="260" />
+        <el-table-column prop="enableType" label="启动方式" min-width="160">
+          <template slot-scope="scope">
+            {{ scope.row.enableType === 1 ? '自动启用' : '手动启用' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" width="200" />
+        <el-table-column prop="updatedTime" label="更新时间" width="200" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
@@ -36,22 +42,22 @@
 </template>
 
 <script lang='ts'>
-import { deleteCallbackTemplate, getCallbackTemplates } from '@/api/template'
-import { CallbackTemplate } from '@/type/Template'
+import { deleteAITemplate, getAITemplates } from '@/api/template'
+import { AITemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'
 
 @Component({
-  name: 'record-template',
+  name: 'ai-template',
   components: {
     ViewBind
   }
 })
 export default class extends Vue {
   private loading = false
-  private callbackTemplateName = ''
-  private dataList: Array<CallbackTemplate> = []
+  private aiTemplateName = ''
+  private dataList: Array<AITemplate> = []
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -73,7 +79,7 @@ export default class extends Vue {
   private async refresh() {
     await this.getList()
   }
-  private async viewBind(row: CallbackTemplate) {
+  private async viewBind(row: AITemplate) {
     this.currentTemplateId = row.templateId
     this.showViewBindDialog = true
   }
@@ -85,18 +91,18 @@ export default class extends Vue {
     try {
       this.loading = true
       let params = {
-        templateName: this.callbackTemplateName || undefined,
+        templateName: this.aiTemplateName || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      const res = await getCallbackTemplates(params)
+      const res = await getAITemplates(params)
       this.loading = false
-      this.dataList = res.templates
+      this.dataList = res.aITemplates
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
-      this.$message.error(`获取回调模板失败，原因：${e && e.message}`)
+      this.$message.error(`获取AI模板失败，原因：${e && e.message}`)
       this.loading = false
     }
   }
@@ -112,7 +118,7 @@ export default class extends Vue {
   }
 
   private handleCreate() {
-    this.$router.push('/template/callback/create')
+    this.$router.push('/template/ai/create')
   }
 
   private async handleFilter() {
@@ -120,19 +126,19 @@ export default class extends Vue {
     await this.getList()
   }
 
-  private async deleteTemplate(row: CallbackTemplate) {
+  private async deleteTemplate(row: AITemplate) {
     this.$alertDelete({
-      type: '回调模板',
-      msg: `确定删除回调模板"${row.templateName}"`,
-      method: deleteCallbackTemplate,
+      type: 'AI模板',
+      msg: `确定删除AI模板"${row.templateName}"`,
+      method: deleteAITemplate,
       payload: { templateId: row.templateId },
       onSuccess: this.getList
     })
   }
 
-  private update(row: CallbackTemplate) {
+  private update(row: AITemplate) {
     this.$router.push({
-      path: '/template/callback/update',
+      path: '/template/ai/update',
       query: {
         templateId: row.templateId!.toString()
       }
@@ -148,10 +154,9 @@ export default class extends Vue {
 
 .template__table {
   ::v-deep .el-table__body {
-    td {
-      cursor: pointer;
-    }
-
+    // td {
+    //   cursor: pointer;
+    // }
     .col-action {
       cursor: default;
     }
