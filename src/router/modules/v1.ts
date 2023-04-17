@@ -918,6 +918,61 @@ export const v1Router: RouteConfig[] = [
     ]
   },
   {
+    path: '/operation-center',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '运营中心',
+      icon: 'menu-alarm',
+      perms: ['*'],
+      alwaysShow: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: 'alarm',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
+        name: 'Alarm',
+        meta: {
+          title: '设备告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
+            name: 'AlarmList',
+            meta: {
+              title: '设备告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/alarm',
+              groupSelector: true
+            }
+          }
+        ]
+      },
+      {
+        path: 'statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            isShowRecordInfo: ['Y']
+          }
+        }
+      }
+    ]
+  },
+  {
     path: '/notification',
     component: Layout,
     redirect: 'noredirect',
@@ -977,47 +1032,6 @@ export const v1Router: RouteConfig[] = [
           activeMenu: '/notification/policy',
           perms: ['ivs:frontend:AdminNotification']
         }
-      }
-    ]
-  },
-  {
-    path: '/alarm',
-    component: Layout,
-    meta: {
-      title: '告警管理',
-      icon: 'menu-alarm',
-      perms: ['ivs:frontend:AdminAlarm'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: true,
-      version: 1
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
-        name: 'Alarm',
-        meta: {
-          title: '告警管理',
-          icon: 'menu-alarm',
-          breadcrumb: false,
-          perms: ['ivs:frontend:AdminAlarm'],
-          groupSelector: true
-        },
-        children: [
-          {
-            path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
-            name: 'AlarmList',
-            meta: {
-              title: '告警信息列表',
-              breadcrumb: false,
-              perms: ['ivs:frontend:AdminAlarm'],
-              activeMenu: '/alarm',
-              groupSelector: true
-            }
-          }
-        ]
       }
     ]
   },
@@ -1112,89 +1126,63 @@ export const v1Router: RouteConfig[] = [
   {
     path: '/sysconfig',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       title: '系统管理',
       breadcrumb: true,
+      alwaysShow: true,
       icon: 'menu-system',
       perms: ['*'],
       version: 1
     },
     children: [
-       {
-        path: '/statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-        name: 'statistic',
-        meta: {
-          title: '统计信息',
-          breadcrumb: false,
-          icon: 'dot',
-          perms: ['*'],
-          tags: {
-            privateUser: ['liuzhou']
-          }
-          // groupSelector: true
-        }
-      },
-      {
-        path: '/statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
-        name: 'statistic',
-        meta: {
-          title: '统计信息',
-          breadcrumb: false,
-          icon: 'dot',
-          perms: ['*'],
-          tags: {
-            privateUser: ['liuzhou']
-          }
-          // groupSelector: true
-        }
-      },
       {
         path: 'operation-log',
-        component: () => import(/* webpackChunkName: "operation-log" */ '@/views/OperationLog/index.vue'),
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'),
         name: 'operation-log',
         meta: {
-          id: '20210424150201001101',
           title: '操作日志',
           icon: 'dot',
-          breadcrumb: false,
-          perms: ['*'],
-          activeMenu: '/operation-log'
+          breadcrumb: true,
+          activeMenu: '/sysconfig/operation-log',
+          perms: ['*']
         }
       },
       {
-        path: '/custom-tree',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/CustomTree/index.vue'),
+        path: 'custom-tree',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
         name: 'CustomTree',
         meta: {
           title: '自定义设备树',
-          breadcrumb: false,
+          breadcrumb: true,
+          activeMenu: '/sysconfig/custom-tree',
           icon: 'dot',
           perms: ['*']
         }
       },
       {
-        path: '/replay-lock-manage',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/device/ReplayLockManage.vue'),
+        path: 'replay-lock-manage',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
         name: 'ReplayLockManage',
         meta: {
           title: '锁定录像管理',
-          breadcrumb: false,
+          breadcrumb: true,
           icon: 'dot',
           perms: ['*'],
+          activeMenu: '/sysconfig/replay-lock-manage',
           tags: {
             isRecordLockAvailable: ['Y']
           }
         }
       },
       {
-        path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
+        path: 'system-config',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',
         meta: {
           title: '系统设置',
-          breadcrumb: false,
+          breadcrumb: true,
+          activeMenu: '/sysconfig/system-config',
           icon: 'dot',
           perms: ['*']
         }
