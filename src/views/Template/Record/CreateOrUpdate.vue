@@ -80,14 +80,6 @@ export default class extends Vue {
   }
   private storageTimeList = [
     {
-      label: '3天',
-      value: 3 * 24 * 60
-    },
-    {
-      label: '7天',
-      value: 7 * 24 * 60
-    },
-    {
       label: '15天',
       value: 15 * 24 * 60
     },

@@ -499,7 +499,7 @@ export default class extends Vue {
         } catch (e) {
           this.submitting = false
           this.$emit('on-submit', true)
-          this.$message.error(e)
+          this.$message.error(e.message)
         }
       }
     })
@@ -1271,7 +1271,7 @@ export default class extends Vue {
     if (time <= timeNow) {
       // this.$nextTick(() => {
         this.showCusTips = true
-        this.cusTips = '开始时间不能晚于当前时间'
+        this.cusTips = '开始时间不能早于当前时间'
       // })
     }
     const endTime = this.customDates[index]['endTime'] || -1

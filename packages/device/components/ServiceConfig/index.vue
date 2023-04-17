@@ -348,8 +348,8 @@ export default class extends Vue {
     if (this.hasViidTab) {
       config = this.$refs.viidConfig
     }
-    if (config) {
-      return config && config.validateConfigForm && await config.validateConfigForm()
+    if (config && config.validateConfigForm && await config.validateConfigForm()) {
+      return
     } else {
       return new Error('请完善服务配置')
     }

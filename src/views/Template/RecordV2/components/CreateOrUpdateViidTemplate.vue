@@ -55,14 +55,6 @@ export default class extends Vue {
 
   private timeRange = [
     {
-      value: 7,
-      label: '7天'
-    },
-    {
-      value: 15,
-      label: '15天'
-    },
-    {
       value: 30,
       label: '30天'
     },
@@ -149,7 +141,8 @@ export default class extends Vue {
         } catch (e) {
           this.submitting = false
           this.$emit('on-submit', true)
-          this.$message.error(e)
+          // this.$message.error(e)
+          this.$message.error(e.message)
         }
       }
     })
