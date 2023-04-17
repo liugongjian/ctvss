@@ -26,7 +26,7 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: '视频监控',
+  title: '智能视图服务',
   showSettings: true,
   showTagsView: true,
   fixedHeader: false,
@@ -38,10 +38,11 @@ const settings: ISettings = {
     '182.43.127.35',
     '182.43.127.36',
     'console.vcn.ctyun.cn',
+    'console.vaas.ctyun.cn',
     'console.vcn.ctcdn.cn'
   ],
   privateDenyPerms: {
-    liuzhou: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminBilling', 'ivs:GetApp'],
+    liuzhou: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminBilling', 'ivs:GetApp', 'ivs:frontend:RecordTemplate'],
     yeji: ['ivs:GetMap', 'ivs:GetViid', 'ivs:AdminViid', 'ivs:AdminCar', 'ivs:frontend:AdminAlarm', 'ivs:frontend:AdminNotification', 'ivs:frontend:AdminBilling']
   },
   systemActionList: [
@@ -83,7 +84,7 @@ const settings: ISettings = {
       actionDesc: '拥有设备的查询权限，并展示设备管理菜单',
       actionType: 'GET',
       allowAutoSelected: ['ivs:GetGroup'],
-      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord'],
+      denyAutoSelected: ['ivs:DeleteDevice', 'ivs:UpdateDevice', 'ivs:CreateDevice', 'ivs:GetLiveStream', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:GetApp', 'ivs:GetMap', 'ivs:AdminCar'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -98,6 +99,7 @@ const settings: ISettings = {
       actionKey: 'ivs:UpdateDevice',
       actionDesc: '拥有设备的修改权限，并展示设备管理菜单',
       allowAutoSelected: ['ivs:GetDevice'],
+      denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
@@ -174,35 +176,37 @@ const settings: ISettings = {
       resourceType: ['directory', 'device', 'channel']
     },
     // 视图级联服务(视图级联服务可放入向上级联，作为一种协议进行控制)
-    {
-      actionName: '查看视图服务',
-      actionKey: 'ivs:GetViid',
-      actionDesc: '具有视图服务菜单',
-      actionType: 'GET',
-      denyAutoSelected: ['ivs:AdminViid'],
-      resourceType: ['directory', 'device', 'channel']
-    },
-    {
-      actionName: '管理视图服务',
-      actionKey: 'ivs:AdminViid',
-      actionDesc: '具有视图服务的管理权限',
-      allowAutoSelected: ['ivs:GetViid'],
-      resourceType: ['directory', 'device', 'channel']
-    },
+    // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）
+    // {
+    //   actionName: '查看视图服务',
+    //   actionKey: 'ivs:GetViid',
+    //   actionDesc: '具有视图服务菜单',
+    //   actionType: 'GET',
+    //   denyAutoSelected: ['ivs:AdminViid'],
+    //   resourceType: ['directory', 'device', 'channel']
+    // },
+    // {
+    //   actionName: '管理视图服务',
+    //   actionKey: 'ivs:AdminViid',
+    //   actionDesc: '具有视图服务的管理权限',
+    //   allowAutoSelected: ['ivs:GetViid'],
+    //   resourceType: ['directory', 'device', 'channel']
+    // },
     // 视图分析（原AI功能）
     {
-      actionName: '查询行业场景应用',
+      actionName: '查看AI应用',
       actionKey: 'ivs:GetApp',
-      actionDesc: '拥有查询行业场景应用的权限，并展示视图分析菜单',
+      actionDesc: '拥有AI应用的查看权限，并展示AI管理菜单',
       actionType: 'GET',
+      allowAutoSelected: ['ivs:GetDevice'],
       denyAutoSelected: ['ivs:AdminApp'],
       resourceType: ['directory', 'device', 'channel']
     },
     {
-      actionName: '管理行业场景应用',
+      actionName: '管理AI应用',
       actionKey: 'ivs:AdminApp',
-      actionDesc: '拥有创建行业场景应用的权限，并展示视图分析菜单',
-      allowAutoSelected: ['ivs:GetApp'],
+      actionDesc: '拥有AI应用的管理权限，并展示AI管理菜单',
+      allowAutoSelected: ['ivs:GetApp', 'ivs:UpdateDevice'],
       resourceType: ['directory', 'device', 'channel']
     },
     // 电子地图
@@ -210,6 +214,7 @@ const settings: ISettings = {
       actionName: '查看电子地图',
       actionKey: 'ivs:GetMap',
       actionDesc: '拥有电子地图的查看权限，并展示电子地图菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       actionType: 'GET',
       resourceType: '*'
     },
@@ -226,15 +231,17 @@ const settings: ISettings = {
       actionName: '车辆管理',
       actionKey: 'ivs:AdminCar',
       actionDesc: '拥有车辆管理权限，并展示车辆管理菜单',
+      allowAutoSelected: ['ivs:GetDevice'],
       resourceType: ['directory', 'device', 'channel']
-    },
-    // 电视墙
-    {
-      actionName: '电视墙管理',
-      actionKey: 'ivs:AdminVideoWall',
-      actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单',
-      resourceType: '*'
     }
+    // 电视墙
+    // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）
+    // {
+    //   actionName: '电视墙管理',
+    //   actionKey: 'ivs:AdminVideoWall',
+    //   actionDesc: '拥有电视墙管理权限，并展示电视墙管理菜单',
+    //   resourceType: '*'
+    // }
   ]
 }
 

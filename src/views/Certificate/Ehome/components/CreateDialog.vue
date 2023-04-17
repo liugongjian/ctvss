@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="新建GB28181凭证"
+    title="新建ISUP凭证"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="700px"

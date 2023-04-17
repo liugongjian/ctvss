@@ -351,7 +351,7 @@ import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getEhomeList } from '@/api/certificate/ehome'
-import CreateEhomeCertificate from '@/views/certificate/ehome/components/CreateDialog.vue'
+import CreateEhomeCertificate from '@/views/Certificate/Ehome/components/CreateDialog.vue'
 import { UserModule } from '@/store/modules/user'
 import { previewAuthActions } from '@/api/accessManage'
 

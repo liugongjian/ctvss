@@ -50,7 +50,7 @@
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { MapModule } from '@/store/modules/map'
-import { validateIsLat, validateIsLng, validateNum } from '@/views/MapV1/utils/validate'
+import { validateIsLat, validateIsLng, validateNum } from '../../utils/validate'
 
 @Component({
   name: 'FontInfo'

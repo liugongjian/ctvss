@@ -18,7 +18,8 @@ export interface mapObject {
   mask?: string
   eagle?: string
   dimension?: string
-  marker?: string
+  marker?: string,
+  AuthMap?: object
 }
 
 declare global {

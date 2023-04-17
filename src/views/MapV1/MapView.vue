@@ -6,10 +6,10 @@
     <div
       v-for="playWindowInfo in playWindowList"
       :key="playWindowInfo.deviceId"
-      v-draggable:[playWindowInfo.deviceId]="{cb: changeStyle, screen: playWindowInfo.screen}"
+      v-draggable:[playWindowInfo.deviceId]="{ cb: changeStyle, screen: playWindowInfo.screen }"
       class="play-wrap"
       :style="playWindowInfo.style"
-      :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
+      :class="{ 'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen }"
       @mousedown="choosePlayer(playWindowInfo.deviceId)"
     >
       <div v-if="playWindowInfo.show !== 'none'" class="play-container">
@@ -46,6 +46,7 @@ import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
 import draggable from '@/views/Map/directives/draggable'
+import settings from './settings'
 
 @Component({
   name: 'MapView',
@@ -58,10 +59,8 @@ import draggable from '@/views/Map/directives/draggable'
   }
 })
 export default class MapView extends Vue {
-  @Prop()
-  private mapOption: any
-  @Prop()
-  private isEdit: boolean
+  @Prop() private mapOption: any
+  @Prop() private isEdit: boolean
 
   public vmap = new VMap('mapContainer')
   private markerlist = []
@@ -107,7 +106,7 @@ export default class MapView extends Vue {
   }
 
   private async getMapMarkers(pageNum) {
-    let params: any = {
+    const params: any = {
       pageNum,
       pageSize: 2000,
       mapId: this.mapId
@@ -208,6 +207,9 @@ export default class MapView extends Vue {
       const mapInfo = {
         mapId: this.mapOption.mapId,
         name: this.mapOption.name,
+        groupByGroupId: this.mapOption.groupByGroupId,
+        groupByAdjacent: this.mapOption.groupByAdjacent,
+        defaultDeviceColor: this.mapOption.defaultDeviceColor,
         longitude: center.lng,
         latitude: center.lat,
         zoom
@@ -249,7 +251,7 @@ export default class MapView extends Vue {
         devices: [this.handleDevice(marker)]
       }
       await updateMarkers(data)
-      const appearance = marker.appearance || { color: '#1e78e0' }
+      const appearance = marker.appearance// || { color: this.mapOption.defaultDeviceColor }
       const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
       MapModule.SetMarkerInfo(mapMarker)
       this.markerlist = this.markerlist.map((item) => {
@@ -281,7 +283,7 @@ export default class MapView extends Vue {
 
   public async interestChange(type, interest) {
     try {
-      const appearance = interest.appearance || { color: '#1e78e0' }
+      const appearance = interest.appearance || { color: settings.defaultDeviceColor }
       const data = {
         ...interest,
         mapId: this.mapId,
@@ -459,7 +461,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
-    const appearance = device.appearance || { color: '#1e78e0' }
+    const appearance = device.appearance// || { color: this.mapOption.defaultDeviceColor }
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,
@@ -515,7 +517,7 @@ export default class MapView extends Vue {
   choosePoi(point, type?) {
     if (point) {
       const otherPoints = document.getElementsByClassName('marker-containt')
-      let len = otherPoints.length
+      const len = otherPoints.length
       for (let i = 0; i < len; i += 1) {
         const nClass = otherPoints[i].getAttribute('class').replace('selected', '')
         otherPoints[i].setAttribute('class', nClass)
@@ -531,7 +533,7 @@ export default class MapView extends Vue {
       })
     } else {
       const otherPoints = document.getElementsByClassName('marker-containt')
-      let len = otherPoints.length
+      const len = otherPoints.length
       for (let i = 0; i < len; i += 1) {
         // 只需要取消兴趣点位，不能取消摄像头点位
         const classes = otherPoints[i].getAttribute('class')

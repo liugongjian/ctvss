@@ -156,6 +156,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPolicy } from '@/api/notification'
 import { getAlgorithmList } from '@/api/ai-app'
 import { INotifictionPolicyForm } from '@/type/Notification'
+import { MESSAGE_TYPE } from '@/type/enum'
 import { dateFormat } from '@/utils/date'
 import ResourceSelector from '@/views/components/ResourceSelector.vue'
 import DestinationsTree from './components/DestinationsTree.vue'
@@ -189,7 +190,7 @@ export default class extends Vue {
     notifyChannel: '2',
     effectiveTime: [],
     notifyFreq: '240',
-    source: '1',
+    source: MESSAGE_TYPE.DEVICE_MSG,
     sourceRules: [],
     // eslint-disable-next-line no-template-curly-in-string
     notifyTemplate: '',

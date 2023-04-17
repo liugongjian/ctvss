@@ -414,6 +414,43 @@ export const v1Router: RouteConfig[] = [
         }
       },
       {
+        path: 'ehome',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/index.vue'),
+        name: 'ehome',
+        meta: {
+          id: '20210424150201007001',
+          name: 'ehome-certificate',
+          title: 'ISUP凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
+        }
+      },
+      {
+        path: 'ehome/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        name: 'ehome-create',
+        meta: {
+          id: '20210424150201007002',
+          title: '新建ISUP凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
+        }
+      },
+      {
+        path: 'ehome/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        name: 'ehome-update',
+        meta: {
+          id: '20210424150201007003',
+          title: '编辑ISUP凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
+        }
+      },
+      {
         path: 'ga1400',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/index.vue'),
         name: 'ga1400',
@@ -465,7 +502,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb35114/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
         name: 'gb35114-create',
         meta: {
           id: '20210424150201007008',
@@ -477,7 +514,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb35114/update/:outId?/:certId?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
         name: 'gb35114-update',
         meta: {
           id: '20210424150201007006',
