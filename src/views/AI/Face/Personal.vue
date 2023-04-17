@@ -13,7 +13,9 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加人员</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
-          <el-button :disabled="!multipleSelection.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-button :disabled="!multipleSelection.length">
+            批量操作<i class="el-icon-arrow-down el-icon--right" />
+          </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="copy">复制</el-dropdown-item>
             <el-dropdown-item command="delete">删除</el-dropdown-item>
@@ -29,12 +31,25 @@
             @keyup.enter.native="handleFilter"
             @clear="handleFilter"
           >
-            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+            <el-button
+              slot="append"
+              class="el-button-rect"
+              @click="handleFilter"
+            >
+              <svg-icon name="search" />
+            </el-button>
           </el-input>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <el-button class="el-button-rect" @click="refresh">
+            <svg-icon name="refresh" />
+          </el-button>
         </div>
       </div>
-      <el-table v-loading="loading" class="personal-info__table" :data="dataList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        class="personal-info__table"
+        :data="dataList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="imgString" label="头像">
           <template slot-scope="{ row }">
@@ -43,15 +58,27 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="姓名" :show-overflow-tooltip="true" />
+        <el-table-column
+          prop="name"
+          label="姓名"
+          :show-overflow-tooltip="true"
+        />
         <el-table-column prop="number" label="人员编号" />
-        <el-table-column prop="description" label="描述" :show-overflow-tooltip="true" />
+        <el-table-column
+          prop="description"
+          label="描述"
+          :show-overflow-tooltip="true"
+        />
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column label="操作" align="center" width="140">
           <template slot-scope="scope">
-            <el-button type="text" @click="editPerson(scope.row)">编辑</el-button>
-            <el-button type="text" @click="delPerson([scope.row.id])">删除</el-button>
+            <el-button type="text" @click="editPerson(scope.row)">
+              编辑
+            </el-button>
+            <el-button type="text" @click="delPerson([scope.row.id])">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -196,7 +223,7 @@ export default class extends Vue {
         this.showCopyPesronDialog = true
         break
       case 'delete':
-        this.delPerson(this.multipleSelection.map(item => item.id))
+        this.delPerson(this.multipleSelection.map((item) => item.id))
         break
     }
   }

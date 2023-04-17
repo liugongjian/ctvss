@@ -32,11 +32,11 @@ export default class extends Vue {
   private async mounted() {
     try {
       this.isfaceLibLoading = true
-      const { data } = await listGroup({
+      const { groups } = await listGroup({
         pageNum: 0,
         pageSize: 3000
       })
-      this.faceLibs = data
+      this.faceLibs = groups
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
