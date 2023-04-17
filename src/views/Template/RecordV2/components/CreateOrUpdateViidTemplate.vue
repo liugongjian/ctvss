@@ -55,14 +55,6 @@ export default class extends Vue {
 
   private timeRange = [
     {
-      value: 7,
-      label: '7天'
-    },
-    {
-      value: 15,
-      label: '15天'
-    },
-    {
       value: 30,
       label: '30天'
     },
