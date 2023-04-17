@@ -28,12 +28,12 @@ const hasPermission: IMatchFn = (perms, route) => {
   return true
 }
 
-const hasTags: IMatchFn = (tags, route) => {
-  if (route.meta && route.meta.tags) {
-    return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
-  }
-  return true
-}
+// const hasTags: IMatchFn = (tags, route) => {
+//   if (route.meta && route.meta.tags) {
+//     return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+//   }
+//   return true
+// }
 
 const hasTags2: IMatchFn2 = (tagObject, route) => {
   const settingTags = route.meta.tags
@@ -103,12 +103,26 @@ class Permission extends VuexModule implements IPermissionState {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
-      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage' && route.path !== '/operation-log')
-      // 子账号管理员，过滤 自定义设备树 & 录像锁定管理 二级菜单
+      // 子账号管理员
+
+      // 过滤 访问管理 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
+      // 过滤 视图级联 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/view-service')
+      // 过滤 消息推送 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/notification')
+      // 过滤 计费管理 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/billing')
+
+      // 过滤 系统管理 一级菜单 下的 自定义设备树 & 录像锁定管理 二级菜单
       const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
       if (sysconfigRouteIndex > -1) {
         const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
-        sysconfigRoute.children = sysconfigRoute.children.filter(child => child.path !== '/custom-tree' && child.path !== '/replay-lock-manage')
+        sysconfigRoute.children = sysconfigRoute.children.filter(child =>
+          child.path !== '/custom-tree' &&
+          child.path !== '/replay-lock-manage' &&
+          child.path !== '/operation-log'
+        )
       }
     }
 
@@ -123,6 +137,7 @@ class Permission extends VuexModule implements IPermissionState {
     } else {
       accessedRoutes = filterAsyncRoutesByPerms(filteredRoutes, params.perms)
     }
+    accessedRoutes = filterAsyncRoutesByDenyPerms(accessedRoutes, params.denyPerms)
     this.SET_ROUTES(accessedRoutes)
     if (getLocalStorage('casLoginId')) {
       casService.renderCasMenu(this.routes)

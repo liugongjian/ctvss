@@ -342,9 +342,9 @@ class User extends VuexModule implements IUserState {
     }
     const perms = data.perms
     // perms must be a non-empty array
-    if (!perms || perms.length <= 0) {
-      throw Error('GetGlobalInfo: perms must be a non-null array!')
-    }
+    // if (!perms || perms.length <= 0) {
+    //   throw Error('GetGlobalInfo: perms must be a non-null array!')
+    // }
     this.SET_PERMS(perms)
     this.SET_RESOURCES(data)
   }
