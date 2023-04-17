@@ -69,10 +69,10 @@
           <el-button type="text" @click="rowClick(scope.row)">
             设备详情
           </el-button>
-          <el-button v-permission="['AdminAi']" type="text" @click.stop="startOrStop(scope.row)">
+          <el-button v-if="checkPermission(['ivs:UpdateDevice'], scope.row)" type="text" @click.stop="startOrStop(scope.row)">
             {{ parseInt(scope.row.status) ? '停用' : '启用' }}
           </el-button>
-          <el-button v-permission="['AdminAi']" type="text" :disabled="scope.row.status === '1' ? true : false" @click.stop="detach(scope.row)">
+          <el-button v-if="checkPermission(['ivs:UpdateDevice'], scope.row)" type="text" :disabled="scope.row.status === '1' ? true : false" @click.stop="detach(scope.row)">
             解绑
           </el-button>
         </template>
@@ -97,6 +97,8 @@ import { startAppResource, stopAppResource, unBindAppResource } from '@/api/devi
 import AppMixin from '../../mixin/app-mixin'
 import { GroupModule } from '@/store/modules/group'
 import { getGroups } from '@/api/group'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   name: 'AttachedDevice',
@@ -142,11 +144,26 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async getAttachedDevice() {
-    const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
+    let { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     })
+
+    if (UserModule.iamUserId && deviceList.length) {
+      const permissionRes = await previewAuthActions({
+        targetResources: deviceList.map(dir => ({
+          groupId: dir.groupId,
+          dirPath: dir.deviceDir.split('/').slice(1).join('/') || '0',
+          deviceId: dir.deviceId
+        }))
+      })
+      deviceList = deviceList
+        .map((dir: any, index: number) => ({
+          ...dir,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+    }
     this.devices = deviceList
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize

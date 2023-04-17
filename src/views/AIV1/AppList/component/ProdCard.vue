@@ -1,3 +1,4 @@
+
 <template>
   <el-card shadow="hover">
     <div class="pic-wrapper">
@@ -40,41 +41,35 @@ export default class extends Vue {
     height: 50px;
     float: left;
     border-radius: 50%;
-    background-color: #f2f2f2;
+    background-color: #f2f2f2;;
     margin-right: 3%;
     display: flex;
     justify-content: center;
     align-items: center;
-
     .el-image {
       width: 62%;
       height: 62%;
     }
   }
-
   .content-wrapper {
     display: inline-block;
     position: relative;
-    width: 80%;
+    width:80%;
     height: 100%;
     min-height: 150px;
-
     .prod__name {
       font-size: 16px;
       font-weight: bold;
       margin-bottom: 15px;
     }
-
     .prod__desc {
       line-height: 150%;
       color: $textGrey;
       min-height: 50px;
     }
-
     .prod__buttons {
       position: absolute;
-      bottom: -8px;
-
+      bottom:-8px;
       &--select {
         padding: 10px 30px;
       }

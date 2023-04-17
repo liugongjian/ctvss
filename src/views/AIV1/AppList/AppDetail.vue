@@ -119,11 +119,11 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     this.tabNum = this.$route.query.tabNum
     this.appInfo = await getAppInfo({ id: this.$route.query.appid })
     this.initDirs()
-    const { data } = await listGroup({
+    const { groups } = await listGroup({
       pageNum: 0,
       pageSize: 3000
     })
-    this.initFaceLib(data)
+    this.initFaceLib(groups)
     const { deviceList } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageSize: 3000
@@ -135,9 +135,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private initFaceLib(groups) {
     const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
     if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(
-        (item) => item.id + '' === algorithmMetadata.FaceDbName
-      )[0]
+      this.faceLib = groups.filter(item => (item.id + '') === algorithmMetadata.FaceDbName)[0]
     }
   }
 
@@ -150,8 +148,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-   * 初始化设备列表
-   */
+     * 初始化设备列表
+     */
   public async initDirs() {
     try {
       this.loading.dir = true
@@ -160,9 +158,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        (group.inProtocol === 'gb28181' ||
-          group.inProtocol === 'ehome' ||
-          group.inProtocol === 'vgroup') &&
+        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
           this.dirList.push({
             id: group.groupId,
             groupId: group.groupId,
@@ -170,15 +166,14 @@ export default class extends Mixins(AppMixin, IndexMixin) {
             inProtocol: group.inProtocol,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             disabled: true,
-            path: [
-              {
-                id: group.groupId,
-                label: group.groupName,
-                type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-              }
-            ],
+            path: [{
+              id: group.groupId,
+              label: group.groupName,
+              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+            }],
             deviceStatus: group.deviceStatus
           })
+        )
       })
     } catch (e) {
       this.dirList = []
@@ -188,8 +183,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-   * 展开设备列表时Load子树
-   */
+     * 展开设备列表时Load子树
+     */
   public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
@@ -197,8 +192,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-   * 获取设备列表时Load子树数据
-   */
+     * 获取设备列表时Load子树数据
+     */
   private async getTree(node: any) {
     try {
       if (node.data.type === 'role') {
@@ -209,25 +204,16 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       }
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
-        id:
-          node.data.type === 'top-group' || node.data.type === 'vgroup'
-            ? 0
-            : node.data.id,
+        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
-        type:
-          node.data.type === 'top-group' || node.data.type === 'vgroup'
-            ? undefined
-            : node.data.type,
+        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
         'self-defined-headers': {
           'role-id': node.data.roleId,
           'real-group-id': node.data.realGroupId
         }
       })
       if (node.data.type === 'role') {
-        devices.dirs = devices.dirs.filter(
-          (dir: any) =>
-            dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome'
-        )
+        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
       }
       const dirs: any = devices.dirs.map((dir: any) => {
         const sharedFlag = false
@@ -254,11 +240,10 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   /**
-   * 获取设备列表时Load子树数据
-   */
+     * 获取设备列表时Load子树数据
+     */
   private selectDevice(data: any) {
-    data.isLeaf &&
-      (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
+    data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(data.id)
   }
@@ -271,12 +256,12 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   private back() {
-    this.$router.push({ path: '/aiv1/ai-app-list' })
+    this.$router.push({ name: 'AIAppList' })
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .el-tab-pane {
   display: flex;
 }
