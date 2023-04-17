@@ -11,7 +11,7 @@
       </div>
       <div v-loading="loading.platform" class="platform__list">
         <ul>
-          <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
+          <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{ 'actived': currentPlatform && (currentPlatform.platformId === platform.platformId) }" @click="selectPlatform(platform)">
             <span><status-badge :status="platform.status" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
@@ -54,7 +54,7 @@
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
           </div>
         </div>
-        <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}" :style="{height: `${maxHeight}px`}">
+        <div class="device-list" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }" :style="{ height: `${maxHeight}px` }">
           <el-button class="device-list__expand" @click="toggledirList">
             <svg-icon name="hamburger" />
           </el-button>
@@ -84,9 +84,9 @@
                   @node-click="nodeClick"
                 >
                   <span
-                    slot-scope="{node, data}"
+                    slot-scope="{ node, data }"
                     class="custom-tree-node"
-                    :class="{'online': data.deviceStatus === 'on'}"
+                    :class="{ 'online': data.deviceStatus === 'on' }"
                   >
                     <span class="node-name">
                       <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -127,12 +127,12 @@
                 :height="tableMaxHeight"
                 fit
                 row-key="deviceId"
-                :tree-props="{children: 'channels', hasChildren: 'hasChildren'}"
+                :tree-props="{ children: 'channels', hasChildren: 'hasChildren' }"
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
                 <el-table-column prop="deviceName" label="设备ID/名称" min-width="160">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <div class="device-list__device-name">
                       <div class="device-list__device-id">{{ row.deviceId }}</div>
                       <!-- <div>{{ row.channelName || row.deviceName }}</div> -->
@@ -141,29 +141,29 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="deviceStatus" label="设备状态">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <status-badge :status="row.deviceStatus" />
                     {{ deviceStatus[row.deviceStatus] || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="streamStatus" label="流状态">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <status-badge :status="row.streamStatus" />
                     {{ streamStatus[row.streamStatus] || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="gbId" label="国标ID">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="upGbId" label="上级平台国标ID">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     {{ row.upGbId || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="action" label="操作" width="80" fixed="right">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
                   </template>
                 </el-table-column>
@@ -183,7 +183,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="empty-text" :style="{height: `${maxHeight + 55}px`}">
+      <div v-else class="empty-text" :style="{ height: `${maxHeight + 55}px` }">
         请选择或创建一个向上级联平台
       </div>
     </el-card>
@@ -220,7 +220,7 @@ export default class extends Vue {
   private dataList: Array<any> = []
   private breadcrumb: Array<any> = []
   private selectedList: Array<any> = []
-  private hasDir: boolean = false
+  private hasDir = false
   private platformKeyword = ''
   private searchDeviceName = ''
   private currentPlatform: any = {}
@@ -328,7 +328,7 @@ export default class extends Vue {
   private goToPath(item: any) {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(item.id)
-    let currentNode = dirTree.getNode(item.id)
+    const currentNode = dirTree.getNode(item.id)
     this.defaultExpandedKeys = [item.id]
     this.getList(currentNode.data, false)
     this.currentNodeData = currentNode.data
@@ -441,7 +441,7 @@ export default class extends Vue {
     if (!this.currentPlatform.platformId) {
       return
     }
-    let params: any = {
+    const params: any = {
       platformId: this.currentPlatform.platformId,
       // inProtocol: node.inProtocol,
       // groupId: node.groupId,
@@ -638,7 +638,7 @@ export default class extends Vue {
   }
 
   private getNodePath(node: any) {
-    let curentNodePath: any = []
+    const curentNodePath: any = []
     this.findParentNode(node, curentNodePath)
     return curentNodePath
   }

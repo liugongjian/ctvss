@@ -22,7 +22,7 @@
           @check-change="onCheckDevice"
           @node-click="selectDevice"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+          <span slot-scope="{ node, data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -38,12 +38,12 @@
         <div class="device-wrap__header">已选资源({{ deviceList.length }})</div>
         <el-table ref="deviceTable" :data="deviceList" empty-text="暂无选择资源" fit>
           <el-table-column key="label" prop="label" width="120" label="设备名称">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.label || '-' }}
             </template>
           </el-table-column>
           <el-table-column key="path" prop="path" label="所在位置">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ renderPath(row.path) }}
             </template>
           </el-table-column>
@@ -158,7 +158,7 @@ export default class extends Vue {
       let shareDeviceIds: any = []
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
         console.log('plat------', this.platformId)
-        let params: any = {
+        const params: any = {
           platformId: this.platformId,
           inProtocol: node.data.inProtocol,
           groupId: node.data.realGroupId || node.data.groupId,
@@ -187,7 +187,7 @@ export default class extends Vue {
       //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
       // }
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      const checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -391,7 +391,7 @@ export default class extends Vue {
     this.closeDialog(true)
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

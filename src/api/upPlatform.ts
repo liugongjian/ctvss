@@ -132,7 +132,6 @@ export const describeShareDevicesV1 = (params: any): Promise<any> =>
  */
 export const shareDevice = (params: any): Promise<any> =>
   request({
-    // url: '/device/platform/shareDevice',
     url: '/platform/shareDevice',
     method: 'post',
     data: params
@@ -144,7 +143,6 @@ export const shareDevice = (params: any): Promise<any> =>
 export const shareDeviceV1 = (params: any): Promise<any> =>
   request({
     url: '/device/platform/shareDevice',
-    // url: '/platform/shareDevice',
     method: 'post',
     data: params
   })
@@ -154,7 +152,6 @@ export const shareDeviceV1 = (params: any): Promise<any> =>
  */
 export const cancleShareDevice = (params: any): Promise<any> =>
   request({
-    // url: '/device/platform/cancleShareDevice',
     url: '/shareDevice/cancel',
     method: 'post',
     data: params
@@ -166,7 +163,6 @@ export const cancleShareDevice = (params: any): Promise<any> =>
 export const cancleShareDeviceV1 = (params: any): Promise<any> =>
   request({
     url: '/device/platform/cancleShareDevice',
-    // url: '/shareDevice/cancel',
     method: 'post',
     data: params
   })
@@ -176,7 +172,6 @@ export const cancleShareDeviceV1 = (params: any): Promise<any> =>
  */
 export const cancleShareDir = (params: any): Promise<any> =>
   request({
-    // url: '/device/platform/cancleShareDir',
     url: '/shareDir/cancel',
     method: 'post',
     data: params
@@ -188,7 +183,6 @@ export const cancleShareDir = (params: any): Promise<any> =>
 export const cancleShareDirV1 = (params: any): Promise<any> =>
   request({
     url: '/device/platform/cancleShareDir',
-    // url: '/shareDir/cancel',
     method: 'post',
     data: params
   })
@@ -266,7 +260,6 @@ export const describeCascadeDirs = (params: any): Promise<any> =>
 
 export const validateShareDevices = (params: any): Promise<any> =>
   request({
-    // url: '/device/platform/validateShareDevices',
     url: '/shareDevice/validate',
     method: 'post',
     data: params
@@ -274,7 +267,6 @@ export const validateShareDevices = (params: any): Promise<any> =>
 
 export const validateShareDirs = (params: any): Promise<any> =>
   request({
-    // url: '/device/platform/validateShareDirs',
     url: '/shareDir/validate',
     method: 'post',
     data: params
@@ -283,7 +275,6 @@ export const validateShareDirs = (params: any): Promise<any> =>
 export const validateShareDevicesV1 = (params: any): Promise<any> =>
   request({
     url: '/device/platform/validateShareDevices',
-    // url: '/shareDevice/validate',
     method: 'post',
     data: params
   })
@@ -291,7 +282,6 @@ export const validateShareDevicesV1 = (params: any): Promise<any> =>
 export const validateShareDirsV1 = (params: any): Promise<any> =>
   request({
     url: '/device/platform/validateShareDirs',
-    // url: '/shareDir/validate',
     method: 'post',
     data: params
   })

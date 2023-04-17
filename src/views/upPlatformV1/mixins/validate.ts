@@ -10,12 +10,12 @@ export default class Validate extends Vue {
 
   public checkGbIdDuplicated(treeList) {
     this.errorNodesData = []
-    let res = []
+    const res = []
     treeList.forEach(item => {
       res.push(item)
       res.push(...this.flatTree(item))
     })
-    let duplicate = []
+    const duplicate = []
     res.forEach(x => {
       const duplicateArr = res.filter(y => x.upGbId === y.upGbId)
       if (duplicateArr.length > 1) {
@@ -44,12 +44,12 @@ export default class Validate extends Vue {
 
   public checkDirDigit(treeList) {
     this.errorNodesData = []
-    let res = []
+    const res = []
     treeList.forEach(item => {
       res.push(item)
       res.push(...this.flatTree(item))
     })
-    let errorDirNodeData = []
+    const errorDirNodeData = []
     res.forEach(x => {
       if (x.type === 'top-group' || x.type === 'dir') {
         // 目录校验
@@ -63,6 +63,25 @@ export default class Validate extends Vue {
         if (x.upGbId.length !== 20) {
           errorDirNodeData.push(x)
         }
+      }
+    })
+    this.errorNodesData = errorDirNodeData
+    return this.errorNodesData.length > 0
+  }
+
+  public checkNumberOnly(treeList) {
+    this.errorNodesData = []
+    const res = []
+    treeList.forEach(item => {
+      res.push(item)
+      res.push(...this.flatTree(item))
+    })
+    const errorDirNodeData = []
+    const regx = /^\+?[0-9][0-9]*$/
+    res.forEach(x => {
+      const isNumber = regx.test(x.upGbId)
+      if (!isNumber) {
+        errorDirNodeData.push(x)
       }
     })
     this.errorNodesData = errorDirNodeData

@@ -11,7 +11,12 @@
       </div>
       <div v-loading="loading.platform" class="platform__list">
         <ul>
-          <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{ 'actived': currentPlatform && (currentPlatform.platformId === platform.platformId) }" @click="selectPlatform(platform)">
+          <li
+            v-for="platform in filteredPlatformList"
+            :key="platform.platformId"
+            :class="{ 'actived': currentPlatform && (currentPlatform.platformId === platform.platformId) }"
+            @click="selectPlatform(platform)"
+          >
             <span><status-badge :status="platform.status" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
