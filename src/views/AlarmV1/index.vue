@@ -5,8 +5,8 @@
       <div
         v-show="$route.query.inProtocol === 'gb28181'"
         class="device-list"
-        :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}"
-        :style="{height: `${maxHeight}px`}"
+        :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }"
+        :style="{ height: `${maxHeight}px` }"
       >
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
@@ -24,7 +24,7 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
-              <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
+              <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -38,9 +38,9 @@
                 @node-click="alarmRouter"
               >
                 <span
-                  slot-scope="{node, data}"
+                  slot-scope="{ node, data }"
                   class="custom-tree-node"
-                  :class="{'online': data.deviceStatus === 'on'}"
+                  :class="{ 'online': data.deviceStatus === 'on' }"
                 >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -68,7 +68,7 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{ height: `${maxHeight}px` }">
             <router-view :group-id="currentGroupId" :max-height="maxHeight" />
           </div>
         </div>
@@ -82,7 +82,6 @@ import IndexMixin from '@/views/device/mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
-import { checkPermission } from '@/utils/permission'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
