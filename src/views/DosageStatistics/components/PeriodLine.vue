@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-12 17:23:06
+ * @LastEditTime: 2023-04-17 17:16:57
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -106,7 +106,7 @@ export default class extends Vue {
       endTime: this.todayEarly - 1000
     },
     seven: {
-      startTime: this.todayEarly - 7 * this.MILLISECONDS_PER_DAY,
+      startTime: this.todayEarly - 6 * this.MILLISECONDS_PER_DAY,
       endTime: new Date().getTime()
     },
     month: {
@@ -216,13 +216,13 @@ export default class extends Vue {
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
 
-      const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
+      // const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
 
       const totalData = totalSamples.map((item: any) => {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: `${title}总用量详情`,
+          type: '总用量',
           ...item
         }
       })
@@ -231,7 +231,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: `${title}按需用量详情`,
+          type: '按需用量',
           ...item
         }
       })
@@ -275,7 +275,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '存储总用量详情',
+          type: '总用量',
           ...item
         }
       })
@@ -284,7 +284,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '存储按需用量',
+          type: '按需用量',
           ...item
         }
       })
@@ -320,7 +320,7 @@ export default class extends Vue {
       // this.currentPeriod
       const demandData = Object.keys(aIDemandStatistic)?.map((item) => ({
         time: item,
-        type: '使用量',
+        type: '按需用量',
         value: aIDemandStatistic[item]
       }))
 
