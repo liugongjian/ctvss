@@ -56,14 +56,14 @@ export default class extends Vue {
       this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
       this.billingModeForm[BillingEnum.RecordNum] = info.billingMode === BillingModeEnum.OnDemand ? info.recordNum : '1'
       this.billingModeForm[BillingEnum.TemplateId] = info.templateId
-      this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
+      this.billingModeForm[BillingEnum.ResourceId] = info.billingMode === BillingModeEnum.Packages ? info.resourceId : ''
     }
   }
 
   public async validateConfigForm() {
     const config: any = this.$refs.configForm
-    await config.validateConfigForm()
-    return ''
+    const valid = await config.validateConfigForm()
+    return valid
   }
 }
 </script>
