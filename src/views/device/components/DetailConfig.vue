@@ -26,7 +26,7 @@
       <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions) && checkPermission(['ivs:GetApp'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -36,7 +36,7 @@
             {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
+            <el-table :data="hasGetAppPermission ? algoListData : []" :empty-text="emptyText">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
@@ -96,7 +96,7 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-if="deviceType === 'ipc'" v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="!disableRecordTemplate" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
         <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setRecordTemplate">配置</el-link>
@@ -182,6 +182,7 @@
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :device-id="deviceId"
+      :device-type="deviceType"
       :in-protocol="inProtocol"
       :template-id="recordTemplateId"
       @on-close="closeSetRecordTemplateDialog"
@@ -202,7 +203,13 @@
       @on-close="closeAlertTemplateDialog"
     />
 
-    <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="deviceInfo"
+      :algo-tab-type-default="algoTabTypeDefault"
+      :actions="actions"
+      @on-close="closeResourceDialog"
+    />
   </div>
 </template>
 
@@ -244,6 +251,18 @@ export default class extends Vue {
   private checkPermission = checkPermission
 
   private resourceAiType = ResourceAiType
+
+  private get emptyText() {
+    if (!checkPermission(['ivs:GetApp'], this.actions)) {
+      return '当前子账号无 查看AI应用 的权限，请联系主账号进行配置！'
+    } else {
+      return '当前设备暂未绑定AI应用'
+    }
+  }
+
+  private get hasGetAppPermission() {
+    return checkPermission(['ivs:GetApp'], this.actions)
+  }
 
   private loading = {
     recordTemplate: false,
@@ -287,9 +306,7 @@ export default class extends Vue {
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
-    if (this.deviceType === 'ipc') {
-      this.getRecordTemplate()
-    }
+    this.getRecordTemplate()
     this.getCallbackTemplate()
     this.getAlertTemplate()
     this.getAlgoList()
@@ -343,9 +360,19 @@ export default class extends Vue {
     return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
   }
 
-  // 隐藏资源包配置
+  /**
+   * 是否禁用资源包配置
+   */
   public get disableResourceTab() {
     return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
+  /**
+   * 是否禁用录制模板绑定
+   * Liuzhou用户TAG仅IPC显示录制绑定模板，其他用户支持所有设备类型绑定录制模板
+   */
+  private get disableRecordTemplate() {
+    return (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou') && (['ipc'].indexOf(this.deviceType) === -1)
   }
 
   /**

@@ -106,7 +106,8 @@ export default class extends Vue {
       this.ischecking = true
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
       this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
-      this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
+      this.screen && (this.unlockItem[0].deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName)
+      // this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
       this.periods = this.unlockItem.map((item: any) => {
         return {
           deviceId: item.deviceId,

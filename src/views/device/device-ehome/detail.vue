@@ -93,6 +93,12 @@
                   <el-descriptions-item label="设备MAC地址">
                     {{ info.macAddr || '-' }}
                   </el-descriptions-item>
+                  <el-descriptions-item label="版本">
+                    {{ info.ehomeVersion === '5.0' ? 'ISUP5.0' : 'EHOME2.0' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.ehomeVersion === '5.0'" label="凭证名称">
+                    {{ info.userName || '-' }}
+                  </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
                 <template v-if="info && isNVRChannel">
@@ -203,7 +209,13 @@
         </el-tab-pane> -->
       </el-tabs>
     </div>
-    <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="info"
+      :actions="actions"
+      :algo-tab-type-default="algoTabTypeDefault"
+      @on-close="closeResourceDialog"
+    />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" @on-close="closeDialog('moveDir')" />
   </div>

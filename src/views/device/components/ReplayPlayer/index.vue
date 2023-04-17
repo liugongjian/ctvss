@@ -125,13 +125,20 @@ export default class extends Vue {
     return this.screen && this.screen.recordType
   }
 
+  public get isRecordLockAvailable() {
+    return UserModule.tags && UserModule.tags.isRecordLockAvailable === 'Y'
+  }
+
   /* 是否具有锁定功能 */
   private get canLock() {
-    if (this.screen.inProtocol === 'gb28181') {
-      return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
-    } else {
-      return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+    if (this.isRecordLockAvailable) {
+      if (this.screen.inProtocol === 'gb28181') {
+        return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+      } else {
+        return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+      }
     }
+    return false
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
@@ -178,7 +185,7 @@ export default class extends Vue {
     this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
-    // 锁定跳转处理 
+    // 锁定跳转处理
     // 跳转到offsetTime
     if (this.recordManager.currentRecord && this.recordManager.currentRecord.offsetTime) {
       this.screen.player.seek(this.recordManager.currentRecord.offsetTime)

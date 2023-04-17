@@ -16,9 +16,18 @@
     >
       <el-form-item label="" prop="resources">
         <ResourceTabs
-          v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol"
-          :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" :device-id="device.deviceId" :form-info="form"
-          :algo-tab-type-default="algoTabTypeDefault" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" @changeAiDisabledStatus="changeAiDisabledStatus"
+          v-model="form.resources"
+          :is-update="isUpdate"
+          :in-protocol="device.inProtocol"
+          :is-private-in-network="isPrivateInNetwork"
+          :actions="actions"
+          :vss-ai-apps="form.vssAIApps"
+          :device-id="device.deviceId"
+          :form-info="form"
+          :algo-tab-type-default="algoTabTypeDefault"
+          @on-change="onResourceChange"
+          @changevssaiapps="changeVSSAIApps"
+          @changeAiDisabledStatus="changeAiDisabledStatus"
         />
       </el-form-item>
     </el-form>
@@ -45,6 +54,8 @@ export default class extends Mixins(createMixin) {
   @Prop()
   private device!: Device
   @Prop() private algoTabTypeDefault?: String
+  @Prop()
+  private actions: object
   private dialogVisible = true
   public form: any = {
     resources: [],

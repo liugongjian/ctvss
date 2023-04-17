@@ -245,7 +245,13 @@
       </el-tabs>
     </div>
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
-    <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="info"
+      :actions="actions"
+      :algo-tab-type-default="algoTabTypeDefault"
+      @on-close="closeResourceDialog"
+    />
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" @on-close="closeDialog('moveDir')" />
   </div>
 </template>

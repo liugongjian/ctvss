@@ -9,7 +9,7 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期"
       />
-      <!-- <span>事件级别:</span>
+      <span>事件级别:</span>
       <el-select v-model="search.errorLevel">
         <el-option
           v-for="(item, index) in errorLevelList"
@@ -17,7 +17,7 @@
           :label="item.label"
           :value="item.value"
         />
-      </el-select> -->
+      </el-select>
       <span>事件类型:</span>
       <el-select v-model="search.eventType">
         <el-option
@@ -32,17 +32,17 @@
         <el-button type="primary" @click="searchEvents">搜索</el-button>
       </div>
     </div>
-    <div v-if="isLiuzhou" class="filter-container">
+    <div class="filter-container">
       <el-button type="primary" @click="ignoreEvents()">全部忽略</el-button>
       <el-button :disabled="!selectedDeviceIds.length" @click="ignoreEvents(selectedDeviceIds)">批量忽略<span v-if="selectedDeviceIds.length">{{ '（已选中' + selectedDeviceIds.length + '条）' }}</span></el-button>
     </div>
     <el-table ref="table" v-loading="loading" :data="dataList" class="template__table" fit @select="handleSelectionChange" @select-all="handleSelectionChange">
-      <el-table-column v-if="isLiuzhou" type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
+      <el-table-column type="selection" :selectable="checkSelectable" prop="selection" class-name="col-selection" width="55" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
-      <!-- <el-table-column prop="errorLevel" label="事件级别" min-width="100" /> -->
+      <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
       <el-table-column prop="eventType" label="事件类型" min-width="100" />
       <el-table-column prop="errorMessage" label="异常提示" min-width="300" />
-      <el-table-column v-if="isLiuzhou" label="操作" prop="action" class-name="col-action" width="100" fixed="right">
+      <el-table-column label="操作" prop="action" class-name="col-action" width="100" fixed="right">
         <template slot-scope="{row}">
           <el-button type="text" :disabled="row.deleted !== '0'" @click="ignoreEvents(row.id)">{{ row.deleted === '0' ? '忽略' : '已忽略' }}</el-button>
         </template>

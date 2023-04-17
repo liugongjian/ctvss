@@ -437,7 +437,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     try {
       this.loading.groupInfo = true
       this.groupInfo = await queryGroup({
-        groupId: this.currentGroupId
+        groupId: this.realGroupId || this.currentGroupId
       })
     } catch (e) {
       console.error(e)

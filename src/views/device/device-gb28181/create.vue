@@ -256,7 +256,7 @@
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
               </div>
             </el-form-item>
-            <el-form-item v-if="isLiuzhou && form.parentDeviceId === '-1'" prop="enabledGB35114">
+            <el-form-item v-if="form.parentDeviceId === '-1'" prop="enabledGB35114">
               <template slot="label">
                 GB35114协议:
                 <el-popover
@@ -368,6 +368,7 @@
                 :is-update="isUpdate"
                 :in-protocol="form.inProtocol"
                 :is-private-in-network="isPrivateInNetwork"
+                :actions="actions"
                 :device-id="form.deviceId"
                 :form-info="form"
                 :vss-ai-apps="form.vssAIApps"
@@ -493,6 +494,7 @@
           <ResourceTabs
             v-model="form.resources"
             :is-update="isUpdate"
+            :actions="actions"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
             :device-id="deviceId"
@@ -558,9 +560,11 @@ import {
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import CreateGb28181Certificate from '@/views/Certificate/Gb28181/components/CreateDialog.vue'
-import CreateGa1400Certificate from '@/views/Certificate/Ga1400/components/CreateDialog.vue'
+import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 import { ViewLib2Device } from '../viewLibParamsTransform'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -685,6 +689,8 @@ export default class extends Mixins(createMixin) {
     this.getIfUseDeviceName()
   }
 
+  public actions = {}
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -692,6 +698,19 @@ export default class extends Mixins(createMixin) {
     } else {
       this.form.dirId = this.dirId
       this.form.deviceVendor = this.deviceVendorList[0]
+    }
+    // 获取权限数据-用于配置资源包，是否显示AI包
+    if (UserModule.iamUserId) {
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.currentGroupId,
+          dirPath: (this.isUpdate ? pathArr.slice(0, -1).join('/') : pathArr.join('/')) || '0',
+          deviceId: this.isUpdate ? this.deviceId : undefined
+        }]
+      })
+      this.actions = permissionRes.result[0].iamUser.actions
     }
     this.form.inProtocol = this.inProtocol
     this.getGbAccounts()

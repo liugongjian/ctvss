@@ -74,11 +74,12 @@
         <el-form-item label="版本:" prop="ehomeVersion">
           <el-radio-group v-model="form.ehomeVersion">
             <el-radio-button
-              v-for="item in ehomeVersionList"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
+              v-for="item in ehomeVersionMap"
+              :key="item.value"
+              :label="item.value"
+            >
+              {{ item.label }}
+            </el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
@@ -86,6 +87,23 @@
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
+        </el-form-item>
+        <el-form-item v-if="form.ehomeVersion === '5.0'" label="EHOME凭证:" prop="userName">
+          <el-select v-model="form.userName" :loading="loading.account">
+            <el-option
+              v-for="item in gbAccountList"
+              :key="item.userName"
+              :label="item.userName"
+              :value="item.userName"
+            />
+          </el-select>
+          <el-button
+            type="text"
+            class="ml10"
+            @click="openDialog('createEhomeCertificate')"
+          >
+            新建EHOME凭证
+          </el-button>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
@@ -254,6 +272,7 @@
             :is-update="isUpdate"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
+            :actions="actions"
             :device-id="form.deviceId"
             :form-info="form"
             :vss-ai-apps="form.vssAIApps"
@@ -303,6 +322,7 @@
             :is-update="isUpdate"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
+            :actions="actions"
             :device-id="deviceId"
             :form-info="form"
             :vss-ai-apps="form.vssAIApps"
@@ -317,6 +337,10 @@
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
+    <create-ehome-certificate
+      v-if="dialog.createEhomeCertificate"
+      @on-close="closeDialog('createEhomeCertificate', ...arguments)"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -326,15 +350,25 @@ import { InType, DeviceRtspType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
+import { getList as getEhomeList } from '@/api/certificate/ehome'
+import CreateEhomeCertificate from '@/views/certificate/ehome/components/CreateDialog.vue'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
-  name: 'CreateEhomeDevice'
+  name: 'CreateEhomeDevice',
+  components: {
+    CreateEhomeCertificate
+  }
 })
 export default class extends Mixins(createMixin) {
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
+    ],
+    userName: [
+      { required: true, message: '请选择EHOME版本', trigger: 'change' }
     ],
     channelName: [
       { required: true, message: '请输入通道名称', trigger: 'blur' },
@@ -373,6 +407,7 @@ export default class extends Mixins(createMixin) {
     inProtocol: '',
     deviceId: '',
     deviceName: '',
+    userName: '',
     deviceType: 'ipc',
     ehomeVersion: '2.0',
     createSubDevice: 1,
@@ -402,6 +437,11 @@ export default class extends Mixins(createMixin) {
     networkCode: ''
   }
 
+  private dialog = {
+    createEhomeCertificate: false
+  }
+
+  private gbAccountList = []
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
   private inTypeList = InType
@@ -412,7 +452,17 @@ export default class extends Mixins(createMixin) {
     }
   })
 
-  private ehomeVersionList = ['2.0']
+  private ehomeVersionMap = [
+    {
+      label: 'EHOME2.0',
+      value: '2.0'
+    },
+    {
+      label: 'ISUP5.0',
+      value: '5.0'
+    }
+  ]
+
   private multiStreamSizeList = [
     {
       label: '单码流',
@@ -447,6 +497,8 @@ export default class extends Mixins(createMixin) {
     this.getIfUseDeviceName()
   }
 
+  public actions = {}
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -454,7 +506,21 @@ export default class extends Mixins(createMixin) {
       this.form.dirId = this.dirId
       this.form.deviceVendor = this.deviceVendorList[0]
     }
+    // 获取权限数据-用于配置资源包，是否显示AI包
+    if (UserModule.iamUserId) {
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          groupId: this.currentGroupId,
+          dirPath: (this.isUpdate ? pathArr.slice(0, -1).join('/') : pathArr.join('/')) || '0',
+          deviceId: this.isUpdate ? this.deviceId : undefined
+        }]
+      })
+      this.actions = permissionRes.result[0].iamUser.actions
+    }
     this.form.inProtocol = this.inProtocol
+    this.getEhomeAccounts()
     this.onGroupChange()
   }
 
@@ -486,6 +552,7 @@ export default class extends Mixins(createMixin) {
             'dirId',
             'deviceId',
             'deviceName',
+            'userName',
             'deviceType',
             'ehomeVersion',
             'createSubDevice',
@@ -555,6 +622,43 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
+   * 打开弹出框
+   */
+  private openDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = true
+  }
+
+  /**
+   * 关闭弹出框
+   */
+  private closeDialog(type: string, payload: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    if (type === 'createEhomeCertificate' && payload === true) {
+      this.getEhomeAccounts()
+    }
+  }
+
+  /**
+   * 获取ehome账号
+   */
+  private async getEhomeAccounts() {
+    try {
+      this.loading.account = true
+      const res = await getEhomeList({
+        inProtocol: 'ehome',
+        pageSize: 1000
+      })
+      this.gbAccountList = res.gbCerts
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
+    }
+  }
+
+  /**
    * 获取是否使用设备名称
    */
   private getIfUseDeviceName() {
@@ -595,6 +699,10 @@ export default class extends Mixins(createMixin) {
         params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
         params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps', 'deviceLongitude', 'deviceLatitude']))
+      }
+      // 针对ehome5.0添加凭证
+      if (this.form.ehomeVersion === '5.0') {
+        params.userName = this.form.userName
       }
       if (!this.isChannel) {
         // 通用参数
