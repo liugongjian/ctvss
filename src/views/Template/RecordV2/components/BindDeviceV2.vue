@@ -73,8 +73,8 @@
         </el-tree>
       </div>
     </div>
-    <div v-if="currentTemplate.recordType === 2" class="bind-body-bottom">
-      <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
+    <div v-if="currentTemplate.recordType === 5" class="bind-body-bottom">
+      <el-checkbox v-model="quickStart">绑定手动录制模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="submit-footer">
       <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
@@ -517,8 +517,8 @@ export default class extends Vue {
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
     })
-    let msg = `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？`
-    if (bindedCheck) {
+    let msg = this.totalCheckedSize > 0 ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？` : `您暂未勾选任何设备`
+    if (this.checkedNodes.length > 0 && bindedCheck) {
       msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
     }
     this.$confirm(msg, '提示', {
@@ -526,7 +526,9 @@ export default class extends Vue {
       cancelButtonText: '取消',
       customClass: 'vss-warning'
     }).then(async() => {
-      await this.subSubmit()
+      if (this.checkedNodes.length > 0) {
+        await this.subSubmit()
+      }
     })
   }
 
