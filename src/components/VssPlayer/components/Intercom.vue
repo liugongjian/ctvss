@@ -93,7 +93,7 @@ export default class extends ComponentMixin {
   }) private volume: number
 
   private intercomInfo?: any = {}
-  private showDialog: boolean = false
+  private showDialog = false
   private streamAudio: any
   private ctxAudio: any
   private sourceAudio: any
@@ -158,9 +158,10 @@ export default class extends ComponentMixin {
       }
     } else {
       this.audioKey = this.randomKey()
+      const transPriority = this.deviceInfo.inProtocol === 'ehome' ? 'tcp' : 'UDP'
       const param = {
         deviceId: this.intercomInfo.deviceId,
-        transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
+        transPriority, // 先使用UDP，等流媒体侧兼容之后再使用参数
         inProtocol: this.intercomInfo.inProtocol,
         audioKey: this.audioKey
       }
@@ -173,7 +174,12 @@ export default class extends ComponentMixin {
         this.cannotStop = false
         const { streamServerAddr } = res
         const ifwss = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
+
+        const arr = this.intercomInfo.url?.split('/')
+        const streamName = arr ? arr[arr.length - 1].split('.')[0] : ''
+        const wsQuery = this.deviceInfo.inProtocol === 'ehome' ? streamName : this.intercomInfo.deviceId
+        const wsUrl = `${ifwss}://${streamServerAddr}/talk/${wsQuery}`
+
         try {
           this.ws = new WebSocket(wsUrl)
           this.ws.onopen = (e: any) => {
@@ -218,7 +224,8 @@ export default class extends ComponentMixin {
         this.last = nowTime
         const param = {
           deviceId: this.intercomInfo.deviceId,
-          audioKey: this.audioKey
+          audioKey: this.audioKey,
+          inProtocol: this.intercomInfo.inProtocol
         }
         this.stopRecord()
         stopTalk(param).then(() => {
@@ -323,7 +330,7 @@ export default class extends ComponentMixin {
 
     for (let i = 0; i < bytes.length; i++, offset += 2) {
       // 保证采样帧的值在-1到1之间
-      let s = Math.max(-1, Math.min(1, bytes[i]))
+      const s = Math.max(-1, Math.min(1, bytes[i]))
       // 将32位浮点映射为16位整形 值
       // 16位的划分的是 2^16=65536，范围是-32768到32767
       //  获取到的数据范围是[-1,1]之间，所以要转成16位的话，需要负数*32768，正数*32767，就可以得到[-32768，32767]范围内的数据
@@ -343,7 +350,7 @@ export default class extends ComponentMixin {
     // 循环间隔 compression 位取一位数据
     while (index < length) {
       // 取整是因为存在比例compression不是整数的情况
-      let temp = Math.floor(j)
+      const temp = Math.floor(j)
       result[index] = data[temp]
       index++
       j += compression
@@ -367,6 +374,8 @@ export default class extends ComponentMixin {
     video {
       width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用
+      height: 100%;
+      object-fit: fill;
     }
 
     .controls {
@@ -407,7 +416,7 @@ export default class extends ComponentMixin {
 
 .intercom-player {
   width: 70%;
-  height: 70%;
+  // height: 70%;
   background-color: #000;
 }
 
