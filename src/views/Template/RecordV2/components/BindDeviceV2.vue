@@ -195,7 +195,6 @@ export default class extends Vue {
           this.bindTree.updateKeyChildren('-1', res.dirs)
           rootNode.loaded = true
           rootNode.expanded = true
-
           const previewRootNode = this.previewTree.getNode('-1')
           previewRootNode.loaded = true
           previewRootNode.expanded = true
@@ -206,6 +205,9 @@ export default class extends Vue {
             total += group.totalSize
             bindSize += group.bindSize
           })
+          if (bindSize < res.bindSize) {
+            bindSize = res.bindSize
+          }
           this.totalCheckedSize = bindSize
           this.$set(rootNode.data, 'bindSize', bindSize)
           this.$set(rootNode.data, 'totalSize', total)
@@ -269,7 +271,6 @@ export default class extends Vue {
    * 绑定树勾选变化时触发的回调
    */
   private async onBindTreeCheck(data?: any) {
-
     this.submitable = false
     const node = this.bindTree.getNode(data.id)
     if (data.id === '-1') {
@@ -521,15 +522,21 @@ export default class extends Vue {
     if (this.checkedNodes.length > 0 && bindedCheck) {
       msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
     }
-    this.$confirm(msg, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      customClass: 'vss-warning'
-    }).then(async() => {
-      if (this.checkedNodes.length > 0) {
+    if (this.totalCheckedSize > 0) {
+      this.$confirm(msg, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        customClass: 'vss-warning'
+      }).then(async() => {
         await this.subSubmit()
-      }
-    })
+      })
+    } else {
+      this.$confirm(msg, '提示', {
+        confirmButtonText: '确定',
+        showCancelButton: false,
+        customClass: 'vss-warning'
+      })
+    }
   }
 
   private async subSubmit() {
