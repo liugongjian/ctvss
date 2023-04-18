@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-13 16:20:45
+ * @LastEditTime: 2023-04-18 15:05:04
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -29,6 +29,15 @@
             视频存储使用量
           </div>
         </div>
+        <div
+          v-if="storageFlag"
+          class="dashboard-wrap-overview__item_content_detail"
+        >
+          <div id="pieChartView"></div>
+          <div class="dashboard-wrap-overview__item_content_detail_pie">
+            视图
+          </div>
+        </div>
 
         <div class="dashboard-wrap-overview__item_content_detail">
           <el-row :gutter="10">
@@ -43,9 +52,7 @@
                 上行流量峰值
                 <div>
                   {{ splitBandWidth(bandWidthData.upstreamBandwidth)[0]
-                  }}{{
-                    splitBandWidth(bandWidthData.upstreamBandwidth)[1]
-                  }}
+                  }}{{ splitBandWidth(bandWidthData.upstreamBandwidth)[1] }}
                 </div>
               </div>
             </el-col>
@@ -62,9 +69,7 @@
                 下行流量峰值
                 <div>
                   {{ splitBandWidth(bandWidthData.downstreamBandwidth)[0]
-                  }}{{
-                    splitBandWidth(bandWidthData.downstreamBandwidth)[1]
-                  }}
+                  }}{{ splitBandWidth(bandWidthData.downstreamBandwidth)[1] }}
                 </div>
               </div>
             </el-col>
@@ -102,6 +107,10 @@ export default class extends Mixins(DashboardMixin) {
 
   private pieDataStorage: any = []
 
+  private chartView: any = null
+
+  private pieDataView: any = []
+
   private bandWidthData: any = {
     downstreamBandwidth: 0,
     realDownstreamBandwidth: 0,
@@ -127,26 +136,25 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
+    this.chartHandle()
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
-    // this.chartHandle()
   }
 
   private getData() {
     this.getDevice()
-    this.chartHandle()
-  }
-
-  private chartHandle() {
-    const init = document.createEvent('Event')
-    init.initEvent('resize', true, true)
-    window.dispatchEvent(init)
     this.$nextTick(() => {
       this.getBandwidth()
       if (this.storageFlag) {
         this.getStorage()
       }
     })
+  }
+
+  private chartHandle() {
+    const init = document.createEvent('Event')
+    init.initEvent('resize', true, true)
+    window.dispatchEvent(init)
   }
 
   private splitBandWidth(bandwidth) {
@@ -226,13 +234,21 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
 
+      this.pieDataView = this.pieDataStorage
+
       this.chartStorage
         ? this.chartStorage.changeData(this.pieDataStorage)
-        : this.drawPieStorage()
+        : this.drawPieStorage('pieChartStorage', this.chartStorage, this.pieDataStorage)
+
+      this.chartView 
+       ? this.chartStorage.changeData(this.pieDataView)
+        : this.drawPieStorage('pieChartView', this.chartView, this.pieDataView)
+
     } catch (error) {
       this.$message.error(error && error.message)
     }
   }
+
 
   private drawPieToday() {
     this.chartToday = new Chart({
@@ -322,17 +338,17 @@ export default class extends Mixins(DashboardMixin) {
     this.chartToday.render()
   }
 
-  private drawPieStorage() {
-    this.chartStorage = new Chart({
-      container: 'pieChartStorage',
+  private drawPieStorage(container, chartDom, data) {
+    chartDom = new Chart({
+      container,
       autoFit: true,
       width: 800,
       height: 260
     })
 
-    this.chartStorage.data(this.pieDataStorage)
+    chartDom.data(data)
 
-    this.chartStorage.scale('percent', {
+    chartDom.scale('percent', {
       formatter: (val) => {
         // val = (val * 100).toFixed(2) + '%'
         val = val * 100 + '%'
@@ -340,19 +356,19 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    this.chartStorage.coordinate('theta', {
+    chartDom.coordinate('theta', {
       radius: 0.5,
       innerRadius: 0.6
     })
 
-    this.chartStorage.tooltip({
+    chartDom.tooltip({
       showTitle: false,
       showMarkers: false,
       itemTpl:
         '<li class="g2-tooltip-list-item"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
     })
 
-    this.chartStorage
+    chartDom
       .interval()
       .adjust('stack')
       .position('percent')
@@ -403,11 +419,11 @@ export default class extends Mixins(DashboardMixin) {
         }
       })
 
-    this.chartStorage.legend(false)
+    chartDom.legend(false)
 
-    this.chartStorage.interaction('element-single-selected')
+    chartDom.interaction('element-single-selected')
 
-    this.chartStorage.render()
+    chartDom.render()
   }
 }
 </script>
