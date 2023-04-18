@@ -20,6 +20,8 @@ export class Record {
   public offsetTime?: number
   /* AI 标记 */
   public isHeatmap?: boolean
+  /* 过期时间 */
+  public expireTime?: string
 
   constructor(record: Record) {
     this.startTime = record.startTime
@@ -30,5 +32,6 @@ export class Record {
     this.templateName = record.templateName
     this.cover = record.cover
     this.isHeatmap = record.isHeatmap
+    this.expireTime = record.expireTime
   }
 }

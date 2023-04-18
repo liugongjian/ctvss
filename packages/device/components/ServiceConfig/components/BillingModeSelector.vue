@@ -114,6 +114,7 @@ import { ResourceAiType, BillingModeType, RecordStreamType, RecordStreamsType } 
 import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
 import { DeviceTypeEnum } from '@vss/device/enums/index'
 import { getStorageTemplate, getRecordTemplates } from '@vss/device/api/template'
+import { el } from 'date-fns/locale'
 @Component({
   name: 'BillingModeSelector'
 })
@@ -312,8 +313,17 @@ export default class extends Vue {
   public validateConfigForm() {
     const configForm: any = this.$refs.configForm
     return new Promise((resolve) => {
-      configForm.validate((valid) => {
-        resolve(valid)
+      configForm.validate((valid, obj) => {
+        if (!valid) {
+          let message = ''
+          for (const item in obj) {
+            message = obj[item][0]['message']
+            if (message) break
+          }
+          resolve(new Error(message))
+        } else {
+          resolve('')
+        }
       })
     })
   }
