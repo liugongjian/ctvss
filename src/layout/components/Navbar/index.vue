@@ -94,7 +94,7 @@
           </div>
         </div> -->
         <div :class="['links', casLogin ? 'ct-login' : '']">
-          <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
+          <a target="_blank" href="https://vaas.ctyun.cn/document/api/">API文档</a>
           <span v-if="!casLogin" class="links__split"> | </span>
         </div>
       </template>

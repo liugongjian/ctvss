@@ -156,7 +156,7 @@ export default class extends Vue {
    * 大连烟草‘巡检考核’跳转
    */
   private gotoInspection() {
-    window.open('https://server.deepmatrix.cn/mobile/app/887c173d-652f-49b6-b8f6-7d5edfaa595d', '_blank')
+    window.open('http://www.dltobacco.info', '_blank')
   }
 }
 </script>
