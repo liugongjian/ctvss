@@ -27,7 +27,7 @@
         prop="missSeconds"
         label="缺失时长"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <span>{{ row.missSeconds }}秒</span>
           <span>({{ durationFormat(row.missSeconds) }})</span>
         </template>
