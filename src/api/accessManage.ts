@@ -86,7 +86,7 @@ export const getGroupList = (params: any): Promise<any> =>
 
 export const getGUserList = (params: any): Promise<any> =>
   request({
-    url: '/iam/guser/list',
+    url: '/iam/group/children',
     method: 'get',
     params
   })
