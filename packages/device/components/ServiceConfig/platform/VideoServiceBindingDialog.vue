@@ -101,7 +101,7 @@ export default class extends Vue {
    */
   private async submit() {
     const configForm: any = this.$refs.configForm
-    const configFormValid = await configForm.validateConfigForm()
+    const configFormValid = await configForm.validateConfigForm() === ''
     const bindingForm: any = this.$refs.bindingForm
     bindingForm.validate((valid) => {
       if (valid && configFormValid) {

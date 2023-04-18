@@ -260,7 +260,7 @@ export default class extends Vue {
   private async submit() {
     const bindingForm: any = this.$refs.bindingForm
     const configForm: any = this.$refs.configForm
-    const configFormValid = await configForm.validateConfigForm()
+    const configFormValid = await configForm.validateConfigForm() === ''
     bindingForm.validate((valid) => {
       if (valid && configFormValid) {
         this.closeDialog(this.selectedApps.map(app => {
