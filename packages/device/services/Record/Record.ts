@@ -22,6 +22,8 @@ export class Record {
   public isHeatmap?: boolean
   /* 文件格式 */
   public fileFormat?: string
+  /* 过期时间 */
+  public expireTime?: string
 
   constructor(record: Record) {
     this.startTime = record.startTime
@@ -33,5 +35,6 @@ export class Record {
     this.cover = record.cover
     this.isHeatmap = record.isHeatmap
     this.fileFormat = record.fileFormat
+    this.expireTime = record.expireTime
   }
 }

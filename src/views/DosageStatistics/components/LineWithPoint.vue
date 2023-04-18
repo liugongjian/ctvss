@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-13 10:03:05
+ * @LastEditTime: 2023-04-18 10:04:35
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import { formatStorage, formatBandWidth } from '@/utils/number'
 
 @Component({
   name: 'LineChart',
@@ -41,7 +40,7 @@ export default class extends Vue {
     bandwidth: {
       upload_bandwidth: {
         total: '总用量',
-        demand: '按需用量',
+        demand: '按需用量'
       },
       download_bandwidth: {
         total: '总用量',
@@ -90,10 +89,6 @@ export default class extends Vue {
     })
   }
 
-  // mounted() {
-  //   this.drawLine()
-  // }
-
   private formatterData() {
     const { chartKind } = this.lineData
     if (chartKind === 'device') {
@@ -118,6 +113,8 @@ export default class extends Vue {
   }
 
   private drawLine() {
+    const { chartKind } = this.lineData
+    const { currentPeriod } = this.drawData
     // 使chart图表重新渲染，changeData不更新legend
     this.currentChart && this.currentChart.destroy()
 
@@ -126,49 +123,67 @@ export default class extends Vue {
       autoFit: true,
       width: 760,
       height: 500,
-      padding: [30, 50, 50, 50]
+      padding: [30, 50, 50, 80]
     })
 
     this.chart.data(this.drawData.data)
+
+    const values = this.drawData.data.map((item) => item.value)
+
+    const getMax = () => {
+      if (chartKind === 'storage') {
+        return (Math.max(...values) / 1024 / 1024).toFixed(3)
+      }
+      return Math.max(...values)
+    }
+
+    const tickInterval = getMax() > 5 ? '' : 1
+
+    const type = chartKind === 'device' ? { type: 'linear' } : {}
+
+    const mask = (currentPeriod === 'today' || currentPeriod === 'yesterday') ? 'HH:mm' : 'YYYY-MM-dd'
+
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
         range: [0, 0.95],
-        formatter: (val) => {
-          if (
-            this.drawData.currentPeriod === 'today' ||
-            this.drawData.currentPeriod === 'yesterday'
-          ) {
-            const hour = new Date(val).getHours()
-            const minute = new Date(val)
-              .getMinutes()
-              .toString()
-              .padStart(2, '0')
-            return `${hour}:${minute}`
-          } else {
-            const year = new Date(val).getFullYear()
-            const month = (new Date(val).getMonth() + 1)
-              .toString()
-              .padStart(2, '0')
-            const day = new Date(val).getDate().toString().padStart(2, '0')
-            return `${year}-${month}-${day}`
-          }
-        }
+        type: 'timeCat',
+        nice: true,
+        mask,
+        // formatter: (val) => {
+        //   if (
+        //     this.drawData.currentPeriod === 'today' ||
+        //     this.drawData.currentPeriod === 'yesterday'
+        //   ) {
+        //     const hour = new Date(val).getHours()
+        //     const minute = new Date(val)
+        //       .getMinutes()
+        //       .toString()
+        //       .padStart(2, '0')
+        //     return `${hour}:${minute}`
+        //   } else {
+        //     const year = new Date(val).getFullYear()
+        //     const month = (new Date(val).getMonth() + 1)
+        //       .toString()
+        //       .padStart(2, '0')
+        //     const day = new Date(val).getDate().toString().padStart(2, '0')
+        //     return `${year}-${month}-${day}`
+        //   }
+        // }
       },
       value: {
-        type: 'linear',
         range: [0, 0.95],
         min: 0,
+        ...type,
         nice: true,
-        formatter: (val)=>{
-          const { chartKind } = this.lineData
-          if (chartKind === 'bandwidth'){
-            return formatBandWidth(val).replace(/[a-zA-Z]+/g, '')
-          } else if (chartKind === 'storage'){
-            return formatStorage(val).replace(/[a-zA-Z]+/g, '')
+        tickInterval,
+        formatter: (val) => {
+          if (chartKind === 'bandwidth') {
+            return val.toFixed(3)
+          } else if (chartKind === 'storage') {
+            return (val / 1024 / 1024).toFixed(3)
           }
           return val
-          // replace(/[a-zA-Z]+/g,"");
         }
       }
     })
@@ -178,9 +193,15 @@ export default class extends Vue {
       label: {
         autoRotate: true,
         offset: 14,
-        formatter: (text: string) => {
-          return `${text.split(':')[0]}:00`
-        }
+        // formatter: (text: string) => {
+        //   if (
+        //     this.drawData.currentPeriod === 'today' ||
+        //     this.drawData.currentPeriod === 'yesterday'
+        //   ) {
+        //     return `${text.split(':')[0]}:00`
+        //   }
+        //   return text
+        // }
       },
       grid: null
     })
@@ -189,11 +210,10 @@ export default class extends Vue {
       label: {
         autoRotate: true,
         offset: 20,
-        // rotate: 20
-        formatter: (text: string)=>{
-          return parseInt(text, 10)
+        formatter: (val) => {
+          return Math.trunc(Number(val))
         }
-      },
+      }
     })
 
     // 绘制tooltip
