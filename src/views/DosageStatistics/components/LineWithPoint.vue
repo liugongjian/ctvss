@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-17 20:51:19
+ * @LastEditTime: 2023-04-18 09:32:14
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,8 +13,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-// import { formatStorage, formatBandWidth } from '@/utils/number'
-import _ from 'lodash'
 
 @Component({
   name: 'LineChart',
@@ -128,11 +126,24 @@ export default class extends Vue {
     })
 
     this.chart.data(this.drawData.data)
+
+    const values = this.drawData.data.map((item) => item.value)
+
+    const getMax = () => {
+      if (chartKind === 'storage') {
+        return (Math.max(...values) / 1024 / 1024).toFixed(3)
+      }
+      return Math.max(...values)
+    }
+
+    const tickInterval = getMax() > 5 ? '' : 1
+
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
         range: [0, 0.95],
-        tickCount: 10,
+        tickCount: 6,
+        type: 'timeCat',
         nice: true,
         formatter: (val) => {
           if (
@@ -159,6 +170,7 @@ export default class extends Vue {
         range: [0, 0.95],
         min: 0,
         nice: true,
+        tickInterval,
         formatter: (val) => {
           if (chartKind === 'bandwidth') {
             return val.toFixed(3)
