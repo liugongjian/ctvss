@@ -15,17 +15,17 @@
     >
       <el-table-column prop="templateName" label="模板名称" />
       <el-table-column prop="alarmPriority" label="报警级别">
-        <template slot-scope="{ row }">
+        <template slot-scope="{row}">
           {{ getLabel('alarmPriority', row.alarmPriority) }}
         </template>
       </el-table-column>
       <el-table-column prop="alarmMethod" label="报警方式">
-        <template slot-scope="{ row }">
+        <template slot-scope="{row}">
           {{ getLabel('alarmMethod', row.alarmMethod) }}
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template slot-scope="{ row }">
+        <template slot-scope="{row}">
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="!!bindTemplateId" @click="bind(row)">绑定</el-button>
           <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
         </template>
@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getAlertTemplates, bindAlertTemplates, unbindAlertTemplates } from '@vss/device/api/template'
+import { getAlertTemplates, bindAlertTemplates, unbindAlertTemplates } from '@/api/template'
 
 @Component({
   name: 'SetAlertTemplate',
@@ -135,7 +135,7 @@ export default class extends Vue {
           break
       }
       let res: any = arr.map((str: any) => {
-        const obj = this[`${type}Options`].find((item: any) => item.value === str)
+        let obj = this[`${type}Options`].find((item: any) => item.value === str)
         if (obj) {
           return obj.label
         } else {
@@ -155,7 +155,7 @@ export default class extends Vue {
   }
 
   private async bind(row: any) {
-    const params = {
+    let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
       templateId: row.templateId,
@@ -177,7 +177,7 @@ export default class extends Vue {
   }
 
   private async unbind(row: any) {
-    const params = {
+    let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
       templateId: row.templateId,

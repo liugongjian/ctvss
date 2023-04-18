@@ -1,17 +1,17 @@
 <template>
   <div>
-    <el-card>
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+    <el-card v-if="!disableRecordTemplate">
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
       <info-list title="录制模板">
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
-          <el-table-column prop="recordType" label="是否启用自动录制">
-            <template slot-scope="{ row }">
+          <el-table-column prop="recordType" label="是否启用全天录制">
+            <template slot-scope="{row}">
               {{ row.recordType === 1 ? '是':'否' }}
             </template>
           </el-table-column>
           <el-table-column prop="storeType" label="录制格式">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               {{ row.flvParam.enable ? 'flv': '' }}
               {{ row.hlsParam.enable ? 'hls': '' }}
               {{ row.mpParam.enable ? 'mp4': '' }}
@@ -21,12 +21,12 @@
       </info-list>
     </el-card>
     <el-card style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
       <info-list title="回调模板">
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定回调模板">
           <el-table-column prop="templateName" label="模板名称" min-width="50" />
           <el-table-column label="回调URL">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               <div v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</div>
               <div v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</div>
               <div v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</div>
@@ -38,7 +38,7 @@
       </info-list>
     </el-card>
     <!-- <el-card style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setAITemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setAITemplate">编辑</el-button>
       <info-list title="AI模板">
         <el-table v-loading="loading.ai" :data="template.aiTemplate" empty-text="该设备或组没有绑定AI模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
@@ -52,13 +52,13 @@
       </info-list>
     </el-card> -->
     <el-card v-if="inProtocol === 'gb28181'" style="margin-top: 20px;">
-      <el-button v-permission="['*']" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
+      <el-button v-if="checkPermission(['ivs:UpdateGroup'], actions)" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
       <info-list title="告警模板">
         <el-table v-loading="loading.alert" :data="template.alertTemplate" empty-text="该设备或组没有绑定告警模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
           <el-table-column prop="description" label="模板概要" />
           <el-table-column prop="enableType" label="启动方式">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               {{ row.enableType === 1 ? '自动开启' : '手动开启' }}
             </template>
           </el-table-column>
@@ -81,6 +81,14 @@
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />
+    <!-- <SetAITemplate
+      v-if="setAITemplateDialog"
+      :in-protocol="inProtocol"
+      :group-id="groupId"
+      :device-id="deviceId"
+      :template-id="aiTemplateId"
+      @on-close="closeSetAITemplateDialog"
+    /> -->
     <SetAlertTemplate
       v-if="setAlertTemplateDialog"
       :in-protocol="inProtocol"
@@ -94,17 +102,21 @@
 <script lang="ts">
 import SetRecordTemplate from './dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from './dialogs/SetCallBackTemplate.vue'
+import SetAITemplate from './dialogs/SetAITemplate.vue'
 import SetAlertTemplate from './dialogs/SetAlertTemplate.vue'
 import { RecordTemplate } from '@/type/Template'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
-import { getAlertBind } from '@vss/device/api/template'
+import { getAIBind, getAlertBind } from '@/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { checkPermission } from '@/utils/permission'
+
 @Component({
   name: 'TemplateBind',
   components: {
     SetRecordTemplate,
     SetCallBackTemplate,
+    SetAITemplate,
     SetAlertTemplate
   },
   filters: {
@@ -119,8 +131,14 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private deviceId?: String
-  @Prop() private inProtocol?: String
+  @Prop() private actions: object
+  @Prop() private deviceId?: string
+  @Prop() private inProtocol?: string
+  @Prop({
+    default: false
+  })
+  private disableRecordTemplate?: boolean
+  public checkPermission = checkPermission
   private loading = {
     record: false,
     callback: false,
@@ -140,9 +158,13 @@ export default class extends Vue {
   private recordTemplateId = ''
   private callbackTemplateId = ''
   private aiTemplateId = ''
+
   private async mounted() {
     this.getStreamTemplate()
-    this.getRecordTemplate()
+    if (!this.disableRecordTemplate) {
+      this.getRecordTemplate()
+    }
+    // this.getAITemplate()
     this.inProtocol === 'gb28181' && this.getAlertTemplate()
   }
 
@@ -152,6 +174,15 @@ export default class extends Vue {
       this.recordTemplateId = ''
     } else {
       this.recordTemplateId = this.template.recordTemplate[0].templateId!
+    }
+  }
+
+  private setAITemplate() {
+    this.setAITemplateDialog = true
+    if (!this.template.aiTemplate.length) {
+      this.aiTemplateId = ''
+    } else {
+      this.aiTemplateId = this.template.aiTemplate[0].templateId!
     }
   }
 
@@ -175,9 +206,34 @@ export default class extends Vue {
     }
   }
 
+  private async getAITemplate() {
+    try {
+      this.loading.ai = true
+      this.template.aiTemplate = []
+      if (this.groupId) {
+        const res = await getAIBind({ groupId: this.groupId })
+        this.template.aiTemplate.push(res)
+      } else {
+        const res = await getAIBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
+        this.template.aiTemplate.push(res)
+      }
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.ai = false
+    }
+  }
+
   private async closeSetRecordTemplateDialog() {
     this.setRecordTemplateDialog = false
     this.getRecordTemplate()
+  }
+
+  private async closeSetAITemplateDialog() {
+    this.setAITemplateDialog = false
+    this.getAITemplate()
   }
 
   private setCallbackTemplate() {
