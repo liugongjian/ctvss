@@ -396,7 +396,8 @@ export class RecordManager {
         url: record.playUrl.hlsUrl,
         codec: record.video.codec,
         templateName: record.templateName,
-        cover: record.cover
+        cover: record.cover,
+        expireTime: record.expireTime
       })
     })
   }
