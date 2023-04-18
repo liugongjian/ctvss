@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <link rel="icon" href="./favicon.ico">
-    <title>天翼云视频监控控制台</title>
+    <title>天翼云智能视图服务控制台</title>
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
     <link rel="stylesheet" type="text/css" href="/iam/layout/alogic-layout.css">
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
@@ -44,6 +44,20 @@
             font-size: 14px;
             margin-bottom: 15px;
         }
+        .open{
+          color: rgb(255, 255, 255);
+          padding: 10px 20px;
+          font-size: 14px;
+          background-color: rgb(250, 131, 52);
+          border-color: rgb(250, 131, 52);
+          border-radius: 4px;
+          text-align: center;
+          font-weight: 400;
+          line-height: 1;
+        }
+        .open, .open:focus{
+          border-style:none;
+        }
     </style>
 </head>
 
@@ -51,14 +65,15 @@
     <div id="iam-console-container">
         <div class="error-page">
             <div class="error-code">对不起，您的服务尚未开通</div>
-            <div class="error-desc">您尚未开通<span id="productType"></span>产品，请联系云公司业务受理岗开通！</div>
-            <div class="error-desc">当前登陆邮箱<span id="email"></span></div>
+            <!-- <div class="error-desc">您尚未开通<span id="productType"></span>产品，请联系云公司业务受理岗开通！</div>
+            <div class="error-desc">当前登陆邮箱<span id="email"></span></div> -->
+            <button class="open" onClick="toConsole()">立即开通</button>
         </div>
     </div>
     <script type="text/javascript" src="/iam/layout/alogic-layout.js"></script>
     <script type="text/javascript">
         var productType = {
-            vss: '视频监控',
+            vss: '智能视图服务',
             rtc: 'WebRTC'
         }
         var href = window.location.href;
@@ -134,6 +149,9 @@
         AlogicLayout.consoleContainer.match({
             domain: 'vss'
         })
+        function toConsole () {
+            window.open('https://www.ctyun.cn/h5/bac/product/ops?custId=0&siteId=ctyun&productId=10011360&operationId=1000059401')
+          }
     </script>
 </body>
 
