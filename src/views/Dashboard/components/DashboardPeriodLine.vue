@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-13 16:22:54
+ * @LastEditTime: 2023-04-17 19:45:02
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -169,7 +169,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '按需计费设备数',
+          type: '按需设备数',
           ...item
         }
       })
@@ -206,13 +206,13 @@ export default class extends Vue {
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
 
-      const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
+      // const title = this.selection.endsWith('bandwidth') ? '带宽' : '流量'
 
       const totalData = totalSamples.map((item: any) => {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: `${title}总用量详情`,
+          type: '总用量',
           ...item
         }
       })
@@ -221,7 +221,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: `${title}按需用量详情`,
+          type: '按需用量',
           ...item
         }
       })
@@ -252,7 +252,7 @@ export default class extends Vue {
       }
 
       const res = await getStorageHistoryStatistics(param)
-      console.log('res---->', res)
+      
       const { storageSamples } = res
 
       const [demand, total] = storageSamples
@@ -264,7 +264,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '存储用量详情',
+          type: '总用量',
           ...item
         }
       })
@@ -273,7 +273,7 @@ export default class extends Vue {
         const time = new Date(item.timestamp * 1000)
         return {
           time,
-          type: '今日存储用量',
+          type: '按需用量',
           ...item
         }
       })
@@ -309,7 +309,7 @@ export default class extends Vue {
 
       const demandData = Object.keys(aIDemandStatistic)?.map((item) => ({
         time: item,
-        type: '使用量',
+        type: '按需用量',
         value: aIDemandStatistic[item]
       }))
 
