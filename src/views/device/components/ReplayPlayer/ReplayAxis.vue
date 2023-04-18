@@ -1,11 +1,11 @@
 <template>
-  <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
+  <div ref="axisWrap" class="axis__wrap" :class="{ 'axis__wrap--disabled': disabled }">
     <div class="axis__middle" />
     <div class="axis__border" />
     <div v-if="!hasAxis">
       <div v-if="!editTime" class="axis__time" @click="enableEditTime">
         <el-tooltip placement="right" content="编辑时间" :disabled="disabled">
-          <span class="axis__span" :class="{'axis__time__btn': !disabled}">{{ formatedCurrentTime }}</span>
+          <span class="axis__span" :class="{ 'axis__time__btn': !disabled }">{{ formatedCurrentTime }}</span>
         </el-tooltip>
       </div>
       <TimeEditer v-else :screen="screen" :current-time="currentTime" @change="onTimeEditerChange" @close="onCloseTimeEditer" />
@@ -13,24 +13,24 @@
     <div v-else class="axis__time">
       <span class="axis__span">{{ formatedCurrentTime }}</span>
     </div>
-    <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
+    <canvas ref="canvas" class="axis__canvas" :class="{ 'dragging': axisDrag.isDragging }" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
       <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" width="12" /></div>
     </div>
     <img id="lock" style="display: none;" src="@/assets/images/lock.png">
-    <div v-if="tipVisiable" :style="dynamicPos" id="unlockTip" @mouseleave="tooltipHider">
+    <div v-if="tipVisiable" id="unlockTip" :style="dynamicPos" @mouseleave="tooltipHider">
       <span
-      v-for="item, index in durationList"
-      :key="index"
-      class="lock-tooltip"
+        v-for="item, index in durationList"
+        :key="index"
+        class="lock-tooltip"
       >
-      已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
-      <span class="lock-tooltip-unlock" v-if="canLock && !isDialogTask" @click="unlock(item)">解锁</span>
+        已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
+        <span v-if="canLock && !isDialogTask" class="lock-tooltip-unlock" @click="unlock(item)">解锁</span>
       </span>
       <div class="extend-hover"></div>
     </div>
-    <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="false" />
+    <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" :multiple="false" @on-close="closeUnlock" />
   </div>
 </template>
 <script lang="ts">
@@ -153,9 +153,9 @@ export default class extends Vue {
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
-  private axisStartTime: number = 0
+  private axisStartTime = 0
   /* 当前时间轴的末尾时间 */
-  private axisEndTime: number = 0
+  private axisEndTime = 0
   /* 是否加载中 */
   private isLoading = false
   /* 延时加载相邻日期定时器 */
@@ -489,7 +489,7 @@ export default class extends Vue {
     const calLocks = (list) => {
       const locks = []
       const allPointsLocks = []
-      let joinLocks:any = []
+      let joinLocks: any = []
       for (let i = 0; i < list.length; i++) {
         const record = list[i]
         allPointsLocks.push({
@@ -533,7 +533,7 @@ export default class extends Vue {
     // this.axixData.locks = [{ x: 50 }]
   }
 
-  private joinLock(lockList: any,anchorIndex: number = 0, joinedLockList?: any) {
+  private joinLock(lockList: any, anchorIndex = 0, joinedLockList?: any) {
     let locks: any = joinedLockList ? joinedLockList : null
     for (let i = anchorIndex; i < lockList.length - 1; i++) {
       const anchorLock = lockList[i]
@@ -546,7 +546,7 @@ export default class extends Vue {
         const pixelGap = deltaTime / this.settings.ratio
         if (pixelGap < this.pixelThreshold) {
           // 合并
-          if(deltaTime<0){
+          if (deltaTime < 0){
           }
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
@@ -569,21 +569,21 @@ export default class extends Vue {
 
     /* 绘制录像线 */
     this.ctx.fillStyle = this.settings.recordColor
-    for (let i in this.axisData.records) {
+    for (const i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制heatmap线 */
     this.ctx.fillStyle = this.settings.heatmapColor
-    for (let i in this.axisData.heatmaps) {
+    for (const i in this.axisData.heatmaps) {
       const line = this.axisData.heatmaps[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制小时线 */
     this.ctx.fillStyle = this.settings.hourLineColor
-    for (let i in this.axisData.hours) {
+    for (const i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
       const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
@@ -593,7 +593,7 @@ export default class extends Vue {
 
     /* 绘制半小时线 */
     this.ctx.fillStyle = this.settings.minLineColor
-    for (let i in this.axisData.halfHours) {
+    for (const i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
       if (this.settings.hourSpan > 70) {
@@ -604,7 +604,7 @@ export default class extends Vue {
     }
 
     /* 绘制10分钟线 */
-    for (let i in this.axisData.tenMins) {
+    for (const i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       if (this.settings.ratio < 150) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
       if (this.settings.hourSpan > 196) {
@@ -618,7 +618,7 @@ export default class extends Vue {
     }
 
     /* 绘制5分钟线 */
-    for (let i in this.axisData.fiveMins) {
+    for (const i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       if (this.settings.ratio < 70) { this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight) }
       if (this.settings.hourSpan > 673) {
@@ -632,7 +632,7 @@ export default class extends Vue {
     }
 
     /* 绘制1分钟线 */
-    for (let i in this.axisData.oneMins) {
+    for (const i in this.axisData.oneMins) {
       const line = this.axisData.oneMins[i]
       if (this.settings.ratio < 15) { this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight) }
       if (this.settings.hourSpan > 2200) {
@@ -651,7 +651,7 @@ export default class extends Vue {
 
     // this.axisData.locks = [{ x: 50 }, { x: 500 }, { x: 600 }]
     /* 绘制录像锁 */
-    for (let i in this.axisData.locks) {
+    for (const i in this.axisData.locks) {
       const position = this.axisData.locks[i]
       const img: any = document.getElementById('lock')
       this.ctx.drawImage(img, position.x, 0, 12, 12)
@@ -683,10 +683,10 @@ export default class extends Vue {
     // 合并锁，点击无效果，只显示tool tips，通过tool tips进行解锁选择
     this.$nextTick(() => {
       // 去除重复的开始锁和结束锁
-      let map = new Map()
+      const map = new Map()
       const lockmap = []
       if (lock.lockCollection.length > 0) {
-        for (let item of lock.lockCollection) {
+        for (const item of lock.lockCollection) {
           if (!map.has(item.startTime) && !map.has(item.endTime)) {
             map.set(item.startTime, item)
             lockmap.push(item)
