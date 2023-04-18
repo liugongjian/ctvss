@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-18 09:32:14
+ * @LastEditTime: 2023-04-18 10:04:35
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -114,6 +114,7 @@ export default class extends Vue {
 
   private drawLine() {
     const { chartKind } = this.lineData
+    const { currentPeriod } = this.drawData
     // 使chart图表重新渲染，changeData不更新legend
     this.currentChart && this.currentChart.destroy()
 
@@ -138,37 +139,42 @@ export default class extends Vue {
 
     const tickInterval = getMax() > 5 ? '' : 1
 
+    const type = chartKind === 'device' ? { type: 'linear' } : {}
+
+    const mask = (currentPeriod === 'today' || currentPeriod === 'yesterday') ? 'HH:mm' : 'YYYY-MM-dd'
+
     // 设置X轴和Y轴的配置项
     this.chart.scale({
       time: {
         range: [0, 0.95],
-        tickCount: 6,
         type: 'timeCat',
         nice: true,
-        formatter: (val) => {
-          if (
-            this.drawData.currentPeriod === 'today' ||
-            this.drawData.currentPeriod === 'yesterday'
-          ) {
-            const hour = new Date(val).getHours()
-            const minute = new Date(val)
-              .getMinutes()
-              .toString()
-              .padStart(2, '0')
-            return `${hour}:${minute}`
-          } else {
-            const year = new Date(val).getFullYear()
-            const month = (new Date(val).getMonth() + 1)
-              .toString()
-              .padStart(2, '0')
-            const day = new Date(val).getDate().toString().padStart(2, '0')
-            return `${year}-${month}-${day}`
-          }
-        }
+        mask,
+        // formatter: (val) => {
+        //   if (
+        //     this.drawData.currentPeriod === 'today' ||
+        //     this.drawData.currentPeriod === 'yesterday'
+        //   ) {
+        //     const hour = new Date(val).getHours()
+        //     const minute = new Date(val)
+        //       .getMinutes()
+        //       .toString()
+        //       .padStart(2, '0')
+        //     return `${hour}:${minute}`
+        //   } else {
+        //     const year = new Date(val).getFullYear()
+        //     const month = (new Date(val).getMonth() + 1)
+        //       .toString()
+        //       .padStart(2, '0')
+        //     const day = new Date(val).getDate().toString().padStart(2, '0')
+        //     return `${year}-${month}-${day}`
+        //   }
+        // }
       },
       value: {
         range: [0, 0.95],
         min: 0,
+        ...type,
         nice: true,
         tickInterval,
         formatter: (val) => {
@@ -187,15 +193,15 @@ export default class extends Vue {
       label: {
         autoRotate: true,
         offset: 14,
-        formatter: (text: string) => {
-          if (
-            this.drawData.currentPeriod === 'today' ||
-            this.drawData.currentPeriod === 'yesterday'
-          ) {
-            return `${text.split(':')[0]}:00`
-          }
-          return text
-        }
+        // formatter: (text: string) => {
+        //   if (
+        //     this.drawData.currentPeriod === 'today' ||
+        //     this.drawData.currentPeriod === 'yesterday'
+        //   ) {
+        //     return `${text.split(':')[0]}:00`
+        //   }
+        //   return text
+        // }
       },
       grid: null
     })
