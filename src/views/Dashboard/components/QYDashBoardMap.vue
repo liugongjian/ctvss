@@ -61,9 +61,9 @@ export default class extends Vue {
         imageOffset: new AMap.Pixel(0, 0),
         imageSize: new AMap.Size(30, 30)
       })
-      const markList:any = []
+      const markList: any = []
       for (let i = 0; i < this.dirList.length; i++) {
-        let mark = new AMap.Marker({
+        const mark = new AMap.Marker({
           icon: icon,
           position: new AMap.LngLat(
             this.dirList[i].lng,
@@ -74,7 +74,7 @@ export default class extends Vue {
           zoom: 12
         })
         const data: any = this.dirList[i]
-        let text = new AMap.Text({
+        const text = new AMap.Text({
           text: `${data.label}`,
           position: new AMap.LngLat(
             this.dirList[i].lng,
@@ -135,6 +135,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .dashboard-amap {
   position: relative;
+
   &-mask {
     &--left {
       pointer-events: none;
@@ -143,12 +144,14 @@ export default class extends Vue {
       left: 0;
       bottom: 0;
       width: 40%;
-      background-image: linear-gradient(
-        to right,
-        rgb(7, 15, 46, 1) 80%,
-        rgb(7, 15, 46, 0)
-      );
+      background-image:
+        linear-gradient(
+          to right,
+          rgb(7, 15, 46, 100%) 80%,
+          rgb(7, 15, 46, 0%)
+        );
     }
+
     &--right {
       pointer-events: none;
       position: absolute;
@@ -156,11 +159,12 @@ export default class extends Vue {
       right: 0;
       top: 0;
       bottom: 0;
-      background-image: linear-gradient(
-        to left,
-        rgb(7, 15, 46, 1) 80%,
-        rgb(7, 15, 46, 0)
-      );
+      background-image:
+        linear-gradient(
+          to left,
+          rgb(7, 15, 46, 100%) 80%,
+          rgb(7, 15, 46, 0%)
+        );
     }
   }
 }

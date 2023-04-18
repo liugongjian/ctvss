@@ -95,20 +95,24 @@ export default class extends Mixins(DashboardMixin) {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+
     div {
       width: 30%;
       display: block;
       cursor: pointer;
       margin: 10px 0;
     }
+
     img {
       width: 100%;
       display: block;
     }
   }
+
   .remain {
     margin-bottom: 4vh;
     text-align: center;
+
     span {
       color: $primary;
       font-weight: bold;

@@ -1,11 +1,3 @@
-<!--
- * @Author: zhaodan zhaodan@telecom.cn
- * @Date: 2023-04-13 09:50:21
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-14 10:09:05
- * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardResourcePackage.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <component :is="container" title="资源包">
     <div class="dashboard-wrap-overview__item__card__content">
@@ -69,9 +61,9 @@ export default class extends Vue {
     return 'DashboardLightContainer'
   }
 
-  // public get isPrivateUser() {
-  //   return UserModule.tags && UserModule.tags.networkType !== 'public'
-  // }
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
+  }
 
   @Watch('packageData')
   getPackageData(packageData: any) {
@@ -89,7 +81,7 @@ export default class extends Vue {
 
   private goRouter(type: any) {
     this.$router.push({
-      path: '/billing/resource',
+      path: 'billing/resource',
       query: {
         type
       }

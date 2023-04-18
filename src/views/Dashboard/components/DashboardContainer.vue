@@ -26,19 +26,20 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .dashboard-container.less-padding{
-    padding: 2.7vh 3vw 4vh 3vw;
+  .dashboard-container.less-padding {
+    padding: 2.7vh 3vw 4vh;
   }
+
   .dashboard-container {
     position: relative;
     color: #fff;
-    padding: 2.7vh 4vw 4vh 4vw;
+    padding: 2.7vh 4vw 4vh;
     background: url('../images/box.png') no-repeat;
     background-size: 100% 100%;
 
     // Header
     &__header {
-      background: linear-gradient(90deg, rgba(0, 46, 218, 0), rgba(0, 46, 218, 1) 50%, rgba(0, 46, 218, 0) 100%);
+      background: linear-gradient(90deg, rgba(0, 46, 218, 0%), rgba(0, 46, 218, 100%) 50%, rgba(0, 46, 218, 0%) 100%);
       height: 4vh;
       line-height: 4vh;
 
@@ -48,6 +49,7 @@ export default class extends Vue {
         color: #fff;
         text-align: center;
       }
+
       &__slot {
         position: absolute;
         z-index: 100;
@@ -58,7 +60,7 @@ export default class extends Vue {
 
     // Body
     &__body {
-      padding: 1vh .5em;
+      padding: 1vh 0.5em;
     }
   }
 

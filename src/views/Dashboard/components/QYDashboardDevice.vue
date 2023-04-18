@@ -98,6 +98,7 @@ export default class extends Mixins(DashboardMixin) {
 <style lang="scss" scoped>
   .device-stats {
     display: flex;
+
     &__chart {
       position: relative;
       flex: 3;
@@ -121,16 +122,19 @@ export default class extends Mixins(DashboardMixin) {
         width: 100%;
         text-align: center;
         font-size: 1.5em;
+
         span {
           font-size: 2.5em;
         }
       }
     }
+
     &__data {
       flex: 4;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
+
       &__chip {
         display: flex;
         flex: 1;
@@ -146,13 +150,15 @@ export default class extends Mixins(DashboardMixin) {
           color: #d8d8d8;
           margin-right: 1.5vh;
         }
+
         div {
           flex: 1;
+
           span {
             font-size: 2em;
             font-weight: 900;
-            background: -webkit-linear-gradient(0, #35B5F5, #925ae0);
-            -webkit-background-clip: text;
+            background: linear-gradient(0, #35b5f5, #925ae0);
+            background-clip: text;
             -webkit-text-fill-color: transparent;
           }
         }
@@ -160,7 +166,8 @@ export default class extends Mixins(DashboardMixin) {
         &--online {
           border-color: $dashboardGreen;
           color: $dashboardGreen;
-          &::before {
+
+          &:before {
             background: $dashboardGreen;
           }
         }
@@ -168,7 +175,8 @@ export default class extends Mixins(DashboardMixin) {
         &--offline {
           border-color: $dashboardRed;
           color: $dashboardRed;
-          &::before {
+
+          &:before {
             background: $dashboardRed;
           }
         }

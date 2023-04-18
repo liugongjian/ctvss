@@ -66,7 +66,7 @@ export default class extends Vue {
       })
       const markList: any = []
       for (let i = 0; i < this.dirList.length; i++) {
-        let mark = new AMap.Marker({
+        const mark = new AMap.Marker({
           icon: icon,
           position: new AMap.LngLat(
             this.dirList[i].posX,
@@ -80,7 +80,7 @@ export default class extends Vue {
         const sum = Math.max(data.sum, data.online)
         const online = Math.min(data.sum, data.online)
         const offline = sum - online
-        let text = new AMap.Text({
+        const text = new AMap.Text({
           text: `${this.dirList[i].dirName}: ${online} | ${offline}`,
           position: new AMap.LngLat(
             this.dirList[i].posX,

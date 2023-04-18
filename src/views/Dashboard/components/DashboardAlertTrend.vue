@@ -78,9 +78,9 @@ export default class extends Mixins(DashboardMixin) {
   private async getData() {
     try {
       this.loading = true
-      var data = await Promise.all(this.promiseList)
+      const data = await Promise.all(this.promiseList)
       this.loading = false
-      var nowTime = new Date().getTime()
+      const nowTime = new Date().getTime()
       this.weeklyTrendData = []
       for (let i = 0; i < 7; i++) {
         for (let j = 0; j < this.alertTypeMapping.length; j++) {
@@ -93,8 +93,8 @@ export default class extends Mixins(DashboardMixin) {
       }
       data.forEach((item: any, index) => {
         Object.keys(item.trend).forEach((key) => {
-          var currentType = this.alertType[this.alertTypeMapping[index]]
-          var tableIndex = this.weeklyTrendData.findIndex((value: any) => {
+          const currentType = this.alertType[this.alertTypeMapping[index]]
+          const tableIndex = this.weeklyTrendData.findIndex((value: any) => {
             return value.time === key.split(' ')[0].slice(-5) && value.type === currentType
           })
           this.weeklyTrendData[tableIndex] = {
