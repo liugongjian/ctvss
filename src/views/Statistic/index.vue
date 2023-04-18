@@ -28,7 +28,7 @@
               </div>
               <draw-chart :chart-info="recordOnlineInfo" />
             </el-col>
-            <el-col :span="5">
+            <el-col v-if="storageFlag" :span="5">
               <div class="statistic-box__content">
                 <p class="statistic-box__content__title">
                   存储容量
@@ -43,7 +43,7 @@
             </el-col>
           </el-row>
 
-          <div v-if="ifLiuzhou">
+          <div v-if="storageFlag">
             <div class="statistic-box__title">
               <div class="statistic-box__title-text">近7日存储用量趋势</div>
               <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
@@ -533,7 +533,11 @@ export default class extends Vue {
   }
 
   public get ifLiuzhou() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+    return UserModule.tags?.privateUser === 'liuzhou'
+  }
+
+  private get storageFlag() {
+    return UserModule.tags?.showStorageUsage === 'Y'
   }
 
   private get recordUsage() {
@@ -569,15 +573,21 @@ export default class extends Vue {
       try {
         this.statisticsData = await getStatistics()
 
-        this.recordData = await getRecord()
-        this.recordLog = await getRecordLog()
-
-        this.bytesInfo = {
-          kind: 'pie',
-          totalDeviceNum: this.recordData.storage.total / this.bytesToTB,
-          onlineNum: this.recordData.storage.usage / this.bytesToTB,
-          label: '使用率',
-          name: 'bytes'
+        if (this.storageFlag) {
+          this.recordData = await getRecord()
+          this.bytesInfo = {
+            kind: 'pie',
+            totalDeviceNum: this.recordData.storage.total / this.bytesToTB,
+            onlineNum: this.recordData.storage.usage / this.bytesToTB,
+            label: '使用率',
+            name: 'bytes'
+          }
+          this.recordLog = await getRecordLog()
+          this.recordLogInfo = {
+            kind: 'line',
+            name: 'recordLog',
+            data: this.recordLog
+          }
         }
 
         // this.recordInfo = {
@@ -587,12 +597,6 @@ export default class extends Vue {
         //   label: '使用率',
         //   name: 'record'
         // }
-
-        this.recordLogInfo = {
-          kind: 'line',
-          name: 'recordLog',
-          data: this.recordLog
-        }
 
         this.deviceOnlineInfo = {
           kind: 'pie',
