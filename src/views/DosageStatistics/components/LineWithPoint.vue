@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-18 15:55:15
+ * @LastEditTime: 2023-04-19 13:49:33
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -26,6 +26,8 @@ export default class extends Vue {
   private currentChart: any = null
 
   private drawData: any = {}
+
+   private storageNoDemand = false
 
   private lineColor: any = {
     total: '#1890ff',
@@ -101,6 +103,9 @@ export default class extends Vue {
       }
     } else {
       const { selection, demandData, totalData, currentPeriod } = this.lineData
+
+      this.storageNoDemand = chartKind === 'storage' && demandData.length === 0
+
       this.drawData = {
         total: this.kindToChartAxis[chartKind][selection].total,
         demand: this.kindToChartAxis[chartKind][selection].demand,
@@ -159,7 +164,7 @@ export default class extends Vue {
     const mask =
       currentPeriod === 'today' || currentPeriod === 'yesterday'
         ? 'HH:mm'
-        : 'YYYY-MM-dd'
+        : 'YYYY-MM-DD'
 
     // 设置X轴和Y轴的配置项
     this.chart.scale({
