@@ -248,6 +248,7 @@ export default class extends Vue {
   }
 
   public async init() {
+    this.$emit('is-inited', false)
     this.initFlag = false
     this.loading = true
     console.log(this.deviceId, this.tabs, '000000000000')
@@ -256,6 +257,7 @@ export default class extends Vue {
     await this.initDeviceResource()
     this.initFlag = true
     this.loading = false
+    this.$emit('is-inited', true)
   }
 
   /**

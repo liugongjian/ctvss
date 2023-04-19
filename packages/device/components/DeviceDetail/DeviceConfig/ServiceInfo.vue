@@ -61,12 +61,10 @@ export default class extends Vue {
 
   private configMode = ConfigModeEnum.View
   private loading = false
-  private isView = true
-  private isEdit = false
   private resource = {
     video: [],
     aI: [],
-    viid: [],
+    viid: []
   }
 
   // 是否有服务配置

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-18 15:05:04
+ * @LastEditTime: 2023-04-19 15:53:36
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,9 +15,18 @@
       </div>
       <div class="dashboard-wrap-overview__item_content">
         <div class="dashboard-wrap-overview__item_content_detail">
-          <div id="pieChartToday"></div>
+          <div id="pieVideoToday"></div>
           <div class="dashboard-wrap-overview__item_content_detail_pie">
-            接入设备数
+            视频接入数
+          </div>
+        </div>
+        <div
+          v-if="ifShowViidPie"
+          class="dashboard-wrap-overview__item_content_detail"
+        >
+          <div id="pieViidToday"></div>
+          <div class="dashboard-wrap-overview__item_content_detail_pie">
+            视图接入数
           </div>
         </div>
         <div
@@ -27,15 +36,6 @@
           <div id="pieChartStorage"></div>
           <div class="dashboard-wrap-overview__item_content_detail_pie">
             视频存储使用量
-          </div>
-        </div>
-        <div
-          v-if="storageFlag"
-          class="dashboard-wrap-overview__item_content_detail"
-        >
-          <div id="pieChartView"></div>
-          <div class="dashboard-wrap-overview__item_content_detail_pie">
-            视图
           </div>
         </div>
 
@@ -99,17 +99,23 @@ import { Chart, Util } from '@antv/g2'
 export default class extends Mixins(DashboardMixin) {
   private statistics: any = {}
 
-  private chartToday: any = null
+  private ifShowViidPie = false
 
   private chartStorage: any = null
 
-  private pieDataToday: any = []
+  private pieVideoToday: any = null
+
+  private pieViidToday: any = null
+
+  private pieDataVideo: any = []
+
+  private pieDataViid: any = []
 
   private pieDataStorage: any = []
 
-  private chartView: any = null
-
   private pieDataView: any = []
+
+  private currentPieChart: any = {}
 
   private bandWidthData: any = {
     downstreamBandwidth: 0,
@@ -165,33 +171,61 @@ export default class extends Mixins(DashboardMixin) {
     ]
   }
 
-  private async getDevice() {
-    try {
-      const res = await getDeviceStates()
-      const {
-        offline = 0,
-        online = 0,
-        sum = 0,
-        unregistered = 0,
-        deactivate = 0
-      } = res
-      const data = {
+  private formatDeviceData(res, kind) {
+    const {
+      offline = 0,
+      online = 0,
+      sum = 0,
+      unregistered = 0,
+      deactivate = 0
+    } = res
+
+    let data = {}
+
+    if (kind === 'viid') {
+      data = {
+        offline,
+        online,
+        deactivate
+      }
+    } else {
+      data = {
         offline,
         online,
         deactivate,
         unregistered
       }
+    }
 
-      this.pieDataToday = Object.keys(data).map((item) => ({
-        item: item,
-        value: data[item],
-        percent: data[item] / sum,
-        text: ''
-      }))
+    const result = Object.keys(data).map((item) => ({
+      item: item,
+      value: data[item],
+      percent: data[item] / sum,
+      text: ''
+    }))
 
-      this.chartToday
-        ? this.chartToday.changeData(this.pieDataToday)
-        : this.drawPieToday()
+    return result
+  }
+
+  private async getDevice() {
+    try {
+      const res = await getDeviceStates()
+
+      const { video, viid } = res
+
+      this.pieDataVideo = this.formatDeviceData(video, 'video')
+
+      this.drawPieToday('pieVideoToday', 'pieVideoToday', this.pieDataVideo)
+
+      const { enable } = viid
+
+      if (enable === 1) {
+        this.ifShowViidPie = true
+        this.$nextTick(() => {
+          this.pieDataViid = this.formatDeviceData(viid, 'viid')
+          this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
+        })
+      }
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -234,52 +268,48 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
 
-      this.pieDataView = this.pieDataStorage
-
-      this.chartStorage
-        ? this.chartStorage.changeData(this.pieDataStorage)
-        : this.drawPieStorage('pieChartStorage', this.chartStorage, this.pieDataStorage)
-
-      this.chartView 
-       ? this.chartStorage.changeData(this.pieDataView)
-        : this.drawPieStorage('pieChartView', this.chartView, this.pieDataView)
-
+      this.drawPieStorage(
+        'pieChartStorage',
+        'chartStorage',
+        this.pieDataStorage
+      )
     } catch (error) {
       this.$message.error(error && error.message)
     }
   }
 
+  private drawPieToday(container, chartDom, data) {
+    this.currentPieChart[chartDom] && this.currentPieChart[chartDom].destroy()
 
-  private drawPieToday() {
-    this.chartToday = new Chart({
-      container: 'pieChartToday',
+    this[chartDom] = new Chart({
+      container,
       autoFit: true,
       width: 800,
       height: 260
     })
 
-    this.chartToday.scale('percent', {
+    this[chartDom].scale('percent', {
       formatter: (val) => {
         val = val * 100 + '%'
         return val
       }
     })
 
-    this.chartToday.coordinate('theta', {
+    this[chartDom].coordinate('theta', {
       radius: 0.5,
       innerRadius: 0.6
     })
 
-    this.chartToday.data(this.pieDataToday)
+    this[chartDom].data(data)
 
-    this.chartToday.tooltip({
+    this[chartDom].tooltip({
       showTitle: false,
       showMarkers: false,
       itemTpl:
         '<li class="g2-tooltip-list-item"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
     })
 
-    this.chartToday
+    this[chartDom]
       .interval()
       .adjust('stack')
       .position('percent')
@@ -317,9 +347,6 @@ export default class extends Mixins(DashboardMixin) {
           },
           content: (data) => {
             return `${this.pieTodayToText[data.item]}:${data.value}`
-            // return `${this.pieTodayToText[data.item]}: ${(
-            //   percent * 100
-            // ).toFixed(2)}%`
           }
         }
       })
@@ -331,24 +358,28 @@ export default class extends Mixins(DashboardMixin) {
         }
       })
 
-    this.chartToday.legend(false)
+    this[chartDom].legend(false)
 
-    this.chartToday.interaction('element-single-selected')
+    this[chartDom].interaction('element-single-selected')
 
-    this.chartToday.render()
+    this[chartDom].render()
+
+    this.currentPieChart[chartDom] = this[chartDom]
   }
 
   private drawPieStorage(container, chartDom, data) {
-    chartDom = new Chart({
+    this.currentPieChart[chartDom] && this.currentPieChart[chartDom].destroy()
+
+    this[chartDom] = new Chart({
       container,
       autoFit: true,
       width: 800,
       height: 260
     })
 
-    chartDom.data(data)
+    this[chartDom].data(data)
 
-    chartDom.scale('percent', {
+    this[chartDom].scale('percent', {
       formatter: (val) => {
         // val = (val * 100).toFixed(2) + '%'
         val = val * 100 + '%'
@@ -356,19 +387,19 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    chartDom.coordinate('theta', {
+    this[chartDom].coordinate('theta', {
       radius: 0.5,
       innerRadius: 0.6
     })
 
-    chartDom.tooltip({
+    this[chartDom].tooltip({
       showTitle: false,
       showMarkers: false,
       itemTpl:
         '<li class="g2-tooltip-list-item"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
     })
 
-    chartDom
+    this[chartDom]
       .interval()
       .adjust('stack')
       .position('percent')
@@ -419,11 +450,13 @@ export default class extends Mixins(DashboardMixin) {
         }
       })
 
-    chartDom.legend(false)
+    this[chartDom].legend(false)
 
-    chartDom.interaction('element-single-selected')
+    this[chartDom].interaction('element-single-selected')
 
-    chartDom.render()
+    this[chartDom].render()
+
+    this.currentPieChart[chartDom] = this[chartDom]
   }
 }
 </script>
@@ -454,6 +487,7 @@ export default class extends Mixins(DashboardMixin) {
 
         &_pie {
           text-align: center;
+          font-weight: bold;
         }
 
         &:last-child {
@@ -461,18 +495,10 @@ export default class extends Mixins(DashboardMixin) {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          // min-width: 500px;
+
           ::v-deep {
             .el-row {
-              // display: flex;
-              // justify-content: space-between;
-              // text-align: center;
-              // flex-wrap: wrap;
-
               .el-col {
-                // flex: 1 2 35%;
-                // flex: 1;
-                // flex-grow: 2;
                 width: 50%;
                 min-width: 130px;
                 margin-bottom: 10px;
@@ -481,29 +507,6 @@ export default class extends Mixins(DashboardMixin) {
           }
         }
       }
-
-      // @media screen and (max-width: 1280px) {
-      //   .dashboard-wrap-overview_content_detail {
-      //     &:last-child {
-      //       ::v-deep {
-      //         // .el-row {
-      //         //   display: flex;
-      //         //   justify-content: space-between;
-      //         //   text-align: center;
-      //         //   flex-wrap: wrap;
-
-      //         .el-col {
-      //           // flex: 1 2 50%;
-      //           flex: 1;
-      //           // flex-grow: 2;
-      //           width: 25%;
-      //           min-width: 130px;
-      //           margin-bottom: 10px;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
 
       &_data {
         line-height: 30px;

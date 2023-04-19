@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-09 15:23:42
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-17 17:16:57
+ * @LastEditTime: 2023-04-19 15:00:36
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/periodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -87,6 +87,8 @@ export default class extends Vue {
 
   private selection = ''
 
+  private unit = ''
+
   private param: any = {
     StartTime: 0,
     EndTime: 0
@@ -116,6 +118,11 @@ export default class extends Vue {
   }
 
   private get chartTitle() {
+    if ((this.chartKind === 'bandwidth' || this.chartKind === 'storage') && this.selection) {
+      return `${this.kindToText[this.chartKind][this.selection]['title']}(${
+        this.unit
+      })`
+    }
     return this.kindToText[this.chartKind]['name']
   }
 
@@ -236,6 +243,26 @@ export default class extends Vue {
         }
       })
 
+      const getUnit = () => {
+        const values = [...totalData, ...demandData].map((item) => item.value)
+        const minValue = Math.min(...values)
+        if (minValue > 1024) {
+          if (this.selection.endsWith('bandwidth')) {
+            return 'Gbps'
+          } else {
+            return 'GB'
+          }
+        } else {
+          if (this.selection.endsWith('bandwidth')) {
+            return 'Mbps'
+          } else {
+            return 'MB'
+          }
+        }
+      }
+
+      this.unit = getUnit()
+
       this.lineData = {
         currentPeriod: this.currentPeriod,
         chartKind: this.chartKind,
@@ -266,8 +293,6 @@ export default class extends Vue {
       const total = storageSamples.find((item) => item.type === 'total')
       const demand = storageSamples.find((item) => item.type === 'on-demand')
 
-      // const [demand, total] = storageSamples
-
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
 
@@ -288,6 +313,17 @@ export default class extends Vue {
           ...item
         }
       })
+
+      const getUnit = () => {
+        const values = [...totalData, ...demandData].map((item) => item.value)
+        const minValue = Math.min(...values)
+        if (minValue > 1024 * 1024 * 1024){
+          return 'GB'
+        }
+        return 'MB'
+      }
+
+      this.unit = getUnit()
 
       this.lineData = {
         currentPeriod: this.currentPeriod,
@@ -329,7 +365,6 @@ export default class extends Vue {
         type: '总用量',
         value: aITotalStatistic[item]
       }))
-
 
       this.lineData = {
         currentPeriod: this.currentPeriod,
