@@ -71,7 +71,7 @@
             {{ row[ipcAiConfigEnum.Status] === '0' ? '停用' : '启用' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" prop="action" width="180" fixed="right">
+        <el-table-column v-if="checkPermission(['AdminDevice'])" label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
             <el-button
               v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'"
@@ -151,6 +151,7 @@ import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
 import AiAppCreateDialog from './AiAppCreateDialog.vue'
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { startAppResource, stopAppResource } from '@vss/device/api/device'
+import { checkPermission } from '@vss/base/utils/permission'
 @Component({
   name: 'IpcAiServiceConfig',
   components: {
@@ -166,6 +167,7 @@ export default class extends Vue {
   private billingModeType = BillingModeType
   private resourceAiType = ResourceAiType
 
+  private checkPermission = checkPermission
   private configDescription =
     '待配置检测区域的应用需在视频流上线后手动进行区域框选并启用AI分析，其他应用将在视频流上线后将自动启用AI分析'
   private showBindingDialog = false
