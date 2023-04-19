@@ -63,7 +63,13 @@ export default class extends Mixins(detailMixin) {
     if (tab.name === DeviceDetailTab.DeviceInfo) {
       this.getDevice(this.deviceId, true)
     }
-    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
+    this.$router.push({
+      name: tab.name,
+      query: { 
+        ...this.$route.query,
+        deviceId: this.deviceId
+      }
+    })
   }
 
   /**
