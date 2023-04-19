@@ -52,7 +52,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordAudits, auditEventConfirm } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
-import Locations from '@/views/Dashboard/AI/components/Locations.vue'
+import Locations from '@/views/DashboardV1/AI/components/Locations.vue'
 
 @Component({
   name: 'AlertBoardDetailDialog',
