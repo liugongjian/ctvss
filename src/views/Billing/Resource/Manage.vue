@@ -54,7 +54,8 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <resource v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" />
+    <service-config-dialog v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" />
+    <!-- <resource v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" /> -->
   </div>
 </template>
 
@@ -62,12 +63,13 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@vss/device/components/Resource/Edit.vue'
+import ServiceConfigDialog from '@vss/device/components/ServiceConfig/ServiceConfigDialog.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BillingResourceManagement',
   components: {
-    Resource
+    ServiceConfigDialog
   }
 })
 export default class extends Vue {
@@ -109,11 +111,7 @@ export default class extends Vue {
   }
 
   public updateResource(row: any) {
-    this.currentDevice = {
-      device: {
-        deviceId: row.deviceId
-      }
-    }
+    this.currentDevice = row
     this.dialog.resource = true
   }
 
