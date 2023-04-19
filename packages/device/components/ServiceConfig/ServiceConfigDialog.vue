@@ -55,12 +55,12 @@ export default class extends Vue {
 
   // 是否含视频
   public get hasVideo() {
-    return this.device && /video/.test(this.device.inProtocol)
+    return true
   }
 
   // 是否含视图库
   public get hasViid() {
-    return this.device && /viid/.test(this.device.inProtocol)
+    return false
   }
 
   private get tabs() {
