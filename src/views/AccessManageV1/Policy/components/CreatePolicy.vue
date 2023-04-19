@@ -72,7 +72,7 @@
                     prop="actionValue"
                     width="200"
                   >
-                    <template slot-scope="{row}">
+                    <template slot-scope="{ row }">
                       <span v-if="!row.actionValueOption"> - </span>
                       <el-select v-else v-model="statement.actionLevel[row.actionKey]" :disabled="isCtyunPolicy" size="mini" style="width: 65%;">
                         <el-option
@@ -118,7 +118,7 @@
                       @check-change="onCheckDevice($event, index)"
                     >
                       <span
-                        slot-scope="{node, data}"
+                        slot-scope="{ node, data }"
                         class="custom-tree-node"
                         :class="`custom-tree-node__${data.type}`"
                       >
@@ -137,12 +137,12 @@
                     <div class="device-wrap__header">已选资源({{ statement.resourceList.length }})</div>
                     <el-table :ref="`deviceTable_${index}`" :data="statement.resourceList" empty-text="暂无选择资源" fit>
                       <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
-                        <template slot-scope="{row}">
+                        <template slot-scope="{ row }">
                           {{ row.label || '-' }}
                         </template>
                       </el-table-column>
                       <el-table-column key="path" prop="path" label="所在位置">
-                        <template slot-scope="{row}">
+                        <template slot-scope="{ row }">
                           {{ renderPath(row.path) }}
                         </template>
                       </el-table-column>
@@ -697,7 +697,7 @@ export default class extends Vue {
               )
             })
           }
-          ;(await this.form.policyId) ? editPolicy(data) : createPolicy(data)
+          await (this.form.policyId ? editPolicy(data) : createPolicy(data))
           this.$message.success(
             `${this.form.policyId ? '编辑策略成功！' : '创建策略成功！'}`
           )

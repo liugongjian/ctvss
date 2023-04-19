@@ -964,7 +964,8 @@ export const v1Router: RouteConfig[] = [
       icon: 'menu-alarm',
       perms: ['*'],
       alwaysShow: true,
-      groupSelector: true
+      groupSelector: true,
+      version: 1
     },
     children: [
       {
@@ -1225,7 +1226,6 @@ export const v1Router: RouteConfig[] = [
           perms: ['*']
         }
       }
-
     ]
   },
   {
