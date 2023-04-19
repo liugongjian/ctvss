@@ -16,7 +16,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/index.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/index.vue'),
         name: 'Dashboard',
         meta: {
           title: '概览',
@@ -27,7 +27,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/AI/index.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/AI/index.vue'),
         name: 'DashboardAI',
         meta: {
           title: 'AI监控告警',
@@ -39,7 +39,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'visualization-dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/VisualizationDashboard.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/VisualizationDashboard.vue'),
         name: 'VisualizationDashboard',
         meta: {
           title: '可视化大屏',

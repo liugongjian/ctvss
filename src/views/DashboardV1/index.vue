@@ -17,12 +17,12 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import DashboardAlertToday from '@/views/Dashboard/components/DashboardAlertToday.vue'
-import DashboardAlertLive from '@/views/Dashboard/components/DashboardAlertLive.vue'
-import DashboardFlowAndDevice from '@/views/Dashboard/components/DashboardFlowAndDevice.vue'
-import DashboardAIAbility from '@/views/Dashboard/components/DashboardAIAbility.vue'
-import DashboardDataToday from '@/views/Dashboard/components/DashboardDataToday.vue'
-import DashboardResourcePackage from '@/views/Dashboard/components/DashboardResourcePackage.vue'
+import DashboardAlertToday from '@/views/DashboardV1/components/DashboardAlertToday.vue'
+import DashboardAlertLive from '@/views/DashboardV1/components/DashboardAlertLive.vue'
+import DashboardFlowAndDevice from '@/views/DashboardV1/components/DashboardFlowAndDevice.vue'
+import DashboardAIAbility from '@/views/DashboardV1/components/DashboardAIAbility.vue'
+import DashboardDataToday from '@/views/DashboardV1/components/DashboardDataToday.vue'
+import DashboardResourcePackage from '@/views/DashboardV1/components/DashboardResourcePackage.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({

@@ -40,8 +40,8 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import DashboardFlow from '@/views/Dashboard/components/DashboardFlow.vue'
-import DashboardDeviceChart from '@/views/Dashboard/components/DashboardDeviceChart.vue'
+import DashboardFlow from '@/views/DashboardV1/components/DashboardFlow.vue'
+import DashboardDeviceChart from '@/views/DashboardV1/components/DashboardDeviceChart.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
