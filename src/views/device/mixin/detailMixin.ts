@@ -131,7 +131,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   public regionList = regionList
-  public lianzhouAddress: string = ''
+  public lianzhouAddress = ''
 
   public actions = {}
 

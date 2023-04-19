@@ -167,7 +167,7 @@ export default class extends Vue {
 
   private validateTemplateName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{4,64}$/u.test(value)) {
-      callback(new Error('回调模板名称格式错误'))
+      callback(new Error('告警模板名称格式错误'))
     } else if (/^[\s]|[\s]$/.test(value)) {
       callback(new Error('不能以空格作为名称的首尾。'))
     } else {

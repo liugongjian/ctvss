@@ -15,6 +15,7 @@
     "serve:test3": "vue-cli-service serve --env test3",
     "serve:pre": "vue-cli-service serve --env pre",
     "serve:prod": "vue-cli-service serve --env prod",
+    "serve:local": "vue-cli-service serve --env local",
     "serve:local-https": "vue-cli-service serve --env local --https",
     "serve:dev-https": "vue-cli-service serve --env dev --https",
     "serve:dev1-https": "vue-cli-service serve --env dev1 --https",

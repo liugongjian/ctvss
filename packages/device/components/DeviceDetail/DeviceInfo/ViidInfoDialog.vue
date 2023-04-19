@@ -48,21 +48,38 @@ export default class extends Vue {
 
   private async submit() {
     const form = this.$refs.form as ViidCreateForm
+    const viidForm = form.viidForm
     if (form.validateViidForm()) {
       const params: DeviceForm = {
         device: {
-          deviceId: this.basicInfo.deviceId
-        }
+          ...pick(this.basicInfo, [
+            DeviceEnum.DeviceId,
+            DeviceEnum.DeviceType,
+            DeviceEnum.DeviceName,
+            DeviceEnum.DeviceLongitude,
+            DeviceEnum.DeviceLatitude,
+            DeviceEnum.DeviceIp,
+            DeviceEnum.DevicePort,
+            DeviceEnum.DeviceMac,
+            DeviceEnum.DevicePoleId,
+            DeviceEnum.DeviceSerialNumber,
+            DeviceEnum.DeviceModel,
+            DeviceEnum.Description,
+            DeviceEnum.DeviceVendor,
+            DeviceEnum.DeviceChannelSize
+          ])
+        },
+        [DeviceEnum.Resource]: viidForm.resource,
       }
       // 补充视图接入信息
       const viidDevice: ViidDeviceForm = {
-        ...pick(form.viidForm, [
+        ...pick(viidForm, [
           DeviceEnum.InViidProtocol
         ])
       }
       // 补充协议信息
       viidDevice[InViidProtocolModelMapping[form.viidForm.inViidProtocol]] = {
-        ...pick(form.viidForm, [...InViidProtocolAllowParams[form.viidForm.inViidProtocol]])
+        ...pick(viidForm, [...InViidProtocolAllowParams[form.viidForm.inViidProtocol]])
       }
       params.viids = [ viidDevice ]
       try {
@@ -75,7 +92,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

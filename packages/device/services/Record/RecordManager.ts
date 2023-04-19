@@ -406,7 +406,8 @@ export class RecordManager {
         codec: record.video.codec,
         templateName: record.templateName,
         cover: record.cover,
-        fileFormat: record.fileFormat
+        fileFormat: record.fileFormat,
+        expireTime: record.expireTime
       })
     })
   }

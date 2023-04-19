@@ -23,7 +23,7 @@ export const getDeviceTotal = (params: any): Promise<any> =>
     params
   })
 
-export const getDeviceStates = (params: any): Promise<any> =>
+export const getDeviceStates = (params?: any): Promise<any> =>
   request({
     url: '/statistics/device',
     method: 'get',
@@ -37,7 +37,7 @@ export const getResourceCount = (params: any): Promise<any> =>
     params
   })
 
-export const getBandwidthStates = (params: any): Promise<any> =>
+export const getBandwidthStates = (params?: any): Promise<any> =>
   request({
     url: '/statistics/bandwidth',
     method: 'get',
@@ -96,7 +96,7 @@ export const auditEventConfirm = (params: any): Promise<any> =>
     params
   })
 
-export const getUserStorage = (params: any): Promise<any> =>
+export const getUserStorage = (params?: any): Promise<any> =>
   request({
     url: '/statistics/user/storage',
     method: 'get',

@@ -26,6 +26,8 @@ export class Record {
   public isLock?: number
   /* 录像片段过期时间 */
   public expirationTime?: string
+  /* 过期时间 */
+  public expireTime?: string
 
   constructor(record: Record) {
     this.startTime = record.startTime
@@ -39,5 +41,6 @@ export class Record {
     this.fileFormat = record.fileFormat
     this.isLock = record.isLock == null ? 0 : record.isLock
     this.expirationTime = record.expirationTime
+    this.expireTime = record.expireTime
   }
 }

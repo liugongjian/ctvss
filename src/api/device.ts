@@ -239,26 +239,6 @@ export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 设备批量绑定
- */
-export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/batchBind',
-    method: 'post',
-    data: params
-  })
-
-/**
- * 设备批量解绑
- */
-export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
-  request({
-    url: '/device/record/batchUnbind',
-    method: 'post',
-    data: params
-  })
-
-/**
  * 设置设备回调模板
  */
 export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
@@ -287,7 +267,35 @@ export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+/**
+ * 设备批量绑定
+ */
+ export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+  //  url: '/device/record/batchBind',
+   url: '/device/batchBind', // 合并后接口
+   method: 'post',
+   data: params
+ })
 
+// 视图批量绑定临时联调接口
+export const setViidDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+request({
+  url: '/viid/template/bind/batch', 
+  method: 'post',
+  data: params
+})
+
+/**
+* 设备批量解绑
+*/
+export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+  //  url: '/device/record/batchUnbind',
+   url: '/device/batchUnbind', // 合并后接口
+   method: 'post',
+   data: params
+ })
 /**
  * 启用设备
  */

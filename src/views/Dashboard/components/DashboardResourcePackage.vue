@@ -61,9 +61,9 @@ export default class extends Vue {
     return 'DashboardLightContainer'
   }
 
-  public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
-  }
+  // public get isPrivateUser() {
+  //   return UserModule.tags && UserModule.tags.networkType !== 'public'
+  // }
 
   @Watch('packageData')
   getPackageData(packageData: any) {
@@ -81,7 +81,7 @@ export default class extends Vue {
 
   private goRouter(type: any) {
     this.$router.push({
-      path: 'billing/resource',
+      path: '/billing/resource',
       query: {
         type
       }

@@ -11,7 +11,7 @@
           node-key="id"
           lazy
           highlight-current
-          empty-text="暂无已绑定设备"
+          empty-text="暂无设备"
           :load="loadSubDeviceLeft"
           :props="treeProp"
           show-checkbox
@@ -73,8 +73,8 @@
         </el-tree>
       </div>
     </div>
-    <div v-if="currentTemplate.recordType === 2" class="bind-body-bottom">
-      <el-checkbox v-model="quickStart">绑定该按需模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
+    <div v-if="currentTemplate.recordType === 5" class="bind-body-bottom">
+      <el-checkbox v-model="quickStart">绑定手动录制模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
     </div>
     <div slot="footer" class="submit-footer">
       <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
@@ -102,7 +102,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator'
 import { getTemplateDeviceTree } from '@/api/template'
-import { setDeviceRecordTemplateBatch } from '@/api/device'
+import { setDeviceRecordTemplateBatch, setViidDeviceRecordTemplateBatch } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { cloneDeep } from 'lodash'
 
@@ -114,6 +114,7 @@ import { cloneDeep } from 'lodash'
 })
 export default class extends Vue {
   @Prop()private currentTemplate: any
+  @Prop()private type: any
 
   @Ref('bindWrap') private bindWrap
   @Ref('bindTree') private bindTree
@@ -182,6 +183,7 @@ export default class extends Vue {
         this.loading.deviceTree = true
         const res = await getTemplateDeviceTree({
           templateId: this.currentTemplate.templateId,
+          inProtocol: this.type,
           groupId: 0,
           id: 0,
           bind: false
@@ -193,7 +195,6 @@ export default class extends Vue {
           this.bindTree.updateKeyChildren('-1', res.dirs)
           rootNode.loaded = true
           rootNode.expanded = true
-
           const previewRootNode = this.previewTree.getNode('-1')
           previewRootNode.loaded = true
           previewRootNode.expanded = true
@@ -204,6 +205,9 @@ export default class extends Vue {
             total += group.totalSize
             bindSize += group.bindSize
           })
+          if (bindSize < res.bindSize) {
+            bindSize = res.bindSize
+          }
           this.totalCheckedSize = bindSize
           this.$set(rootNode.data, 'bindSize', bindSize)
           this.$set(rootNode.data, 'totalSize', total)
@@ -277,7 +281,9 @@ export default class extends Vue {
         await this.deepLoad(childNode.data.id, node.checked)
         this.deepCopy(node)
       }
-      this.totalCheckedSize = node.data.totalSize
+      this.$nextTick(() => {
+        this.totalCheckedSize = node.checked ? node.data.totalSize : node.data.checkedSize
+      })
     } else if (node.isLeaf || node.loaded) {
       // 如果是叶子节点更新上层, 将上层全部拷贝到预览树
       this.deepCheck(node)
@@ -399,6 +405,7 @@ export default class extends Vue {
       const rootId = this.getGroupId(node)
       const res = await getTemplateDeviceTree({
         templateId: this.currentTemplate.templateId,
+        inProtocol: this.type,
         groupId: rootId,
         id: data.id,
         type: data.type,
@@ -511,17 +518,25 @@ export default class extends Vue {
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
     })
-    let msg = `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？`
-    if (bindedCheck) {
-      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？这些设备在切换新模板时，已存在的历史录像将修改过期时间，使用新的模板存储时长策略。'
+    let msg = this.totalCheckedSize > 0 ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？` : `您暂未勾选任何设备`
+    if (this.checkedNodes.length > 0 && bindedCheck) {
+      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
     }
-    this.$confirm(msg, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      customClass: 'vss-warning'
-    }).then(async() => {
-      await this.subSubmit()
-    })
+    if (this.totalCheckedSize > 0) {
+      this.$confirm(msg, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        customClass: 'vss-warning'
+      }).then(async() => {
+        await this.subSubmit()
+      })
+    } else {
+      this.$confirm(msg, '提示', {
+        confirmButtonText: '确定',
+        showCancelButton: false,
+        customClass: 'vss-warning'
+      })
+    }
   }
 
   private async subSubmit() {
@@ -540,6 +555,7 @@ export default class extends Vue {
         }
       })
       await setDeviceRecordTemplateBatch({
+        inProtocol: this.type,
         templateId: this.currentTemplate.templateId,
         devices: devices,
         startRecord: this.quickStart
@@ -548,6 +564,8 @@ export default class extends Vue {
       this.$emit('on-close', true)
     } catch (e) {
       this.$message.error(e)
+      // 关闭绑定页面
+      this.closeDialog(false)
     }
   }
 

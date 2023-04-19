@@ -353,36 +353,26 @@ export const v2Router: RouteConfig[] = [
     },
     children: [
       {
-        path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/index.vue'),
-        name: 'record',
+        path: 'record-video',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'),
+        name: 'RecordVideo',
         meta: {
           title: '录制模板',
           icon: 'dot',
           perms: ['*'],
-          activeMenu: '/template/record'
+          activeMenu: '/template/record-video'
         }
       },
       {
-        path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
-        name: 'recordCreate',
+        path: 'record-viid',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Viid.vue'),
+        name: 'RecordViid',
         meta: {
-          title: '新建录制模板',
+          title: '视图存储模板',
+          icon: 'dot',
           hidden: true,
           perms: ['*'],
-          activeMenu: '/template/record'
-        }
-      },
-      {
-        path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/components/CreateOrUpdateTemplate.vue'),
-        name: 'recordUpdate',
-        meta: {
-          title: '编辑录制模板',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/template/record'
+          activeMenu: '/template/record-video'
         }
       },
       {
@@ -878,6 +868,8 @@ export const v2Router: RouteConfig[] = [
           title: '计费管理',
           perms: ['*'],
           icon: 'menu-billing',
+          hidden: true,
+          activeMenu: '/billing',
           breadcrumb: false
         },
         children: [
@@ -888,6 +880,8 @@ export const v2Router: RouteConfig[] = [
             meta: {
               title: '按需计费管理',
               icon: 'dot',
+              hidden: true,
+              activeMenu: '/billing',
               perms: ['*']
             }
           },
@@ -898,6 +892,8 @@ export const v2Router: RouteConfig[] = [
             meta: {
               title: '资源包管理',
               icon: 'dot',
+              hidden: true,
+              activeMenu: '/billing',
               perms: ['*']
             }
           },
@@ -909,7 +905,7 @@ export const v2Router: RouteConfig[] = [
               title: '资源包管理',
               icon: 'dot',
               hidden: true,
-              activeMenu: '/billing/resource',
+              activeMenu: '/billing',
               perms: ['*']
             }
           }

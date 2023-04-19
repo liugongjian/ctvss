@@ -6,6 +6,16 @@ import request from '@/utils/request'
  * =======================================================
  */
 /**
+ * 查询存储模板列表V2
+ */
+export const getStorageTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/list',
+    method: 'get',
+    params
+  })
+
+/**
  * 查询录制模板列表
  */
 export const getRecordTemplates = (params: any): Promise<any> =>

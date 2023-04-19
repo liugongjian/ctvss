@@ -1,5 +1,5 @@
 <template>
-  <div ref="tableContainer" class="screen-list">
+  <div class="screen-list">
     <div v-if="currentScreen.deviceId">
       <div class="device-name">
         设备名称：{{ currentScreen.deviceName }}
@@ -7,12 +7,11 @@
       <div class="replay-time-list">
         <el-table
           v-loading="isLoading"
-          :height="tableMaxHeight"
           :data="recordList"
           empty-text="所选日期暂无录像"
         >
           <el-table-column label="录像名称" prop="templateName" min-width="200">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
@@ -42,7 +41,7 @@
             </template>
           </el-table-column>
           <el-table-column label="录像截图" min-width="200">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               <el-image
                 style="width: 150px; height: 100px;"
                 :src="row.cover"
@@ -54,18 +53,20 @@
             label="开始时间"
             prop="startTime"
             min-width="180"
-          >
-            <template slot-scope="{ row }">
-              {{ dateFormat(row.startTime * 1000) }}
-            </template>
-          </el-table-column>
+            :formatter="dateFormatInTable"
+          />
+          <el-table-column
+            label="过期时间"
+            prop="expireTime"
+            min-width="180"
+          />
           <el-table-column
             label="时长"
             prop="duration"
             :formatter="durationFormatInTable"
           />
           <el-table-column prop="action" label="操作" width="200" fixed="right">
-            <template slot-scope="{ row }">
+            <template slot-scope="{row}">
               <el-button
                 v-if="!isVGroup && checkPermission(['AdminRecord'])"
                 :disabled="row.loading"
@@ -102,22 +103,20 @@
       :close-on-click-modal="false"
       @close="closeReplayPlayer()"
     >
-      <VssPlayer :url="currentListRecord.url" :type="currentListRecord.fileFormat" :codec="currentListRecord.codec" :has-progress="true" />
+      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codec" :has-progress="true" />
     </el-dialog>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
-import { Record } from '@vss/device/services/Record/Record'
-import { durationFormatInTable, dateFormat } from '@vss/base/utils/date'
-import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { Record } from '@/views/device/services/Record/Record'
+import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
-import { checkPermission } from '@/utils/permission'
 import { GroupModule } from '@/store/modules/group'
-import ResizeObserver from 'resize-observer-polyfill'
-import DeviceDir from '../DeviceDir.vue'
-import VssPlayer from '@vss/vss-video-player/index.vue'
-
+import { checkPermission } from '@/utils/permission'
+import DeviceDir from '@/views/device/components/dialogs/DeviceDir.vue'
+import VssPlayer from '@/components/VssPlayer/index.vue'
 @Component({
   name: 'ScreenList',
   components: {
@@ -140,16 +139,20 @@ export default class extends Vue {
     play: false
   }
 
-  private tableMaxHeight: any = null
   private currentListRecord: any = null
-  private observer: ResizeObserver = null
   private recordName = ''
+  private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private checkPermission = checkPermission
 
   /* 当前分页后的录像列表 */
   private recordList: Record[] = null
+
+  /* 是否为虚拟业务组 */
+  private get isVGroup() {
+    return GroupModule.group?.inProtocol === 'vgroup'
+  }
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
@@ -161,15 +164,6 @@ export default class extends Vue {
 
   private get isLoading() {
     return this.currentScreen.isLoading
-  }
-
-  private get tableContainer() {
-    return this.$refs.tableContainer as any
-  }
-
-  /* 是否为虚拟业务组 */
-  private get isVGroup() {
-    return GroupModule.group?.inProtocol === 'vgroup'
   }
 
   /**
@@ -195,30 +189,7 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.initTableSize()
     this.getRecordListByPage()
-  }
-
-  private beforeDestroy() {
-    this.tableContainer && this.observer.unobserve(this.tableContainer)
-  }
-
-  /**
-   * table样式初始化
-   */
-  private initTableSize() {
-    this.calTableMaxHeight()
-    this.observer = new ResizeObserver(() => {
-      this.calTableMaxHeight()
-    })
-    this.tableContainer && this.observer.observe(this.tableContainer)
-  }
-
-  /**
-   * 计算表格高度
-   */
-  private calTableMaxHeight() {
-    this.tableMaxHeight = this.tableContainer && this.tableContainer.offsetHeight ? this.tableContainer.offsetHeight - 130 : null
   }
 
   /**
@@ -275,11 +246,11 @@ export default class extends Vue {
    */
   private async saveEdit(row: any) {
     try {
-      row.loading = true
+      this.loading = true
       await editRecordName({
         deviceId: this.currentScreen.deviceId,
         inProtocol: this.currentScreen.inProtocol,
-        startTime: row.startTime,
+        startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
         customName: this.recordName
       })
       await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
@@ -287,7 +258,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      row.loading = false
+      this.loading = false
     }
   }
 
@@ -304,23 +275,16 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      console.log('走   🚓', record.startTime)
       record.loading = true
-      let downloadUrl
-      if (record.fileFormat === 'hls') {
-        const res = await getDeviceRecord({
-          deviceId: this.currentScreen.deviceId,
-          startTime: record.startTime / 1000,
-          fileFormat: 'mp4',
-          inProtocol: this.currentScreen.inProtocol
-        })
-        downloadUrl = res.downloadUrl
-      } else {
-        downloadUrl = record.url
-      }
-      if (downloadUrl) {
+      const res = await getDeviceRecord({
+        deviceId: this.currentScreen.deviceId,
+        startTime: record.startTime / 1000,
+        fileFormat: 'mp4',
+        inProtocol: this.currentScreen.inProtocol
+      })
+      if (res.downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
-        link.setAttribute('href', downloadUrl)
+        link.setAttribute('href', res.downloadUrl)
         link.click()
         link.remove()
       }
@@ -329,16 +293,6 @@ export default class extends Vue {
       this.$message.error(e.message)
     }
   }
-
-  /**
-   * startTime 秒转毫秒
-   */
-  private secToMs(records: any) {
-    this.records = records.map((record: any) => {
-      record.startTime = record.startTime * 1000
-    })
-  }
-
 
   /**
    * 播放录像（模态框）
@@ -356,6 +310,16 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = false
     this.currentListRecord = null
+  }
+
+  /**
+   * startTime 秒转毫秒
+   */
+  private secToMs(records: any) {
+    this.records = records.map((record: any) => {
+      record.startTime = record.startTime * 1000
+      // record.endTime = record.endTime * 1000
+    })
   }
 
   /**

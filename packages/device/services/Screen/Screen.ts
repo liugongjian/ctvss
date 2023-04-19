@@ -9,6 +9,7 @@ import { Codec, StatusEnum, RecordType } from '@vss/device/enums'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 
 export class Screen {
+  public key: number
   /* 播放器类型 */
   public type?: string
   /* 播放器实例 */
@@ -102,6 +103,7 @@ export class Screen {
   }
 
   private reset() {
+    this.key = null
     this.type = 'flv'
     this.player = null
     this.deviceId = null
@@ -218,6 +220,7 @@ export class Screen {
       this.recordManager && this.recordManager.destroy()
       this.axiosSource && this.axiosSource.cancel()
       ScreenModule.addPlayingScreen(this.deviceId)
+      this.key = new Date().getTime()
       this.isLive ? this.initLive() : this.initReplay()
     } catch (e) {
       console.error(e)

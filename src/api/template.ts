@@ -15,6 +15,29 @@ export const getRecordTemplates = (params: any): Promise<any> =>
     params
   })
 
+// 视图模板列表
+export const getViidRecordTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/list',
+    method: 'get',
+    params
+  })
+
+// 获取视图模板详情
+export const queryViidRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/describe',
+    method: 'get',
+    params
+  })
+
+export const createViidRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/create',
+    method: 'post',
+    data: params
+  })
+
 export const queryRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record',
@@ -31,7 +54,8 @@ export const createRecordTemplate = (params: any): Promise<any> =>
 
 export const getTemplateDeviceTree = (params: any, cancelToken?: any): Promise<any> =>
   request({
-    url: '/template/record/tree',
+    // url: '/template/record/tree',
+    url: '/template/tree', //和视图库合成一个接口
     method: 'get',
     params,
     cancelToken
@@ -51,9 +75,23 @@ export const updateRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+export const updateViidRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/update',
+    method: 'post',
+    data: params
+  })
+
 export const deleteRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/delete',
+    method: 'post',
+    data: params
+  })
+
+export const deleteViidRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/viid/storage/template/delete',
     method: 'post',
     data: params
   })

@@ -5,10 +5,7 @@
         <el-input v-model="form.algoName" :disabled="true" />
       </el-form-item>
       <el-form-item v-if="quickFlag" label="算法类型" prop="algo">
-        <el-select
-          v-model="form.algorithmsId"
-          placeholder="请选择算法类型"
-        >
+        <el-select v-model="form.algorithmsId" placeholder="请选择算法类型">
           <el-option
             v-for="algo in algoList"
             :key="algo.id"
@@ -20,7 +17,11 @@
       <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
-      <el-form-item label="分析频率" prop="analyseType" class="inline-form-item frequency">
+      <el-form-item
+        label="分析频率"
+        prop="analyseType"
+        class="inline-form-item frequency"
+      >
         <el-select
           v-model="form.analyseType"
           placeholder="请选择分析频率"
@@ -35,7 +36,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-select
+      <!-- <el-select
         v-if="frequencyUnits"
         v-model="frequency"
         class="interval-unit"
@@ -43,8 +44,8 @@
       >
         <el-option v-for="unit in frequencyUnits" :key="unit" :label="unit" :value="unit" />
       </el-select>
-      <span>{{ frequencyType }}</span>
-      <br>
+      <span>{{ frequencyType }}</span> -->
+      <br />
       <el-form-item label="生效时段" prop="effectPeriod">
         <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
@@ -174,7 +175,7 @@
         <el-option key="minute" label="分" value="m" />
         <el-option key="hour" label="时" value="h" />
       </el-select>
-      <br>
+      <br />
       <el-form-item
         v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         prop="alertTriggerThreshold"
@@ -198,8 +199,9 @@
       <span
         v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         style="margin-left: 16px;"
-      >个</span>
-      <br>
+      >个
+      </span>
+      <br />
       <el-form-item
         v-if="alertDisabled"
         prop="alertSilencePeriod"
@@ -230,7 +232,10 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id && !quickFlag" @click="changeStep({ step: 0 })">
+        <el-button
+          v-if="!$route.query.id && !quickFlag"
+          @click="changeStep({ step: 0 })"
+        >
           上一步
         </el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -242,7 +247,7 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import {  TrashType, HelmetClothType, AnimalType } from '@vss/ai/dics/contants'
+import { TrashType, HelmetClothType, AnimalType } from '@vss/ai/dics/contants'
 import { ResourceAiType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { FormRef } from '@vss/ai/dics'
@@ -298,8 +303,8 @@ export default class extends Mixins(AppMixin) {
     return res
   }
 
-  get frequencyType(){
-    switch (this.form.analyseType){
+  get frequencyType() {
+    switch (this.form.analyseType) {
       case 'AI-100':
         return '分'
       case 'AI-200':
@@ -309,8 +314,8 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  get frequencyUnits(){
-    switch (this.form.analyseType){
+  get frequencyUnits() {
+    switch (this.form.analyseType) {
       case 'AI-100':
         return [1, 2, 5]
       case 'AI-200':
@@ -330,7 +335,11 @@ export default class extends Mixins(AppMixin) {
   }
 
   get algoCode() {
-    return this.prod?.code || (this.form.algorithm && this.form.algorithm.code)
+    return (
+      this.prod?.code ||
+      (this.form.algorithm && this.form.algorithm.code) ||
+      this.algoList.find((algo) => algo.id === this.form.algorithmsId)?.code
+    )
   }
 
   get formComponent() {
@@ -407,10 +416,10 @@ export default class extends Mixins(AppMixin) {
         alertPeriod: '0',
         alertSilencePeriod: '3'
       }
-      if (this.quickFlag){
+      if (this.quickFlag) {
         await this.getAlgoList()
-        this.algoList.length > 0 && this.$set(this.form, 'algorithmsId', this.algoList[0].id)
-
+        this.algoList.length > 0 &&
+          this.$set(this.form, 'algorithmsId', this.algoList[0].id)
       }
       if (this.prod) {
         this.$set(this.form, 'algoName', this.prod.name)
@@ -418,9 +427,9 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  private async getAlgoList(){
-      const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityId: 0 })
-      this.algoList = aiAbilityAlgorithms
+  private async getAlgoList() {
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityId: 0 })
+    this.algoList = aiAbilityAlgorithms
   }
 
   private editTransformInterval() {
@@ -472,9 +481,9 @@ export default class extends Mixins(AppMixin) {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
       : (this.form = {
-        ...this.form,
-        algorithmMetadata: { FaceDbName: '', pedThreshold: '' }
-      })
+          ...this.form,
+          algorithmMetadata: { FaceDbName: '', pedThreshold: '' }
+        })
   }
 
   private editTransformHelmetReflectiveType() {
@@ -496,7 +505,7 @@ export default class extends Mixins(AppMixin) {
    * 步进控制
    */
   private cancel() {
-    if (this.quickFlag){
+    if (this.quickFlag) {
       this.$emit('close')
       return
     }
@@ -508,7 +517,7 @@ export default class extends Mixins(AppMixin) {
    */
   private onSubmit() {
     const form: any = this.$refs.appForm
-    form.validate(async(valid: any) => {
+    form.validate(async (valid: any) => {
       if (valid) {
         this.submitValidAppInfo()
       }
@@ -539,19 +548,19 @@ export default class extends Mixins(AppMixin) {
         : '0',
       alertPeriod: this.alertDisabled
         ? (this.interval.alertPeriod === 's'
-          ? this.form.alertPeriod
-          : this.interval.alertPeriod === 'm'
+            ? this.form.alertPeriod
+            : this.interval.alertPeriod === 'm'
             ? +this.form.alertPeriod * 60
             : +this.form.alertPeriod * 60 * 60
-        ).toString()
+          ).toString()
         : '0',
       alertSilencePeriod: this.alertDisabled
         ? (this.interval.alertSilencePeriod === 's'
-          ? this.form.alertSilencePeriod
-          : this.interval.alertSilencePeriod === 'm'
+            ? this.form.alertSilencePeriod
+            : this.interval.alertSilencePeriod === 'm'
             ? +this.form.alertSilencePeriod * 60
             : +this.form.alertSilencePeriod * 60 * 60
-        ).toString()
+          ).toString()
         : '0'
     }
 
@@ -568,10 +577,13 @@ export default class extends Mixins(AppMixin) {
         await updateAppInfo(param)
       } else {
         // 新建时带上算法ID
-        param = { ...param, algorithmsId: this.quickFlag ? this.form.algorithmsId : this.prod.id }
+        param = {
+          ...param,
+          algorithmsId: this.quickFlag ? this.form.algorithmsId : this.prod.id
+        }
         await createApp(param)
       }
-      if (this.quickFlag){
+      if (this.quickFlag) {
         this.$emit('close')
         this.$message.success('新建应用成功')
         return
@@ -616,7 +628,7 @@ export default class extends Mixins(AppMixin) {
     this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
 
-  private resetFrequency(){
+  private resetFrequency() {
     this.frequency = 1
   }
 }

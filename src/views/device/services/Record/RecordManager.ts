@@ -344,7 +344,10 @@ export class RecordManager {
         this.screen.player = null
         // if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
-          if (!UserModule.iamUserId || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)) {
+          if (!UserModule.iamUserId 
+            || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth)
+            || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)
+          ) {
             // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
             throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
           }
@@ -374,12 +377,18 @@ export class RecordManager {
   public playNextRecord() {
     if (this.screen.recordType === 1) return
     const currentEndtime = this.currentRecord.endTime
-    // const nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime > this.currentRecord.startTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    // const nextRecord = this.currentRecord
+    //     ? this.recordList.find(record => record.startTime > this.currentRecord.startTime)
+    //     : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     // next record which is unlocked
     // also if user's permission = 1, then all records are availabel
-    let nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
+    let nextRecord = this.currentRecord
+                      ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
+                      : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime)
     if (!this.canLock) {
-      nextRecord = this.currentRecord ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0) : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
+      nextRecord = this.currentRecord
+                      ? this.recordList.find(record => record.startTime >= this.currentRecord.endTime && record.isLock === 0)
+                      : this.recordList.find(record => record.startTime >= this.screen.currentRecordDatetime && record.isLock === 0)
     }
     if (nextRecord) {
       if (this.currentRecord) {
@@ -477,7 +486,8 @@ export class RecordManager {
         cover: record.cover,
         fileFormat: record.fileFormat,
         isLock: record.isLock == null ? 0 : record.isLock,
-        expirationTime: record.expirationTime
+        expirationTime: record.expirationTime,
+        expireTime: record.expireTime
       })
     })
   }

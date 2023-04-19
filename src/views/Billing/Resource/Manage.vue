@@ -92,6 +92,12 @@ export default class extends Vue {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
+  @Watch('$route.path', { immediate: true })
+  public pathChange(){
+    this.dataList = []
+    this.$nextTick(() => this.getData())
+  }
+
   private back() {
     const params: any = this.$route.params
     this.$router.push({
@@ -129,7 +135,11 @@ export default class extends Vue {
     }
   }
 
-  private async mounted() {
+  // private async mounted() {
+  //   this.getData()
+  // }
+
+  private getData(){
     this.breadCrumbContent = this.$route.meta.title
     this.resourceId = this.$route.query.resourceId
     this.getResourceDevices()

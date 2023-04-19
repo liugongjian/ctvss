@@ -32,11 +32,11 @@ export default class extends Vue {
   private async mounted() {
     try {
       this.isfaceLibLoading = true
-      const { data } = await listGroup({
+      const { groups } = await listGroup({
         pageNum: 0,
         pageSize: 3000
       })
-      this.faceLibs = data
+      this.faceLibs = groups
     } catch (e) {
       this.$alertError(e && e.message)
     } finally {
@@ -63,82 +63,80 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.app-container {
-  .confidence-info {
-    display: inline-block;
-    height: 45px;
-    line-height: 100%;
-    vertical-align: middle;
-    margin-left: -71px;
+.confidence-info {
+  display: inline-block;
+  height: 45px;
+  line-height: 100%;
+  vertical-align: middle;
+  margin-left: -71px;
 
-    & > span:nth-child(2) {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+  & > span:nth-child(2) {
+    margin-left: 10px;
+    margin-right: 10px;
   }
+}
 
-  .el-slider {
-    width: 500px;
-    display: inline-block;
+.el-slider {
+  width: 500px;
+  display: inline-block;
 
-    ::v-deep .el-slider__input {
-      width: 60px;
-      margin-right: 80px;
-    }
+  ::v-deep .el-slider__input {
+    width: 60px;
+    margin-right: 80px;
   }
+}
 
-  .el-input,
-  .el-textarea,
-  .el-table {
-    width: 500px;
+.el-input,
+.el-textarea,
+.el-table {
+  width: 500px;
+}
+
+.tabrow-add {
+  padding-left: 180px;
+}
+
+.mb5 {
+  width: 500px;
+}
+
+.el-icon-refresh {
+  margin-left: 20px;
+  font-size: 16px;
+
+  &:hover {
+    cursor: pointer;
   }
+}
 
-  .tabrow-add {
-    padding-left: 180px;
+.el-button--text {
+  margin-left: 15px;
+}
+
+.comment {
+  padding-left: 10px;
+  color: $textGrey;
+}
+
+.el-form-item.is-error.el-form-item--medium {
+  margin-bottom: 20px;
+}
+
+.alarm {
+  width: 112px;
+  margin-right: 18px;
+
+  & + .el-select {
+    width: 80px;
   }
+}
 
-  .mb5 {
-    width: 500px;
-  }
+.inline-form-item {
+  width: fit-content;
+  display: inline-block;
+}
 
-  .el-icon-refresh {
-    margin-left: 20px;
-    font-size: 16px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .el-button--text {
-    margin-left: 15px;
-  }
-
-  .comment {
-    padding-left: 10px;
-    color: $textGrey;
-  }
-
-  .el-form-item.is-error.el-form-item--medium {
-    margin-bottom: 20px;
-  }
-
-  .alarm {
-    width: 112px;
-    margin-right: 18px;
-
-    & + .el-select {
-      width: 80px;
-    }
-  }
-
-  .inline-form-item {
-    width: fit-content;
-    display: inline-block;
-  }
-
-  .interval-unit {
-    width: 65px;
-  }
+.interval-unit {
+  width: 65px;
 }
 </style>
