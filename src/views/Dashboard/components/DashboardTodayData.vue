@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 14:08:14
+ * @LastEditTime: 2023-04-19 15:46:16
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -113,7 +113,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private pieDataStorage: any = []
 
-  private chartView: any = null
 
   private pieDataView: any = []
 
@@ -173,29 +172,29 @@ export default class extends Mixins(DashboardMixin) {
     ]
   }
 
-  private formatDeviceData(res){
+  private formatDeviceData(res) {
     const {
-        offline = 0,
-        online = 0,
-        sum = 0,
-        unregistered = 0,
-        deactivate = 0
-      } = res
-      const data = {
-        offline,
-        online,
-        deactivate,
-        unregistered
-      }
+      offline = 0,
+      online = 0,
+      sum = 0,
+      unregistered = 0,
+      deactivate = 0
+    } = res
+    const data = {
+      offline,
+      online,
+      deactivate,
+      unregistered
+    }
 
-      const result = Object.keys(data).map((item) => ({
-        item: item,
-        value: data[item],
-        percent: data[item] / sum,
-        text: ''
-      }))
+    const result = Object.keys(data).map((item) => ({
+      item: item,
+      value: data[item],
+      percent: data[item] / sum,
+      text: ''
+    }))
 
-      return result
+    return result
   }
 
   private async getDevice() {
@@ -205,19 +204,18 @@ export default class extends Mixins(DashboardMixin) {
       const { video, viid } = res
 
       this.pieDataVideo = this.formatDeviceData(video)
-      
-      this.drawPieToday('pieVideoToday', 'pieDataVideo', this.pieDataVideo)
+
+      this.drawPieToday('pieVideoToday', 'pieVideoToday', this.pieDataVideo)
 
       const { enable } = viid
 
-      if (enable === 1){
+      if (enable === 1) {
         this.ifShowViidPie = true
-        this.pieDataViid = this.formatDeviceData(viid)
-        this.drawPieToday('pieViidToday', 'pieDataViid', this.pieDataViid)
+        this.$nextTick(()=>{
+          this.pieDataViid = this.formatDeviceData(viid)
+          this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
+        })
       }
-
-      
-      
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -260,16 +258,18 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
 
-      this.pieDataView = this.pieDataStorage
-
-     this.drawPieStorage('pieChartStorage', 'chartStorage', this.pieDataStorage)
-
+      this.drawPieStorage(
+        'pieChartStorage',
+        'chartStorage',
+        this.pieDataStorage
+      )
     } catch (error) {
       this.$message.error(error && error.message)
     }
   }
 
   private drawPieToday(container, chartDom, data) {
+
     this.currentPieChart[chartDom] && this.currentPieChart[chartDom].destroy()
 
     this[chartDom] = new Chart({
@@ -278,6 +278,8 @@ export default class extends Mixins(DashboardMixin) {
       width: 800,
       height: 260
     })
+
+    console.log('this[chartDom] ---->', container, chartDom, this[chartDom])
 
     this[chartDom].scale('percent', {
       formatter: (val) => {
@@ -481,6 +483,7 @@ export default class extends Mixins(DashboardMixin) {
 
         &_pie {
           text-align: center;
+          font-weight: bold;
         }
 
         &:last-child {
@@ -488,18 +491,10 @@ export default class extends Mixins(DashboardMixin) {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          // min-width: 500px;
+
           ::v-deep {
             .el-row {
-              // display: flex;
-              // justify-content: space-between;
-              // text-align: center;
-              // flex-wrap: wrap;
-
               .el-col {
-                // flex: 1 2 35%;
-                // flex: 1;
-                // flex-grow: 2;
                 width: 50%;
                 min-width: 130px;
                 margin-bottom: 10px;
@@ -508,29 +503,6 @@ export default class extends Mixins(DashboardMixin) {
           }
         }
       }
-
-      // @media screen and (max-width: 1280px) {
-      //   .dashboard-wrap-overview_content_detail {
-      //     &:last-child {
-      //       ::v-deep {
-      //         // .el-row {
-      //         //   display: flex;
-      //         //   justify-content: space-between;
-      //         //   text-align: center;
-      //         //   flex-wrap: wrap;
-
-      //         .el-col {
-      //           // flex: 1 2 50%;
-      //           flex: 1;
-      //           // flex-grow: 2;
-      //           width: 25%;
-      //           min-width: 130px;
-      //           margin-bottom: 10px;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
 
       &_data {
         line-height: 30px;
