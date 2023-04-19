@@ -60,11 +60,20 @@
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button v-if="!isVGroup && !isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
+        <el-button
+          v-if="!isVGroup && !isChannel"
+          class="el-button-rect filter-container__sync-button"
+          :disabled="loading.syncDeviceStatus"
+          :class="{ 'loading': loading.syncDeviceStatus }"
+          @click="syncDeviceStatus"
+        >
+          <svg-icon name="refresh" />
+          同步设备状态
+        </el-button>
       </div>
     </div>
     <div v-if="hasFiltered" ref="filterBtnWrap" class="filter-container filter-buttons">
-      <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
+      <div v-for="{ key, value } in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
         <label>{{ deviceParams[key] }}</label>
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
         <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
@@ -74,10 +83,21 @@
       </div>
     </div>
     <div v-loading="loading.list || loading.info" class="device-list__wrap">
-      <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
+      <el-table
+        v-show="deviceList.length"
+        ref="deviceTable"
+        :height="tableMaxHeight"
+        :data="deviceList"
+        empty-text="暂无设备"
+        fit
+        class="device-list__table"
+        @row-click="rowClick"
+        @selection-change="handleSelectionChange"
+        @filter-change="filterChange"
+      >
         <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
         <el-table-column label="设备ID/名称" min-width="200">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="device-list__device-name">
               <div class="device-list__device-id">{{ row.deviceId }}</div>
               <div>{{ row.deviceName }}</div>
@@ -97,7 +117,7 @@
             <span class="filter">类型</span>
             <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ deviceType[row.deviceType] }}
           </template>
         </el-table-column>
@@ -113,7 +133,7 @@
             <span class="filter">设备状态</span>
             <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="row.deviceStatus" />
             {{ deviceStatus[row.deviceStatus] || '-' }}
           </template>
@@ -128,7 +148,7 @@
           <template slot="header">
             <span class="filter">主码流状态</span>
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="getStreamStatus(row.deviceStreams, 1)" />
             {{ streamStatus[getStreamStatus(row.deviceStreams, 1)] || '-' }}
           </template>
@@ -143,7 +163,7 @@
           <template slot="header">
             <span class="filter">子码流状态</span>
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="getStreamStatus(row.deviceStreams, 2)" />
             {{ streamStatus[getStreamStatus(row.deviceStreams, 2)] || '-' }}
           </template>
@@ -159,7 +179,7 @@
           <template slot="header">
             <span class="filter">第三码流状态</span>
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="getStreamStatus(row.deviceStreams, 3)" />
             {{ streamStatus[getStreamStatus(row.deviceStreams, 3)] || '-' }}
           </template>
@@ -177,48 +197,49 @@
             <span class="filter">录制状态</span>
             <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span v-if="row.deviceType === 'nvr'">-</span>
             <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="bitrate" min-width="100" prop="bitrate" label="当前码率">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.bitrate ? (row.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
           </template>
         </el-table-column>
         <el-table-column key="errorMessage" prop="errorMessage" label="异常提示">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.errorMessage || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.deviceVendor || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="streamTransType" prop="streamTransType" label="流传输模式" min-width="110">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ streamTransType[row.streamTransType] || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="deviceIp" label="设备IP" min-width="130">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.deviceIp || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="devicePort" label="设备端口">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.devicePort || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="createdTime" label="创建时间" min-width="180">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.createdTime }}
           </template>
         </el-table-column>
         <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
           <template slot-scope="scope">
+            <el-button v-if="isMainUser && !isVGroup" type="text" @click="describePermission(scope.row)">查看权限</el-button>
             <el-button v-if="checkPermission(['ivs:GetLiveStream'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button v-if="checkPermission(['ivs:GetCloudRecord'], scope.row)" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
             <!-- <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button> -->
@@ -238,24 +259,24 @@
                 <el-table-column property="createdTime" />
                 <el-table-column property="errorMessage" />
               </el-table>
-              <el-button slot="reference" type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'detail', activeName: 'events'})">设备事件</el-button>
+              <el-button slot="reference" type="text" @click="deviceRouter({ id: scope.row.deviceId, type: 'detail', activeName: 'events' })">设备事件</el-button>
             </el-popover>
             <el-dropdown v-if="checkPermission(['ivs:UpdateDevice', 'ivs:DeleteDevice'], scope.row)" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
+                <el-dropdown-item :command="{ type: 'detail', device: scope.row }">设备详情</el-dropdown-item>
                 <template v-if="scope.row.deviceType === 'ipc'">
                   <div v-for="num in scope.row.multiStreamSize" :key="num">
-                    <el-dropdown-item v-if="!isVGroup && getStreamStatus(scope.row.deviceStreams, num) === 'on' && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'stopDevice', device: scope.row, num}">{{ `停用${autoStreamNumObj[num]}` }}</el-dropdown-item>
-                    <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'startDevice', device: scope.row, num}">{{ `启用${autoStreamNumObj[num]}` }}</el-dropdown-item>
+                    <el-dropdown-item v-if="!isVGroup && getStreamStatus(scope.row.deviceStreams, num) === 'on' && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'stopDevice', device: scope.row, num }">{{ `停用${autoStreamNumObj[num]}` }}</el-dropdown-item>
+                    <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'startDevice', device: scope.row, num }">{{ `启用${autoStreamNumObj[num]}` }}</el-dropdown-item>
                   </div>
-                  <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
-                  <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
+                  <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'stopRecord', device: scope.row }">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'startRecord', device: scope.row }">开始录像</el-dropdown-item>
                 </template>
-                <el-dropdown-item v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'updateResource', device: scope.row}">配置资源包</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && !isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && ((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="!isVGroup && isAllowedDelete && checkPermission(['ivs:DeleteDevice'], scope.row)" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'updateResource', device: scope.row }">配置资源包</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && !isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'move', device: scope.row }">移动至</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && ((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['ivs:UpdateDevice'], scope.row)" :command="{ type: 'update', device: scope.row }">编辑</el-dropdown-item>
+                <el-dropdown-item v-if="!isVGroup && isAllowedDelete && checkPermission(['ivs:DeleteDevice'], scope.row)" :command="{ type: 'delete', device: scope.row }">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
