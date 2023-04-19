@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 15:46:16
+ * @LastEditTime: 2023-04-19 15:53:36
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -113,7 +113,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private pieDataStorage: any = []
 
-
   private pieDataView: any = []
 
   private currentPieChart: any = {}
@@ -172,7 +171,7 @@ export default class extends Mixins(DashboardMixin) {
     ]
   }
 
-  private formatDeviceData(res) {
+  private formatDeviceData(res, kind) {
     const {
       offline = 0,
       online = 0,
@@ -180,11 +179,22 @@ export default class extends Mixins(DashboardMixin) {
       unregistered = 0,
       deactivate = 0
     } = res
-    const data = {
-      offline,
-      online,
-      deactivate,
-      unregistered
+
+    let data = {}
+
+    if (kind === 'viid') {
+      data = {
+        offline,
+        online,
+        deactivate
+      }
+    } else {
+      data = {
+        offline,
+        online,
+        deactivate,
+        unregistered
+      }
     }
 
     const result = Object.keys(data).map((item) => ({
@@ -203,7 +213,7 @@ export default class extends Mixins(DashboardMixin) {
 
       const { video, viid } = res
 
-      this.pieDataVideo = this.formatDeviceData(video)
+      this.pieDataVideo = this.formatDeviceData(video, 'video')
 
       this.drawPieToday('pieVideoToday', 'pieVideoToday', this.pieDataVideo)
 
@@ -211,8 +221,8 @@ export default class extends Mixins(DashboardMixin) {
 
       if (enable === 1) {
         this.ifShowViidPie = true
-        this.$nextTick(()=>{
-          this.pieDataViid = this.formatDeviceData(viid)
+        this.$nextTick(() => {
+          this.pieDataViid = this.formatDeviceData(viid, 'viid')
           this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
         })
       }
@@ -269,7 +279,6 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private drawPieToday(container, chartDom, data) {
-
     this.currentPieChart[chartDom] && this.currentPieChart[chartDom].destroy()
 
     this[chartDom] = new Chart({
@@ -278,8 +287,6 @@ export default class extends Mixins(DashboardMixin) {
       width: 800,
       height: 260
     })
-
-    console.log('this[chartDom] ---->', container, chartDom, this[chartDom])
 
     this[chartDom].scale('percent', {
       formatter: (val) => {
@@ -340,9 +347,6 @@ export default class extends Mixins(DashboardMixin) {
           },
           content: (data) => {
             return `${this.pieTodayToText[data.item]}:${data.value}`
-            // return `${this.pieTodayToText[data.item]}: ${(
-            //   percent * 100
-            // ).toFixed(2)}%`
           }
         }
       })
