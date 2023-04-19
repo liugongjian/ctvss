@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 15:53:36
+ * @LastEditTime: 2023-04-19 20:27:28
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -44,15 +44,14 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时上行带宽
-                <div>{{ bandWidthData.realUpstreamBandwidth }}</div>
+                <div>{{ bandwidth.uploadBandWidthCurrentValue }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
-                上行流量峰值
+                实时上行流量
                 <div>
-                  {{ splitBandWidth(bandWidthData.upstreamBandwidth)[0]
-                  }}{{ splitBandWidth(bandWidthData.upstreamBandwidth)[1] }}
+                  {{ splitBandWidth(bandwidth.uploadTrafficValue)[0] }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -61,15 +60,14 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时下行带宽
-                <div>{{ bandWidthData.realDownstreamBandwidth }}</div>
+                <div>{{ bandwidth.downloadBandWidthCurrentValue }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
-                下行流量峰值
+                实时下行流量
                 <div>
-                  {{ splitBandWidth(bandWidthData.downstreamBandwidth)[0]
-                  }}{{ splitBandWidth(bandWidthData.downstreamBandwidth)[1] }}
+                  {{ splitBandWidth( bandwidth.downloadTrafficValue)[0] }}{{ splitBandWidth( bandwidth.downloadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -86,9 +84,11 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import {
   getDeviceStates,
-  getBandwidthStates,
   getUserStorage
 } from '@/api/dashboard'
+import {
+  getBandwidthStatistics
+} from '@/api/dosageStatistics'
 import { formatStorage, formatBandWidth } from '@/utils/number'
 import { Chart, Util } from '@antv/g2'
 
@@ -122,6 +122,12 @@ export default class extends Mixins(DashboardMixin) {
     realDownstreamBandwidth: 0,
     realUpstreamBandwidth: 0,
     upstreamBandwidth: 0
+  }
+   private bandwidth: any = {
+    uploadTrafficValue: 0,
+    downloadTrafficValue: 0,
+    downloadBandWidthCurrentValue: 0,
+    uploadBandWidthCurrentValue: 0
   }
 
   private pieTodayToText = {
@@ -217,9 +223,9 @@ export default class extends Mixins(DashboardMixin) {
 
       this.drawPieToday('pieVideoToday', 'pieVideoToday', this.pieDataVideo)
 
-      const { enable } = viid
+      const { enable, sum } = viid
 
-      if (enable === 1) {
+      if (enable === 1 && Number(sum) !== 0) {
         this.ifShowViidPie = true
         this.$nextTick(() => {
           this.pieDataViid = this.formatDeviceData(viid, 'viid')
@@ -231,20 +237,35 @@ export default class extends Mixins(DashboardMixin) {
     }
   }
 
+
+
   private async getBandwidth() {
     try {
-      const res = await getBandwidthStates()
+      const res = await getBandwidthStatistics()
+      // const {
+      //   downstreamBandwidth,
+      //   realDownstreamBandwidth,
+      //   realUpstreamBandwidth,
+      //   upstreamBandwidth
+      // } = res
+      // this.bandWidthData = {
+      //   downstreamBandwidth: formatBandWidth(downstreamBandwidth),
+      //   realDownstreamBandwidth: formatBandWidth(realDownstreamBandwidth),
+      //   realUpstreamBandwidth: formatBandWidth(realUpstreamBandwidth),
+      //   upstreamBandwidth: formatBandWidth(upstreamBandwidth)
+      // }
+
       const {
-        downstreamBandwidth,
-        realDownstreamBandwidth,
-        realUpstreamBandwidth,
-        upstreamBandwidth
+        downloadBandWidthCurrentValue = 0,
+        uploadBandWidthCurrentValue = 0,
+        uploadTrafficValue = 0,
+        downloadTrafficValue = 0
       } = res
-      this.bandWidthData = {
-        downstreamBandwidth: formatBandWidth(downstreamBandwidth),
-        realDownstreamBandwidth: formatBandWidth(realDownstreamBandwidth),
-        realUpstreamBandwidth: formatBandWidth(realUpstreamBandwidth),
-        upstreamBandwidth: formatBandWidth(upstreamBandwidth)
+      this.bandwidth = {
+        downloadBandWidthCurrentValue: formatBandWidth(downloadBandWidthCurrentValue),
+        uploadBandWidthCurrentValue: formatBandWidth(uploadBandWidthCurrentValue),
+        uploadTrafficValue: formatBandWidth(uploadTrafficValue),
+        downloadTrafficValue: formatBandWidth(downloadTrafficValue)
       }
     } catch (error) {
       this.$message.error(error && error.message)
