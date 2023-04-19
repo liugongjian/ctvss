@@ -238,8 +238,6 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetGlobalInfo: token is undefined!')
     }
-    // 设置视频记录保存配置项
-    this.getUserConfigInfo()
 
     if (process.env.NODE_ENV === 'development' || settings.outNetworkWhiteList.indexOf(location.hostname) !== -1) {
       this.SET_OUTER_NETWORK('internet')
@@ -254,6 +252,9 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_TAGS(userInfo.tags)
       this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
+
+    // 设置视频记录保存配置项
+    this.getUserConfigInfo()
 
     let data: any = null
     if (this.iamUserId) {
