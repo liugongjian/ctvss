@@ -1,5 +1,10 @@
 <template>
-  <div v-if="container" :id="container" class="statistic__chart" :class="chartClasss" />
+  <div
+    v-if="container"
+    :id="container"
+    class="statistic__chart"
+    :class="chartClasss"
+  />
 </template>
 
 <script lang="ts">
@@ -10,17 +15,16 @@ import { TooltipItem } from '@antv/g2/lib/interface'
 @Component({
   name: 'DrawChart'
 })
-
 export default class extends Vue {
   @Prop() private chartInfo?: any
 
   private chart: any = {}
 
-  private container = 'container'
+  private container: string = 'container'
 
   private currentChart: any = null
 
-  private chartClasss = ''
+  private chartClasss: string = ''
 
   mounted() {
     this.drawChart()
@@ -57,7 +61,10 @@ export default class extends Vue {
       height = 80
     } = this.chartInfo
 
-    const data = [{ name: '在线', value: Number(onlineNum) }, { name: '离线', value: Number(totalDeviceNum) - Number(onlineNum) }]
+    const data = [
+      { name: '在线', value: Number(onlineNum) },
+      { name: '离线', value: Number(totalDeviceNum) - Number(onlineNum) }
+    ]
 
     this.currentChart && this.currentChart.destroy()
 
@@ -124,10 +131,7 @@ export default class extends Vue {
   private drawLineChart() {
     this.currentChart && this.currentChart.destroy()
 
-    const {
-      data,
-      name
-    } = this.chartInfo
+    const { data, name } = this.chartInfo
 
     this.chart = new Chart({
       container: name,
@@ -135,7 +139,10 @@ export default class extends Vue {
       height: 400
     })
 
-    const dataLogs = data.logs.map(item => ({ ...item, usage: Number((item.usage * 100).toFixed(6)) }))
+    const dataLogs = data.logs.map((item) => ({
+      ...item,
+      usage: Number((item.usage * 100).toFixed(6))
+    }))
 
     this.chart.data(dataLogs)
 
@@ -144,6 +151,7 @@ export default class extends Vue {
         range: [0, 1]
       },
       usage: {
+        range: [0, 0.94],
         min: 0,
         max: 100,
         nice: true
@@ -176,18 +184,20 @@ export default class extends Vue {
       }
     })
 
-    this.chart.line().position('day*usage').label(
-      'usage', (value) => {
+    this.chart
+      .line()
+      .position('day*usage')
+      .label('usage', (value) => {
         return {
           content: value.toFixed(2) + '%'
         }
-      }
-    ).color('usage', (value) => {
-      if (value > data.threshold) {
-        return 'red'
-      }
-      return '#1890ff'
-    })
+      })
+      .color('usage', (value) => {
+        if (value > data.threshold) {
+          return 'red'
+        }
+        return '#1890ff'
+      })
 
     // 使用 geom.color()   会有个 legend栏来 滑动选择 值， 所以关闭
     this.chart.legend(false)
@@ -233,8 +243,8 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .pie-chart {
-    margin-left: auto;
-    margin-right: 10px;
-  }
+.pie-chart {
+  margin-left: auto;
+  margin-right: 10px;
+}
 </style>

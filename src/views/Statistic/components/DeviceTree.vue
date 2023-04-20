@@ -1,25 +1,52 @@
 <template>
-  <div class="statistic-box__device__tree" :style="{ height: `${maxHeight}px` }">
+  <div
+    class="statistic-box__device__tree"
+    :style="{height: `${maxHeight}px`}"
+  >
     <div
       class="device-list__handle"
       :style="`left: ${dirDrag.width}px`"
       @mousedown="changeWidthStart($event)"
     />
-    <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+    <div
+      ref="dirList"
+      class="device-list__left"
+      :style="`width: ${dirDrag.width}px`"
+    >
       <div class="dir-list" :style="`width: ${dirDrag.width}px`">
         <div class="dir-list__tools">
-          <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
-            <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="刷新目录"
+            placement="top"
+            :open-delay="300"
+          >
+            <el-button type="text" @click="initDirs">
+              <svg-icon name="refresh" />
+            </el-button>
           </el-tooltip>
-          <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
+          <el-tooltip
+            v-if="false"
+            class="item"
+            effect="dark"
+            content="目录设置"
+            placement="top"
+            :open-delay="300"
+          >
             <el-button type="text"><i class="el-icon-setting" /></el-button>
           </el-tooltip>
         </div>
-        <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
-          <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }">
+        <div
+          v-loading="loading.dir"
+          class="dir-list__tree device-list__max-height"
+        >
+          <div class="dir-list__tree--root" :class="{actived: isRootDir}">
             <svg-icon name="component" width="12px" />
             根目录
-            <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
+            <span class="sum-icon">{{
+              `(${rootSums.online}/${rootSums.total})`
+            }}</span>
           </div>
           <el-tree
             key="device-el-tree-filter"
@@ -35,17 +62,28 @@
             @node-click="deviceRouter"
           >
             <span
-              slot-scope="{ node, data }"
+              slot-scope="{node, data}"
               class="custom-tree-node"
-              :class="{ 'online': data.deviceStatus === 'on','not-allowed': !data.groupName && data.type !== 'ipc' }"
+              :class="{
+                online: data.deviceStatus === 'on',
+                'not-allowed': !data.groupName && data.type !== 'ipc'
+              }"
             >
               <span class="node-name">
-                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <svg-icon
+                  v-if="data.type !== 'dir' && data.type !== 'platformDir'"
+                  :name="data.type"
+                  width="15"
+                  height="15"
+                />
                 <span v-else class="node-dir">
                   <svg-icon name="dir" width="15" height="15" />
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
-                <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                <status-badge
+                  v-if="data.type === 'ipc'"
+                  :status="data.streamStatus"
+                />
                 <additional-status
                   v-if="data.type === 'ipc'"
                   :record-status="data.recordStatus"
@@ -85,7 +123,6 @@ import AdditionalStatus from '@/views/device/components/AdditionalStatus.vue'
     AdditionalStatus
   }
 })
-
 export default class extends Vue {
   @Prop() private wrap
 
@@ -98,8 +135,8 @@ export default class extends Vue {
   public isExpanded = true
 
   public defaultKey = null
-  private maxHeight = 0
-  private currentGroup = {}
+  private maxHeight: number = 0
+  // private currentGroup = {}
 
   public loading = {
     dir: false,
@@ -166,15 +203,18 @@ export default class extends Vue {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
 
-      const groupsList = GroupModule.groups.map((item: any) => {
-        return {
-          label: item.groupName,
-          id: item.groupId,
-          groupInProtocol: item.inProtocol,
-          ...item
-        }
-      }).filter((group: any) => group.groupInProtocol !== 'vgroup')
-      this.currentGroup = groupsList[0]
+      const groupsList = GroupModule.groups
+        .map((item: any) => {
+          return {
+            label: item.groupName,
+            id: item.groupId,
+            groupInProtocol: item.inProtocol,
+            ...item
+          }
+        })
+        .filter((group: any) => group.groupInProtocol !== 'vgroup')
+
+      // this.currentGroup = groupsList[0]
       this.dirList = groupsList
 
       this.$nextTick(() => {
@@ -192,8 +232,10 @@ export default class extends Vue {
 
   public initSearchStatus() {
     const query: any = this.$route.query
-    this.advancedSearchForm.deviceStatusKeys = (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
-    this.advancedSearchForm.streamStatusKeys = (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
+    this.advancedSearchForm.deviceStatusKeys =
+      (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
+    this.advancedSearchForm.streamStatusKeys =
+      (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
     if (query.deviceAddresses) {
       const temp = query.deviceAddresses.split(',')
       this.advancedSearchForm.deviceAddresses = {
@@ -201,13 +243,16 @@ export default class extends Vue {
         level: temp[1]
       }
     }
-    this.advancedSearchForm.matchKeys = (query.matchKeys && query.matchKeys.split(',')) || []
+    this.advancedSearchForm.matchKeys =
+      (query.matchKeys && query.matchKeys.split(',')) || []
     this.advancedSearchForm.inputKey = query.searchKey || ''
     this.advancedSearchForm.searchKey = query.searchKey || ''
-    this.advancedSearchForm.revertSearchFlag = Boolean(this.advancedSearchForm.searchKey ||
-                                                        this.advancedSearchForm.deviceStatusKeys.length ||
-                                                        this.advancedSearchForm.streamStatusKeys.length ||
-                                                        this.advancedSearchForm.deviceAddresses.code)
+    this.advancedSearchForm.revertSearchFlag = Boolean(
+      this.advancedSearchForm.searchKey ||
+        this.advancedSearchForm.deviceStatusKeys.length ||
+        this.advancedSearchForm.streamStatusKeys.length ||
+        this.advancedSearchForm.deviceAddresses.code
+    )
   }
 
   public doSearch(payload: any) {
@@ -254,7 +299,7 @@ export default class extends Vue {
    * 转化搜索目录树
    */
   public transformDirList(dirList: any) {
-    return dirList.map(dir => {
+    return dirList.map((dir) => {
       if (dir.dirs) {
         return {
           ...dir,
@@ -318,6 +363,7 @@ export default class extends Vue {
 
   private async deviceRouter(item: any, node?: any) {
     this.loading.dir = true
+    this.$emit('noback')
     let _node: any
     if (!node) {
       const dirTree: any = this.$refs.dirTree
@@ -335,19 +381,39 @@ export default class extends Vue {
     }
 
     // 暂时要处理业务组 为tree node的情况
-    if (item?.groupName || item.type === 'nvr' || item.type === 'platform' || item.type === 'dir') {
+    if (
+      item?.groupName ||
+      (item?.type &&
+        (item.type === 'nvr' ||
+          item.type === 'platformDir' ||
+          item.type === 'dir'))
+    ) {
       await this.loadDirChildren(item.id, _node)
       this.$nextTick(async() => {
         const dirTree: any = this.$refs.dirTree
-        const result = _node.childNodes?.find((item: any) => item.data?.type === 'ipc')
-        dirTree.setCurrentKey(result?.data?.id)
+        const result = _node.childNodes?.find(
+          (item: any) => item.data?.type === 'ipc'
+        )
+        dirTree?.setCurrentKey(result?.data?.id)
+
         if (result && Object.keys(result).length > 0) {
-          this.$emit('treeback', result.data.id, result.data.groupInProtocol, result.data.groupId)
+          this.$emit(
+            'treeback',
+            result.data.id,
+            result.data.groupInProtocol,
+            result.data.groupId
+          )
+        } else {
+          this.$emit('noback')
         }
         this.loading.dir = false
       })
     } else {
-      this.$emit('treeback', item.id, item.groupInProtocol, item.groupId)
+      if (item?.type === 'ipc') {
+        this.$emit('treeback', item?.id, item?.groupInProtocol, item?.groupId)
+      } else {
+        this.$emit('noback')
+      }
       this.loading.dir = false
     }
   }
@@ -384,8 +450,10 @@ export default class extends Vue {
    * 加载目录
    */
   public async loadDirs(node: any, resolve: Function) {
+    this.$emit('noback')
     if (node.level === 0) return resolve([])
-    this.currentGroup = node.data
+    // this.currentGroup = node.data
+
     try {
       const res = await getDeviceTree({
         groupId: node.data.groupId || '',
@@ -401,10 +469,19 @@ export default class extends Vue {
       this.$nextTick(() => {
         const dirTree: any = this.$refs.dirTree
         const _node = dirTree.getNode(node.data.id)
-        const result = _node.childNodes?.find((item: any) => item.data?.type === 'ipc')
+        const result = _node.childNodes?.find(
+          (item: any) => item.data?.type === 'ipc'
+        )
         dirTree.setCurrentKey(result?.data?.id)
         if (result && Object.keys(result).length > 0) {
-          this.$emit('treeback', result.data.id, result.data.groupInProtocol, result.data.groupId)
+          this.$emit(
+            'treeback',
+            result.data.id,
+            result.data.groupInProtocol,
+            result.data.groupId
+          )
+        } else {
+          this.$emit('noback')
         }
       })
     } catch (e) {
