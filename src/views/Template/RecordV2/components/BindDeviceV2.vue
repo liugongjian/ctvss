@@ -599,12 +599,21 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.custom-tree-node {
+  position: relative;
+
+  .svg-icon {
+    color: $color-grey-15;
+    font-size: $text-size-medium;
+  }
+}
+
 .bind-wrap {
   width: 100%;
   height: 100%;
 }
 
-.bind-device-node.online .node-name {
+.custom-tree-node.online .node-name {
   .svg-icon {
     color: #65c465;
   }
@@ -724,14 +733,5 @@ export default class extends Vue {
   width: 6px;
   height: 6px;
   opacity: 0.7;
-}
-
-.custom-tree-node {
-  position: relative;
-
-  .svg-icon {
-    color: $color-grey-15;
-    font-size: $text-size-medium;
-  }
 }
 </style>
