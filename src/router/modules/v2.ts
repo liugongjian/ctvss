@@ -139,17 +139,17 @@ export const v2Router: RouteConfig[] = [
           activeMenu: '/viid/up-platform'
         }
       },
-      {
-        path: 'subscribe',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
-        name: 'ViidSubscribe',
-        meta: {
-          title: '订阅通知',
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/viid/subscribe'
-        }
-      },
+      // {
+      //   path: 'subscribe',
+      //   component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+      //   name: 'ViidSubscribe',
+      //   meta: {
+      //     title: '订阅通知',
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/viid/subscribe'
+      //   }
+      // },
       {
         path: 'subscribe/create',
         component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
