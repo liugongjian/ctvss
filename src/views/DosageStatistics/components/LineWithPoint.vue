@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-20 09:28:19
+ * @LastEditTime: 2023-04-20 09:49:24
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -169,8 +169,30 @@ export default class extends Vue {
 
     const type = chartKind === 'device' ? { type: 'linear' } : {}
 
-    const tickIntervalTime = currentPeriod === 'today' ? { tickInterval: 12 } : {}
-    
+    const getTickIntervaltime = () => {
+      switch (currentPeriod) {
+        case 'today':
+          const times = this.drawData.data.map((item) => item.time)
+          const maxTime = Math.max(...times)
+          if (new Date(maxTime).getHours() > 12) {
+            return {
+              tickInterval: 24
+            }
+          }
+          return {
+            tickInterval: 12
+          }
+        case 'yesterday':
+          return {
+            tickInterval: 24
+          }
+        default:
+          return {}
+      }
+    }
+
+    const tickIntervalTime = getTickIntervaltime()
+
     const mask =
       currentPeriod === 'today' || currentPeriod === 'yesterday'
         ? 'HH:mm'
@@ -235,9 +257,9 @@ export default class extends Vue {
           }
 
           return {
-              ...item,
-              value: `${item.value}${unit}`
-            }
+            ...item,
+            value: `${item.value}${unit}`
+          }
         })
         return content
       }
@@ -313,7 +335,7 @@ export default class extends Vue {
   }
 
   // 格式化数字，替代toFixed。 输入 (3,3)返回3，不会返回3.000
-  private fixNumber(value, len){
+  private fixNumber(value, len) {
     return Math.round(value * Math.pow(10, len)) / Math.pow(10, len)
   }
 }
