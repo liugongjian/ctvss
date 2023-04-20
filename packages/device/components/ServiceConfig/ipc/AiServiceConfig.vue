@@ -362,14 +362,6 @@ export default class extends Vue {
   }
 
   /**
-   * 关闭画框弹窗
-   */
-  private closeCanvasDialog() {
-    this.canvasDialog = false
-    this.getDeviceResource()
-  }
-
-  /**
    * 启用/停用AI应用
    */
   private async changeRunningStatus(rowInfo: any) {
