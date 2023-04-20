@@ -67,6 +67,7 @@ export enum IpcAiConfigEnum {
   RemainDeviceCount = 'remainDeviceCount',
   TotalDeviceCount = 'totalDeviceCount',
   ConfigCheckArea = 'configCheckArea',
+  NeedConfig = 'needConfig',
   Status = 'status'
 }
 
