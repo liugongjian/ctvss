@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 14:08:14
+ * @LastEditTime: 2023-04-19 20:27:28
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -44,15 +44,14 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时上行带宽
-                <div>{{ bandWidthData.realUpstreamBandwidth }}</div>
+                <div>{{ bandwidth.uploadBandWidthCurrentValue }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
-                上行流量峰值
+                实时上行流量
                 <div>
-                  {{ splitBandWidth(bandWidthData.upstreamBandwidth)[0]
-                  }}{{ splitBandWidth(bandWidthData.upstreamBandwidth)[1] }}
+                  {{ splitBandWidth(bandwidth.uploadTrafficValue)[0] }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -61,15 +60,14 @@
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
                 实时下行带宽
-                <div>{{ bandWidthData.realDownstreamBandwidth }}</div>
+                <div>{{ bandwidth.downloadBandWidthCurrentValue }}</div>
               </div>
             </el-col>
             <el-col :span="12">
               <div class="dashboard-wrap-overview__item_content_data">
-                下行流量峰值
+                实时下行流量
                 <div>
-                  {{ splitBandWidth(bandWidthData.downstreamBandwidth)[0]
-                  }}{{ splitBandWidth(bandWidthData.downstreamBandwidth)[1] }}
+                  {{ splitBandWidth( bandwidth.downloadTrafficValue)[0] }}{{ splitBandWidth( bandwidth.downloadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -86,9 +84,11 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import {
   getDeviceStates,
-  getBandwidthStates,
   getUserStorage
 } from '@/api/dashboard'
+import {
+  getBandwidthStatistics
+} from '@/api/dosageStatistics'
 import { formatStorage, formatBandWidth } from '@/utils/number'
 import { Chart, Util } from '@antv/g2'
 
@@ -113,8 +113,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private pieDataStorage: any = []
 
-  private chartView: any = null
-
   private pieDataView: any = []
 
   private currentPieChart: any = {}
@@ -124,6 +122,12 @@ export default class extends Mixins(DashboardMixin) {
     realDownstreamBandwidth: 0,
     realUpstreamBandwidth: 0,
     upstreamBandwidth: 0
+  }
+   private bandwidth: any = {
+    uploadTrafficValue: 0,
+    downloadTrafficValue: 0,
+    downloadBandWidthCurrentValue: 0,
+    uploadBandWidthCurrentValue: 0
   }
 
   private pieTodayToText = {
@@ -173,29 +177,40 @@ export default class extends Mixins(DashboardMixin) {
     ]
   }
 
-  private formatDeviceData(res){
+  private formatDeviceData(res, kind) {
     const {
-        offline = 0,
-        online = 0,
-        sum = 0,
-        unregistered = 0,
-        deactivate = 0
-      } = res
-      const data = {
+      offline = 0,
+      online = 0,
+      sum = 0,
+      unregistered = 0,
+      deactivate = 0
+    } = res
+
+    let data = {}
+
+    if (kind === 'viid') {
+      data = {
+        offline,
+        online,
+        deactivate
+      }
+    } else {
+      data = {
         offline,
         online,
         deactivate,
         unregistered
       }
+    }
 
-      const result = Object.keys(data).map((item) => ({
-        item: item,
-        value: data[item],
-        percent: data[item] / sum,
-        text: ''
-      }))
+    const result = Object.keys(data).map((item) => ({
+      item: item,
+      value: data[item],
+      percent: data[item] / sum,
+      text: ''
+    }))
 
-      return result
+    return result
   }
 
   private async getDevice() {
@@ -204,39 +219,53 @@ export default class extends Mixins(DashboardMixin) {
 
       const { video, viid } = res
 
-      this.pieDataVideo = this.formatDeviceData(video)
-      
-      this.drawPieToday('pieVideoToday', 'pieDataVideo', this.pieDataVideo)
+      this.pieDataVideo = this.formatDeviceData(video, 'video')
 
-      const { enable } = viid
+      this.drawPieToday('pieVideoToday', 'pieVideoToday', this.pieDataVideo)
 
-      if (enable === 1){
+      const { enable, sum } = viid
+
+      if (enable === 1 && Number(sum) !== 0) {
         this.ifShowViidPie = true
-        this.pieDataViid = this.formatDeviceData(viid)
-        this.drawPieToday('pieViidToday', 'pieDataViid', this.pieDataViid)
+        this.$nextTick(() => {
+          this.pieDataViid = this.formatDeviceData(viid, 'viid')
+          this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
+        })
       }
-
-      
-      
     } catch (error) {
       this.$message.error(error && error.message)
     }
   }
 
+
+
   private async getBandwidth() {
     try {
-      const res = await getBandwidthStates()
+      const res = await getBandwidthStatistics()
+      // const {
+      //   downstreamBandwidth,
+      //   realDownstreamBandwidth,
+      //   realUpstreamBandwidth,
+      //   upstreamBandwidth
+      // } = res
+      // this.bandWidthData = {
+      //   downstreamBandwidth: formatBandWidth(downstreamBandwidth),
+      //   realDownstreamBandwidth: formatBandWidth(realDownstreamBandwidth),
+      //   realUpstreamBandwidth: formatBandWidth(realUpstreamBandwidth),
+      //   upstreamBandwidth: formatBandWidth(upstreamBandwidth)
+      // }
+
       const {
-        downstreamBandwidth,
-        realDownstreamBandwidth,
-        realUpstreamBandwidth,
-        upstreamBandwidth
+        downloadBandWidthCurrentValue = 0,
+        uploadBandWidthCurrentValue = 0,
+        uploadTrafficValue = 0,
+        downloadTrafficValue = 0
       } = res
-      this.bandWidthData = {
-        downstreamBandwidth: formatBandWidth(downstreamBandwidth),
-        realDownstreamBandwidth: formatBandWidth(realDownstreamBandwidth),
-        realUpstreamBandwidth: formatBandWidth(realUpstreamBandwidth),
-        upstreamBandwidth: formatBandWidth(upstreamBandwidth)
+      this.bandwidth = {
+        downloadBandWidthCurrentValue: formatBandWidth(downloadBandWidthCurrentValue),
+        uploadBandWidthCurrentValue: formatBandWidth(uploadBandWidthCurrentValue),
+        uploadTrafficValue: formatBandWidth(uploadTrafficValue),
+        downloadTrafficValue: formatBandWidth(downloadTrafficValue)
       }
     } catch (error) {
       this.$message.error(error && error.message)
@@ -260,10 +289,11 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
 
-      this.pieDataView = this.pieDataStorage
-
-     this.drawPieStorage('pieChartStorage', 'chartStorage', this.pieDataStorage)
-
+      this.drawPieStorage(
+        'pieChartStorage',
+        'chartStorage',
+        this.pieDataStorage
+      )
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -338,9 +368,6 @@ export default class extends Mixins(DashboardMixin) {
           },
           content: (data) => {
             return `${this.pieTodayToText[data.item]}:${data.value}`
-            // return `${this.pieTodayToText[data.item]}: ${(
-            //   percent * 100
-            // ).toFixed(2)}%`
           }
         }
       })
@@ -481,6 +508,7 @@ export default class extends Mixins(DashboardMixin) {
 
         &_pie {
           text-align: center;
+          font-weight: bold;
         }
 
         &:last-child {
@@ -488,18 +516,10 @@ export default class extends Mixins(DashboardMixin) {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          // min-width: 500px;
+
           ::v-deep {
             .el-row {
-              // display: flex;
-              // justify-content: space-between;
-              // text-align: center;
-              // flex-wrap: wrap;
-
               .el-col {
-                // flex: 1 2 35%;
-                // flex: 1;
-                // flex-grow: 2;
                 width: 50%;
                 min-width: 130px;
                 margin-bottom: 10px;
@@ -508,29 +528,6 @@ export default class extends Mixins(DashboardMixin) {
           }
         }
       }
-
-      // @media screen and (max-width: 1280px) {
-      //   .dashboard-wrap-overview_content_detail {
-      //     &:last-child {
-      //       ::v-deep {
-      //         // .el-row {
-      //         //   display: flex;
-      //         //   justify-content: space-between;
-      //         //   text-align: center;
-      //         //   flex-wrap: wrap;
-
-      //         .el-col {
-      //           // flex: 1 2 50%;
-      //           flex: 1;
-      //           // flex-grow: 2;
-      //           width: 25%;
-      //           min-width: 130px;
-      //           margin-bottom: 10px;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
 
       &_data {
         line-height: 30px;

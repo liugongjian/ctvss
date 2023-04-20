@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 13:49:33
+ * @LastEditTime: 2023-04-20 09:49:24
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,7 +27,7 @@ export default class extends Vue {
 
   private drawData: any = {}
 
-   private storageNoDemand = false
+  private storageNoDemand = false
 
   private lineColor: any = {
     total: '#1890ff',
@@ -105,12 +105,21 @@ export default class extends Vue {
       const { selection, demandData, totalData, currentPeriod } = this.lineData
 
       this.storageNoDemand = chartKind === 'storage' && demandData.length === 0
+      // this.storageNoDemand = true
 
-      this.drawData = {
-        total: this.kindToChartAxis[chartKind][selection].total,
-        demand: this.kindToChartAxis[chartKind][selection].demand,
-        data: [...demandData, ...totalData],
-        currentPeriod
+      if (this.storageNoDemand) {
+        this.drawData = {
+          total: this.kindToChartAxis[chartKind][selection].total,
+          data: [...totalData],
+          currentPeriod
+        }
+      } else {
+        this.drawData = {
+          total: this.kindToChartAxis[chartKind][selection].total,
+          demand: this.kindToChartAxis[chartKind][selection].demand,
+          data: [...demandData, ...totalData],
+          currentPeriod
+        }
       }
     }
 
@@ -134,7 +143,6 @@ export default class extends Vue {
     this.chart.data(this.drawData.data)
 
     const values = this.drawData.data.map((item) => item.value)
-
 
     // 获取当前数据最小值的换算情况
     const getConversion = () => {
@@ -161,6 +169,30 @@ export default class extends Vue {
 
     const type = chartKind === 'device' ? { type: 'linear' } : {}
 
+    const getTickIntervaltime = () => {
+      switch (currentPeriod) {
+        case 'today':
+          const times = this.drawData.data.map((item) => item.time)
+          const maxTime = Math.max(...times)
+          if (new Date(maxTime).getHours() > 12) {
+            return {
+              tickInterval: 24
+            }
+          }
+          return {
+            tickInterval: 12
+          }
+        case 'yesterday':
+          return {
+            tickInterval: 24
+          }
+        default:
+          return {}
+      }
+    }
+
+    const tickIntervalTime = getTickIntervaltime()
+
     const mask =
       currentPeriod === 'today' || currentPeriod === 'yesterday'
         ? 'HH:mm'
@@ -172,7 +204,8 @@ export default class extends Vue {
         range: [0, 0.95],
         type: 'timeCat',
         nice: true,
-        mask
+        mask,
+        ...tickIntervalTime
       },
       value: {
         range: [0, 0.95],
@@ -182,7 +215,7 @@ export default class extends Vue {
         tickInterval,
         formatter: (val) => {
           if (chartKind === 'bandwidth' || chartKind === 'storage') {
-            return (val / getConversion()).toFixed(3)
+            return this.fixNumber(val / getConversion(), 3)
           }
           return val
         }
@@ -211,13 +244,45 @@ export default class extends Vue {
     // 绘制tooltip
     this.chart.tooltip({
       showCrosshairs: true,
-      shared: true
+      shared: true,
+      customItems: (items) => {
+        let unit = ''
+        const content = items.map((item) => {
+          if (chartKind === 'bandwidth') {
+            unit = getConversion() === 1024 ? 'Gbps' : 'Mbps'
+          } else if (chartKind === 'storage') {
+            unit = getConversion() === 1024 * 1024 * 1024 ? 'GB' : 'MB'
+          } else {
+            unit = '路'
+          }
+
+          return {
+            ...item,
+            value: `${item.value}${unit}`
+          }
+        })
+        return content
+      }
     })
 
-    this.chart.legend({
-      offsetY: 5,
-      itemSpacing: 30,
-      items: [
+    const getItems = () => {
+      if (this.storageNoDemand) {
+        return [
+          {
+            id: 'total',
+            name: this.drawData.total,
+            value: 'total',
+            marker: {
+              symbol: 'square',
+              style: {
+                fill: this.lineColor.total
+              },
+              spacing: 5
+            }
+          }
+        ]
+      }
+      return [
         {
           id: 'total',
           name: this.drawData.total,
@@ -242,7 +307,13 @@ export default class extends Vue {
             spacing: 5
           }
         }
-      ],
+      ]
+    }
+
+    this.chart.legend({
+      offsetY: 5,
+      itemSpacing: 30,
+      items: getItems(),
       itemName: {
         style: {
           // fill: '#505050'
@@ -251,15 +322,21 @@ export default class extends Vue {
       }
     })
 
+    const colorList = this.storageNoDemand
+      ? [this.lineColor.total]
+      : [this.lineColor.demand, this.lineColor.total]
+
     // 绘制折线图
-    this.chart
-      .line()
-      .position('time*value')
-      .color('type', [this.lineColor.demand, this.lineColor.total])
+    this.chart.line().position('time*value').color('type', colorList)
 
     this.chart.render()
 
     this.currentChart = this.chart
+  }
+
+  // 格式化数字，替代toFixed。 输入 (3,3)返回3，不会返回3.000
+  private fixNumber(value, len) {
+    return Math.round(value * Math.pow(10, len)) / Math.pow(10, len)
   }
 }
 </script>
