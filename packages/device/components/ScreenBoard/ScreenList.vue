@@ -111,7 +111,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@/views/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
-import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
@@ -210,7 +210,11 @@ export default class extends Vue {
     const records = this.currentScreen.recordManager.getRecordListByPage(this.pager, this.screenManager.currentScreen.currentRecordDatetime)
     this.recordList = records.recordList
     this.pager.total = records.length
-    this.secToMs(this.recordList)
+    // this.secToMs(this.recordList)
+    this.recordList.map((record: any) => {
+      record.startTime = record.startTime * 1000
+      // record.endTime = record.endTime * 1000
+    })
   }
   /**
    * 选择视频
@@ -246,7 +250,7 @@ export default class extends Vue {
    */
   private async saveEdit(row: any) {
     try {
-      this.loading = true
+      // this.loading = true
       await editRecordName({
         deviceId: this.currentScreen.deviceId,
         inProtocol: this.currentScreen.inProtocol,
@@ -257,9 +261,10 @@ export default class extends Vue {
       this.getRecordListByPage()
     } catch (e) {
       this.$message.error(e.message)
-    } finally {
-      this.loading = false
-    }
+    } 
+    // finally {
+      // this.loading = false
+    // }
   }
 
   /**
@@ -315,12 +320,12 @@ export default class extends Vue {
   /**
    * startTime 秒转毫秒
    */
-  private secToMs(records: any) {
-    this.records = records.map((record: any) => {
-      record.startTime = record.startTime * 1000
-      // record.endTime = record.endTime * 1000
-    })
-  }
+  // private secToMs(records: any) {
+  //   this.records = records.map((record: any) => {
+  //     record.startTime = record.startTime * 1000
+  //     // record.endTime = record.endTime * 1000
+  //   })
+  // }
 
   /**
    * pager 重置

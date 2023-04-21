@@ -206,7 +206,10 @@ export default class extends Vue {
     const records = this.currentScreen.recordManager.getRecordListByPage(this.pager, this.screenManager.currentScreen.currentRecordDatetime)
     this.recordList = records.recordList
     this.pager.total = records.length
-    this.secToMs(this.recordList)
+    // this.secToMs(this.recordList)
+    this.recordList.map((record: any) => {
+      record.startTime = record.startTime * 1000
+    })
   }
   /**
    * 选择视频
@@ -311,11 +314,11 @@ export default class extends Vue {
   /**
    * startTime 秒转毫秒
    */
-  private secToMs(records: any) {
-    this.records = records.map((record: any) => {
-      record.startTime = record.startTime * 1000
-    })
-  }
+  // private secToMs(records: any) {
+  //   this.records = records.map((record: any) => {
+  //     record.startTime = record.startTime * 1000
+  //   })
+  // }
 
   /**
    * pager 重置
