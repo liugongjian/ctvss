@@ -116,7 +116,7 @@ import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
 import DeviceDir from '@/views/device/components/dialogs/DeviceDir.vue'
-import VssPlayer from '@/components/VssPlayer/index.vue'
+import VssPlayer from '@vss/vss-video-player/index.vue'
 @Component({
   name: 'ScreenList',
   components: {
