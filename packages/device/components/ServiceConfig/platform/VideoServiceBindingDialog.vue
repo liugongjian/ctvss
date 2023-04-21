@@ -83,11 +83,11 @@ export default class extends Vue {
     totalNum: 0
   }
 
-  private get channelList() {
-    return this.getChannelList().filter(channel => {
-      return this.selectedList.findIndex(item => item.deviceChannelNum === channel.deviceChannelNum) === -1
-    })
-  }
+  // private get channelList() {
+  //   return this.getChannelList().filter(channel => {
+  //     return this.selectedList.findIndex(item => item.deviceChannelNum === channel.deviceChannelNum) === -1
+  //   })
+  // }
 
   /**
    * 树选择器变化
@@ -120,15 +120,15 @@ export default class extends Vue {
     this.$emit('on-close', data)
   }
 
-  private async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    this.getChannelList()
-  }
+  // private async handleSizeChange(val: number) {
+  //   this.pager.pageSize = val
+  //   this.getChannelList()
+  // }
 
-  private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    this.getChannelList()
-  }
+  // private async handleCurrentChange(val: number) {
+  //   this.pager.pageNum = val
+  //   this.getChannelList()
+  // }
 
   /**
    * 校验经纬度

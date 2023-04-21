@@ -25,7 +25,7 @@
           >
             <span class="node-name">
               <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" :class="{ 'active-icon': data.deviceStatus === 'on' }" />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
@@ -599,12 +599,21 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.custom-tree-node {
+  position: relative;
+
+  .svg-icon {
+    color: $color-grey-15;
+    font-size: $text-size-medium;
+  }
+}
+
 .bind-wrap {
   width: 100%;
   height: 100%;
 }
 
-.bind-device-node.online .node-name {
+.custom-tree-node.online .node-name {
   .svg-icon {
     color: #65c465;
   }
@@ -712,5 +721,17 @@ export default class extends Vue {
       transform: rotate(45deg) scaleY(1);
     }
   }
+}
+
+.active-icon {
+  color: $color-status-success;
+}
+
+.status-badge {
+  position: absolute;
+  left: -5px;
+  width: 6px;
+  height: 6px;
+  opacity: 0.7;
 }
 </style>
