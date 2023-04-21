@@ -1,6 +1,6 @@
 <template>
   <div ref="container" class="app-container">
-    <el-card :class="{'collapsed': isCollapsed, 'dragging': handleDrag.isDragging}">
+    <el-card :class="{ 'collapsed': isCollapsed, 'dragging': handleDrag.isDragging }">
       <div class="handle" :style="`left: ${handleDrag.width}px`" @mousedown="changeHandle($event)" />
       <div class="titleBar">
         <div ref="menu" class="titleBar__menu" :style="`width: ${handleDrag.width}px`">
@@ -30,7 +30,7 @@
             ref="groupTree" :props="props" node-key="groupId" highlight-current :expand-on-click-node="false" :default-expanded-keys="['-1']" current-node-key="-1" lazy :load="loadGroups"
             @current-change="setCurrentNode"
           >
-            <span slot-scope="{node}" class="user-content__menu__item">
+            <span slot-scope="{ node }" class="user-content__menu__item">
               <span>{{ node.label }}</span>
               <span v-if="node.label !== '通讯录'" class="user-content__menu__item__btns">
                 <el-tooltip effect="dark" content="添加部门" placement="top" :open-delay="300">
@@ -69,13 +69,13 @@
           </div>
           <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
             <el-table-column prop="iamUserName" label="用户名">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
             <el-table-column prop="policies" label="策略名" width="280">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ row.policies || '-' }}</span>
               </template>
             </el-table-column>
@@ -144,16 +144,16 @@ export default class extends Vue {
   private showUserViewBind = false
   private previewDialogData = {}
   private userViewBindData = {}
-  private nodePath: string = '通讯录'
+  private nodePath = '通讯录'
   private nodeKeyPath: any = '-1'
-  private isShowDialog: boolean = false
-  private isCollapsed: boolean = false
+  private isShowDialog = false
+  private isCollapsed = false
   private props: object = {
     label: 'groupName',
     children: 'children'
   }
   private userList: any = []
-  private userSearch: string = ''
+  private userSearch = ''
   private pager: any = {
     pageNum: 1,
     pageSize: 10,
@@ -166,7 +166,7 @@ export default class extends Vue {
       groupId: '-1'
     }
   }
-  private subUserLoginLink: string = ''
+  private subUserLoginLink = ''
   private maxHeight = null
   private tableMaxHeight = null
 
@@ -262,7 +262,7 @@ export default class extends Vue {
   }
 
   private getNodePath(node: any) {
-    let curentNodePath: any = []
+    const curentNodePath: any = []
     this.findParentNode(node, curentNodePath)
     return curentNodePath
   }
@@ -278,12 +278,12 @@ export default class extends Vue {
   }
 
   private async initGroupTree(type: any) {
-    let groupTree: any = this.$refs.groupTree
+    const groupTree: any = this.$refs.groupTree
     try {
       this.loading.menu = true
       const nodeKeyPathArr: any = this.nodeKeyPath.split('/')
       for (let i = 0; i < nodeKeyPathArr.length; i++) {
-        let node: any = groupTree.getNode(nodeKeyPathArr[i])
+        const node: any = groupTree.getNode(nodeKeyPathArr[i])
         if (!node) break
         this.currentNode = node
         if (i !== nodeKeyPathArr.length - 1 || type === 'add') {
@@ -303,7 +303,7 @@ export default class extends Vue {
   private async loadChildrenNodes(key: string) {
     try {
       const groupTree: any = this.$refs.groupTree
-      let data = await getGroupList({
+      const data = await getGroupList({
         parentGroupId: key
       })
       groupTree.updateKeyChildren(
@@ -328,7 +328,7 @@ export default class extends Vue {
       const res = await getGroupList({
         parentGroupId: node.data.groupId
       })
-      let dirs: any = res.groups.map((group: any) => {
+      const dirs: any = res.groups.map((group: any) => {
         return {
           groupName: group.groupName,
           groupId: group.groupId
@@ -341,15 +341,15 @@ export default class extends Vue {
   }
 
   private async getUserList() {
-    let pager: any = this.pager
-    let params = {
+    const pager: any = this.pager
+    const params = {
       groupId: this.currentNode.data.groupId,
       pageNum: pager.pageNum,
       pageSize: pager.pageSize
     }
     try {
       this.loading.body = true
-      let res: any = await getUserList(params)
+      const res: any = await getUserList(params)
       this.userList = res.iamUsers.map((iamUser: any) => {
         return {
           iamUserId: iamUser.iamUserId,
@@ -369,7 +369,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?subUserName=${userName}&mainUserID=${mainUserID}`
+    const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 

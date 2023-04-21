@@ -1,6 +1,6 @@
 <template>
   <div ref="container" class="app-container">
-    <el-card :class="{'collapsed': isCollapsed, 'dragging': handleDrag.isDragging}">
+    <el-card :class="{ 'collapsed': isCollapsed, 'dragging': handleDrag.isDragging }">
       <div class="handle" :style="`left: ${handleDrag.width}px`" @mousedown="changeHandle($event)" />
       <div class="titleBar">
         <div ref="menu" class="titleBar__menu" :style="`width: ${handleDrag.width}px`">
@@ -30,21 +30,21 @@
             ref="groupTree" :props="props" node-key="groupId" highlight-current :expand-on-click-node="false" :default-expanded-keys="['-1']" current-node-key="-1" lazy :load="loadGroups"
             @current-change="setCurrentNode"
           >
-            <span slot-scope="{node}" class="user-content__menu__item">
+            <span slot-scope="{ node }" class="user-content__menu__item">
               <span>{{ node.label }}</span>
               <span v-if="node.label !== '通讯录'" class="user-content__menu__item__btns">
-                <el-tooltip effect="dark" content="添加子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('add', node)">
+                <el-tooltip effect="dark" content="添加部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('add', node)">
                     <svg-icon name="plus" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('edit', node)">
+                <el-tooltip effect="dark" content="修改部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('edit', node)">
                     <svg-icon name="edit" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('merge', node)">
+                <el-tooltip effect="dark" content="合并部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click.prevent="showDialog('merge', node)">
                     <svg-icon name="combine" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
@@ -56,7 +56,7 @@
           <div class="head">
             <div class="head__left">
               <el-button type="primary" @click="createUser">创建成员</el-button>
-              <el-button :disabled="currentNode.data.groupName === '通讯录'" @click="showDialog('edit', currentNode)">修改子部门</el-button>
+              <el-button :disabled="currentNode.data.groupName === '通讯录'" @click="showDialog('edit', currentNode)">修改部门</el-button>
             </div>
             <div class="head__right">
               <!-- <el-input v-model="userSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="getUserList">
@@ -69,19 +69,21 @@
           </div>
           <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
             <el-table-column prop="iamUserName" label="用户名">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policyName" label="策略名">
-              <template slot-scope="{row}">
-                {{ row.policyName || '-' }}
+            <el-table-column prop="policies" label="策略名" width="280">
+              <template slot-scope="{ row }">
+                <span>{{ row.policies || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" fixed="right" width="300">
+            <el-table-column prop="createdTime" label="创建时间" width="200" />
+            <el-table-column label="操作" fixed="right" width="480">
               <template slot-scope="scope">
+                <el-button type="text" @click="getPermission(scope.row)">查看权限</el-button>
+                <el-button type="text" @click="getUserBind(scope.row)">查看绑定关系</el-button>
                 <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
@@ -91,13 +93,19 @@
             </el-table-column>
           </el-table>
           <el-pagination
-            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            :current-page="pager.pageNum"
+            :page-size="pager.pageSize"
+            :total="pager.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
         </div>
       </div>
     </el-card>
     <UserGroupDialog v-if="isShowDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
+    <PreviewPermission v-if="showPreviewPermission" :dialog-data="previewDialogData" @on-close="closePreviewDialog" />
+    <UserViewBind v-if="showUserViewBind" :dialog-data="userViewBindData" @on-close="closeUserViewBind" />
   </div>
 </template>
 
@@ -109,11 +117,15 @@ import { changeIAMPassword } from '@/api/users'
 import { encrypt } from '@/utils/encrypt'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
+import PreviewPermission from './components/dialogs/PreviewPermission.vue'
+import UserViewBind from './components/dialogs/UserViewBind.vue'
 
 @Component({
   name: 'AccessManageUser',
   components: {
-    UserGroupDialog
+    UserGroupDialog,
+    PreviewPermission,
+    UserViewBind
   }
 })
 export default class extends Vue {
@@ -128,16 +140,20 @@ export default class extends Vue {
     menu: false,
     body: false
   }
-  private nodePath: string = '通讯录'
+  private showPreviewPermission = false
+  private showUserViewBind = false
+  private previewDialogData = {}
+  private userViewBindData = {}
+  private nodePath = '通讯录'
   private nodeKeyPath: any = '-1'
-  private isShowDialog: boolean = false
-  private isCollapsed: boolean = false
+  private isShowDialog = false
+  private isCollapsed = false
   private props: object = {
     label: 'groupName',
     children: 'children'
   }
   private userList: any = []
-  private userSearch: string = ''
+  private userSearch = ''
   private pager: any = {
     pageNum: 1,
     pageSize: 10,
@@ -150,7 +166,7 @@ export default class extends Vue {
       groupId: '-1'
     }
   }
-  private subUserLoginLink: string = ''
+  private subUserLoginLink = ''
   private maxHeight = null
   private tableMaxHeight = null
 
@@ -159,6 +175,31 @@ export default class extends Vue {
     data === 0 &&
       this.pager.pageNum > 1 &&
       this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
+  private getPermission(row) {
+    this.previewDialogData = {
+      dialogType: 'get',
+      dialogTitle: '查看权限',
+      iamUserId: row.iamUserId
+    }
+    this.showPreviewPermission = true
+  }
+
+  private getUserBind(row) {
+    this.userViewBindData = {
+      parentGroupId: this.currentNode.data.groupId,
+      iamUserId: row.iamUserId
+    }
+    this.showUserViewBind = true
+  }
+
+  private closePreviewDialog() {
+    this.showPreviewPermission = false
+  }
+
+  private closeUserViewBind() {
+    this.showUserViewBind = false
   }
 
   private mounted() {
@@ -216,11 +257,12 @@ export default class extends Vue {
         nodeObj.groupId === '-1' ? `${nodeObj.groupId}` : `/${nodeObj.groupId}`
     })
     this.$route.params.nodeKeyPath = this.nodeKeyPath
+    this.pager.pageNum = 1
     this.getUserList()
   }
 
   private getNodePath(node: any) {
-    let curentNodePath: any = []
+    const curentNodePath: any = []
     this.findParentNode(node, curentNodePath)
     return curentNodePath
   }
@@ -236,12 +278,12 @@ export default class extends Vue {
   }
 
   private async initGroupTree(type: any) {
-    let groupTree: any = this.$refs.groupTree
+    const groupTree: any = this.$refs.groupTree
     try {
       this.loading.menu = true
       const nodeKeyPathArr: any = this.nodeKeyPath.split('/')
       for (let i = 0; i < nodeKeyPathArr.length; i++) {
-        let node: any = groupTree.getNode(nodeKeyPathArr[i])
+        const node: any = groupTree.getNode(nodeKeyPathArr[i])
         if (!node) break
         this.currentNode = node
         if (i !== nodeKeyPathArr.length - 1 || type === 'add') {
@@ -261,7 +303,7 @@ export default class extends Vue {
   private async loadChildrenNodes(key: string) {
     try {
       const groupTree: any = this.$refs.groupTree
-      let data = await getGroupList({
+      const data = await getGroupList({
         parentGroupId: key
       })
       groupTree.updateKeyChildren(
@@ -286,7 +328,7 @@ export default class extends Vue {
       const res = await getGroupList({
         parentGroupId: node.data.groupId
       })
-      let dirs: any = res.groups.map((group: any) => {
+      const dirs: any = res.groups.map((group: any) => {
         return {
           groupName: group.groupName,
           groupId: group.groupId
@@ -299,20 +341,20 @@ export default class extends Vue {
   }
 
   private async getUserList() {
-    let pager: any = this.pager
-    let params = {
+    const pager: any = this.pager
+    const params = {
       groupId: this.currentNode.data.groupId,
       pageNum: pager.pageNum,
       pageSize: pager.pageSize
     }
     try {
       this.loading.body = true
-      let res: any = await getUserList(params)
+      const res: any = await getUserList(params)
       this.userList = res.iamUsers.map((iamUser: any) => {
         return {
           iamUserId: iamUser.iamUserId,
           iamUserName: iamUser.iamUserName,
-          policyName: iamUser.policyName,
+          policies: iamUser.policies.map(policy => policy.policyName).join('|'),
           createdTime: iamUser.createdTime
         }
       })
@@ -327,7 +369,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 
@@ -417,6 +459,7 @@ export default class extends Vue {
       query: {
         type: 'edit',
         userId: row.iamUserId,
+        groupId: this.currentNode.data.groupId,
         subUserLoginLink: this.subUserLoginLink,
         nodeKeyPath: this.nodeKeyPath
       }
@@ -441,6 +484,7 @@ export default class extends Vue {
       query: {
         type: 'edit',
         userId: user.iamUserId,
+        groupId: this.currentNode.data.groupId,
         subUserLoginLink: this.subUserLoginLink,
         nodeKeyPath: this.nodeKeyPath
       }

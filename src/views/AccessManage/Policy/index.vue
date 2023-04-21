@@ -57,9 +57,9 @@ import ViewBind from './components/ViewBind.vue'
 export default class extends Vue {
   private showViewBindDialog = false
   private currentPolicyId = ''
-  private isLoading = false
+  private isLoading: boolean = false
   private policyList: any = []
-  private policyNameSearch = ''
+  private policyNameSearch: string = ''
   private pager: any = {
     pageNum: 1,
     pageSize: 10,
@@ -114,15 +114,15 @@ export default class extends Vue {
   }
   private async getList() {
     try {
-      const params: any = {
+      let params: any = {
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         policyName: this.policyNameSearch,
         policyType: 'subUser'
       }
       this.isLoading = true
-      const res: any = await getPolicyList(params)
-      this.policyList = res.iamPolices
+      let res: any = await getPolicyList(params)
+      this.policyList = res.iamPolicies
       this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(e && e.message)

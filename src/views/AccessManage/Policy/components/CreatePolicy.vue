@@ -30,7 +30,7 @@
             <resource-selector
               v-if="loading.policy === false || !isUpdate"
               :checked-list="initResourceList"
-              :filter-type-arr="['dir']"
+              :filter-type-arr="['dir', 'ipc']"
               @resourceListChange="resourceListChange"
               @resourceLoaded="resourceLoaded"
             />

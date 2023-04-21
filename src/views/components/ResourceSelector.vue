@@ -89,8 +89,24 @@ export default class extends Vue {
     this.resourceList = list
     this.$emit('resourceListChange', this.resourceList.map((resource: any) => {
       const mainUserID = this.$store.state.user.mainUserID
-      const pathIds = resource.path.map((obj: any) => obj.id)
-      return `${mainUserID}:${'type-' + (resource.type === 'dir' ? 'directory' : resource.type)}:${pathIds.join('/')}`
+      const pathLength = resource.path.length
+      let type = resource.type
+      if (type === 'ipc' && resource.path[pathLength - 2] && resource.path[pathLength - 2].type === 'nvr') {
+        type = 'nvrchannel'
+      }
+      const typeMap = {
+        group: 'vssgroup',
+        dir: 'directory',
+        nvr: 'nvr',
+        nvrchannel: 'channel',
+        ipc: 'ipc',
+        platform: 'platform',
+        platformDir: 'platform-directory'
+      }
+      const pathIds = resource.path.map(
+        (obj: any) => obj.id
+      )
+      return `${mainUserID}:type-${typeMap[type]}:${pathIds.join('/')}`
     }))
   }
     
