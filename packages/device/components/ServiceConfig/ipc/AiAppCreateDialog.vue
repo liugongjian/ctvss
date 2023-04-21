@@ -14,7 +14,7 @@
 </template>
 <script lang="ts">
 import { Component, VModel, Vue } from 'vue-property-decorator'
-import AlgoDetail from '@/views/AI/AppList/component/AlgoDetail.vue'
+import AlgoDetail from '@vss/ai/component/AlgoDetail.vue'
 
 
 @Component({
