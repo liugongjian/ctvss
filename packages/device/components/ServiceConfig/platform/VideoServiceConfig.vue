@@ -97,44 +97,44 @@ export default class extends Vue {
   }
 
   @Watch('billingMode', { deep: true })
-  private async billingModeFormChange(form) {
+  private async billingModeChange(form) {
     this.$emit('config-change', [{ billingMode: form[BillingEnum.BillingMode] }])
   }
 
   private async mounted() {
-    await this.getConfigList()
+    // await this.getConfigList()
   }
 
-  private async getConfigList() {
-    try {
-      this.loading = true
-      const videoInfo = this.configManager.initInfo.video
-      if (videoInfo && videoInfo.length) {
-        const info = videoInfo[0]
-        this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
-        this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
-      }
-    console.log(this.billingModeForm)
-    } catch (e) {
-      this.$message.error(e.message)
-    } finally {
-      this.loading = false
-    }
-  }
+  // private async getConfigList() {
+  //   try {
+  //     this.loading = true
+  //     const videoInfo = this.configManager.initInfo.video
+  //     if (videoInfo && videoInfo.length) {
+  //       const info = videoInfo[0]
+  //       this.billingModeForm[BillingEnum.BillingMode] = info.billingMode
+  //       this.billingModeForm[BillingEnum.ResourceId] = info.resourceId
+  //     }
+  //   console.log(this.billingModeForm)
+  //   } catch (e) {
+  //     this.$message.error(e.message)
+  //   } finally {
+  //     this.loading = false
+  //   }
+  // }
 
   /**
    * 初始化计费模式
    */
-  private initBillingMode() {
-    if (this.configManager.configMode === ConfigModeEnum.Create) {
-      // 如果存在资源包则默认资源包计费，否则默认按需计费
-      if (this.configManager[ResourceTypeEnum.Video].length) {
-        this.configForm[BillingEnum.BillingMode] = BillingModeEnum.Packages
-      } else {
-        this.configForm[BillingEnum.BillingMode] = BillingModeEnum.OnDemand
-      }
-    }
-  }
+  // private initBillingMode() {
+  //   if (this.configManager.configMode === ConfigModeEnum.Create) {
+  //     // 如果存在资源包则默认资源包计费，否则默认按需计费
+  //     if (this.configManager[ResourceTypeEnum.Video].length) {
+  //       this.configForm[BillingEnum.BillingMode] = BillingModeEnum.Packages
+  //     } else {
+  //       this.configForm[BillingEnum.BillingMode] = BillingModeEnum.OnDemand
+  //     }
+  //   }
+  // }
 
   private bindingDevice() {
     this.showBindingDialog = true

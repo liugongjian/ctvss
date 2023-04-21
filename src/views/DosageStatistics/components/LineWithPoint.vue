@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-20 09:49:24
+ * @LastEditTime: 2023-04-20 11:01:17
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -27,7 +27,7 @@ export default class extends Vue {
 
   private drawData: any = {}
 
-  private storageNoDemand = false
+  private chartNoDemand = false
 
   private lineColor: any = {
     total: '#1890ff',
@@ -95,19 +95,30 @@ export default class extends Vue {
     const { chartKind } = this.lineData
     if (chartKind === 'device') {
       const { demandData, totalData, currentPeriod } = this.lineData
-      this.drawData = {
-        total: this.kindToChartAxis[chartKind].total,
-        demand: this.kindToChartAxis[chartKind].demand,
-        data: [...demandData, ...totalData],
-        currentPeriod
+
+      this.chartNoDemand = demandData.length === 0
+
+      if (this.chartNoDemand) {
+        this.drawData = {
+          total: this.kindToChartAxis[chartKind].total,
+          data: [...demandData, ...totalData],
+          currentPeriod
+        }
+      } else {
+        this.drawData = {
+          total: this.kindToChartAxis[chartKind].total,
+          demand: this.kindToChartAxis[chartKind].demand,
+          data: [...demandData, ...totalData],
+          currentPeriod
+        }
       }
     } else {
       const { selection, demandData, totalData, currentPeriod } = this.lineData
 
-      this.storageNoDemand = chartKind === 'storage' && demandData.length === 0
-      // this.storageNoDemand = true
+      this.chartNoDemand = demandData.length === 0
+      // this.chartNoDemand = true
 
-      if (this.storageNoDemand) {
+      if (this.chartNoDemand) {
         this.drawData = {
           total: this.kindToChartAxis[chartKind][selection].total,
           data: [...totalData],
@@ -165,7 +176,21 @@ export default class extends Vue {
       return Math.max(...values) / getConversion()
     }
 
-    const tickInterval = getMax() > 5 ? '' : 1
+    const tickIntervalInfo = () => {
+      if (getMax() > 5) {
+        return {
+          // tickInterval: 5
+        }
+      } else {
+        return {
+          tickCount: 1,
+          tickMethod: 'd3-linear'
+        }
+      }
+    }
+
+    // const tickInterval = getMax() > 5 ? '' : 1
+    const tickInterval = tickIntervalInfo()
 
     const type = chartKind === 'device' ? { type: 'linear' } : {}
 
@@ -212,7 +237,7 @@ export default class extends Vue {
         min: 0,
         ...type,
         nice: true,
-        tickInterval,
+        ...tickInterval,
         formatter: (val) => {
           if (chartKind === 'bandwidth' || chartKind === 'storage') {
             return this.fixNumber(val / getConversion(), 3)
@@ -236,7 +261,11 @@ export default class extends Vue {
         autoRotate: true,
         offset: 20,
         formatter: (val) => {
-          return Math.trunc(Number(val))
+          if (val > 1) {
+            return Math.trunc(Number(val))
+          } else {
+            return this.fixNumber(val, 3)
+          }
         }
       }
     })
@@ -266,7 +295,7 @@ export default class extends Vue {
     })
 
     const getItems = () => {
-      if (this.storageNoDemand) {
+      if (this.chartNoDemand) {
         return [
           {
             id: 'total',
@@ -322,7 +351,7 @@ export default class extends Vue {
       }
     })
 
-    const colorList = this.storageNoDemand
+    const colorList = this.chartNoDemand
       ? [this.lineColor.total]
       : [this.lineColor.demand, this.lineColor.total]
 
@@ -334,7 +363,7 @@ export default class extends Vue {
     this.currentChart = this.chart
   }
 
-  // 格式化数字，替代toFixed。 输入 (3,3)返回3，不会返回3.000
+  // 格式化数字，替代toFixed。 输入 (3,3)返回3  不会返回3.000
   private fixNumber(value, len) {
     return Math.round(value * Math.pow(10, len)) / Math.pow(10, len)
   }

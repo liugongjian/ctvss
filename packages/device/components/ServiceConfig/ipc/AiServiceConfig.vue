@@ -55,14 +55,14 @@
             {{ remain(row) }}
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           :prop="ipcAiConfigEnum.ConfigCheckArea"
           label="待配置检测区域"
         >
           <template slot-scope="{ row }">
             {{ row[ipcAiConfigEnum.ConfigCheckArea] === 'true' ? '是' : '否' }}
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column :prop="ipcAiConfigEnum.Status" label="状态">
           <template slot-scope="{ row }">
             <status-badge
@@ -74,7 +74,7 @@
         <el-table-column v-if="checkPermission(['AdminDevice'])" label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
             <el-button
-              v-if="isView && row[ipcAiConfigEnum.ConfigCheckArea] === 'true'"
+              v-if="isView && row[ipcAiConfigEnum.NeedConfig] === '1'"
               type="text"
               @click="openCanvasDialog(row)"
             >
@@ -310,6 +310,7 @@ export default class extends Vue {
                 [IpcAiConfigEnum.TotalDeviceCount]:
                   item.resource['totalDeviceCount'],
                 [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
+                [IpcAiConfigEnum.NeedConfig]: `${item.resource['needConfig']}`,
                 [IpcAiConfigEnum.Status]: '0'
               }
             : {
@@ -322,6 +323,7 @@ export default class extends Vue {
                 [IpcAiConfigEnum.BillingMode]: item.billingMode,
                 [IpcAiConfigEnum.ResourceId]: '',
                 [IpcAiConfigEnum.ConfigCheckArea]: `${item.resource['configCheckArea']}`,
+                [IpcAiConfigEnum.NeedConfig]: `${item.resource['needConfig']}`,
                 [IpcAiConfigEnum.Status]: '0'
               }
         })
@@ -357,14 +359,6 @@ export default class extends Vue {
       .catch((e) => {
         this.$alertError(e.message)
       })
-  }
-
-  /**
-   * 关闭画框弹窗
-   */
-  private closeCanvasDialog() {
-    this.canvasDialog = false
-    this.getDeviceResource()
   }
 
   /**
