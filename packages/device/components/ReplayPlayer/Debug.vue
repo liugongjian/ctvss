@@ -53,7 +53,7 @@ import { Component, Vue } from 'vue-property-decorator'
 // import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import ReplayPlayer from './index.vue'
 import ReplayAxis from './ReplayAxis.vue'
-import { Screen } from '@/views/device/services/Screen/Screen'
+import { Screen } from '@vss/device/services/Screen/Screen'
 import { dateFormat } from '@/utils/date'
 
 @Component({
