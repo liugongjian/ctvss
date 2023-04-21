@@ -15,7 +15,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                  v-if="checkPermission(['AdminRecord'])"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -68,7 +68,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{row}">
               <el-button
-                v-if="!isVGroup && checkPermission(['AdminRecord'])"
+                v-if="checkPermission(['AdminRecord'])"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"
@@ -109,13 +109,12 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
-import { Record } from '@/views/device/services/Record/Record'
-import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
+import { Record } from '@vss/device/services/Record/Record'
+import { dateFormatInTable, durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
-import { getDeviceRecord, editRecordName } from '@/api/device'
-import { GroupModule } from '@/store/modules/group'
-import { checkPermission } from '@/utils/permission'
-import DeviceDir from '@/views/device/components/dialogs/DeviceDir.vue'
+import { getDeviceRecord, editRecordName } from '@vss/device/api/device'
+import { checkPermission } from '@vss/base/utils/permission'
+import DeviceDir from '@vss/device/components/DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 @Component({
   name: 'ScreenList',
@@ -148,11 +147,6 @@ export default class extends Vue {
 
   /* 当前分页后的录像列表 */
   private recordList: Record[] = null
-
-  /* 是否为虚拟业务组 */
-  private get isVGroup() {
-    return GroupModule.group?.inProtocol === 'vgroup'
-  }
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
