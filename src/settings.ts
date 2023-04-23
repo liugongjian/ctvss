@@ -21,6 +21,7 @@ interface ISettings {
     allowAutoSelected?: string[]; // 勾选后默认勾选的其他aciton - Allow场景
     denyAutoSelected?: string[]; // 勾选后默认勾选的其他aciton - Deny场景
     resourceType?: string | Array<string>;
+    version?: string // Action对应的平台版本
   }[]
 }
 
@@ -53,21 +54,24 @@ const settings: ISettings = {
       actionDesc: '拥有业务组的查询权限，并展示业务组管理菜单',
       actionType: 'GET',
       denyAutoSelected: ['ivs:DeleteGroup', 'ivs:UpdateGroup', 'ivs:CreateGroup', 'ivs:GetDevice'],
-      resourceType: '*'
+      resourceType: '*',
+      version: 'v1'
     },
     {
       actionName: '删除业务组',
       actionKey: 'ivs:DeleteGroup',
       actionDesc: '拥有业务组的删除权限，并展示业务组管理菜单',
       allowAutoSelected: ['ivs:GetGroup'],
-      resourceType: '*'
+      resourceType: '*',
+      version: 'v1'
     },
     {
       actionName: '修改业务组',
       actionKey: 'ivs:UpdateGroup',
       actionDesc: '拥有业务组的修改权限，并展示业务组管理菜单',
       allowAutoSelected: ['ivs:GetGroup'],
-      resourceType: '*'
+      resourceType: '*',
+      version: 'v1'
     },
     // 暂时隐藏
     // {
@@ -75,7 +79,8 @@ const settings: ISettings = {
     //   actionKey: 'ivs:CreateGroup',
     //   allowAutoSelected: ['ivs:GetGroup'],
     //   actionDesc: '拥有业务组的创建权限，并展示业务组管理菜单',
-    //   resourceType: '*'
+    //   resourceType: '*',
+    //   version: 'v1'
     // },
     // 设备管理
     {

@@ -240,9 +240,11 @@ export default class extends Vue {
 
   private get filteredSystemActionList() {
     const tagObject = UserModule.tags || ({})
+    const userVersion = UserModule.version
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     return settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .filter((action: any) => !action.version || action.version === userVersion)
       .map(action => {
         const options = action.actionValueOption
         return {

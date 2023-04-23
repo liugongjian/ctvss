@@ -1094,8 +1094,8 @@ export default class extends Mixins(IndexMixin) {
     await this.getDeviceInfo()
 
     if (
-      Number(this.deviceInfo.deviceLongitude) &&
-      Number(this.deviceInfo.deviceLatitude)
+      Number(this.deviceInfo.device.deviceLongitude) &&
+      Number(this.deviceInfo.device.deviceLatitude)
     ) {
       if (this.ifDragging) {
         if (!this.dragAddPositionDialogCheck) {
@@ -1257,7 +1257,8 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
-    this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
+    console.log(marker)
+    this.$refs.mapview.handleMarkerDelete(marker.id, marker.name)
   }
 
   toggleMarkersShow(isOpen) {
