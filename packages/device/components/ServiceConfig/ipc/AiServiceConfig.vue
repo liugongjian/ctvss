@@ -119,7 +119,7 @@
         v-if="canvasDialog"
         :device-id="configManager.deviceId"
         :canvas-if="canvasDialog"
-        :config-algo-info="configAlgoInfo"
+        :app-id="currentAppId"
         :frame-image="frameImage"
       />
     </div>
@@ -149,6 +149,7 @@ import { BillingModeType, ResourceAiType } from '@vss/device/dicts/resource'
 import { getAppList } from '@vss/ai/api'
 import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
 import AiAppCreateDialog from './AiAppCreateDialog.vue'
+import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { startAppResource, stopAppResource } from '@vss/device/api/device'
 import { checkPermission } from '@vss/base/utils/permission'
@@ -156,7 +157,8 @@ import { checkPermission } from '@vss/base/utils/permission'
   name: 'IpcAiServiceConfig',
   components: {
     AiServiceBindingDialog,
-    AiAppCreateDialog
+    AiAppCreateDialog,
+    AlgoConfig
   }
 })
 export default class extends Vue {
@@ -184,8 +186,8 @@ export default class extends Vue {
   }
   // 是否显示画框弹窗
   private canvasDialog = false
-  // 配置算法信息
-  private configAlgoInfo: any = {}
+  // 当前应用ID
+  private currentAppId = ''
   // 封面
   private frameImage = null
 
@@ -350,8 +352,8 @@ export default class extends Vue {
           if (!frame) {
             this.$message.warning('暂时获取不到截图，请稍后再试')
           } else {
+            this.currentAppId = rowInfo.appId
             this.canvasDialog = true
-            this.configAlgoInfo = rowInfo
             this.frameImage = frame
           }
         }
@@ -359,6 +361,13 @@ export default class extends Vue {
       .catch((e) => {
         this.$alertError(e.message)
       })
+  }
+
+  /**
+   * 关闭画框弹窗
+   */
+  private closeCanvasDialog() {
+    this.canvasDialog = false
   }
 
   /**
