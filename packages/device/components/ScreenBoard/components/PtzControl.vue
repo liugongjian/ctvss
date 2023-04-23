@@ -25,7 +25,7 @@
               <span class="direction" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
                 <i class="icon-ptz-left" />
               </span>
-              <span class="direction">
+              <span class="direction disabled">
                 <!-- <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
                 <i class="icon-ptz-auto" />
               </span>
@@ -931,6 +931,22 @@ export default class extends Vue {
       .submit-button {
         margin-top: 15px;
       }
+    }
+  }
+
+  .disabled {
+    position: relative;
+    pointer-events: none;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #c0c4cc;
+      opacity: 0.6;
     }
   }
 }
