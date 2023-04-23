@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:09:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 14:46:51
+ * @LastEditTime: 2023-04-23 09:34:18
  * @FilePath: /vss-user-web/src/dics/periodLine.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -93,6 +93,15 @@ export const KindToText = {
   },
   service: {
     name: 'AI服务用量详情(路)',
-    func: 'getServiceData'
+    func: 'getServiceData',
+    'AI-100': {
+      title: '分钟级AI服务用量详情(路)'
+    },
+    'AI-200': {
+      title: '秒级AI服务用量详情(路)'
+    },
+    'AI-300': {
+      title: '高算力AI服务用量详情(路)'
+    },
   }
 }
