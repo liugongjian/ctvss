@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-20 14:33:54
+ * @LastEditTime: 2023-04-23 10:16:39
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -93,7 +93,6 @@ export default class extends Vue {
   }
 
   private formatterData() {
-    console.log('this.lineData--->', this.lineData)
     const { chartKind } = this.lineData
     if (chartKind === 'device') {
       const { demandData, totalData, currentPeriod } = this.lineData
