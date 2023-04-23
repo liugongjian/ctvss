@@ -18,7 +18,8 @@ export interface mapObject {
   mask?: string
   eagle?: string
   dimension?: string
-  marker?: string
+  marker?: string,
+  AuthMap?: object
 }
 
 declare global {
@@ -32,6 +33,7 @@ declare global {
 }
 
 export interface markerObject {
+  AuthMap?: Object,
   longitude: number,
   latitude: number,
   deviceId: string,

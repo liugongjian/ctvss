@@ -6,6 +6,7 @@
     :in-protocol="inProtocol"
     :default-size="1"
     :is-single="true"
+    :is-dialog-task="isCarTask"
   />
 </template>
 
@@ -23,8 +24,13 @@ import { ScreenManager } from '../services/Screen/ScreenManager'
 export default class extends Vue {
   @Prop({ required: true }) private readonly deviceId: number
   @Prop({ required: true }) private readonly inProtocol: string
+  @Prop({ required: true }) private readonly deviceName: string
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
+  @Prop() private readonly lockPermission: boolean
+  @Prop() private readonly info: any
+  @Prop() private readonly permission: any
+  @Prop() private readonly isLockTask?: boolean
 
   private height = 'auto'
 
@@ -35,11 +41,18 @@ export default class extends Vue {
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
     this.screenManager.isCarTask = this.isCarTask
+    // this.screenManager.isLockTask = this.isLockTask
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
+    screen.deviceName = this.deviceName
+    screen.ivsLockCloudRecord = this.lockPermission
+    screen.detailInfo = this.info
+    screen.permission = this.permission
+    screen.isLockTask = this.isLockTask
+
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)

@@ -9,44 +9,44 @@ export const v1Router: RouteConfig[] = [
       title: '概览',
       icon: 'menu-dashboard',
       breadcrumb: false,
-      perms: ['DescribeDashboard'],
+      perms: ['ivs:GetDashboard'],
       alwaysShow: false,
       version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/index.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/index.vue'),
         name: 'Dashboard',
         meta: {
           title: '概览',
           icon: 'menu-dashboard',
           breadcrumb: true,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
         path: 'ai',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/AI/index.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/AI/index.vue'),
         name: 'DashboardAI',
         meta: {
           title: 'AI监控告警',
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
         path: 'visualization-dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/VisualizationDashboard.vue'),
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/VisualizationDashboard.vue'),
         name: 'VisualizationDashboard',
         meta: {
           title: '可视化大屏',
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       }
     ]
@@ -57,7 +57,7 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '业务组管理',
       icon: 'menu-group',
-      perms: ['DescribeGroup'],
+      perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
       alwaysShow: false,
       version: 1
     },
@@ -70,7 +70,7 @@ export const v1Router: RouteConfig[] = [
           title: '业务组管理',
           icon: 'menu-group',
           breadcrumb: false,
-          perms: ['DescribeGroup'],
+          perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
           activeMenu: '/group'
         }
       },
@@ -82,7 +82,7 @@ export const v1Router: RouteConfig[] = [
           title: '新建业务组',
           icon: 'menu-group',
           hidden: true,
-          perms: ['AdminGroup'],
+          perms: ['ivs:CreateGroup'],
           activeMenu: '/group'
         }
       },
@@ -94,7 +94,7 @@ export const v1Router: RouteConfig[] = [
           title: '编辑业务组',
           icon: 'menu-group',
           hidden: true,
-          perms: ['AdminGroup'],
+          perms: ['ivs:UpdateGroup'],
           activeMenu: '/group'
         }
       },
@@ -106,7 +106,7 @@ export const v1Router: RouteConfig[] = [
           title: '业务组配置',
           icon: 'menu-group',
           hidden: true,
-          perms: ['DescribeGroup'],
+          perms: ['ivs:GetGroup'],
           activeMenu: '/group'
         }
       }
@@ -118,7 +118,7 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '设备管理',
       icon: 'menu-device',
-      perms: ['DescribeDevice'],
+      perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
       alwaysShow: false,
       only: true,
       groupSelector: true,
@@ -133,7 +133,7 @@ export const v1Router: RouteConfig[] = [
           title: '设备管理',
           icon: 'menu-device',
           breadcrumb: false,
-          perms: ['DescribeDevice'],
+          perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
           groupSelector: true
         },
         children: [
@@ -144,7 +144,7 @@ export const v1Router: RouteConfig[] = [
             meta: {
               title: '设备列表',
               breadcrumb: false,
-              perms: ['DescribeDevice'],
+              perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -156,7 +156,7 @@ export const v1Router: RouteConfig[] = [
             meta: {
               title: '添加设备',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:CreateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -168,7 +168,7 @@ export const v1Router: RouteConfig[] = [
             meta: {
               title: '编辑设备',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -180,7 +180,7 @@ export const v1Router: RouteConfig[] = [
             meta: {
               title: '设备详情',
               hidden: true,
-              perms: ['DescribeDevice'],
+              perms: ['ivs:GetDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -192,7 +192,7 @@ export const v1Router: RouteConfig[] = [
             meta: {
               title: '配置子通道',
               hidden: true,
-              perms: ['AdminDevice'],
+              perms: ['ivs:UpdateDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -207,7 +207,7 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '实时预览',
       icon: 'menu-live',
-      perms: ['ScreenPreview'],
+      perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       alwaysShow: false,
       groupSelector: true,
       version: 1
@@ -221,7 +221,7 @@ export const v1Router: RouteConfig[] = [
           title: '实时预览',
           icon: 'menu-live',
           breadcrumb: false,
-          perms: ['ScreenPreview'],
+          perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
           activeMenu: '/screen',
           groupSelector: true
         }
@@ -270,7 +270,7 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '录像回放',
       icon: 'menu-replay',
-      perms: ['ReplayRecord'],
+      perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
       alwaysShow: false,
       groupSelector: true,
       version: 1
@@ -284,7 +284,7 @@ export const v1Router: RouteConfig[] = [
           title: '录像回放',
           icon: 'menu-replay',
           breadcrumb: false,
-          perms: ['ReplayRecord'],
+          perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
           activeMenu: '/replay',
           groupSelector: true
         }
@@ -297,7 +297,7 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '电子地图',
       icon: 'menu-map',
-      perms: ['DescribeMap'],
+      perms: ['ivs:GetMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false,
@@ -312,7 +312,7 @@ export const v1Router: RouteConfig[] = [
           title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
-          perms: ['DescribeMap'],
+          perms: ['ivs:GetMap'],
           activeMenu: '/map'
         }
       }
@@ -403,7 +403,7 @@ export const v1Router: RouteConfig[] = [
         }
       },
       {
-        path: 'gb28181/update/:id?',
+        path: 'gb28181/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/Create.vue'),
         name: 'gb28181-update',
         meta: {
@@ -411,6 +411,43 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/gb28181'
+        }
+      },
+      {
+        path: 'ehome',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/index.vue'),
+        name: 'ehome',
+        meta: {
+          id: '20210424150201007001',
+          name: 'ehome-certificate',
+          title: 'ISUP凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
+        }
+      },
+      {
+        path: 'ehome/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        name: 'ehome-create',
+        meta: {
+          id: '20210424150201007002',
+          title: '新建ISUP凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
+        }
+      },
+      {
+        path: 'ehome/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        name: 'ehome-update',
+        meta: {
+          id: '20210424150201007003',
+          title: '编辑ISUP凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ehome'
         }
       },
       {
@@ -423,7 +460,6 @@ export const v1Router: RouteConfig[] = [
           title: 'GA1400凭证',
           icon: 'dot',
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
@@ -436,12 +472,11 @@ export const v1Router: RouteConfig[] = [
           title: '新建GA1400凭证',
           hidden: true,
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
       {
-        path: 'ga1400/update/:id?',
+        path: 'ga1400/update/:userName?',
         component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/Create.vue'),
         name: 'ga1400-update',
         meta: {
@@ -449,8 +484,44 @@ export const v1Router: RouteConfig[] = [
           title: '编辑GA1400凭证',
           hidden: true,
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'gb35114',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/index.vue'),
+        name: 'gb35114',
+        meta: {
+          id: '20210424150201007007',
+          name: 'certificate',
+          title: 'GB35114凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/create',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
+        name: 'gb35114-create',
+        meta: {
+          id: '20210424150201007008',
+          title: '新建Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/update/:outId?/:certId?',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
+        name: 'gb35114-update',
+        meta: {
+          id: '20210424150201007006',
+          title: '编辑Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
         }
       }
     ]
@@ -469,6 +540,22 @@ export const v1Router: RouteConfig[] = [
       version: 1
     },
     children: [
+      // 柳州版本录制模板
+      {
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/RecordV2/index.vue'),
+        name: 'record',
+        meta: {
+          title: '录制模板',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/template/record',
+          tags: {
+            privateUser: ['liuzhou']
+          }
+        }
+      },
+      // 现网版本录制模板
       {
         path: 'record',
         component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'),
@@ -476,7 +563,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '录制模板',
           icon: 'dot',
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -487,7 +574,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '新建录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -498,7 +585,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '编辑录制模板',
           hidden: true,
-          perms: ['*'],
+          perms: ['ivs:frontend:RecordTemplate'],
           activeMenu: '/template/record'
         }
       },
@@ -533,6 +620,28 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           activeMenu: '/template/callback'
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        name: 'AICreate',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
+        }
+      },
+      {
+        path: 'ai/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        name: 'aiUpdate',
+        meta: {
+          title: '编辑AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
         }
       },
       {
@@ -590,7 +699,7 @@ export const v1Router: RouteConfig[] = [
       title: 'AI管理',
       icon: 'menu-ai',
       alwaysShow: true,
-      perms: ['DescribeAi'],
+      perms: ['ivs:GetApp', 'ivs:AdminApp'],
       version: 1
     },
     children: [
@@ -604,7 +713,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -618,7 +727,7 @@ export const v1Router: RouteConfig[] = [
           breadcrumb: true,
           only: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -631,7 +740,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -644,7 +753,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -657,7 +766,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -670,7 +779,7 @@ export const v1Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/config',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -682,7 +791,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -694,7 +803,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       }
     ]
@@ -831,6 +940,74 @@ export const v1Router: RouteConfig[] = [
           activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
+      },
+      {
+        path: 'accessRestriction',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/AccessRestriction/index.vue'),
+        name: 'AccessRestrictionManage',
+        meta: {
+          title: '访问限制',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/access-manage/accessRestriction',
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
+    path: '/operation-center',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '运营中心',
+      icon: 'menu-alarm',
+      perms: ['*'],
+      alwaysShow: true,
+      groupSelector: true,
+      version: 1
+    },
+    children: [
+      {
+        path: 'alarm',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
+        name: 'Alarm',
+        meta: {
+          title: '设备告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
+            name: 'AlarmList',
+            meta: {
+              title: '设备告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/alarm',
+              groupSelector: true
+            }
+          }
+        ]
+      },
+      {
+        path: 'statistic',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        name: 'statistic',
+        meta: {
+          title: '统计信息',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            isShowRecordInfo: ['Y']
+          }
+        }
       }
     ]
   },
@@ -843,7 +1020,7 @@ export const v1Router: RouteConfig[] = [
       icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
-      perms: ['*'],
+      perms: ['ivs:frontend:AdminNotification'],
       version: 1
     },
     children: [
@@ -856,7 +1033,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/notification/history',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -868,7 +1045,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -880,7 +1057,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
       },
       {
@@ -892,49 +1069,8 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/notification/policy',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminNotification']
         }
-      }
-    ]
-  },
-  {
-    path: '/alarm',
-    component: Layout,
-    meta: {
-      title: '告警管理',
-      icon: 'menu-alarm',
-      perms: ['*'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: true,
-      version: 1
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
-        name: 'Alarm',
-        meta: {
-          title: '告警管理',
-          icon: 'menu-alarm',
-          breadcrumb: false,
-          perms: ['*'],
-          groupSelector: true
-        },
-        children: [
-          {
-            path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
-            name: 'AlarmList',
-            meta: {
-              title: '告警信息列表',
-              breadcrumb: false,
-              perms: ['*'],
-              activeMenu: '/alarm',
-              groupSelector: true
-            }
-          }
-        ]
       }
     ]
   },
@@ -946,7 +1082,7 @@ export const v1Router: RouteConfig[] = [
       title: '车辆管理',
       breadcrumb: true,
       icon: 'menu-car',
-      perms: ['AdminCar'],
+      perms: ['ivs:AdminCar'],
       version: 1
     },
     children: [
@@ -959,7 +1095,7 @@ export const v1Router: RouteConfig[] = [
           title: '车辆管理',
           breadcrumb: false,
           icon: 'car',
-          perms: ['AdminCar']
+          perms: ['ivs:AdminCar']
         }
       }
     ]
@@ -972,7 +1108,7 @@ export const v1Router: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*'],
+      perms: ['ivs:frontend:AdminBilling'],
       version: 1
     },
     children: [
@@ -983,7 +1119,7 @@ export const v1Router: RouteConfig[] = [
         meta: {
           title: '资源包管理',
           icon: 'dot',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       },
       {
@@ -995,7 +1131,7 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/billing/resource',
-          perms: ['*']
+          perms: ['ivs:frontend:AdminBilling']
         }
       }
     ]
@@ -1029,22 +1165,64 @@ export const v1Router: RouteConfig[] = [
   {
     path: '/sysconfig',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
-      title: '系统设置',
+      title: '系统管理',
       breadcrumb: true,
+      alwaysShow: true,
       icon: 'menu-system',
       perms: ['*'],
       version: 1
     },
     children: [
       {
-        path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
+        path: 'operation-log',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'),
+        name: 'operation-log',
+        meta: {
+          title: '操作日志',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/operation-log',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'custom-tree',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/custom-tree',
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'replay-lock-manage',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+        name: 'ReplayLockManage',
+        meta: {
+          title: '锁定录像管理',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/sysconfig/replay-lock-manage',
+          tags: {
+            isRecordLockAvailable: ['Y']
+          }
+        }
+      },
+      {
+        path: 'system-config',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
         name: 'SysConfig',
         meta: {
           title: '系统设置',
-          breadcrumb: false,
-          icon: 'menu-system',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/system-config',
+          icon: 'dot',
           perms: ['*']
         }
       }

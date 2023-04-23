@@ -10,10 +10,10 @@
     <el-tabs v-model="activeTabName" v-loading="loading.abilityList" type="border-card" @tab-click="handleTabType">
       <el-tab-pane v-for="item in tabInfo" :key="item.id" :label="item.name+' ('+item.aiApps+')'" :name="item.id">
         <div class="filter-container">
-          <el-button v-permission="['AdminAi']" type="primary" @click="addApp">新建AI应用</el-button>
+          <el-button v-if="checkPermission(['ivs:AdminApp'])" type="primary" @click="addApp">新建AI应用</el-button>
           <!-- <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(1)">启用</el-button>
           <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(0)">停用</el-button> -->
-          <el-button v-permission="['AdminAi']" :disabled="batchDisabled" @click="batchDeleteApps()">删除</el-button>
+          <el-button v-if="checkPermission(['ivs:AdminApp'])" :disabled="batchDisabled" @click="batchDeleteApps()">删除</el-button>
           <div class="filter-container__right">
             <el-input v-model="searchInput" class="filter-container__search-group" placeholder="请输入应用名称 / 描述" clearable @keyup.enter.native="handleSearch" @clear="handleSearch">
               <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="search" /></el-button>
@@ -85,8 +85,8 @@
                     <el-dropdown-item :command="{ type: 'detail', app: scope.row }">应用详情</el-dropdown-item>
                     <!-- <el-dropdown-item v-if="parseInt(scope.row.appEnabled)" :command="{type: 'stop', app: scope.row}">停用</el-dropdown-item>
                     <el-dropdown-item v-if="!parseInt(scope.row.appEnabled)" :command="{type: 'start', app: scope.row}">启用</el-dropdown-item> -->
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'edit', app: scope.row }">编辑</el-dropdown-item>
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'delete', app: scope.row }">删除</el-dropdown-item>
+                    <el-dropdown-item v-if="checkPermission(['ivs:AdminApp'])" :command="{ type: 'edit', app: scope.row }">编辑</el-dropdown-item>
+                    <el-dropdown-item v-if="checkPermission(['ivs:AdminApp'])" :command="{ type: 'delete', app: scope.row }">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
@@ -197,7 +197,7 @@ export default class extends Mixins(AppMixin) {
    * 创建应用
    */
   private addApp() {
-    this.$router.push({ path: '/ai/create', query: { appType: 1, abilityId: this.activeTabName } })
+    this.$router.push({ path: '/AI/create', query: { appType: 1, abilityId: this.activeTabName } })
   }
 
   /**

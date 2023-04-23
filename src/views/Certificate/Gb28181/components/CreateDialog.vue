@@ -1,7 +1,6 @@
 <template>
   <el-dialog
     title="新建GB28181凭证"
-    :append-to-body="true"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="700px"

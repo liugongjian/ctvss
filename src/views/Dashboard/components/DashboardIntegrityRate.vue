@@ -1,6 +1,6 @@
 <template>
   <DashboardContainer ref="mainBox" title="录像完整率" class="container">
-    <template v-slot:header>
+    <template #header>
       <el-select
         v-model="selectValue"
         size="small"
@@ -55,7 +55,7 @@ import { dateFormatInTable } from '@/utils/date'
 export default class extends Mixins(DashboardMixin) {
   private data: any = []
   private dataHours: any = []
-  private selectValue: string = '0'
+  private selectValue = '0'
   private selectOptions: any = [{
     value: '0',
     label: '最近30天'
@@ -166,7 +166,7 @@ export default class extends Mixins(DashboardMixin) {
     //   })
     // })
     // 柱状图
-    var chartData = []
+    const chartData = []
     for (let i = 0; i < this.dataHours.length; i++) {
       chartData.push({
         time: this.dataHours[i].time,
@@ -220,6 +220,7 @@ export default class extends Mixins(DashboardMixin) {
     width: 100%;
     height: 20vh;
   }
+
   .contentIr {
     display: flex;
     justify-content: center;
@@ -242,6 +243,7 @@ export default class extends Mixins(DashboardMixin) {
         width: 10%;
         justify-content: center;
         align-items: center;
+
         p {
           font-size: 1.5vh;
           display: flex;
@@ -252,11 +254,12 @@ export default class extends Mixins(DashboardMixin) {
           width: 3vh;
           height: 3vh;
           color: white;
+
           span {
-            -webkit-user-select:none;
-            -moz-user-select:none;
-            -ms-user-select:none;
-            user-select:none;
+            user-select: none;
+            user-select: none;
+            user-select: none;
+            user-select: none;
           }
         }
       }
@@ -265,8 +268,9 @@ export default class extends Mixins(DashboardMixin) {
     &__process {
       position: relative;
       top: 5%;
+
       /* (226, 97, 95), (124, 201, 111) */
-      background-image: linear-gradient(#65CBD2, #C054D1);
+      background-image: linear-gradient(#65cbd2, #c054d1);
       width: 5px;
       height: 75%;
       border-radius: 10px;
@@ -279,13 +283,13 @@ export default class extends Mixins(DashboardMixin) {
         &--top {
           top: -10%;
           left: -6px;
-          color: #33DBE3;
+          color: #33dbe3;
         }
 
         &--bottom {
           bottom: -10%;
           left: -10px;
-          color: #33DBE3;
+          color: #33dbe3;
         }
       }
     }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <DashboardContainer v-if="!isLight" title="网络带宽统计">
-      <template v-slot:header>
+      <template #header>
         <el-select
           v-model="userType"
           size="small"
@@ -103,7 +103,7 @@ export default class extends Mixins(DashboardMixin) {
         EndTime: this.dateFormat(end)
       })
       const flowData = []
-      for (let key in res.data.Bandwidth) {
+      for (const key in res.data.Bandwidth) {
         const item = res.data.Bandwidth[key]
         flowData.push(
           {

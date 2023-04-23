@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 15:03:58
+ * @LastEditTime: 2023-04-23 10:20:52
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,7 +10,7 @@
   <div class="dashboard-wrap-overview__item">
     <el-card>
       <div class="dashboard-wrap-overview__item_period_content">
-        <div class="dashboard-wrap-overview__item_period_title">{{ chartTitle }}</div>
+        <div class="dashboard-wrap-overview__item_period_title">{{ chartTitle() }}</div>
         <div class="dashboard-wrap-overview__item_period_to_detail" @click="toDosageStatistics">
           用量详情 >>
         </div>
@@ -103,14 +103,17 @@ export default class extends Vue {
     endTime: new Date().getTime()
   }
 
-  private get chartTitle() {
+  private chartTitle() {
     if ((this.chartKind === 'bandwidth' || this.chartKind === 'storage') && this.currentPeriod) {
       return `${this.kindToText[this.chartKind][this.currentPeriod]['title']}(${
         this.unit
       })`
+    } else if (this.chartKind === 'service' && this.selection){
+      return  `${this.kindToText[this.chartKind][this.selection]['title']}`
     }
     return this.kindToText[this.chartKind]['name']
   }
+
   
   mounted() {
     this.initDraw()
@@ -133,12 +136,14 @@ export default class extends Vue {
   }
 
   private periodChange(period: string, selection?: string) {
+
+    this.selection = selection
+    
     if (!period) {
       const per = this.periods.find((item) => item.value === selection)
       this.chartKind = per.kind
     }
 
-    this.selection = selection
     if (period === 'service') {
       this.currentPeriod = ''
       this.chartKind = 'service'

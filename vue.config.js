@@ -16,7 +16,7 @@ const serverAddressMapping = {
   test3: 'http://182.43.127.35:9062', // 测试环境test-3
   test4: 'http://182.43.127.35:9063', // 测试环境test-4
   pre: 'http://182.43.127.35:9070', // 预发布环境
-  prod: 'http://console.vcn.ctyun.cn' // 生产环境
+  prod: 'http://console.vaas.ctyun.cn' // 生产环境
 }
 const portMapping = {
   local: 8081,

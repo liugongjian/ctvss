@@ -18,12 +18,10 @@ const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
 }
 
-interface VssRoute extends Route {
-  children?: VssRoute[]
-}
-router.beforeEach(async(to: VssRoute, from: VssRoute, next: any) => {
+router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Start progress bar
   NProgress.start()
+  console.log('to: ', to, ' from: ', from)
 
   if (innerWhiteList.some(url => to.path.startsWith(url))) {
     if (UserModule.casLoginId) {
@@ -57,34 +55,35 @@ router.beforeEach(async(to: VssRoute, from: VssRoute, next: any) => {
     }
     return
   }
-
   // Determine whether the user has logged in
   if (UserModule.token) {
     // Check whether the user has obtained his permission
     if (UserModule.perms.length === 0) {
       try {
-        // Note: perms must be a object array! such as: ['*'] or ['GET']
+        // Note: perms must be a string array! such as: ['*'] or ['GET']
         await UserModule.GetGlobalInfo()
         const perms = UserModule.perms
+        if (!perms.length) {
+          Message.error('当前子用户暂无权限，请联系主账号配置权限策略！')
+          if (to.path === '/404') {
+            return next()
+          }
+        }
         const iamUserId = UserModule.iamUserId
-        const tags = Object.keys(UserModule.tags || ({})).filter(key => UserModule.tags[key] === 'Y')
+        const tagObject = UserModule.tags || ({})
+        const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
         const version = UserModule.version
-        // Generate accessible routes map based on tags and perms
-        PermissionModule.GenerateRoutes({ tags, perms, iamUserId, version })
+        // Generate accessible routes map based on tags and perms and denyPerms
+        PermissionModule.GenerateRoutes({ tagObject, perms, denyPerms, iamUserId, version })
         // Dynamically add accessible routes
         router.addRoutes(PermissionModule.dynamicRoutes)
-        const path = to.path
-        if (path === '/dashboard') {
-          // redirect=%2Fdashboard在v1下的统一处理
-          // if (UserModule.version === 1) {
-          //   path = '/1/dashboard'
-          // }
-          let dashBoardIndex = PermissionModule.dynamicRoutes.findIndex((route: any) => route.path === path)
-          dashBoardIndex = dashBoardIndex === -1 ? 0 : dashBoardIndex
+        if (to.path === '/404' || (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== '/dashboard')) {
+          const menuRoutes: any = PermissionModule.dynamicRoutes.filter(route => route.path !== '/changePassword' && route.path !== '/404')
+          if (menuRoutes.length > 0) {
+            to = menuRoutes[0]
+          } else {
           // @ts-ignore
-          to = PermissionModule.dynamicRoutes[dashBoardIndex]
-          while (to.children && to.children.length) {
-            to = to.children[0]
+            to = PermissionModule.dynamicRoutes[0]
           }
         }
         // 单点登录菜单高亮
@@ -93,16 +92,33 @@ router.beforeEach(async(to: VssRoute, from: VssRoute, next: any) => {
         // Set the replace: true, so the navigation will not leave a history record
         next({ ...to, replace: true })
       } catch (err) {
+        const loginType = loginService.getLoginType()
         // Remove token and redirect to login page
         UserModule.ResetToken()
         Message.error(err || 'Has Error')
-        window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
-        NProgress.done()
+
+        console.log('loginType:', loginType)
+        if (loginType === 'sub') {
+          next(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)
+        } else if (loginType === 'main') {
+          next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+        } else {
+          if (loginService.casUrl.login) {
+            window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
+          } else {
+            next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+            NProgress.done()
+          }
+        }
       }
     } else {
+      if (!to.matched.length) {
+        next({ path: '/404', replace: true })
+      } else {
       // 单点登录菜单高亮
-      UserModule.casLoginId && casService.activeCasMenu(to)
-      next()
+        UserModule.casLoginId && casService.activeCasMenu(to)
+        next()
+      }
     }
   } else {
     // Other pages that do not have permission to access are redirected to the login page.

@@ -33,7 +33,7 @@
     <div v-else class="tip-text tip-select-device">
       <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
-    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <device-dir v-if="dialogs.deviceDir" :is-live="screenManager.isLive" @on-close="onDeviceDirClose" />
   </div>
 </template>
 <script lang="ts">
@@ -74,6 +74,8 @@ export default class extends Vue {
     deviceDir: false
   }
 
+  private actions: any = null
+
   @Inject('getScreenManager')
   private getScreenManager: Function
 
@@ -82,7 +84,8 @@ export default class extends Vue {
   }
 
   private get hasReplayRecord() {
-    return checkPermission(['ReplayRecord'])
+    this.actions = this.screen.permission
+    return checkPermission(['ivs:GetCloudRecord'], this.actions)
   }
 
   /**

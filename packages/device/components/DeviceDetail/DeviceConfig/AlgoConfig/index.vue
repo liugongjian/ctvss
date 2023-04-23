@@ -1,6 +1,7 @@
 <template>
   <div class="canvasBox">
     <el-dialog
+      v-loading="loading"
       :visible.sync="canvasIf"
       title="算法配置" width="800px"
       :destroy-on-close="true"
@@ -22,10 +23,9 @@
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <!--   -->
-            <el-button v-if="configAlgoInfo.algorithm.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
-            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
-            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
+            <el-button v-if="configAlgoInfo.algorithm && configAlgoInfo.algorithm.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button v-if="configAlgoInfo.algorithm && configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button v-if="configAlgoInfo.algorithm && configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -58,7 +58,7 @@ import math from './utils/math'
 import { getRectPropFromPoints,
   getVerticalLinePoints, drawArrow
 } from './utils/index'
-import { getAppDescribeLine, sendAppDescribeLine
+import { getAppDescribeLine, sendAppDescribeLine, getAppInfo,
 // getAlgoStreamFrame
 } from '@vss/device/api/ai-app'
 // import plate from './plate4.jpg'
@@ -82,12 +82,13 @@ export default class extends Vue {
   // @Prop() private inProtocol?: string
   @Prop() private deviceId?: string
   @Prop() private canvasIf?: boolean
-  @Prop() private configAlgoInfo?: any
+  @Prop() private appId?: any
   // @Prop() private deviceInfo?: any
   @Prop() private frameImage?: any
 
   private mode = ''
   private isDraw = false
+  private loading = false
   private lineWidth = 2
   private strokeStyle = '#50E3C2'
   // private areas = [{ shape: 'rect', points: [[11, 22], [33, 55]], origin: '' }]
@@ -101,16 +102,29 @@ export default class extends Vue {
   private imageWidth: any = null
   private imageHeight: any = null
   private imgSrc: any = null
+  private configAlgoInfo: any = {}
 
 
-  private mounted() {
+  private async mounted() {
     // this.$nextTick(() => {
     //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
     //   this.img2Base64(plate)
     // })
+    await this.getConfigAlgoInfo()
     this.$nextTick(() => {
       this.initCanvas()
     })
+  }
+
+  private async getConfigAlgoInfo() {
+    try {
+      this.loading = true
+      this.configAlgoInfo = await getAppInfo({ id: this.appId }) 
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.loading = false
+    }
   }
 
   // 获取已编辑过的划线

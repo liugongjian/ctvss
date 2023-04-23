@@ -26,6 +26,9 @@ export const ApiMapping = {
   '/alarm/rule/delete': '/alarm/alarmrule/delete',
   '/alarm/rule/describe': '/alarm/alarmrule/describeAlarmRule',
   '/alarm/rule/list': '/alarm/alarmrule/describeAlarmRules',
+  // 录制模板批量操作
+  '/device/batchBind': '/device/record/batchBind',
+  '/device/batchUnbind': '/device/record/batchUnbind',
   // PTZ 云台控制
   '/ptz/keepwatch/describe': '/ptz/keepwatch',
   '/ptz/keepwatch/start': '/ptz/startDeviceKeepwatch',

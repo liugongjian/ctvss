@@ -49,7 +49,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { CallbackTemplate } from '@/type/Template'
-import { queryCallbackTemplate, createCallbackTemplate, updateCallbackTemplate } from '@vss/device/api/template'
+import { queryCallbackTemplate, createCallbackTemplate, updateCallbackTemplate } from '@/api/template'
 
 @Component({
   name: 'create-or-update-callback-template'

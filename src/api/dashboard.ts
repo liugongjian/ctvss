@@ -102,3 +102,11 @@ export const getUserStorage = (params?: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 获取首页图表 带宽用量统计
+export const getBandwidthHistory = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/bandwidth/history',
+    method: 'get',
+    params
+  })

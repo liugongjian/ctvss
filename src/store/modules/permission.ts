@@ -17,6 +17,18 @@ interface IMatchFn {
   (infos: string[], route: RouteConfig): boolean
 }
 
+interface IMatchFn2 {
+  (infoObj: object, route: RouteConfig): boolean
+}
+
+const notInDenyPerms: IMatchFn = (denyPerms, route) => {
+  if (route.meta && route.meta.perms) {
+    return !denyPerms.some(denyPerm => route.meta.perms.includes(denyPerm))
+  }
+  return true
+}
+
+
 const hasPermission: IMatchFn = (perms, route) => {
   if (route.meta && route.meta.perms) {
     return perms.some(perm => route.meta.perms.includes(perm))
@@ -24,10 +36,31 @@ const hasPermission: IMatchFn = (perms, route) => {
   return true
 }
 
-const hasTags: IMatchFn = (tags, route) => {
-  if (route.meta && route.meta.tags) {
-    return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+// const hasTags: IMatchFn = (tags, route) => {
+//   if (route.meta && route.meta.tags) {
+//     return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+//   }
+//   return true
+// }
+
+const hasTags2: IMatchFn2 = (tagObject, route) => {
+  const settingTags = route.meta.tags
+  if (settingTags) {
+    let neededTagObject = {}
+    if (Array.isArray(settingTags)) {
+      settingTags.forEach(tag => {
+        neededTagObject[tag] = ['Y']
+      })
+    } else {
+      neededTagObject = settingTags
+    }
+    return Object.keys(neededTagObject).every(neededTag => {
+      const tagValue = tagObject[neededTag]
+      const neededValue = neededTagObject[neededTag]
+      return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+    })
   }
+
   return true
 }
 
@@ -53,7 +86,8 @@ const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: stri
 }
 
 export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
-export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
+export const filterAsyncRoutesByDenyPerms = filterAsyncRoutes.bind(null, notInDenyPerms)
+export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags2)
 export const filterAsyncRoutesByVersion = filterAsyncRoutes.bind(null, hasVersion)
 
 export interface IPermissionState {
@@ -73,16 +107,36 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string, version: number }) {
+  public GenerateRoutes(params: { tagObject: object, perms: string[], denyPerms: string[], iamUserId: string, version: number }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     console.log('asyncRoutes:', asyncRoutes)
     if (params.iamUserId) {
+      // 子账号管理员
+
+      // 过滤 访问管理 一级菜单
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
+      // 过滤 视图级联 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/view-service')
+      // 过滤 消息推送 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/notification')
+      // 过滤 计费管理 一级菜单
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/billing')
+
+      // 过滤 系统管理 一级菜单 下的 自定义设备树 & 录像锁定管理 二级菜单
+      const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
+      if (sysconfigRouteIndex > -1) {
+        const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
+        sysconfigRoute.children = sysconfigRoute.children.filter(child =>
+          child.path !== '/custom-tree' &&
+          child.path !== '/replay-lock-manage' &&
+          child.path !== '/operation-log'
+        )
+      }
     }
 
     // 根据route.meta.tags及用户tags过滤路由
-    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tags)
+    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tagObject)
 
     // 根据route.meta.version及用户version过滤路由
     filteredRoutes = filterAsyncRoutesByVersion(filteredRoutes, params.version)
@@ -92,6 +146,7 @@ class Permission extends VuexModule implements IPermissionState {
     } else {
       accessedRoutes = filterAsyncRoutesByPerms(filteredRoutes, params.perms)
     }
+    accessedRoutes = filterAsyncRoutesByDenyPerms(accessedRoutes, params.denyPerms)
     this.SET_ROUTES(accessedRoutes)
     if (getLocalStorage('casLoginId')) {
       casService.renderCasMenu(this.routes)

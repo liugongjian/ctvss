@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-20 11:01:17
+ * @LastEditTime: 2023-04-23 10:16:39
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
+import { dateFormat, getNextHour } from '@/utils/date'
 
 @Component({
   name: 'LineChart',
@@ -138,7 +139,7 @@ export default class extends Vue {
   }
 
   private drawLine() {
-    const { chartKind } = this.lineData
+    const { chartKind, selection } = this.lineData
     const { currentPeriod } = this.lineData
     // 使chart图表重新渲染，changeData不更新legend
     this.currentChart && this.currentChart.destroy()
@@ -230,7 +231,7 @@ export default class extends Vue {
         type: 'timeCat',
         nice: true,
         mask,
-        ...tickIntervalTime
+        ...tickIntervalTime,
       },
       value: {
         range: [0, 0.95],
@@ -251,7 +252,7 @@ export default class extends Vue {
     this.chart.axis('time', {
       label: {
         autoRotate: true,
-        offset: 14
+        offset: 14,
       },
       grid: null
     })
@@ -278,7 +279,11 @@ export default class extends Vue {
         let unit = ''
         const content = items.map((item) => {
           if (chartKind === 'bandwidth') {
-            unit = getConversion() === 1024 ? 'Gbps' : 'Mbps'
+            if (selection.endsWith('bandwidth')) {
+              unit = getConversion() === 1024 ? 'Gbps' : 'Mbps'
+            } else {
+              unit = getConversion() === 1024 ? 'GB' : 'MB'
+            }
           } else if (chartKind === 'storage') {
             unit = getConversion() === 1024 * 1024 * 1024 ? 'GB' : 'MB'
           } else {

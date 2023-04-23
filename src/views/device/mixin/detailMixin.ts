@@ -16,6 +16,7 @@ import DetailConfig from '../components/DetailConfig.vue'
 import DetailEvents from '../components/DetailEvents.vue'
 import DetailPreview from '../components/DetailPreview.vue'
 import DetailReplay from '../components/DetailReplay.vue'
+import DetailStatistics from '../components/DetailStatistics.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
@@ -28,6 +29,9 @@ import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
+import settings from '@/settings'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {
@@ -36,6 +40,7 @@ import DetailOperation from '../components/DetailOperation.vue'
     DetailConfig,
     DetailPreview,
     DetailReplay,
+    DetailStatistics,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain,
@@ -83,6 +88,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     key: '1a66a5c2317368a282ceb2b326767651',
     key2: '2a66a5c2317368a582ceb2b326767653'
   }
+
   public playConfig = {
     auth: true,
     key: '1a66a5c2317368a282ceb2b326767651',
@@ -99,28 +105,35 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       }
     }
   }
+
   public pushExpired?: number | null = null
   public template: Record<any, Array<RecordTemplate>> = {
     snapshotTemplate: [],
     recordTemplate: []
   }
+
   public dialog = {
     setAuthConfig: false,
     moveDir: false
   }
+
   public loading = {
     info: false,
     groupInfo: false,
     template: false
   }
+
   public recordTemplateId = ''
   public autoStreamNumObj = {
     1: '主码流',
     2: '子码流',
     3: '第三码流'
   }
+
   public regionList = regionList
   public lianzhouAddress = ''
+
+  public actions = {}
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
@@ -182,6 +195,10 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     }
   }
 
+  public get isLiuzhou() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
   public get groupSipDomain() {
     return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
@@ -216,6 +233,15 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
    * 针对ga1400标识
    */
   public get ga1400Flag() {
+    const userState = this.$store.state.user
+    const perms = userState.perms
+    const privateUserTag = userState.tags.privateUser || ''
+    const denyPerms = settings.privateDenyPerms[privateUserTag] || []
+    if (denyPerms.includes('ivs:AdminViid') ||
+        (!perms.includes('*') && !perms.includes('ivs:AdminViid'))
+    ) {
+      return false
+    }
     return true
     // return this.$store.state.user.tags.ga1400 === 'Y'
   }
@@ -247,7 +273,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   // 详情页操作
   @Provide('detailOperate')
   public async detailOperate(type, num?) {
-    let result = false
+    let result: any = false
     let params: Device = this.info
     num && (params = {
       ...this.info,
@@ -311,6 +337,18 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       if (this.isGb && this.hasViewLib) {
         await this.getViewLibInfo()
       }
+      if (UserModule.iamUserId) {
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            groupId: this.currentGroupId,
+            dirPath: pathArr.slice(0, -1).join('/') || '0',
+            deviceId: this.deviceId
+          }]
+        })
+        this.actions = permissionRes.result[0].iamUser.actions
+      }
       /**
        * 2022-03-16修改
        * 如果设备为子通道，使用channel下的设备状态、流状态、录制状态字段
@@ -342,15 +380,15 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       })
       this.inNetworkType = resourcesRes.inNetworkType
       const resourcesMapping: any = {
-        'VSS_VIDEO': false,
-        'VSS_UPLOAD_BW': false,
-        'VSS_AI': false
+        VSS_VIDEO: false,
+        VSS_UPLOAD_BW: false,
+        VSS_AI: false
       }
       if (this.isPrivateInNetwork) {
-        delete resourcesMapping['VSS_UPLOAD_BW']
+        delete resourcesMapping.VSS_UPLOAD_BW
       }
       if (this.info?.inProtocol !== 'gb28181') {
-        delete resourcesMapping['VSS_AI']
+        delete resourcesMapping.VSS_AI
       }
       resourcesRes.resources.forEach((resource: any) => {
         resourcesMapping[resource.resourceType] = true
@@ -454,6 +492,11 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       console.log('goSuperior: we are goto root')
       this.gotoRoot()
     }
+  }
+
+  @Provide('getActions')
+  public getActions() {
+    return this.actions
   }
 
   /**

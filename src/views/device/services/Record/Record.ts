@@ -20,6 +20,12 @@ export class Record {
   public offsetTime?: number
   /* AI 标记 */
   public isHeatmap?: boolean
+  /* 文件格式 */
+  public fileFormat?: string
+  /* lock 锁定标记 */
+  public isLock?: number
+  /* 录像片段过期时间 */
+  public expirationTime?: string
   /* 过期时间 */
   public expireTime?: string
 
@@ -32,6 +38,9 @@ export class Record {
     this.templateName = record.templateName
     this.cover = record.cover
     this.isHeatmap = record.isHeatmap
+    this.fileFormat = record.fileFormat
+    this.isLock = record.isLock == null ? 0 : record.isLock
+    this.expirationTime = record.expirationTime
     this.expireTime = record.expireTime
   }
 }

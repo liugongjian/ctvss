@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { encrypt } from '@/utils/encrypt'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, getIAMUserMergedPolicies, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import { resetRouter } from '@/router'
@@ -124,16 +124,19 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({ rawError: true })
-  public async Login(userInfo: { mainUserID?: string, userName: string, password: string }) {
-    const { mainUserID, password } = userInfo
-    let { userName } = userInfo
+  public async Login(userInfo: { mainUserID?: string, userName: string, password: string, captchaId: string, captcha: string }) {
+    let { mainUserID, userName, password, captchaId, captcha } = userInfo
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
       userName: encrypt(userName),
       password: encrypt(password),
+      captchaId,
+      captcha,
+      platform: 'web',
       version: '2.0'
     })
+
     setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
     setUsername(userName)
@@ -146,7 +149,6 @@ class User extends VuexModule implements IUserState {
     GroupModule.ResetGroupListIndex()
     return data
   }
-
   // 获取用户配置信息
   @Action({ rawError: true })
   public async getUserConfigInfo() {
@@ -236,8 +238,6 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetGlobalInfo: token is undefined!')
     }
-    // 设置视频记录保存配置项
-    this.getUserConfigInfo()
 
     if (process.env.NODE_ENV === 'development' || settings.outNetworkWhiteList.indexOf(location.hostname) !== -1) {
       this.SET_OUTER_NETWORK('internet')
@@ -253,37 +253,79 @@ class User extends VuexModule implements IUserState {
       this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
 
+    // 设置视频记录保存配置项
+    this.getUserConfigInfo()
+
     let data: any = null
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       this.SET_NAME(data.iamUserName)
       setUsername(data.iamUserName)
-      const policy = JSON.parse(data.policyDocument || '{}')
-      try {
-        const actionList = policy.Statement[0].Action
-        const resourceList = policy.Statement[0].Resource
-        if (actionList[0] === 'vss:*') {
-          data.perms = ['*']
-          data.resource = ['*']
-        } else if (actionList[0] === 'vss:Get*') {
-          data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
-          data.resource = ['*']
-          data.resourcesSet = new Set()
-        } else {
-          data.perms = actionList
-          data.resource = resourceList
-          const tempSet = new Set()
-          resourceList.forEach((resource: any) => {
-            const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
-            idArr.forEach((id: any) => tempSet.add(id))
-          })
-          data.resourcesSet = tempSet
+      if (this.version === 2) {
+        const policy = JSON.parse(data.policyDocument || '{}')
+        try {
+          const actionList = policy.Statement[0].Action
+          const resourceList = policy.Statement[0].Resource
+          if (actionList[0] === 'vss:*') {
+            data.perms = ['*']
+            data.resource = ['*']
+          } else if (actionList[0] === 'vss:Get*') {
+            data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
+            data.resource = ['*']
+            data.resourcesSet = new Set()
+          } else {
+            data.perms = actionList
+            data.resource = resourceList
+            const tempSet = new Set()
+            resourceList.forEach((resource: any) => {
+              const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+              idArr.forEach((id: any) => tempSet.add(id))
+            })
+            data.resourcesSet = tempSet
+          }
+        } catch (e) {
+          data = {
+            perms: ['*'],
+            resource: ['*'],
+            resourcesSet: new Set()
+          }
         }
-      } catch (e) {
-        data = {
-          perms: ['*'],
-          resource: ['*'],
-          resourcesSet: new Set()
+      } else {
+        const mergedPolicy: any = await getIAMUserMergedPolicies()
+        const policy = JSON.parse(mergedPolicy.policyDocument || '{}')
+        try {
+          const allowStatments = policy.Statement.filter((statement: any) => statement.Effect === 'Allow')
+          const tempActionList = allowStatments.reduce((pre, cur) => {
+            return pre.concat(cur.Action)
+          }, [])
+  
+          const actionList = [...new Set(tempActionList)]
+          const resourceList = policy.Statement[0].Resource
+          if (actionList.includes('ivs:*')) {
+            data.perms = ['*']
+            data.resource = ['*']
+          } else if (actionList.includes('ivs:Get*')) {
+            const getActions = settings.systemActionList.filter((row: any) => row.actionType === 'GET').map((row: any) => row.actionKey)
+            data.perms = [...new Set(actionList.filter(action => action !== 'ivs:Get*').concat(getActions))]
+            console.log('data.perms: ', data.perms)
+            data.resource = ['*']
+            data.resourcesSet = new Set()
+          } else {
+            data.perms = actionList
+            data.resource = resourceList
+            const tempSet = new Set()
+            resourceList.forEach((resource: any) => {
+              const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+              idArr.forEach((id: any) => tempSet.add(id))
+            })
+            data.resourcesSet = tempSet
+          }
+        } catch (e) {
+          data = {
+            perms: [],
+            resource: [],
+            resourcesSet: new Set()
+          }
         }
       }
     } else {
@@ -301,9 +343,9 @@ class User extends VuexModule implements IUserState {
     }
     const perms = data.perms
     // perms must be a non-empty array
-    if (!perms || perms.length <= 0) {
-      throw Error('GetGlobalInfo: perms must be a non-null array!')
-    }
+    // if (!perms || perms.length <= 0) {
+    //   throw Error('GetGlobalInfo: perms must be a non-null array!')
+    // }
     this.SET_PERMS(perms)
     this.SET_RESOURCES(data)
   }

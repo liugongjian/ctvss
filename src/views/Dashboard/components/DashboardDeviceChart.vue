@@ -12,7 +12,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
+import { getDeviceData, getDeviceTotal, getBandwidthHistory } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardDeviceChart',
@@ -21,6 +21,9 @@ import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
 export default class extends Mixins(DashboardMixin) {
   @Prop({ default: false })
   private isLight?: boolean
+
+  @Prop({ default: 'device' }) private chartName?: string
+
   private deviceTimeRange = '近7天'
   private loading = false
 
@@ -34,17 +37,27 @@ export default class extends Mixins(DashboardMixin) {
       value: 30 * 24 * 3600 * 1000
     }
   ]
+
   private deviceData: any = []
   private userType = 7 * 24 * 3600 * 1000
   private chart: any = null
   public intervalTime = 60 * 1000
 
+  private bandWidthData: any = []
+
   private mounted() {
     this.timeChange()
   }
+
   private timeChange() {
     this.destroy()
-    this.setInterval(this.getData.bind(this))
+    this.setInterval(() => {
+      if (this.chartName === 'device') {
+        this.getData()
+      } else {
+        this.getbandWidth()
+      }
+    })
   }
 
   private flowTimeRangeChange(label: string) {
@@ -53,6 +66,7 @@ export default class extends Mixins(DashboardMixin) {
     })[0].value
     this.timeChange()
   }
+
   /**
    * 获取数据
    */
@@ -71,7 +85,7 @@ export default class extends Mixins(DashboardMixin) {
       })
       this.loading = false
       const deviceData = []
-      for (let key in res.deviceStatistic) {
+      for (const key in res.deviceStatistic) {
         const item = res.deviceStatistic[key]
         const itemTotal = resTotal.deviceStatistic[key]
         deviceData.push(
@@ -99,8 +113,8 @@ export default class extends Mixins(DashboardMixin) {
    * 自适应获取图标y轴刻度
    */
   private getTickInterval(tickCount: number, scale: any): Array<number> {
-    let maxValue = Math.max(...scale.values)
-    let vnum = maxValue % tickCount
+    const maxValue = Math.max(...scale.values)
+    const vnum = maxValue % tickCount
     let interval = (maxValue - vnum) / tickCount
     if (interval < 1) {
       interval = 1
@@ -108,7 +122,7 @@ export default class extends Mixins(DashboardMixin) {
     if (vnum > interval) {
       return this.getTickInterval(tickCount - 1, scale)
     }
-    let intervalArr = []
+    const intervalArr = []
     for (let i = 1; i <= tickCount; i++) {
       if (interval * i > maxValue) break
       intervalArr.push(interval * i)
@@ -206,13 +220,145 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00'])
     this.chart.render()
   }
+
   /**
    * 更新图表
    */
   private updateChart() {
     this.chart.changeData(this.deviceData)
   }
+
+  private async getbandWidth() {
+    try {
+      const end: any = new Date()
+      const start: any = new Date(end - this.userType)
+      this.loading = true
+      const res = await getBandwidthHistory({
+        startTime: start.getTime(),
+        endTime: end.getTime()
+      })
+
+      const result = []
+
+      // 后台返回数据 两个都可能为空 所以补救一下
+      const upBandwidthKeys = Object.keys(res.upBandwidthHistory)
+      const downBandwidthKeys = Object.keys(res.downBandwidthHistory)
+
+      const finalData = upBandwidthKeys.length > downBandwidthKeys.length ? res.upBandwidthHistory : res.downBandwidthHistory
+
+      for (const key in finalData) {
+        const upData = res.upBandwidthHistory[key]
+        const downData = res.downBandwidthHistory[key]
+        result.push(
+          {
+            time: key,
+            type: '上行带宽峰值',
+            value: upData || 0
+          },
+          {
+            time: key,
+            type: '下行带宽峰值',
+            value: downData || 0
+          }
+        )
+      }
+
+      this.bandWidthData = result
+      this.chart ? this.chart.changeData(this.bandWidthData) : this.drawBandWidth()
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  // 带宽图表
+  private drawBandWidth() {
+    this.chart = new Chart({
+      container: 'device-container',
+      autoFit: true,
+      padding: [20, 30, 45, 70]
+    })
+    this.chart.data(this.bandWidthData)
+    this.chart.scale('value', {
+      alias: '带宽峰值（Mbps）',
+      // formatter: (val: any) => {
+      //   return val + 'Mbps'
+      // },
+      range: [0, 1],
+      tickMethod: (scale: any) => {
+        return this.getTickInterval(5, scale)
+      }
+    })
+    this.chart.axis('value', {
+      label: {
+        style: {
+          fill: '#333',
+          fontSize: 12
+        }
+      },
+      title: {
+        offset: 60
+      },
+      grid: {
+        line: {
+          style: {
+            stroke: '#eee'
+          }
+        }
+      }
+    })
+    this.chart.axis('time', {
+      label: {
+        style: {
+          fill: '#333',
+          fontSize: 12
+        }
+      }
+    })
+    this.chart.tooltip({
+      triggerOn: 'mousemove',
+      shared: true
+    })
+    this.chart.legend({
+      offsetY: 5,
+      itemSpacing: 30,
+      items: [
+        {
+          id: '1',
+          name: '上行带宽峰值',
+          value: 'upBandwidthHistory',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#6780B2'
+            },
+            spacing: 5
+          }
+        },
+        {
+          id: '2',
+          name: '下行带宽峰值',
+          value: 'downBandwidthHistory',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#E4BC00'
+            },
+            spacing: 5
+          }
+        }
+      ],
+      itemName: {
+        style: {
+          fill: '#505050'
+          // fontSize: 14
+        },
+        formatter: (text: any, item: any) => item.name
+      }
+    })
+    this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00'])
+    this.chart.render()
+  }
 }
 </script>
-<style lang="scss" scoped>
-</style>

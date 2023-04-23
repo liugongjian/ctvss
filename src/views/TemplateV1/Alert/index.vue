@@ -37,7 +37,7 @@
             <span class="filter">报警级别</span>
             <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
           </template>
-          <template slot-scope="{ row }">
+          <template slot-scope="{row}">
             {{ getLabel('alarmPriority', row.alarmPriority) }}
           </template>
         </el-table-column>
@@ -58,7 +58,7 @@
             <span class="filter">报警方式</span>
             <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
           </template>
-          <template slot-scope="{ row }">
+          <template slot-scope="{row}">
             {{ getLabel('alarmMethod', row.alarmMethod) | lengthFormat }}
           </template>
         </el-table-column>
@@ -69,8 +69,11 @@
           sortable="custom"
           label="创建时间"
           min-width="240"
-          :formatter="dateFormatInTable"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ row.createdTime }}
+          </template>
+        </el-table-column>
         <el-table-column
           key="UpdatedTime"
           column-key="UpdatedTime"
@@ -78,11 +81,14 @@
           sortable="custom"
           label="更新时间"
           min-width="240"
-          :formatter="dateFormatInTable"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ row.updatedTime }}
+          </template>
+        </el-table-column>
         <el-table-column prop="description" label="备注" min-width="240" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
-          <template slot-scope="{ row }">
+          <template slot-scope="{row}">
             <el-button type="text" @click.stop="edit(row)">编辑</el-button>
             <el-button type="text" @click.stop="deleteTemplate(row)">删除</el-button>
             <el-button type="text" @click.stop="viewBind(row)">查看绑定关系</el-button>
@@ -103,9 +109,8 @@
 </template>
 
 <script lang='ts'>
-import { deleteAlertTemplate, getAlertTemplates } from '@vss/device/api/template'
+import { deleteAlertTemplate, getAlertTemplates } from '@/api/template'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { dateFormatInTable } from '@vss/base/utils/date'
 import viewBind from './Dialogs/ViewBind.vue'
 
 @Component({
@@ -122,8 +127,7 @@ import viewBind from './Dialogs/ViewBind.vue'
   }
 })
 export default class extends Vue {
-  private dateFormatInTable = dateFormatInTable
-  private loading = false
+  private loading: boolean = false
   private showViewBindDialog = false
   private currentTemplateId: any = ''
   private searchFrom: any = {
@@ -231,7 +235,7 @@ export default class extends Vue {
     this.getList()
   }
   private async getList() {
-    const params = {
+    let params = {
       templateName: this.searchFrom.templateName,
       sortBy: this.searchFrom.sortBy,
       sortDirection: this.searchFrom.sortDirection,
@@ -240,7 +244,7 @@ export default class extends Vue {
     }
     try {
       this.loading = true
-      const res: any = await getAlertTemplates(params)
+      let res: any = await getAlertTemplates(params)
       this.templateList = res.alarmTemplates
       this.pager.total = res.totalNum
     } catch (e) {
@@ -261,7 +265,7 @@ export default class extends Vue {
           break
       }
       let res: any = arr.map((str: any) => {
-        const obj = this[`${type}Options`].find((item: any) => item.value === str)
+        let obj = this[`${type}Options`].find((item: any) => item.value === str)
         if (obj) {
           return obj.label
         } else {
@@ -275,7 +279,7 @@ export default class extends Vue {
     }
   }
   private filterChange(filters: any) {
-    for (const key in filters) {
+    for (let key in filters) {
       const values = filters[key]
       if (values.length) {
         this.searchFrom[key] = values

@@ -30,7 +30,7 @@
             <resource-selector
               v-if="loading.policy === false || !isUpdate"
               :checked-list="initResourceList"
-              :filter-type-arr="['dir']"
+              :filter-type-arr="['dir', 'ipc']"
               @resourceListChange="resourceListChange"
               @resourceLoaded="resourceLoaded"
             />
@@ -358,7 +358,7 @@ export default class extends Vue {
               ]
             })
           }
-          ;await (this.form.policyId ? editPolicy(data) : createPolicy(data))
+          await (this.form.policyId ? editPolicy(data) : createPolicy(data))
           this.$message.success(
             `${this.form.policyId ? '编辑策略成功！' : '创建策略成功！'}`
           )

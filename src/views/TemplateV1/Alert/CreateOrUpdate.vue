@@ -51,7 +51,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { getAlertTemplateDetails, createAlertTemplate, updateAlertTemplate } from '@vss/device/api/template'
+import { getAlertTemplateDetails, createAlertTemplate, updateAlertTemplate } from '@/api/template'
 
 @Component({
   name: 'create-or-update-callback-template'
@@ -245,12 +245,9 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .fixed-width.el-input,
-  .fixed-width.el-select,
-  .fixed-width.el-textarea {
+  .fixed-width.el-input, .fixed-width.el-select, .fixed-width.el-textarea {
     width: 600px;
   }
-
   .select-item {
     width: 206px;
   }

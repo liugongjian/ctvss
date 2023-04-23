@@ -27,7 +27,7 @@
             @node-drag-end="handleDragend"
             @check="checkCallback"
           >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+            <span slot-scope="{ node, data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }">
               <span class="node-name">
                 <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -55,7 +55,7 @@
             @node-click="selectSharedDevice"
           >
             <span
-              slot-scope="{node, data}"
+              slot-scope="{ node, data }"
               class="custom-tree-node"
               :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']"
             >
@@ -331,7 +331,7 @@ export default class extends Mixins(Validate) {
     this.setDirChecked(groups, 'dir')
 
     // this.tagNvrUnchecked(node, dirs)
-    this.resetNvrStatus(node)
+    this.resetDirStatus(node)
     this.loading.dir = false
   }
 
@@ -382,13 +382,13 @@ export default class extends Mixins(Validate) {
   public async loadSharedDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     try {
-      let temp = await this.loadAll(node)
+      const temp = await this.loadAll(node)
       resolve(temp)
     } catch (e) {
       resolve([])
     } finally {
+      this.removeDeleteNodes(node)
       this.appendDragInNodes(node)
-      this.removeDeleteNodes()
       this.tagNvrUnloaded(node)
     }
   }
@@ -482,7 +482,7 @@ export default class extends Mixins(Validate) {
         node.data.realGroupId = node.data.id
         node.data.realGroupInProtocol = node.data.inProtocol
       }
-      let params: any = {
+      const params: any = {
         platformId: this.platformId,
         dirId: node.data.dirId,
         dirType: node.data.dirType,
@@ -550,7 +550,7 @@ export default class extends Mixins(Validate) {
         }
       })
       let shareDeviceIds: any = []
-      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
+      const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
         platformId: this.platformId,
         devices: paramNoNvrDevice.map(device => ({
@@ -567,7 +567,7 @@ export default class extends Mixins(Validate) {
       }
 
       const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      const checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         let isDeleteFlag = false
@@ -639,7 +639,7 @@ export default class extends Mixins(Validate) {
     }
   }
 
-  private async expandNodes(dirTree: any, node: any, singleNode: boolean = false) {
+  private async expandNodes(dirTree: any, node: any, singleNode = false) {
     let dirs = []
     try {
       if (node.data.dragInFlag) {
@@ -667,8 +667,8 @@ export default class extends Mixins(Validate) {
         } else {
           dirs = await this.loadAll(node)
           dirTree.updateKeyChildren(node.data.id, dirs)
+          this.removeDeleteNodes(node)
           this.appendDragInNodes(node)
-          this.removeDeleteNodes()
           node.expanded = true
           node.loaded = true
         }
@@ -693,13 +693,10 @@ export default class extends Mixins(Validate) {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
-    console.log('this.deleteNodes:', this.deleteNodes)
-    console.log('selectSharedDevice  node:', node)
     this.selectedNode = node
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
@@ -761,8 +758,8 @@ export default class extends Mixins(Validate) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
-    // // // 插入一个空节点用于占位
-    let emptyData = { id: draggingNode.id, children: [] }
+    // 插入一个空节点用于占位
+    const emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
     vgroupTree.$emit('tree-node-drag-end', event)
@@ -772,7 +769,7 @@ export default class extends Mixins(Validate) {
         dirTree.remove(emptyData)
       } else {
         // 如果移动到了别的树上，需要恢复该节点，并清掉空节点
-        let data = _.cloneDeep(draggingNode.data)
+        const data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
       }
@@ -880,6 +877,16 @@ export default class extends Mixins(Validate) {
     Object.keys(this.dragInNodes).forEach(label => {
       this.dragInNodes[label].forEach(data => {
         data.upGbId = data.upGbIdOrigin
+        if (data.channels && data.channels.length > 0) {
+          data.channels.forEach(channel => {
+            channel.upGbId = channel.upGbIdOrigin
+          })
+        }
+        if (data.children && data.children.length > 0) {
+          data.children.forEach(child => {
+            child.upGbId = child.upGbIdOrigin
+          })
+        }
       })
     })
   }
@@ -910,6 +917,11 @@ export default class extends Mixins(Validate) {
   }
 
   private async submit() {
+    const isOnlyNumber = this.checkNumberOnly(this.sharedDirList)
+    if (isOnlyNumber) {
+      this.$message.error('级联国标ID只能为数字，请修改')
+      return
+    }
     const isDuplicate = this.checkGbIdDuplicated(this.sharedDirList)
     if (isDuplicate) {
       this.$message.error('级联国标ID重复，请修改')
@@ -929,13 +941,9 @@ export default class extends Mixins(Validate) {
         type: 'warning'
       })
     }
-    let param = []
+    const param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
     try {
-      await shareDeviceV1({
-        platformId: this.platformId,
-        dirs: param
-      })
       this.deleteNodes.forEach(async dnode => {
         await cancleShareDeviceV1({
           platformId: this.platformId,
@@ -945,6 +953,11 @@ export default class extends Mixins(Validate) {
           }))
         })
       })
+      await shareDeviceV1({
+        platformId: this.platformId,
+        dirs: param
+      })
+
       this.$message.success('修改成功！')
       this.closeDialog(true)
     } catch (e) {
@@ -1089,7 +1102,7 @@ export default class extends Mixins(Validate) {
           })
         })
       }
-      let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
+      const difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
 
       this.sharedDirList.push(difference[0])
     }
@@ -1101,8 +1114,8 @@ export default class extends Mixins(Validate) {
   }
 
   // 根据nvr节点的checked状态改变disabled
-  private resetNvrStatus(node) {
-    if (node.data.type === 'nvr') {
+  private resetDirStatus(node) {
+    if (node.data.type === 'nvr' || node.data.type === 'dir' || node.data.type === 'platform' || node.data.type === 'platformDir' || node.data.type === 'top-group') {
       node.childNodes.forEach(child => {
         child.checked = child.data.disabled
       })
@@ -1132,24 +1145,32 @@ export default class extends Mixins(Validate) {
     }
   }
 
-  private removeDeleteNodes() {
+  private removeDeleteNodes(node) {
     const vgroupTree: any = this.$refs.vgroupTree
     const dirTree: any = this.$refs.dirTree
     this.deleteNodes.forEach(dir => {
-      dir.devices.forEach(device => {
-        const node = vgroupTree.getNode(device)
-        if (node) {
-          const parentDir = node.parent.data.type === 'nvr' ? node.parent.parent : node.parent
-          if (node && parentDir.data.id === dir.dirId) {
-            vgroupTree.remove(device)
-            const removedNode = dirTree.getNode(device)
-            if (removedNode) {
-              removedNode.data.disabled = false
-              removedNode.checked = false
+      if (node && node.data.id === dir.dirId) {
+        dir.devices.forEach(device => {
+          const node = vgroupTree.getNode(device)
+          if (node) {
+            const parentDir = node.parent.data.type === 'nvr' ? node.parent.parent : node.parent
+            if (node && parentDir.data.id === dir.dirId) {
+              if (node.data.type === 'nvr') {
+                node.data.channels.forEach(channel => {
+                  const cnode = vgroupTree.getNode(channel.deviceId)
+                  cnode && vgroupTree.remove(cnode)
+                })
+              }
+              vgroupTree.remove(device)
+              const removedNode = dirTree.getNode(device)
+              if (removedNode) {
+                removedNode.data.disabled = false
+                removedNode.checked = false
+              }
             }
           }
-        }
-      })
+        })
+      }
     })
   }
 
@@ -1200,28 +1221,33 @@ export default class extends Mixins(Validate) {
       }
       // remove之后，树竟然不清除节点，真他妈坑
       const vgroupTree: any = this.$refs.vgroupTree
+
       if (vgroupTree.store.nodesMap[node.data.id]) {
-        this.$delete(vgroupTree.store.nodesMap, node.data.id)
         if (node.data.type === 'nvr') {
           node.childNodes.forEach(child => {
             this.$delete(vgroupTree.store.nodesMap, child.data.id)
           })
         }
+        this.$delete(vgroupTree.store.nodesMap, node.data.id)
       }
     }
     if (node.data.type === 'nvr') {
-      this.uncheckedNvrNode(node.data.id)
+      this.uncheckedNvrNode(node)
     }
   }
 
-  private uncheckedNvrNode(id) {
+  private uncheckedNvrNode(node) {
+    const id = node.data.id
     const dirTree: any = this.$refs.dirTree
     const nvrNode = dirTree.getNode(id)
     this.$nextTick(() => {
       if (nvrNode && nvrNode.childNodes) {
         nvrNode.childNodes.forEach(child => {
-          child.data.disabled = false
-          child.checked = false
+          const isChildUnchecked = node.childNodes.filter(n => n.data.id === child.data.id)
+          if (isChildUnchecked.length > 0) {
+            child.data.disabled = false
+            child.checked = false
+          }
         })
       }
     })

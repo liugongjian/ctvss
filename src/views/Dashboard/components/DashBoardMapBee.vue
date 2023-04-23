@@ -17,6 +17,7 @@ export default class extends Vue {
   .dashborad-map-bee {
     height: 100%;
     text-align: center;
+
     img {
       height: 100%;
       padding-top: 80px;

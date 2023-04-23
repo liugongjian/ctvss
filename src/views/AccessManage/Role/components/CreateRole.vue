@@ -65,7 +65,7 @@ import { getPolicyList, iamGetRole, iamCreateRole, iamModifyRole } from '@/api/a
 export default class extends Vue {
   private loading = false
   private query: any = null
-  private breadCrumbContent: string = ''
+  private breadCrumbContent = ''
   private form = {
     roleId: '',
     roleName: '',
@@ -117,7 +117,7 @@ export default class extends Vue {
   private async getRoleInfo() {
     try {
       this.loading = true
-      let res: any = await iamGetRole({ roleId: this.query.roleId })
+      const res: any = await iamGetRole({ roleId: this.query.roleId })
       this.form = { ...res }
     } catch (e) {
       this.$$message.error(e && e.message)
@@ -130,19 +130,19 @@ export default class extends Vue {
    * 获取策略列表
    */
   private async getPolicyList() {
-    let params: any = {
+    const params: any = {
       pageSize: 1000,
       policyType: 'role'
     }
     try {
       this.loading = true
-      let res: any = await getPolicyList(params)
+      const res: any = await getPolicyList(params)
       this.policyList = []
-      for (let i = 0; i < res.iamPolices.length; i++) {
-        let obj: object = {
-          policyName: res.iamPolices[i].policyName,
-          policyDescribe: res.iamPolices[i].policyDesc,
-          policyId: res.iamPolices[i].policyId
+      for (let i = 0; i < res.iamPolicies.length; i++) {
+        const obj: object = {
+          policyName: res.iamPolicies[i].policyName,
+          policyDescribe: res.iamPolicies[i].policyDesc,
+          policyId: res.iamPolicies[i].policyId
         }
         this.policyList.push(obj)
       }
@@ -192,46 +192,55 @@ export default class extends Vue {
   .el-input {
     width: 400px;
   }
+
   .el-textarea {
     width: 500px;
   }
+
   .el-date-editor {
     width: 200px;
   }
+
   .el-table {
     width: 500px;
   }
+
   .tree-container {
     width: 430px;
     max-height: 300px;
     border-radius: 5px;
     padding: 10px;
     overflow: auto;
-    border: 1px solid #DCDFE6;
+    border: 1px solid #dcdfe6;
   }
+
   .policy-label {
     margin-top: 20px;
+
     ::v-deep {
       .el-input__inner {
-        border-color: #DCDFE6 !important;
+        border-color: #dcdfe6 !important;
       }
     }
   }
+
   .policy {
     &__init {
       &__system {
         max-height: 400px;
-        transition: .3s;
+        transition: 0.3s;
         overflow: hidden;
       }
+
       &__customize {
         max-height: 400px;
-        transition: .3s;
+        transition: 0.3s;
         overflow: hidden;
       }
     }
+
     &__collapse {
-      max-height: 0px !important;
+      max-height: 0 !important;
     }
   }
 </style>

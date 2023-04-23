@@ -10,9 +10,10 @@
               :is-vgroup="isVGroup"
               :is-nvr="isNVR"
               :is-auto-created="isAutoCreated"
+              :actions="actions"
             />
             <!-- <div class="detail__buttons">
-              <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
+              <el-button @click="goSuperior">-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
               <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>
@@ -20,6 +21,10 @@
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
               <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
             </div> -->
+            <!-- <record-statistics
+              :device-id="deviceId"
+              :in-protocol="inProtocol"
+            /> -->
             <!--设备信息-->
             <div class="detail__section">
               <div class="detail__title">设备信息</div>
@@ -135,9 +140,27 @@
                       <el-descriptions-item label="设备国标ID">
                         {{ info.gbId || '-' }}
                       </el-descriptions-item>
-                      <el-descriptions-item label="GB28181凭证注册用户名">
-                        {{ info.userName }}
-                      </el-descriptions-item>
+                      <template v-if="info.parentDeviceId === '-1'">
+                        <el-descriptions-item v-if="info.enabledGB35114">
+                          <template slot="label">
+                            GB35114协议
+                            <el-popover
+                              placement="top-start"
+                              title="GB35114协议"
+                              width="400"
+                              trigger="hover"
+                              :open-delay="300"
+                              :content="tips.enabledGB35114"
+                            >
+                              <svg-icon slot="reference" class="form-question" name="help" />
+                            </el-popover>
+                          </template>
+                          {{ info.enabledGB35114 ? '已启用' : '未启用' }}
+                        </el-descriptions-item>
+                        <el-descriptions-item v-else label="GB28181凭证注册用户名">
+                          {{ info.userName }}
+                        </el-descriptions-item>
+                      </template>
                       <el-descriptions-item v-if="info.deviceType !== 'nvr'" label="杆号">
                         {{ info.poleId || '-' }}
                       </el-descriptions-item>
@@ -153,7 +176,7 @@
                           {{ info.deviceStats && info.deviceStats.maxChannelSize }}
                         </el-descriptions-item>
                         <el-descriptions-item label="在线流数量">
-                          {{ info.deviceStats && info.deviceStats.onlineSize }}
+                          {{ info.deviceStats && info.deviceStats.onlineStreams }}
                         </el-descriptions-item>
                       </template>
                       <!--平台信息-->
@@ -162,7 +185,7 @@
                           {{ info.deviceStats && info.deviceStats.channelSize }}
                         </el-descriptions-item>
                         <el-descriptions-item label="在线流数量">
-                          {{ info.deviceStats && info.deviceStats.onlineSize }}
+                          {{ info.deviceStats && info.deviceStats.onlineStreams }}
                         </el-descriptions-item>
                       </template>
                       <!--通用信息-->
@@ -281,10 +304,10 @@
           <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
-          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
+          <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" :device-type="info.deviceType" :actions="actions" />
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetLiveStream'], actions)" label="实时预览" name="preview">
           <detail-preview
             v-if="activeName==='preview'"
             :device-id="deviceId"
@@ -292,23 +315,33 @@
             :device-name="info.deviceName"
             :streams="info.deviceStreams"
             :stream-size="info.multiStreamSize"
+            :stream-num="info.autoStreamNum"
           />
         </el-tab-pane>
-        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
-          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :device-name="info.deviceName" />
+        <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ivs:GetCloudRecord'], actions)" label="录像回放" name="replay">
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :permission="actions" :info="info" :device-name="info.deviceName" :lock-permission="checkPermission(['ivs:LockCloudRecord'])" />
         </el-tab-pane>
-        <el-tab-pane label="AI分析" name="ai">
+        <el-tab-pane v-if="!isLiuzhou && checkPermission(['ivs:GetApp', 'ivs:AdminApp'], actions)" label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">
           <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <!-- <el-tab-pane v-if="isLiuzhou" label="统计信息" name="statistics">
+          <detail-statistics v-if="activeName==='statistics'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane> -->
       </el-tabs>
     </div>
     <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" :is-batch="false" @on-close="closeDialog('moveDir', ...arguments)" />
-    <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
+    <resource
+      v-if="showResourceDialog"
+      :device="info"
+      :actions="actions"
+      :algo-tab-type-default="algoTabTypeDefault"
+      @on-close="closeResourceDialog"
+    />
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" @on-close="closeDialog('moveDir')" />
   </div>
 </template>

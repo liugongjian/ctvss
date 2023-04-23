@@ -159,7 +159,13 @@
             <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
             <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
           </div>
-          <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+          <Attributes
+            v-if="appInfo.algorithm.code === '10009'"
+            class="ai-image-fullscreen__img--attributes"
+            :type="appInfo.algorithm.code"
+            :img="dialoguePic"
+            :attributes-index="currentLocationIndex"
+          />
         </div>
       </el-dialog>
     </div>
@@ -167,7 +173,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
-import PicCard from '@vss/ai/component/PicCard.vue'
+import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
 import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/Dashboard/AI/components/Locations.vue'
@@ -200,7 +206,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
-  private currentLocationIndex: number = -1
+  private currentLocationIndex = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
   private timeInterval = ResultTimeInterval
@@ -289,9 +295,9 @@ export default class extends Vue {
      * 得到N天前的时间戳
      */
   private getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 

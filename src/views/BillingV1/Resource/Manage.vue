@@ -40,8 +40,7 @@
           <template slot-scope="scope">
             <!-- <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button> -->
-            <el-button v-permission="['*']" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
-            <el-button v-if="UserModule.version === 2" type="text" @click="goToDevice(scope.row)">查看设备</el-button>
+            <el-button v-if="checkPermission(['ivs:UpdateDevice'], scope.row)" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -62,7 +61,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
-import { UserModule } from '@/store/modules/user'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'BillingResourceManagement',
@@ -71,7 +70,7 @@ import { UserModule } from '@/store/modules/user'
   }
 })
 export default class extends Vue {
-  private UserModule = UserModule
+  public checkPermission = checkPermission
   private resourceId: any = ''
   private deviceName = ''
   private loading = false
@@ -105,16 +104,6 @@ export default class extends Vue {
   public updateResource(row: any) {
     this.currentDevice = row
     this.dialog.resource = true
-  }
-
-  private goToDevice(row: any) {
-    this.$router.push({
-      name: 'DeviceInfo',
-      query: {
-        deviceId: row.deviceId,
-        type: row.deviceType
-      }
-    })
   }
 
   public closeDialog(type: string, refresh: any) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="dir-list">
+  <div v-loading="loading.dir" class="dir-list">
     <div class="dir-list__tools">
       <el-tooltip
         v-if="isLive"
@@ -44,7 +44,6 @@
       </el-tooltip>
     </div>
     <div
-      v-loading="loading.dir"
       class="dir-list__tree device-list__max-height"
       :class="{'dir-list__tree--live': isLive, 'dir-list__tree--replay': !isLive}"
     >
@@ -65,16 +64,26 @@
           v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+          :class="{
+            'online': data.deviceStatus === 'on',
+            'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
+            'no-permission': data.type === 'ipc' && !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+          }"
           @contextmenu="($event, node)"
         >
-          <span class="node-name">
+          <span class="node-name" :title="getTitle(data)">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <additional-status
+              v-if="data.type === 'ipc'"
+              :record-status="data.recordStatus"
+              :alarm-info="data.alarmInfo"
+              :is-bind="data.isBind"
+            />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -87,7 +96,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc' && isLive" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive && checkPermission(['ivs:GetLiveStream'], data)" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
           </div>
@@ -109,16 +118,26 @@
           v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
-          :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+          :class="{
+            'online': data.deviceStatus === 'on',
+            'offline': (data.deviceStatus !== 'on' && data.type === 'ipc'),
+            'no-permission': data.type === 'ipc' && !checkPermission(isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord'], data)
+          }"
           @contextmenu="($event, node)"
         >
-          <span class="node-name">
+          <span class="node-name" :title="getTitle(data)">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
               <svg-icon name="dir-close" width="15" height="15" />
             </span>
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <additional-status
+              v-if="data.type === 'ipc'"
+              :record-status="data.recordStatus"
+              :alarm-info="data.alarmInfo"
+              :is-bind="data.isBind"
+            />
             {{ node.label }}
             <span class="sum-icon">{{ getSums(data) }}</span>
             <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -131,7 +150,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive && checkPermission(['ivs:GetLiveStream'], data)" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -193,9 +212,9 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <!-- 国标才展示 -->
+      <!-- 虚拟业务组暂不支持搜索 -->
       <advanced-search
-        v-if="currentGroup.inProtocol === 'gb28181'"
+        v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'"
         :search-form="advancedSearchForm"
         @search="doSearch"
       />
@@ -207,13 +226,14 @@
 import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
 import { Device } from '@/type/Device'
-import { getDeviceTree } from '@/api/device'
+import { loadTreeNode } from '@/api/customTree'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
+import AdditionalStatus from '../AdditionalStatus.vue'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { dropScreen } from './directives/dropScreen'
 
@@ -223,7 +243,8 @@ import { dropScreen } from './directives/dropScreen'
     StatusBadge,
     StreamSelector,
     OperateSelector,
-    AdvancedSearch
+    AdvancedSearch,
+    AdditionalStatus
   },
   directives: {
     'drop-screen': dropScreen
@@ -348,7 +369,6 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('screenManager.screenManagerStatus', { deep: true })
   private onScreenManagerChange(screenManagerStatus) {
-    console.log(screenManagerStatus.executeQueueConfig.status)
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
@@ -385,7 +405,7 @@ export default class extends Mixins(IndexMixin) {
    * @param policy 执行策略
    */
   private async executeQueue(node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
-    let devicesQueue: Device[] = []
+    const devicesQueue: Device[] = []
     const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
@@ -422,24 +442,39 @@ export default class extends Mixins(IndexMixin) {
     if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
-      if (node.data.deviceStatus === 'on' || !this.screenManager.isLive) {
-        node.data.inProtocol = this.currentGroupInProtocol
+      // 需要执行IAM的判断逻辑，判断是否有对应的操作权限
+      const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+      if (this.checkPermission(perms, node.data) && (node.data.deviceStatus === 'on' || !this.screenManager.isLive)) {
+        if (!node.data.inProtocol) {
+          node.data.inProtocol = this.currentGroupInProtocol
+        }
         deviceArr.push(node.data)
       }
     } else {
       // 不为搜索树时需要调接口添加node的children
       if (!this.advancedSearchForm.revertSearchFlag) {
-        let data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type,
-          'self-defined-headers': {
-            'role-id': node!.data.roleId || '',
-            'real-group-id': node!.data.realGroupId || ''
-          }
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirTree.updateKeyChildren(node.data.id, dirs)
+        let data
+        if (this.isCustomTree) {
+          const res = await loadTreeNode({
+            dirId: node!.data.id
+          })
+          res.dirs = res.dirs.map(dir => ({
+            ...dir,
+            ...dir.authMap
+          }))
+          data = this.setDirsStreamStatus(res.dirs)
+        } else {
+          data = await this.getAuthActionsDeviceTree({
+            groupId: this.currentGroupId,
+            id: node!.data.id,
+            type: node!.data.type,
+            'self-defined-headers': {
+              'role-id': node!.data.roleId || '',
+              'real-group-id': node!.data.realGroupId || ''
+            }
+          }, node)
+        }
+        dirTree.updateKeyChildren(node.data.id, data)
         node.expanded = true
         node.loaded = true
       }
@@ -497,6 +532,19 @@ export default class extends Mixins(IndexMixin) {
       this.queueExecutor.resumePolling()
     }
   }
+
+  /**
+   * 获取无权限提示
+   */
+  getTitle(data: any) {
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    const title = this.isLive ? '无实时预览权限' : '无录像回放权限'
+    if (!this.checkPermission(perms, data)) {
+      return title
+    } else {
+      return ''
+    }
+  }
 }
 
 </script>
@@ -505,6 +553,10 @@ export default class extends Mixins(IndexMixin) {
   position: relative;
 
   &--live .offline .node-name {
+    cursor: not-allowed;
+  }
+
+  .no-permission .node-name {
     cursor: not-allowed;
   }
 }

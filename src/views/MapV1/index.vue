@@ -124,6 +124,7 @@
                 <el-button type="primary" @click="modifyMap">确定</el-button>
               </span>
             </el-dialog>
+
             <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>是否继承设备中的经纬度</h3>
@@ -134,8 +135,22 @@
               </h3>
               <el-button @click="confirmAddMarker(true)">继承</el-button>
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addPositionDialogCheck')">取消</el-button>
             </el-dialog>
+
+            <el-dialog title="添加监控点位" :visible.sync="dragAddPositionDialog" class="dialog-text" :before-close="cancelAddMark">
+              <div>
+                <h3>是否继承设备中的经纬度</h3>
+                <h3>如不继承则使用鼠标所在的经纬度</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="dragAddPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">继承</el-button>
+              <el-button @click="confirmDragAddPosition">不继承</el-button>
+              <el-button @click="cancelAddMark('dragAddPositionDialogCheck')">取消</el-button>
+            </el-dialog>
+
             <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
@@ -144,7 +159,7 @@
                 <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
               <el-button @click="confirmAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('addNoPositionDialogCheck')">取消</el-button>
             </el-dialog>
             <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
@@ -154,12 +169,13 @@
                 <el-checkbox v-model="dragAddNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
-              <el-button @click="cancelAddMark">取消</el-button>
+              <el-button @click="cancelAddMark('dragAddNoPositionDialogCheck')">取消</el-button>
             </el-dialog>
             <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
+                :key="mapViewKey"
                 ref="mapview"
                 :map-option="curMap"
                 :is-edit="isEdit"
@@ -171,7 +187,17 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
+                <custom-info
+                  v-if="customInfoType"
+                  :key="customInfoType"
+                  :map-option="curMap"
+                  :is-add="isAddCustom"
+                  :is-edit="isEdit"
+                  :custom-info-type="customInfoType"
+                  @delete="handleCustomDelete"
+                  @change="handleCustomChange"
+                  @save="changeMapInfos"
+                />
               </div>
             </div>
           </div>
@@ -190,10 +216,11 @@ import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './MapView.vue'
 import { getMaps, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/MapV1/models/VMap'
+import { mapObject } from '@/views/Map/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
 import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
+import settings from './settings'
 
 @Component({
   name: 'Map',
@@ -228,6 +255,8 @@ export default class extends Mixins(IndexMixin) {
   private dragAddNoPositionDialogCheck = false
   private uselnglat = true // 是否要继承设备坐标
   private addNoPositionDialog = false
+  private dragAddPositionDialog = false
+  private dragAddPositionDialogCheck = false
   private addNoPositionDialogCheck = false
   private dragAddNoPositionDialog = false
   private deviceInfo: any = {}
@@ -235,6 +264,7 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging = false
   private customInfoType = ''
+  private mapViewKey = new Date().getTime()
 
   private form = {
     mapId: '',
@@ -809,6 +839,7 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
+    this.dragAddPositionDialogCheck = false
     this.changeToolState('pointer')
     this.$refs.mapview.changeMapClickEvent('pointer')
     if (!this.isEdit) {
@@ -821,14 +852,24 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  cancelAddMark() {
-    this.ifDragging = false
-    this.addPositionDialog = false
-    this.addPositionDialogCheck = false
-    this.addNoPositionDialog = false
-    this.addNoPositionDialogCheck = false
-    this.dragAddNoPositionDialog = false
-    this.dragAddNoPositionDialogCheck = false
+  cancelAddMark(str: string) {
+    if (str) {
+      this.ifDragging = false
+      this.addPositionDialog = false
+      this.addNoPositionDialog = false
+      this.dragAddPositionDialog = false
+      this.dragAddNoPositionDialog = false
+    } else {
+      this.ifDragging = false
+      this.addPositionDialog = false
+      this.addPositionDialogCheck = false
+      this.addNoPositionDialog = false
+      this.addNoPositionDialogCheck = false
+      this.dragAddPositionDialog = false
+      this.dragAddPositionDialogCheck = false
+      this.dragAddNoPositionDialog = false
+      this.dragAddNoPositionDialogCheck = false
+    }
   }
 
   addMarker(marker) {
@@ -854,10 +895,18 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      if (!this.addPositionDialogCheck) {
-        this.addPositionDialog = true
+      if (this.ifDragging) {
+        if (!this.dragAddPositionDialogCheck) {
+          this.dragAddPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       } else {
-        this.confirmAddMarker(this.uselnglat)
+        if (!this.addPositionDialogCheck) {
+          this.addPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       }
     } else {
       if (this.ifDragging) {
@@ -938,6 +987,8 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.dragAddPositionDialog = false
+      this.ifDragging = false
     }
   }
 
@@ -955,13 +1006,22 @@ export default class extends Mixins(IndexMixin) {
     this.ifDragging = false
   }
 
+  private confirmDragAddPosition() {
+    const { lat, lng } = this.dragNodeInfo
+    this.markerInfo.longitude = lng
+    this.markerInfo.latitude = lat
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.dragAddPositionDialog = false
+    this.ifDragging = false
+  }
+
   deviceClick(data) {
     if (this.showMapConfig) return
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
       const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
-      this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
+      this.$refs.mapview.setMapZoomAndCenter(16, marker.longitude, marker.latitude)
       this.$refs.mapview.chooseDevice(marker)
     }
   }
@@ -998,13 +1058,13 @@ export default class extends Mixins(IndexMixin) {
     const { type, mapinfo } = infos
     if (type === 'add') {
       this.curMap = mapinfo
+      this.mapList.push(this.curMap)
       this.changeEdit(false)
       this.customInfoType = 'map'
       if (this.mapList.length > 0) {
         this.$refs.mapview.setMap(this.curMap)
         this.$refs.mapview.closeAllPlayer()
       }
-      this.mapList.push(this.curMap)
     } else {
       this.mapList = this.mapList.map(item => {
         if (item.mapId === mapinfo.mapId) {
@@ -1016,8 +1076,10 @@ export default class extends Mixins(IndexMixin) {
       this.curMap = mapinfo
       this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
       this.$refs.mapview.renderMask(mapinfo.mask)
+      this.mapViewKey = new Date().getTime()
       this.$alertSuccess('地图修改成功')
     }
+    this.mapViewKey = new Date().getTime()
     this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
     this.toggleOverView(mapinfo.eagle)
     this.toggleMarkersShow(mapinfo.marker)
@@ -1077,7 +1139,10 @@ export default class extends Mixins(IndexMixin) {
         mask: map.mask === 'Y',
         eagle: map.eagle === 'Y',
         dimension: map.dimension === 'Y',
-        marker: map.marker === 'Y'
+        marker: map.marker === 'Y',
+        groupByGroupId: map.groupByGroupId === 'Y',
+        groupByAdjacent: map.groupByAdjacent === 'Y',
+        defaultDeviceColor: map.defaultDeviceColor || settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'edit'
     } else {
@@ -1090,7 +1155,10 @@ export default class extends Mixins(IndexMixin) {
         mask: false,
         eagle: false,
         dimension: false,
-        marker: false
+        marker: false,
+        groupByGroupId: false,
+        groupByAdjacent: true,
+        defaultDeviceColor: settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'add'
     }
@@ -1143,6 +1211,7 @@ export default class extends Mixins(IndexMixin) {
       this.curMap = null
       return
     }
+    this.mapViewKey = new Date().getTime()
     this.showMapConfig = false
     this.curMap = map
     this.changeEdit(false)
@@ -1489,6 +1558,7 @@ export default class extends Mixins(IndexMixin) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
   }
 
   .node-name-move {

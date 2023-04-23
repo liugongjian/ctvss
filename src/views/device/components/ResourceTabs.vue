@@ -59,7 +59,7 @@
       </div>
     </el-tab-pane>
     <!-- <el-tab-pane v-if="inProtocol === 'gb28181'" label="AI包" name="ai"> -->
-    <el-tab-pane label="AI包" name="ai">
+    <el-tab-pane v-if="hasGetAppPermission" label="AI包" name="ai">
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table
@@ -216,6 +216,7 @@ import { ResourceAiType } from '@/dics'
 import { getResources, getResourceIdAttachedAppIds } from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'ResourceTabs'
@@ -230,6 +231,12 @@ export default class extends Vue {
   @Prop() private deviceId?: string
   @Prop() private formInfo?: any
 
+  @Prop()
+  private actions: object
+
+  private get hasGetAppPermission() {
+    return checkPermission(['ivs:GetApp'], this.actions)
+  }
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
   private form: any = {
@@ -329,7 +336,8 @@ export default class extends Vue {
    * 监听设备详情
    */
   @Watch('value', {
-    deep: true
+    deep: true,
+    immediate: true
   })
   private onDeviceChange(resources: any) {
     resources.forEach((resource: any) => {

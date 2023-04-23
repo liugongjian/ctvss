@@ -8,7 +8,7 @@
     center
     @close="closeDialog"
   >
-    <div v-loading="loading" class="alert" :class="{theme: true, 'light-alert': isLight}">
+    <div v-loading="loading" class="alert" :class="{ theme: true, 'light-alert': isLight }">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
         <el-tooltip class="item" effect="dark" :content="deviceNameAndChannelFull" placement="bottom">
@@ -152,7 +152,7 @@ export default class extends Vue {
     this.$set(this.audit, 'locations', transformLocation(locations, img))
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

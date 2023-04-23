@@ -122,7 +122,7 @@ export default class extends Vue {
       }
       this.isLoading = true
       const res: any = await getPolicyList(params)
-      this.policyList = res.iamPolices
+      this.policyList = res.iamPolicies
       this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(e && e.message)

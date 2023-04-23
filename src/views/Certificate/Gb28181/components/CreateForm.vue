@@ -63,6 +63,7 @@ export default class extends Vue {
     confirmPassword: [{ validator: this.validatePass2, trigger: 'blur' }],
     password: [{ validator: this.validateOldPass, trigger: 'blur' }]
   }
+
   private form: GB28181 = {
     userType: 'normal',
     userName: '',
@@ -163,7 +164,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    let params: any = this.$route.params
+    const params: any = this.$route.params
     if (params.userName) {
       this.editDisable = !/^[0-9a-z]+$/.test(params.userName)
       this.$emit('editDisabled', this.editDisable)

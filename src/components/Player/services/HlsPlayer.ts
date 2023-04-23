@@ -14,6 +14,7 @@ export class HlsPlayer extends Player {
     }
     const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
     videoElement.controls = false
+    videoElement.autoplay = true
     this.container.innerHTML = ''
     this.container.append(videoElement)
     const hls = new HlsJS({

@@ -1,40 +1,22 @@
 <template>
   <div>
     <!--资源包-->
-    <div class="detail__section">
+    <div v-if="!disableResourceTab" class="detail__section">
       <div class="detail__title">
         资源包
-        <el-link
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
-          @click="changeResourceDialog"
-        >
-          配置
-        </el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置</el-link>
       </div>
       <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
           视频包
-          <el-link
-            v-if="!isVGroup && checkPermission(['AdminDevice'])"
-            @click="changeResourceDialog"
-          >
-            配置视频包
-          </el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置视频包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            {{
-              resources.VSS_VIDEO.codeRate
-                ? `${resources.VSS_VIDEO.codeRate}Mbps`
-                : ''
-            }}
+            {{ resources.VSS_VIDEO.codeRate ? `${resources.VSS_VIDEO.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="存储周期">
-            {{
-              resources.VSS_VIDEO.storageTime
-                ? `${resources.VSS_VIDEO.storageTime}天`
-                : ''
-            }}
+            {{ resources.VSS_VIDEO.storageTime ? `${resources.VSS_VIDEO.storageTime}天` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
             {{ resources.VSS_VIDEO.expTime }}
@@ -44,12 +26,7 @@
       <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link
-            v-if="!isVGroup && checkPermission(['AdminDevice'])"
-            @click="changeResourceDialog('AI')"
-          >
-            配置AI包
-          </el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions) && checkPermission(['ivs:GetApp'], actions)" @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -58,101 +35,40 @@
           <el-descriptions-item label="到期时间">
             {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
-          <el-descriptions-item
-            content-class-name="detail__table-row"
-            label="AI应用"
-          >
-            <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
+          <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
+            <el-table :data="hasGetAppPermission ? algoListData : []" :empty-text="emptyText">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
-                <template slot-scope="scope">
-                  {{
-                    scope.row.algorithm.name
-                  }}
-                </template>
+                <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
               </el-table-column>
               <el-table-column v-if="!isNvr" prop="appEnabled" label="状态">
                 <template slot-scope="scope">
-                  <status-badge
-                    :status="parseInt(scope.row.status) ? 'on' : 'off'"
-                  />
+                  <status-badge :status="parseInt(scope.row.status) ? 'on' : 'off'" />
                   <span>
                     {{ parseInt(scope.row.status) ? '启用' : '停用' }}
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column
-                v-if="!isNvr && !isVGroup && checkPermission(['AdminDevice'])"
-                label="操作"
-                min-width="200"
-              >
+              <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-tooltip
-                    v-if="ifShowAlgoBtn(scope.row.algorithm.code)"
-                    class="item"
-                    effect="dark"
-                    content="设备离线时不可配置算法"
-                    placement="top-start"
-                    :disabled="deviceInfo.deviceStatus === 'on'"
-                  >
+                  <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
                     <div class="disable-btn-box">
-                      <el-button
-                        type="text"
-                        :disabled="deviceInfo.deviceStatus !== 'on'"
-                        @click="openCanvasDialog(scope.row)"
-                      >
-                        算法配置
-                      </el-button>
+                      <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
                   </el-tooltip>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="应用启用时不可解绑"
-                    placement="top-start"
-                    :disabled="scope.row.status === '0'"
-                  >
+                  <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
                     <div class="disable-btn-box">
-                      <el-button
-                        type="text"
-                        :disabled="scope.row.status === '1'"
-                        @click="changeBindStatus(scope.row)"
-                      >
-                        解除绑定
-                      </el-button>
+                      <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
-                  <el-button
-                    type="text"
-                    @click="changeRunningStatus(scope.row)"
-                  >
-                    {{
-                      parseInt(scope.row.status) ? '停用' : '启用'
-                    }}
-                  </el-button>
+                  <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
                 </template>
               </el-table-column>
-              <el-table-column
-                v-if="isNvr && !isVGroup && checkPermission(['AdminDevice'])"
-                label="操作"
-                min-width="200"
-              >
+              <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="应用启用时不可解绑"
-                    placement="top-start"
-                    :disabled="scope.row.status === '0'"
-                  >
+                  <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
                     <div class="disable-btn-box">
-                      <el-button
-                        type="text"
-                        :disabled="scope.row.status === '1'"
-                        @click="changeBindStatus(scope.row)"
-                      >
-                        解除绑定
-                      </el-button>
+                      <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
                 </template>
@@ -164,21 +80,11 @@
       <el-card v-if="resources.VSS_UPLOAD_BW">
         <template slot="header">
           带宽包
-          <el-link
-            v-if="!isVGroup && checkPermission(['AdminDevice'])"
-            v-permission="['*']"
-            @click="changeResourceDialog"
-          >
-            配置带宽包
-          </el-link>
+          <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="changeResourceDialog">配置带宽包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            {{
-              resources.VSS_UPLOAD_BW.codeRate
-                ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps`
-                : ''
-            }}
+            {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="上行带宽总量">
             {{ resources.VSS_UPLOAD_BW.bwDeviceCountRate }}
@@ -190,44 +96,23 @@
       </el-card>
     </div>
     <!--录制模板信息-->
-    <div v-loading="loading.recordTemplate" class="detail__section">
+    <div v-if="!disableRecordTemplate" v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
-        <el-link
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
-          v-permission="['*']"
-          @click="setRecordTemplate"
-        >
-          配置
-        </el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setRecordTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.recordTemplate" :column="2">
         <el-descriptions-item label="模板名称">
           {{ template.recordTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item label="是否启用自动录制">
-          {{ template.recordTemplate.recordType === 1 ? '是' : '否' }}
+        <el-descriptions-item label="是否启用全天录制">
+          {{ template.recordTemplate.recordType === 1 ? '是':'否' }}
         </el-descriptions-item>
-        <el-descriptions-item label="录制格式">
-          {{
-            template.recordTemplate.flvParam &&
-              template.recordTemplate.flvParam.enable
-              ? 'flv'
-              : ''
-          }}
-          {{
-            template.recordTemplate.hlsParam &&
-              template.recordTemplate.hlsParam.enable
-              ? 'hls'
-              : ''
-          }}
-          {{
-            template.recordTemplate.hlsParam &&
-              template.recordTemplate.hlsParam.enable
-              ? 'mp4'
-              : ''
-          }}
-        </el-descriptions-item>
+        <!-- <el-descriptions-item label="录制格式">
+          {{ template.recordTemplate.flvParam && template.recordTemplate.flvParam.enable ? 'flv': '' }}
+          {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'hls': '' }}
+          {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'mp4': '' }}
+        </el-descriptions-item> -->
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
         暂未绑定录制模板
@@ -237,40 +122,22 @@
     <div v-loading="loading.callbackTemplate" class="detail__section">
       <div class="detail__title">
         回调模板信息
-        <el-link
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
-          v-permission="['*']"
-          @click="setCallbackTemplate"
-        >
-          配置
-        </el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setCallbackTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.callbackTemplate" :column="2">
         <el-descriptions-item label="模板名称">
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item
-          v-if="template.callbackTemplate.recordNotifyUrl"
-          label="录制回调URL"
-        >
+        <el-descriptions-item v-if="template.callbackTemplate.recordNotifyUrl" label="录制回调URL">
           {{ template.callbackTemplate.recordNotifyUrl }}
         </el-descriptions-item>
-        <el-descriptions-item
-          v-if="template.callbackTemplate.deviceStatusUrl"
-          label="设备状态回调URL"
-        >
+        <el-descriptions-item v-if="template.callbackTemplate.deviceStatusUrl" label="设备状态回调URL">
           {{ template.callbackTemplate.deviceStatusUrl }}
         </el-descriptions-item>
-        <el-descriptions-item
-          v-if="template.callbackTemplate.streamStatusUrl"
-          label="流状态回调URL"
-        >
+        <el-descriptions-item v-if="template.callbackTemplate.streamStatusUrl" label="流状态回调URL">
           {{ template.callbackTemplate.streamStatusUrl }}
         </el-descriptions-item>
-        <el-descriptions-item
-          v-if="template.callbackTemplate.aiEventNotifyUrl"
-          label="AI事件通知回调URL"
-        >
+        <el-descriptions-item v-if="template.callbackTemplate.aiEventNotifyUrl" label="AI事件通知回调URL">
           {{ template.callbackTemplate.aiEventNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="回调Key">
@@ -285,13 +152,7 @@
     <div v-if="inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
-        <el-link
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
-          v-permission="['*']"
-          @click="setAlertTemplate"
-        >
-          配置
-        </el-link>
+        <el-link v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], actions)" @click="setAlertTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -301,9 +162,7 @@
           {{ template.alertTemplate.recordNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="启动方式">
-          {{
-            template.alertTemplate.enableType === 1 ? '自动开启' : '手动开启'
-          }}
+          {{ template.alertTemplate.enableType === 1 ? '自动开启' : '手动开启' }}
         </el-descriptions-item>
       </el-descriptions>
       <div v-else-if="!loading.alertTemplate" class="detail__empty-card">
@@ -313,10 +172,8 @@
 
     <!-- canvas画线 -->
     <algo-config
-      v-if="canvasDialog"
-      :device-id="deviceId"
-      :in-protocol="inProtocol"
-      :canvas-if="canvasDialog"
+      v-if="canvasDialog" :device-id="deviceId"
+      :in-protocol="inProtocol" :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :device-info="deviceInfo"
       :frame-image="frameImage"
@@ -325,6 +182,7 @@
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :device-id="deviceId"
+      :device-type="deviceType"
       :in-protocol="inProtocol"
       :template-id="recordTemplateId"
       @on-close="closeSetRecordTemplateDialog"
@@ -349,6 +207,7 @@
       v-if="showResourceDialog"
       :device="deviceInfo"
       :algo-tab-type-default="algoTabTypeDefault"
+      :actions="actions"
       @on-close="closeResourceDialog"
     />
   </div>
@@ -358,15 +217,9 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
-import {
-  getDeviceRecordTemplate,
-  getDeviceCallbackTemplate,
-  getDevice,
-  unBindAppResource,
-  startAppResource,
-  stopAppResource
-} from '@/api/device'
-import { getAlertBind } from '@vss/device/api/template'
+import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
+  unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
+import { getAlertBind } from '@/api/template'
 import { getAppList, getAlgoStreamFrameShot } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
@@ -374,8 +227,7 @@ import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.
 import SetAlertTemplate from '@/views/components/dialogs/SetAlertTemplate.vue'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
-import { DetailConfigCodes } from '@vss/ai/dics'
-
+import { UserModule } from '@/store/modules/user'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
@@ -393,9 +245,24 @@ import AlgoConfig from './AlgoConfig/index.vue'
 export default class extends Vue {
   @Prop() private deviceId?: String
   @Prop() private inProtocol?: String
+  @Prop() private deviceType?: string
+  @Prop()
+  private actions: object
   private checkPermission = checkPermission
 
   private resourceAiType = ResourceAiType
+
+  private get emptyText() {
+    if (!checkPermission(['ivs:GetApp'], this.actions)) {
+      return '当前子账号无 查看AI应用 的权限，请联系主账号进行配置！'
+    } else {
+      return '当前设备暂未绑定AI应用'
+    }
+  }
+
+  private get hasGetAppPermission() {
+    return checkPermission(['ivs:GetApp'], this.actions)
+  }
 
   private loading = {
     recordTemplate: false,
@@ -439,8 +306,8 @@ export default class extends Vue {
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
-    this.getCallbackTemplate()
     this.getRecordTemplate()
+    this.getCallbackTemplate()
     this.getAlertTemplate()
     this.getAlgoList()
     await this.getDeviceInfo()
@@ -449,30 +316,26 @@ export default class extends Vue {
 
   private openCanvasDialog(rowInfo: any) {
     const param = {
-      frames: [
-        {
-          stream: this.deviceId,
-          inProtocol: this.inProtocol
-        }
-      ]
+      frames: [{
+        stream: this.deviceId,
+        inProtocol: this.inProtocol
+      }]
     }
-    getAlgoStreamFrameShot(param)
-      .then((res) => {
-        if (res) {
-          const { frames = [] } = res
-          const { frame = '' } = frames[0] || []
-          if (!frame) {
-            this.$message.warning('暂时获取不到截图，请稍后再试')
-          } else {
-            this.canvasDialog = true
-            this.configAlgoInfo = rowInfo
-            this.frameImage = frame
-          }
+    getAlgoStreamFrameShot(param).then(res => {
+      if (res) {
+        const { frames = [] } = res
+        const { frame = '' } = frames[0] || []
+        if (!frame) {
+          this.$message.warning('暂时获取不到截图，请稍后再试')
+        } else {
+          this.canvasDialog = true
+          this.configAlgoInfo = rowInfo
+          this.frameImage = frame
         }
-      })
-      .catch((e) => {
-        this.$message.error(e && e.message)
-      })
+      }
+    }).catch(e => {
+      this.$message.error(e && e.message)
+    })
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
@@ -498,16 +361,28 @@ export default class extends Vue {
   }
 
   /**
+   * 是否禁用资源包配置
+   */
+  public get disableResourceTab() {
+    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+  }
+
+  /**
+   * 是否禁用录制模板绑定
+   * Liuzhou用户TAG仅IPC显示录制绑定模板，其他用户支持所有设备类型绑定录制模板
+   */
+  private get disableRecordTemplate() {
+    return (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou') && (['ipc'].indexOf(this.deviceType) === -1)
+  }
+
+  /**
    * 获取录制模板
    */
   private async getRecordTemplate() {
     try {
       this.loading.recordTemplate = true
       this.template.recordTemplate = null
-      const res = await getDeviceRecordTemplate({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol
-      })
+      const res = await getDeviceRecordTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.recordTemplate = res
     } catch (e) {
       if (e && e.code !== 5) {
@@ -525,10 +400,7 @@ export default class extends Vue {
     try {
       this.loading.callbackTemplate = true
       this.template.callbackTemplate = null
-      const res = await getDeviceCallbackTemplate({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol
-      })
+      const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.callbackTemplate = res
     } catch (e) {
       if (e && e.code !== 5) {
@@ -550,10 +422,7 @@ export default class extends Vue {
       //   const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       //   this.template.alertTemplate.push(res)
       // }
-      const res = await getAlertBind({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol
-      })
+      const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.alertTemplate = res
     } catch (e) {
       if (e && e.code !== 5) {
@@ -569,9 +438,7 @@ export default class extends Vue {
    */
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
-    this.recordTemplateId = this.template.recordTemplate
-      ? this.template.recordTemplate.templateId
-      : null
+    this.recordTemplateId = this.template.recordTemplate ? this.template.recordTemplate.templateId : null
   }
 
   /**
@@ -579,17 +446,13 @@ export default class extends Vue {
    */
   private setCallbackTemplate() {
     this.setCallbackTemplateDialog = true
-    this.callbackTemplateId = this.template.callbackTemplate
-      ? this.template.callbackTemplate.templateId
-      : null
+    this.callbackTemplateId = this.template.callbackTemplate ? this.template.callbackTemplate.templateId : null
   }
 
   // 设置告警模板
   private setAlertTemplate() {
     this.setAlertTemplateDialog = true
-    this.alertTemplateId = this.template.alertTemplate
-      ? this.template.alertTemplate.templateId
-      : null
+    this.alertTemplateId = this.template.alertTemplate ? this.template.alertTemplate.templateId : null
   }
 
   /**
@@ -618,7 +481,11 @@ export default class extends Vue {
   private async getAlgoList() {
     try {
       this.loading.AITable = true
-      const algoListResult = await getAppList({ deviceId: this.deviceId })
+      const param = {
+        deviceId: this.deviceId,
+        pageSize: 999
+      }
+      const algoListResult = await getAppList(param)
       this.algoListData = algoListResult.aiApps
     } catch (e) {
       if (e && e.code !== 5) {
@@ -672,8 +539,7 @@ export default class extends Vue {
         const obj = result['VSS_UPLOAD_BW']
         const codeRate = parseInt(obj.codeRate, 10)
         const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
-        obj.bwDeviceCountRate =
-          codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
+        obj.bwDeviceCountRate = codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
       }
       this.resources = result
     } catch (e) {
@@ -694,31 +560,23 @@ export default class extends Vue {
     }
     // startAppResource
     if (status) {
-      stopAppResource(param)
-        .then(() => {
-          this.loading.AITable = false
-          this.$message.success(`停用 ${rowInfo.name} 成功！`)
-          this.getAlgoList()
-        })
-        .catch((e) => {
-          this.loading.AITable = false
-          this.$message.error(
-            `停用 ${rowInfo.name} 失败，原因：${e && e.message}`
-          )
-        })
+      stopAppResource(param).then(() => {
+        this.loading.AITable = false
+        this.$message.success(`停用 ${rowInfo.name} 成功！`)
+        this.getAlgoList()
+      }).catch(e => {
+        this.loading.AITable = false
+        this.$message.error(`停用 ${rowInfo.name} 失败，原因：${e && e.message}`)
+      })
     } else {
-      startAppResource(param)
-        .then(() => {
-          this.loading.AITable = false
-          this.$message.success(`启用 ${rowInfo.name} 成功！`)
-          this.getAlgoList()
-        })
-        .catch((e) => {
-          this.loading.AITable = false
-          this.$message.error(
-            `启用 ${rowInfo.name} 失败，原因：${e && e.message}`
-          )
-        })
+      startAppResource(param).then(() => {
+        this.loading.AITable = false
+        this.$message.success(`启用 ${rowInfo.name} 成功！`)
+        this.getAlgoList()
+      }).catch(e => {
+        this.loading.AITable = false
+        this.$message.error(`启用 ${rowInfo.name} 失败，原因：${e && e.message}`)
+      })
     }
   }
 
@@ -732,18 +590,14 @@ export default class extends Vue {
       inProtocol: this.inProtocol
     }
 
-    unBindAppResource(param)
-      .then(() => {
-        this.loading.AITable = false
-        this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
-        this.getAlgoList()
-      })
-      .catch((e) => {
-        this.loading.AITable = false
-        this.$message.error(
-          `解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`
-        )
-      })
+    unBindAppResource(param).then(() => {
+      this.loading.AITable = false
+      this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
+      this.getAlgoList()
+    }).catch(e => {
+      this.loading.AITable = false
+      this.$message.error(`解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`)
+    })
   }
 
   private ifShowAlgoBtn(rowCode: any) {
@@ -758,28 +612,50 @@ export default class extends Vue {
      * 人员跌倒  code 10028
      *  动物检测 code 10033
      */
-    DetailConfigCodes.includes(rowCode)
+    switch (rowCode) {
+      case '10006':
+      case '10001':
+      case '10004':
+      case '10014':
+      case '10015':
+      case '10020':
+      case '10024':
+      case '10023':
+      case '10022':
+      case '10021':
+      case '10019':
+      case '10032':
+      case '10026':
+      case '10028':
+      case '10033':
+      case '10035':
+      case '10036':
+      case '10037':
+        return true
+      default:
+        return false
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
-.detail-wrap .detail__section {
-  ::v-deep .el-descriptions-item__label {
-    min-width: 100px;
+  .detail-wrap .detail__section {
+    ::v-deep .el-descriptions-item__label {
+      min-width: 100px;
+    }
+
+    ::v-deep .el-table {
+      border: 1px solid $borderGrey;
+    }
+
+    ::v-deep .detail__table-row {
+      padding-right: 15px;
+      flex: 1;
+    }
   }
 
-  ::v-deep .el-table {
-    border: 1px solid $borderGrey;
+  .disable-btn-box {
+    display: inline-block;
+    padding: 0 10px;
   }
-
-  ::v-deep .detail__table-row {
-    padding-right: 15px;
-    flex: 1;
-  }
-}
-
-.disable-btn-box {
-  display: inline-block;
-  padding: 0 10px;
-}
 </style>

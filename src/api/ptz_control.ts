@@ -95,14 +95,35 @@ export const stopPTZCruise = (data: any): Promise<any> =>
 // 守望
 export const describePTZKeepwatch = (data: any): Promise<any> =>
   request({
-    url: '/ptz/keepwatch/describe',
+    url: '/ptz/keepwatch',
     method: 'get',
     params: data
   })
 
 export const updatePTZKeepwatch = (data: any): Promise<any> =>
   request({
-    url: '/ptz/keepwatch/start',
+    url: '/ptz/startDeviceKeepwatch',
+    method: 'get',
+    params: data
+  })
+
+export const ptzLock = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/lock',
+    method: 'post',
+    data
+  })
+
+export const ptzUnlock = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/unlock',
+    method: 'post',
+    data
+  })
+
+export const getLockStatus = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/lock/describe',
     method: 'get',
     params: data
   })
