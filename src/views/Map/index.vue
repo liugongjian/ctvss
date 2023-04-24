@@ -1068,6 +1068,7 @@ export default class extends Mixins(IndexMixin) {
     this.addNoPositionDialog = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialog = false
+    this.dragAddPositionDialog = false
     this.dragAddNoPositionDialogCheck = false
     this.addRoleDeviceDialog = false
   }
