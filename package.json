@@ -20,6 +20,7 @@
     "serve:dev-https": "vue-cli-service serve --env dev --https",
     "serve:dev1-https": "vue-cli-service serve --env dev1 --https",
     "serve:dev-refactor-https": "vue-cli-service serve --env devrefactor --https",
+    "serve:test-refactor-https": "vue-cli-service serve --env testrefactor --https",
     "serve:test-https": "vue-cli-service serve --env test --https",
     "serve:test1-https": "vue-cli-service serve --env test1 --https",
     "serve:test2-https": "vue-cli-service serve --env test2 --https",
