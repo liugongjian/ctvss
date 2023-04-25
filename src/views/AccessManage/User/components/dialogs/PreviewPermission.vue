@@ -26,7 +26,7 @@
         :props="treeProp"
       >
         <span
-          slot-scope="{node, data}"
+          slot-scope="{ node, data }"
           class="custom-tree-node"
           :class="`custom-tree-node__${data.type}`"
         >
@@ -79,9 +79,8 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { getGroups } from '@/api/group'
-import { getDeviceTree } from '@/api/device'
-import { previewAuthActions } from '@/api/accessManage'
+import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
+import { DirectoryTypeEnum } from '@vss/device/enums/index'
 import settings from '@/settings'
 import { UserModule } from '@/store/modules/user'
 
@@ -104,70 +103,17 @@ export default class extends Vue {
 
   private get filteredSystemActionList() {
     const tagObject = UserModule.tags || ({})
+    const userVersion = UserModule.version
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .filter((action: any) => !action.version || action.version === userVersion)
     return res
   }
 
   private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) {
-      const groups = await this.initDirs()
-      resolve(groups)
-    } else {
-      const dirs = await this.getTree(node)
-      resolve(dirs)
-    }
-  }
-
-  /**
-   * 目录初始化
-   */
-  public async initDirs() {
-    try {
-      this.loading.dir = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      let groups = []
-      res.groups.forEach((group: any) => {
-        group.inProtocol !== 'vgroup' &&
-          groups.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: 'group',
-            parentId: '0',
-            path: [
-              {
-                id: group.groupId,
-                label: group.groupName,
-                type: 'group'
-              }
-            ]
-          })
-      })
-      const isGet = this.dialogData.dialogType === 'get'
-      const permissionRes = await previewAuthActions({
-        targetResources: groups.map(group => ({
-          groupId: group.id
-        })),
-        iamUserId: isGet ? this.dialogData.iamUserId : undefined,
-        iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,
-        policyIds: isGet ? undefined : this.dialogData.policyIds
-      })
-      groups = groups.map((group, index) => ({
-        ...group,
-        ...permissionRes.result[index].iamUser.actions
-      }))
-      return groups
-    } catch (e) {
-      console.log('e: ', e)
-      return []
-    } finally {
-      this.loading.dir = false
-    }
+    const dirs = await this.getTree(node)
+    resolve(dirs)
   }
 
   /**
@@ -175,31 +121,28 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
+      const isRoot = node.level === 0
+      const devices = await getNodeInfo({
+        id: isRoot ? '' : node.data.id,
+        type: isRoot ? DirectoryTypeEnum.Dir : node.data.type
       })
 
       const dirs: any = devices.dirs
         .map((dir: any) => {
           return {
             id: dir.id,
-            groupId: node.data.groupId,
             label: dir.label,
-            inProtocol: node.data.inProtocol,
+            inProtocol: dir.inProtocol,
             isLeaf: dir.isLeaf,
             type: dir.type,
-            path: node.data.path.concat([dir]),
-            parentId: node.data.id
+            path: isRoot ? [dir] : node.data.path.concat([dir]),
+            // parentId: node.data.id
           }
         })
 
       const isGet = this.dialogData.dialogType === 'get'
       const permissionRes = await previewAuthActions({
         targetResources: dirs.map(dir => ({
-          groupId: node.data.groupId,
           dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1)) || '0',
           deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
         })),
@@ -215,9 +158,6 @@ export default class extends Vue {
     } catch (e) {
       console.log(e)
     }
-  }
-
-  private mounted() {
   }
 
   private closeDialog() {

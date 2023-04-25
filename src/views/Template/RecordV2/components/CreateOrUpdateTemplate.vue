@@ -695,6 +695,10 @@ export default class extends Vue {
         }
         item.moveable = false
         // 将最终的数据更新到OPT上
+        // 如果拖到24：00，置为23：59
+        if (item.durationEndTime === 24 * 60) {
+          item.durationEndTime = item.durationEndTime - 1
+        }
         const timestamp = (new Date((new Date()).toLocaleDateString())).getTime() // 当天零点毫秒
         this.durationTime = [timestamp + item.durationStartTime * 1000 * 60, timestamp + item.durationEndTime * 1000 * 60]
         this.currentClickDurationTime = [timestamp + item.durationStartTime * 1000 * 60, timestamp + item.durationEndTime * 1000 * 60]
@@ -1044,6 +1048,7 @@ export default class extends Vue {
     // 激活 stick
     // 确定单元格
     const {target, row, clickOffsetX, clickOffsetWidth} = this.getDurationDomInfo(e)
+    if (isNaN(+target.split('-')[3])) return
     this.currentMouseDownDuration.row = row
     this.currentMouseDownDuration.col = +target.split('-')[3]
     this.currentClickRow = this.currentMouseDownDuration.row
@@ -1072,6 +1077,7 @@ export default class extends Vue {
   private handleClickMouseup(e: any) {
     if(this.form.recordType!==2) return
     let {row, index, clickOffsetX} = this.findDuration(e)
+    if (index === -1) return
     // 点击后有移动鼠标到其他非起始duration位置，则不做判定
     if (row !== this.currentMouseDownDuration.row || index !== this.currentMouseDownDuration.col) return
     this.$nextTick(() => {
@@ -1224,7 +1230,7 @@ export default class extends Vue {
         recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
           startTime: item.durationStartTime * 60, // 秒
-          endTime: item.durationEndTime * 60 // 秒
+          endTime: item.durationEndTime * 60 + 59// 秒
         })
       })
     })
@@ -1405,7 +1411,7 @@ export default class extends Vue {
     this.customDates.map((item: any) => {
       recordModes.specTimeSections.push({
         startTime: Math.floor(item.startTime / 1000),  // ms -> s
-        endTime: Math.floor(item.endTime / 1000)
+        endTime: Math.floor(item.endTime / 1000) + 59
       }) 
     })
     return recordModes
@@ -1461,7 +1467,7 @@ export default class extends Vue {
           'left': duration.startTime / 60 / 2 + 'px'
         },
         startTime: duration.startTime / 60, // 分钟
-        endTime: duration.endTime / 60,
+        endTime: (duration.endTime - 59) / 60,
         moveable: false,
         durationStartTime: duration.startTime / 60, 
         durationEndTime: duration.endTime / 60
@@ -1481,7 +1487,7 @@ export default class extends Vue {
     cus.map((duration: any) => {
       this.customDates.push({
         startTime: duration.startTime * 1000,
-        endTime: duration.endTime * 1000
+        endTime: (duration.endTime - 59) * 1000
       })
     })
     // 如果是原始的数据没有修改则不判断
