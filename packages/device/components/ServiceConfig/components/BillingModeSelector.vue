@@ -285,9 +285,9 @@ export default class extends Vue {
       this.loading.recordTemplate = true
       let res
       if (this.resourceType === ResourceTypeEnum.Video) {
-        res = await getRecordTemplates({})
+        res = await getRecordTemplates({ pageSize: 999 })
       } else if (this.resourceType === ResourceTypeEnum.Viid) {
-        res = await getStorageTemplate({})
+        res = await getStorageTemplate({ pageSize: 999 })
       } else {
         return
       }
