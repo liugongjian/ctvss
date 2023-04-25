@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-19 20:27:28
+ * @LastEditTime: 2023-04-24 14:41:58
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -51,7 +51,8 @@
               <div class="dashboard-wrap-overview__item_content_data">
                 实时上行流量
                 <div>
-                  {{ splitBandWidth(bandwidth.uploadTrafficValue)[0] }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}
+                  {{ splitBandWidth(bandwidth.uploadTrafficValue)[0]
+                  }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -67,7 +68,8 @@
               <div class="dashboard-wrap-overview__item_content_data">
                 实时下行流量
                 <div>
-                  {{ splitBandWidth( bandwidth.downloadTrafficValue)[0] }}{{ splitBandWidth( bandwidth.downloadTrafficValue)[1] }}
+                  {{ splitBandWidth(bandwidth.downloadTrafficValue)[0]
+                  }}{{ splitBandWidth(bandwidth.downloadTrafficValue)[1] }}
                 </div>
               </div>
             </el-col>
@@ -82,13 +84,8 @@
 import { Component, Mixins } from 'vue-property-decorator'
 // import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardMixin from '../mixin/DashboardMixin'
-import {
-  getDeviceStates,
-  getUserStorage
-} from '@/api/dashboard'
-import {
-  getBandwidthStatistics
-} from '@/api/dosageStatistics'
+import { getDeviceStates, getUserStorage } from '@/api/dashboard'
+import { getBandwidthStatistics } from '@/api/dosageStatistics'
 import { formatStorage, formatBandWidth } from '@/utils/number'
 import { Chart, Util } from '@antv/g2'
 
@@ -123,7 +120,7 @@ export default class extends Mixins(DashboardMixin) {
     realUpstreamBandwidth: 0,
     upstreamBandwidth: 0
   }
-   private bandwidth: any = {
+  private bandwidth: any = {
     uploadTrafficValue: 0,
     downloadTrafficValue: 0,
     downloadBandWidthCurrentValue: 0,
@@ -143,14 +140,14 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private get storageFlag() {
-    return this.$store.state.user.tags.showStorageUsage === 'Y'
+    return this.$store.state.user.tags?.showStorageUsage === 'Y'
     // return false
   }
 
   private mounted() {
-    this.chartHandle()
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
+    this.chartHandle()
   }
 
   private getData() {
@@ -164,9 +161,14 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private chartHandle() {
-    const init = document.createEvent('Event')
-    init.initEvent('resize', true, true)
-    window.dispatchEvent(init)
+    // const init = document.createEvent('Event')
+    // init.initEvent('resize', true, true)
+    // window.dispatchEvent(init)
+
+    this.$nextTick(() => {
+      const event = new Event('resize')
+      window.dispatchEvent(event)
+    })
   }
 
   private splitBandWidth(bandwidth) {
@@ -232,12 +234,15 @@ export default class extends Mixins(DashboardMixin) {
           this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
         })
       }
+
+      this.$nextTick(()=>{
+        this.chartHandle()
+      })
+
     } catch (error) {
       this.$message.error(error && error.message)
     }
   }
-
-
 
   private async getBandwidth() {
     try {
@@ -262,8 +267,12 @@ export default class extends Mixins(DashboardMixin) {
         downloadTrafficValue = 0
       } = res
       this.bandwidth = {
-        downloadBandWidthCurrentValue: formatBandWidth(downloadBandWidthCurrentValue),
-        uploadBandWidthCurrentValue: formatBandWidth(uploadBandWidthCurrentValue),
+        downloadBandWidthCurrentValue: formatBandWidth(
+          downloadBandWidthCurrentValue
+        ),
+        uploadBandWidthCurrentValue: formatBandWidth(
+          uploadBandWidthCurrentValue
+        ),
         uploadTrafficValue: formatBandWidth(uploadTrafficValue),
         downloadTrafficValue: formatBandWidth(downloadTrafficValue)
       }
@@ -294,6 +303,10 @@ export default class extends Mixins(DashboardMixin) {
         'chartStorage',
         this.pieDataStorage
       )
+
+      this.$nextTick(()=>{
+        this.chartHandle()
+      })
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -305,7 +318,7 @@ export default class extends Mixins(DashboardMixin) {
     this[chartDom] = new Chart({
       container,
       autoFit: true,
-      width: 800,
+      width: 700,
       height: 260
     })
 
@@ -394,12 +407,10 @@ export default class extends Mixins(DashboardMixin) {
     this[chartDom] = new Chart({
       container,
       autoFit: true,
-      width: 800,
+      width: 700,
       height: 260
     })
-
-    this[chartDom].data(data)
-
+    
     this[chartDom].scale('percent', {
       formatter: (val) => {
         // val = (val * 100).toFixed(2) + '%'
@@ -412,6 +423,9 @@ export default class extends Mixins(DashboardMixin) {
       radius: 0.5,
       innerRadius: 0.6
     })
+
+
+    this[chartDom].data(data)
 
     this[chartDom].tooltip({
       showTitle: false,

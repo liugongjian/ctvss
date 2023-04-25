@@ -8,6 +8,7 @@ import { MapModule } from '@/store/modules/map'
 import { isEqual } from 'lodash'
 import { VideoDevice } from '@vss/device/type/Device'
 import * as dicts from '@vss/device/dicts'
+import settings from '../settings'
 
 export interface mapObject {
   mapId: string,
@@ -18,7 +19,10 @@ export interface mapObject {
   mask?: string
   eagle?: string
   dimension?: string
-  marker?: string,
+  marker?: string
+  groupByGroupId?: string
+  groupByAdjacent?: string
+  defaultDeviceColor?: string
   AuthMap?: object
 }
 
@@ -343,8 +347,8 @@ export default class VMap {
 
   addMarker(marker): void {
     this.curMarkerList.push(marker)
-    this.markerCluster.addData(this.wrapMarkers([marker]))
-    this.indexCluster.addData(this.wrapMarkers([marker]))
+    this.markerCluster && this.markerCluster.addData(this.wrapMarkers([marker]))
+    this.indexCluster && this.indexCluster.addData(this.wrapMarkers([marker]))
   }
 
   renderMap(map: mapObject) {
@@ -384,8 +388,8 @@ export default class VMap {
 
   updateMarkerList(markers) {
     this.curMarkerList = markers
-    this.markerCluster.setData(this.wrapMarkers(markers))
-    this.indexCluster.setData(this.wrapMarkers(markers))
+    this.markerCluster && this.markerCluster.setData(this.wrapMarkers(markers))
+    this.indexCluster && this.indexCluster.setData(this.wrapMarkers(markers))
   }
 
   cancelChoose() {
@@ -398,8 +402,12 @@ export default class VMap {
   }
 
   setCluster(markers: any[]) {
+    let minZoom = 0
+    if (this.curMapOptions.groupByGroupId === 'Y') {
     this.setIndexCluster(markers)
-    this.setMarkerCluster(markers)
+      minZoom = 15
+    }
+    this.setMarkerCluster(markers, minZoom)
   }
 
   // 设置索引聚合
@@ -468,17 +476,17 @@ export default class VMap {
   }
 
   // 设置相邻聚合
-  setMarkerCluster(markers: any[]) {
+  setMarkerCluster(markers: any[], minZoom = 0) {
     if (this.markerCluster) {
       this.markerCluster.setMap(null)
     }
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
-      if (this.map.getZoom() < 15) {
+      if (this.map.getZoom() < minZoom) {
         context.marker.setContent(' ')
       } else {
         const div = document.createElement('div')
-        const bgColor = '#fa8334'
+        const bgColor = this.curMapOptions.defaultDeviceColor || settings.defaultDeviceColor
         const fontColor = '#fff'
         div.style.backgroundColor = bgColor
         const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
@@ -489,7 +497,6 @@ export default class VMap {
         div.style.color = fontColor
         div.style.fontSize = '14px'
         div.style.textAlign = 'center'
-        div.className = 'cluster-marker'
         context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
         context.marker.setContent(div)
         let content = ''
@@ -510,11 +517,12 @@ export default class VMap {
       }
     }
     const _renderMarker = (context: any) => {
-      if (this.map.getZoom() < 15) {
+      if (this.map.getZoom() < minZoom) {
         context.marker.setContent(' ')
       } else {
         // const content = this.buildContent(context.data[0])
         const content = drawCamera(context.data[0], {
+          defaultDeviceColor: this.curMapOptions.defaultDeviceColor,
           handlers: this.markerEventHandlers,
           isEdit: this.isEdit,
           map: this.map
@@ -553,7 +561,7 @@ export default class VMap {
     }
 
     this.markerCluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
-      maxZoom: 19,
+      maxZoom: this.curMapOptions.groupByAdjacent === 'Y' ? 19 : 0.1,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker // 自定义非聚合点样式
     })

@@ -40,7 +40,7 @@
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { MapModule } from '@/store/modules/map'
-import { validateIsLat, validateIsLng } from '@/views/Map/utils/validate'
+import { validateIsLat, validateIsLng } from '../../utils/validate'
 
 @Component({
   name: 'InterestInfo',
@@ -54,7 +54,7 @@ export default class Interest extends Vue {
   private color
 
   get interestInfo() {
-    this.color = MapModule.interestInfo.appearance.color || '#FA8334'
+    this.color = MapModule.interestInfo.appearance.color
     return MapModule.interestInfo
   }
 
