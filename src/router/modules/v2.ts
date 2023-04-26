@@ -734,7 +734,7 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'alarm',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
         name: 'Alarm',
         meta: {
           title: '设备告警',
@@ -746,7 +746,7 @@ export const v2Router: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
             name: 'AlarmList',
             meta: {
               title: '设备告警',

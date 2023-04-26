@@ -92,7 +92,7 @@
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                    v-show="curMap && !showMapConfig"
+                    v-show="!showMapConfig"
                     class="node-option"
                     @click.stop.prevent="addMarker(data)"
                   >+</span>
@@ -293,6 +293,7 @@
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
+                :key="mapViewKey"
                 ref="mapview"
                 :map-option="curMap"
                 :is-edit="isEdit"
@@ -309,6 +310,7 @@
                 <custom-info
                   v-if="customInfoType"
                   :key="customInfoType"
+                  :map-option="curMap"
                   :is-add="isAddCustom"
                   :is-edit="isEdit"
                   :custom-info-type="customInfoType"
@@ -350,6 +352,7 @@ import { VideoDevice } from '@vss/device/type/Device'
 import * as dicts from '@vss/device/dicts'
 import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import { ScreenModule } from '@vss/device/store/modules/screen'
+import settings from './settings'
 
 @Component({
   name: 'Map',
@@ -395,6 +398,7 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging = false
   private customInfoType = ''
+  private mapViewKey = new Date().getTime()
 
   private form = {
     mapId: '',
@@ -1252,7 +1256,7 @@ export default class extends Mixins(IndexMixin) {
       const marker = this.markerList.filter(
         (item) => item.deviceId === data.id
       )[0]
-      this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
+      this.$refs.mapview.setMapZoomAndCenter(16, marker.longitude, marker.latitude)
       this.$refs.mapview.chooseDevice(marker)
     }
   }
@@ -1318,8 +1322,10 @@ export default class extends Mixins(IndexMixin) {
         this.curMap.latitude
       )
       this.$refs.mapview.renderMask(mapinfo.mask)
+      this.mapViewKey = new Date().getTime()
       this.$alertSuccess('地图修改成功')
     }
+    this.mapViewKey = new Date().getTime()
     this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
     this.toggleOverView(mapinfo.eagle)
     this.toggleMarkersShow(mapinfo.marker)
@@ -1383,7 +1389,10 @@ export default class extends Mixins(IndexMixin) {
         mask: map.mask === 'Y',
         eagle: map.eagle === 'Y',
         dimension: map.dimension === 'Y',
-        marker: map.marker === 'Y'
+        marker: map.marker === 'Y',
+        groupByGroupId: map.groupByGroupId === 'Y',
+        groupByAdjacent: map.groupByAdjacent === 'Y',
+        defaultDeviceColor: map.defaultDeviceColor || settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'edit'
     } else {
@@ -1396,7 +1405,10 @@ export default class extends Mixins(IndexMixin) {
         mask: false,
         eagle: false,
         dimension: false,
-        marker: false
+        marker: false,
+        groupByGroupId: false,
+        groupByAdjacent: true,
+        defaultDeviceColor: settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'add'
     }
@@ -1451,6 +1463,7 @@ export default class extends Mixins(IndexMixin) {
       this.curMap = null
       return
     }
+    this.mapViewKey = new Date().getTime()
     this.showMapConfig = false
     this.curMap = map
     this.changeEdit(false)
@@ -1488,14 +1501,10 @@ export default class extends Mixins(IndexMixin) {
       method: deleteMap,
       payload: { mapId: map.mapId },
       onSuccess: () => {
-        this.mapList = this.mapList.filter((item) => item.mapId !== map.mapId)
-        if (this.mapList.length && this.curMap.mapId === map.mapId) {
+        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
+        if (this.curMap.mapId === map.mapId) {
           // this.curMap = this.mapList[0] || null
           this.handleChooseMap(this.mapList[0])
-        }
-        if (!this.mapList.length) {
-          this.markerList = []
-          this.curMap = null
         }
       }
     })
@@ -1507,9 +1516,7 @@ export default class extends Mixins(IndexMixin) {
   private async modifyMap() {
     let checklnglat = true
     let checkzoom = true
-    const originMap = this.mapList.filter(
-      (item) => item.mapId === this.curMap.mapId
-    )[0]
+    const originMap = this.mapList.filter(item => item.mapId === this.curMap.mapId)[0]
     try {
       const params = { ...originMap }
       if (this.modifyMapForm.center) {
@@ -1565,6 +1572,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private async mounted() {
+    this.initDirs()
     await this.getMapList()
     if (this.mapList.length > 0) {
       this.curMap = this.mapList[0]
@@ -1810,6 +1818,7 @@ export default class extends Mixins(IndexMixin) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    user-select: none;
   }
 
   .node-name-move {

@@ -14,45 +14,46 @@
         <div class="content-right">
           <div class="ptz-ctrl">
             <div class="ctrl-l">
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
                 <i class="icon-ptz-left-up" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
                 <i class="icon-ptz-up" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
                 <i class="icon-ptz-right-up" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
                 <i class="icon-ptz-left" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)">
+              <span class="direction disabled">
+                <!-- <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
                 <i class="icon-ptz-auto" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
                 <i class="icon-ptz-right" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
                 <i class="icon-ptz-left-down" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
                 <i class="icon-ptz-down" />
               </span>
-              <span class="direction" :class="{'disabled': !controlDevicePTZ}" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
                 <i class="icon-ptz-right-down" />
               </span>
             </div>
             <div class="ctrl-r">
-              <span class="operation" :class="{'disabled': !controlDevicePTZ}">
+              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
               <div v-if="!['ehome'].includes(screen.inProtocol)">
-                <span class="operation" :class="{'disabled': !controlDevicePTZ}">
+                <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                   <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
                   <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
                 </span>
-                <span class="operation" :class="{'disabled': !controlDevicePTZ}">
+                <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                   <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
                   <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
                 </span>
@@ -77,7 +78,7 @@
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex.preset === index, 'preset-line__no-set': !preset.setFlag}]"
+                    :class="['preset-line', { 'preset-line__select': currentIndex.preset === index, 'preset-line__no-set': !preset.setFlag }]"
                     @click="currentIndex.preset = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
@@ -99,7 +100,7 @@
                 <template v-for="(cruise, index) in cruises">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex.cruise === index, 'preset-line__no-set': !cruise.setFlag}]"
+                    :class="['preset-line', { 'preset-line__select': currentIndex.cruise === index, 'preset-line__no-set': !cruise.setFlag }]"
                     @click="currentIndex.cruise = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
@@ -218,11 +219,11 @@ export default class extends Vue {
     cruise: false
   }
 
-  private isCreate: boolean = true
+  private isCreate = true
   private presets: Array<any> = []
   private cruises: Array<any> = []
   private homepositionList: Array<any> = []
-  private tabName: string = 'preset'
+  private tabName = 'preset'
   private homepositionForm: any = {
     enable: '0',
     waitTime: '',

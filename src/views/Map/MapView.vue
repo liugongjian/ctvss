@@ -47,7 +47,7 @@ import { Screen } from '@vss/device/services/Screen/Screen'
 import LivePlayer from '@vss/device/components/LivePlayer.vue'
 import ReplayView from '@vss/device/components/ReplayPlayer/index.vue'
 import draggable from '@/views/Map/directives/draggable'
-
+import settings from './settings'
 @Component({
   name: 'MapView',
   components: {
@@ -209,6 +209,9 @@ export default class MapView extends Vue {
       const mapInfo = {
         mapId: this.mapOption.mapId,
         name: this.mapOption.name,
+        groupByGroupId: this.mapOption.groupByGroupId,
+        groupByAdjacent: this.mapOption.groupByAdjacent,
+        defaultDeviceColor: this.mapOption.defaultDeviceColor,
         longitude: center.lng,
         latitude: center.lat,
         zoom
@@ -244,7 +247,7 @@ export default class MapView extends Vue {
   }
 
   public async markerChange(marker) {
-    const appearance = marker.appearance || { color: '#FA8334' }
+    const appearance = marker.appearance// || { color: this.mapOption.defaultDeviceColor }
     const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
     try {
       const data = {
@@ -292,7 +295,7 @@ export default class MapView extends Vue {
 
   public async interestChange(type, interest) {
     try {
-      const appearance = interest.appearance || { color: '#FA8334' }
+      const appearance = interest.appearance || { color: settings.defaultDeviceColor }
       const data = {
         ...interest,
         mapId: this.mapId,
@@ -470,7 +473,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
-    const appearance = device.appearance || { color: '#FA8334' }
+    const appearance = device.appearance// || { color: this.mapOption.defaultDeviceColor }
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,

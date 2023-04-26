@@ -170,3 +170,11 @@ export const bindDir = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// 账号权限-预览
+export const previewAuthActions = (data: any): Promise<any> =>
+request({
+  url: '/iam/authpreview',
+  method: 'post',
+  data
+})

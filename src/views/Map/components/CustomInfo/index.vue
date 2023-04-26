@@ -2,6 +2,7 @@
   <div class="map-point">
     <component
       :is="showComponent"
+      :map-option="mapOption"
       :predefine-color="predefineColor"
       v-bind="$attrs"
       v-on="$listeners"
@@ -29,8 +30,9 @@ import Polygon from './Polygon.vue'
 })
 
 export default class CustomInfo extends Vue {
+  @Prop() private mapOption: any
   @Prop() private customInfoType: string
-  private showComponent: string = ''
+  private showComponent = ''
 
   private componentMap = {
     map: 'MapInfo',
@@ -40,10 +42,11 @@ export default class CustomInfo extends Vue {
     font: 'Font'
   }
 
-  private predefineColor = ['#FA8334', '#007f1b', '#eab809', '#ee5007', '#b22727', '#a85cf9', '#5534a5', '#4b7be5']
+  private predefineColor = []
 
   private mounted() {
     this.showComponent = this.componentMap[this.customInfoType]
+    this.predefineColor = [this.mapOption.defaultDeviceColor, '#007f1b', '#eab809', '#ee5007', '#b22727', '#a85cf9', '#5534a5', '#4b7be5']
   }
 }
 </script>
