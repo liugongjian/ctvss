@@ -96,6 +96,7 @@ export default class extends Mixins(layoutMxin) {
           ...this.$route.query,
           type: type,
           deviceId: id,
+          deviceName: data.name,
           dirId: ''
         }
       })
@@ -107,6 +108,7 @@ export default class extends Mixins(layoutMxin) {
           ...this.$route.query,
           type: type,
           dirId: id,
+          deviceName: data.name,
           deviceId: id
         }
       })
