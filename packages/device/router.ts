@@ -9,7 +9,7 @@ export const deviceRouter: RouteConfig = {
   meta: {
     title: '设备管理',
     icon: 'menu-device',
-    perms: ['DescribeDevice'],
+    perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
     alwaysShow: false,
     only: true,
     groupSelector: false,
@@ -24,7 +24,7 @@ export const deviceRouter: RouteConfig = {
         title: '设备管理',
         icon: 'menu-device',
         breadcrumb: false,
-        perms: ['DescribeDevice'],
+        perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
         groupSelector: false
       },
       children: [
@@ -34,7 +34,7 @@ export const deviceRouter: RouteConfig = {
           name: 'DeviceList',
           meta: {
             title: '设备列表',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice', 'ivs:CreateDevice', 'ivs:UpdateDevice'],
             activeMenu: '/device'
           }
         },
@@ -44,7 +44,7 @@ export const deviceRouter: RouteConfig = {
           name: 'DeviceDetail',
           meta: {
             title: '设备详情',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice'],
             activeMenu: '/device'
           },
           children: [
@@ -55,7 +55,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '基本信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -66,7 +66,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '设备/流信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -77,7 +77,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '配置信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -88,7 +88,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '实时预览',
                 breadcrumb: false,
-                perms: ['ScreenPreview'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -99,7 +99,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '录像回放',
                 breadcrumb: false,
-                perms: ['ReplayRecord'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -110,7 +110,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: 'AI分析',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             },
@@ -121,7 +121,7 @@ export const deviceRouter: RouteConfig = {
               meta: {
                 title: '视图库',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/device'
               }
             }
@@ -133,7 +133,7 @@ export const deviceRouter: RouteConfig = {
           name: 'DeviceCreate',
           meta: {
             title: '创建设备',
-            perms: ['AdminDevice'],
+            perms: ['ivs:CreateDevice'],
             activeMenu: '/device'
           }
         },
@@ -143,7 +143,7 @@ export const deviceRouter: RouteConfig = {
           name: 'ConfigureChannels',
           meta: {
             title: '配置子通道',
-            perms: ['AdminDevice'],
+            perms: ['ivs:UpdateDevice'],
             activeMenu: '/device'
           }
         }
@@ -161,7 +161,7 @@ export const videoRouter: RouteConfig = {
     icon: 'menu-live',
     alwaysShow: true,
     breadcrumb: true,
-    perms: ['ScreenPreview', 'ReplayRecord'],
+    perms: ['ivs:GetLiveStream', 'ivs:GetCloudRecord'],
     version: 2
   },
   children: [
@@ -172,7 +172,7 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '实时预览',
         breadcrumb: false,
-        perms: ['ScreenPreview']
+        perms: ['ivs:GetLiveStream']
       },
       children: [
         {
@@ -182,7 +182,7 @@ export const videoRouter: RouteConfig = {
           meta: {
             title: '实时预览',
             icon: 'dot',
-            perms: ['ScreenPreview'],
+            perms: ['ivs:GetLiveStream'],
             activeMenu: '/video/preview'
           }
         }
@@ -195,7 +195,7 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '录像回放',
         breadcrumb: false,
-        perms: ['ReplayRecord']
+        perms: ['ivs:GetCloudRecord']
       },
       children: [
         {
@@ -205,7 +205,7 @@ export const videoRouter: RouteConfig = {
           meta: {
             title: '录像回放',
             icon: 'dot',
-            perms: ['ReplayRecord'],
+            perms: ['ivs:GetCloudRecord'],
             activeMenu: '/video/replay'
           }
         }

@@ -85,7 +85,7 @@ export default class extends Vue {
 
   change() {
     const checklnglat = validateIsLng(this.markerInfo.longitude) && validateIsLat(this.markerInfo.latitude)
-    if (this.markerInfo.longitude || this.markerInfo.latitude) {
+    if (this.markerInfo.longitude === '0' || this.markerInfo.latitude === '0') {
       this.$alertError('经纬度不可为0')
     } else if (checklnglat) {
       this.$emit('change', { type: 'marker', info: this.markerInfo })

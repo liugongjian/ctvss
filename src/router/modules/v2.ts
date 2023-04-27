@@ -49,7 +49,7 @@ export const v2Router: RouteConfig[] = [
       title: '概览',
       icon: 'menu-dashboard',
       breadcrumb: false,
-      perms: ['DescribeDashboard'],
+      perms: ['ivs:GetDashboard'],
       alwaysShow: false,
       version: 2
     },
@@ -62,7 +62,7 @@ export const v2Router: RouteConfig[] = [
           title: '概览',
           icon: 'menu-dashboard',
           breadcrumb: true,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
@@ -74,7 +74,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       },
       {
@@ -86,7 +86,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           icon: 'menu-dashboard',
           breadcrumb: false,
-          perms: ['DescribeDashboard']
+          perms: ['ivs:GetDashboard']
         }
       }
     ]
@@ -102,7 +102,6 @@ export const v2Router: RouteConfig[] = [
       icon: 'menu-ga1400',
       alwaysShow: true,
       version: 2,
-      // tags: ['ga1400'],
       perms: ['*']
     },
     children: [
@@ -180,7 +179,7 @@ export const v2Router: RouteConfig[] = [
     meta: {
       title: '电子地图',
       icon: 'menu-map',
-      perms: ['DescribeMap'],
+      perms: ['ivs:GetMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false,
@@ -195,7 +194,7 @@ export const v2Router: RouteConfig[] = [
           title: '电子地图',
           icon: 'menu-map',
           breadcrumb: false,
-          perms: ['DescribeMap'],
+          perms: ['ivs:GetMap'],
           activeMenu: '/map'
         }
       }
@@ -306,7 +305,6 @@ export const v2Router: RouteConfig[] = [
           title: 'GA1400凭证',
           icon: 'dot',
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
@@ -319,7 +317,6 @@ export const v2Router: RouteConfig[] = [
           title: '新建GA1400凭证',
           hidden: true,
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
@@ -332,7 +329,6 @@ export const v2Router: RouteConfig[] = [
           title: '编辑GA1400凭证',
           hidden: true,
           perms: ['*'],
-          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       }
@@ -463,7 +459,7 @@ export const v2Router: RouteConfig[] = [
       title: 'AI管理',
       icon: 'menu-ai',
       alwaysShow: true,
-      perms: ['DescribeAi'],
+      perms: ['ivs:GetApp', 'ivs:AdminApp'],
       version: 2
     },
     children: [
@@ -477,7 +473,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -491,7 +487,7 @@ export const v2Router: RouteConfig[] = [
           breadcrumb: true,
           only: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -504,7 +500,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -517,7 +513,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/ai-app-list',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -530,7 +526,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/ai/ai-app-list',
-          perms: ['DescribeAi']
+          perms: ['ivs:GetApp']
         }
       },
       {
@@ -543,7 +539,7 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/config',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -555,7 +551,7 @@ export const v2Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       },
       {
@@ -567,7 +563,7 @@ export const v2Router: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/ai/facelib',
-          perms: ['AdminAi']
+          perms: ['ivs:AdminApp']
         }
       }
     ]
@@ -884,7 +880,7 @@ export const v2Router: RouteConfig[] = [
       title: '车辆管理',
       breadcrumb: true,
       icon: 'menu-car',
-      perms: ['AdminCar'],
+      perms: ['ivs:AdminCar'],
       version: 2
     },
     children: [
@@ -897,7 +893,7 @@ export const v2Router: RouteConfig[] = [
           title: '车辆管理',
           breadcrumb: false,
           icon: 'car',
-          perms: ['AdminCar']
+          perms: ['ivs:AdminCar']
         }
       }
     ]
@@ -910,7 +906,7 @@ export const v2Router: RouteConfig[] = [
       title: '计费管理',
       icon: 'menu-billing',
       alwaysShow: true,
-      perms: ['*'],
+      perms: ['ivs:frontend:AdminBilling'],
       version: 2,
       only: true
     },
@@ -922,7 +918,7 @@ export const v2Router: RouteConfig[] = [
         redirect: 'resource',
         meta: {
           title: '计费管理',
-          perms: ['*'],
+          perms: ['ivs:frontend:AdminBilling'],
           icon: 'menu-billing',
           hidden: true,
           activeMenu: '/billing',
@@ -938,7 +934,7 @@ export const v2Router: RouteConfig[] = [
               icon: 'dot',
               hidden: true,
               activeMenu: '/billing',
-              perms: ['*']
+              perms: ['ivs:frontend:AdminBilling']
             }
           },
           {
@@ -950,7 +946,7 @@ export const v2Router: RouteConfig[] = [
               icon: 'dot',
               hidden: true,
               activeMenu: '/billing',
-              perms: ['*']
+              perms: ['ivs:frontend:AdminBilling']
             }
           },
           {
@@ -962,7 +958,7 @@ export const v2Router: RouteConfig[] = [
               icon: 'dot',
               hidden: true,
               activeMenu: '/billing',
-              perms: ['*']
+              perms: ['ivs:frontend:AdminBilling']
             }
           }
         ]

@@ -96,7 +96,7 @@ export default class extends Vue {
   private dialogTitle = '权限预览'
   private dialogVisible = true
   private treeProp = {
-    label: 'label',
+    label: 'name',
     children: 'children',
     isLeaf: 'isLeaf'
   }
@@ -128,23 +128,23 @@ export default class extends Vue {
       })
 
       const dirs: any = devices.dirs
+        .filter((dir: any) => dir.type !== 'role')
         .map((dir: any) => {
           return {
             id: dir.id,
-            label: dir.label,
+            name: dir.name,
             inProtocol: dir.inProtocol,
             isLeaf: dir.isLeaf,
             type: dir.type,
             path: isRoot ? [dir] : node.data.path.concat([dir]),
-            // parentId: node.data.id
           }
         })
 
       const isGet = this.dialogData.dialogType === 'get'
       const permissionRes = await previewAuthActions({
         targetResources: dirs.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1)) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
+          dirPath: ((dir.type === 'dir' || dir.type === 'platform') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1)) || '0',
+          deviceId: (dir.type === 'dir' || dir.type === 'platform') ? undefined : dir.path[dir.path.length - 1].id
         })),
         iamUserId: isGet ? this.dialogData.iamUserId : undefined,
         iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,
