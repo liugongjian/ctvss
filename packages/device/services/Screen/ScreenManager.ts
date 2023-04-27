@@ -185,7 +185,6 @@ export class ScreenManager {
    * @param streamNum 指定码流
    */
   public transformDeviceParams(screen: Screen, data: any, streamNum?: number) {
-    console.log('目录树信息🌲', data, streamNum)
     screen.deviceId = data.id
     screen.deviceName = data.name
     screen.streamSize = data.deviceStreamSize
