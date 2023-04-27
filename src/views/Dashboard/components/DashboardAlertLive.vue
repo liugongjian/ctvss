@@ -55,12 +55,8 @@ export default class extends Mixins(DashboardMixin) {
 
   private mounted() {
     const userTags = this.$store.state.user.tags
-    const mainUserID = this.$store.state.user.mainUserID
-    if (mainUserID === '90009') {
-      // TODO: 九江码头改音效
-      this.alertFile = require('@/assets/dashboard/alert2.mp3')
-    } else if (userTags.isSpecialAINotice === 'Y') {
-      // 特殊音效
+    // 特殊音效
+    if (userTags.isSpecialAINotice === 'Y') {
       this.alertFile = require('@/assets/dashboard/alert3.mp3')
     } else {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
