@@ -94,7 +94,7 @@
           </div>
         </div> -->
         <div :class="['links', casLogin ? 'ct-login' : '']">
-          <a target="_blank" href="https://vaas.ctyun.cn/document/api/">API文档</a>
+          <a target="_blank" :href="documentApiUrl">API文档</a>
           <span v-if="!casLogin" class="links__split"> | </span>
         </div>
       </template>
@@ -216,6 +216,14 @@ export default class extends Mixins(DashboardMixin) {
 
   get groupListIndex() {
     return GroupModule.groupListIndex
+  }
+
+  get documentApiUrl() {
+    if (UserModule.tags && UserModule.tags.privateUser) {
+      return '/document/api'
+    } else {
+      return 'https://vaas.ctyun.cn/document/api/'
+    }
   }
 
   private toggleSideBar() {
