@@ -78,7 +78,7 @@
           </template>
           <el-switch v-model="form.mask" />
         </el-form-item>
-        <el-form-item v-if="false">
+        <el-form-item>
           <template slot="label">
             是否启用业务组聚合:
             <el-popover
@@ -95,7 +95,7 @@
           </template>
           <el-switch v-model="form.groupByGroupId" />
         </el-form-item>
-        <el-form-item v-if="false">
+        <el-form-item>
           <template slot="label">
             是否启用相邻点聚合:
             <el-popover
@@ -112,7 +112,7 @@
           </template>
           <el-switch v-model="form.groupByAdjacent" />
         </el-form-item>
-        <el-form-item v-if="false">
+        <el-form-item>
           <template slot="label">
             监控点默认颜色:
             <el-popover
