@@ -39,8 +39,9 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getDeviceStates() {
     const res = await getDeviceStates(null)
-    const sum = Math.max(parseInt(res.sum), parseInt(res.online))
-    const online = Math.min(parseInt(res.sum), parseInt(res.online))
+    const data = res.video
+    const sum = Math.max(parseInt(data.sum), parseInt(data.online))
+    const online = Math.min(parseInt(data.sum), parseInt(data.online))
     const offline = sum - online
     console.log(sum)
     const percent = sum === 0 ? 0 : Math.round(online / sum * 100)
