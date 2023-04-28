@@ -94,7 +94,7 @@ export const describeShareDirs = (params: any): Promise<any> =>
     params
   })
 
-  /**
+/**
  * 共享设备目录查询
  */
 export const describeShareDirsV1 = (params: any): Promise<any> =>
@@ -137,7 +137,7 @@ export const shareDevice = (params: any): Promise<any> =>
     data: params
   })
 
-  /**
+/**
  * 共享设备
  */
 export const shareDeviceV1 = (params: any): Promise<any> =>
@@ -157,7 +157,7 @@ export const cancleShareDevice = (params: any): Promise<any> =>
     data: params
   })
 
-  /**
+/**
  * 取消共享设备
  */
 export const cancleShareDeviceV1 = (params: any): Promise<any> =>
@@ -204,7 +204,6 @@ export const startShareDeviceV1 = (params: any): Promise<any> =>
     params
   })
 
-
 /**
  * 停止级联
  */
@@ -233,8 +232,8 @@ export const createCascadeDir = (params: any): Promise<any> =>
 export const deleteCascadeDir = (params: any): Promise<any> =>
   request({
     url: '/cascadeDir/delete',
-    method: 'post',
-    data: params
+    method: 'get',
+    params
   })
 
 export const modifyCascadeDir = (params: any): Promise<any> =>
