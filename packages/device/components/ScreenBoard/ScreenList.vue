@@ -2,7 +2,7 @@
   <div class="screen-list">
     <div v-if="currentScreen.deviceId">
       <div class="device-name">
-        设备名称：{{ currentScreen.deviceName }}
+        设备名称：{{ currentScreen.deviceName || query.deviceName }}
       </div>
       <div class="replay-time-list">
         <el-table
@@ -158,6 +158,10 @@ export default class extends Vue {
 
   private get isLoading() {
     return this.currentScreen.isLoading
+  }
+
+  private get query() {
+    return this.$route.query
   }
 
   /**

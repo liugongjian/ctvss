@@ -60,7 +60,7 @@
           </template>
           <el-switch v-model="form.marker" />
         </el-form-item>
-        <el-form-item label="启用蒙版">
+        <el-form-item>
           <template slot="label">
             是否启用蒙版:
             <el-popover
@@ -78,6 +78,57 @@
           </template>
           <el-switch v-model="form.mask" />
         </el-form-item>
+        <el-form-item v-if="false">
+          <template slot="label">
+            是否启用业务组聚合:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+            >
+              <div>
+                <p>当地图缩放比例小于15(1:200m)时，会根据设备所在的业务组进行聚合</p>
+              </div>
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.groupByGroupId" />
+        </el-form-item>
+        <el-form-item v-if="false">
+          <template slot="label">
+            是否启用相邻点聚合:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+            >
+              <div>
+                <p>对相邻的监控点位进行聚合</p>
+              </div>
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.groupByAdjacent" />
+        </el-form-item>
+        <el-form-item v-if="false">
+          <template slot="label">
+            监控点默认颜色:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+            >
+              <div>
+                <p>仅对新增的监控点位有效</p>
+              </div>
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-color-picker v-model="form.defaultDeviceColor" />
+        </el-form-item>
       </template>
       <el-form-item>
         <el-button type="primary" @click="submit">保存</el-button>
@@ -91,6 +142,7 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { validateIsLng, validateIsLat } from './utils/validate'
 import { createMap, modifyMap } from '@/api/map'
+import settings from './settings'
 
 @Component({
   name: 'MapConfig'
@@ -135,7 +187,10 @@ export default class MapConfig extends Vue {
     mask: false, // 是否启用蒙版
     eagle: false, // 是否启用鹰眼
     dimension: false, // 是否启用3D
-    marker: false // 是否显示点位
+    marker: false, // 是否显示点位
+    groupByGroupId: false, // 是否启用业务组聚合
+    groupByAdjacent: true, // 是否启用相邻点聚合
+    defaultDeviceColor: settings.defaultDeviceColor // 点位默认颜色
   }
   private get zoomDesc() {
     const map = {
@@ -219,7 +274,10 @@ export default class MapConfig extends Vue {
           mask: this.form.mask ? 'Y' : 'N',
           eagle: this.form.eagle ? 'Y' : 'N',
           dimension: this.form.dimension ? 'Y' : 'N',
-          marker: this.form.marker ? 'Y' : 'N'
+          marker: this.form.marker ? 'Y' : 'N',
+          groupByGroupId: this.form.groupByGroupId ? 'Y' : 'N',
+          groupByAdjacent: this.form.groupByAdjacent ? 'Y' : 'N',
+          defaultDeviceColor: this.form.defaultDeviceColor || settings.defaultDeviceColor
         }
         if (this.form.status === 'add') {
           const res = await createMap(map)

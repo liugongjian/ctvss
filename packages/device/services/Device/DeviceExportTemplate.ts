@@ -754,9 +754,10 @@ class ExportExcelTemplate {
 
   // 动态校验 formulae值 转换处理
   public joinDropdownlist = (data: any, name: string) => {
-    console.log([`${name}Sheet!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`])
-    return data.length ? [`${name}Sheet!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`] : ['""']
-    // return data.length ? '"' + data.join(',') + '"' : '""'
+    const DEFAULT_LENGTH = 25
+    const multiple = Math.ceil(data?.length / DEFAULT_LENGTH)
+    const repeatA = 'A'.repeat(multiple > 1 ? multiple - 1 : 0)
+    return data.length ? [`'${name}Sheet'!$${repeatA}${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`] : ['""']
   }
 
   // 调接口获取下拉数据 --- start ---
@@ -819,11 +820,10 @@ class ExportExcelTemplate {
       const res = await getGa1400CertificateList({
         pageSize: 1000
       })
-      const gbAccountList = res?.data?.map((item: any)=>{
+      const gbAccountList = res?.data?.map((item: any) => {
         return item.username
       })
       this.options.gbAccountList = gbAccountList
-
     } catch (e) {
       console.error(e)
     }
@@ -843,19 +843,6 @@ class ExportExcelTemplate {
     //     this.availableChannels.push(`D${i}`)
     //   }
     // }
-
-    // 生成额外sheet存储动态选项  
-    for (const key in this.options) {
-      if (this.options[key].length) {
-        const sheet = this.workbook.addWorksheet(`${key}Sheet`)
-        // sheet.columns = [
-        //   { header: key, key, width: 20 }
-        // ]
-        sheet.addRow(this.options[key])
-        // const col = sheet.getColumn(key)
-        sheet.state = 'hidden'
-      }
-    }
   }
   // 调接口获取下拉数据 --- end ---
 
@@ -870,13 +857,13 @@ class ExportExcelTemplate {
 
     await this.getIndustry()
 
+    await this.getOptions()
+
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
     const excelName = this.excelName || '设备模板'
 
     this.workbook = new ExcelJS.Workbook()
     this.workbook.views = this.excelViews
-
-    await this.getOptions() // todo 待完善
 
     this.excelTemplateSheet.forEach((item: any) => {
       const worksheet: any = this.workbook.addWorksheet('My Sheet')
@@ -923,6 +910,21 @@ class ExportExcelTemplate {
     worksheetExplain.getCell('E6').value = this.excelExplain
     // 让文字换行
     worksheetExplain.getCell('E6').alignment = { wrapText: true }
+
+    // 生成额外sheet存储动态选项
+    for (const key in this.options) {
+      if (this.options[key].length) {
+        const sheet = this.workbook.addWorksheet(`${key}Sheet`, {
+          properties: {
+            state: 'veryHidden'
+          },
+          state: 'hidden'
+        })
+
+        // sheet.state = 'hidden'
+        sheet.addRow(this.options[key])
+      }
+    }
 
     const buffer = await this.workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/xlsx' })

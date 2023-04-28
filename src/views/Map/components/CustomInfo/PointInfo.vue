@@ -51,6 +51,7 @@ import StatusBadge from '@vss/base/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
+  @Prop()private mapOption: any
   @Prop() private isAdd: boolean
   @Prop()
   private isEdit: boolean
@@ -63,7 +64,7 @@ export default class extends Vue {
   private RecordStatus = RecordStatus
 
   get markerInfo() {
-    this.color = MapModule.markerInfo.appearance.color || '#FA8334'
+    this.color = MapModule.markerInfo.appearance.color || this.mapOption.defaultDeviceColor
     return MapModule.markerInfo
   }
 
@@ -84,7 +85,7 @@ export default class extends Vue {
 
   change() {
     const checklnglat = validateIsLng(this.markerInfo.longitude) && validateIsLat(this.markerInfo.latitude)
-    if (this.markerInfo.longitude || this.markerInfo.latitude) {
+    if (this.markerInfo.longitude === '0' || this.markerInfo.latitude === '0') {
       this.$alertError('经纬度不可为0')
     } else if (checklnglat) {
       this.$emit('change', { type: 'marker', info: this.markerInfo })

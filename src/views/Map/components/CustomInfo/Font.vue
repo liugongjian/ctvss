@@ -39,8 +39,8 @@
           <el-input v-model="fontInfo.appearance.fontSize" @change="change" />
         </div>
         <div class="map-point-base-info__textInfo">
-          <span class="map-point-base-info__font-weight map-point-base-info__font" :class="{active: fontInfo.appearance.bolder}" @click="changeStyle('bolder')">B</span>
-          <span class="map-point-base-info__font-style map-point-base-info__font" :class="{active: fontInfo.appearance.italic}" @click="changeStyle('italic')">I</span>
+          <span class="map-point-base-info__font-weight map-point-base-info__font" :class="{ active: fontInfo.appearance.bolder }" @click="changeStyle('bolder')">B</span>
+          <span class="map-point-base-info__font-style map-point-base-info__font" :class="{ active: fontInfo.appearance.italic }" @click="changeStyle('italic')">I</span>
         </div>
       </el-descriptions-item>
     </el-descriptions>
@@ -50,7 +50,7 @@
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { MapModule } from '@/store/modules/map'
-import { validateIsLat, validateIsLng, validateNum } from '@/views/Map/utils/validate'
+import { validateIsLat, validateIsLng, validateNum } from '../../utils/validate'
 
 @Component({
   name: 'FontInfo'
