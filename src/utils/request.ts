@@ -90,7 +90,7 @@ function responseHandler(response: AxiosResponse) {
     let resData: AxiosResponse
     // 过滤 导出接口 返回
     const ifExport = (config: any)=>{ return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice') }
-    if (ifExport(response.config)){
+    if ( UserModule.version === 2 && ifExport(response.config) ){
       resData = response
     } else {
       resData = UserModule.version === 2 ? response.data.data : response.data

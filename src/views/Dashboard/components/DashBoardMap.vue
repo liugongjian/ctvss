@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getDeviceDirInfo } from '@/api/dashboard'
+// import { getDeviceDirInfo } from '@/api/dashboard'
 import { DirInfo } from '@/type/DirInfo'
 // import { cityMapping } from '@/assets/region/cities'
 declare let AMap: any
@@ -105,7 +105,7 @@ export default class extends Vue {
       // this.setCenter()
     }
 
-    await this.getDirInfo()
+    // await this.getDirInfo()
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.src =
@@ -113,14 +113,14 @@ export default class extends Vue {
     document.head.appendChild(script)
   }
 
-  private async getDirInfo() {
-    try {
-      const res = await getDeviceDirInfo({})
-      this.dirList = res.dirs
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
+  // private async getDirInfo() {
+  //   try {
+  //     const res = await getDeviceDirInfo({})
+  //     this.dirList = res.dirs
+  //   } catch (e) {
+  //     this.$message.error(e && e.message)
+  //   }
+  // }
 
   // private async setCenter() {
   //   const cityCode: any = this.$store.state.user.mainUserAddress

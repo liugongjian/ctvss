@@ -67,7 +67,7 @@ const editDevice = function (state, id, type) {
       type
     },
     params: {
-      isEdit: 'true',
+      isEdit: 'true'
     }
   })
 }
@@ -90,14 +90,14 @@ const deleteDevice = function (state, data?, inProtocol?: string) {
         h(
           'div',
           { class: 'batch-list' },
-          data.map(device => {
+          data.map((device) => {
             return h('p', undefined, [h('span', { class: 'device-name' }, device[DeviceEnum.DeviceName])])
           })
         )
       ]),
       method: () => {
         return Promise.all(
-          data.map(device => {
+          data.map((device) => {
             return deleteDeviceApi({
               [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId],
               [DeviceEnum.ParentDeviceId]: device[DeviceEnum.ParentDeviceId]
@@ -133,8 +133,8 @@ const deleteDevice = function (state, data?, inProtocol?: string) {
         // if (inProtocol && data[DeviceEnum.InProtocol].length < 2) {
         //   state.handleTools(ToolsEnum.GoBack, 1)
         // } else {
-          state.handleTools(ToolsEnum.RefreshDirectory)
-          state.handleTools(ToolsEnum.RefreshRouterView)
+        state.handleTools(ToolsEnum.RefreshDirectory)
+        state.handleTools(ToolsEnum.RefreshRouterView)
         // }
       }
     })
@@ -173,7 +173,7 @@ const syncDevice = function (state, id) {
       state.handleTools(ToolsEnum.RefreshDirectory)
       state.pollingTimes = 1
     })
-    .catch(e => {
+    .catch((e) => {
       state.pollingTimes = 1
       state.$message.error(e && e.message)
     })
@@ -194,7 +194,7 @@ const statusPolling = function (state, param: any) {
   }
   return new Promise((resolve, reject) => {
     syncStatusPolling(param)
-      .then(res => {
+      .then((res) => {
         if (res.syncStatus === true) {
           setTimeout(() => {
             resolve(this.statusPolling(state, param))
@@ -203,7 +203,7 @@ const statusPolling = function (state, param: any) {
           resolve(res)
         }
       })
-      .catch(err => reject(err))
+      .catch((err) => reject(err))
   })
 }
 
@@ -213,7 +213,7 @@ const statusPolling = function (state, param: any) {
 const syncDeviceStatus = async function (getVueComponent, id, type) {
   const state = getVueComponent()
   let deviceIdAndTypes = []
-  
+
   console.log(state.deviceList)
   if (type === DeviceTypeEnum.Nvr) {
     deviceIdAndTypes.push({
@@ -221,14 +221,14 @@ const syncDeviceStatus = async function (getVueComponent, id, type) {
       [DeviceEnum.DeviceType]: type
     })
   } else if (type === DeviceTypeEnum.Platform) {
-    deviceIdAndTypes = state.deviceList.map(device => {
+    deviceIdAndTypes = state.deviceList.map((device) => {
       return {
         [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId],
         [DeviceEnum.DeviceType]: 'platform,' + device[DeviceEnum.DeviceType]
       }
     })
   } else {
-    deviceIdAndTypes = state.deviceList.map(device => {
+    deviceIdAndTypes = state.deviceList.map((device) => {
       return {
         [DeviceEnum.DeviceId]: device[DeviceEnum.DeviceId],
         [DeviceEnum.DeviceType]: device[DeviceEnum.DeviceType]
@@ -285,7 +285,7 @@ const exportDeviceExcel = async function (state, policy, data) {
 const exportDeviceFile = async function (state, data: any) {
   try {
     let res: any = {}
-    if (data.command === 'all'){
+    if (data.command === 'all') {
       const param: any = {
         sortBy: '',
         sortDirection: 'desc',
@@ -294,12 +294,12 @@ const exportDeviceFile = async function (state, data: any) {
       }
       const { query } = state.$route
 
-       if (query.type === 'nvr'){
+      if (query.type === 'nvr') {
         param.parentDeviceId = data.currentDirId
       } else {
         param.dirId = query.dirId
       }
-      
+
       res = await exportDeviceAll(param)
       // console.log('res----->',res)
       // ExportExcelTemplate.downloadFileWithBlob('设备表格', res)
@@ -310,7 +310,7 @@ const exportDeviceFile = async function (state, data: any) {
       } else if (data.policy === ToolsEnum.ExportSelected) {
         deviceArr = data.selectedDeviceList
       }
-      const deviceIds = deviceArr.map((device: any) =>  device[DeviceEnum.DeviceId]  )
+      const deviceIds = deviceArr.map((device: any) => device[DeviceEnum.DeviceId])
       const param = {
         deviceIds: deviceIds.join(',')
       }
@@ -318,11 +318,15 @@ const exportDeviceFile = async function (state, data: any) {
       res = await exportDeviceOption(param)
     }
     // ExportExcelTemplate.downloadFileWithBlob('设备表格', res.exportFile)
-    ExportExcelTemplate.downloadFileWithBlob('设备表格', res)
+
+    if (res.exportFile) {
+      ExportExcelTemplate.downloadFileUrl('设备表格', res.exportFile)
+    } else {
+      ExportExcelTemplate.downloadFileWithBlob('设备表格', res)
+    }
   } catch (error) {
     console.log(error)
   }
-
 }
 
 /**
@@ -330,12 +334,12 @@ const exportDeviceFile = async function (state, data: any) {
  * @param state.$router 路由
  * @param dirId 目录id
  */
- const configureChannels = function (state, data) {
+const configureChannels = function (state, data) {
   state.$router.push({
     name: 'ConfigureChannels',
     query: {
       ...state.$route.query,
-      channelNumList: data.length ? data.map(item => item.deviceChannelNum).join(',') : ''
+      channelNumList: data.length ? data.map((item) => item.deviceChannelNum).join(',') : ''
     }
   })
 }
@@ -369,7 +373,7 @@ const exportTemplate = function (state) {
   // let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
   // this.exelType = 'template'
   // this.exelDeviceType = currentInProtocal
-  // this.exelName = `${currentInProtocal}导入模板` 
+  // this.exelName = `${currentInProtocal}导入模板`
   // this.regionName = this.groupData?.regionName || ''
   // this.excelGroupDate = this.groupData
   // if (this.isNVR) {
@@ -389,7 +393,7 @@ const startOrStopDevice = async function (state, type, data?) {
   const methodStr = type === ToolsEnum.StartDevice ? '启用' : '停用'
   if (data instanceof Array) {
     // 批量操作
-    const deviceList = data.filter(device => {
+    const deviceList = data.filter((device) => {
       return device[DeviceEnum.DeviceType] === DeviceTypeEnum.Ipc
     })
     const h: Function = state.$createElement
@@ -400,7 +404,7 @@ const startOrStopDevice = async function (state, type, data?) {
           h(
             'div',
             { class: 'batch-list' },
-            deviceList.map(device => {
+            deviceList.map((device) => {
               return h('p', undefined, [h('span', { class: 'device-name' }, device.deviceName)])
             })
           )
@@ -414,7 +418,7 @@ const startOrStopDevice = async function (state, type, data?) {
             instance.confirmButtonText = '...'
             try {
               await Promise.all(
-                deviceList.map(device => {
+                deviceList.map((device) => {
                   return method({
                     [DeviceEnum.DeviceId]: device.deviceId
                   })
@@ -437,7 +441,7 @@ const startOrStopDevice = async function (state, type, data?) {
         state.handleTools(ToolsEnum.RefreshDirectory)
         state.handleTools(ToolsEnum.RefreshRouterView, 5)
       })
-      .catch(e => {
+      .catch((e) => {
         if (e === 'cancel' || e === 'close') return
         state.$message.error(e && e.message)
       })
@@ -533,11 +537,8 @@ const closeListDialog = function (state, type: string, isfresh: any) {
  * @param getVueComponent 获取Vue实例函数
  * @param level 返回层级数（0/1/2...）
  */
-const goBack = function (
-  getVueComponent: any,
-  level: number
-) {
-  const state: { breadcrumb: any; handleTreeNode: any, $router: any, $route: any } = getVueComponent()
+const goBack = function (getVueComponent: any, level: number) {
+  const state: { breadcrumb: any; handleTreeNode: any; $router: any; $route: any } = getVueComponent()
   const pathList = state.breadcrumb.pathList || []
   // 取当前path的向上level级/根目录
   const target = pathList[pathList.length - 1 - level] || { id: '' }

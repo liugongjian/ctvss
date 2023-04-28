@@ -10,11 +10,11 @@ import { ResourceAiType } from '@/dics'
 export default class ExcelMixin extends Vue {
   private workbook = null
   public resourceAiType: any = ResourceAiType
-  public exelType: string = ''
+  public exelType = ''
   public exelDeviceType: any = ''
   public exportData: any = []
-  public exelName: string = ''
-  public parentDeviceId: string = ''
+  public exelName = ''
+  public parentDeviceId = ''
   public excelInProtocol: any = ''
   public excelViews: any = [
     {
@@ -751,6 +751,7 @@ export default class ExcelMixin extends Vue {
       dirId: data.dirId.toString(),
       parentDeviceId: data.parentDeviceId
     }
+    let res: any = {}
     // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
     try {
       if (data.command === 'all') {
@@ -762,11 +763,12 @@ export default class ExcelMixin extends Vue {
         params.searchKey = query.searchKey || undefined
         params.pageSize = 5000
         params.pageNum = 1
-        var res = await exportDeviceAll(params)
+        res = await exportDeviceAll(params)
       } else if (data.command === 'selected') {
         params.deviceIds = data.deviceIds
         res = await exportDeviceOption(params)
       }
+      console.log('v1---->', res)
       this.downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
     } catch (e) {
       console.log(e)
