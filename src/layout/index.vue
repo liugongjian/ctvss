@@ -12,7 +12,7 @@
     <div
       class="main-container"
     >
-      <div :class="{'fixed-header': fixedHeader}">
+      <div :class="{ 'fixed-header': fixedHeader }">
         <navbar />
       </div>
       <app-main />

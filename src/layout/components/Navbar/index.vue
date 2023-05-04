@@ -145,7 +145,6 @@ import { getDevice } from '@/api/device'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
-import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import { AlertType } from '@/dics'
 import * as loginService from '@/services/loginService'
@@ -166,7 +165,6 @@ import { removeLocalStorage } from '@/utils/storage'
     Breadcrumb,
     ErrorLog,
     Hamburger,
-    Screenfull,
     SizeSelect,
     TemplateBind
   },
