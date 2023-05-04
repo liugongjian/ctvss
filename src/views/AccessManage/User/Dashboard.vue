@@ -170,8 +170,8 @@ export default class extends Mixins(DashboardMixin) {
   private userLoginLink: any = ''
   private mainUserID: any = ''
 
-  private ifShowAccess: boolean = false
-  private ifShowPasswordDialog: boolean = false
+  private ifShowAccess = false
+  private ifShowPasswordDialog = false
   private tagsObj: any = {}
 
   private pwdReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.@$!%*#_~?&^])[A-Za-z0-9.@$!%*#_~?&^]{8,20}$/

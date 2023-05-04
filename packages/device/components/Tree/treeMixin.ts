@@ -113,6 +113,8 @@ export default class TreeMixin extends Vue {
 
     // 子账号-获取权限数据
     if (UserModule.iamUserId) {
+      console.log('UserModule.iamUserId: ', UserModule.iamUserId)
+      console.log('nodeData: ', nodeData)
       // 构造全路径
       nodeData.forEach((item: any) => {
         if (!item.path) {
@@ -124,7 +126,7 @@ export default class TreeMixin extends Vue {
           } else {
             item.path = node.data.path.concat([{
               id: item.id,
-              type: item.type 
+              type: item.type
             }])
           }
         }
@@ -254,7 +256,7 @@ export default class TreeMixin extends Vue {
    * 判断是否显示form-item
    */
   public checkVisible(type, prop, permission?, data?) {
-    return checkTreeToolsVisible(type, prop, data) && checkPermission(permission)
+    return checkTreeToolsVisible(type, prop, data) && checkPermission(permission, data)
   }
 
   /**

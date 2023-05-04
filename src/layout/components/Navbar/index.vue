@@ -8,7 +8,32 @@
       @toggleClick="toggleSideBar"
     />
     <el-select
-      v-if="hasGroupSelector"
+      v-if="hasCustomTreeSelector"
+      v-model="groupId"
+      class="filter-group multi-group-selector"
+      filterable
+      placeholder="请选择业务组或自定义目录树"
+      @visible-change="visibleChange"
+      @change="changeGroup"
+    >
+      <el-option-group
+        v-for="(group, index) in multiGroupList"
+        :key="index"
+        :label="group.label"
+      >
+        <el-option
+          v-for="(item, itemIndex) in group.options"
+          :key="itemIndex"
+          :label="item.groupName"
+          :value="item.groupId"
+        >
+          <span class="filter-group__label">{{ item.groupName }}</span>
+          <span class="filter-group__in">{{ item.inProtocol }}</span>
+        </el-option>
+      </el-option-group>
+    </el-select>
+    <el-select
+      v-if="!hasCustomTreeSelector && hasGroupSelector"
       v-model="groupId"
       v-el-select-loadmore="loadmore"
       class="filter-group"
@@ -54,14 +79,14 @@
       </template> -->
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
-          <a :class="{ 'actived': !queryAlertType }" @click="routeToHome()">可视化大屏</a>
+          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
           <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
              -->
-          <template v-if="checkPermission(['DescribeAi'])">
-            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{ width: `${item.name.length * 16 + 56}px` }">
+          <template v-if="checkPermission(['ivs:GetApp'])">
+            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
               {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
-              <ul class="dropdown__menu" :style="{ width: `${item.name.length * 16 + 56}px` }">
+              <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
                 <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
                     {{ alertType[aiType] }}
                   </li> -->
@@ -94,7 +119,7 @@
           </div>
         </div> -->
         <div :class="['links', casLogin ? 'ct-login' : '']">
-          <a target="_blank" :href="documentApiUrl">API文档</a>
+          <a target="_blank" href="https://vaas.ctyun.cn/document/api/">API文档</a>
           <span v-if="!casLogin" class="links__split"> | </span>
         </div>
       </template>
@@ -120,6 +145,8 @@ import { getDevice } from '@/api/device'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
+import HeaderSearch from '@/components/HeaderSearch/index.vue'
+import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import { AlertType } from '@/dics'
 import * as loginService from '@/services/loginService'
@@ -132,6 +159,7 @@ import { AiGroups } from '@/views/Dashboard/helper/aiGroups'
 import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
 import { trim } from 'lodash'
 import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { removeLocalStorage } from '@/utils/storage'
 
 @Component({
   name: 'Navbar',
@@ -139,6 +167,8 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
     Breadcrumb,
     ErrorLog,
     Hamburger,
+    HeaderSearch,
+    Screenfull,
     SizeSelect,
     TemplateBind
   },
@@ -169,6 +199,7 @@ export default class extends Mixins(DashboardMixin) {
   public searchForm = {
     deviceId: ''
   }
+
   public groupId: string | null = null
   public loading = {
     group: false
@@ -206,8 +237,29 @@ export default class extends Mixins(DashboardMixin) {
     return this.$route.meta.groupSelector
   }
 
+  get hasCustomTreeSelector() {
+    return this.$route.meta.customTreeSelector
+  }
+
   get groupList() {
     return GroupModule.groups || []
+  }
+
+  get customTreeList() {
+    return GroupModule.customTrees || []
+  }
+
+  get multiGroupList() {
+    return [
+      {
+        label: '设备业务组',
+        options: this.groupList
+      },
+      {
+        label: '自定义目录树',
+        options: this.customTreeList
+      }
+    ]
   }
 
   set groupListIndex(val: number) {
@@ -216,14 +268,6 @@ export default class extends Mixins(DashboardMixin) {
 
   get groupListIndex() {
     return GroupModule.groupListIndex
-  }
-
-  get documentApiUrl() {
-    if (UserModule.tags && UserModule.tags.privateUser) {
-      return '/document/api'
-    } else {
-      return 'https://vaas.ctyun.cn/document/api/'
-    }
   }
 
   private toggleSideBar() {
@@ -254,14 +298,32 @@ export default class extends Mixins(DashboardMixin) {
     return this.$route.query.isLight
   }
 
+  private get liuzhouFlag() {
+    return true
+  }
+
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string) {
     this.groupId = groupId
+    removeLocalStorage('liveScreenCache')
+    removeLocalStorage('replayScreenCache')
+  }
+
+  @Watch('hasCustomTreeSelector')
+  private onHasCustomTreeSelectorChange(hasCustomTreeSelector: boolean) {
+    let currentGroup
+    if (hasCustomTreeSelector) {
+      currentGroup = [...this.groupList, ...this.customTreeList].find((group: Group) => group.groupId === this.groupId)
+    } else {
+      currentGroup = [...this.groupList].find((group: Group) => group.groupId === this.groupId)
+    }
+    GroupModule.SetGroup(currentGroup || this.groupList[0])
   }
 
   private async mounted() {
-    
-    if (UserModule.version !== 2) {
+    if (this.liuzhouFlag) {
+      GroupModule.GetMultiGroupList()
+    } else {
       GroupModule.GetGroupList()
     }
     this.aiInfos = await this.getAiApps()
@@ -287,9 +349,13 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
-    // 当条目数为20倍数时不需要首次加载
-    if (this.groupList.length % 20 !== 0) {
-      val && GroupModule.GetGroupList()
+    if (this.liuzhouFlag) {
+      GroupModule.GetMultiGroupList()
+    } else {
+      // 当条目数为20倍数时不需要首次加载
+      if (this.groupList.length % 20 !== 0) {
+        val && GroupModule.GetGroupList()
+      }
     }
   }
 
@@ -315,7 +381,7 @@ export default class extends Mixins(DashboardMixin) {
    * 切换业务组
    */
   public async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    const currentGroup = [...this.groupList, ...this.customTreeList].find((group: Group) => group.groupId === this.groupId)
     await GroupModule.SetGroup(currentGroup)
   }
 
@@ -386,6 +452,15 @@ export default class extends Mixins(DashboardMixin) {
 </script>
 
 <style lang="scss" scoped>
+// multiGroupSelector 样式
+.multi-group-selector {
+  ::v-deep {
+    .el-select-group__wrap {
+      display: none !important;
+    }
+  }
+}
+
 .navbar {
   position: relative;
   z-index: 50;
