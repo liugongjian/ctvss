@@ -210,6 +210,7 @@ export const v1Router: RouteConfig[] = [
       perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       alwaysShow: false,
       groupSelector: true,
+      customTreeSelector: true,
       version: 1
     },
     children: [
@@ -223,7 +224,8 @@ export const v1Router: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
           activeMenu: '/screen',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]
@@ -273,6 +275,7 @@ export const v1Router: RouteConfig[] = [
       perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
       alwaysShow: false,
       groupSelector: true,
+      customTreeSelector: true,
       version: 1
     },
     children: [
@@ -286,7 +289,8 @@ export const v1Router: RouteConfig[] = [
           breadcrumb: false,
           perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
           activeMenu: '/replay',
-          groupSelector: true
+          groupSelector: true,
+          customTreeSelector: true
         }
       }
     ]
