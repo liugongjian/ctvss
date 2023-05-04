@@ -2,16 +2,21 @@
  * 权限策略
  */
 export enum PolicyEnum {
-  DescribeGroup = 'DescribeGroup',
-  AdminGroup = 'AdminGroup',
-  AdminDevice = 'AdminDevice',
-  DescribeDevice = 'DescribeDevice',
-  ScreenPreview = 'ScreenPreview',
-  ReplayRecord = 'ReplayRecord',
-  AdminRecord = 'AdminRecord',
-  DescribeAi = 'DescribeAi',
-  AdminAi = 'AdminAi',
-  DescribeMap = 'DescribeMap',
-  DescribeDashboard = 'DescribeDashboard',
-  AdminCar = 'AdminCar'
+  GetDevice = 'ivs:GetDevice',
+  DeleteDevice = 'ivs:DeleteDevice',
+  UpdateDevice = 'ivs:UpdateDevice',
+  CreateDevice = 'ivs:CreateDevice',
+  GetLiveStream = 'ivs:GetLiveStream',
+  ControlDevicePTZ = 'ivs:ControlDevicePTZ',
+  LockDevicePTZ = 'ivs:LockDevicePTZ',
+  ControlDevicePreset = 'ivs:ControlDevicePreset',
+  GetCloudRecord = 'ivs:GetCloudRecord',
+  GetDeviceRecord = 'ivs:GetDeviceRecord',
+  DownloadCloudRecord = 'ivs:DownloadCloudRecord',
+  LockCloudRecord = 'ivs:LockCloudRecord',
+  GetApp = 'ivs:GetApp',
+  AdminApp = 'ivs:AdminApp',
+  GetMap = 'ivs:GetMap',
+  GetDashboard = 'ivs:GetDashboard',
+  AdminCar = 'ivs:AdminCar'
 }

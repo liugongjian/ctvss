@@ -221,7 +221,7 @@ export const iboxRouter = {
   meta: {
     title: 'ibox',
     icon: 'menu-live',
-    perms: ['DescribeDevice'],
+    perms: ['ivs:GetDevice'],
     alwaysShow: false
   },
   children: [
@@ -234,7 +234,7 @@ export const iboxRouter = {
         icon: 'menu-device',
         breadcrumb: false,
         alwaysShow: false,
-        perms: ['DescribeDevice'],
+        perms: ['ivs:GetDevice'],
         groupSelector: true
       }
     },
@@ -248,7 +248,7 @@ export const iboxRouter = {
         breadcrumb: false,
         alwaysShow: false,
         hidden: true,
-        perms: ['DescribeDevice'],
+        perms: ['ivs:GetDevice'],
         groupSelector: true
       },
       children: [
@@ -261,7 +261,7 @@ export const iboxRouter = {
           },
           meta: {
             title: '设备列表',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
             groupSelector: true
           }
@@ -272,7 +272,7 @@ export const iboxRouter = {
           name: 'IboxDeviceDetail',
           meta: {
             title: '设备详情',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
             groupSelector: true
           },
@@ -288,7 +288,7 @@ export const iboxRouter = {
               meta: {
                 title: '基本信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -300,7 +300,7 @@ export const iboxRouter = {
               meta: {
                 title: '设备/流信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -316,7 +316,7 @@ export const iboxRouter = {
               meta: {
                 title: '配置信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -328,7 +328,7 @@ export const iboxRouter = {
               meta: {
                 title: '实时预览',
                 breadcrumb: false,
-                perms: ['ScreenPreview'],
+                perms: ['ivs:GetLiveStream'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -340,7 +340,7 @@ export const iboxRouter = {
               meta: {
                 title: '录像回放',
                 breadcrumb: false,
-                perms: ['ReplayRecord'],
+                perms: ['ivs:GetCloudRecord'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -352,7 +352,7 @@ export const iboxRouter = {
               meta: {
                 title: 'AI分析',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
                 groupSelector: true
               }
@@ -369,7 +369,7 @@ export const iboxRouter = {
           },
           meta: {
             title: '创建设备',
-            perms: ['AdminDevice'],
+            perms: ['ivs:CreateDevice'],
             activeMenu: '/ibox',
             groupSelector: true
           }

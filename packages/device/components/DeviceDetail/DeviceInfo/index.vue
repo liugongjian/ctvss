@@ -5,8 +5,8 @@
         <div class="detail__title">
           设备信息
           <div class="detail__buttons">
-            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
-            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" type="text" @click="deleteDevice">删除</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice])" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.DeleteDevice])" type="text" @click="deleteDevice">删除</el-button>
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" @updateDevice="updateDevice()" />

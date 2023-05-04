@@ -39,16 +39,16 @@
       <span v-if="data.type !== deviceTypeEnum.Ipc">{{ `(${data.onlineSize}/${data.totalSize})` }}</span>
     </template>
     <template slot="itemTools" slot-scope="{ data }">
-      <el-tooltip v-if="checkVisible(data.type, toolsEnum.SortDirectory, [policyEnum.AdminDevice], data)" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+      <el-tooltip v-if="checkVisible(data.type, toolsEnum.SortDirectory, [policyEnum.UpdateDevice], data)" effect="dark" content="子目录排序" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.SortDirectory, data)"><svg-icon name="sort" /></el-button>
       </el-tooltip>
-      <el-tooltip v-if="checkVisible(data.type, toolsEnum.AddDirectory, [policyEnum.AdminDevice], data)" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+      <el-tooltip v-if="checkVisible(data.type, toolsEnum.AddDirectory, [policyEnum.UpdateDevice], data)" effect="dark" content="添加子目录" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.AddDirectory, data)"><svg-icon name="plus" /></el-button>
       </el-tooltip>
-      <el-tooltip v-if="checkVisible(data.type, toolsEnum.EditDirectory, [policyEnum.AdminDevice], data)" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+      <el-tooltip v-if="checkVisible(data.type, toolsEnum.EditDirectory, [policyEnum.UpdateDevice], data)" effect="dark" content="编辑目录" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.EditDirectory, data)"><svg-icon name="edit" /></el-button>
       </el-tooltip>
-      <el-tooltip v-if="checkVisible(data.type, toolsEnum.DeleteDirectory, [policyEnum.AdminDevice], data)" effect="dark" content="删除目录" placement="top" :open-delay="300">
+      <el-tooltip v-if="checkVisible(data.type, toolsEnum.DeleteDirectory, [policyEnum.DeleteDevice], data)" effect="dark" content="删除目录" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.DeleteDirectory, data)"><svg-icon name="trash" /></el-button>
       </el-tooltip>
     </template>

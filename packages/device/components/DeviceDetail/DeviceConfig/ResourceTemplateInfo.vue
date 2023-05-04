@@ -4,7 +4,7 @@
       资源包
       <div class="detail__buttons">
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'])"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
@@ -16,7 +16,7 @@
       <template slot="header">
         视频包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'])"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
@@ -47,7 +47,7 @@
       <template slot="header">
         AI包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'])"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.AI)"
         >
@@ -85,7 +85,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              v-if="!isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              v-if="!isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'])"
               label="操作"
               min-width="200"
             >
@@ -134,7 +134,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              v-if="isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              v-if="isNvr && !isVGroup && checkPermission(['ivs:UpdateDevice'])"
               label="操作"
               min-width="200"
             >
@@ -166,7 +166,7 @@
       <template slot="header">
         带宽包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'])"
           v-permission="['*']"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Upload)"

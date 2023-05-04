@@ -643,7 +643,7 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy1.vue'),
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
         name: 'AccessManagePolicyCreate',
         meta: {
           title: '创建策略',
@@ -655,7 +655,7 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy1.vue'),
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
         name: 'AccessManagePolicyEdit',
         meta: {
           title: '查看&编辑策略',

@@ -89,7 +89,7 @@ export default class extends Vue {
   }
 
   private get hasReplayRecord() {
-    return checkPermission(['ReplayRecord'])
+    return checkPermission(['ivs:GetCloudRecord'])
   }
 
   /**

@@ -12,15 +12,6 @@
               :is-auto-created="isAutoCreated"
               :actions="actions"
             />
-            <!-- <div class="detail__buttons">
-              <el-button @click="goSuperior">-icon name="superior" /> 返回上级</el-button>
-              <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
-              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>
-              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
-              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
-              <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
-            </div> -->
             <!-- <record-statistics
               :device-id="deviceId"
               :in-protocol="inProtocol"
@@ -102,14 +93,10 @@
                         <el-descriptions-item label="流状态">
                           <status-badge :status="info.streamStatus" />
                           {{ streamStatus[info.streamStatus] || '-' }}
-                          <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
-                          <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                         </el-descriptions-item>
                         <el-descriptions-item label="录制状态">
                           <status-badge :status="recordStatusType[info.recordStatus]" />
                           {{ recordStatus[info.recordStatus] || '-' }}
-                          <!-- <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
-                          <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link> -->
                         </el-descriptions-item>
                         <el-descriptions-item label="当前码率">
                           {{ info.bitrate ? (info.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
