@@ -8,6 +8,8 @@ import PollingMask from '@vss/device/components/PollingMask.vue'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
+import { UserModule } from '@/store/modules/user'
+import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {
@@ -16,6 +18,7 @@ import { checkPermission } from '@vss/base/utils/permission'
   }
 })
 export default class LayoutMixin extends Vue {
+  public rootActions = {}
   public deviceInType: DeviceInTypeEnum
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
@@ -117,7 +120,15 @@ export default class LayoutMixin extends Vue {
     )
   }
 
-  public mounted() {
+  public async mounted() {
+    if (UserModule.iamUserId) {
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          dirPath: '0'
+        }]
+      })
+      this.rootActions = permissionRes.result[0].iamUser.actions
+    }
     DeviceManager.initAdvancedSearch(this)
   }
 

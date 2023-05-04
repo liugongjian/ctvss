@@ -2,7 +2,6 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <!-- TODO -->
         <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
           <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)">
             <svg-icon name="auto-play" />
@@ -15,7 +14,6 @@
         </el-tooltip>
       </template>
       <template slot="leftBody">
-        <!-- TODO -->
         <replay-tree
           ref="deviceTree"
           :lazy="lazy"
@@ -31,7 +29,6 @@
         />
       </template>
       <template slot="leftBottom">
-        <!-- TODO -->
         <div class="bottom-tools">
           <advanced-search
             :search-form="advancedSearchForm"
@@ -51,7 +48,6 @@
         </div>
       </template>
       <template slot="rightBody">
-        <!-- TODO -->
         <screen-board
           ref="screenBoard"
           class="screen-board"

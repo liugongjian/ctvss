@@ -2,7 +2,6 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <!-- TODO -->
         <el-tooltip effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
           <el-button type="text" @click="handleTools(toolsEnum.Polling, null, statusEnum.On)">
             <svg-icon name="polling-play" />
@@ -20,7 +19,6 @@
         </el-tooltip>
       </template>
       <template slot="leftBody">
-        <!-- TODO -->
         <preview-tree
           ref="deviceTree"
           :lazy="lazy"
@@ -36,14 +34,12 @@
         />
       </template>
       <template slot="leftBottom">
-        <!-- TODO -->
         <advanced-search
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
       </template>
       <template slot="rightBody">
-        <!-- TODO -->
         <screen-board
           ref="screenBoard"
           class="screen-board"
