@@ -3,7 +3,7 @@
     <div class="detail__title">
       告警模板信息
       <div class="detail__buttons">
-        <el-button v-if="checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="setAlertTemplate">配置</el-button>
+        <el-button v-if="checkPermission(['ivs:UpdateDevice'])" type="text" @click="setAlertTemplate">配置</el-button>
       </div>
     </div>
     <el-descriptions v-if="template" :column="2">

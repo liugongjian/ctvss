@@ -11,11 +11,11 @@
           empty-text="所选日期暂无录像"
         >
           <el-table-column label="录像名称" prop="templateName" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="checkPermission(['AdminRecord'])"
+                  v-if="checkPermission(['ivs:UpdateDevice'])"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -41,7 +41,7 @@
             </template>
           </el-table-column>
           <el-table-column label="录像截图" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-image
                 style="width: 150px; height: 100px;"
                 :src="row.cover"
@@ -66,9 +66,9 @@
             :formatter="durationFormatInTable"
           />
           <el-table-column prop="action" label="操作" width="200" fixed="right">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-button
-                v-if="checkPermission(['AdminRecord'])"
+                v-if="checkPermission(['ivs:GetCloudRecord']) && checkPermission(['ivs:DownloadCloudRecord'])"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"

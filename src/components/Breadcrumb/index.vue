@@ -47,7 +47,7 @@ export default class extends Vue {
   }
 
   get dashboardAllowed() {
-    return UserModule.perms && UserModule.perms.includes('DescribeDashboard')
+    return UserModule.perms && UserModule.perms.includes('ivs:GetDashboard')
   }
 
   created() {

@@ -2,14 +2,13 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <!-- TODO -->
-        <el-tooltip effect="dark" content="子目录排序" placement="top" :open-delay="300">
-          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.SortDirectory)">
+        <el-tooltip v-if="checkPermission([policyEnum.UpdateDevice], rootActions)" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+          <el-button type="text" @click="handleTools(toolsEnum.SortDirectory)">
             <svg-icon name="sort" />
           </el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="添加目录" placement="top" :open-delay="300">
-          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.AddDirectory)">
+        <el-tooltip v-if="checkPermission([policyEnum.UpdateDevice], rootActions)" effect="dark" content="添加目录" placement="top" :open-delay="300">
+          <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)">
             <svg-icon name="plus" />
           </el-button>
         </el-tooltip>
@@ -45,7 +44,6 @@
         />
       </template>
       <template slot="rightBody">
-        <!-- TODO -->
         <router-view />
       </template>
     </common-layout>

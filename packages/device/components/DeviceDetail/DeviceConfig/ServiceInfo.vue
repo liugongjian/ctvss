@@ -4,7 +4,7 @@
       服务配置
       <div class="detail__buttons">
         <el-button
-          v-if="checkPermission(['AdminDevice']) && configMode === configModeEnum.View"
+          v-if="checkPermission(['ivs:UpdateDevice']) && configMode === configModeEnum.View"
           type="text"
           @click="configMode = configModeEnum.Edit"
         >

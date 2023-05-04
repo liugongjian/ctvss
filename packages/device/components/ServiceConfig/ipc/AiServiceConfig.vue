@@ -71,7 +71,7 @@
             {{ row[ipcAiConfigEnum.Status] === '0' ? '停用' : '启用' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="checkPermission(['AdminDevice'])" label="操作" prop="action" width="180" fixed="right">
+        <el-table-column v-if="checkPermission(['ivs:UpdateDevice'])" label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
             <el-button
               v-if="isView && row[ipcAiConfigEnum.NeedConfig] === '1'"

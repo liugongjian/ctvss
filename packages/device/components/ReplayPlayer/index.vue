@@ -109,7 +109,7 @@ export default class extends Vue {
   }
 
   private get hasAdminRecord() {
-    return checkPermission(['AdminRecord'])
+    return checkPermission(['ivs:DownloadCloudRecord'])
   }
 
   /* 当前全屏状态 */

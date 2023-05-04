@@ -1,7 +1,7 @@
 <template>
   <div
     class="sidebar-logo-container"
-    :class="{'collapse': collapse}"
+    :class="{ 'collapse': collapse }"
   >
     <transition name="sidebarLogoFade">
       <router-link
@@ -84,14 +84,14 @@ export default class extends Vue {
       font-weight: 600;
       line-height: 50px;
       font-size: 14px;
-      font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+      font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
       vertical-align: middle;
     }
   }
 
   &.collapse {
     .sidebar-logo {
-      margin-right: 0px;
+      margin-right: 0;
     }
   }
 }

@@ -12,7 +12,7 @@
         ref="tag"
         :key="tag.path"
         :class="isActive(tag) ? 'active' : ''"
-        :to="{path: tag.path, query: tag.query, fullPath: tag.fullPath}"
+        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
         tag="span"
         class="tags-view-item"
         @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
@@ -28,7 +28,7 @@
     </scroll-pane>
     <ul
       v-show="visible"
-      :style="{left: left+'px', top: top+'px'}"
+      :style="{ left: left+'px', top: top+'px' }"
       class="contextmenu"
     >
       <li @click="refreshSelectedTag(selectedTag)">
@@ -65,9 +65,9 @@ import ScrollPane from './ScrollPane.vue'
   }
 })
 export default class extends Vue {
-  private visible: boolean = false
-  private top: number = 0
-  private left: number = 0
+  private visible = false
+  private top = 0
+  private left = 0
   private selectedTag: ITagView = {}
   private affixTags: ITagView[] = []
 
@@ -267,7 +267,7 @@ export default class extends Vue {
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 12%), 0 0 3px 0 rgba(0, 0, 0, 4%);
 
   .tags-view-wrapper {
     .tags-view-item {
@@ -297,7 +297,7 @@ export default class extends Vue {
         color: #fff;
         border-color: #42b983;
 
-        &::before {
+        &:before {
           content: '';
           background: #fff;
           display: inline-block;
@@ -322,7 +322,7 @@ export default class extends Vue {
     font-size: 12px;
     font-weight: 400;
     color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 30%);
 
     li {
       margin: 0;
