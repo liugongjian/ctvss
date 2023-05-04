@@ -324,6 +324,7 @@ import { DeviceType as DeviceTypeDic, DeviceFiltersLabel, VideoStatus, StreamSta
 import { checkPermission } from '@vss/base/utils/permission'
 import { checkDeviceToolsVisible, checkDeviceColumnsVisible, checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
 import { getDevices } from '@vss/device/api/device'
+import { previewAuthActions } from '@vss/device/api/dir'
 import { dateFormat } from '@vss/base/utils/date'
 import * as dicts from '@vss/device/dicts'
 import deviceMixin from '@vss/device/mixin/deviceMixin'
@@ -333,6 +334,7 @@ import MoveDir from '@vss/device/components/MoveDir.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
 import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 import ExportTemplateAddressVue from '@vss/device/components//ExportTemplateAddress.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DeviceList',
@@ -591,6 +593,20 @@ export default class extends Mixins(deviceMixin) {
     let res
     try {
       res = await this.getDevicesApi(params)
+      if (UserModule.iamUserId && res.devices.length) {
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: res.devices.map((device: any) => ({
+            dirPath: pathArr.join('/') || '0',
+            deviceId: device.deviceId
+          }))
+        })
+        res.devices = res.devices.map((device: any, index: number) => ({
+          ...device,
+          ...permissionRes.result[index].iamUser.actions
+        }))
+      }
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -658,7 +674,7 @@ export default class extends Mixins(deviceMixin) {
       deviceFrom: this.deviceFrom,
       isRoleShared: this.isRoleShared,
     })
-    return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions || [], row)
+    return checkDeviceToolsVisible(row.deviceType, prop, row) && checkPermission(permissions, row)
   }
 
   /**

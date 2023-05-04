@@ -6,10 +6,9 @@ import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
-import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
+import { deleteDir, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
-import { previewAuthActions } from '@/api/accessManage'
 
 @Component({
   components: {

@@ -24,7 +24,6 @@ export const checkPermission = (value: string[], data?: any): boolean => {
       return hasPermission
     })
   } else {
-    console.error('need perms! Like v-permission="[\'ivs:GetDevice\']"')
-    return false
+    return true
   }
 }
