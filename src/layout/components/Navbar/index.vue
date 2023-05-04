@@ -79,14 +79,14 @@
       </template> -->
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
-          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
+          <a :class="{ 'actived': !queryAlertType }" @click="routeToHome()">可视化大屏</a>
           <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
              -->
           <template v-if="checkPermission(['ivs:GetApp'])">
-            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
+            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{ width: `${item.name.length * 16 + 56}px` }">
               {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
-              <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
+              <ul class="dropdown__menu" :style="{ width: `${item.name.length * 16 + 56}px` }">
                 <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
                     {{ alertType[aiType] }}
                   </li> -->
@@ -145,7 +145,6 @@ import { getDevice } from '@/api/device'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
-import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import { AlertType } from '@/dics'
@@ -167,7 +166,6 @@ import { removeLocalStorage } from '@/utils/storage'
     Breadcrumb,
     ErrorLog,
     Hamburger,
-    HeaderSearch,
     Screenfull,
     SizeSelect,
     TemplateBind
