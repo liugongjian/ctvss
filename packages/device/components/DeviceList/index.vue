@@ -23,7 +23,7 @@
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.UpdateDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.CreateDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
           <el-button
             v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.UpdateDevice])"
             key="configure-channels"
@@ -593,6 +593,7 @@ export default class extends Mixins(deviceMixin) {
     let res
     try {
       res = await this.getDevicesApi(params)
+      // 列表-IAM权限查询
       if (UserModule.iamUserId && res.devices.length) {
         const path: any = this.$route.query.path
         const pathArr = path ? path.split(',') : []
