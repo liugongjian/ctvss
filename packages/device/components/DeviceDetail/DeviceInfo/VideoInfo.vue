@@ -49,6 +49,22 @@
         <copy-tip :copy-value="videoInfo.outId" />
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.EnabledGB35114) && videoInfo.enabledGB35114">
+        <template slot="label">
+          GB35114协议
+          <el-popover
+            placement="top-start"
+            title="GB35114协议"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="启用了GB35114协议，就无需添加GB28181凭证。"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        {{ videoInfo.enabledGB35114 ? '已启用' : '未启用' }}
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>

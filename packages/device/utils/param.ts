@@ -66,6 +66,11 @@ export function checkVideoVisible(
     if ([DeviceEnum.PushType as string].includes(prop)) return false
   }
 
+  // 是否为非子设备且启用GB35114
+  if (this.parentDeviceId === '-1' && this.enabledGB35114 === true) {
+    if ([DeviceEnum.InUserName as string].includes(prop)) return false
+  }
+
   // 是否自动拉流
   if (this.deviceStreamAutoPull === 2) {
     if ([DeviceEnum.DeviceStreamPullIndex as string].includes(prop)) return false
