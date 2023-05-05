@@ -46,7 +46,7 @@ export default class extends Mixins(layoutMxin) {
     createDir: false
   }
 
-  public mounted() {
+  public async mounted() {
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
