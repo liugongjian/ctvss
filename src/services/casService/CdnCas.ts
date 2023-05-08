@@ -6,7 +6,7 @@ export default class CdnCas extends BaseCas {
   static readonly TYPE = 'ctcdn'
   static readonly TYPE_CN = '天翼云-CDN+'
   static readonly CONTAINER_ID = 'iam-console-container'
-  static readonly LOGIN_URL = '/v2/cas/iamcallback'
+  static readonly LOGIN_URL = '/v1/cas/iamcallback'
   static readonly LOGOUT_URL = 'https://iam-cbip.ctcdn.cn:8843/iam/sign/out'
 
   private static instance: CdnCas
