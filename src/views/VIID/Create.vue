@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card>
+    <el-card class="form-container">
       <el-form
         ref="dataForm"
         v-loading="loading"
+        class="form"
         :rules="rules"
         :model="form"
         label-position="right"
@@ -47,6 +48,7 @@
             placeholder="请选择"
             :options="regionList"
           />
+          <el-button v-if="form.regionCode" class="append-button" type="text" @click="openList">查看级联设备列表</el-button>
         </el-form-item>
         <el-form-item label="网络类型:" prop="network">
           <el-radio-group v-model="form.network">
@@ -65,6 +67,27 @@
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
+      <div v-if="showDeviceList" v-loading="showDeviceListLoading" class="device-list">
+        <div class="device-list__wrap">
+          <div class="device-list__wrap__title">级联设备列表</div>
+          <div class="device-list__wrap__list">
+            <div
+              v-for="(item, index) in deviceList"
+              :key="index"
+              class="device-list__wrap__item"
+            >
+              <status-badge
+                :status="parseInt(item.status) ? 'on' : 'off'"
+              />
+              {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}
+            </div>
+          </div>
+        </div>
+        
+        <el-button class="device-list__close-button" type="text" @click="closeList">
+          <svg-icon name="close" />
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
@@ -94,6 +117,9 @@ export default class extends Vue {
   private cascadeViidId = ''
   private submitting = false
   private loading = false
+  private showDeviceListLoading = false
+  private showDeviceList = false
+  private deviceList = []
   private regionList = []
 
   private rules = {
@@ -163,6 +189,18 @@ export default class extends Vue {
 
   private back() {
     this.$router.push('/viid/up-platform')
+  }
+
+  private openList() {
+    this.showDeviceList = true
+    for (let i = 0; i < 1000; i++) 
+    {
+      this.deviceList.push({})
+    }
+  }
+
+  private closeList() {
+    this.showDeviceList = false
   }
 
   private submit() {
@@ -268,6 +306,58 @@ export default class extends Vue {
 
   .short-width {
     width: 200px;
+  }
+
+  .append-button {
+    margin-left: 10px;
+  }
+
+  .form-container {
+    min-width: 950px;
+
+    ::v-deep .el-card__body {
+      position: relative;
+    }
+
+    .device-list {
+      position: absolute;
+      height: 90%;
+      width: 250px;
+      top: 40px;
+      bottom: 40px;
+      left: 680px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 2px;
+
+      &__wrap {
+        width: 100%;
+        position: relative;
+
+        &__title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+
+        &__list {
+          width: 100%;
+          height: calc(100% - 30px);
+          overflow: auto;
+        }
+
+        &__item {
+          line-height: 25px;
+          white-space: nowrap;
+        }
+      }
+
+      &__close-button {
+        position: absolute;
+        right: 10px;
+        top: 0;
+      }
+    }
   }
 }
 

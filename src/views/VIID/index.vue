@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-card class="card-layout">
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加平台</el-button>
         <div class="filter-container__right">
@@ -9,7 +9,7 @@
           </el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit @row-click="viewDetails">
+      <el-table v-loading="loading" :data="dataList" fit :height="10" @row-click="viewDetails">
         <el-table-column label="平台ID/名称" min-width="200">
           <template slot-scope="{ row }">
             <div class="device-list__device-name">
@@ -193,14 +193,26 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.filter-container {
-  &__search-group {
-    margin-right: 10px;
+.card-layout {
+  ::v-deep {
+    > .el-card__body {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - $header-height - $padding-medium * 2 - 3px);
+    }
   }
 
-  &__select {
-    display: inline;
-    margin-right: 10px;
+  .filter-container {
+    &__search-group {
+      margin-right: 10px;
+    }
+
+    &__select {
+      display: inline;
+      margin-right: 10px;
+    }
   }
 }
 </style>
