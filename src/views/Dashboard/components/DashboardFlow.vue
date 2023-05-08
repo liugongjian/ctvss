@@ -2,7 +2,7 @@
   <div>
     <DashboardContainer v-if="!isLight" title="网络带宽统计">
       <template #header>
-        <el-select
+        <!-- <el-select
           v-model="userType"
           size="small"
           popper-class="dark-select"
@@ -14,13 +14,50 @@
             :label="time"
             :value="time"
           />
+        </el-select> -->
+        <el-select
+          v-model="currentPeriod"
+          size="small"
+          popper-class="dark-select"
+          @change="timeChange"
+        >
+          <el-option
+            v-for="item in periods"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <el-select
+          v-model="bandwidthChoice"
+          size="small"
+          popper-class="dark-select"
+          @change="timeChange"
+        >
+          <el-option
+            v-for="item in bandwidthList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </template>
-      <div id="flow-container" :style="`height:${height}vh`" />
+      <!-- <div id="flow-container" :style="`height:${height}vh`" /> -->
+      <line-point
+        v-if="Object.keys(lineData).length > 0"
+        :key="chartKind"
+        :chart-kind="chartKind"
+        :line-data="lineData"
+        :style="`height:${height}vh`"
+      />
     </DashboardContainer>
     <div v-else>
       <el-radio-group v-model="userType" size="small" @change="timeChange">
-        <el-radio-button v-for="(time, key) in timeList" :key="key" :label="time" />
+        <el-radio-button
+          v-for="(time, key) in timeList"
+          :key="key"
+          :label="time"
+        />
       </el-radio-group>
       <div id="flow-container" :style="`height:${height}vh`" />
     </div>
@@ -33,10 +70,14 @@ import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { getFlowData } from '@/api/dashboard'
+import LinePoint from '@/views/DosageStatistics/components/LineWithPoint.vue'
+import { format } from 'date-fns'
+import { getBandwidthHistoryStatistics } from '@/api/dosageStatistics'
+import { periods } from '@/dics/dosageStatistics'
 
 @Component({
   name: 'DashboardFlow',
-  components: { DashboardContainer }
+  components: { DashboardContainer, LinePoint }
 })
 export default class extends Mixins(DashboardMixin) {
   @Prop({ default: false })
@@ -63,12 +104,65 @@ export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   public intervalTime = 60 * 1000
 
+  private bandwidthChoice = 'upload_bandwidth'
+  private bandwidthList = [
+    {
+      value: 'upload_bandwidth',
+      label: '上行带宽'
+    },
+    {
+      value: 'download_bandwidth',
+      label: '下行带宽'
+    }
+  ]
+
+  private MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
+
+  private todayEarly = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
+
+  private lineData = {}
+  private periods = periods
+  private currentPeriod = 'today'
+
+  private timeDics = {
+    today: {
+      startTime: this.todayEarly,
+      endTime: new Date().getTime()
+    },
+    yesterday: {
+      startTime: this.todayEarly - this.MILLISECONDS_PER_DAY,
+      endTime: this.todayEarly - 1000
+    },
+    seven: {
+      startTime: this.todayEarly - 6 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
+    },
+    month: {
+      startTime: this.todayEarly - 30 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
+    }
+  }
+
+  private param = {
+    startTime: new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
+    endTime: new Date().getTime()
+  }
+
+  private chartKind = 'bandwidth'
+
   private mounted() {
     this.timeChange()
   }
   private timeChange() {
     this.destroy()
-    this.setInterval(this.getData.bind(this))
+    // this.setInterval(this.getData.bind(this))
+    const { startTime, endTime } = this.timeDics[this.currentPeriod]
+
+    this.param = {
+      startTime: startTime,
+      endTime: endTime
+    }
+    this.getBandwidthData()
   }
 
   /**
@@ -126,6 +220,71 @@ export default class extends Mixins(DashboardMixin) {
     }
   }
 
+  private async getBandwidthData() {
+    try {
+      this.ifLoading = true
+      const { startTime, endTime } = this.param
+      const param = {
+        type: this.bandwidthChoice,
+        startTime: format(startTime, 'yyyy-MM-dd'),
+        endTime: format(endTime, 'yyyy-MM-dd')
+      }
+
+      const res = await getBandwidthHistoryStatistics(param)
+      const { bwSamples } = res
+
+      const total = bwSamples.find((item) => item.type === 'total')
+      const demand = bwSamples.find((item) => item.type === 'on-demand')
+
+      const { samples: demandSamples } = demand
+      const { samples: totalSamples } = total
+
+      const totalData = totalSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: '总用量',
+          ...item
+        }
+      })
+
+      const demandData = demandSamples.map((item: any) => {
+        const time = new Date(item.timestamp * 1000)
+        return {
+          time,
+          type: '按需用量',
+          ...item
+        }
+      })
+
+      const getUnit = () => {
+        const values = [...totalData, ...demandData].map((item) => item.value)
+        const minValue = Math.min(...values)
+        if (minValue > 1024) {
+          return 'Gbps'
+        } else {
+          return 'Mbps'
+        }
+      }
+
+      this.unit = getUnit()
+
+      this.lineData = {
+        currentPeriod: this.currentPeriod,
+        comeFrom: 'bigData',
+        chartKind: this.chartKind,
+        selection: this.bandwidthChoice,
+        demandData,
+        totalData,
+        ...res
+      }
+    } catch (error) {
+      this.$message.error(error && error.message)
+    } finally {
+      this.ifLoading = false
+    }
+  }
+
   /**
    * 更新图表
    */
@@ -148,7 +307,8 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.tooltip({
       showCrosshairs: true,
       shared: true,
-      itemTpl: '<li data-index="{index}" style="margin: 12px 0"><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value} Mbps</li>'
+      itemTpl:
+        '<li data-index="{index}" style="margin: 12px 0"><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value} Mbps</li>'
     })
 
     this.chart.legend({
@@ -221,7 +381,16 @@ export default class extends Mixins(DashboardMixin) {
       alias: 'Mbps'
     })
 
-    this.chart.line().position('time*value').color('type', this.isLight ? ['#0091FF', '#FA8334'] : ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth')
+    this.chart
+      .line()
+      .position('time*value')
+      .color(
+        'type',
+        this.isLight
+          ? ['#0091FF', '#FA8334']
+          : ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']
+      )
+      .shape('smooth')
 
     // this.chart.point().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('circle')
 
@@ -242,9 +411,16 @@ export default class extends Mixins(DashboardMixin) {
     const hours = date.getHours()
     const minites = date.getMinutes()
     const seconds = date.getSeconds()
-    return [year, month, day].map(item => (item < 10 ? '0' : '') + item).join('-') + ' ' + [hours, minites, seconds].map(item => (item < 10 ? '0' : '') + item).join(':')
+    return (
+      [year, month, day]
+        .map((item) => (item < 10 ? '0' : '') + item)
+        .join('-') +
+      ' ' +
+      [hours, minites, seconds]
+        .map((item) => (item < 10 ? '0' : '') + item)
+        .join(':')
+    )
   }
 }
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
