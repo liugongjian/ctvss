@@ -6,7 +6,7 @@ export default class CtyunCas extends BaseCas {
   static readonly TYPE = 'ctyun'
   static readonly TYPE_CN = '天翼云'
   static readonly CONTAINER_ID = 'ctcloud-console'
-  static readonly LOGIN_URL = '/v2/cas/callback'
+  static readonly LOGIN_URL = '/v1/cas/callback'
   static readonly LOGOUT_URL = 'https://www.ctyun.cn/sign/out'
 
   private static instance: CtyunCas

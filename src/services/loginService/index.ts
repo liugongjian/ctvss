@@ -23,8 +23,15 @@ export const setLoginType = (loginType: string) => {
 
 function handleUrlToken() {
   const href = window.location.href
-  if (href.indexOf('token=') !== -1) {
-    const token = href.slice(href.indexOf('token=') + 'token='.length, href.lastIndexOf('#'))
+  const tokenIndex = href.indexOf('token=')
+  if (tokenIndex !== -1) {
+    const tokenContentStartIndex = tokenIndex + ('token='.length)
+    let tokenContentEndIndex = href.length
+    const lastHashIndex = href.lastIndexOf('#')
+    if (lastHashIndex > tokenContentStartIndex) {
+      tokenContentEndIndex = lastHashIndex
+    }
+    const token = href.slice(tokenContentStartIndex, tokenContentEndIndex)
     UserModule.SetToken(token)
     window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
   }
