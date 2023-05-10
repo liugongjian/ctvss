@@ -353,7 +353,7 @@ export const v2Router: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'),
         name: 'RecordVideo',
         meta: {
-          title: '录制模板',
+          title: '存储模板',
           icon: 'dot',
           perms: ['*'],
           activeMenu: '/template/record-video'
@@ -724,7 +724,7 @@ export const v2Router: RouteConfig[] = [
       icon: 'menu-alarm',
       perms: ['*'],
       alwaysShow: true,
-      groupSelector: true,
+      groupSelector: false,
       version: 2
     },
     children: [
@@ -737,7 +737,7 @@ export const v2Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: false,
           perms: ['ivs:frontend:AdminAlarm'],
-          groupSelector: true
+          groupSelector: false
         },
         children: [
           {
@@ -750,7 +750,7 @@ export const v2Router: RouteConfig[] = [
               icon: 'dot',
               perms: ['ivs:frontend:AdminAlarm'],
               activeMenu: '/operation-center/alarm',
-              groupSelector: true
+              groupSelector: false
             }
           }
         ]
