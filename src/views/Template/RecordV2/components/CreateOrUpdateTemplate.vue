@@ -531,6 +531,8 @@ export default class extends Vue {
   private validateStorageTime(rule: any, value: number, callback: Function) {
     if (value > 1095) {
       callback(new Error('存储时长输入过长，最大时长不超过1095天'))
+    } else if (value < 30) {
+      callback(new Error('存储时长输入过短，最小时长不少于30天'))
     } else {
       callback()
     }
