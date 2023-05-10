@@ -21,11 +21,18 @@
           <info-list-item v-if="checkInfoVisible(deviceEnum.DeviceTotalSize)" label="设备总数:">{{ basicInfo.deviceStats }}</info-list-item>
         </info-list>
       </div>
-      <div class="list-wrap__tools">
+      <div v-loading="loading.table" class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.CreateDevice])" key="create-button" type="primary" @click="handleListTools(toolsEnum.AddDevice)">添加</el-button>
           <el-button
-            v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.UpdateDevice])"
+            v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.CreateDevice], deviceActions)"
+            key="create-button"
+            type="primary"
+            @click="handleListTools(toolsEnum.AddDevice)"
+          >
+            添加
+          </el-button>
+          <el-button
+            v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.UpdateDevice], deviceActions)"
             key="configure-channels"
             type="primary"
             @click="handleListTools(toolsEnum.ConfigureChannels, deviceList)"
@@ -38,7 +45,13 @@
           >
             查看详情
           </el-button>
-          <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice])" :key="toolsEnum.EditDevice" @click="handleListTools(toolsEnum.EditDevice, basicInfo)">编辑</el-button>
+          <el-button
+            v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice], deviceActions)"
+            :key="toolsEnum.EditDevice"
+            @click="handleListTools(toolsEnum.EditDevice, basicInfo)"
+          >
+            编辑
+          </el-button>
           <el-button v-if="checkToolsVisible(toolsEnum.SyncDevice)" :key="toolsEnum.SyncDevice" :loading="loading.syncDevice" @click="handleListTools(toolsEnum.SyncDevice)">同步</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.Export)" placement="bottom" @command="handleListTools($event,{ deviceList,selectedDeviceList,currentDirId })">
             <el-button :loading="loading.export">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -49,7 +62,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <el-upload
-            v-if="checkToolsVisible(toolsEnum.Import, [policyEnum.UpdateDevice])"
+            v-if="checkToolsVisible(toolsEnum.Import, [policyEnum.CreateDevice], deviceActions)"
             ref="excelUpload"
             action="#"
             :show-file-list="false"
@@ -58,14 +71,14 @@
           >
             <el-button>导入</el-button>
           </el-upload>
-          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate, [policyEnum.UpdateDevice])" @click="handleListTools(toolsEnum.ExportTemplate)">下载模板</el-button>
+          <el-button v-if="checkToolsVisible(toolsEnum.ExportTemplate, [policyEnum.CreateDevice], deviceActions)" @click="handleListTools(toolsEnum.ExportTemplate)">下载模板</el-button>
           <el-dropdown v-if="checkToolsVisible(toolsEnum.OperateDevices, [policyEnum.UpdateDevice])" key="dropdown" placement="bottom" @command="handleListTools($event, selectedDeviceList)">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.MoveDevices, [policyEnum.UpdateDevice])" :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
-              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StartDevices, [policyEnum.UpdateDevice])" :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
-              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StopDevices, [policyEnum.UpdateDevice])" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
-              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.DeleteDevices, [policyEnum.DeleteDevice])" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.MoveDevices, [policyEnum.UpdateDevice], selectedDeviceList)" :command="toolsEnum.MoveDevice">移动至</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StartDevices, [policyEnum.UpdateDevice], selectedDeviceList)" :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.StopDevices, [policyEnum.UpdateDevice], selectedDeviceList)" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
+              <el-dropdown-item v-if="checkToolsVisible(toolsEnum.DeleteDevices, [policyEnum.DeleteDevice], selectedDeviceList)" :command="toolsEnum.DeleteDevice">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -396,6 +409,8 @@ export default class extends Mixins(deviceMixin) {
     syncDeviceStatus: false
   }
 
+  private deviceActions = {}
+
   // 定时刷新
   private refreshCount = {
     target: 0, // 目标总的刷新次数
@@ -592,6 +607,24 @@ export default class extends Mixins(deviceMixin) {
     }
     let res
     try {
+      // 当前设备-IAM权限查询
+      const type: any = this.currentDirType
+      const path: any = this.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
+          deviceId: this.currentDirId || undefined
+        }]
+      })
+      this.deviceActions = Object.assign(permissionRes.result[0].iamUser.actions, {
+        deviceType: this.currentDirType,
+        inProtocol: this.inProtocol,
+        deviceFrom: this.deviceFrom,
+        isRoleShared: this.isRoleShared
+      })
+      console.log('---this.deviceActions: ', this.deviceActions)
+
       res = await this.getDevicesApi(params)
       // 列表-IAM权限查询
       if (UserModule.iamUserId && res.devices.length) {

@@ -19,7 +19,6 @@
         </el-tooltip>
       </template>
       <template slot="leftBody">
-        <!-- TODO -->
         <device-tree
           ref="deviceTree"
           v-loading="loading.tree"
