@@ -353,7 +353,7 @@ export const v2Router: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'),
         name: 'RecordVideo',
         meta: {
-          title: '录制模板',
+          title: '存储模板',
           icon: 'dot',
           perms: ['*'],
           activeMenu: '/template/record-video'
