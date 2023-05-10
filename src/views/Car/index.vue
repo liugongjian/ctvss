@@ -3,6 +3,22 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
+          <span class="filter-container__search-time">任务开始时间</span>
+          <el-radio-group v-model="period" class="filter-container__search-time">
+            <el-radio v-for="(value, key) in periods" :key="key" :label="key">{{ value }}</el-radio>
+          </el-radio-group>
+          <el-date-picker
+            v-if="showRange"
+            v-model="periodRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            class="filter-container__search-time"
+            value-format="timestamp"
+            @change="changePicker"
+          >
+          </el-date-picker>
           <el-input v-model="factory" class="filter-container__search-group" placeholder="请输入工厂名" @keyup.enter.native="handleFilter" />
           <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter" />
           <el-button class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -15,6 +31,8 @@
           </template>
         </el-table-column>
         <el-table-column prop="factory" label="工厂" />
+        <el-table-column prop="transCompany" label="原粮出库点" min-width="120" />
+        <el-table-column prop="manageFactory" label="管理工厂" />
         <el-table-column
           label="任务状态"
         >
@@ -76,8 +94,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="driver" label="司机" />
-        <el-table-column prop="transCompany" label="原粮出库点" min-width="120" />
-        <el-table-column prop="manageFactory" label="管理工厂" />
+
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" :disabled="scope.row.status !== 0" @click.stop.native="preview(scope.row)">实时预览</el-button>
@@ -115,6 +132,9 @@ import { getCarTasks, operateCarTask } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import DetailDialog from './component/DetailDialog.vue'
 import VideoDialog from './component/VideoDialog.vue'
+import { subMonths, subDays, subHours } from 'date-fns'
+
+
 
 @Component({
   name: 'Car',
@@ -153,6 +173,22 @@ export default class extends Vue {
   private showVideoDialog = false
   private currentRecord: any = {}
   private videoType = ''
+
+  private periods = {
+    'notLimit': '不限',
+    'day': '近一天',
+    'week': '近一周',
+    'month': '近一月',
+    'selfDefine': '自定义',
+  }
+
+  private period = 'notLimit'
+
+  private periodRange = [subDays(new Date(), 7), new Date()]
+
+  private get showRange(){
+    return this.period === 'selfDefine'
+  }
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -193,9 +229,28 @@ export default class extends Vue {
   private setHeaderClass() {
     return 'background: white'
   }
+
+  private resolvePeriod(){
+    const now = new Date()
+    const now_stamp = now.getTime()
+    switch (this.period){
+      case 'notLimit':
+        return { startTime: undefined, endTime: now_stamp }
+      case 'day':
+        return { startTime: subHours(now, 24).getTime(), endTime: now_stamp }
+      case 'week':
+        return { startTime: subDays(now, 7).getTime(), endTime: now_stamp }
+      case 'month':
+        return { startTime: subMonths(now, 1).getTime(), endTime: now_stamp }
+      case 'selfDefine':
+        return { startTime: this.periodRange[0], endTime: this.periodRange[1] }
+    }
+  }
+
   private async getList() {
     try {
       this.loading = true
+      const range = this.resolvePeriod()
       const params = {
         plateNumber: this.plateNumber || undefined,
         factory: this.factory || undefined,
@@ -203,7 +258,8 @@ export default class extends Vue {
         pageSize: this.pager.pageSize,
         sortBy: 'updateTime',
         sortDirection: 'desc',
-        status: -1
+        status: -1,
+        ...range
       }
       const res = await getCarTasks(params)
       this.loading = false
@@ -272,13 +328,28 @@ export default class extends Vue {
         return { status: 'error', cname: '已结束' }
     }
   }
+
+  private changePicker(){
+    console.log('this.periodRange:', this.periodRange)
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .filter-container__search-group {
+  width:150px;
   margin-right: 10px;
 }
+.filter-container{
+  &__search-group{
+    width:150px;
+    margin-right: 10px;
+  }
+  &__search-time{
+    margin-right: 10px;
+  }
+}
+
 
 .template__table {
   ::v-deep .el-table__body {
