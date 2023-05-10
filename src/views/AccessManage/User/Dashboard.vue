@@ -334,8 +334,8 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const res = await ifAccess() as unknown as any
       const { visible } = res
-      const { needSetPwd = 'N' } = this.tagsObj
-      this.ifShowAccess = needSetPwd === 'Y' && visible
+      // const { needSetPwd = 'N' } = this.tagsObj
+      this.ifShowAccess = visible
     } catch (error) {
       this.$message.error(error)
     }
