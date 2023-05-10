@@ -724,7 +724,7 @@ export const v2Router: RouteConfig[] = [
       icon: 'menu-alarm',
       perms: ['*'],
       alwaysShow: true,
-      groupSelector: true,
+      groupSelector: false,
       version: 2
     },
     children: [
@@ -737,7 +737,7 @@ export const v2Router: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: false,
           perms: ['ivs:frontend:AdminAlarm'],
-          groupSelector: true
+          groupSelector: false
         },
         children: [
           {
@@ -750,7 +750,7 @@ export const v2Router: RouteConfig[] = [
               icon: 'dot',
               perms: ['ivs:frontend:AdminAlarm'],
               activeMenu: '/operation-center/alarm',
-              groupSelector: true
+              groupSelector: false
             }
           }
         ]
