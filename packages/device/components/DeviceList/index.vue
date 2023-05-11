@@ -608,22 +608,24 @@ export default class extends Mixins(deviceMixin) {
     let res
     try {
       // 当前设备-IAM权限查询
-      const type: any = this.currentDirType
-      const path: any = this.$route.query.path
-      const pathArr = path ? path.split(',') : []
-      const permissionRes = await previewAuthActions({
-        targetResources: [{
-          dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
-          deviceId: this.currentDirId || undefined
-        }]
-      })
-      this.deviceActions = Object.assign(permissionRes.result[0].iamUser.actions, {
-        deviceType: this.currentDirType,
-        inProtocol: this.inProtocol,
-        deviceFrom: this.deviceFrom,
-        isRoleShared: this.isRoleShared
-      })
-      console.log('---this.deviceActions: ', this.deviceActions)
+      if (UserModule.iamUserId) {
+        const type: any = this.currentDirType
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
+            deviceId: this.currentDirId || undefined
+          }]
+        })
+        this.deviceActions = Object.assign(permissionRes.result[0].iamUser.actions, {
+          deviceType: this.currentDirType,
+          inProtocol: this.inProtocol,
+          deviceFrom: this.deviceFrom,
+          isRoleShared: this.isRoleShared
+        })
+        console.log('---this.deviceActions: ', this.deviceActions)
+      }
 
       res = await this.getDevicesApi(params)
       // 列表-IAM权限查询
