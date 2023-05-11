@@ -37,8 +37,11 @@ import { PolicyEnum } from '@vss/base/enums/iam'
   name: 'DeviceDetail'
 })
 export default class extends Mixins(detailMixin) {
-  @Provide('deviceActions')
-  public deviceActions = {}
+  @Provide('getActions')
+  public getActions() {
+    return this.deviceActions
+  }
+  public deviceActions = null
   private policyEnum = PolicyEnum
   @Inject('handleTools')
   private handleTools!: Function
@@ -110,6 +113,7 @@ export default class extends Mixins(detailMixin) {
    */
   @Provide('checkToolsVisible')
   private checkToolsVisible(prop, permissions?, actions?) {
+    console.log('actions: ', actions)
     const data = {
       deviceType: this.deviceType,
       inProtocol: this.inProtocol,
