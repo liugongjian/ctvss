@@ -1,7 +1,7 @@
 <!--云台局部缩放-->
 <template>
   <el-tooltip :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'" placement="top">
-    <div class="control__btn control__snapshot" :class="{ 'selected': showCanvasBox }" @click.stop.prevent="changeScaleCanvas">
+    <div class="control__btn control__ptz-zoom" :class="{ 'selected': showCanvasBox }" @click.stop.prevent="changeScaleCanvas">
       <svg-icon name="screenscale" />
     </div>
   </el-tooltip>
