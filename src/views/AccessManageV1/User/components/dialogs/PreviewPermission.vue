@@ -26,7 +26,7 @@
         :props="treeProp"
       >
         <span
-          slot-scope="{node, data}"
+          slot-scope="{ node, data }"
           class="custom-tree-node"
           :class="`custom-tree-node__${data.type}`"
         >
@@ -175,6 +175,7 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
+      this.loading.dir = true
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -214,10 +215,13 @@ export default class extends Vue {
       return result
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading.dir = false
     }
   }
 
   private mounted() {
+    // TODO
   }
 
   private closeDialog() {

@@ -121,6 +121,7 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
+      this.loading.dir = true
       const isRoot = node.level === 0
       const devices = await getNodeInfo({
         id: isRoot ? '' : node.data.id,
@@ -157,6 +158,8 @@ export default class extends Vue {
       return result
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading.dir = false
     }
   }
 
