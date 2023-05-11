@@ -409,7 +409,7 @@ export default class extends Mixins(deviceMixin) {
     syncDeviceStatus: false
   }
 
-  private deviceActions = {}
+  private deviceActions = null
 
   // 定时刷新
   private refreshCount = {
