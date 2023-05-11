@@ -84,7 +84,7 @@ export default class TreeMixin extends Vue {
     let nodeData
     // 增加 层级关系
     if (node.level === 0) {
-      this.loading = true
+      // this.loading = true
       try {
         const res = await getNodeInfo({
           id: '',
@@ -97,7 +97,7 @@ export default class TreeMixin extends Vue {
       } catch (e) {
         console.log(e)
       }
-      this.loading = false
+      // this.loading = false
     } else {
       try {
         const res = await getNodeInfo({
@@ -187,7 +187,7 @@ export default class TreeMixin extends Vue {
       } else {
         this.setCurrentKey(key || this.rootKey)
       }
-      
+
     } else {
       // 展开目录
       this.commonTree.loadChildren(payload)

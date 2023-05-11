@@ -141,7 +141,7 @@ export default class extends Vue {
     replay: 'false',
     enableCloudChannelName: 'false'
   }
-  private loading = false
+  private loading: boolean = false
 
   private get screenCacheSettings() {
     return UserModule.settings.screenCache
@@ -186,14 +186,14 @@ export default class extends Vue {
       if (!valid) return
       try {
         this.loading = true
-        const params = []
+        let params = []
         // 前后端参数不一致，设置转换字典
-        const dic = {
+        let dic = {
           screen: 'live',
           replay: 'record',
           enableCloudChannelName: 'enableCloudChannelName'
         }
-        const keyList = ['screen', 'replay', 'enableCloudChannelName']
+        let keyList = ['screen', 'replay', 'enableCloudChannelName']
         keyList.forEach(item => {
           params.push({
             key: dic[item],
