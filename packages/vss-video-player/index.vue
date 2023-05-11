@@ -46,7 +46,8 @@
         <TypeSelector v-if="hasTypeSelector && codec !== CodecEnum.H265" :type="type" @dispatch="dispatch" />
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
-        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzZoom v-if="showPTZZoom" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
@@ -56,13 +57,14 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch, Inject } from 'vue-property-decorator'
 import Player from '@vss/video-player/index.vue'
 import { TypeEnum, CodecEnum } from '@vss/video-player/enums/index'
 import { PlayerEvent, DeviceInfo, StreamInfo } from './types/VssPlayer'
 import { Player as PlayerModel } from '@vss/video-player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 import './styles/index.scss'
+import { checkPermission } from '@vss/base/utils/permission'
 /**
  * 子组件库
  */
@@ -76,6 +78,7 @@ import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
+import PtzLock from './components/PtzLock.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
 import More from './components/More.vue'
@@ -96,7 +99,8 @@ import More from './components/More.vue'
     PtzZoom,
     Intercom,
     LiveReplaySelector,
-    More
+    More,
+    PtzLock,
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -104,6 +108,8 @@ import More from './components/More.vue'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => {} })
+  public getActions!: Function
   /* 播放器类型 */
   @Prop()
   private type!: TypeEnum
@@ -212,6 +218,7 @@ export default class extends Vue {
   @Prop()
   private poster: string
 
+  private checkPermission = checkPermission
   /* 播放器实例 */
   private player: PlayerModel = null
 
@@ -231,6 +238,30 @@ export default class extends Vue {
   /* 播放器容器 */
   private get vssPlayerWrap() {
     return this.$refs.vssPlayerWrap
+  }
+
+  private get showPTZLock() {
+    return this.player &&
+            this.isLive &&
+            (this.deviceInfo.inProtocol === 'gb28181' || this.deviceInfo.inProtocol === 'ehome') &&
+            // @ts-ignore
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            // @ts-ignore
+            checkPermission(['ivs:LockDevicePTZ'], this.actions || this.screen.permission)
+  }
+
+  private get showPTZZoom() {
+    return this.player &&
+            this.isLive &&
+            this.deviceInfo.inProtocol === 'gb28181' &&
+            // @ts-ignore
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            // @ts-ignore
+            checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
+  }
+
+  private get actions() {
+    return this.getActions && this.getActions()
   }
 
   /* 获取播放器实例Provide */
