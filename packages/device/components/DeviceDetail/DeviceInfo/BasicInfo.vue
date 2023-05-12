@@ -9,8 +9,14 @@
         <span v-if="hasVideo" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Video] }}</span>
         <span v-if="hasViid" class="device-in-type">{{ dicts.DeviceInType[deviceInTypeEnum.Viid] }}</span>
         <span class="device-in-type__buttons">
-          <el-button v-if="!hasVideo && checkToolsVisible(toolsEnum.AddDevice, [policyEnum.UpdateDevice])" type="text" @click="openDialog(deviceInTypeEnum.Video)">添加视频</el-button>
-          <el-button v-if="!hasViid && !isIbox && checkToolsVisible(toolsEnum.AddDevice, [policyEnum.UpdateDevice])" type="text" @click="openDialog(deviceInTypeEnum.Viid)">添加视图</el-button>
+          <el-button v-if="!hasVideo && checkToolsVisible(toolsEnum.AddDevice, [policyEnum.UpdateDevice], deviceActions)" type="text" @click="openDialog(deviceInTypeEnum.Video)">添加视频</el-button>
+          <el-button
+            v-if="!hasViid && !isIbox && checkToolsVisible(toolsEnum.AddDevice, [policyEnum.UpdateDevice], deviceActions)"
+            type="text"
+            @click="openDialog(deviceInTypeEnum.Viid)"
+          >
+            添加视图
+          </el-button>
         </span>
       </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceType)" label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>
@@ -55,6 +61,11 @@ import ViidInfoDialog from './ViidInfoDialog.vue'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => ({}) })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Inject('checkToolsVisible')
   private checkToolsVisible!: Function
   @Prop() private device: Device

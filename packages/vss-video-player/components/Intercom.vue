@@ -4,7 +4,7 @@
     <!-- v-if="inProtocol === 'gb28181'" -->
     <el-tooltip content="开启语音对讲" placement="top">
       <!-- v-if="isLive" -->
-      <div class="control__btn control__snapshot" @click.stop.prevent="toIntercom">
+      <div class="control__btn control__intercom" @click.stop.prevent="toIntercom">
         <svg-icon name="micro" />
       </div>
     </el-tooltip>
