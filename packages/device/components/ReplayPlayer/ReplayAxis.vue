@@ -18,6 +18,19 @@
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
       <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" width="12" /></div>
     </div>
+    <img id="lock" style="display: none;" src="@vss/device/assets/images/lock.png">
+    <div v-if="tipVisiable" id="unlockTip" :style="dynamicPos" @mouseleave="tooltipHider">
+      <span
+        v-for="item, index in durationList"
+        :key="index"
+        class="lock-tooltip"
+      >
+        已锁定: {{ item.lockStartTime }} - {{ item.lockEndTime }}
+        <span v-if="canLock && !isDialogTask" class="lock-tooltip-unlock" @click="unlock(item)">解锁</span>
+      </span>
+      <div class="extend-hover"></div>
+    </div>
+    <UnlockDialog v-if="unlockVisable" :screen="screen" :duration="unlockDuration" :unlock-item="recordLockItem" :multiple="false" @on-close="closeUnlock" />
   </div>
 </template>
 <script lang="ts">
@@ -32,14 +45,18 @@ import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMse
 import { prefixZero } from '@vss/base/utils/number'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import { RecordType } from '@vss/device/enums'
+import { time24Format } from '@vss/device/utils/date'
 import { throttle } from 'lodash'
-import TimeEditer from './TimeEditer.vue'
+import TimeEditer from '@vss/device/components/ReplayPlayer/TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
+import { UserModule } from '@/store/modules/user'
+import UnlockDialog from '@vss/device/components/ReplayPlayer/LockDialogs/Unlock.vue'
 
 @Component({
   name: 'ReplayAxis',
   components: {
-    TimeEditer
+    TimeEditer,
+    UnlockDialog
   }
 })
 export default class extends Vue {
@@ -61,6 +78,12 @@ export default class extends Vue {
     default: false
   })
   private disabled: boolean
+
+  /* 是否是dialog窗口 */
+  @Prop()
+  private isDialogTask: boolean
+
+  private canLock = false
 
   /* 时间轴拖动数据 */
   private axisDrag: any = {
@@ -111,7 +134,8 @@ export default class extends Vue {
     fiveMins: [],
     oneMins: [],
     records: [],
-    heatmaps: []
+    heatmaps: [],
+    locks: []
   }
 
   /* 画布 */
@@ -134,6 +158,112 @@ export default class extends Vue {
   private timeout = null
   /* 是否编辑时间轴时间 */
   private editTime = false
+  /* 是否是点击事件而不是拖拽 */
+  private notClick = false
+  /* 是否生成对应 index 的 tooltip */
+  private tipVisiable = false
+  /* 合并锁的间隔阈值 px */
+  private pixelThreshold = 30
+/* hover time display , start & end */
+  private duration = {
+    'lockStartTime': null,
+    'lockEndTime': null
+  }
+  /* 合并锁 */
+  private durationList = [] 
+  private unlockDuration = {
+    'lockStartTime': null,
+    'lockEndTime': null
+  }
+  /* tooltip 样式 */
+  private dynamicPos = {
+    'position': 'relative',
+    'padding': '5px',
+    'border': '1px solid #d7d7d7',
+    'width': '300px',
+    'display': 'block',
+    'left': '',
+    'max-height': '77px',
+    'top': '',
+    'font-size': '12px',
+    'text-align': 'center',
+    'border-radius': '6px',
+    'background-color': 'white',
+    'overflow': 'auto',
+    'z-index': '99'
+  }
+  /* 增大tooltip 感应范围 */
+  private extendHover = {
+    'position': 'relative',
+    'width': '300px',
+    'display': 'block',
+    'left': '',
+    'height': '10px',
+    'background-color': 'red',
+    'z-index': '99'
+  }
+  /* unlock dialog visiable */
+  private unlockVisable = false
+  /* current clicked locked item */
+  private recordLockItem = null
+
+    private testLockList = [
+    {
+      recordLockId: '锁定ID-125',
+        deviceId: '12111111111111111111113',
+        deviceName: '行也不行',
+        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+        duration: null,
+        exp_time: '解锁时刻',
+        origin_exp_time: '30',
+      startTime: 1683833262,
+      endTime: 1683869262
+    },
+    {
+      recordLockId: '锁定ID-125',
+        deviceId: '12111111111111111111113',
+        deviceName: '行也不行',
+        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+        duration: null,
+        exp_time: '解锁时刻',
+        origin_exp_time: '30',
+      startTime: 1683773360,
+      endTime: 1683780560
+    },
+    {
+      recordLockId: '锁定ID-125',
+        deviceId: '12111111111111111111113',
+        deviceName: '行也不行',
+        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+        duration: null,
+        exp_time: '解锁时刻',
+        origin_exp_time: '30',
+      startTime: 1683787760,
+      endTime: 1683791360
+    },
+    {
+      recordLockId: '锁定ID-125',
+        deviceId: '12111111111111111111113',
+        deviceName: '行也不行',
+        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+        duration: null,
+        exp_time: '解锁时刻',
+        origin_exp_time: '30',
+      startTime: 1683794960,
+      endTime: 1683802160
+    },
+    {
+      recordLockId: '锁定ID-125',
+        deviceId: '12111111111111111111113',
+        deviceName: '湖人总冠军',
+        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+        duration: null,
+        exp_time: '解锁时刻',
+        origin_exp_time: '30',
+      startTime: 1683802820,
+      endTime: 1683806420
+    }
+  ]
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -170,13 +300,26 @@ export default class extends Vue {
 
   /* 监听设备变化 */
   @Watch('screen.deviceId')
+  /* 监听锁定权限变化 */
+  @Watch('screen.ivsLockCloudRecord')
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
   /* 监听录像列表 */
   @Watch('recordManager.recordList')
+  /* 监听录像锁列表 */
+  @Watch('recordManager.lockList')
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
+    // 更新锁定权限，控制锁定功能
+    if ((!UserModule.iamUserId || this.screen.ivsLockCloudRecord) && !this.isDialogTask) {
+      // can lock
+      this.canLock = true
+      this.canvas && this.canvas.addEventListener('click', this.onClickLock)
+    } else {
+      this.canLock = false
+      this.canvas && this.canvas.removeEventListener('click', this.onClickLock)
+    }
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
@@ -218,6 +361,8 @@ export default class extends Vue {
   private beforeDestroy() {
     this.canvas.removeEventListener('mousedown', this.moveAxisStart)
     this.canvas.removeEventListener('wheel', this.onWheel)
+    this.canvas.removeEventListener('click', this.onClickLock)
+    this.canvas.removeEventListener('mousemove', this.onAxisMove)
     window.removeEventListener('keydown', this.onHotkey)
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
@@ -229,6 +374,11 @@ export default class extends Vue {
     this.canvas = this.$refs.canvas as HTMLCanvasElement
     this.canvas.addEventListener('mousedown', this.moveAxisStart)
     this.canvas.addEventListener('wheel', this.onWheel)
+    // 没有锁定权限、dialog录像窗口，不用注册点击锁方法
+    if (this.canLock && !this.isDialogTask) {
+      this.canvas.addEventListener('click', this.onClickLock)
+    }
+    this.canvas.addEventListener('mousemove', this.onAxisMove)
     this.canvas.width = this.settings.width
     this.canvas.height = this.settings.height
     if (this.canvas.getContext) {
@@ -375,7 +525,83 @@ export default class extends Vue {
     this.axisData.records = this.recordManager && this.recordManager.recordList ? calRecords(this.recordManager.recordList) : []
     /* 计算Heatmap片段 */
     this.axisData.heatmaps = this.recordManager && this.recordManager.heatmapList ? calRecords(this.recordManager.heatmapList) : []
+
+    /* 计算锁的位置 */
+    const calLocks = (list) => {
+      const locks = []
+      const allPointsLocks = []
+      let joinLocks: any = []
+      for (let i = 0; i < list.length; i++) {
+        const record = list[i]
+        allPointsLocks.push({
+          time: record.startTime,
+          lockCollection: [],
+          ...record
+        }, {
+          time: record.endTime,
+          lockCollection: [],
+          ...record
+        })
+      }
+      joinLocks = this.joinLock(allPointsLocks)
+      for (let i = 0; i < joinLocks.length; i++) {
+        const record = joinLocks[i]
+        if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
+          // const lockOffsetTime = record.startTime - this.axisStartTime
+          const lockOffsetTime = record.time - this.axisStartTime
+          locks.push({
+            x: Math.floor(lockOffsetTime / this.settings.ratio),
+            // startTime: record.startTime,
+            // endTime: record.endTime,
+            // recordLockId: record.recordLockId,
+            // exp_time:,
+            // origin_exp_time:,
+            // deviceName:,
+            // deviceId:
+            ...record
+          })
+        }
+      }
+      return locks
+    }
+    /* 已锁定的录像片段区间起始位置 */
+    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
+    // 调试
+    this.axisData.locks = this.recolrdManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
+    console.log('🐓    🥚 ', this.axisData.locks)
+    // 国标下，切换到设备时，去掉锁
+    if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
+      this.axisData.locks = []
+    }
+    // this.axixData.locks = [{ x: 50 }]
   }
+
+  private joinLock(lockList: any, anchorIndex = 0, joinedLockList?: any) {
+    let locks: any = joinedLockList ? joinedLockList : null
+    for (let i = anchorIndex; i < lockList.length - 1; i++) {
+      const anchorLock = lockList[i]
+      locks = joinedLockList ? joinedLockList : [{
+        ...anchorLock
+      }]
+      for (let o = i + 1; o < lockList.length; o++) {
+        const nextLock = lockList[o]
+        const deltaTime = nextLock.time - anchorLock.time
+        const pixelGap = deltaTime / this.settings.ratio
+        if (pixelGap < this.pixelThreshold) {
+          // 合并
+          if (deltaTime < 0){
+          }
+          const len = locks.length
+          locks[len - 1]['lockCollection'].push(nextLock)
+        } else {
+          locks.push(nextLock)
+          return this.joinLock(lockList, o, locks)
+        }
+      }
+    }
+    return locks
+  }
+
 
   /**
    * 绘制时间轴
@@ -466,6 +692,13 @@ export default class extends Vue {
     this.ctx.fillStyle = this.settings.midLineColor
     this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
 
+    /* 绘制录像锁 */
+    for (const i in this.axisData.locks) {
+      const position = this.axisData.locks[i]
+      const img: any = document.getElementById('lock')
+      this.ctx.drawImage(img, position.x, 0, 12, 12)
+    }
+
     /* 绘制左右渐变 */
     // if (!this.isInline) {
     //   const gradientWidth = this.settings.width * 0.08
@@ -486,15 +719,110 @@ export default class extends Vue {
     // }
   }
 
+  // 绘制对应的 tooltip
+  private drawTooltip(lock: any) {
+    // 传参输入 对应锁的坐标
+    // 合并锁，点击无效果，只显示tool tips，通过tool tips进行解锁选择
+    this.$nextTick(() => {
+      // 去除重复的开始锁和结束锁
+      const map = new Map()
+      const lockmap = []
+      if (lock.lockCollection.length > 0) {
+        for (const item of lock.lockCollection) {
+          if (!map.has(item.startTime) && !map.has(item.endTime)) {
+            map.set(item.startTime, item)
+            lockmap.push(item)
+          }
+        }
+      }
+      lock.lockCollection = lockmap
+      const subLocks = lock.lockCollection
+      // 检查第一个和第零个元素是否属于同一个录像片段
+      if (subLocks.length > 0 && lock.startTime === subLocks[0].startTime && lock.endTime === subLocks[0].endTime) {
+        subLocks.shift()
+      }
+      this.durationList = [{
+        lockStartTime: time24Format(lock.startTime * 1000),
+        // lockStartTime: (new Date(lock.startTime * 1000)).toLocaleTimeString(),
+        // lockEndTime: (new Date(lock.endTime * 1000)).toLocaleTimeString(),
+        lockEndTime: time24Format(lock.endTime * 1000, true),
+        deviceId: lock.deviceId,
+        deviceName: lock.deviceName,
+        anchorTime: lock.time,
+        startTime: lock.startTime,
+        endTime: lock.endTime
+      }]
+      // this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
+      if (lock.lockCollection.length > 0) {
+        this.durationList.push(subLocks.map((item: any) => {
+          if (lock.startTime !== item.startTime && lock.endTime !== item.endTime) {
+            return {
+              // lockStartTime: (new Date(item.startTime * 1000)).toLocaleTimeString(),
+              lockStartTime: time24Format(item.startTime * 1000),
+              lockEndTime: time24Format(item.endTime * 1000, true),
+              // lockEndTime: time24Format(item.endTime * 1000, true),
+              deviceId: item.deviceId,
+              deviceName: item.deviceName,
+              startTime: item.startTime,
+              // startTime: lock.startTime,
+              // endTime: lock.endTime,
+              endTime: item.endTime,
+              anchorTime: item.time
+            }
+          }
+        }))
+        this.dynamicPos.top = subLocks.length > 1 ? '-148px' : '-126px'
+      } else {
+        this.dynamicPos.top = '-104px'
+      }
+      // this.dynamicPos.left = this.settings.width - lock.x <= 250 ? lock.x - 200 + 'px' : lock.x + 'px'
+      this.dynamicPos.left = this.settings.width - lock.x <= 320 ? lock.x - 280 + 'px' : lock.x + 'px'
+      this.durationList = this.durationList.flat()
+      // else {
+      //   this.duration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleTimeString() // fake
+      //   this.duration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleTimeString() // fake
+      //   // this.unlockDuration.lockStartTime = (new Date(lock.startTime * 1000)).toLocaleString() // fake
+      //   // this.unlockDuration.lockEndTime = (new Date(lock.endTime * 1000)).toLocaleString() // fake
+      //   // this.tipVisiable = true
+      // }
+    })
+  }
+  
+  /**
+   *  点击锁，解绑
+   * 多个锁合并的情况，不弹出解锁页面，点击锁本身无效果
+   * 
+   */
+  private onClickLock(e: any) {
+    if (!this.notClick) {
+      if (this.durationList.length > 1) return
+      this.axisData.locks.map((item: any) => {
+        const validX = item.x + 20
+        const validY = 20
+        if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+          this.recordLockItem = [item]
+          this.unlockVisable = true
+        }
+      })
+    }
+  }
+
+  private unlock(item: any) {
+    // if (this.lockPermission !== 1) return
+    this.recordLockItem = [item]
+    this.unlockVisable = true
+  }
+
   /**
    * 开始拖拽时间轴
    */
   private moveAxisStart(e: MouseEvent) {
     e.stopPropagation()
+    this.notClick = false
     this.axisDrag.isDragging = true
     this.axisDrag.startX = e.x
     this.axisDrag.startTime = this.currentTime
-    window.addEventListener('mousemove', this.onAxisMove)
+    // window.addEventListener('mousemove', this.onAxisMove)
     window.addEventListener('mouseup', this.onAxisMouseup)
   }
 
@@ -502,10 +830,31 @@ export default class extends Vue {
    * 拖拽时间轴时移动鼠标
    */
   private onAxisMove(e: MouseEvent) {
-    if (!this.axisDrag.isDragging) return
+    // 非拖拽，移动到锁位置，显示提示
+    // 显示锁定提示的时候点住锁位置并拖动，始终跟随拖动位置显示提示和锁位置
+    if (this.axisDrag.isDragging) {
+      this.tipVisiable = false // 拖拽时隐藏tooltips
+      this.notClick = true
     this.axisDrag.deltaX = this.axisDrag.startX - e.x
     this.axisDrag.startX = e.x
     this.currentTime = this.currentTime + this.axisDrag.deltaX * this.settings.ratio // 将偏移像素值转换成时间戳
+    } else {
+      // 非拖拽时再绘制tooltips
+      this.axisData.locks.map((item: any) => {
+        const validX = item.x + 20
+        const validY = 20
+        if (e.offsetX >= item.x && e.offsetX <= validX && e.offsetY >= 0 && e.offsetY <= validY) {
+          this.$nextTick(() => {
+            this.tipVisiable = true
+            this.drawTooltip(item)
+            // document.getElementById('unlockTip').addEventListener('mouseleave', this.tooltipHider)
+          })
+        } else {
+          // document.getElementById('unlockTip') && document.getElementById('unlockTip').removeEventListener('mouseleave', this.tooltipHider)
+          this.tipVisiable = false
+        }
+      })
+    }
     this.generateData()
     this.draw()
   }
@@ -629,9 +978,53 @@ export default class extends Vue {
     this.generateData()
     this.draw()
   }
+
+  // 关闭解锁 dialog
+  private async closeUnlock(isUnlocked?: boolean) {
+    try {
+      // 如果是锁定录像管理页面查看并解锁，则向上抛出关闭录像dialog的事件
+      this.tipVisiable = false //关闭tool tips
+      if (isUnlocked) {
+        const date = getDateByTime(this.currentTime, 's')
+        await this.screen.recordManager.getRecordListByDate(date, false, false, true) // 重新加载 lock list  
+      }
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.unlockVisable = false
+    }
+  }
+
+  // 隐藏 tooltip
+  private tooltipHider(e: MouseEvent) {
+    this.tipVisiable = false
+  }
 }
 </script>
 <style lang="scss" scoped>
+.extend-hover {
+  width: 210px;
+  height: 15px;
+  background-color: transparent;
+  position: fixed;
+}
+
+.lock-tooltip {
+  display: inline-block;
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+
+.lock-tooltip-unlock {
+  margin-left: 10px;
+  color: $primary;
+}
+
+.lock-tooltip-unlock:hover {
+  cursor: pointer;
+  color: rgba(250, 131, 52, 80%);
+}
+
 .axis {
   &__wrap {
     position: relative;
