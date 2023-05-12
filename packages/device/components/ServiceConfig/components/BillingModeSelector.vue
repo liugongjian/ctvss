@@ -114,7 +114,6 @@ import { ResourceAiType, BillingModeType, RecordStreamType, RecordStreamsType } 
 import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
 import { DeviceTypeEnum } from '@vss/device/enums/index'
 import { getStorageTemplate, getRecordTemplates } from '@vss/device/api/template'
-import { el } from 'date-fns/locale'
 @Component({
   name: 'BillingModeSelector'
 })

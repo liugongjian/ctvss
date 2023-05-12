@@ -38,7 +38,8 @@
         />
         <div v-else class="config-info">
           <i class="el-icon-warning-outline" />
-          你的账户下未开通按需计费，无法启用服务。
+          <span v-if="isGA1400Trial">您当前正在试用视图服务，视图信息将存储30天。</span>
+          <span v-else>你的账户下未开通按需计费，无法启用服务。</span>
         </div>
       </div>
     </div>
@@ -77,7 +78,8 @@
           />
           <span v-else class="config-info">
             <i class="el-icon-warning-outline" />
-            你的账户下未开通按需计费，无法启用服务。
+            <span v-if="isGA1400Trial">您当前正在试用视图服务，视图信息将存储30天。</span>
+            <span v-else>你的账户下未开通按需计费，无法启用服务。</span>
           </span>
         </el-tab-pane>
       </el-tabs>
@@ -95,6 +97,8 @@ import PlatformVideoServiceConfig from './platform/VideoServiceConfig.vue'
 import IpcAiServiceConfig from './ipc/AiServiceConfig.vue'
 import IpcViidServiceConfig from './ipc/ViidServiceConfig.vue'
 import { getResources, getDeviceResource, ondemandSubscribe } from '@vss/device/api/billing'
+import { UserModule } from '@/store/modules/user'
+import { getStorageTemplate } from '@vss/device/api/template'
 
 @Component({
   name: 'ServiceConfig',
@@ -116,8 +120,11 @@ export default class extends Vue {
   @Prop({ default: '' })
   private inVideoProtocol: string
 
-  @Prop({ default: [] })
+  @Prop({ default: () => [] })
   private tabs: ResourceTypeEnum[]
+
+  @Prop({ default: () => [] })
+  private deviceInType: DeviceInTypeEnum[]
 
   @Prop({ default: 0 })
   private channelSize: number
@@ -218,6 +225,15 @@ export default class extends Vue {
     return this.configManager.hasOndemand && this.initFlag
   }
 
+  // 判断是否支持视图试用
+  private get isGA1400Trial() {
+    const userFlag = UserModule.tags && UserModule.tags.isGA1400Trial  === 'Y'
+    const tabsFlag = this.tabs.includes(ResourceTypeEnum.Video) &&  this.tabs.includes(ResourceTypeEnum.Viid)
+    const deviceInTypeFlag = this.deviceInType.includes(DeviceInTypeEnum.Video) &&  this.deviceInType.includes(DeviceInTypeEnum.Viid)
+    !this.aiServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag && this.initTrail()
+    return !this.aiServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag
+  }
+
   @Watch('configMode', { immediate: true })
   private configModeChange(configMode: ConfigModeEnum) {
     // 切换config模式
@@ -251,13 +267,27 @@ export default class extends Vue {
     this.$emit('is-inited', false)
     this.initFlag = false
     this.loading = true
-    console.log(this.deviceId, this.tabs, '000000000000')
     this.configManager.activeTab = this.tabs[0]
     await this.initConfigManager()
     await this.initDeviceResource()
     this.initFlag = true
     this.loading = false
     this.$emit('is-inited', true)
+  }
+
+  /**
+   * 针对视图试用进行初始配置
+   */
+  private async initTrail() {
+    if (this.hasViidTab && !this.resource['viid'].length) {
+      try {
+        const res = await getStorageTemplate({ pageSize: 999 })
+        const template = res.templates[0]
+        res.templates.length && (this.resource['viid'] = [{ billingMode: 'onDemand', templateId: template.templateId }])
+      } catch (e) {
+        console.log(e)
+      } 
+    }
   }
 
   /**
@@ -271,7 +301,6 @@ export default class extends Vue {
         deviceType: this.deviceType
       })
       this.configManager.initInfo = res.resource
-      console.log(this.configManager.initInfo)
     } catch (e) {
       console.log(e && e.message)
     }
@@ -299,7 +328,6 @@ export default class extends Vue {
     await this.initOndemand()
     // 初始化资源包
     const initPackages = []
-    console.log(initPackagesQueue)
     initPackagesQueue.forEach(async(resourceType: ResourceTypeEnum) => {
       initPackages.push(this.initPackages(resourceType))
     })
@@ -338,8 +366,11 @@ export default class extends Vue {
   }
 
   private configChange(type, data) {
-    this.resource && (this.resource[type] = data)
-    console.log(this.resource)
+    if (this.resource) {
+      this.resource[type] = data
+    }
+
+    console.log(type, this.resource)
   }
 
   public async validateServiceConfig() {

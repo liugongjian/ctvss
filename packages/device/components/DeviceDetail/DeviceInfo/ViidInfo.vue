@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice])" type="text" @click="edit">编辑</el-button>
+      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice], deviceActions)" type="text" @click="edit">编辑</el-button>
       <!-- <el-dropdown v-if="hasVideo" @command="handleTools($event, basicInfo, inViidProtocol)">
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown">
@@ -51,6 +51,11 @@ import { checkViidVisible } from '@vss/device/utils/param'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => ({}) })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Inject('handleTools')
   private handleTools!: Function
   @Inject('checkToolsVisible')
