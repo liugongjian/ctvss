@@ -793,8 +793,10 @@ export default class extends Vue {
     const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
     const row = +target.split('-')[1]
     const type = target.split('-').length
-    const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
-    const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
+    // const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
+    const clickOffsetX = e.target.getBoundingClientRect().left - 713 // click层用于渲染OPT 精确到小数点
+    // const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
+    const clickOffsetWidth = e.target.getBoundingClientRect().width // click层用于渲染OPT 精确到小数点
     return {target, row, type, clickOffsetX, clickOffsetWidth}
   }
 
@@ -1227,8 +1229,9 @@ export default class extends Vue {
       weekTimeSections: [],
       storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
     }
+    // 合并连续的时间
     this.weekdays.map((day: any, index: any) => {
-      return day.map((item: any) => {
+      return day.map((item: any, index: any) => {
         recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
           startTime: item.durationStartTime * 60, // 秒

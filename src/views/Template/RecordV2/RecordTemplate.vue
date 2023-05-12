@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <el-alert
+      title="存储模板仅供按需计费的设备使用，绑定视频资源包的设备采用资源包内的视频存储时长。"
+      type="info"
+      show-icon
+      :closable="false"
+      class="mb10"
+    />
     <el-menu :default-active="type" class="navigation-menu" mode="horizontal" @select="navigatePage">
       <el-menu-item index="video">视频录制模板</el-menu-item>
       <el-menu-item index="viid">视图存储模板</el-menu-item>
