@@ -107,7 +107,6 @@
                 <div v-show="statement.resourceType === 'selected'" class="dialog-wrap">
                   <resource-selector
                     :checked-list="statement.resourceIdList"
-                    :filter-type-arr="['dir', 'ipc']"
                     @resourceListChange="resourceListChange($event, index)"
                     @resourceLoaded="resourceLoaded"
                   />
