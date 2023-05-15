@@ -12,6 +12,7 @@
       <simple-device-tree
         ref="deviceTree"
         :device-in-type="deviceInTypeEnum.Video"
+        :is-live="isLive"
         @handle-node="selectDevice"
       />
       <!-- <el-tree
@@ -67,7 +68,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import SimpleDeviceTree from '@vss/device/components/Tree/SimpleDeviceTree.vue'
 import { DirectoryTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
 
@@ -78,6 +79,8 @@ import { DirectoryTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
   }
 })
 export default class extends Vue {
+  @Prop({ default: true })
+  private isLive: boolean
   private deviceInTypeEnum = DeviceInTypeEnum
   private dialogVisible = true
   private selectDevice(dir: any) {

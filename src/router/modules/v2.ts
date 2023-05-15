@@ -835,44 +835,6 @@ export const v2Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/alarm',
-    component: Layout,
-    meta: {
-      title: '告警管理',
-      icon: 'menu-alarm',
-      perms: ['*'],
-      alwaysShow: false,
-      only: true,
-      version: 2
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
-        name: 'Alarm',
-        meta: {
-          title: '告警管理',
-          icon: 'menu-alarm',
-          breadcrumb: false,
-          perms: ['*']
-        },
-        children: [
-          {
-            path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
-            name: 'AlarmList',
-            meta: {
-              title: '告警信息列表',
-              breadcrumb: false,
-              perms: ['*'],
-              activeMenu: '/alarm'
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
     path: '/car',
     component: Layout,
     meta: {
