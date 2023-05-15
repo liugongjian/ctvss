@@ -94,7 +94,7 @@
     <div v-else class="tip-select-device">
       <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
-    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <device-dir v-if="dialogs.deviceDir" :is-live="screenManager.isLive" @on-close="onDeviceDirClose" />
     <el-dialog
       v-if="dialogs.play"
       class="video-player"

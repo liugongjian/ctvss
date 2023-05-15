@@ -10,6 +10,8 @@
     :load="treeLoad"
     :props="defaultProps"
     :empty-text="emptyText"
+    :is-node-disabled="checkIsDisable"
+    :get-title="getTitle"
     @handle-node="handleNode"
   >
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
@@ -27,13 +29,43 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { DeviceTypeEnum, DeviceEnum, StatusEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'SimpleDeviceTree'
 })
 export default class extends Mixins(treeMixin) {
+  @Prop({ default: true })
+  private isLive: boolean
+  /**
+   * 判断item是否可以点击
+   */
+  public checkIsDisable(node) {
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    if (this.isLive) {
+      return node.data.type === DeviceTypeEnum.Ipc
+        && (node.data[DeviceEnum.DeviceStatus] !== StatusEnum.On || !checkPermission(perms, node.data))
+    } else {
+      return node.data.type === DeviceTypeEnum.Ipc
+        && !checkPermission(perms, node.data)
+    }
+  }
+
+  /**
+   * 获取item无权限提示
+   */
+  getTitle(data: any) {
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    const title = this.isLive ? '无实时预览权限' : '无录像回放权限'
+    if (!checkPermission(perms, data)) {
+      return title
+    } else {
+      return ''
+    }
+  }
 }
 </script>
 

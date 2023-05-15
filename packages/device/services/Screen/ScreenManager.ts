@@ -8,6 +8,7 @@ import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
 import { pick, cloneDeep } from 'lodash'
 import { getPollList } from '@vss/device/api/dir'
+import { checkPermission } from '@vss/base/utils/permission'
 
 interface ScreenManagerConfig {
   // inProtocol: string
@@ -159,6 +160,11 @@ export class ScreenManager {
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
+    // 无权限
+    const perms = this.isLive ? ['ivs:GetLiveStream'] : ['ivs:GetCloudRecord']
+    if (!checkPermission(perms, item)) {
+      return
+    }
     this.currentIndex = !isNaN(index) ? index : this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
@@ -173,6 +179,12 @@ export class ScreenManager {
     if (this.isSync) {
       const currentRecordDatetime = this.findRecordCurrentDatetime()
       if (currentRecordDatetime) screen.currentRecordDatetime = currentRecordDatetime
+    }
+    if (item.isLeaf) {
+      // 检查锁定权限
+      // 权限相关属性
+      screen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
+      screen.permission = item
     }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()

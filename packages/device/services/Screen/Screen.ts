@@ -38,7 +38,10 @@ export class Screen {
   public deviceId?: string
   public inProtocol?: string
   public deviceName?: string
-
+  // 用户的设备权限相关
+  public ivsLockCloudRecord?: boolean
+  // 用户所有权限
+  public permission: any
   /**
    * ----------------
    * 实时预览相关属性
