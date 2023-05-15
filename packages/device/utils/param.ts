@@ -67,7 +67,7 @@ export function checkVideoVisible(
   }
 
   // 是否为非子设备且启用GB35114
-  if (this.parentDeviceId === '-1' && this.enabledGB35114 === true) {
+  if ((!this.parentDeviceId || this.parentDeviceId === '-1') && this.enabledGB35114 === true) {
     if ([DeviceEnum.InUserName as string].includes(prop)) return false
   }
 
