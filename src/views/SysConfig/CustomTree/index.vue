@@ -7,7 +7,7 @@
       :closable="false"
       class="mb10"
     />
-    <el-card v-if="treeListEmpty" class="platform">
+    <el-card v-if="!treeListEmpty" class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
         <el-tooltip content="添加设备树">
@@ -40,7 +40,7 @@
         <div v-if="treeList && !treeList.length && !treeLoading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
-    <el-card v-if="treeListEmpty" ref="deviceWrap" class="shared-devices">
+    <el-card v-if="!treeListEmpty" ref="deviceWrap" class="shared-devices">
       <div class="tree-wraper" :style="{ height: treeMaxHeight + 'px' }">
         <div v-if="isEditing" class="tree-wraper__border">
           <div class="header">
@@ -153,7 +153,7 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-card>
-    <el-card v-if="!treeListEmpty" class="empty">
+    <el-card v-if="treeListEmpty" class="empty">
       <div class="title">设备树列表</div>
       <div class="content">
         <svg-icon name="empty" width="40" height="40" class="avatar" />
