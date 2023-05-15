@@ -1229,9 +1229,25 @@ export default class extends Vue {
       weekTimeSections: [],
       storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
     }
-    // 合并连续的时间
+    // 按 durationStartTime 排序
     this.weekdays.map((day: any, index: any) => {
-      return day.map((item: any, index: any) => {
+      const len = day.length
+      for (let i = 0; i < len; i++) {
+        for (let j = 0; j < i; j++) {
+          if (day[j].durationStartTime > day[i].durationStartTime) {
+            const temp = day[j]
+            day[j] = day[i]
+            day[i] = temp
+          }
+        }
+      }
+    })
+    this.weekdays.map((day: any, index: any) => {
+      // 合并连续的时间
+      let temp: any = JSON.parse(JSON.stringify(day))
+      this.joinLoop(temp, 0)
+      // 补全录制时长
+      return temp.map((item: any) => {
         recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
           startTime: item.durationStartTime * 60, // 秒
@@ -1240,6 +1256,20 @@ export default class extends Vue {
       })
     })
     return recordModes
+  }
+
+  private joinLoop(day: any, index: any = 0) {
+    if (index + 1 < day.length) {
+      if ((day[index].durationEndTime * 60 + 59) >= (day[index + 1].durationStartTime * 60)) {
+        day[index].durationEndTime = day[index + 1].durationEndTime
+        day.splice(index + 1, 1)
+        this.joinLoop(day, index)
+      } else {
+        this.joinLoop(day, index + 1)
+      }
+    } else {
+      return day
+    }
   }
 
   // 删除 循环定时录制的 某个duration
