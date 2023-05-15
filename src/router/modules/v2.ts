@@ -1003,33 +1003,35 @@ export const v2Router: RouteConfig[] = [
           perms: ['*']
         }
       },
-      {
-        path: 'custom-tree',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
-        name: 'CustomTree',
-        meta: {
-          title: '自定义设备树',
-          breadcrumb: true,
-          activeMenu: '/sysconfig/custom-tree',
-          icon: 'dot',
-          perms: ['*']
-        }
-      },
-      {
-        path: 'replay-lock-manage',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
-        name: 'ReplayLockManage',
-        meta: {
-          title: '锁定录像管理',
-          breadcrumb: true,
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/sysconfig/replay-lock-manage',
-          tags: {
-            isRecordLockAvailable: ['Y']
-          }
-        }
-      },
+      // v2版本会在s5迁移该功能，暂时隐藏
+      // {
+      //   path: 'custom-tree',
+      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+      //   name: 'CustomTree',
+      //   meta: {
+      //     title: '自定义设备树',
+      //     breadcrumb: true,
+      //     activeMenu: '/sysconfig/custom-tree',
+      //     icon: 'dot',
+      //     perms: ['*']
+      //   }
+      // },
+      // v2版本会在s5迁移该功能，暂时隐藏
+      // {
+      //   path: 'replay-lock-manage',
+      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+      //   name: 'ReplayLockManage',
+      //   meta: {
+      //     title: '锁定录像管理',
+      //     breadcrumb: true,
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/sysconfig/replay-lock-manage',
+      //     tags: {
+      //       isRecordLockAvailable: ['Y']
+      //     }
+      //   }
+      // },
       {
         path: 'system-config',
         component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
