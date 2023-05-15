@@ -514,7 +514,7 @@ export default class extends Vue {
         msg: `确定删除视频录制模板"${row.templateName}"`,
         method: deleteRecordTemplate,
         payload: { templateId: row.templateId },
-        onSuccess: this.init
+        onSuccess: this.delInit
       })
     }
     if (this.type === 'viid') {
@@ -523,9 +523,18 @@ export default class extends Vue {
         msg: `确定删除视图存储模板"${row.templateName}"`,
         method: deleteViidRecordTemplate,
         payload: { templateId: row.templateId },
-        onSuccess: this.init
+        onSuccess: this.delInit
       })
     }
+  }
+
+  private delInit() {
+    if (this.createTemplateDisable) {
+      this.mainCard = true
+      this.createTemplateDisable = false
+      this.createOrUpdateTemplate = false
+    }
+    this.init()
   }
 
   /**
