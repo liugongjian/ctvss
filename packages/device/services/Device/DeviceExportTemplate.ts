@@ -429,7 +429,7 @@ class ExportExcelTemplate {
             validation: this.validation.networkTypeExternal
           },
           {
-            title: { header: '接入区域', key: 'region', width: 16 },
+            title: { header: '*接入区域', key: 'region', width: 16 },
             validation: this.getRegionValidation()
           },
           // {
@@ -526,7 +526,7 @@ class ExportExcelTemplate {
             validation: this.validation.networkTypeExternal
           },
           {
-            title: { header: '接入区域', key: 'region', width: 16 },
+            title: { header: '*接入区域', key: 'region', width: 16 },
             validation: this.getRegionValidation()
           },
           // {
