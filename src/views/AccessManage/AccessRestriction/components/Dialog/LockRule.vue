@@ -29,8 +29,8 @@
         </template>
         <el-input v-model="form.list" type="textarea" :rows="5" />
       </el-form-item>
-      <el-form-item label="锁定时常">
-        <el-select v-model="form.time" placeholder="请选择锁定时常">
+      <el-form-item label="锁定时长">
+        <el-select v-model="form.time" placeholder="请选择锁定时长">
           <el-option v-for="item in timeList" :key="item.key" :label="item.label" :value="item.key" />
         </el-select>
       </el-form-item>
