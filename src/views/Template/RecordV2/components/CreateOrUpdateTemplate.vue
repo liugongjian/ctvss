@@ -1250,8 +1250,8 @@ export default class extends Vue {
       return temp.map((item: any) => {
         recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
-          startTime: item.durationStartTime * 60, // 秒
-          endTime: item.durationEndTime * 60 + 59// 秒
+          startTime: parseInt('' + item.durationStartTime * 60), // 秒
+          endTime: parseInt('' + item.durationEndTime * 60 + 59)// 秒
         })
       })
     })
@@ -1505,7 +1505,7 @@ export default class extends Vue {
         endTime: (duration.endTime - 59) / 60,
         moveable: false,
         durationStartTime: duration.startTime / 60, 
-        durationEndTime: duration.endTime / 60
+        durationEndTime: (duration.endTime - 59) / 60
       }
       this.weekdays[duration.dayofWeek - 1].push(data)
     })
