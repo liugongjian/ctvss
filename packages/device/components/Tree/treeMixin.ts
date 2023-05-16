@@ -112,7 +112,7 @@ export default class TreeMixin extends Vue {
     }
 
     // 子账号-获取权限数据
-    if (UserModule.iamUserId) {
+    if (UserModule.iamUserId && nodeData.length) {
       // 构造全路径
       nodeData.forEach((item: any) => {
         if (!item.path) {
