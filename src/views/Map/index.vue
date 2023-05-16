@@ -1108,6 +1108,8 @@ export default class extends Mixins(IndexMixin) {
         } else {
           this.confirmAddMarker(this.uselnglat)
         }
+      } else if (this.deviceInfo.device.isRoleShared) { // 虚拟业务组
+        this.confirmAddMarker(false)
       } else {
         if (!this.addPositionDialogCheck) {
           this.addPositionDialog = true
