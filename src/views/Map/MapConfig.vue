@@ -80,7 +80,7 @@
         </el-form-item>
         <el-form-item>
           <template slot="label">
-            是否启用目录聚合聚合:
+            是否启用目录聚合:
             <el-popover
               placement="top-start"
               width="400"
