@@ -67,7 +67,7 @@ import { Network } from '@/dics'
 import { translateResourceRegion } from '@vss/device/api/dict'
 
 @Component({
-  name: 'ViewDetails'
+  name: 'ViidDetailsDialog'
 })
 export default class extends Vue {
   @Prop({ default: {} })

@@ -31,8 +31,9 @@
           <template slot-scope="{ row }">
             <el-button v-if="row.isActive" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
             <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
-            <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
+            <el-button type="text" @click.stop="viewViidDetails(row)">查看</el-button>
             <el-button type="text" @click.stop="edit(row)">编辑</el-button>
+            <el-button type="text" @click.stop="viewDeviceList(row)">级联设备</el-button>
             <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>
@@ -46,10 +47,15 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <view-details
-      v-if="dialog.viewDetails"
+    <viid-details-dialog
+      v-if="dialog.viidDetails"
       :platform-details="platformDetails"
-      @on-close="closeDialog('viewDetails')"
+      @on-close="closeDialog('viidDetails')"
+    />
+    <device-list-dialog
+      v-if="dialog.deviceList"
+      :cascade-viid-id="currentCascadeViidId"
+      @on-close="closeDialog('deviceList')"
     />
   </div>
 </template>
@@ -58,14 +64,16 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
 import { GB28181 } from '@/type/Certificate'
-import ViewDetails from './components/ViewDetails.vue'
+import ViidDetailsDialog from './components/ViidDetailsDialog.vue'
+import DeviceListDialog from './components/DeviceListDialog.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'CertificateGb28181List',
   components: {
-    ViewDetails,
+    ViidDetailsDialog,
+    DeviceListDialog,
     StatusBadge
   }
 })
@@ -79,9 +87,11 @@ export default class extends Vue {
   }
   private platformDetails = null
   private dialog = {
-    viewDetails: false
+    viidDetails: false,
+    deviceList: false
   }
   private dateFormatInTable = dateFormatInTable
+  private currentCascadeViidId = ''
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -119,15 +129,23 @@ export default class extends Vue {
   /**
    * 查看级联详情
    */
-  private async viewDetails(row, column?: any) {
+  private async viewViidDetails(row, column?: any) {
     if (column && column.property === 'action') return
     try {
       const res = await getViewLibPlatformDetail({ cascadeViidId: row.cascadeViidId })
       this.platformDetails = res.data
-      this.dialog.viewDetails = true
+      this.dialog.viidDetails = true
     } catch (e) {
       this.$message.error(e && e.message)
     }
+  }
+
+  /**
+   * 查看级联设备列表
+   */
+  private async viewDeviceList(row) {
+    this.currentCascadeViidId = row.cascadeViidId
+    this.dialog.viidDetails = true
   }
 
   private async handleSizeChange(val: number) {
