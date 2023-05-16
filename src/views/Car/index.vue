@@ -235,15 +235,15 @@ export default class extends Vue {
     const now_stamp = now.getTime()
     switch (this.period){
       case 'notLimit':
-        return { startTime: undefined, endTime: now_stamp }
+        return { taskStartFrom: undefined, taskStartTo: undefined }
       case 'day':
-        return { startTime: subHours(now, 24).getTime(), endTime: now_stamp }
+        return { taskStartFrom: subHours(now, 24).getTime(), taskStartTo: now_stamp }
       case 'week':
-        return { startTime: subDays(now, 7).getTime(), endTime: now_stamp }
+        return { taskStartFrom: subDays(now, 7).getTime(), taskStartTo: now_stamp }
       case 'month':
-        return { startTime: subMonths(now, 1).getTime(), endTime: now_stamp }
+        return { taskStartFrom: subMonths(now, 1).getTime(), taskStartTo: now_stamp }
       case 'selfDefine':
-        return { startTime: this.periodRange[0], endTime: this.periodRange[1] }
+        return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[1] }
     }
   }
 
