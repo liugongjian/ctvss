@@ -10,6 +10,8 @@
     :props="defaultProps"
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"
+    :is-node-disabled="checkIsDisable"
+    :get-title="getTitle"
     :expand-on-click-node="false"
     @handle-node="handleNode"
   >
@@ -44,6 +46,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import { DeviceTypeEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'ReplayTree'
@@ -54,6 +57,26 @@ export default class extends Mixins(treeMixin) {
    */
   public checkIsDraggable(node) {
     return node.data.type === DeviceTypeEnum.Ipc
+      && checkPermission(['ivs:GetCloudRecord'], node.data)
+  }
+
+  /**
+   * 判断item是否可以点击
+   */
+  public checkIsDisable(node) {
+    return node.data.type === DeviceTypeEnum.Ipc
+      && !checkPermission(['ivs:GetCloudRecord'], node.data)
+  }
+
+  /**
+   * 获取item无权限提示
+   */
+  getTitle(data: any) {
+    if (!checkPermission(['ivs:GetCloudRecord'], data)) {
+      return '无录像回放权限'
+    } else {
+      return ''
+    }
   }
 }
 </script>
