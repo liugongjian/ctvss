@@ -7,7 +7,7 @@
       :closable="false"
       class="mb10"
     />
-    <el-card v-if="!treeListEmpty" class="platform">
+    <el-card v-if="treeListEmpty" class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
         <el-tooltip content="添加设备树">
@@ -40,7 +40,7 @@
         <div v-if="treeList && !treeList.length && !treeLoading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
-    <el-card v-if="!treeListEmpty" ref="deviceWrap" class="shared-devices">
+    <el-card v-if="treeListEmpty" ref="deviceWrap" class="shared-devices">
       <div class="tree-wraper" :style="{ height: treeMaxHeight + 'px' }">
         <div v-if="isEditing" class="tree-wraper__border">
           <div class="header">
@@ -153,7 +153,7 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-card>
-    <el-card v-if="treeListEmpty" class="empty">
+    <el-card v-if="!treeListEmpty" class="empty">
       <div class="title">设备树列表</div>
       <div class="content">
         <svg-icon name="empty" width="40" height="40" class="avatar" />
@@ -338,6 +338,7 @@ export default class extends Mixins(TreeMixin) {
     // await this.getTreeList()
     this.enableCloudChannelName = this.getNvrShowChannelName()
     // this.initGroups()
+    this.getTotalsOfLeftTree()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -363,17 +364,12 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private getTotalsOfLeftTree() {
-    const res = { onlineSize: 0, totalSize: 0 }
-    this.groupInfos.length > 0 && this.groupInfos.forEach(group => {
-      res.onlineSize += group.onlineSize
-      res.totalSize += group.totalSize
-    })
     this.$nextTick(() => {
       const dirTree: any = this.$refs.dirTree
       if (dirTree) {
         const rootNode = dirTree.getNode(root.id)
-        this.$set(rootNode.data, 'totalSize', res.totalSize)
-        this.$set(rootNode.data, 'onlineSize', res.onlineSize)
+        this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
+        this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
       }
     })
   }
@@ -503,13 +499,13 @@ export default class extends Mixins(TreeMixin) {
   private async loadDirs(node: any, resolve: Function) {
     this.treeLoading.dir = true
     const subData = await this.treeLoad(node)
-    console.log('subData:', subData)
     // if (node.level === 0) return resolve([])
     // if (node.level === 1) return this.initDirs(resolve) // 展开全部，load业务组信息
 
     const dirs = this.resolveSubTreeData(node, subData)
     // const dirs = await this.getTree(node)
 
+    this.getTotalsOfLeftTree()
 
     this.setDirChecked()
     resolve(dirs)
