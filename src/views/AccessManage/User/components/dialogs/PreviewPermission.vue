@@ -144,8 +144,8 @@ export default class extends Vue {
       const isGet = this.dialogData.dialogType === 'get'
       const permissionRes = await previewAuthActions({
         targetResources: dirs.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platform') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1)) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platform') ? undefined : dir.path[dir.path.length - 1].id
+          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
+          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
         })),
         iamUserId: isGet ? this.dialogData.iamUserId : undefined,
         iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,

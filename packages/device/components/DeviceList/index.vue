@@ -259,22 +259,22 @@
             <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
               <template slot-scope="{ row }">
                 <el-button
+                  v-if="!checkToolsVisible(toolsEnum.PreviewVideo, [policyEnum.GetLiveStream], row, row)"
                   type="text"
-                  :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, [policyEnum.GetLiveStream], row, row)"
                   @click="handleListTools(toolsEnum.PreviewVideo, row)"
                 >
                   实时预览
                 </el-button>
                 <el-button
+                  v-if="!checkToolsVisible(toolsEnum.ReplayVideo, [policyEnum.GetCloudRecord], row, row)"
                   type="text"
-                  :disabled="!checkToolsVisible(toolsEnum.ReplayVideo, [policyEnum.GetCloudRecord], row, row)"
                   @click="handleListTools(toolsEnum.ReplayVideo, row)"
                 >
                   录像回放
                 </el-button>
                 <el-button
+                  v-if="!checkToolsVisible(toolsEnum.PreviewViid, null, row, row)"
                   type="text"
-                  :disabled="!checkToolsVisible(toolsEnum.PreviewViid, null, row, row)"
                   @click="handleListTools(toolsEnum.PreviewViid, row)"
                 >
                   视图查看

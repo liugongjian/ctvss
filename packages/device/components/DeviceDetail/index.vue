@@ -67,7 +67,7 @@ export default class extends Mixins(detailMixin) {
       const permissionRes = await previewAuthActions({
         targetResources: [{
           dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
-          deviceId: this.currentDirId || undefined
+          deviceId: deviceId || undefined
         }]
       })
       this.deviceActions = permissionRes.result[0].iamUser.actions
