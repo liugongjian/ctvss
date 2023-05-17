@@ -114,8 +114,17 @@ export default class extends Vue {
     return tabs
   }
 
-  private forceUpdate() {
-    this.submit()
+  /**
+   * 强制更新
+   * @param isSubmit 是否更新表单
+   */
+  private forceUpdate(isSubmit: boolean) {
+    if (isSubmit) {
+      this.submit()
+    } else {
+      const serviceConfig = this.$refs.serviceConfig as any
+      serviceConfig.init()
+    }
   }
 
   private async submit() {
