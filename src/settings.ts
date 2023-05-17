@@ -133,7 +133,8 @@ const settings: ISettings = {
       actionDesc: '拥有设备云台控制权限，并展示实时预览菜单',
       allowAutoSelected: ['ivs:GetLiveStream'],
       denyAutoSelected: ['ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
-      resourceType: ['directory', 'device', 'channel']
+      resourceType: ['directory', 'device', 'channel'],
+      version: 'v1'
     },
     {
       actionName: '设备云台锁定',
