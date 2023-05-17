@@ -729,11 +729,11 @@ export class RecordManager {
     try {
       const res: any = await getDeviceLockList({
         deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
+        // inProtocol: this.screen.inProtocol,
         // groupId: this.currentGroupId,  没有 group id 的概念了
         startTime: Math.round(startTime),
         endTime: Math.round(endTime),
-        recordType: this.screen.recordType
+        // recordType: this.screen.recordType
       })
       return res.lockPeriods
     } catch (e) {

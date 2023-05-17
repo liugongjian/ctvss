@@ -113,7 +113,7 @@ export default class extends Vue {
           deviceId: item.deviceId,
           startTime: item.startTime,
           endTime: item.endTime,
-          inProtocol: this.screen ? this.screen.inProtocol : item.inProtocol
+          // inProtocol: this.screen ? this.screen.inProtocol : item.inProtocol
         }
       })
       const params: any = {
@@ -132,7 +132,7 @@ export default class extends Vue {
         // 单个解锁
         if (res.storageExpired === 1) {
           // 包含已过期录像
-          this.originExpTime = res.storageTime / 60 / 60 / 24
+          this.originExpTime = parseInt(res.storageTime / 60 / 60 / 24 + '')
           this.isExpired = true
         } else if (res.storageExpired === 0) {
           // 不包含

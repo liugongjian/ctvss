@@ -76,9 +76,9 @@ export default class extends Vue {
     ]
   }
 
-  public get currentGroupId() {
-    return GroupModule.group?.groupId
-  }
+  // public get currentGroupId() {
+  //   return GroupModule.group?.groupId
+  // }
 
   
   private get recordManager() {
@@ -147,9 +147,9 @@ export default class extends Vue {
               endTime: parseInt('' + this.form.duration[1] / 1000),
             },
             deviceId: this.screen.deviceId,
-            inProtocol: this.screen.inProtocol,
-            groupId: this.currentGroupId,
-            parentDeviceId: this.deviceInfo.parentDeviceId,
+            // inProtocol: this.screen.inProtocol,
+            // groupId: this.currentGroupId,
+            // parentDeviceId: this.deviceInfo.parentDeviceId,
             deviceName: this.deviceName
           })
           // 无法判断是否锁定成功

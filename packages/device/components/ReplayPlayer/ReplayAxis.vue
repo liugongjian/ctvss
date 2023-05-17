@@ -207,63 +207,63 @@ export default class extends Vue {
   /* current clicked locked item */
   private recordLockItem = null
 
-    private testLockList = [
-    {
-      recordLockId: '锁定ID-125',
-        deviceId: '12111111111111111111113',
-        deviceName: '行也不行',
-        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-        duration: null,
-        exp_time: '解锁时刻',
-        origin_exp_time: '30',
-      startTime: 1683833262,
-      endTime: 1683869262
-    },
-    {
-      recordLockId: '锁定ID-125',
-        deviceId: '12111111111111111111113',
-        deviceName: '行也不行',
-        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-        duration: null,
-        exp_time: '解锁时刻',
-        origin_exp_time: '30',
-      startTime: 1683773360,
-      endTime: 1683780560
-    },
-    {
-      recordLockId: '锁定ID-125',
-        deviceId: '12111111111111111111113',
-        deviceName: '行也不行',
-        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-        duration: null,
-        exp_time: '解锁时刻',
-        origin_exp_time: '30',
-      startTime: 1683787760,
-      endTime: 1683791360
-    },
-    {
-      recordLockId: '锁定ID-125',
-        deviceId: '12111111111111111111113',
-        deviceName: '行也不行',
-        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-        duration: null,
-        exp_time: '解锁时刻',
-        origin_exp_time: '30',
-      startTime: 1683794960,
-      endTime: 1683802160
-    },
-    {
-      recordLockId: '锁定ID-125',
-        deviceId: '12111111111111111111113',
-        deviceName: '湖人总冠军',
-        coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-        duration: null,
-        exp_time: '解锁时刻',
-        origin_exp_time: '30',
-      startTime: 1683802820,
-      endTime: 1683806420
-    }
-  ]
+  //   private testLockList = [
+  //   {
+  //     recordLockId: '锁定ID-125',
+  //       deviceId: '12111111111111111111113',
+  //       deviceName: '行也不行',
+  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //       duration: null,
+  //       exp_time: '解锁时刻',
+  //       origin_exp_time: '30',
+  //     startTime: 1683833262,
+  //     endTime: 1683869262
+  //   },
+  //   {
+  //     recordLockId: '锁定ID-125',
+  //       deviceId: '12111111111111111111113',
+  //       deviceName: '行也不行',
+  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //       duration: null,
+  //       exp_time: '解锁时刻',
+  //       origin_exp_time: '30',
+  //     startTime: 1683773360,
+  //     endTime: 1683780560
+  //   },
+  //   {
+  //     recordLockId: '锁定ID-125',
+  //       deviceId: '12111111111111111111113',
+  //       deviceName: '行也不行',
+  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //       duration: null,
+  //       exp_time: '解锁时刻',
+  //       origin_exp_time: '30',
+  //     startTime: 1683787760,
+  //     endTime: 1683791360
+  //   },
+  //   {
+  //     recordLockId: '锁定ID-125',
+  //       deviceId: '12111111111111111111113',
+  //       deviceName: '行也不行',
+  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //       duration: null,
+  //       exp_time: '解锁时刻',
+  //       origin_exp_time: '30',
+  //     startTime: 1683794960,
+  //     endTime: 1683802160
+  //   },
+  //   {
+  //     recordLockId: '锁定ID-125',
+  //       deviceId: '12111111111111111111113',
+  //       deviceName: '湖人总冠军',
+  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //       duration: null,
+  //       exp_time: '解锁时刻',
+  //       origin_exp_time: '30',
+  //     startTime: 1683802820,
+  //     endTime: 1683806420
+  //   }
+  // ]
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -565,10 +565,9 @@ export default class extends Vue {
       return locks
     }
     /* 已锁定的录像片段区间起始位置 */
-    // this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
+    this.axisData.locks = this.recordManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : []
     // 调试
-    this.axisData.locks = this.recolrdManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
-    console.log('🐓    🥚 ', this.axisData.locks)
+    // this.axisData.locks = this.recolrdManager && this.recordManager.lockList.length ? calLocks(this.recordManager.lockList) : calLocks(this.testLockList) // 测试用
     // 国标下，切换到设备时，去掉锁
     if (this.screen.inProtocol === 'gb28181' && this.screen.recordType === 1) {
       this.axisData.locks = []
