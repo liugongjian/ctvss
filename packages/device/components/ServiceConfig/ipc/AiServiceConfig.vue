@@ -288,7 +288,7 @@ export default class extends Vue {
     const target = this.selectedList.findIndex((app) => app.id === appId)
     if (target >= 0) this.selectedList.splice(target, 1)
     if (this.configManager.configMode === ConfigModeEnum.View) {
-      this.$emit('force-update')
+      this.$emit('force-update', true)
     }
   }
 
