@@ -12,6 +12,9 @@
           <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
+        <el-form-item v-if="checkVisible(deviceEnum.PlatformName)" label="平台名称:" :prop="deviceEnum.DeviceName">
+          <el-input v-model="deviceForm.deviceName" />
+        </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="isEnableCloudChannelName ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
@@ -44,14 +47,15 @@
         <el-form-item v-if="checkVisible(deviceEnum.Region)" v-loading="loading.region" label="接入区域:" :prop="deviceEnum.Region" class="form-with-tip">
           <region-cascader v-model="deviceForm.region" disabled />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.InOrgRegion)" label="设备地址:" :prop="deviceEnum.InOrgRegion">
+        <el-form-item v-if="checkVisible(deviceEnum.InOrgRegion) && deviceForm.inOrgRegion !== ''" label="设备地址:" :prop="deviceEnum.InOrgRegion">
           <address-cascader
             :code="deviceForm.inOrgRegion"
             :level="deviceForm.inOrgRegionLevel"
             :disabled="!isPlatformDevice"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
-        <el-form-item v-if="checkVisible(deviceEnum.IndustryCode)" label="所属行业:" :prop="deviceEnum.IndustryCode">
+        <el-form-item v-if="checkVisible(deviceEnum.IndustryCode) && deviceForm.industryCode !== ''" label="所属行业:" :prop="deviceEnum.IndustryCode">
           <el-select
             v-model="deviceForm.industryCode"
             placeholder="请选择所属行业"
@@ -61,6 +65,20 @@
               v-for="(value, key) in industryList"
               :key="key"
               :label="value.name"
+              :value="value.code"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="checkVisible(deviceEnum.NetworkCode) && deviceForm.networkCode !== ''" label="网络标识:" :prop="deviceEnum.NetworkCode">
+          <el-select
+            v-model="deviceForm.networkCode"
+            placeholder="请选择网络标识"
+            :disabled="!isPlatformDevice"
+          >
+            <el-option
+              v-for="(value, key) in networkList"
+              :key="key"
+              :label="value.name" 
               :value="value.code"
             />
           </el-select>
