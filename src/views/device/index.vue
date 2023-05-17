@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :style="{height: `${maxHeight}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{ height: `${maxHeight}px` }" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -13,13 +13,27 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div v-loading="loading.dir" class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
+              <el-tooltip
+                v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag"
+                class="item"
+                effect="dark"
+                content="子目录排序"
+                placement="top"
+                :open-delay="300"
+              >
+                <el-button type="text" @click.stop="openDialog('sortChildren', { id: '0' })"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip
+                v-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], rootActions) && !advancedSearchForm.revertSearchFlag"
+                class="item"
+                effect="dark"
+                content="添加目录"
+                placement="top"
+                :open-delay="300"
+              >
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -27,12 +41,19 @@
               </el-tooltip>
             </div>
             <div class="dir-list__tree device-list__max-height">
-              <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
+              <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }" @click="gotoRoot">
                 <svg-icon name="component" width="12px" />
                 根目录
                 <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
                 <el-tooltip v-if="currentGroup.inProtocol === 'gb28181'" class="item" effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
-                  <el-button type="text" style="float: right; padding-top: 0; padding-bottom: 0;" :disabled="!advancedSearchForm.revertSearchFlag" @click.stop="exportSearchResult"><svg-icon :class="{export: !!advancedSearchForm.revertSearchFlag}" name="export" /></el-button>
+                  <el-button
+                    type="text"
+                    style="float: right; padding-top: 0; padding-bottom: 0;"
+                    :disabled="!advancedSearchForm.revertSearchFlag"
+                    @click.stop="exportSearchResult"
+                  >
+                    <svg-icon :class="{ export: !!advancedSearchForm.revertSearchFlag }" name="export" />
+                  </el-button>
                 </el-tooltip>
               </div>
               <el-tree
@@ -50,9 +71,9 @@
                 @node-click="deviceRouter"
               >
                 <span
-                  slot-scope="{node, data}"
+                  slot-scope="{ node, data }"
                   class="custom-tree-node"
-                  :class="{'online': data.deviceStatus === 'on'}"
+                  :class="{ 'online': data.deviceStatus === 'on' }"
                 >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -105,9 +126,9 @@
                 @node-click="deviceRouter"
               >
                 <span
-                  slot-scope="{node, data}"
+                  slot-scope="{ node, data }"
                   class="custom-tree-node"
-                  :class="{'online': data.deviceStatus === 'on'}"
+                  :class="{ 'online': data.deviceStatus === 'on' }"
                 >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -137,7 +158,10 @@
               </el-tree>
             </div>
             <!-- 虚拟业务组暂不支持搜索 -->
-            <advanced-search v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'" :search-form="advancedSearchForm" @search="doSearch" />
+            <advanced-search
+              v-if="currentGroup.inProtocol && currentGroup.inProtocol !== 'vgroup'"
+              :search-form="advancedSearchForm" @search="doSearch"
+            />
           </div>
         </div>
         <div class="device-list__right">
@@ -152,7 +176,7 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight - 40}px`}">
+          <div class="device-list__max-height" :style="{ height: `${maxHeight - 40}px` }">
             <router-view />
           </div>
         </div>
