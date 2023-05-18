@@ -1083,10 +1083,11 @@ export const v1Router: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210515200901013321',
-      title: '车辆管理',
+      title: '车载监控管理',
       breadcrumb: true,
       icon: 'menu-car',
       perms: ['ivs:AdminCar'],
+      tags: ['isCarShow'],
       version: 1
     },
     children: [
@@ -1096,7 +1097,7 @@ export const v1Router: RouteConfig[] = [
         name: 'Car',
         meta: {
           id: '20210515200901013321',
-          title: '车辆管理',
+          title: '车载监控管理',
           breadcrumb: false,
           icon: 'car',
           perms: ['ivs:AdminCar']

@@ -27,7 +27,7 @@
         <ErrorMsg v-if="errorMsg" :error-msg="errorMsg">
           <!--用于无录像返回实时预览-->
           <LiveReplaySelector
-            v-if="hasLiveReplaySelector && !isLive"
+            v-if="hasLiveReplaySelector && !isLive && checkPermission(['ivs:GetLiveStream'], permission)"
             :is-live="isLive"
             :is-button="false"
             @dispatch="dispatch"
@@ -49,7 +49,11 @@
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :name="deviceInfo.deviceName" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
-        <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
+        <LiveReplaySelector
+          v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))"
+          :is-live="isLive"
+          @dispatch="dispatch"
+        />
         <slot name="controlRight" />
       </template>
     </Player>
@@ -104,6 +108,12 @@ import More from './components/More.vue'
   }
 })
 export default class extends Vue {
+  @Prop({ default: () => null })
+  private permission
+  /* 权限校验函数 */
+  @Prop({ default: () => function() { return true } })
+  private checkPermission
+
   /* 播放器类型 */
   @Prop()
   private type!: TypeEnum
