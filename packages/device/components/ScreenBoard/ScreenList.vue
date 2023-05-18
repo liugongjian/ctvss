@@ -15,7 +15,7 @@
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="checkPermission(['ivs:UpdateDevice'])"
+                  v-if="checkPermission(['ivs:UpdateDevice'], currentScreen.permission)"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -68,7 +68,7 @@
           <el-table-column prop="action" label="操作" width="200" fixed="right">
             <template slot-scope="{ row }">
               <el-button
-                v-if="checkPermission(['ivs:GetCloudRecord']) && checkPermission(['ivs:DownloadCloudRecord'])"
+                v-if="checkPermission(['ivs:GetCloudRecord'], currentScreen.permission) && checkPermission(['ivs:DownloadCloudRecord'], currentScreen.permission)"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"
@@ -108,6 +108,7 @@
         type="hls"
         :codec="currentListRecord.codec"
         :has-progress="true"
+        :permission="currentScreen.permission"
         :check-permission="checkPermission"
       />
     </el-dialog>
