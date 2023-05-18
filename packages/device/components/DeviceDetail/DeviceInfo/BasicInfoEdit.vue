@@ -37,7 +37,7 @@
             :disabled="inVideoProtocol === inVideoProtocolEnum.Rtsp"
           >
             <el-option
-              v-for="(value, key) in deviceVendor[inVideoProtocol]"
+              v-for="(value, key) in deviceVendor[inVideoProtocol || inViidProtocol]"
               :key="key"
               :label="value"
               :value="key"
