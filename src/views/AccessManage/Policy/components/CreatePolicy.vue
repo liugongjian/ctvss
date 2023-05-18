@@ -244,6 +244,22 @@ export default class extends Vue {
     return settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
       .filter((action: any) => !action.version || action.version === userVersion)
+      .filter((action: any) => {
+        let neededTagObject = {}
+        if (Array.isArray(action.tags)) {
+          action.tags.forEach(tag => {
+            neededTagObject[tag] = ['Y']
+          })
+        } else {
+          neededTagObject = action.tags || ({})
+        }
+
+        return Object.keys(neededTagObject).every(neededTag => {
+          const tagValue = tagObject[neededTag]
+          const neededValue = neededTagObject[neededTag]
+          return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+        })
+      })
       .map(action => {
         const options = action.actionValueOption
         return {

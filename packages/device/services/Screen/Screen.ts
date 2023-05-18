@@ -112,6 +112,7 @@ export class Screen {
     this.deviceId = null
     this.inProtocol = ''
     this.deviceName = ''
+    this.permission = null
     this.isLive = null
     this.isLoading = false
     this.isFullscreen = false

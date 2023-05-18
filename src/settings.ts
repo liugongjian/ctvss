@@ -22,6 +22,7 @@ interface ISettings {
     denyAutoSelected?: string[]; // 勾选后默认勾选的其他aciton - Deny场景
     resourceType?: string | Array<string>;
     version?: string // Action对应的平台版本
+    tags?: string[]; // Action对应的用户tag
   }[]
 }
 
@@ -235,13 +236,14 @@ const settings: ISettings = {
       actionType: 'GET',
       resourceType: '*'
     },
-    // 车辆管理
+    // 车载监控管理
     {
-      actionName: '车辆管理',
+      actionName: '车载监控管理',
       actionKey: 'ivs:AdminCar',
-      actionDesc: '拥有车辆管理权限，并展示车辆管理菜单',
+      actionDesc: '拥有车载监控管理权限，并展示车载监控管理菜单',
       allowAutoSelected: ['ivs:GetDevice'],
-      resourceType: ['directory', 'device', 'channel']
+      resourceType: ['directory', 'device', 'channel'],
+      tags: ['isCarShow']
     }
     // 电视墙
     // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）

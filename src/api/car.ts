@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 车辆管理相关接口
+// 车载监控管理相关接口
 export const getCarTasks = (params: any): Promise<any> =>
   request({
     url: '/vehicle/tasks',
