@@ -51,7 +51,7 @@ export default class extends Mixins(treeMixin) {
         this.loadChildren(pathList)
       })
     }
-    return res.dirs.filter((dir: any) => [this.inVideoProtocolEnum.Gb28181].includes(dir.inVideoProtocol))
+    return res.dirs.filter((dir: any) => [this.inVideoProtocolEnum.Gb28181, ''].includes(dir.inVideoProtocol))
   }
 }
 </script>
