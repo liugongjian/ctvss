@@ -12,6 +12,9 @@
           <span v-if="isEnableCloudChannelName && isPlatformDevice">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
         </el-form-item>
+        <el-form-item v-if="checkVisible(deviceEnum.PlatformName)" label="平台名称:" :prop="deviceEnum.DeviceName">
+          <el-input v-model="deviceForm.deviceName" />
+        </el-form-item>
         <el-form-item v-if="checkVisible(deviceEnum.ChannelName)" label="通道名称:" :prop="isEnableCloudChannelName ? null : deviceEnum.DeviceName">
           <span v-if="isEnableCloudChannelName">{{ deviceForm.deviceName }}</span>
           <el-input v-else v-model="deviceForm.deviceName" />
@@ -75,7 +78,7 @@
             <el-option
               v-for="(value, key) in networkList"
               :key="key"
-              :label="value.name"
+              :label="value.name" 
               :value="value.code"
             />
           </el-select>

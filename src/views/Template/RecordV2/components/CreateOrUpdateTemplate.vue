@@ -66,6 +66,7 @@
               placeholder="选择时间范围"
               value-format="timestamp"
               format="HH:mm"
+              :editable="false"
               :picker-options="pickerOptions"
               @change="timepickerChange"
             />

@@ -7,6 +7,7 @@ import { getDevicePreview } from '@vss/device/api/device'
 import { Stream } from '@vss/device/type/Device'
 import { Codec, StatusEnum, RecordType } from '@vss/device/enums'
 import { ScreenModule } from '@vss/device/store/modules/screen'
+import { addLog } from '@vss/device/api/operationLog'
 
 export class Screen {
   public key: number
@@ -302,6 +303,11 @@ export class Screen {
         }
       }
       this.isLoading = false
+      addLog({
+        deviceId: this.deviceId.toString(),
+        inProtocol: this.inProtocol,
+        operationName: '开始播放'
+      })
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
@@ -373,5 +379,11 @@ export class Screen {
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()
+    const recordTypeName = this.recordType === RecordType.Cloud ? '云端' : '设备'
+    addLog({
+      deviceId: this.deviceId.toString(),
+      inProtocol: this.inProtocol,
+      operationName: `开始${recordTypeName}回放`
+    })
   }
 }

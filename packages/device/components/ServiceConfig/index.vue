@@ -359,9 +359,13 @@ export default class extends Vue {
     }
   }
 
-  private forceUpdate() {
+  /**
+   * 强制更新
+   * @param isSubmit 是否更新表单
+   */
+  private forceUpdate(isSubmit: boolean) {
     window.setImmediate(() => {
-      this.$emit('force-update')
+      this.$emit('force-update', isSubmit)
     })
   }
 

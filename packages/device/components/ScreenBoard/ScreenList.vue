@@ -119,9 +119,12 @@ import { Record } from '@vss/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@vss/device/api/device'
+import { RecordType } from '@vss/device/enums'
+import { addLog } from '@vss/device/api/operationLog'
 import { checkPermission } from '@vss/base/utils/permission'
 import DeviceDir from '@vss/device/components/DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
+
 @Component({
   name: 'ScreenList',
   components: {
@@ -298,6 +301,12 @@ export default class extends Vue {
         link.remove()
       }
       record.loading = false
+      const recordTypeName = this.currentScreen.recordType === RecordType.Cloud ? '云端' : '设备'
+      addLog({
+        deviceId: this.currentScreen.deviceId.toString(),
+        inProtocol: this.currentScreen.inProtocol,
+        operationName: `下载${recordTypeName}录像`
+      })
     } catch (e) {
       this.$message.error(e.message)
     }
@@ -310,6 +319,12 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = true
     this.currentListRecord = record
+    const recordTypeName = this.currentScreen.recordType === RecordType.Cloud ? '云端' : '设备'
+    addLog({
+      deviceId: this.currentScreen.deviceId.toString(),
+      inProtocol: this.currentScreen.inProtocol,
+      operationName: `播放${recordTypeName}录像`
+    })
   }
 
   /**
