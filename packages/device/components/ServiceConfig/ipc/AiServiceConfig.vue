@@ -83,7 +83,7 @@
             <el-button
               :disabled="row[ipcAiConfigEnum.Status] !== '0'"
               type="text"
-              @click="unBindingApp(row.id)"
+              @click="unBindingApp(row)"
             >
               删除
             </el-button>
@@ -151,7 +151,7 @@ import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
 import AiAppCreateDialog from './AiAppCreateDialog.vue'
 import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
-import { startAppResource, stopAppResource } from '@vss/device/api/device'
+import { startAppResource, stopAppResource, unBindAppResource } from '@vss/device/api/device'
 import { checkPermission } from '@vss/base/utils/permission'
 @Component({
   name: 'IpcAiServiceConfig',
@@ -284,14 +284,6 @@ export default class extends Vue {
     this.showBindingDialog = true
   }
 
-  private unBindingApp(appId: number) {
-    const target = this.selectedList.findIndex((app) => app.id === appId)
-    if (target >= 0) this.selectedList.splice(target, 1)
-    if (this.configManager.configMode === ConfigModeEnum.View) {
-      this.$emit('force-update', true)
-    }
-  }
-
   private closeDialog(data) {
     this.showBindingDialog = false
     Array.isArray(data) &&
@@ -368,6 +360,38 @@ export default class extends Vue {
    */
   private closeCanvasDialog() {
     this.canvasDialog = false
+  }
+
+  /**
+   * 解绑AI应用
+   */
+  private unBindingApp(rowInfo: any) {
+    const target = this.selectedList.findIndex((app) => app.appId === rowInfo.appId)
+    if (target >= 0) this.selectedList.splice(target, 1)
+    if (this.configManager.configMode === ConfigModeEnum.View) {
+      this.loading.table = true
+      const param = {
+        inProtocol: this.configManager.inVideoProtocol,
+        deviceId: this.configManager.deviceId,
+        deviceType: 'ipc',
+        appIds: [rowInfo.appId]
+      }
+      unBindAppResource(param)
+        .then(() => {
+          this.loading.table = false
+          this.$message.success('删除成功！')
+          this.$emit('force-update')
+        })
+        .catch((e) => {
+          this.loading.table = false
+          this.$message.error(
+            `删除失败，原因：${e && e.message}`
+          )
+        })
+        .finally(() => {
+          this.$emit('force-update')
+        })
+    }
   }
 
   /**
