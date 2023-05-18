@@ -19,6 +19,8 @@
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     :has-axis="hasAxis"
+    :permission="screen.permission"
+    :check-permission="checkPermission"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
@@ -54,13 +56,13 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import { RecordType } from '@vss/device/enums'
 import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import VssPlayer from '@vss/vss-video-player/index.vue'
+import { checkPermission } from '@vss/base/utils/permission'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
@@ -108,8 +110,10 @@ export default class extends Vue {
     return this.screen.recordManager
   }
 
+  private checkPermission = checkPermission
+
   private get hasAdminRecord() {
-    return checkPermission(['ivs:DownloadCloudRecord'])
+    return checkPermission(['ivs:DownloadCloudRecord'], this.screen.permission)
   }
 
   /* 当前全屏状态 */

@@ -11,6 +11,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@vss/base/utils/date'
 import { isIE } from '@vss/base/utils/browser'
 import ComponentMixin from './mixin'
+import { addLog } from '@vss/device/api/operationLog'
 
 @Component({
   name: 'Snapshot'
@@ -48,6 +49,12 @@ export default class extends ComponentMixin {
       $link.href = base64
       $link.click()
     }
+    const typeName = this.isLive ? '预览' : '录像'
+    addLog({
+      deviceId: this.deviceInfo.deviceId.toString(),
+      inProtocol: this.deviceInfo.inProtocol,
+      operationName: `${typeName}截图`
+    })
   }
 }
 </script>

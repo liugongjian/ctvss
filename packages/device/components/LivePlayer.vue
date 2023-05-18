@@ -19,6 +19,8 @@
     :scale="screen.scale"
     :poster="screen.poster"
     :is-debug="isDebug"
+    :permission="screen.permission"
+    :check-permission="checkPermission"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
@@ -36,6 +38,7 @@ import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import { FullscreenTypeEnum } from '@vss/device/enums/screen'
+import { checkPermission } from '@vss/base/utils/permission'
 import VssPlayer from '@vss/vss-video-player/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 
@@ -58,6 +61,8 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  private checkPermission = checkPermission
 
   private FullscreenTypeEnum = FullscreenTypeEnum
 
