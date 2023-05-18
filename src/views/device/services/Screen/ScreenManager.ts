@@ -40,7 +40,7 @@ export class ScreenManager {
   public isSync: boolean
   /* 是否只需要单窗口（用于设备管理播放） */
   public isSingle: boolean
-  /* 车辆管理隐藏部分功能 */
+  /* 车载监控管理隐藏部分功能 */
   public isCarTask: boolean
   /* 设备数队列（用于轮巡） */
   public devicesQueue: any[]
