@@ -79,7 +79,7 @@
               </el-button>
               <el-button
                 type="text"
-                :disabled="row.loading || (!canLock && row.isLock === 1)"
+                :disabled="(!canLock && row.isLock === 1)"
                 @click="playReplay(row)"
               >
                 <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->

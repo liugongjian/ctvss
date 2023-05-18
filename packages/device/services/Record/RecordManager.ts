@@ -201,7 +201,12 @@ export class RecordManager {
       }
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      this.seek(this.screen.currentRecordDatetime, true)
+      // 新版录像切割盈余，导致开始部分准确性降低，需要seek配合跳转到指定任务开始时间（车辆管理）
+      let seekTime = this.screen.currentRecordDatetime
+      if (this.screen.datetimeRange) {
+        seekTime = Math.max(this.screen.currentRecordDatetime, this.screen.datetimeRange.startTime)
+      }
+      this.seek(seekTime, true)
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
