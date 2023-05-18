@@ -843,7 +843,9 @@ export const v2Router: RouteConfig[] = [
       breadcrumb: true,
       icon: 'menu-car',
       perms: ['ivs:AdminCar'],
-      tags: ['isCarShow'],
+      tags: {
+        'isCarShow': ['true']
+      },
       version: 2
     },
     children: [
