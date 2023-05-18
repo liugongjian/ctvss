@@ -113,7 +113,7 @@ export default class extends Vue {
   private checkPermission = checkPermission
 
   private get hasAdminRecord() {
-    return checkPermission(['ivs:DownloadCloudRecord'])
+    return checkPermission(['ivs:DownloadCloudRecord'], this.screen.permission)
   }
 
   /* 当前全屏状态 */
