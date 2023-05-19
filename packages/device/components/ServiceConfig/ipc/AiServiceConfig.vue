@@ -374,7 +374,7 @@ export default class extends Vue {
         inProtocol: this.configManager.inVideoProtocol,
         deviceId: this.configManager.deviceId,
         deviceType: 'ipc',
-        appIds: [rowInfo.appId]
+        appId: [rowInfo.appId]
       }
       unBindAppResource(param)
         .then(() => {
