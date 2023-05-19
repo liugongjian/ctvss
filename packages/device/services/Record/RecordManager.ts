@@ -96,7 +96,16 @@ export class RecordManager {
    */
   public async initReplay() {
     this.currentRecord = null
-    this.getRecordListByDate(this.currentDate)
+    if (!this.screen.isCarTask) {
+      this.getRecordListByDate(this.currentDate)
+    } else {
+      let seekTime = this.screen.currentRecordDatetime
+      if (this.screen.datetimeRange) {
+        seekTime = Math.max(this.screen.currentRecordDatetime, this.screen.datetimeRange.startTime)
+      }
+      this.seek(seekTime, true)
+    }
+    // this.getRecordListByDate(this.currentDate)
     this.getRecordStatistic()
     this.getLatestRecord()
   }
@@ -202,11 +211,9 @@ export class RecordManager {
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
       // 新版录像切割盈余，导致开始部分准确性降低，需要seek配合跳转到指定任务开始时间（车辆管理）
-      let seekTime = this.screen.currentRecordDatetime
-      if (this.screen.datetimeRange) {
-        seekTime = Math.max(this.screen.currentRecordDatetime, this.screen.datetimeRange.startTime)
+      if (isSeek) {
+        this.seek(this.screen.currentRecordDatetime, true)
       }
-      this.seek(seekTime, true)
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
@@ -272,7 +279,6 @@ export class RecordManager {
         }
         record = this.getRecordByTime(time)
       }
-
       if (record) {
         if (this.screen.recordType === RecordType.Cloud) {
           // 云端录像
@@ -281,7 +287,10 @@ export class RecordManager {
             this.currentRecord.offsetTime = time - record.startTime
           } else {
             this.currentRecord.offsetTime = null
-            this.screen.player && this.screen.player.seek(time - this.currentRecord.startTime)
+            // this.screen.player && this.screen.player.seek(time - this.currentRecord.startTime)
+            if (this.screen.player) {
+              this.screen.player.seek(time - this.currentRecord.startTime)
+            }
           }
         } else {
           // 本地录像

@@ -245,6 +245,7 @@ export enum ToolsEnum {
   Refresh = 'refresh',
   CloseDialog = 'closeDialog',
   // 设备列表相关
+  DescribePermission = 'describePermission',
   ShowDeviceInfo = 'showDeviceInfo',
   AddDevice = 'addDevice',
   ViewDevice = 'viewDevice',
