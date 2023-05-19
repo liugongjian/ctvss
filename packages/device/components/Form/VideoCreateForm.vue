@@ -441,8 +441,6 @@ export default class extends Vue {
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
-    // 重置vendor
-    this.videoForm.videoVendor = ''
     // 重置主子码流数量
     this.videoForm.deviceStreamSize = 1
     // 重置自动拉取码流

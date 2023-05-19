@@ -51,6 +51,15 @@ export default class extends Mixins(layoutMxin) {
     window.addEventListener('resize', this.calMaxHeight)
   }
 
+  public maxHeight = null
+  public calMaxHeight() {
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 22
+  }
+
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
   }
