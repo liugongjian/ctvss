@@ -214,15 +214,18 @@ export default class extends Vue {
   }
 
   private get videoServiceUsable() {
-    return  (!!this.configManager[ResourceTypeEnum.Video].length || this.configManager.hasOndemand) && this.initFlag
+    const hasVideoInit = this.configManager.initInfo['video'] && this.configManager.initInfo['video'].length
+    return (hasVideoInit || (!!this.configManager[ResourceTypeEnum.Video].length || this.configManager.hasOndemand)) && this.initFlag
   }
 
   private get aiServiceUsable() {
-    return (this.configManager[ResourceTypeEnum.AI].length || this.configManager.hasOndemand) && this.initFlag
+    const hasAiInit = this.configManager.initInfo['aI'] && this.configManager.initInfo['aI'].length
+    return (hasAiInit || (this.configManager[ResourceTypeEnum.AI].length || this.configManager.hasOndemand)) && this.initFlag
   }
 
   private get viidServiceUsable() {
-    return this.configManager.hasOndemand && this.initFlag
+    const hasViidInit = this.configManager.initInfo['viid'] && this.configManager.initInfo['viid'].length
+    return (hasViidInit || this.configManager.hasOndemand) && this.initFlag
   }
 
   // 判断是否支持视图试用
