@@ -94,6 +94,10 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
   }
 
+  private get UserVersion() {
+    return UserModule.version
+  }
+
   private get currentDirId() {
     return this.$route.query.dirId as string
   }
