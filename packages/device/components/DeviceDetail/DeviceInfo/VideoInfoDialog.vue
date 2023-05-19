@@ -73,9 +73,9 @@ export default class extends Vue {
             DeviceEnum.DeviceSerialNumber,
             DeviceEnum.DeviceModel,
             DeviceEnum.Description,
-            DeviceEnum.DeviceVendor,
             DeviceEnum.DeviceChannelSize
           ]),
+          deviceVendor: videoForm.videoVendor,
         },
         [DeviceEnum.Resource]: videoForm.resource,
       }
