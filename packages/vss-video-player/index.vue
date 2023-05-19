@@ -47,7 +47,7 @@
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot v-if="player" :name="deviceInfo.deviceName" />
+        <Snapshot v-if="player" :device-info="deviceInfo" :is-live="isLive" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
         <LiveReplaySelector
           v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))"
