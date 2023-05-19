@@ -299,7 +299,7 @@ export default class extends Vue {
     }
     // 拖动检测
     if (startTimeSec === -1 && endTimeSec === -1) {
-      if (deltaTime > 77.828125) {
+      if (deltaTime > 71) {
         this.isWarning = true
         this.warningText = warnings.O2H
       } else {
