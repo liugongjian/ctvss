@@ -1,5 +1,5 @@
 <template>
-  <div ref="listWrap" class="device-list__container min-contaniner">
+  <div ref="listWrap" class="min-contaniner">
     <div class="filter-container clearfix">
       <!-- <div class="filter-container__left">
         <el-button type="primary" @click="1">一键删除</el-button>
@@ -115,7 +115,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="alarmDescription" label="报警内容" min-width="240" />
-      <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
+      <el-table-column prop="action" class-name="col-action" label="操作" width="100" fixed="right">
         <template slot-scope="{ row }">
           <el-button type="text" @click.stop="deleteAlarm(row)">删除</el-button>
         </template>
@@ -303,7 +303,8 @@ export default class extends Vue {
       pageSize: this.pager.pageSize,
       inProtocol: this.$route.query.inVideoProtocol || 'gb28181'
     }
-    if (this.$route.query.type !== 'ipc') {
+    const type = this.$route.query.type
+    if (type !== 'ipc' && type !== 'nvr') {
       // 目录级别
       params.dirId = this.$route.query.dirId
       if (typeof(this.$route.query.type) === 'undefined') {
@@ -312,7 +313,7 @@ export default class extends Vue {
       }
     } else {
       // 设备级别
-        params.deviceId = this.$route.query.deviceId
+      params.deviceId = this.$route.query.deviceId
     }
     try {
       !forbitLoading && (this.loading = true) && (this.alarmList = [])

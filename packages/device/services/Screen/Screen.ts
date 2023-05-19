@@ -75,6 +75,8 @@ export class Screen {
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
   public datetimeRange?: { startTime: number; endTime: number }
+  /* 车辆管理后端时间超前，跳转处理. 引入车辆管理识别符号 */
+  public isCarTask: Boolean
 
   /**
    * ----------------
@@ -135,6 +137,7 @@ export class Screen {
     this._isMuted = null
     this._playbackRate = null
     this._scale = null
+    this.isCarTask = false
     this.log = {
       previewRequestId: null,
       previewStartTimestamp: null,
@@ -147,8 +150,6 @@ export class Screen {
     this.recordManager = new RecordManager({
       screen: this
     })
-    
-    console.log(222)
   }
 
   public get deviceInfo(): DeviceInfo {
