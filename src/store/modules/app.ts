@@ -7,8 +7,15 @@ export enum DeviceType {
   Desktop,
 }
 
+export enum SystemType {
+  SYSTEM_USER = 'system-user', // 用户平台
+  SYSTEM_OPERATION = 'system-operation', // 运营平台
+  SYSTEM_ADMIN = 'sytem-admin' // 运维平台
+}
+
 export interface IAppState {
   device: DeviceType
+  system: SystemType
   sidebar: {
     opened: boolean
     withoutAnimation: boolean
@@ -23,6 +30,7 @@ class App extends VuexModule implements IAppState {
     withoutAnimation: false
   }
   public device = DeviceType.Desktop
+  public system = SystemType.SYSTEM_USER
   public size = getSize() || 'medium'
 
   @Mutation

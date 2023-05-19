@@ -31,6 +31,7 @@
       <template slot="leftBottom">
         <!-- TODO -->
         <advanced-search
+          v-if="UserVersion === 1"
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
