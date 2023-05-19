@@ -508,6 +508,29 @@ const openListDialog = function (getVueComponent, type: string, row?: any) {
       state.currentDevice = row
       state.dialog[ToolsEnum.UpdateResource] = true
       break
+    case ToolsEnum.DescribePermission:
+      const path: any = state.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      
+      if (row && row.deviceId) {
+        const dirPath = pathArr.join('/')
+        state.describePermissonDialogData = {
+          type: row.type,
+          dirPath: dirPath || '0',
+          deviceId: row.deviceId
+        }
+      } else {
+        const deviceId = state.deviceId
+        const deviceType = state.deviceType
+        const dirPath = (deviceType === 'dir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+        state.describePermissonDialogData = {
+          type: deviceType,
+          dirPath: dirPath || '0',
+          deviceId: deviceType === 'dir' ? undefined : deviceId
+        }
+      }
+      state.dialog[ToolsEnum.DescribePermission] = true
+      break
   }
 }
 
