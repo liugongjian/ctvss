@@ -20,6 +20,7 @@
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     :has-axis="hasAxis"
+    :check-permission="checkPermission"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
@@ -58,13 +59,13 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
 import { ScreenModule } from '@vss/device/store/modules/screen'
 import { PlayerEvent } from '@vss/vss-video-player/types/VssPlayer'
 import { Screen } from '@vss/device/services/Screen/Screen'
 import { RecordType } from '@vss/device/enums'
 import { FullscreenTypeEnum } from '@vss/device/enums/screen'
 import VssPlayer from '@vss/vss-video-player/index.vue'
+import { checkPermission } from '@vss/base/utils/permission'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
@@ -120,9 +121,9 @@ export default class extends Vue {
     return this.screen.recordManager
   }
 
-  private get hasAdminRecord() {
-    return checkPermission(['ivs:DownloadCloudRecord'])
-  }
+  // private get hasAdminRecord() {
+  //   return checkPermission(['ivs:DownloadCloudRecord'], this.screen.permission)
+  // }
 
   /* 当前全屏状态 */
   private get isFullscreen() {
@@ -153,6 +154,7 @@ export default class extends Vue {
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
+    this.screen.isCarTask = this.isCarTask
     if (this.screen.recordType === RecordType.Cloud) {
       this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
       this.type = this.recordManager.currentRecord && this.recordManager.currentRecord.fileFormat

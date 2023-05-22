@@ -24,6 +24,14 @@
       <div v-loading="loading.table" class="list-wrap__tools">
         <div class="list-wrap__tools__left">
           <el-button
+            v-if="checkToolsVisible(toolsEnum.DescribePermission)"
+            key="describe-permission-button"
+            type="primary"
+            @click="handleListTools(toolsEnum.DescribePermission)"
+          >
+            查看权限
+          </el-button>
+          <el-button
             v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.CreateDevice], null, deviceActions)"
             key="create-button"
             type="primary"
@@ -256,25 +264,34 @@
                 {{ dateFormat(row[deviceEnum.CreatedTime]) || '-' }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" prop="action" class-name="col-action" width="280" fixed="right">
+            <el-table-column label="操作" prop="action" class-name="col-action" width="340" fixed="right">
               <template slot-scope="{ row }">
                 <el-button
+                  v-if="checkToolsVisible(toolsEnum.DescribePermission)"
                   type="text"
-                  :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, [policyEnum.GetLiveStream], row, row)"
+                  @click="handleListTools(toolsEnum.DescribePermission, row)"
+                >
+                  查看权限
+                </el-button>
+                <el-button
+                  v-if="checkPermission([policyEnum.GetLiveStream], row)"
+                  :disabled="!checkToolsVisible(toolsEnum.PreviewVideo, null, row, row)"
+                  type="text"
                   @click="handleListTools(toolsEnum.PreviewVideo, row)"
                 >
                   实时预览
                 </el-button>
                 <el-button
+                  v-if="checkPermission([policyEnum.GetCloudRecord], row)"
+                  :disabled="!checkToolsVisible(toolsEnum.ReplayVideo, null, row, row)"
                   type="text"
-                  :disabled="!checkToolsVisible(toolsEnum.ReplayVideo, [policyEnum.GetCloudRecord], row, row)"
                   @click="handleListTools(toolsEnum.ReplayVideo, row)"
                 >
                   录像回放
                 </el-button>
                 <el-button
-                  type="text"
                   :disabled="!checkToolsVisible(toolsEnum.PreviewViid, null, row, row)"
+                  type="text"
                   @click="handleListTools(toolsEnum.PreviewViid, row)"
                 >
                   视图查看
@@ -343,6 +360,11 @@
     <upload-excel v-if="dialog[toolsEnum.Import]" :file="selectedFile" :data="fileData" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.Import, $event)" />
     <resource-edit v-if="dialog[toolsEnum.UpdateResource]" :device="{ device: currentDevice }" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.UpdateResource, $event)" />
     <ExportTemplateAddressVue v-if="dialog[toolsEnum.ExportTemplate]" @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.ExportTemplate, $event)" />
+    <DescribePermission
+      v-if="dialog[toolsEnum.DescribePermission]"
+      :dialog-data="describePermissonDialogData"
+      @on-close="handleListTools(toolsEnum.CloseDialog, toolsEnum.DescribePermission, $event)"
+    />
   </div>
 </template>
 
@@ -362,10 +384,12 @@ import deviceMixin from '@vss/device/mixin/deviceMixin'
 import DeviceManager from '@vss/device/services/Device/DeviceManager'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '@vss/device/components/MoveDir.vue'
+import DescribePermission from '@vss/device/components/DescribePermission.vue'
 import UploadExcel from '@vss/device/components/UploadExcel.vue'
 import ResourceEdit from '@vss/device/components/Resource/Edit.vue'
 import ExportTemplateAddressVue from '@vss/device/components//ExportTemplateAddress.vue'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 
 @Component({
   name: 'DeviceList',
@@ -373,7 +397,8 @@ import { UserModule } from '@/store/modules/user'
     MoveDir,
     UploadExcel,
     ResourceEdit,
-    ExportTemplateAddressVue
+    ExportTemplateAddressVue,
+    DescribePermission
   }
 })
 export default class extends Mixins(deviceMixin) {
@@ -428,6 +453,7 @@ export default class extends Mixins(deviceMixin) {
   }
 
   private deviceActions = null
+  private describePermissonDialogData = {}
 
   // 定时刷新
   private refreshCount = {
@@ -442,6 +468,7 @@ export default class extends Mixins(deviceMixin) {
     [ToolsEnum.Import]: false,
     [ToolsEnum.UpdateResource]: false,
     [ToolsEnum.ExportTemplate]: false,
+    [ToolsEnum.DescribePermission]: false
   }
 
   private isBatchMoveDir = false
@@ -460,6 +487,7 @@ export default class extends Mixins(deviceMixin) {
 
   // 功能回调字典
   private handleListToolsMap = {
+    [ToolsEnum.DescribePermission]: (row) => DeviceManager.openListDialog(this.getVueComponent, ToolsEnum.DescribePermission, row),
     [ToolsEnum.AddDevice]: () => DeviceManager.addDevice(this, this.currentDirId),
     [ToolsEnum.ViewDevice]: (row) => DeviceManager.viewDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
     [ToolsEnum.EditDevice]: (row) => DeviceManager.editDevice(this, row ? row[DeviceEnum.DeviceId] : this.currentDirId, row ? row[DeviceEnum.DeviceType] : DirectoryTypeEnum.Dir),
@@ -717,6 +745,10 @@ export default class extends Mixins(deviceMixin) {
    * @param actions 权限判断对应actions，可传入action对象，或者action对象数组
    */
   private checkToolsVisible(prop, permissions?, row?, actions?) {
+    // 权限预览：仅用户平台的主账号可见
+    if (prop === ToolsEnum.DescribePermission) {
+      return !UserModule.iamUserId && AppModule.system === SystemType.SYSTEM_USER
+    }
     !row && (row = {
       deviceType: this.currentDirType,
       inProtocol: this.inProtocol,

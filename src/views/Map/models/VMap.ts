@@ -453,6 +453,7 @@ export default class VMap {
       div.className = 'index-cluster'
       div.style.width = styleObj.size + 'px'
       div.style.height = styleObj.size + 'px'
+      div.style.backgroundColor = this.curMapOptions.defaultDeviceColor
       // 自定义点击事件
       context.marker.on('click', (e) => {
         let curZoom = this.map.getZoom()

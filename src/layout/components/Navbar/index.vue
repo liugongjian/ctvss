@@ -325,10 +325,12 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private async mounted() {
-    if (this.liuzhouFlag) {
-      GroupModule.GetMultiGroupList()
-    } else {
-      GroupModule.GetGroupList()
+    if (UserModule.version !== 2) {
+      if (this.liuzhouFlag) {
+        GroupModule.GetMultiGroupList()
+      } else {
+        GroupModule.GetGroupList()
+      }
     }
     this.aiInfos = await this.getAiApps()
 

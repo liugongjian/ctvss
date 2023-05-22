@@ -2,7 +2,7 @@
   <VssPlayer
     ref="player"
     class="replay-player"
-    :class="{'has-axis': hasAxis}"
+    :class="{ 'has-axis': hasAxis }"
     :url="url"
     :type="type"
     :codec="codec"
@@ -98,7 +98,7 @@ export default class extends Vue {
   @Prop()
   private isDebug: Boolean
 
-  /* 车辆管理中的录像回放需要隐藏下载功能 */
+  /* 车载监控管理中的录像回放需要隐藏下载功能 */
   @Prop()
   private isCarTask: Boolean
 

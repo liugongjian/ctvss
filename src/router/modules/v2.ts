@@ -835,52 +835,17 @@ export const v2Router: RouteConfig[] = [
     ]
   },
   {
-    path: '/alarm',
-    component: Layout,
-    meta: {
-      title: '告警管理',
-      icon: 'menu-alarm',
-      perms: ['*'],
-      alwaysShow: false,
-      only: true,
-      version: 2
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
-        name: 'Alarm',
-        meta: {
-          title: '告警管理',
-          icon: 'menu-alarm',
-          breadcrumb: false,
-          perms: ['*']
-        },
-        children: [
-          {
-            path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
-            name: 'AlarmList',
-            meta: {
-              title: '告警信息列表',
-              breadcrumb: false,
-              perms: ['*'],
-              activeMenu: '/alarm'
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
     path: '/car',
     component: Layout,
     meta: {
       id: '20210515200901013321',
-      title: '车辆管理',
+      title: '车载监控管理',
       breadcrumb: true,
       icon: 'menu-car',
       perms: ['ivs:AdminCar'],
+      tags: {
+        'isCarShow': ['true']
+      },
       version: 2
     },
     children: [
@@ -890,7 +855,7 @@ export const v2Router: RouteConfig[] = [
         name: 'Car',
         meta: {
           id: '20210515200901013321',
-          title: '车辆管理',
+          title: '车载监控管理',
           breadcrumb: false,
           icon: 'car',
           perms: ['ivs:AdminCar']
@@ -1041,33 +1006,35 @@ export const v2Router: RouteConfig[] = [
           perms: ['*']
         }
       },
-      {
-        path: 'custom-tree',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
-        name: 'CustomTree',
-        meta: {
-          title: '自定义设备树',
-          breadcrumb: true,
-          activeMenu: '/sysconfig/custom-tree',
-          icon: 'dot',
-          perms: ['*']
-        }
-      },
-      {
-        path: 'replay-lock-manage',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
-        name: 'ReplayLockManage',
-        meta: {
-          title: '锁定录像管理',
-          breadcrumb: true,
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/sysconfig/replay-lock-manage',
-          tags: {
-            isRecordLockAvailable: ['Y']
-          }
-        }
-      },
+      // v2版本会在s5迁移该功能，暂时隐藏
+      // {
+      //   path: 'custom-tree',
+      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+      //   name: 'CustomTree',
+      //   meta: {
+      //     title: '自定义设备树',
+      //     breadcrumb: true,
+      //     activeMenu: '/sysconfig/custom-tree',
+      //     icon: 'dot',
+      //     perms: ['*']
+      //   }
+      // },
+      // v2版本会在s5迁移该功能，暂时隐藏
+      // {
+      //   path: 'replay-lock-manage',
+      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+      //   name: 'ReplayLockManage',
+      //   meta: {
+      //     title: '锁定录像管理',
+      //     breadcrumb: true,
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/sysconfig/replay-lock-manage',
+      //     tags: {
+      //       isRecordLockAvailable: ['Y']
+      //     }
+      //   }
+      // },
       {
         path: 'system-config',
         component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),

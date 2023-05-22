@@ -27,7 +27,7 @@ import { Component, Mixins, Watch, Inject, Provide } from 'vue-property-decorato
 import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
 import { Device } from '@vss/device/type/Device'
 import { checkDeviceToolsVisible, checkDeviceTabsVisible } from '@vss/device/utils/param'
-import { previewAuthActions } from '@vss/device/api/dir'
+import { getDirPath, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
 import detailMixin from '@vss/device/mixin/deviceMixin'
@@ -58,19 +58,29 @@ export default class extends Mixins(detailMixin) {
   })
   public async deviceIdChange(deviceId) {
     this.device = {} as Device
-    this.getDevice(deviceId)
+    await this.getDevice(deviceId)
     // 当前设备-IAM权限查询
-    if (UserModule.iamUserId) {
-      const type: any = this.$route.query.type
-      const path: any = this.$route.query.path
-      const pathArr = path ? path.split(',') : []
-      const permissionRes = await previewAuthActions({
-        targetResources: [{
-          dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
-          deviceId: this.currentDirId || undefined
-        }]
-      })
-      this.deviceActions = permissionRes.result[0].iamUser.actions
+    try {
+      this.deviceLoading = true
+      if (UserModule.iamUserId) {
+        const type: any = this.$route.query.type
+        // 查询全路径
+        const res = await getDirPath({
+          id: deviceId,
+          type: type
+        })
+        const path = res.dirPathList.map(path => path.id).join(',')
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
+            deviceId: deviceId || undefined
+          }]
+        })
+        this.deviceActions = permissionRes.result[0].iamUser.actions
+      }
+    } finally {
+      this.deviceLoading = false
     }
   }
 
@@ -113,7 +123,6 @@ export default class extends Mixins(detailMixin) {
    */
   @Provide('checkToolsVisible')
   private checkToolsVisible(prop, permissions?, actions?) {
-    console.log('actions: ', actions)
     const data = {
       deviceType: this.deviceType,
       inProtocol: this.inProtocol,

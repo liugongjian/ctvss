@@ -11,20 +11,25 @@ import { Component, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@vss/base/utils/date'
 import { isIE } from '@vss/base/utils/browser'
 import ComponentMixin from './mixin'
+import { addLog } from '@vss/device/api/operationLog'
+import { DeviceInfo } from '../types/VssPlayer'
 
 @Component({
   name: 'Snapshot'
 })
 export default class extends ComponentMixin {
   @Prop()
-  private name: string
+  private deviceInfo: DeviceInfo
+
+  @Prop()
+  private isLive: boolean
 
   /**
    * 截图保存
    */
   private snapshot() {
     if (!this.player) return
-    const name = this.name || 'snapshot'
+    const name = this.deviceInfo.deviceName || 'snapshot'
     const base64 = this.player.snapshot()
 
     // IE兼容下载、未加载出视频时点击截图无效
@@ -48,6 +53,12 @@ export default class extends ComponentMixin {
       $link.href = base64
       $link.click()
     }
+    const typeName = this.isLive ? '预览' : '录像'
+    addLog({
+      deviceId: this.deviceInfo.deviceId.toString(),
+      inProtocol: this.deviceInfo.inProtocol,
+      operationName: `${typeName}截图`
+    })
   }
 }
 </script>

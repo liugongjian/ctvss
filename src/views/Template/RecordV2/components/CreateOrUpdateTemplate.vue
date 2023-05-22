@@ -67,6 +67,7 @@
               value-format="timestamp"
               :editable="false"
               format="HH:mm"
+              :editable="false"
               :picker-options="pickerOptions"
               @change="timepickerChange"
             />
@@ -794,8 +795,10 @@ export default class extends Vue {
     const target: any = (e.target.className.split(' '))[e.target.className.split(' ').length - 1]
     const row = +target.split('-')[1]
     const type = target.split('-').length
-    const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
-    const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
+    // const clickOffsetX = e.target.offsetLeft // click层用于渲染OPT
+    const clickOffsetX = e.target.getBoundingClientRect().left - 713 // click层用于渲染OPT 精确到小数点
+    // const clickOffsetWidth = e.target.offsetWidth // click层用于渲染OPT
+    const clickOffsetWidth = e.target.getBoundingClientRect().width // click层用于渲染OPT 精确到小数点
     return {target, row, type, clickOffsetX, clickOffsetWidth}
   }
 
@@ -1228,16 +1231,47 @@ export default class extends Vue {
       weekTimeSections: [],
       storageTime: this.form.storageTime * 24 * 60 * 60 // 秒
     }
+    // 按 durationStartTime 排序
     this.weekdays.map((day: any, index: any) => {
-      return day.map((item: any) => {
+      const len = day.length
+      for (let i = 0; i < len; i++) {
+        for (let j = 0; j < i; j++) {
+          if (day[j].durationStartTime > day[i].durationStartTime) {
+            const temp = day[j]
+            day[j] = day[i]
+            day[i] = temp
+          }
+        }
+      }
+    })
+    this.weekdays.map((day: any, index: any) => {
+      // 合并连续的时间
+      let temp: any = JSON.parse(JSON.stringify(day))
+      this.joinLoop(temp, 0)
+      // 补全录制时长
+      return temp.map((item: any) => {
         recordModes.weekTimeSections.push({
           dayofWeek: index + 1,
-          startTime: item.durationStartTime * 60, // 秒
-          endTime: item.durationEndTime * 60 + 59// 秒
+          startTime: parseInt(item.durationStartTime * 60 + ''), // 秒
+          endTime: parseInt(item.durationEndTime * 60 + 59 + '')// 秒
         })
       })
     })
     return recordModes
+  }
+
+  private joinLoop(day: any, index: any = 0) {
+    if (index + 1 < day.length) {
+      if ((day[index].durationEndTime * 60 + 59) >= (day[index + 1].durationStartTime * 60)) {
+        day[index].durationEndTime = day[index + 1].durationEndTime
+        day.splice(index + 1, 1)
+        this.joinLoop(day, index)
+      } else {
+        this.joinLoop(day, index + 1)
+      }
+    } else {
+      return day
+    }
   }
 
   // 删除 循环定时录制的 某个duration
@@ -1473,7 +1507,7 @@ export default class extends Vue {
         endTime: (duration.endTime - 59) / 60,
         moveable: false,
         durationStartTime: duration.startTime / 60, 
-        durationEndTime: duration.endTime / 60
+        durationEndTime: (duration.endTime - 59) / 60
       }
       this.weekdays[duration.dayofWeek - 1].push(data)
     })

@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { describeAuthIamUsers } from '@/api/accessManage'
+import { describeAuthIamUsers } from '@vss/device/api/dir'
 import settings from '@/settings'
 import { UserModule } from '@/store/modules/user'
 
@@ -73,9 +73,11 @@ export default class extends Vue {
 
   private get filteredSystemActionList() {
     const tagObject = UserModule.tags || ({})
+    const userVersion = UserModule.version
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .filter((action: any) => !action.version || action.version === userVersion)
       .filter((action: any) => {
         let neededTagObject = {}
         if (Array.isArray(action.tags)) {
@@ -101,7 +103,6 @@ export default class extends Vue {
       this.loading = true
       const dialogData = this.dialogData
       const res = await describeAuthIamUsers({
-        groupId: dialogData.groupId,
         dirPath: dialogData.dirPath,
         deviceId: dialogData.deviceId
       })

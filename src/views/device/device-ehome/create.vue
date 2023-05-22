@@ -77,6 +77,7 @@
               v-for="item in ehomeVersionMap"
               :key="item.value"
               :label="item.value"
+              :disabled="isUpdate"
             >
               {{ item.label }}
             </el-radio-button>

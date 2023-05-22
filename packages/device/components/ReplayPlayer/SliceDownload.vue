@@ -56,11 +56,11 @@
             :id="`handle-${index}`"
             :key="index"
             class="timeline__handle"
-            :class="{'timeline__handle__plus': index === 0}"
+            :class="{ 'timeline__handle__plus': index === 0 }"
             :style="`left: ${handle.tmpHandlePos}%;`"
             @mousedown.stop.prevent="moveHandleStart($event, handle)"
           >
-            <div :id="`timesign-${index}`" class="timeline__start2end" :class="{'timeline__start2end__plus': index === 0}">
+            <div :id="`timesign-${index}`" class="timeline__start2end" :class="{ 'timeline__start2end__plus': index === 0 }">
               <span>{{ handle.formatTime.HH + ':' + handle.formatTime.mm + ':' + handle.formatTime.ss }}</span>
             </div>
           </div>
@@ -91,6 +91,7 @@ import { getDeviceRecord } from '@/api/device'
 import VueTimepicker from 'vue2-timepicker'
 import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import { cloneDeep } from 'lodash'
+import { addLog } from '@vss/device/api/operationLog'
 
 @Component({
   name: 'SliceDownload',
@@ -232,8 +233,8 @@ export default class extends Vue {
    * 计算区间条位置和宽度
    */
   private renderRangeBar() {
-    let minPos = Math.min(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
-    let maxPos = Math.max(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
+    const minPos = Math.min(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
+    const maxPos = Math.max(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
     this.rangeBarWidth = (maxPos - minPos) < 100 ? (maxPos - minPos) : 100
     this.rangeBarLeftPosition = minPos
   }
@@ -298,7 +299,7 @@ export default class extends Vue {
     }
     // 拖动检测
     if (startTimeSec === -1 && endTimeSec === -1) {
-      if (deltaTime > 77.828125) {
+      if (deltaTime > 71) {
         this.isWarning = true
         this.warningText = warnings.O2H
       } else {
@@ -343,7 +344,7 @@ export default class extends Vue {
     if (time === undefined) {
       time = 0
     }
-    let formatedTime: any = {
+    const formatedTime: any = {
       HH: '',
       mm: '',
       ss: ''
@@ -391,8 +392,8 @@ export default class extends Vue {
    * 当时间选择器值改变更新游标位置
    */
   private pickToBar() {
-    let startTimeSec = this.form.startTime.HH * 60 * 60 + this.form.startTime.mm * 60 + parseInt(this.form.startTime.ss)
-    let endTimeSec = this.form.endTime.HH * 60 * 60 + this.form.endTime.mm * 60 + parseInt(this.form.endTime.ss)
+    const startTimeSec = this.form.startTime.HH * 60 * 60 + this.form.startTime.mm * 60 + parseInt(this.form.startTime.ss)
+    const endTimeSec = this.form.endTime.HH * 60 * 60 + this.form.endTime.mm * 60 + parseInt(this.form.endTime.ss)
 
     let minHandleData, maxHandleData
     let minTimeSec, maxTimeSec
@@ -419,7 +420,7 @@ export default class extends Vue {
     }
 
     // start time changes
-    let minSecPercent = +(minTimeSec * 100 / 86400).toFixed(4) // %
+    const minSecPercent = +(minTimeSec * 100 / 86400).toFixed(4) // %
     minHandleData.formatTime = minTime
     if (minSecPercent >= 99.5) {
       minHandleData.style.left = 'calc(100% - 4px)'
@@ -430,7 +431,7 @@ export default class extends Vue {
     minHandleData.tmpHos = minHandleData.tmpHandlePos / 100 * this.timelineSize.width // tmpHos 同步
 
     // end time
-    let maxSecPercent = +(maxTimeSec * 100 / 86400).toFixed(4) // %
+    const maxSecPercent = +(maxTimeSec * 100 / 86400).toFixed(4) // %
     maxHandleData.formatTime = maxTime
     if (maxSecPercent >= 99.5) {
       maxHandleData.style.left = 'calc(100% - 4px)'
@@ -488,6 +489,11 @@ export default class extends Vue {
             link.click()
             link.remove()
           }
+          addLog({
+            deviceId: this.screen.deviceId.toString(),
+            inProtocol: this.screen.inProtocol,
+            operationName: '下载云端录像'
+          })
         } catch (e) {
           this.$message.error(e.message)
         } finally {
@@ -501,7 +507,7 @@ export default class extends Vue {
     this.isWarning = false
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

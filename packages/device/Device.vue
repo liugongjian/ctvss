@@ -31,6 +31,7 @@
       <template slot="leftBottom">
         <!-- TODO -->
         <advanced-search
+          v-if="UserVersion === 1"
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
@@ -85,12 +86,14 @@ export default class extends Mixins(layoutMxin) {
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     const { id, type } = data || {}
+    const path = data?.path?.map(item => item.id).join(',') || ''
     this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {
           ...this.$route.query,
+          path: path,
           type: type,
           deviceId: id,
           deviceName: data.name,
@@ -103,6 +106,7 @@ export default class extends Mixins(layoutMxin) {
         name: 'DeviceList',
         query: {
           ...this.$route.query,
+          path: path,
           type: type,
           dirId: id,
           deviceName: data.name,

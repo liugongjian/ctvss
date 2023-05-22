@@ -48,11 +48,16 @@
         <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot v-if="player" :name="deviceInfo.deviceName" />
+        <Snapshot v-if="player" :device-info="deviceInfo" :is-live="isLive" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
-         <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" />
+         <!-- <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" /> -->
         <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
         <!-- <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" /> -->
+        <LiveReplaySelector
+          v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))"
+          :is-live="isLive"
+          @dispatch="dispatch"
+        />
         <slot name="controlRight" />
       </template>
     </Player>
@@ -112,6 +117,13 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
+  /* 用户权限管理 */
+  @Prop({ default: () => null })
+  private permission
+  /* 权限校验函数 */
+  @Prop({ default: () => function() { return true } })
+  private checkPermission
+
   /* 播放器类型 */
   @Prop()
   private type!: TypeEnum
@@ -234,11 +246,6 @@ export default class extends Vue {
   /* 是否显示操作日志信息功能 */
   private optUseable = true
 
-  /* 用户权限管理 */
-  @Prop()
-  private permission: any
-
-  private checkPermission = checkPermission
 
   /* 获取转换协议后的URL */
   private get videoUrl() {

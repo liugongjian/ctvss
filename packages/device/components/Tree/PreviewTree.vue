@@ -11,6 +11,7 @@
     :empty-text="emptyText"
     :is-draggable="checkIsDraggable"
     :is-node-disabled="checkIsDisable"
+    :get-title="getTitle"
     :expand-on-click-node="false"
     @handle-node="handleNode"
   >
@@ -49,6 +50,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import { DeviceTypeEnum, DeviceEnum, StatusEnum } from '../../enums/index'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'PreviewTree'
@@ -58,14 +60,28 @@ export default class extends Mixins(treeMixin) {
    * 判断item是否可拖拽
    */
   public checkIsDraggable(node) {
-    return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.DeviceStatus] === StatusEnum.On
+    return node.data.type === DeviceTypeEnum.Ipc
+      && node.data[DeviceEnum.DeviceStatus] === StatusEnum.On
+      && checkPermission(['ivs:GetLiveStream'], node.data)
   }
 
   /**
    * 判断item是否可以点击
    */
   public checkIsDisable(node) {
-    return node.data.type === DeviceTypeEnum.Ipc && node.data[DeviceEnum.DeviceStatus] !== StatusEnum.On
+    return node.data.type === DeviceTypeEnum.Ipc
+      && (node.data[DeviceEnum.DeviceStatus] !== StatusEnum.On || !checkPermission(['ivs:GetLiveStream'], node.data))
+  }
+
+  /**
+   * 获取item无权限提示
+   */
+  getTitle(data: any) {
+    if (!checkPermission(['ivs:GetLiveStream'], data)) {
+      return '无实时预览权限'
+    } else {
+      return ''
+    }
   }
 }
 </script>

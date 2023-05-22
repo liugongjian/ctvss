@@ -9,16 +9,16 @@
       >
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown" :class="{ adaptiveHideTag }">
-          <div v-if="checkToolsVisible(toolsEnum.StopDevice)">
+          <div v-if="checkToolsVisible(toolsEnum.StopDevice, [policyEnum.UpdateDevice], deviceActions)">
             <el-dropdown-item
-              v-if="streamStatus === statusEnum.On && checkToolsVisible(toolsEnum.StopDevice, [policyEnum.UpdateDevice], deviceActions)"
+              v-if="streamStatus === statusEnum.On"
               :command="toolsEnum.StopDevice"
             >
               停用流
             </el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
           </div>
-          <div v-if="checkToolsVisible(toolsEnum.StartRecord) && !isIbox">
+          <div v-if="checkToolsVisible(toolsEnum.StartRecord, [policyEnum.UpdateDevice], deviceActions) && !isIbox">
             <el-dropdown-item v-if="recordStatus === statusEnum.On" :command="toolsEnum.StopRecord">停止录像</el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartRecord">开始录像</el-dropdown-item>
           </div>

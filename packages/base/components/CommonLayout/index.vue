@@ -15,7 +15,9 @@
       <div class="common-layout__left__body">
         <slot name="leftBody" class="test" />
       </div>
-      <div class="common-layout__left__bottom">
+      <!-- v2暂不支持搜索功能，此处去除class样式 -->
+      <!-- <div class="common-layout__left__bottom"> -->
+      <div>
         <slot name="leftBottom" />
       </div>
     </div>

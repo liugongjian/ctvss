@@ -178,3 +178,11 @@ request({
   method: 'post',
   data
 })
+
+// 查看指定设备或目录的赋权子账号列表
+export const describeAuthIamUsers = (data: any): Promise<any> =>
+  request({
+    url: '/iam/auth/users',
+    method: 'post',
+    data
+  })
