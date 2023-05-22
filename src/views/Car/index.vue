@@ -184,7 +184,7 @@ export default class extends Vue {
 
   private period = 'notLimit'
 
-  private periodRange = [subDays(new Date(), 7), new Date()]
+  private periodRange = [subDays(new Date(), 7).getTime(), new Date().getTime()]
 
   private get showRange(){
     return this.period === 'selfDefine'
