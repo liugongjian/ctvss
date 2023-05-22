@@ -13,45 +13,45 @@
         <div class="content-right">
           <div class="ptz-ctrl">
             <div class="ctrl-l">
-              <span class="direction" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
                 <i class="icon-ptz-left-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
                 <i class="icon-ptz-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
                 <i class="icon-ptz-right-up" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
                 <i class="icon-ptz-left" />
               </span>
               <span class="direction disabled">
                 <!-- <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
                 <i class="icon-ptz-auto" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
                 <i class="icon-ptz-right" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
                 <i class="icon-ptz-left-down" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
                 <i class="icon-ptz-down" />
               </span>
-              <span class="direction" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
+              <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
                 <i class="icon-ptz-right-down" />
               </span>
             </div>
             <div class="ctrl-r">
-              <span class="operation">
+              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation">
+              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                 <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
                 <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
               </span>
-              <span class="operation">
+              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
                 <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
                 <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
               </span>
@@ -65,10 +65,11 @@
               :show-input="true"
               :show-input-controls="false"
               :format-tooltip="formatToolTip"
+              :disabled="!controlDevicePTZ"
               input-size="mini"
             />
           </div>
-          <el-tabs v-model="tabName">
+          <el-tabs v-if="!['ehome'].includes(screen.inProtocol)" v-model="tabName">
             <el-tab-pane label="预置位" name="preset">
               <div v-loading="loading.preset" class="ptz-tab-container">
                 <template v-for="(preset, index) in presets">
@@ -83,9 +84,9 @@
                       <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
                     </div>
                     <span v-if="currentIndex.preset === index" class="handle">
-                      <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
-                      <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
-                      <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                      <i v-if="preset.setFlag && controlDevicePreset" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
+                      <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
+                      <i v-if="preset.setFlag && controlDevicePTZ" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
                     </span>
                   </div>
                 </template>
@@ -104,11 +105,11 @@
                       <span>{{ cruise.name | filterLength }}</span>
                     </div>
                     <span v-if="currentIndex.cruise === index" class="handle">
-                      <div v-if="cruise.setFlag" class="handle-stop">
+                      <div v-if="cruise.setFlag && controlDevicePreset" class="handle-stop">
                         <svg-icon title="停止" name="stop" @click="stopCruise(cruise.index)" />
                       </div>
-                      <i title="设置" class="handle-edit" @click="editCruise(cruise)" />
-                      <div v-if="cruise.setFlag" class="handle-play">
+                      <i v-if="controlDevicePreset" title="设置" class="handle-edit" @click="editCruise(cruise)" />
+                      <div v-if="cruise.setFlag && controlDevicePreset" class="handle-play">
                         <svg-icon title="启用" name="play" @click="handleCruise(cruise.index)" />
                       </div>
                     </span>
@@ -124,13 +125,14 @@
                       v-model="homepositionForm.enable"
                       active-value="1"
                       inactive-value="0"
+                      :disabled="!controlDevicePreset"
                     />
                   </el-form-item>
                   <el-form-item label="等待时间:" prop="waitTime">
-                    <el-input v-model="homepositionForm.waitTime" :disabled="homepositionForm.enable !== '1'" /> 秒
+                    <el-input v-model="homepositionForm.waitTime" :disabled="homepositionForm.enable !== '1' || !controlDevicePreset" /> 秒
                   </el-form-item>
                   <el-form-item label="守望位置:" prop="presetId">
-                    <el-select v-model="homepositionForm.presetId" :disabled="homepositionForm.enable !== '1'">
+                    <el-select v-model="homepositionForm.presetId" :disabled="homepositionForm.enable !== '1' || !controlDevicePreset">
                       <el-option
                         v-for="(item, index) in homepositionList"
                         :key="index"
@@ -140,7 +142,7 @@
                     </el-select>
                   </el-form-item>
                   <el-form-item label-width="50px">
-                    <el-button class="submit-button" type="primary" @click="saveHomeposition">保存</el-button>
+                    <el-button :disabled="!controlDevicePreset" class="submit-button" type="primary" @click="saveHomeposition">保存</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -165,10 +167,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import * as ptzControlApi from '../../../api/ptz_control'
 import UpdateCruise from './UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'PtzControl',
@@ -188,6 +191,11 @@ import { UserModule } from '@/store/modules/user'
 export default class extends Vue {
   @Prop()
   private screen
+
+  @Inject({ default: () => {} })
+  public getActions!: Function
+
+  public checkPermission = checkPermission
 
   private speed = 5
   private isClosed = true
@@ -223,12 +231,26 @@ export default class extends Vue {
     ]
   }
 
+  private get actions() {
+    return this.getActions && this.getActions()
+  }
+
+  private get controlDevicePreset() {
+    return checkPermission(['ivs:ControlDevicePreset'], this.actions || this.screen.permission)
+  }
+
+  private get controlDevicePTZ() {
+    // v2 设备云台控制权限在IAM中隐藏，暂时放开控制，等中台迁移
+    // return checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
+    return checkPermission(null, this.actions || this.screen.permission)
+  }
+
   private get deviceId() {
     return this.screen.deviceId
   }
 
   private get disablePTZ() {
-    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || this.screen.inProtocol !== 'gb28181'
+    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || !['gb28181', 'ehome'].includes(this.screen.inProtocol)
   }
 
   @Watch('presets')
@@ -339,11 +361,13 @@ export default class extends Vue {
   }
 
   private enterEdit(preset: any, index: number) {
-    preset.editNameFlag = true
-    this.$nextTick(() => {
-      const $nameinput: any = this.$refs['nameinput' + index]
-      $nameinput[0].focus()
-    })
+    if (this.controlDevicePreset) {
+      preset.editNameFlag = true
+      this.$nextTick(() => {
+        const $nameinput: any = this.$refs['nameinput' + index]
+        $nameinput[0].focus()
+      })
+    }
   }
 
   private closeEdit(preset: any, index: number) {
