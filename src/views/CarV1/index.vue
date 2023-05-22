@@ -3,6 +3,22 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
+          <span class="filter-container__search-time">任务开始时间</span>
+          <el-radio-group v-model="period" class="filter-container__search-time">
+            <el-radio v-for="(value, key) in periods" :key="key" :label="key">{{ value }}</el-radio>
+          </el-radio-group>
+          <el-date-picker
+            v-if="showRange"
+            v-model="periodRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            class="filter-container__search-time"
+            value-format="timestamp"
+            @change="changePicker"
+          >
+          </el-date-picker>
           <el-input v-model="factory" class="filter-container__search-group" placeholder="请输入工厂名" @keyup.enter.native="handleFilter" />
           <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter" />
           <el-button class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -10,15 +26,17 @@
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table" @row-click="rowClick">
         <el-table-column prop="plateNumber" label="车牌号" width="120">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="factory" label="工厂" />
+        <el-table-column prop="transCompany" label="原粮出库点" min-width="120" />
+        <el-table-column prop="manageFactory" label="管理工厂" />
         <el-table-column
           label="任务状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <status-badge :status="transformStatus(row.status).status" />
             {{ `${transformStatus(row.status).cname}` }}
           </template>
@@ -27,7 +45,7 @@
           label="开始/结束"
           min-width="170"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="start-time">{{ row.startTime }}</div>
             <div class="end-time">{{ row.endTime.length > 0 ? row.endTime : '—' }}</div>
           </template>
@@ -36,13 +54,13 @@
           label="最近操作"
           min-width="210"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span>{{ row.latestOperation.operate | translateOperate }}</span>
             <span>{{ '  ' + row.latestOperation.operateTime }}</span>
           </template>
         </el-table-column>
         <el-table-column label="设备名" min-width="180">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="device-list__device-name">
               <!-- <div class="device-list__device-id">{{ row.deviceId }}</div> -->
               <div>{{ row.deviceName }}</div>
@@ -52,7 +70,7 @@
         <el-table-column
           label="设备状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div v-if="row.status !== 2">
               <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
               {{ row.deviceStatus === 'on' ? '在线' : '离线' }}
@@ -65,7 +83,7 @@
         <el-table-column
           label="流状态"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div v-if="row.status !== 2">
               <status-badge :status="row.streamStatus === 'on' ? 'on' : 'error'" />
               {{ row.streamStatus === 'on' ? '在线' : '离线' }}
@@ -76,8 +94,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="driver" label="司机" />
-        <el-table-column prop="transCompany" label="原粮出库点" min-width="120" />
-        <el-table-column prop="manageFactory" label="管理工厂" />
+
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" :disabled="scope.row.status !== 0" @click.stop.native="preview(scope.row)">实时预览</el-button>
@@ -115,6 +132,9 @@ import { getCarTasks, operateCarTask } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import DetailDialog from './component/DetailDialog.vue'
 import VideoDialog from './component/VideoDialog.vue'
+import { subMonths, subDays, subHours } from 'date-fns'
+
+
 
 @Component({
   name: 'Car',
@@ -153,6 +173,22 @@ export default class extends Vue {
   private showVideoDialog = false
   private currentRecord: any = {}
   private videoType = ''
+
+  private periods = {
+    'notLimit': '不限',
+    'day': '近一天',
+    'week': '近一周',
+    'month': '近一月',
+    'selfDefine': '自定义',
+  }
+
+  private period = 'notLimit'
+
+  private periodRange = [subDays(new Date(), 7).getTime(), new Date().getTime()]
+
+  private get showRange(){
+    return this.period === 'selfDefine'
+  }
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -193,17 +229,37 @@ export default class extends Vue {
   private setHeaderClass() {
     return 'background: white'
   }
+
+  private resolvePeriod(){
+    const now = new Date()
+    const now_stamp = now.getTime()
+    switch (this.period){
+      case 'notLimit':
+        return { taskStartFrom: undefined, taskStartTo: undefined }
+      case 'day':
+        return { taskStartFrom: subHours(now, 24).getTime(), taskStartTo: now_stamp }
+      case 'week':
+        return { taskStartFrom: subDays(now, 7).getTime(), taskStartTo: now_stamp }
+      case 'month':
+        return { taskStartFrom: subMonths(now, 1).getTime(), taskStartTo: now_stamp }
+      case 'selfDefine':
+        return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[1] }
+    }
+  }
+
   private async getList() {
     try {
       this.loading = true
-      let params = {
+      const range = this.resolvePeriod()
+      const params = {
         plateNumber: this.plateNumber || undefined,
         factory: this.factory || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         sortBy: 'updateTime',
         sortDirection: 'desc',
-        status: -1
+        status: -1,
+        ...range
       }
       const res = await getCarTasks(params)
       this.loading = false
@@ -235,7 +291,7 @@ export default class extends Vue {
   private async stop(row: any) {
     this.$alertHandle({
       titleConfirmHide: true,
-      handleName: '操作提示',
+      handleName: '结束',
       type: '车辆录像',
       msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定结束录制任务吗？`,
       method: operateCarTask,
@@ -246,7 +302,7 @@ export default class extends Vue {
   private async operate(row: any) {
     this.$alertHandle({
       titleConfirmHide: true,
-      handleName: '操作提示',
+      handleName: `${row.status === 0 ? '暂停' : '继续'}`,
       type: '车辆录像',
       msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定${row.status === 0 ? '暂停' : '继续'}录制任务吗？`,
       method: operateCarTask,
@@ -272,13 +328,28 @@ export default class extends Vue {
         return { status: 'error', cname: '已结束' }
     }
   }
+
+  private changePicker(){
+    console.log('this.periodRange:', this.periodRange)
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .filter-container__search-group {
+  width:150px;
   margin-right: 10px;
 }
+.filter-container{
+  &__search-group{
+    width:150px;
+    margin-right: 10px;
+  }
+  &__search-time{
+    margin-right: 10px;
+  }
+}
+
 
 .template__table {
   ::v-deep .el-table__body {
