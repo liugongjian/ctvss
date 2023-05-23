@@ -1,6 +1,6 @@
 import { getRegions } from '../../api/region'
 import { getResources } from '../../api/billing'
-import { getGa1400CertificateList } from '../../api/certificate'
+import { getGb28181CertificateList } from '../../api/certificate'
 // import { getDevice } from '../../api/device'
 
 import { ResourceAiType } from '../../dicts/resource'
@@ -754,7 +754,7 @@ class ExportExcelTemplate {
 
   // 动态校验 formulae值 转换处理
   public joinDropdownlist = (data: any, name: string) => {
-    const DEFAULT_LENGTH = 25
+    const DEFAULT_LENGTH = 26
     const multiple = Math.ceil(data?.length / DEFAULT_LENGTH)
     const repeatA = 'A'.repeat(multiple > 1 ? multiple - 1 : 0)
     return data.length ? [`'${name}Sheet'!$${repeatA}${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + data.length)}$1`] : ['""']
@@ -817,13 +817,15 @@ class ExportExcelTemplate {
     }
     // 获取设备用户选项
     try {
-      const res = await getGa1400CertificateList({
+      const res = await getGb28181CertificateList({
         pageSize: 1000
       })
-      const gbAccountList = res?.data?.map((item: any) => {
-        return item.username
+
+      const gbAccountList = res?.gbCerts?.map((item: any) => {
+        return item.userName
       })
       this.options.gbAccountList = gbAccountList
+
     } catch (e) {
       console.error(e)
     }
