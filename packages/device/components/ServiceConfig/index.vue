@@ -16,17 +16,22 @@
       </div>
       <div v-show="hasAiTab && configManager.initInfo.aI && configManager.initInfo.aI.length">
         <span class="service-config__view-title">AI</span>
-        <component
-          :is="AiConfigService"
-          v-if="aiServiceUsable"
-          ref="config"
-          @force-update="forceUpdate"
-          @config-change="configChange('aI', $event)"
-        />
-        <div v-else class="config-info">
+        <div v-if="aiServiceUsable">
+          <component
+            :is="AiConfigService"
+            v-if="hasGetAppPermission" 
+            ref="config"
+            @config-change="configChange('aI', $event)"
+          />
+          <span v-else class="config-info">
+            <i class="el-icon-warning-outline" />
+            当前子账号无 查看AI应用 的权限，请联系主账号进行配置!
+          </span>
+        </div>
+        <span v-else class="config-info">
           <i class="el-icon-warning-outline" />
           你的账户下无可用AI资源包且未开通按需计费，无法启用服务。
-        </div>
+        </span>
       </div>
       <div v-if="hasViidTab && configManager.initInfo.viid && configManager.initInfo.viid.length">
         <span class="service-config__view-title">视图</span>
@@ -60,14 +65,15 @@
         <el-tab-pane v-if="hasAiTab" label="AI" :name="resourceTypeEnum.AI">
           <component
             :is="AiConfigService"
-            v-if="aiServiceUsable" 
+            v-if="aiServiceUsable"
             ref="config"
+            @force-update="forceUpdate"
             @config-change="configChange('aI', $event)"
           />
-          <span v-else class="config-info">
+          <div v-else class="config-info">
             <i class="el-icon-warning-outline" />
             你的账户下无可用AI资源包且未开通按需计费，无法启用服务。
-          </span>
+          </div>
         </el-tab-pane>
         <el-tab-pane v-if="hasViidTab" label="视图" :name="resourceTypeEnum.Viid">
           <component
@@ -187,14 +193,20 @@ export default class extends Vue {
   private loading = true
   private initFlag = true
 
+  private get hasGetAppPermission() {
+    return checkPermission(['ivs:GetApp'])
+  }
+
   private get hasVideoTab() {
     // 仅视频服务配置拥有视频Tab
     return this.tabs.includes(ResourceTypeEnum.Video)
   }
 
   private get hasAiTab() {
+    // 该flag确保创建和编辑时，根据GetApp权限控制AiTab显隐
+    const editFlag = this.configMode === ConfigModeEnum.View || this.hasGetAppPermission
     // 仅ipc设备类型的视频服务配置拥有AITab
-    return this.tabs.includes(ResourceTypeEnum.AI) && [DeviceTypeEnum.Ipc].includes(this.deviceType)
+    return editFlag && this.tabs.includes(ResourceTypeEnum.AI) && [DeviceTypeEnum.Ipc].includes(this.deviceType)
   }
 
   private get hasViidTab() {
@@ -264,8 +276,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    console.log('ivs:UpdateDevice-----------', checkPermission(['ivs:UpdateDevice']))
-    console.log('ivs:GetApp-----------', checkPermission(['ivs:GetApp']))
     this.init()
   }
 

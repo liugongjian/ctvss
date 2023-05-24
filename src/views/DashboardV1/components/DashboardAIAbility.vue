@@ -1,8 +1,8 @@
 <template>
   <component :is="container" title="AI能力">
-    <template slot="header">
+    <!-- <template slot="header">
       <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/visualization-dashboard')">可视化大屏</el-button>
-    </template>
+    </template> -->
     <div v-if="checkPermission(['ivs:GetApp'])">
       <div v-for="item in aiInfos" :key="item.name">
         <p class="dashboard-wrap-overview__cell__head">{{ item.name }}</p>
@@ -16,7 +16,7 @@
         </div>
       </div>
       <div>
-        <el-button class="applist-btn" size="medium" type="text" @click="$router.push({name: 'AIAppList'})">
+        <el-button class="applist-btn" size="medium" type="text" @click="$router.push({ name: 'AIAppList' })">
           查看全部<svg-icon name="arrow-right" />
         </el-button>
       </div>
@@ -67,7 +67,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   public goRouter(type: any) {
-    let params: any = {
+    const params: any = {
       path: '/dashboard/ai',
       query: {
         type,
