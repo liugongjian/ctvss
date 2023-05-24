@@ -90,7 +90,7 @@
 <script lang="ts">
 import { Component, Vue, VModel, Prop, Watch, Provide } from 'vue-property-decorator'
 import { DeviceTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
-import { ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
+import { ResourceTypeEnum, ConfigModeEnum, BillingModeEnum } from '@vss/device/enums/billing'
 import IpcVideoServiceConfig from './ipc/VideoServiceConfig.vue'
 import NvrVideoServiceConfig from './nvr/VideoServiceConfig.vue'
 import PlatformVideoServiceConfig from './platform/VideoServiceConfig.vue'
@@ -99,6 +99,7 @@ import IpcViidServiceConfig from './ipc/ViidServiceConfig.vue'
 import { getResources, getDeviceResource, ondemandSubscribe } from '@vss/device/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getStorageTemplate } from '@vss/device/api/template'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'ServiceConfig',
@@ -263,6 +264,8 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    console.log('ivs:UpdateDevice-----------', checkPermission(['ivs:UpdateDevice']))
+    console.log('ivs:GetApp-----------', checkPermission(['ivs:GetApp']))
     this.init()
   }
 
