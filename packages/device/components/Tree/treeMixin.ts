@@ -111,9 +111,8 @@ export default class TreeMixin extends Vue {
       }
     }
 
-    // 子账号-获取权限数据
-    if (UserModule.iamUserId && nodeData.length) {
-      // 构造全路径
+    if (nodeData.length) {
+      // 构造全路径（主账号也拼接全路径，避免path变更导致路由切换两次）
       nodeData.forEach((item: any) => {
         if (!item.path) {
           if (node.level === 0) {
@@ -129,7 +128,8 @@ export default class TreeMixin extends Vue {
           }
         }
       })
-      // 获取权限数据
+      // 子账号-获取权限数据
+      if (UserModule.iamUserId) {
       const permissionRes = await previewAuthActions({
         targetResources: nodeData.map(dir => ({
           dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
@@ -141,6 +141,7 @@ export default class TreeMixin extends Vue {
           ...dir,
           ...permissionRes.result[index].iamUser.actions
         }))
+      }
     }
 
     return nodeData

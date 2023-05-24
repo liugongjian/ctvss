@@ -2,7 +2,7 @@
   <div
     class="screen-item"
     :data-index="itemIndex"
-    :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
+    :class="{ 'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive }"
     @click="click"
   >
     <template v-if="screen.deviceId">
