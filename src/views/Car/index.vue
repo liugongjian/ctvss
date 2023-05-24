@@ -233,6 +233,7 @@ export default class extends Vue {
   private resolvePeriod(){
     const now = new Date()
     const now_stamp = now.getTime()
+    const aDay = 24 * 60 * 60 * 1000
     switch (this.period){
       case 'notLimit':
         return { taskStartFrom: undefined, taskStartTo: undefined }
@@ -243,6 +244,9 @@ export default class extends Vue {
       case 'month':
         return { taskStartFrom: subMonths(now, 1).getTime(), taskStartTo: now_stamp }
       case 'selfDefine':
+        if (this.periodRange[0] === this.periodRange[1]){
+          return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[0] + aDay }
+        }
         return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[1] }
     }
   }
