@@ -16,12 +16,12 @@
             <el-table :data="scope.row.formatList" border size="mini" :header-cell-style="setHeaderClass">
               <el-table-column prop="formatType" label="存储格式" align="center" />
               <el-table-column prop="interval" label="周期时长" align="center">
-                <template slot-scope="{row}">
+                <template slot-scope="{ row }">
                   <span>{{ row.interval + '分钟' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="storageTime" label="存储时长" align="center">
-                <template slot-scope="{row}">
+              <el-table-column v-if="!isPrivateUser" prop="storageTime" label="存储时长" align="center">
+                <template slot-scope="{ row }">
                   <span>{{ row.storageTime ? row.storageTime / 60 / 24 + '天' : '永久存储' }}</span>
                 </template>
               </el-table-column>
@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column prop="templateName" label="模板名称" min-width="240" />
         <el-table-column prop="storeType" label="录制类别" width="120">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <span>{{ row.recordType === 1 ? '全天录制' : '手动录制' }}</span>
           </template>
         </el-table-column>
@@ -62,6 +62,7 @@
 import { deleteRecordTemplate, getRecordTemplates } from '@/api/template'
 import { RecordTemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
+import { UserModule } from '@/store/modules/user'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'
 
@@ -84,6 +85,10 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private showViewBindDialog = false
   private currentTemplateId: any
+
+  get isPrivateUser() {
+    return !!UserModule.tags?.privateUser
+  }
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
