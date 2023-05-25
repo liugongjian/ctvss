@@ -21,6 +21,7 @@
             :is="AiConfigService"
             v-if="hasGetAppPermission" 
             ref="config"
+            @force-update="forceUpdate"
             @config-change="configChange('aI', $event)"
           />
           <span v-else class="config-info">
@@ -67,7 +68,6 @@
             :is="AiConfigService"
             v-if="aiServiceUsable"
             ref="config"
-            @force-update="forceUpdate"
             @config-change="configChange('aI', $event)"
           />
           <div v-else class="config-info">
