@@ -7,7 +7,7 @@
       :closable="false"
       class="mb10"
     />
-    <el-card v-if="treeListEmpty" class="platform">
+    <el-card v-if="!treeListEmpty" class="platform">
       <div class="platform__header">
         <span class="tree_title">设备树列表</span>
         <el-tooltip content="添加设备树">
@@ -40,7 +40,7 @@
         <div v-if="treeList && !treeList.length && !treeLoading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
-    <el-card v-if="treeListEmpty" ref="deviceWrap" class="shared-devices">
+    <el-card v-if="!treeListEmpty" ref="deviceWrap" class="shared-devices">
       <div class="tree-wraper" :style="{ height: treeMaxHeight + 'px' }">
         <div v-if="isEditing" class="tree-wraper__border">
           <div class="header">
@@ -153,7 +153,7 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-card>
-    <el-card v-if="!treeListEmpty" class="empty">
+    <el-card v-if="treeListEmpty" class="empty">
       <div class="title">设备树列表</div>
       <div class="content">
         <svg-icon name="empty" width="40" height="40" class="avatar" />
@@ -335,7 +335,7 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private async mounted() {
-    // await this.getTreeList()
+    await this.getTreeList()
     this.enableCloudChannelName = this.getNvrShowChannelName()
     // this.initGroups()
     this.getTotalsOfLeftTree()
@@ -416,9 +416,11 @@ export default class extends Mixins(TreeMixin) {
    */
   private async getTreeList() {
     try {
+      debugger
       this.treeLoading.platform = true
-      const { trees } = await getTreeList({})
-      this.treeList = trees.map(item => ({ ...item, editFlag: false }))
+      const res = await getTreeList({})
+      console.log('res:', res)
+      this.treeList = res.trees.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
         const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
         this.currentTree = currentTree
@@ -436,6 +438,7 @@ export default class extends Mixins(TreeMixin) {
    * 初始化树列表
    */
   private initTree() {
+    debugger
     if (this.treeList.length !== 0) {
       this.selectTree(this.treeList[0])
     }
@@ -626,6 +629,7 @@ export default class extends Mixins(TreeMixin) {
       if (node.data.type === 'ipc') {
         return
       }
+      debugger
       let { dirs }: any = await loadTreeNode({ dirId: node.level === 1 ? this.currentTree.treeId : node.data.id })
       dirs = dirs.map((dir: any) => {
         return {
