@@ -405,8 +405,6 @@ export default class extends Vue {
       deviceId: this.configManager.deviceId,
       appIds: [rowInfo.appId]
     }
-    console.log(rowInfo)
-    // startAppResource
     if (status) {
       stopAppResource(param)
         .then(() => {
