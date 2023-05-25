@@ -25,7 +25,7 @@ export default class extends Mixins(detailMixin) {
   @Inject({ default: () => ({}) })
   public getActions!: Function
   private get deviceActions() {
-    return this.getActions && this.getActions()
+    return this.getActions && typeof this.getActions === 'function' && this.getActions()
   }
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
