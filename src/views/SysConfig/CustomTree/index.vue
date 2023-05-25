@@ -519,11 +519,12 @@ export default class extends Mixins(TreeMixin) {
 
   private resolveSubTreeData(parentNode, subData){
     let dirs: any = subData.map((dir: any) => {
+      const inProtocol = dir.inVideoProtocol.length > 0 ? dir.inVideoProtocol : dir.inViidProtocol.length > 0 ? dir.inViidProtocol : parentNode.data.inProtocol
         return {
           ...dir,
           id: dir.id,
           label: dir.name,
-          inProtocol: dir.inProtocol || parentNode.data.inProtocol,
+          inProtocol: inProtocol,
           channelNum: dir.channelNum + '' || '0',
           isLeaf: dir.isLeaf,
           type: dir.type,
