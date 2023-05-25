@@ -33,7 +33,7 @@
                 </el-input>
               </template>
             </el-table-column>
-            <el-table-column v-if="!isPrivateUser" label="存储时长" align="center" width="300">
+            <el-table-column v-if="isPrivateUser" label="存储时长" align="center" width="300">
               <template slot-scope="{ row }">
                 <el-select v-model="row.storageTime" size="mini" style="width: 80%;">
                   <el-option v-for="item in storageTimeList" :key="item.value" :label="item.label" :value="item.value" />

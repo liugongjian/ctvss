@@ -20,7 +20,7 @@
                   <span>{{ row.interval + '分钟' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column v-if="!isPrivateUser" prop="storageTime" label="存储时长" align="center">
+              <el-table-column v-if="isPrivateUser" prop="storageTime" label="存储时长" align="center">
                 <template slot-scope="{ row }">
                   <span>{{ row.storageTime ? row.storageTime / 60 / 24 + '天' : '永久存储' }}</span>
                 </template>
