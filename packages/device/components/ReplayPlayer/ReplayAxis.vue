@@ -208,7 +208,7 @@ export default class extends Vue {
   private recordLockItem = null
 
   //   private testLockList = [
-  //   {
+  //     {
   //     recordLockId: '锁定ID-125',
   //       deviceId: '12111111111111111111113',
   //       deviceName: '行也不行',
@@ -216,8 +216,8 @@ export default class extends Vue {
   //       duration: null,
   //       exp_time: '解锁时刻',
   //       origin_exp_time: '30',
-  //     startTime: 1683833262,
-  //     endTime: 1683869262
+  //     startTime: 1684677579,
+  //     endTime: 1684684779
   //   },
   //   {
   //     recordLockId: '锁定ID-125',
@@ -227,8 +227,8 @@ export default class extends Vue {
   //       duration: null,
   //       exp_time: '解锁时刻',
   //       origin_exp_time: '30',
-  //     startTime: 1683773360,
-  //     endTime: 1683780560
+  //     startTime: 1684687839,
+  //     endTime: 1684699179
   //   },
   //   {
   //     recordLockId: '锁定ID-125',
@@ -238,31 +238,32 @@ export default class extends Vue {
   //       duration: null,
   //       exp_time: '解锁时刻',
   //       origin_exp_time: '30',
-  //     startTime: 1683787760,
-  //     endTime: 1683791360
+  //     startTime: 1684702239,
+  //     endTime: 1684709439
   //   },
-  //   {
-  //     recordLockId: '锁定ID-125',
-  //       deviceId: '12111111111111111111113',
-  //       deviceName: '行也不行',
-  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-  //       duration: null,
-  //       exp_time: '解锁时刻',
-  //       origin_exp_time: '30',
-  //     startTime: 1683794960,
-  //     endTime: 1683802160
-  //   },
-  //   {
-  //     recordLockId: '锁定ID-125',
-  //       deviceId: '12111111111111111111113',
-  //       deviceName: '湖人总冠军',
-  //       coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
-  //       duration: null,
-  //       exp_time: '解锁时刻',
-  //       origin_exp_time: '30',
-  //     startTime: 1683802820,
-  //     endTime: 1683806420
-  //   }
+  //   // {
+  //   //   recordLockId: '锁定ID-125',
+  //   //     deviceId: '12111111111111111111113',
+  //   //     deviceName: '行也不行',
+  //   //     coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //   //     duration: null,
+  //   //     exp_time: '解锁时刻',
+  //   //     origin_exp_time: '30',
+  //   //   startTime: 1683787760,
+  //   //   endTime: 1683791360
+  //   // },
+    
+  //   // {
+  //   //   recordLockId: '锁定ID-125',
+  //   //     deviceId: '12111111111111111111113',
+  //   //     deviceName: '湖人总冠军',
+  //   //     coverUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fn.sinaimg.cn%2Fautosina%2Fautotopic%2F385%2Fw1705h1080%2F20200723%2F3731-iwtqvyk5470500.jpg&refer=http%3A%2F%2Fn.sinaimg.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1659858339&t=a6c5757a9591c1b554a1eea3ce2f7f65',
+  //   //     duration: null,
+  //   //     exp_time: '解锁时刻',
+  //   //     origin_exp_time: '30',
+  //   //   startTime: 1683802820,
+  //   //   endTime: 1683806420
+  //   // }
   // ]
 
   /* 当前分屏的录像管理器 */
@@ -1002,8 +1003,8 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .extend-hover {
-  width: 210px;
-  height: 15px;
+  width: 290px;
+  height: 18px;
   background-color: transparent;
   position: fixed;
 }

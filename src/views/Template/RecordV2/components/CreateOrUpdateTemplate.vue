@@ -67,7 +67,6 @@
               value-format="timestamp"
               :editable="false"
               format="HH:mm"
-              :editable="false"
               :picker-options="pickerOptions"
               @change="timepickerChange"
             />

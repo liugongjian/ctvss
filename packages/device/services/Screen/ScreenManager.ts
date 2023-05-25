@@ -388,6 +388,7 @@ export class ScreenManager {
       })
     } else {
       this.currentScreen.recordType = recordType
+      this.currentScreen.player && this.currentScreen.player.disposePlayer()
       this.currentScreen.init()
     }
   }

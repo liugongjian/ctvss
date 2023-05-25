@@ -46,10 +46,10 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { setLock } from '@/api/device'
+import { setLock } from '@vss/device/api/device'
 import { prefixZero } from '@/utils/number'
 import { GroupModule } from '@/store/modules/group'
-import { getDevice } from '@/api/device'
+import { getDevice } from '@vss/device/api/device'
 
 @Component({
   name: 'LockDialog'

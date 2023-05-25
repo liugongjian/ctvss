@@ -116,6 +116,7 @@ export default class extends Vue {
           // inProtocol: this.screen ? this.screen.inProtocol : item.inProtocol
         }
       })
+      console.log('🐧   this.unlockItem', this.unlockItem)
       const params: any = {
         // deviceId: this.unlockItem[0].deviceId,
         // startTime: +this.unlockItem[0].startTime,
