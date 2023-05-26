@@ -24,20 +24,19 @@
       <div v-loading="loading.table" class="list-wrap__tools">
         <div class="list-wrap__tools__left">
           <el-button
-            v-if="checkToolsVisible(toolsEnum.DescribePermission)"
-            key="describe-permission-button"
-            type="primary"
-            @click="handleListTools(toolsEnum.DescribePermission)"
-          >
-            查看权限
-          </el-button>
-          <el-button
             v-if="checkToolsVisible(toolsEnum.AddDevice, [policyEnum.CreateDevice], null, deviceActions)"
             key="create-button"
             type="primary"
             @click="handleListTools(toolsEnum.AddDevice)"
           >
-            添加
+            添加设备
+          </el-button>
+          <el-button
+            v-if="checkToolsVisible(toolsEnum.DescribePermission)"
+            key="describe-permission-button"
+            @click="handleListTools(toolsEnum.DescribePermission)"
+          >
+            查看权限
           </el-button>
           <el-button
             v-if="checkToolsVisible(toolsEnum.ConfigureChannels, [policyEnum.UpdateDevice], null, deviceActions)"
