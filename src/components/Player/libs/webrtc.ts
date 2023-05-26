@@ -13,11 +13,11 @@ const fillQuery = (queryString: any, obj: any) => {
     queryString = queryString.split('?')[1]
   }
 
-  var queries = queryString.split('&')
-  for (var i = 0; i < queries.length; i++) {
-    var elem = queries[i]
+  const queries = queryString.split('&')
+  for (let i = 0; i < queries.length; i++) {
+    const elem = queries[i]
 
-    var query = elem.split('=')
+    const query = elem.split('=')
     obj[query[0]] = query[1]
     obj.userQuery[query[0]] = query[1]
   }
@@ -30,19 +30,19 @@ const fillQuery = (queryString: any, obj: any) => {
 
 const parseRtmpUrl = (rtmpUrl: string) => {
   // @see: http://stackoverflow.com/questions/10469575/how-to-use-location-object-to-parse-url-without-redirecting-the-page-in-javascri
-  var a = document.createElement('a')
+  const a = document.createElement('a')
   a.href = rtmpUrl.replace('rtmp://', 'http://')
     .replace('webrtc://', 'http://')
     .replace('rtc://', 'http://')
 
-  var vhost = a.hostname
-  var app = a.pathname.substr(1, a.pathname.lastIndexOf('/') - 1)
-  var stream = a.pathname.substr(a.pathname.lastIndexOf('/') + 1)
+  let vhost = a.hostname
+  let app = a.pathname.substr(1, a.pathname.lastIndexOf('/') - 1)
+  const stream = a.pathname.substr(a.pathname.lastIndexOf('/') + 1)
 
   // parse the vhost in the params of app, that srs supports.
   app = app.replace('...vhost...', '?vhost=')
   if (app.indexOf('?') >= 0) {
-    var params = app.substr(app.indexOf('?'))
+    const params = app.substr(app.indexOf('?'))
     app = app.substr(0, app.indexOf('?'))
 
     if (params.indexOf('vhost=') > 0) {
@@ -56,19 +56,19 @@ const parseRtmpUrl = (rtmpUrl: string) => {
   // when vhost equals to server, and server is ip,
   // the vhost is __defaultVhost__
   if (a.hostname === vhost) {
-    var re = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
+    const re = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
     if (re.test(a.hostname)) {
       vhost = '__defaultVhost__'
     }
   }
 
   // parse the schema
-  var schema = 'rtmp'
+  let schema = 'rtmp'
   if (rtmpUrl.indexOf('://') > 0) {
     schema = rtmpUrl.substr(0, rtmpUrl.indexOf('://'))
   }
 
-  var port: any = a.port
+  let port: any = a.port
   if (!port) {
     if (schema === 'http') {
       port = 80
@@ -79,7 +79,7 @@ const parseRtmpUrl = (rtmpUrl: string) => {
     }
   }
 
-  var ret: any = {
+  const ret: any = {
     url: rtmpUrl,
     schema: schema,
     server: a.hostname,
@@ -98,8 +98,8 @@ const parseRtmpUrl = (rtmpUrl: string) => {
       } else if (window.location.href.indexOf('https://') === 0) {
         ret.port = 443
       } else {
-        // For WebRTC, SRS use 1985 as default API port.
-        ret.port = 1985
+        // For WebRTC, SRS use 80 as default API port.
+        ret.port = 80
       }
     }
   }
@@ -108,28 +108,28 @@ const parseRtmpUrl = (rtmpUrl: string) => {
 }
 
 export const prepareUrl = (url: string) => {
-  var apiUrl, streamUrl
+  let apiUrl, streamUrl
 
-  var urlObject = parseRtmpUrl(url)
+  const urlObject = parseRtmpUrl(url)
 
   // If user specifies the schema, use it as API schema.
-  var schema = urlObject.userQuery.schema
+  let schema = urlObject.userQuery.schema
   schema = schema ? schema + ':' : window.location.protocol
 
-  var port = urlObject.port || 1985
+  let port = urlObject.port || 80
   if (schema === 'https:') {
     port = urlObject.port || 443
   }
 
   // @see https://github.com/rtcdn/rtcdn-draft
   // var api = urlObject.userQuery.play || '/rtc/v1/play/'
-  var api = urlObject.userQuery.play || '/streamingserver/v1/webrtc/sdp'
+  let api = urlObject.userQuery.play || '/streamingserver/v1/webrtc/sdp'
   if (urlObject.userQuery.play && api.lastIndexOf('/') !== api.length - 1) {
     api += '/'
   }
 
   apiUrl = schema + '//' + urlObject.server + ':' + port + api
-  for (var key in urlObject.userQuery) {
+  for (const key in urlObject.userQuery) {
     if (key !== 'api' && key !== 'play') {
       apiUrl += '&' + key + '=' + urlObject.userQuery[key]
     }
@@ -148,11 +148,11 @@ export const srsRtcPlayerAsync = () => {
       self.pc.addTransceiver('audio', { direction: 'recvonly' })
       self.pc.addTransceiver('video', { direction: 'recvonly' })
 
-      var offer = await self.pc.createOffer()
+      const offer = await self.pc.createOffer()
       await self.pc.setLocalDescription(offer)
       const res: any = await new Promise(function(resolve, reject) {
         // @see https://github.com/rtcdn/rtcdn-draft
-        var data = {
+        const data = {
           api: apiUrl, streamurl: streamUrl, clientip: null, sdp: offer.sdp
         }
         // console.log('Generated offer: ', data)
