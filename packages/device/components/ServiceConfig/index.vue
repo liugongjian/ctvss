@@ -238,6 +238,9 @@ export default class extends Vue {
 
   private get viidServiceUsable() {
     const hasViidInit = this.configManager.initInfo['viid'] && this.configManager.initInfo['viid'].length
+    if (UserModule.tags && UserModule.tags.isGA1400Trial === 'Y') {
+      return this.configManager.hasOndemand
+    }
     return (hasViidInit || this.configManager.hasOndemand) && this.initFlag
   }
 
@@ -246,8 +249,9 @@ export default class extends Vue {
     const userFlag = UserModule.tags && UserModule.tags.isGA1400Trial  === 'Y'
     const tabsFlag = this.tabs.includes(ResourceTypeEnum.Video) &&  this.tabs.includes(ResourceTypeEnum.Viid)
     const deviceInTypeFlag = this.deviceInType.includes(DeviceInTypeEnum.Video) &&  this.deviceInType.includes(DeviceInTypeEnum.Viid)
-    !this.aiServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag && this.initTrail()
-    return !this.aiServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag
+    !this.viidServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag && this.initTrail()
+    
+    return !this.viidServiceUsable && (tabsFlag || deviceInTypeFlag) && userFlag
   }
 
   @Watch('configMode', { immediate: true })
