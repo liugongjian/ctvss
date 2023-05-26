@@ -264,7 +264,7 @@ export default class extends Vue {
   private get showPTZLock() {
     return this.player &&
             this.isLive &&
-            (this.deviceInfo.inProtocol === 'gb28181' || this.deviceInfo.inProtocol === 'ehome') &&
+            (this.deviceInfo.inProtocol === 'gb28181') &&
             // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             // @ts-ignore
