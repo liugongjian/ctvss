@@ -3,7 +3,8 @@ import { DeviceModule } from '@vss/device/store/modules/device'
 import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
 import { getDir } from '@vss/device/api/dir'
-import { DeviceEnum, DeviceTypeEnum, DirectoryTypeEnum } from '../enums/index'
+import { DeviceEnum, DeviceTypeEnum, DirectoryTypeEnum, DeviceInTypeEnum } from '../enums/index'
+import { DeviceInType } from '../dicts'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -104,6 +105,14 @@ export default class DeviceMixin extends Vue {
       }
       if (editSections && !editSections.viidInfo) {
         this.device.viids = res.viids
+      }
+
+      this.device.device['deviceInType'] = []
+      if (this.hasVideo) {
+        this.device.device.deviceInType.push(DeviceInTypeEnum.Video)
+      }
+      if (this.hasViid) {
+        this.device.device.deviceInType.push(DeviceInTypeEnum.Viid)
       }
     } catch (e) {
       this.$alertError(e)
