@@ -56,6 +56,10 @@ import { checkPermission } from '@vss/base/utils/permission'
   name: 'PreviewTree'
 })
 export default class extends Mixins(treeMixin) {
+  public async onTreeLoadedHook(node, res) {
+    return res.dirs.filter(item => item.inProtocol !== 'viid')
+  }
+
   /**
    * 判断item是否可拖拽
    */

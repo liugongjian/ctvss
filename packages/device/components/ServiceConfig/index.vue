@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, VModel, Prop, Watch, Provide } from 'vue-property-decorator'
+import { Component, Vue, VModel, Prop, Watch, Provide, Inject } from 'vue-property-decorator'
 import { DeviceTypeEnum, DeviceInTypeEnum } from '@vss/device/enums/index'
 import { ResourceTypeEnum, ConfigModeEnum, BillingModeEnum } from '@vss/device/enums/billing'
 import IpcVideoServiceConfig from './ipc/VideoServiceConfig.vue'
@@ -118,6 +118,12 @@ import { checkPermission } from '@vss/base/utils/permission'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => ({}) })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && typeof this.getActions === 'function' && this.getActions()
+  }
+
   @Prop({ default: '' })
   private deviceId: string
 
@@ -194,7 +200,7 @@ export default class extends Vue {
   private initFlag = true
 
   private get hasGetAppPermission() {
-    return checkPermission(['ivs:GetApp'])
+    return checkPermission(['ivs:GetApp'], this.deviceActions)
   }
 
   private get hasVideoTab() {
