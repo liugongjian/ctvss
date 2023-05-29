@@ -213,7 +213,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Prop, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Watch, Prop, Inject, Provide } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
 import { DeviceModule } from '@vss/device/store/modules/device'
@@ -224,6 +224,8 @@ import { DeviceEnum, ToolsEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceT
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '@vss/device/settings'
 import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '@vss/device/type/Device'
 import { createDevice, getDeviceRecentlyUsed } from '@vss/device/api/device'
+import { previewAuthActions } from '@vss/device/api/dir'
+import { UserModule } from '@/store/modules/user'
 import VideoCreateForm from '@vss/device/components/Form/VideoCreateForm.vue'
 import ViidCreateForm from '@vss/device/components/Form/ViidCreateForm.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
@@ -239,8 +241,15 @@ export default class extends Mixins(deviceFormMixin) {
   @Inject('handleTools')
   private handleTools!: Function
 
+  @Provide('getActions')
+  public getActions() {
+    console.log('provide', this.deviceActions)
+    return this.deviceActions
+  }
+  
   @Prop({ default: () => createDevice }) private createDeviceApi: Function
   @Prop({ default: false }) private isIbox: boolean
+  public deviceActions = null
   private tips = DeviceTips
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
@@ -324,6 +333,27 @@ export default class extends Mixins(deviceFormMixin) {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
     this.getLastDeviceBasicInfo()
+    this.initIam()
+  }
+
+  private async initIam() {
+    // 当前父级-IAM权限查询
+    try {
+      this.deviceLoading = true
+      if (UserModule.iamUserId) {
+        // 查询全路径
+        const path: any = this.$route.query.path
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            dirPath: pathArr.join('/'),
+          }]
+        })
+        this.deviceActions = permissionRes.result[0].iamUser.actions
+      }
+    } finally {
+      this.deviceLoading = false
+    }
   }
 
   /**
