@@ -121,6 +121,7 @@ export default class extends Vue {
   @Inject({ default: () => ({}) })
   public getActions!: Function
   private get deviceActions() {
+    console.log('serviceConfig', this.getActions())
     return this.getActions && typeof this.getActions === 'function' && this.getActions()
   }
 
