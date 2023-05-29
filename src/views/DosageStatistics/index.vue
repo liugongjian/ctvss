@@ -183,7 +183,7 @@ export default class extends Vue {
   @Watch('activeName', { immediate: true })
   private onActiveNameChange(val: string) {
     if (!val) return
-    this[this.tabsInfo[val]['func']]()
+    this.tabsInfo[val] && this[this.tabsInfo[val]['func']]()
   }
 
   async mounted() {
