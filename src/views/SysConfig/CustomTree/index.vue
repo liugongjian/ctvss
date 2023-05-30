@@ -416,7 +416,6 @@ export default class extends Mixins(TreeMixin) {
    */
   private async getTreeList() {
     try {
-      debugger
       this.treeLoading.platform = true
       const res = await getTreeList({})
       console.log('res:', res)
@@ -438,7 +437,6 @@ export default class extends Mixins(TreeMixin) {
    * 初始化树列表
    */
   private initTree() {
-    debugger
     if (this.treeList.length !== 0) {
       this.selectTree(this.treeList[0])
     }
@@ -630,7 +628,6 @@ export default class extends Mixins(TreeMixin) {
       if (node.data.type === 'ipc') {
         return
       }
-      debugger
       let { dirs }: any = await loadTreeNode({ dirId: node.level === 1 ? this.currentTree.treeId : node.data.id })
       dirs = dirs.map((dir: any) => {
         return {
