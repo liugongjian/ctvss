@@ -106,13 +106,15 @@ export default class DeviceMixin extends Vue {
       if (editSections && !editSections.viidInfo) {
         this.device.viids = res.viids
       }
-
-      this.device.device['deviceInType'] = []
-      if (this.hasVideo) {
-        this.device.device.deviceInType.push(DeviceInTypeEnum.Video)
-      }
-      if (this.hasViid) {
-        this.device.device.deviceInType.push(DeviceInTypeEnum.Viid)
+      // 获取设备详情成功时，前端补充deviceInType字段
+      if (this.device.device) {
+        this.device.device['deviceInType'] = []
+        if (this.hasVideo) {
+          this.device.device.deviceInType.push(DeviceInTypeEnum.Video)
+        }
+        if (this.hasViid) {
+          this.device.device.deviceInType.push(DeviceInTypeEnum.Viid)
+        }
       }
     } catch (e) {
       this.$alertError(e)
