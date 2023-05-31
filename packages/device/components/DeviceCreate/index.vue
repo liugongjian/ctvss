@@ -270,6 +270,7 @@ export default class extends Mixins(deviceFormMixin) {
   private activeStep = 0
   private showMore = false
   private adaptiveHideTag = 'adaptiveHideTag'
+  private deviceLoading = false
   public deviceForm: DeviceBasicForm = {
     // step0
     [DeviceEnum.DeviceName]: '',
