@@ -73,3 +73,11 @@ export const AiMaskType: any = {
   1: '戴口罩',
   2: '佩戴不规范'
 }
+
+export const CostumColors: any = {
+  light: '浅色',
+  blue: '蓝色',
+  red: '红色',
+  dark: '深色',
+  orange: '橘/黄色'
+}
