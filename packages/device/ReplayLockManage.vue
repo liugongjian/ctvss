@@ -94,9 +94,9 @@ import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { getUserLockList} from '@vss/device/api/device'
 import { checkPermission } from '@vss/base/utils/permission'
-import UnlockDialog from '@/views/device/components/dialogs/Unlock.vue'
+import UnlockDialog from '@vss/device/components/ReplayPlayer/LockDialogs/Unlock.vue'
 import { redirectToDeviceDetail } from '@/utils/device'
-import VideoDialog from './components/dialogs/VideoDialog.vue'
+import VideoDialog from '@vss/device/components/ReplayPlayer/LockDialogs/VideoDialog.vue'
 
 @Component({
   name: 'ReplayLockManage',

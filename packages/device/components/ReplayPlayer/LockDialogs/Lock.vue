@@ -154,6 +154,7 @@ export default class extends Vue {
           })
           // 无法判断是否锁定成功
           await this.screen.recordManager.getRecordListByDate(this.screen.recordManager.currentDate, false, false, true)
+          this.$message.success(res.message)
         } catch (e) {
           this.$message.error(e.message)
         } finally {

@@ -169,7 +169,7 @@ export default class extends Vue {
     // console.log('获取锁定时间    : ', this.recordLockItem)
   }
 
-  // 提交锁定
+  // 提交解锁
   private async submit() {
     try {
       this.submitting = true
@@ -182,6 +182,7 @@ export default class extends Vue {
         action: 'unlock'
       }
       await unLock(params)
+      this.$message.success('录像解锁成功')
       this.submitting = false
       this.closeDialog(true)
       // 一个emit提示页面重新获取锁列表

@@ -589,16 +589,21 @@ export default class extends Vue {
         const pixelGap = deltaTime / this.settings.ratio
         if (pixelGap < this.pixelThreshold) {
           // 合并
-          if (deltaTime < 0){
-          }
+          // if (deltaTime <= 0){
+          // }
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
+          // 自收敛的情况
+          if ( o + 1 >= lockList.length && locks[0].time === locks[0]['lockCollection'][0].startTime && locks[0]['lockCollection'].length === 1) {
+            locks = [lockList[0]]
+          }
         } else {
           locks.push(nextLock)
           return this.joinLock(lockList, o, locks)
         }
       }
     }
+    
     return locks
   }
 
