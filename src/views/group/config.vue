@@ -72,7 +72,7 @@ import { networkMap } from '@/assets/region/network'
 import TemplateBind from '../components/TemplateBind.vue'
 import { UserModule } from '@/store/modules/user'
 import { previewAuthActions } from '@/api/accessManage'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'GroupConfig',

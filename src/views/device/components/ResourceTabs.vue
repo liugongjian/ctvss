@@ -216,7 +216,7 @@ import { ResourceAiType } from '@/dics'
 import { getResources, getResourceIdAttachedAppIds } from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'ResourceTabs'

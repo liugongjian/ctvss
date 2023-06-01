@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
