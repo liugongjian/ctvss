@@ -594,7 +594,7 @@ export default class extends Vue {
           const len = locks.length
           locks[len - 1]['lockCollection'].push(nextLock)
           // 自收敛的情况
-          if ( o + 1 >= lockList.length && locks[0].time === locks[0]['lockCollection'][0].startTime && locks[0]['lockCollection'].length === 1) {
+          if ( o + 1 >= lockList.length && locks[0]['lockCollection'].length === 1 && locks[0].time === locks[0]['lockCollection'][0].startTime) {
             locks = [lockList[0]]
           }
         } else {
