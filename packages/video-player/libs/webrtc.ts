@@ -98,7 +98,7 @@ const parseRtmpUrl = (rtmpUrl: string) => {
       } else if (window.location.href.indexOf('https://') === 0) {
         ret.port = 443
       } else {
-        // For WebRTC, SRS use 1985 as default API port.
+        // For WebRTC, SRS use 80 as default API port.
         ret.port = 80
       }
     }
@@ -116,7 +116,7 @@ export const prepareUrl = (url: string) => {
   var schema = urlObject.userQuery.schema
   schema = schema ? schema + ':' : window.location.protocol
 
-  var port = urlObject.port || 1985
+  var port = urlObject.port || 80
   if (schema === 'https:') {
     port = urlObject.port || 443
   }

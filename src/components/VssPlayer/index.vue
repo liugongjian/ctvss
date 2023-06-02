@@ -64,7 +64,7 @@ import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/type
 import Player from '@/components/Player/index.vue'
 import { Player as PlayerModel } from '@/components/Player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 /**
  * 子组件库
  */
@@ -264,7 +264,7 @@ export default class extends Vue {
   private get showPTZLock() {
     return this.player &&
             this.isLive &&
-            (this.deviceInfo.inProtocol === 'gb28181' || this.deviceInfo.inProtocol === 'ehome') &&
+            (this.deviceInfo.inProtocol === 'gb28181') &&
             // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             // @ts-ignore

@@ -39,7 +39,7 @@ export default class extends Vue {
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId
+    screen.deviceId = this.deviceId + ''
     screen.inProtocol = this.inProtocol
     screen.streams = this.streams
     screen.streamSize = this.streamSize

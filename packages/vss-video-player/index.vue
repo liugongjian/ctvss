@@ -71,7 +71,7 @@ import { PlayerEvent, DeviceInfo, StreamInfo } from './types/VssPlayer'
 import { Player as PlayerModel } from '@vss/video-player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 import './styles/index.scss'
-import { checkPermission } from '@/utils/permission'
+// import { checkPermission } from '@/utils/permission'
 /**
  * 子组件库
  */

@@ -57,7 +57,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { ScreenModule } from '@/store/modules/screen'
 import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import { Screen } from '@/views/device/services/Screen/Screen'

@@ -43,7 +43,10 @@
               <h2 class="dosage-statistics__info_title">今日带宽用量</h2>
               <div class="dosage-statistics__info_detail">
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ splitBandWidth(bandwidth.uploadTrafficValue)[0] }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}</p>
+                  <p>
+                    {{ splitBandWidth(bandwidth.uploadTrafficValue)[0]
+                    }}{{ splitBandWidth(bandwidth.uploadTrafficValue)[1] }}
+                  </p>
                   <div>上行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
@@ -51,7 +54,10 @@
                   <div>上行带宽峰值</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
-                  <p>{{ splitBandWidth( bandwidth.downloadTrafficValue)[0] }}{{ splitBandWidth( bandwidth.downloadTrafficValue)[1] }}</p>
+                  <p>
+                    {{ splitBandWidth(bandwidth.downloadTrafficValue)[0]
+                    }}{{ splitBandWidth(bandwidth.downloadTrafficValue)[1] }}
+                  </p>
                   <div>下行总流量</div>
                 </div>
                 <div class="dosage-statistics__info_detail_item">
@@ -64,7 +70,7 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="存储" name="storage">
+        <el-tab-pane v-if="isSubscribe" label="存储" name="storage">
           <div v-if="activeName === 'storage'">
             <div class="dosage-statistics__info">
               <h2 class="dosage-statistics__info_title">当前存储用量</h2>
@@ -121,6 +127,8 @@ import {
   getBandwidthStatistics
 } from '@/api/dosageStatistics'
 
+import { getIsOndemand } from '@/api/billing'
+
 import { formatStorage, formatBandWidth } from '@/utils/number'
 
 @Component({
@@ -135,6 +143,8 @@ export default class extends Vue {
   private deviceNum = 0
 
   private volumes: any = {}
+
+  private isSubscribe = false
 
   private storage: any = {
     totalStorage: 0,
@@ -173,18 +183,30 @@ export default class extends Vue {
   @Watch('activeName', { immediate: true })
   private onActiveNameChange(val: string) {
     if (!val) return
-    this[this.tabsInfo[val]['func']]()
+    this.tabsInfo[val] && this[this.tabsInfo[val]['func']]()
   }
 
-  mounted() {
+  async mounted() {
+    await this.getIsSubscribe()
     this.initActiveName()
+  }
+
+  private async getIsSubscribe() {
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      this.isSubscribe = isSubscribe === '1'
+    } catch (error) {
+      this.$$message.error(error && error.message)
+    }
   }
 
   private splitBandWidth(bandwidth) {
     if (bandwidth === 0) return []
-    return [bandwidth.substr(0, bandwidth.length - 4), `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`]
+    return [
+      bandwidth.substr(0, bandwidth.length - 4),
+      `${bandwidth.substring(bandwidth.length - 4, bandwidth.length - 3)}B`
+    ]
   }
-
 
   private initActiveName() {
     const { tab } = this.$route.query

@@ -1,7 +1,7 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
 import { getDevice } from '@vss/device/api/device'
-// import { checkPermission } from '@/utils/permission'
+// import { checkPermission } from '@vss/base/utils/permission'
 import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'

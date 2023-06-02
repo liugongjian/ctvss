@@ -8,7 +8,7 @@
       class="mb10"
     />
     <el-menu :default-active="type" class="navigation-menu" mode="horizontal" @select="navigatePage">
-      <el-menu-item index="video">视频录制模板</el-menu-item>
+      <el-menu-item index="video">视频存储模板</el-menu-item>
       <el-menu-item index="viid">视图存储模板</el-menu-item>
     </el-menu>
     <el-card ref="deviceWrap" class="device-list-wrap">
@@ -510,8 +510,8 @@ export default class extends Vue {
   private async deleteTemplate(row: any) {
     if (this.type === 'video') {
       this.$alertDelete({
-        type: '视频录制模板',
-        msg: `确定删除视频录制模板"${row.templateName}"`,
+        type: '视频存储模板',
+        msg: `确定删除视频存储模板"${row.templateName}"`,
         method: deleteRecordTemplate,
         payload: { templateId: row.templateId },
         onSuccess: this.delInit

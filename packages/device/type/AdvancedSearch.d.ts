@@ -1,4 +1,4 @@
-import { DeviceAddress } from '@/type/Device'
+import { DeviceAddress } from './Device'
 
 export interface AdvancedSearch {
   deviceStatusKeys?: Array<string>

@@ -6,7 +6,7 @@ import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/st
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 interface ScreenManagerConfig {
   inProtocol: string;

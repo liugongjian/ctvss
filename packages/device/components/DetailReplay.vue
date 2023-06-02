@@ -43,7 +43,7 @@ export default class extends Vue {
     this.screenManager.isCarTask = this.isCarTask
     // this.screenManager.isLockTask = this.isLockTask
     const screen = this.screenManager.currentScreen
-    screen.deviceId = this.deviceId
+    screen.deviceId = this.deviceId + ''
     screen.inProtocol = this.inProtocol
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange

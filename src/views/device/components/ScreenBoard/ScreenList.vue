@@ -121,7 +121,7 @@ import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/da
 import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import { addLog } from '@/api/operationLog'
