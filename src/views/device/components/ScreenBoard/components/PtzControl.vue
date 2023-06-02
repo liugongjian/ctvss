@@ -176,7 +176,7 @@ import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, set
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'PtzControl',

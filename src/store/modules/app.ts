@@ -10,7 +10,7 @@ export enum DeviceType {
 export enum SystemType {
   SYSTEM_USER = 'system-user', // 用户平台
   SYSTEM_OPERATION = 'system-operation', // 运营平台
-  SYSTEM_ADMIN = 'sytem-admin' // 运维平台
+  SYSTEM_ADMIN = 'system-admin' // 运维平台
 }
 
 export interface IAppState {

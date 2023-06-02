@@ -61,7 +61,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'BillingResourceManagement',
