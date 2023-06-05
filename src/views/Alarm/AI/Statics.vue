@@ -2,26 +2,152 @@
   <div>
     <el-card>
       <div class="alarm-stats__title">今日AI告警</div>
-      <div>
-        <ul class="alarm-stats__list">
+      <div ref="alarmContainer" class="alarm-stats__container">
+        <div v-if="showButton" class="left-arrow" @click="() => handleScroll(-1)" @mousedown="() => startScroll(-1)" @mouseup="stopScroll">
+          <i class="el-icon-arrow-left" />
+        </div>
+        <ul ref="alarmList" class="alarm-stats__list">
           <li v-for="item in alarmCounts" :key="item.type" class="alarm-stats__list__item">
             <div class="alarm-stats__list__item--1">{{ item.count }}</div>
             <div class="alarm-stats__list__item--2">{{ item.type }}</div>
           </li>
         </ul>
+        <div v-if="showButton" class="right-arrow" @click="() => handleScroll(1)" @mousedown="() => startScroll(1)" @mouseup="stopScroll">
+          <i class="el-icon-arrow-right" />
+        </div>
       </div>
+      <div id="stats_chart" class="alarm-stats__chart" />
     </el-card>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Chart } from '@antv/g2'
+
 
 @Component({
   name: 'alarm-stats'
 })
 export default class extends Vue {
 
-  private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }]
+  // private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }]
+  private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, ]
+  private timer: any
+
+  private chartData: any
+
+  private showButton = false
+
+  private ifShowButton(){
+    const list: any = this.$refs.alarmList
+    if (list && list.clientWidth && list.scrollWidth){
+      this.showButton = list.clientWidth < list.scrollWidth
+    } else {
+      this.showButton = false
+    }
+
+  }
+
+  private mounted(){
+    this.getChartData()
+    this.ifShowButton()
+  }
+
+  private async initChart(){
+   const chart = new Chart({
+      container: 'stats_chart',
+      autoFit: true,
+      height: 500,
+      width: 500
+    })
+
+    chart.data(this.chartData)
+    chart.scale({
+      Date: {
+        tickCount: 10
+      },
+      Close: {
+        nice: true,
+      }
+    })
+    chart.axis('Date', {
+      label: {
+        formatter: text => {
+          const dataStrings = text.split('.')
+          return dataStrings[2] + '-' + dataStrings[1] + '-' + dataStrings[0]
+        }
+      }
+    })
+
+    chart.line().position('Date*Close')
+    // annotation
+    const { min, max } = this.findMaxMin(this.chartData)
+    chart.annotation().dataMarker({
+      top: true,
+      position: [max.Date, max.Close],
+      text: {
+        content: '全部峰值：' + max.Close,
+      },
+      line: {
+        length: 30,
+      }
+    })
+    chart.annotation().dataMarker({
+      top: true,
+      position: [min.Date, min.Close],
+      text: {
+        content: '全部谷值：' + min.Close,
+      },
+      line: {
+        length: 50,
+      }
+    })
+    chart.render()
+
+  }
+
+  private getChartData(){
+    fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/nintendo.json').then(res => res.json()).then(data => {
+      this.chartData = data
+      console.log('data:', data)
+      this.initChart()
+    })
+  }
+
+  private handleScroll(step){
+    const list: any = this.$refs.alarmList
+    list.scrollLeft = list.scrollLeft + step * 50
+  }
+
+  private startScroll(step){
+    this.timer = setTimeout(() => {
+      this.handleScroll(step)
+      this.startScroll(step)
+    }, 200)
+  }
+
+  private stopScroll(){
+    this.timer && clearTimeout(this.timer)
+  }
+
+  private findMaxMin(data) {
+    let maxValue = 0
+    let minValue = 50000
+    let maxObj = null
+    let minObj = null
+    for (const d of data) {
+      if (d.Close > maxValue) {
+        maxValue = d.Close
+        maxObj = d
+      }
+      if (d.Close < minValue) {
+        minValue = d.Close
+        minObj = d
+      }
+    }
+    return { max: maxObj, min: minObj }
+  }
+
 }
 
 </script>
@@ -31,6 +157,24 @@ export default class extends Vue {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
+  }
+  &__container {
+    position: relative;
+    .left-arrow,.right-arrow {
+      cursor: pointer;
+      & > i {
+        font-size: 24px;
+      }
+      position:absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .left-arrow{
+      left: -20px;
+    }
+    .right-arrow{
+      right: -20px;
+    }
   }
   &__list {
     overflow-x: auto;
@@ -54,6 +198,10 @@ export default class extends Vue {
         font-weight: bold;
       }
     }
+  }
+
+  &__chart{
+    margin-top: 40px;
   }
 
 }
