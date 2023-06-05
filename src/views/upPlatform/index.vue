@@ -56,6 +56,24 @@
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
+            <div class="platform-status">
+              创建证书请求：
+              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
+              <el-button type="text">下载</el-button>
+              <el-button type="text">删除</el-button>
+            </div>
+            <div class="platform-status">
+              生成的证书：
+              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '上传证书' : '已上传' }}</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
+            </div>
+            <div class="platform-status">
+              上级服务证书：
+              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '上传证书' : '已上传' }}</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
+            </div>
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
           </div>
         </div>
@@ -713,7 +731,8 @@ export default class extends Vue {
   }
 
   .platform-status {
-    margin: 10px 10px 0 0;
+    display: inline-block;
+    margin-right: 15px;
   }
 }
 

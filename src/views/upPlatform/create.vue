@@ -174,6 +174,22 @@
           </template>
           <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
         </el-form-item>
+        <el-form-item label="35114国密认证">
+          <template slot="label">
+            35114国密认证:
+            <el-popover
+              placement="top-start"
+              title="35114国密认证"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="开启35114国密认证，需要上级平台支持。开启后，您需要在级联平台页面创建证书请求并上传相关证书。"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
+        </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
