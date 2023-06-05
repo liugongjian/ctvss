@@ -1157,7 +1157,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'),
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevicesV1/index.vue'),
         name: 'ExportDevices',
         meta: {
           title: '批量导出设备信息',

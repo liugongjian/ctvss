@@ -1,3 +1,11 @@
+<!--
+ * @Author: liugj liugj@chinatelecom.cn
+ * @Date: 2023-05-25 15:49:12
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-06-05 15:09:59
+ * @FilePath: \vss-user-web\src\views\ExportDevices\index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
   <div class="app-container">
     <el-card>
@@ -48,7 +56,7 @@
 import { Component, Vue, Mixins, Watch } from 'vue-property-decorator'
 import { columnList } from './assets/column-list/qingyuan'
 import { deviceParamsMap } from './assets/dicts/qingyuan'
-import { getDetailList, getDetailExportV2 } from '@/api/exportDevices'
+import { getDetailList, getDetailExport } from '@/api/exportDevices'
 import excelMixin from './mixin/excelMixin'
 @Component({
   name: 'ExportDevices'
@@ -103,22 +111,8 @@ export default class extends Mixins(Vue, excelMixin) {
     const params = {
       pageNum: -1
     }
-    const res = await getDetailExportV2(params)
-    this.downLoadFile('设备信息表格', res)
-  }
-
-  private downLoadFile(fName, res){
-    try {
-      const blob = new Blob([res])
-      const link = document.createElement('a')
-      link.href = window.URL.createObjectURL(blob)
-      link.download = `${fName}.xlsx`
-      link.click()
-      link.remove()
-    } catch (e){
-      console.log(e)
-    }
-
+    const res = await getDetailExport(params)
+    res.exportFile && this.downloadFileUrl('设备信息表格', res.exportFile)
   }
 
   private async exportInfo() {
