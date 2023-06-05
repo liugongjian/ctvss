@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-21 10:53:22
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-03-24 10:44:42
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-06-02 16:30:35
  * @FilePath: /vss-user-web/src/views/Dashboard/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,10 +16,12 @@
         <DashboardPeriodLine />
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
-      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
-        <DashboardAIAbility />
-        <DashboardAlertLive :is-light="true" />
-        <DashboardAlertToday :is-light="true" :height="19" />
+      <div v-if="aiPakageNum === 0" class="dashboard-wrap-overview__right">
+        <!-- <DashboardAIAbility /> -->
+        <DashboardAIAnalysis />
+        <DashboardAIAlert />
+        <!-- <DashboardAlertLive :is-light="true" />
+        <DashboardAlertToday :is-light="true" :height="19" /> -->
       </div>
     </div>
   </div>
@@ -31,6 +33,8 @@ import DashboardAlertToday from '@/views/Dashboard/components/DashboardAlertToda
 import DashboardAlertLive from '@/views/Dashboard/components/DashboardAlertLive.vue'
 import DashboardFlowAndDevice from '@/views/Dashboard/components/DashboardFlowAndDevice.vue'
 import DashboardAIAbility from '@/views/Dashboard/components/DashboardAIAbility.vue'
+import DashboardAIAlert from '@/views/Dashboard/components/DashboardAIAlert.vue'
+import DashboardAIAnalysis from '@/views/Dashboard/components/DashboardAIAnalysis.vue'
 import DashboardDataToday from '@/views/Dashboard/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/Dashboard/components/DashboardResourcePackage.vue'
 import { UserModule } from '@/store/modules/user'
@@ -48,7 +52,9 @@ import DashboardPeriodLine from './components/DashboardPeriodLine.vue'
     DashboardDataToday,
     DashboardResourcePackage,
     DashboardTodayData,
-    DashboardPeriodLine
+    DashboardPeriodLine,
+    DashboardAIAnalysis,
+    DashboardAIAlert
   }
 })
 export default class extends Vue {
