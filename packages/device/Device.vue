@@ -24,6 +24,7 @@
           v-loading="loading.tree"
           :lazy="lazy"
           :data="treeSearchResult"
+          :root-sums-array="[rootSums.onlineSize, rootSums.totalSize]"
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />

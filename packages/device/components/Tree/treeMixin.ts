@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -20,6 +20,10 @@ export default class TreeMixin extends Vue {
   /* 树初始化的所有节点信息（非lazy模式下） */
   @Prop({ default: () => [] })
   public data
+
+  /* 树初始化的设备统计信息（非lazy模式下） */
+  @Prop({ default: () => [0, 0] })
+  public rootSumsArray
 
   /* 树加载子节点信息方法（lazy模式下） */
   @Prop({ default: () => {} })
@@ -74,6 +78,12 @@ export default class TreeMixin extends Vue {
 
   public initCommonTree() {
     this.commonTree.initTree()
+  }
+
+  @Watch('rootSumsArray', { deep: true })
+  public rootSumsArrayChange(array) {
+    this.rootSums.onlineSize = array[0]
+    this.rootSums.totalSize = array[1]
   }
 
   /**

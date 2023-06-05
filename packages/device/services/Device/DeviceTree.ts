@@ -28,6 +28,7 @@ const advanceSearch = async function (
     loading: any
     treeSearchResult: any
     deviceTree: any
+    rootSums: any
   } = getVueComponent()
   console.log(filterData, '----------filterData')
   if (filterData) {
@@ -54,6 +55,8 @@ const advanceSearch = async function (
         matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
       })
       state.treeSearchResult = res.dirs
+      state.rootSums.onlineSize = res.onlineSize
+      state.rootSums.totalSize = res.totalSize
     } catch (e) {
       console.log(e && e.message)
     } finally {

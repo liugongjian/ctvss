@@ -52,6 +52,11 @@ export default class LayoutMixin extends Vue {
   public pollingStatus = PollingStatusEnum.Free
   // 轮询时间
   public pollingInterval = 20
+  // 目录统计信息
+  public rootSums = {
+    onlineSize: 0,
+    totalSize: 0
+  }
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
