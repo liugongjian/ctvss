@@ -19,15 +19,17 @@ import { downloadFileUrl } from '@vss/base/utils/excel'
  * @param filterData 过滤字段
  */
 const advanceSearch = async function (
-  state: {
+  getVueComponent: any,
+  filterData?: any
+) {
+  const state: {
     advancedSearchForm: AdvancedSearch
     lazy: boolean
     loading: any
     treeSearchResult: any
     deviceTree: any
-  },
-  filterData?: any
-) {
+  } = getVueComponent()
+  console.log(filterData, '----------filterData')
   if (filterData) {
     state.advancedSearchForm.deviceStatusKeys = filterData.deviceStatusKeys
     state.advancedSearchForm.streamStatusKeys = filterData.streamStatusKeys
@@ -37,22 +39,26 @@ const advanceSearch = async function (
     state.advancedSearchForm.searchKey = filterData.searchKey
     state.advancedSearchForm.revertSearchFlag = filterData.revertSearchFlag
   }
-  if (!state.lazy) {
-    state.loading.tree = true
-    state.treeSearchResult = await getDeviceTree({
-      // groupId: this.currentGroupId,
-      id: 0,
-      deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-      streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-      matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
-      deviceAddresses: state.advancedSearchForm.deviceAddresses.code
-        ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
-        : undefined,
-      searchKey: state.advancedSearchForm.searchKey || undefined
-    })
-    state.loading.tree = false
-  } else {
+  if (state.lazy) {
     state.treeSearchResult = []
+  } else {
+    try {
+      state.loading.tree = true
+      const res = await getDeviceTree({
+        searchKey: state.advancedSearchForm.searchKey || undefined,
+        deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+        streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+        deviceAddresses: state.advancedSearchForm.deviceAddresses.code
+          ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
+          : undefined,
+        matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
+      })
+      state.treeSearchResult = res.dirs
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      state.loading.tree = false
+    }
   }
   state.deviceTree.initCommonTree()
 }
@@ -64,14 +70,15 @@ const advanceSearch = async function (
  * @param state.loading 加载中状态
  * @param state.treeSearchResult 搜索结果
  */
-const initAdvancedSearch = async function (state: {
-  $route: any
-  advancedSearchForm: AdvancedSearch
-  lazy: boolean
-  loading: any
-  treeSearchResult: any
-  deviceTree: any
-}) {
+const initAdvancedSearch = async function (getVueComponent: any) {
+  const state: {
+    $route: any
+    advancedSearchForm: AdvancedSearch
+    lazy: boolean
+    loading: any
+    treeSearchResult: any
+    deviceTree: any
+  } = getVueComponent()
   if (state.lazy) return
   // 初始化数据
   const query: any = state.$route.query
@@ -96,18 +103,23 @@ const initAdvancedSearch = async function (state: {
       state.advancedSearchForm.deviceAddresses.code
   )
   // 初始化树
-  state.loading.tree = true
-  state.treeSearchResult = await getDeviceTree({
-    id: 0,
-    deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-    streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-    matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
-    deviceAddresses: state.advancedSearchForm.deviceAddresses.code
-      ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
-      : undefined,
-    searchKey: state.advancedSearchForm.searchKey || undefined
-  })
-  state.loading.tree = false
+  try {
+    state.loading.tree = true
+    const res = await getDeviceTree({
+      searchKey: state.advancedSearchForm.searchKey || undefined,
+      deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+      streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+      deviceAddresses: state.advancedSearchForm.deviceAddresses.code
+        ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
+        : undefined,
+      matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
+    })
+    state.treeSearchResult = res.dirs
+  } catch (e) {
+    console.log(e && e.message)
+  } finally {
+    state.loading.tree = false
+  }
   state.deviceTree.initCommonTree()
 }
 

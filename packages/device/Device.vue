@@ -29,15 +29,12 @@
         />
       </template>
       <template slot="leftBottom">
-        <!-- TODO -->
         <advanced-search
-          v-if="UserVersion === 1"
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
       </template>
       <template slot="rightHeader">
-        <!-- TODO -->
         <breadcrumb
           ref="breadcrumb"
           @node-change="handleTreeNode"
@@ -101,7 +98,7 @@ export default class extends Mixins(layoutMxin) {
         }
       })
     } else {
-      this.deviceTree.loadChildren(id)
+      this.lazy && this.deviceTree.loadChildren(id)
       this.$router.push({
         name: 'DeviceList',
         query: {

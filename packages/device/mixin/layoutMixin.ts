@@ -69,7 +69,7 @@ export default class LayoutMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => {
       DeviceScreen.stopPolling(this.getVueComponent)
-      DeviceManager.advanceSearch(this)
+      DeviceManager.advanceSearch(this.getVueComponent)
     },
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
     [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
@@ -84,7 +84,7 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
     [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),
     [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this.getVueComponent),
-    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
+    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this.getVueComponent, filterData),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
     [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
@@ -132,7 +132,7 @@ export default class LayoutMixin extends Vue {
       })
       this.rootActions = permissionRes.result[0].iamUser.actions
     }
-    DeviceManager.initAdvancedSearch(this)
+    DeviceManager.initAdvancedSearch(this.getVueComponent)
   }
 
   /**

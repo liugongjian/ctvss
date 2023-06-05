@@ -52,7 +52,7 @@ export default class TreeMixin extends Vue {
   public emptyText = '暂无目录或设备'
   /* 对应el-tree中props */
   public defaultProps = {
-    children: 'children',
+    children: 'Dirs',
     label: 'name',
     isLeaf: 'isLeaf'
   }
