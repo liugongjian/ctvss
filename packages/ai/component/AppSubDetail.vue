@@ -206,7 +206,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
-  private currentLocationIndex: number = -1
+  private currentLocationIndex = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
   private timeInterval = ResultTimeInterval

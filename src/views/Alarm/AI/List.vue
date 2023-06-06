@@ -89,7 +89,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-    <CardList v-if="pageMode === 'card'" />
+    <CardList v-if="pageMode === 'card'" :alarms="alarmList" />
   </div>
 </template>
 <script lang="ts">
