@@ -103,7 +103,7 @@ export default class extends Mixins(Vue, excelMixin) {
     const params = {
       pageNum: -1
     }
-    const res = await getDetailExportV2(params)
+    const res = await getDetailExportV2({})
     this.downLoadFile('设备信息表格', res)
   }
 

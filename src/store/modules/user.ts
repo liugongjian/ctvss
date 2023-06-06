@@ -249,7 +249,8 @@ class User extends VuexModule implements IUserState {
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
-      this.SET_MAIN_USER_TAGS(userInfo.tags)
+      // this.SET_MAIN_USER_TAGS(userInfo.tags)
+      this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isLianZhouEdu: 'Y' })
       this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
 
