@@ -43,25 +43,8 @@ const advanceSearch = async function (
   if (state.lazy) {
     state.treeSearchResult = []
   } else {
-    try {
-      state.loading.tree = true
-      const res = await getDeviceTree({
-        searchKey: state.advancedSearchForm.searchKey || undefined,
-        deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-        streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-        deviceAddresses: state.advancedSearchForm.deviceAddresses.code
-          ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
-          : undefined,
-        matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
-      })
-      state.treeSearchResult = res.dirs
-      state.rootSums.onlineSize = res.onlineSize
-      state.rootSums.totalSize = res.totalSize
-    } catch (e) {
-      console.log(e && e.message)
-    } finally {
-      state.loading.tree = false
-    }
+    // 初始化树
+    await initSearchTree(state)
   }
   state.deviceTree.initCommonTree()
   state.handleTools(ToolsEnum.RefreshRouterView)
@@ -108,6 +91,15 @@ const initAdvancedSearch = async function (getVueComponent: any) {
       state.advancedSearchForm.deviceAddresses.code
   )
   // 初始化树
+  await initSearchTree(state)
+  state.deviceTree.initCommonTree()
+}
+
+/**
+ * 初始化搜索树
+ * @param state vue组件对象
+ */
+const initSearchTree = async function (state: any) {
   try {
     state.loading.tree = true
     const res = await getDeviceTree({
@@ -119,6 +111,21 @@ const initAdvancedSearch = async function (getVueComponent: any) {
         : undefined,
       matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
     })
+    // 递归平铺权限对象authMap
+    const tempArr: any[] = [res]
+    while (tempArr.length) {
+      const item = tempArr.shift()
+      if (item.dirs && item.dirs.length) {
+        for (let i = 0; i < item.dirs.length; i++) {
+          item.dirs[i] = {
+            ...item.dirs[i]['authMap'],
+            ...item.dirs[i]
+          }
+          delete item.dirs[i]['authMap']
+          tempArr.push(item.dirs[i])
+        }
+      }
+    }
     state.treeSearchResult = res.dirs
     state.rootSums.onlineSize = res.onlineSize
     state.rootSums.totalSize = res.totalSize
@@ -127,7 +134,6 @@ const initAdvancedSearch = async function (getVueComponent: any) {
   } finally {
     state.loading.tree = false
   }
-  state.deviceTree.initCommonTree()
 }
 
 /**
