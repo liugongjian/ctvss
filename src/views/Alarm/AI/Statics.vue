@@ -18,8 +18,21 @@
       </div>
       <div class="alarm-stats__chart">
         <div class="alarm-stats__chart--add">
-          <div>aaa</div>
-          <div>bbb</div>
+          <div>AI告警统计详情（次）</div>
+          <div class="alarm-stats__chart--op">
+            <el-select v-model="algoType" multiple placeholder="请选择" size="mini">
+              <el-option
+                v-for="item in algoTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            <el-radio-group v-model="period" size="mini">
+              <el-radio-button label="7">近7天</el-radio-button>
+              <el-radio-button label="30">近30天</el-radio-button>
+            </el-radio-group>
+          </div>
         </div>
         <div id="stats_chart" />
       </div>
@@ -43,6 +56,27 @@ export default class extends Vue {
   private chartData: any
 
   private showButton = false
+
+  private algoType = []
+
+  private algoTypes = [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }]
+
+  private period = '7'
 
   private ifShowButton(){
     const list: any = this.$refs.alarmList
@@ -208,6 +242,19 @@ export default class extends Vue {
 
   &__chart{
     margin-top: 40px;
+    padding: 20px;
+    border: 1px solid #cac9c9;
+    &--add{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    &--op {
+      & > div {
+        margin-left: 10px;
+      }
+    }
   }
 
 }
