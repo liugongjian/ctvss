@@ -57,20 +57,20 @@
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
             <div class="platform-status">
-              创建证书请求：
+              创建证书请求: 
               <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
-              <el-button type="text">下载</el-button>
-              <el-button type="text">删除</el-button>
-            </div>
-            <div class="platform-status">
-              生成的证书：
-              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '上传证书' : '已上传' }}</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
             </div>
             <div class="platform-status">
-              上级服务证书：
-              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '上传证书' : '已上传' }}</el-button>
+              生成的证书: 
+              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
+              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
+            </div>
+            <div class="platform-status">
+              上级服务证书: 
+              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
             </div>
@@ -210,8 +210,8 @@
         请选择或创建一个向上级联平台
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
-    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
+    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog('addDevices', $event)" />
+    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog('manageGroups', $event)" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
@@ -655,10 +655,15 @@ export default class extends Vue {
     this.breadcrumb = this.getNodePath(node)
   }
 
-  private closeDialog(refresh: boolean) {
-    this.dialog.addDevices = false
-    this.dialog.manageGroups = false
-    refresh === true && this.initDirs()
+  private closeDialog(dialogType: string, refresh: boolean) {
+    switch (dialogType) {
+      case 'addDevices':
+        this.dialog.addDevices = false
+        refresh === true && this.initDirs()
+      case 'manageGroups':
+        this.dialog.manageGroups = false
+        refresh === true && this.initDirs()
+    }
   }
 
   private getNodePath(node: any) {
@@ -732,7 +737,7 @@ export default class extends Vue {
 
   .platform-status {
     display: inline-block;
-    margin-right: 15px;
+    margin: 0 15px;
   }
 }
 
