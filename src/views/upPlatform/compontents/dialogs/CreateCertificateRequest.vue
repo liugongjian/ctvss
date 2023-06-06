@@ -2,30 +2,30 @@
   <el-dialog
     v-loading="loading"
     width="30%"
-    :title="title"
+    title="创建证书请求"
     :visible="true"
     append-to-body
+    center
     @close="closeDialog"
   >
-    <el-form :label-position="'right'" label-width="130px" :rules="rules" :model="form">
-      <el-form-item label="分组名" prop="dirName">
-        <el-input v-model="form.dirName" placeholder="请输入目录名称" class="form__input" />
+    <el-form ref="form" :label-position="'right'" label-width="80px" :rules="rules" :model="form">
+      <el-form-item label="国家" prop="country">
+        <el-input v-model="form.country" class="form__input" />
       </el-form-item>
-      <el-form-item v-if="mode === 'vgroup'" label="所属行业" prop="industryCode">
-        <el-select v-model="form.industryCode" placeholder="请选择所属行业">
-          <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
-        </el-select>
+      <el-form-item label="省/州" prop="province">
+        <el-input v-model="form.province" class="form__input" />
       </el-form-item>
-      <el-form-item label="上级平台区域" prop="gbRegion">
-        <AddressCascader
-          :code="form.gbRegion"
-          :level="form.gbRegionLevel"
-          :disabled="false"
-          @change="onDeviceAddressChange"
-        />
+      <el-form-item label="地区" prop="area">
+        <el-input v-model="form.area" class="form__input" />
       </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="form.description" placeholder="请输入相关描述" class="form__input" />
+      <el-form-item label="组织" prop="organization">
+        <el-input v-model="form.organization" class="form__input" />
+      </el-form-item>
+      <el-form-item label="单位" prop="unit">
+        <el-input v-model="form.unit" class="form__input" />
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="form.email" class="form__input" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -48,32 +48,29 @@ export default class extends Vue {
   private platformId!: any
 
   private rules = {
-    dirName: [
-      { required: true, message: '请输入目录名称', trigger: 'blur' }
+    country: [
+      { required: true, message: '请填写国家名称', trigger: 'blur' }
     ],
-    industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
-    ],
-    gbRegion: [
-      { required: true, message: '请选择上级平台区域', trigger: 'blur' }
+    email: [
+      { validator: this.validateEmail, trigger: 'blur' }
     ]
   }
 
   private loading = false
   private form: any = {
-    id: '',
-    dirName: '',
-    description: '',
-    industryCode: '',
-    gbRegion: '',
-    gbRegionLevel: ''
+    country: '',
+    province: '',
+    area: '',
+    organization: '',
+    unit: '',
+    email: ''
   }
 
   private async mounted() {
   }
 
-  private closeDialog(isRefresh: boolean) {
-    this.$emit('close-dialog', isRefresh)
+  private closeDialog(isRefresh?: boolean) {
+    this.$emit('on-close', isRefresh)
   }
 
   private async submit() {
@@ -81,8 +78,8 @@ export default class extends Vue {
       const form: any = this.$refs.form
       form.validate(async(valid: boolean) => {
         if (valid) {
-          await func(param)
-          this.successInfo()
+          console.log(this.form)
+          this.closeDialog(true)
         } else {
           return false
         }
@@ -92,19 +89,15 @@ export default class extends Vue {
       console.log(e)
     }
   }
+
+  private validateEmail(rule: any, value: string, callback: Function) {
+    if (value && !/^[\w-.]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/gi.test(value)) {
+      callback(new Error('请输入正确的邮箱'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
-.delete-content {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.el-form-item {
-  .el-cascader--medium,
-  .el-select {
-    width: fill-available;
-  }
-}
 </style>

@@ -58,7 +58,7 @@
           <div class="filter-container__right">
             <div class="platform-status">
               创建证书请求: 
-              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
+              <el-button :disabled="currentPlatform.status === 'on'" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
               <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
             </div>
@@ -212,7 +212,8 @@
     </el-card>
     <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog('addDevices', $event)" />
     <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog('manageGroups', $event)" />
-    <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
+    <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatform.platformId" @on-close="dialog.platformDetail = false" />
+    <CreateCertificateRequest v-if="dialog.createCertificateRequest" :platform-id="currentPlatform.platformId" @on-close="closeDialog('createCertificateRequest', $event)" />
   </div>
 </template>
 
@@ -224,6 +225,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import ManageGroups from './compontents/dialogs/ManageGroups.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
+import CreateCertificateRequest from './compontents/dialogs/CreateCertificateRequest.vue'
 
 @Component({
   name: 'UpPlatformList',
@@ -231,7 +233,8 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
     AddDevices,
     PlatformDetail,
     StatusBadge,
-    ManageGroups
+    ManageGroups,
+    CreateCertificateRequest
   }
 })
 export default class extends Vue {
@@ -281,7 +284,9 @@ export default class extends Vue {
   public dialog = {
     addDevices: false,
     platformDetail: false,
-    manageGroups: false
+    manageGroups: false,
+    createCertificateRequest: false
+
   }
   public treeProp = {
     label: 'label',
@@ -660,9 +665,15 @@ export default class extends Vue {
       case 'addDevices':
         this.dialog.addDevices = false
         refresh === true && this.initDirs()
+        break
       case 'manageGroups':
         this.dialog.manageGroups = false
         refresh === true && this.initDirs()
+        break
+      case 'createCertificateRequest':
+        this.dialog.createCertificateRequest = false
+        refresh === true && this.getPlatformList()
+        break
     }
   }
 
