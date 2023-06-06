@@ -29,8 +29,8 @@ const advanceSearch = async function (
     treeSearchResult: any
     deviceTree: any
     rootSums: any
+    handleTools: any
   } = getVueComponent()
-  console.log(filterData, '----------filterData')
   if (filterData) {
     state.advancedSearchForm.deviceStatusKeys = filterData.deviceStatusKeys
     state.advancedSearchForm.streamStatusKeys = filterData.streamStatusKeys
@@ -64,6 +64,7 @@ const advanceSearch = async function (
     }
   }
   state.deviceTree.initCommonTree()
+  state.handleTools(ToolsEnum.RefreshRouterView)
 }
 
 /**
@@ -81,6 +82,7 @@ const initAdvancedSearch = async function (getVueComponent: any) {
     loading: any
     treeSearchResult: any
     deviceTree: any
+    rootSums: any
   } = getVueComponent()
   if (state.lazy) return
   // 初始化数据
@@ -118,6 +120,8 @@ const initAdvancedSearch = async function (getVueComponent: any) {
       matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
     })
     state.treeSearchResult = res.dirs
+    state.rootSums.onlineSize = res.onlineSize
+    state.rootSums.totalSize = res.totalSize
   } catch (e) {
     console.log(e && e.message)
   } finally {
