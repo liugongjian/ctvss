@@ -21,6 +21,9 @@
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
+    <template slot="itemLabelSuffix" slot-scope="{ node, data }">
+      <span class="security-icon">C</span>
+    </template>
   </common-tree>
 </template>
 
@@ -123,5 +126,13 @@ export default class extends Mixins(treeMixin) {
 
 .active-icon {
   color: $color-status-success;
+}
+
+.security-icon {
+  background: $primary;
+  color: white;
+  border-radius: 100%;
+  padding: 0 4px;
+  font-size: 12px;
 }
 </style>

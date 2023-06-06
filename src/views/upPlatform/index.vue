@@ -56,24 +56,43 @@
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
-            <div class="platform-status">
-              创建证书请求: 
-              <el-button :disabled="currentPlatform.status === 'on'" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
+            <div class="platform-status-group">
+              <div class="platform-status">
+                创建证书请求: 
+                <el-button :disabled="currentPlatform.status === 'on'" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('createdCer')">删除</el-button>
+              </div>
+              <div class="platform-status">
+                生成的证书: 
+                <el-upload
+                  ref="upload"
+                  action="#"
+                  class="platform-status__upload"
+                  :show-file-list="false"
+                  :http-request="uploadGeneratedCer"
+                >
+                  <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                </el-upload>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('generatedCer')">删除</el-button>
+              </div>
+              <div class="platform-status">
+                上级服务证书: 
+                <el-upload
+                  ref="upload"
+                  action="#"
+                  class="platform-status__upload"
+                  :show-file-list="false"
+                  :http-request="uploadUpPlatformCer"
+                >
+                  <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                </el-upload>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('upPlatformCer')">删除</el-button>
+              </div>
             </div>
-            <div class="platform-status">
-              生成的证书: 
-              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
-            </div>
-            <div class="platform-status">
-              上级服务证书: 
-              <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">下载</el-button>
-              <el-button v-if="currentPlatform.status === 'on'" type="text">删除</el-button>
-            </div>
+            
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
           </div>
         </div>
@@ -325,6 +344,57 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 上传生成的证书
+   */
+  private uploadGeneratedCer(data) {
+    console.log('uploadGeneratedCer', data)
+    this.getPlatformList()
+  }
+
+  /**
+   * 上传上级服务证书
+   */
+  private uploadUpPlatformCer(data) {
+    console.log('uploadUpPlatformCer', data)
+    this.getPlatformList()
+  }
+
+  /**
+   * 下载证书
+   */
+  private downLoadCer(type) {
+    switch (type) {
+      case 'createdCer':
+        console.log('downLoad createdCer')
+        break
+      case 'generatedCer':
+        console.log('downLoad generatedCer')
+        break
+      case 'upPlatformCer':
+        console.log('downLoad upPlatformCer')
+        break
+    }
+  }
+
+  /**
+   * 删除证书
+   */
+  private deleteCer(type) {
+    switch (type) {
+      case 'createdCer':
+        console.log('delete createdCer')
+        break
+      case 'generatedCer':
+        console.log('delete generatedCer')
+        break
+      case 'upPlatformCer':
+        console.log('delete upPlatformCer')
+        break
+    }
+    this.getPlatformList()
   }
 
   /**
@@ -746,9 +816,17 @@ export default class extends Vue {
     margin-right: 10px;
   }
 
+  .platform-status-group {
+    display: inline-block;
+  }
+
   .platform-status {
     display: inline-block;
     margin: 0 15px;
+
+    &__upload {
+      display: inline-block;
+    }
   }
 }
 

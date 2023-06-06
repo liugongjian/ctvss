@@ -35,6 +35,8 @@
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 {{ node.label }}
+                
+                <span class="security-icon">C</span>
               </span>
             </span>
           </el-tree>
@@ -76,6 +78,7 @@
                   <span slot="reference">{{ node.label.substring(0,10)+'...' }}</span>
                 </el-popover>
                 <span v-else>{{ node.label }}</span>
+                <span class="security-icon">C</span>
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
@@ -589,7 +592,7 @@ export default class extends Mixins(Validate) {
       //     'real-group-id': node.data.realGroupId
       //   }
       // })
-      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id , inProtocol: 'video' })
+      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id, inProtocol: 'video' })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -1485,6 +1488,14 @@ export default class extends Mixins(Validate) {
 
 .el-popover__reference {
   margin-left: 3px;
+}
+
+.security-icon {
+  background: $primary;
+  color: white;
+  border-radius: 100%;
+  padding: 0 4px;
+  font-size: 12px;
 }
 
 </style>
