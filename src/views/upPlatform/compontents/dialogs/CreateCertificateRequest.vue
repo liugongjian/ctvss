@@ -36,10 +36,8 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir } from '@/api/upPlatform'
+import { } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
-import { DeviceAddress } from '@/type/Device'
-import { industryMap } from '@/assets/region/industry'
 
 @Component({
   name: 'InnerDialog',
@@ -61,7 +59,7 @@ export default class extends Vue {
     ]
   }
 
-  private currentNode!: any
+  private loading = false
   private form: any = {
     id: '',
     dirName: '',
@@ -74,8 +72,8 @@ export default class extends Vue {
   private async mounted() {
   }
 
-  private closeDialog() {
-    this.$emit('close-inner')
+  private closeDialog(isRefresh: boolean) {
+    this.$emit('close-dialog', isRefresh)
   }
 
   private async submit() {
@@ -93,37 +91,6 @@ export default class extends Vue {
       this.$message.error('操作失败: ' + e.message)
       console.log(e)
     }
-  }
-
-  private successInfo() {
-    this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
-    this.$message.success('操作成功')
-    this.closeDialog()
-  }
-
-  private checkRegion(param) {
-    if (this.mode === 'district') {
-      if (this.currentNode) {
-        if (this.type === 'append') {
-          const check = param.gbRegion.startsWith(this.currentNode.data.upGbId) && (param.gbRegion.length > this.currentNode.data.upGbId.length)
-          return !check
-        } else {
-          // edit
-          if (this.currentNode.level > 1) {
-            const check = param.gbRegion.startsWith(this.currentNode.parent.data.upGbId) && (param.gbRegion.length > this.currentNode.parent.data.upGbId.length)
-            return !check
-          } else {
-            // 选择了根节点 不校验
-            return false
-          }
-        }
-      } else {
-        // append 且没有选择节点不校验
-        return false
-      }
-    }
-    // 虚拟组织模式：不校验
-    return false
   }
 }
 </script>
