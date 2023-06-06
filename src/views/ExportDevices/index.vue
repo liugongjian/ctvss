@@ -103,13 +103,13 @@ export default class extends Mixins(Vue, excelMixin) {
     const params = {
       pageNum: -1
     }
-    const res = await getDetailExportV2({})
+    const res = await getDetailExportV2(params)
     this.downLoadFile('设备信息表格', res)
   }
 
   private downLoadFile(fName, res){
     try {
-      const blob = new Blob([res])
+      const blob = new Blob([res.data])
       const link = document.createElement('a')
       link.href = window.URL.createObjectURL(blob)
       link.download = `${fName}.xlsx`
