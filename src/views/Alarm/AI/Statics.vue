@@ -16,7 +16,13 @@
           <i class="el-icon-arrow-right" />
         </div>
       </div>
-      <div id="stats_chart" class="alarm-stats__chart" />
+      <div class="alarm-stats__chart">
+        <div class="alarm-stats__chart--add">
+          <div>aaa</div>
+          <div>bbb</div>
+        </div>
+        <div id="stats_chart" />
+      </div>
     </el-card>
   </div>
 </template>
