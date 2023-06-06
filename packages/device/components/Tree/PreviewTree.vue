@@ -34,7 +34,7 @@
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
           <template slot="tooltipBase">
-            <el-button type="text"><svg-icon name="more" /></el-button>
+            <el-button v-if="lazy" type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
             <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data, statusEnum.On)">轮巡</el-button>
