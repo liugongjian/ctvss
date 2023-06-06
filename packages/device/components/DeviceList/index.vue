@@ -650,7 +650,7 @@ export default class extends Mixins(deviceMixin) {
       searchKey: queryData.searchKey || undefined,
       deviceStatusKeys: queryData.deviceStatusKeys || undefined,
       streamStatusKeys: queryData.streamStatusKeys || undefined,
-      deviceAddresses: (queryData.deviceAddresses as string).split(',')[0] ? queryData.deviceAddresses : undefined,
+      deviceAddresses: queryData.deviceAddresses && (queryData.deviceAddresses as string).split(',')[0] ? queryData.deviceAddresses : undefined,
       matchKeys: queryData.matchKeys || undefined
     }
     if ([DirectoryTypeEnum.Dir, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
