@@ -35,7 +35,7 @@
         <el-table-column prop="description" label="描述" min-width="160">
           <template slot-scope="{ row }">
             <span>{{ row.description || '-' }}</span>
-            <i v-if="row.edit" class="el-icon-edit edit-button" @click="editSecret(row)"></i>
+            <svg-icon v-if="row.edit" name="edit" class="edit-button" @click="editSecret(row)" />
           </template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
@@ -329,7 +329,7 @@ ul.alert-desc {
 
 .edit-button {
   color: $color-master-1;
-  margin-left: 2px;
+  margin-left: 5px;
 }
 </style>
 
