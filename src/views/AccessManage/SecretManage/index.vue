@@ -8,26 +8,38 @@
     >
       <span slot="title">使用提示</span>
       <ul class="alert-desc">
-        <li>API密钥是构建 API 请求的重要凭证。用于您调用视频监控API时生成签名，查看<el-link href="https://vcn.ctyun.cn/document/api/RequestMethod/Signature" target="_blank">生成签名算法</el-link></li>
+        <li>API密钥是构建 API 请求的重要凭证。用于您调用智能视图服务API时生成签名，查看<el-link href="https://vaas.ctyun.cn/document/api/RequestMethod/Signature" target="_blank">生成签名算法</el-link></li>
         <li>如果访问密钥泄露，可能造成您的云上资产重大损失。每个访问密钥仅能下载一次，为了帐号安全性，建议您定期更换并妥善保存API密钥。</li>
+        <!-- <li>最近使用时间指最近一次使用密钥调用智能视图服务API接口的时间。此时间仅供判断密钥近期是否活跃，以此决定是否要禁用或删除密钥。</li> -->
       </ul>
     </el-alert>
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
-        <span class="hint">您还可以添加<span class="num">{{2 - dataList.length}}</span>个API密钥</span>
+        <el-button type="primary" :disabled="!canCreateFlag" @click="createSecret">新建密钥</el-button>
+        <span class="hint">您还可以添加<span class="num">{{ 2 - dataList.length }}</span>个API密钥</span>
       </div>
-      <el-table :data="dataList" fit>
+      <el-table
+        :data="dataList"
+        fit
+        @cell-mouse-enter="handleMouseEnter"
+        @cell-mouse-leave="handleMouseLeave"
+      >
         <el-table-column label="API密钥ID" min-width="300">
           <template slot-scope="{ row }">
-            <div>
-              <span>{{ row.accessKey }}</span>
-            </div>
+            <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
+            <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
+              <svg-icon name="copy" />
+            </el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="描述" min-width="160" />
+        <el-table-column prop="description" label="描述" min-width="160">
+          <template slot-scope="{ row }">
+            <span>{{ row.description || '-' }}</span>
+            <i v-if="row.edit" class="el-icon-edit edit-button" @click="editSecret(row)"></i>
+          </template>
+        </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
-        <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
+        <el-table-column prop="updatedTime" label="更新时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{ row }">
             <status-badge :status="row.status" />
@@ -37,12 +49,9 @@
         <el-table-column label="操作" min-width="200" fixed="right">
           <template slot-scope="scope">
             <template v-if="scope.row.status === 'on'">
-              <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
-              <el-button type="text" :disabled="canDisable" @click="disableSecret(scope.row)">禁用</el-button>
-              <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
+              <el-button type="text" @click="disableSecret(scope.row)">禁用</el-button>
             </template>
             <template v-else>
-              <el-button type="text" @click="editSecret(scope.row)">编辑</el-button>
               <el-button type="text" @click="enableSecret(scope.row)">启用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
@@ -54,12 +63,8 @@
       v-if="showTipDialog"
       :data="dialogData"
       :step="dialogStep"
-      :loading="dialogLoading"
-      :edit-flag="editFlag"
       @on-close="closeTipDialog"
-      @create-secret="createSecret"
       @edit-secret="editSecretDesc"
-      @loading-change="loadingChange"
     />
   </div>
 </template>
@@ -73,6 +78,7 @@ import TipDialog from './components/TipDialog.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret, updateSecret } from '@/api/secret'
 import { UserModule } from '@/store/modules/user'
 import format from 'date-fns/format'
+import { MessageBox } from 'element-ui'
 
 @Component({
   name: 'secret-manage',
@@ -87,8 +93,6 @@ export default class extends Vue {
 
   private dialogStep = 0
 
-  private editFlag = false
-
   private apiForm: any = { type: false }
 
   private closeTipDialog() {
@@ -100,9 +104,8 @@ export default class extends Vue {
       secretKey: '',
       description: ''
     }
-    this.showTipDialog = false
     this.dialogStep = 0
-    this.editFlag = false
+    this.showTipDialog = false
   }
 
   private async mounted() {
@@ -113,13 +116,13 @@ export default class extends Vue {
     return !this.loading && this.dataList.length < 2
   }
 
-  private get canDisable(){
-    let count = 0
-    this.dataList.forEach(data => {
-      data.status === 'on' && count++
-    })
-    return count < 2
-  }
+  // private get canDisable(){
+  //   let count = 0
+  //   this.dataList.forEach(data => {
+  //     data.status === 'on' && count++
+  //   })
+  //   return count < 2
+  // }
 
   private get isPrivate() {
     return UserModule.isPrivate
@@ -131,13 +134,12 @@ export default class extends Vue {
       const { keys } = await getSecretList()
       this.dataList = keys.map(key => ({
         ...key,
+        edit: false,
         createdTime: format(new Date(+key.createdTime), 'yyyy-MM-dd HH:mm:ss'),
         updatedTime: format(new Date(+key.updatedTime), 'yyyy-MM-dd HH:mm:ss'),
       }))
-      this.dialogStep = 1
     } catch (e) {
-      // TODO
-      // 错误处理
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
@@ -157,6 +159,12 @@ export default class extends Vue {
     })
   }
 
+  private handleMouseLeave(row) {
+    row.edit = false
+  }
+  private handleMouseEnter(row) {
+    row.edit = true
+  }
   private async enableSecret(row: Secret) {
     try {
       this.loading = true
@@ -178,17 +186,16 @@ export default class extends Vue {
   }
 
   private async editSecret(row: Secret){
-    this.showTipDialog = true
     this.dialogStep = 0
     this.dialogData = {
-        type: 'api',
-        headline: '编辑密钥',
-        id: row.id + '',
-        accessKey: row.accessKey,
-        secretKey: row.secretKey,
-        description: row.description
-      }
-    this.editFlag = true
+      type: 'api',
+      headline: '编辑密钥',
+      id: row.id + '',
+      accessKey: row.accessKey,
+      secretKey: row.secretKey,
+      description: row.description
+    }
+    this.showTipDialog = true
   }
 
   private async editSecretDesc({ id, description }){
@@ -213,20 +220,57 @@ export default class extends Vue {
       })
       this.getList()
     } catch (e) {
-      this.$message({
-        message: e,
-        type: 'error'
-      })
-      console.log(e)
+      this.$message.error(e)
     } finally {
       this.loading = false
     }
   }
 
-  private async createSecret(description) {
+  private async deleteSecret(row: Secret) {
+    this.$prompt(`
+    <div>
+      <p>删除此密钥后无法再恢复，智能视图服务API将拒绝此密钥的所有请求。</p>
+      <p>要确认删除密钥，请在下方输入提示内容：“<span style="font-weight: bold;">已知晓删除密钥后无法再恢复并确认删除</span>”。</p>
+    </div>`, '提示', {
+      dangerouslyUseHTMLString: true,
+      type: 'warning',
+      customClass: 'api-secret-prompt',
+      closeOnClickModal: false,
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      inputPlaceholder: '已知晓删除密钥后无法再恢复并确认删除',
+      beforeClose: async (action, instance, done) => {
+        try {
+          if (action === 'confirm') {
+            if (instance.inputValue !== instance.inputPlaceholder) {
+              this.$message.error('请正确输入提示内容')
+              return
+            }
+            instance.confirmButtonLoading = true
+            await deleteSecret(row.id)
+            await this.getList()
+            done()
+          } else {
+            done()
+          }
+        } catch (e) {
+          this.$message.error(e && e.message)
+          done()
+        } finally {
+          instance.confirmButtonLoading = false
+        }
+      }
+    })
+  }
+
+  private async createSecret() {
     try {
-      this.dialogLoading = true
-      const res = await createSecret({ description })
+      MessageBox.alert('请稍后，正在创建密钥......', '正在创建密钥', {
+        showClose: false,
+        closeOnClickModal: false,
+        showConfirmButton: false
+      })
+      const res = await createSecret({ description: '' })
       await this.getList()
       this.dialogData = {
         type: 'api',
@@ -237,50 +281,14 @@ export default class extends Vue {
         description: res.description
       }
       this.dialogStep = 1
-      this.dialogLoading = false
       this.$forceUpdate()
-      // this.showTipDialog = true
+      this.showTipDialog = true
     } catch (e) {
       // TODO
       // 错误处理
+    } finally {
+      MessageBox.close()
     }
-  }
-
-  private handleCreate() {
-    this.dialogStep = 0
-    this.showTipDialog = true
-    this.dialogData = {
-      type: '',
-      headline: '新建密钥',
-      id: '',
-      accessKey: '',
-      secretKey: '',
-      description: ''
-    }
-  }
-
-  private async deleteSecret(row: Secret) {
-    this.$confirm('删除此密钥后无法再恢复，视频监控API将拒绝此密钥的所有请求。是否确定要删除此密钥？', '提示', {
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async() => {
-      try {
-        this.loading = true
-        await deleteSecret(row.id)
-        await this.getList()
-      } catch (e) {
-        // TODO LIST
-        // 错误处理
-      } finally {
-        this.loading = false
-      }
-    })
-  }
-
-  private loadingChange(status){
-    this.dialogLoading = status
-    this.$forceUpdate()
   }
 }
 </script>
@@ -316,6 +324,22 @@ ul.alert-desc {
 
   .num {
     color: red;
+  }
+}
+
+.edit-button {
+  color: $color-master-1;
+  margin-left: 2px;
+}
+</style>
+
+<style lang="scss">
+// 访问管理-API密钥-messagebox提示框宽度指定
+.api-secret-prompt {
+  width: 650px !important;
+
+  .el-message-box__input {
+    margin-left: 36px;
   }
 }
 </style>
