@@ -19,7 +19,7 @@
           </el-option>
         </el-select>
         <div>告警时间</div>
-        <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
           <el-radio-button label="近7天" />
@@ -27,8 +27,8 @@
           <el-radio-button label="自定义时间" />
         </el-radio-group>
         <el-date-picker
-          v-if="period.periodType === '自定义时间'"
-          v-model="period.period"
+          v-if="queryParam.periodType === '自定义时间'"
+          v-model="queryParam.period"
           type="daterange"
           value-format="timestamp"
           range-separator="至"
@@ -38,7 +38,7 @@
         />
         <div>置信度</div>
         <el-slider
-          v-model="confidence"
+          v-model="queryParam.confidence"
           :show-input-controls="false"
         />
         <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -119,6 +119,15 @@ export default class extends Vue {
     sortBy: '',
     sortDirection: ''
   }
+
+  private queryParam: any = {
+    periodType: '今天',
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+    confidence: [0, 100],
+    faceSelected: [],
+    resultTimeInterval: 1
+  }
+
   private filtersArray: any = {
     alarmPriority: [
       { text: '一级警情', value: '1' },
@@ -205,29 +214,24 @@ export default class extends Vue {
     total: 0
   }
 
-  public period: any = {
-    periodType: '今天',
-    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
-  }
-
   private confidence = 0
 
   private pageMode = 'list'
 
-  @Watch('period.periodType')
+  @Watch('queryParam.periodType')
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
         break
       case '近7天':
-        this.period.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
         break
       case '近30天':
-        this.period.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
@@ -261,6 +265,38 @@ export default class extends Vue {
     // this.$route.query.inProtocol && this.getList()
     this.getList()
     this.setTimer()
+  }
+
+  private async getScreenShot() {
+    this.picInfos = []
+    const [startTime, endTime] = this.queryParam.period
+    const [confidenceMin, confidenceMax] = this.queryParam.confidence
+    const { deviceId, inProtocol } = this.device
+    const { pageNum, pageSize } = this.pager
+    const query = {
+      startTime: Math.floor(startTime / 1000),
+      endTime: Math.floor(endTime / 1000),
+      confidenceMin,
+      confidenceMax,
+      faceDb: this.faceLib.id,
+      faceIdList: this.queryParam.faceSelected,
+      resultTimeInterval: this.queryParam.resultTimeInterval,
+      appId: this.appInfo.id || this.appInfo.appId,
+      deviceId: deviceId === 'all' ? undefined : deviceId,
+      inProtocol,
+      pageNum,
+      pageSize }
+    try {
+      this.queryLoading.pic = true
+      const res = await getAppScreenShot(query)
+      this.pager.totalNum = res.totalNum
+      this.picInfos = res.screenShotList
+    } catch (e) {
+      // 异常处理
+      console.log(e)
+    } finally {
+      this.queryLoading.pic = false
+    }
   }
 
   private destroyed() {
