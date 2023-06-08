@@ -60,8 +60,8 @@
               <div class="platform-status">
                 创建证书请求: 
                 <el-button :disabled="currentPlatform.status === 'on'" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('createdCer')">删除</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.deviceCsr" type="text" @click="downLoadFile('deviceCsr')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
               </div>
               <div class="platform-status">
                 生成的证书: 
@@ -70,12 +70,12 @@
                   action="#"
                   class="platform-status__upload"
                   :show-file-list="false"
-                  :http-request="uploadGeneratedCer"
+                  :http-request="uploadFile.bind(null, 'deviceCert')"
                 >
-                  <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                  <el-button :loading="loading.upload.deviceCert" :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('generatedCer')">删除</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.deviceCert" type="text" @click="downLoadFile('deviceCert')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
               </div>
               <div class="platform-status">
                 上级服务证书: 
@@ -84,12 +84,12 @@
                   action="#"
                   class="platform-status__upload"
                   :show-file-list="false"
-                  :http-request="uploadUpPlatformCer"
+                  :http-request="uploadFile.bind(null, 'serverCert')"
                 >
-                  <el-button :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                  <el-button :loading="loading.upload.serverCert" :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="downLoad('createdCer')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" type="text" @click="deleteCer('upPlatformCer')">删除</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.serverCert" type="text" @click="downLoadFile('serverCert')">下载</el-button>
+                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.serverCert" type="text" @click="deleteFile('serverCert')">删除</el-button>
               </div>
             </div>
             
@@ -238,7 +238,20 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, deleteCascadeDir, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { 
+  describeShareDirs,
+  describeShareDevices,
+  deletePlatform,
+  cancleShareDevice,
+  deleteCascadeDir,
+  getPlatforms,
+  cancleShareDir,
+  startShareDevice,
+  stopShareDevice,
+  uploadCert,
+  certDownload,
+  certDelete
+} from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -298,7 +311,21 @@ export default class extends Vue {
     platform: false,
     dir: false,
     sharedDevices: false,
-    startStop: false
+    startStop: false,
+    upload: {
+      deviceCert: false,
+      serverCert: false
+    },
+    download: {
+      deviceCsr: false,
+      deviceCert: false,
+      serverCert: false
+    },
+    delete: {
+      deviceCsr: false,
+      deviceCert: false,
+      serverCert: false
+    }
   }
   public dialog = {
     addDevices: false,
@@ -347,54 +374,97 @@ export default class extends Vue {
   }
 
   /**
-   * 上传生成的证书
+   * 上传文件
    */
-  private uploadGeneratedCer(data) {
-    console.log('uploadGeneratedCer', data)
-    this.getPlatformList()
+  private uploadFile(type: string, data: any) {
+    this.loading.upload.deviceCert = true
+    this.fileToText(data && data.file, new FileReader()).then(async(fileString: any) => {
+      try {
+        await uploadCert({
+          platformId: this.currentPlatform.platformId,
+          certType: type,
+          certContents: fileString
+        })
+        this.getPlatformList()
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
+    }).catch(e => {
+      this.$message.error(e)
+    }).finally(() => {
+      this.loading.upload.deviceCert = false
+    })
   }
 
-  /**
-   * 上传上级服务证书
-   */
-  private uploadUpPlatformCer(data) {
-    console.log('uploadUpPlatformCer', data)
-    this.getPlatformList()
+  // 读取文件内容
+  private fileToText(file, reader) {
+    return new Promise((resolve, reject) => {
+      let fileResult: any = ''
+      reader.readAsText(file)
+      reader.onload = function() {
+        fileResult = reader.result
+      }
+      reader.onerror = function(error: any) {
+        reject(error)
+      }
+      reader.onloadend = () => {
+        resolve(fileResult)
+      }
+    })
   }
 
   /**
    * 下载证书
    */
-  private downLoadCer(type) {
-    switch (type) {
-      case 'createdCer':
-        console.log('downLoad createdCer')
-        break
-      case 'generatedCer':
-        console.log('downLoad generatedCer')
-        break
-      case 'upPlatformCer':
-        console.log('downLoad upPlatformCer')
-        break
+  private async downLoadFile(type) {
+    try {
+      this.loading.download[type] = true
+      const res = await certDownload({
+        platformId: this.currentPlatform.platformId,
+        certType: type
+      })
+      const file = res.certsZip
+      const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = `${type}-${this.currentPlatform.platformId}`
+      link.click()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.download[type] = false
     }
+  }
+
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
   }
 
   /**
    * 删除证书
    */
-  private deleteCer(type) {
-    switch (type) {
-      case 'createdCer':
-        console.log('delete createdCer')
-        break
-      case 'generatedCer':
-        console.log('delete generatedCer')
-        break
-      case 'upPlatformCer':
-        console.log('delete upPlatformCer')
-        break
+  private async deleteFile(type) {
+    try {
+      this.loading.delete[type] = true
+      await certDelete({
+        platformId: this.currentPlatform.platformId,
+        certType: type
+      })
+      this.getPlatformList()
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.loading.delete[type] = false
     }
-    this.getPlatformList()
   }
 
   /**

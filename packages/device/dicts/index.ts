@@ -433,6 +433,15 @@ export const ViewLibStatus: any = {
 }
 
 /**
+ * GB35114安全等级
+ */
+export const SecurityLevel: any = {
+  1: 'A',
+  2: 'B',
+  3: 'C'
+}
+
+/**
  * AI告警类型
  * 相应修改src/utils/device.ts
  */
