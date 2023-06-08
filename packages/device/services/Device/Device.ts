@@ -286,13 +286,18 @@ const exportDeviceFile = async function (state, data: any) {
   try {
     let res: any = {}
     if (data.command === 'all') {
+      const query: any = state.$route.query
       const param: any = {
         sortBy: '',
         sortDirection: 'desc',
+        deviceStatusKeys: query.deviceStatusKeys || '',
+        streamStatusKeys: query.streamStatusKeys || '',
+        matchKeys: query.matchKeys || '',
+        deviceAddresses: query.deviceAddresses || '',
+        searchKey: query.searchKey || '',
         pageNum: 1,
         pageSize: 9999
       }
-      const { query } = state.$route
 
       if (query.type === 'nvr') {
         param.parentDeviceId = data.currentDirId

@@ -22,11 +22,11 @@
     <template slot="rootLabelSuffix">
       <span>{{ `(${rootSums.onlineSize}/${rootSums.totalSize})` }}</span>
     </template>
-    <template slot="rootTools" slot-scope="{ data }">
+    <!-- <template slot="rootTools" slot-scope="{ data }">
       <el-tooltip effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
         <el-button type="text" @click.stop="handleTools(toolsEnum.ExportSearchResult, data)"><svg-icon name="export" /></el-button>
       </el-tooltip>
-    </template>
+    </template> -->
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
