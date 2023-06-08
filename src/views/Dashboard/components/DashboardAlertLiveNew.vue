@@ -1,18 +1,22 @@
 <template>
   <component :is="container" title="实时告警信息" :less-padding="true">
-    <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
-      <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
-      <li v-for="item in list" :key="item.id" :class="{ 'new-alert': item.isNew }" @click="openDialog(item)">
-        <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
-          <svg-icon :name="alertIcon[item.level]" />
-          {{ alertLevel[item.level] }}
-        </div>
-        <div class="alert-list__type">{{ alertType[item.event] }}</div>
-        <div class="alert-list__datetime">{{ item.formatedTime }}</div>
-      </li>
-    </ul>
-    <audio ref="audio" :src="alertFile" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+    <div class="stats-container">
+      <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
+        <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
+        <li v-for="item in list" :key="item.image" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
+          <div class="alert-list__item__pic">
+            <el-image :src="item.image" />
+          </div>
+          <div class="alert-list__item__info">
+            <div>{{ item.appName }}</div>
+            <div>{{ item.deviceName }}</div>
+            <div>{{ item.captureTime }}</div>
+          </div>
+        </li>
+      </ul>
+      <audio ref="audio" :src="alertFile" preload="auto" />
+      <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+    </div>
   </component>
 </template>
 
@@ -21,10 +25,9 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
-import { getAuditList } from '@/api/dashboard'
-import { dateFormat, getTimestamp } from '@/utils/date'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
+import { fromUnixTime, format } from 'date-fns'
 
 @Component({
   name: 'DashboardAlertLiveNew',
@@ -61,29 +64,23 @@ export default class extends Mixins(DashboardMixin) {
     } else {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
     }
-    this.setInterval(this.updateAuditList)
+    this.setInterval(this.updateAlarmList)
   }
 
-  private async updateAuditList() {
+  private async updateAlarmList() {
     try {
       this.loading = true
-      const res = await getAuditList({
-        limit: 6
-      })
-      this.list = res.Result
-      this.list.forEach((item: any) => {
-        item.id = Math.random().toString(16).slice(-10)
-        item.level = this.checkLevel(item)
-        item.isNew = this.lastTime && (getTimestamp(item.timeStamp) > this.lastTime)
-        item.formatedTime = dateFormat(new Date(getTimestamp(item.timeStamp)), 'MM-dd HH:mm:ss')
-      })
-      if (this.list.some((item: any) => item.isNew)) {
-        const audio: any = this.$refs.audio
-        audio.play()
-      }
-      if (this.list.length) {
-        this.lastTime = getTimestamp(this.list[0].timeStamp)
-      }
+      const list = [{
+        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+        algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd3', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+         algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd4', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }]
+      this.list = list.map(item => ({ ...item, captureTime: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
+
     } catch (e) {
       console.log(e)
     } finally {
@@ -121,6 +118,10 @@ export default class extends Mixins(DashboardMixin) {
 .widder-padding {
   padding: 2.7vh 4vw 4vh !important;
 }
+.stats-container{
+  min-width: 360px;
+  overflow:auto;
+}
 
 .alert-list {
   min-height: 180px;
@@ -132,50 +133,18 @@ export default class extends Mixins(DashboardMixin) {
   // justify-content: space-between;
   justify-content: flex-start;
 
-  li {
-    // flex: 1;
-    height: 16.6%;
+  &__item{
     display: flex;
-    align-items: center;
-    padding: 0.4rem;
-    color: #d8d8d8;
+    justify-content: space-around;
+    margin-bottom: 10px;
     cursor: pointer;
-
-    &:hover {
-      background: #052777;
+    &__pic{
+      width: 175px;
     }
-  }
-
-  &__level {
-    width: 30%;
-
-    &--normal {
-      color: #f4c46c;
-    }
-
-    &--serious {
-      color: #ff4949;
-    }
-  }
-
-  &__datetime {
-    flex: 1;
-    text-align: right;
-  }
-
-  .new-alert {
-    animation: shining 2s;
-    border-radius: 5px;
-  }
-
-  &.light {
-    li {
-      height: 30px;
-      color: $text;
-
-      &:hover {
-        background: #f5f7fa;
-      }
+    &__info{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
     }
   }
 }

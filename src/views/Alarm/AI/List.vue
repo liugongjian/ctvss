@@ -3,7 +3,7 @@
     <div class="filter-container clearfix">
       <div ref="filterWrap" class="filter-container__right">
         <div>算法类型</div>
-        <el-select v-model="value" placeholder="请选择">
+        <el-select v-model="queryParam.algoType" placeholder="请选择">
           <el-option
             label="全部"
             value="all"
@@ -11,7 +11,7 @@
           </el-option>
         </el-select>
         <div>应用名称</div>
-        <el-select v-model="value" placeholder="请选择">
+        <el-select v-model="queryParam.appName" placeholder="请选择">
           <el-option
             label="全部"
             value="all"
@@ -34,11 +34,13 @@
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :default-time="['00:00:00', '23:59:59']"
           @change="handleChange"
         />
         <div>置信度</div>
         <el-slider
           v-model="queryParam.confidence"
+          range
           :show-input-controls="false"
         />
         <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -55,27 +57,22 @@
     <el-table
       v-if="pageMode === 'list'"
       ref="table"
-      v-loading="loading"
-      :height="maxHeight - 200"
       :data="alarmList"
       fit
       class="template__table"
       empty-text="暂无告警信息"
-      @row-click="1"
-      @filter-change="filterChange"
-      @sort-change="sortChange"
+      @row-click="rowClick"
     >
-      <el-table-column label="应用名称" prop="deviceName" />
-      <el-table-column label="算法类型" prop="deviceName" />
+      <el-table-column label="应用名称" prop="appName" />
+      <el-table-column label="算法类型" prop="algoName" />
       <el-table-column label="设备名称" prop="deviceName" />
       <el-table-column label="告警时间" prop="deviceName" />
       <el-table-column label="置信度" prop="deviceName" />
       <el-table-column
-        min-width="240"
         label="告警截图"
       >
         <template slot-scope="{ row }">
-          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) || '-' }}
+          <el-image :src="row.image" />
         </template>
       </el-table-column>
     </el-table>
@@ -84,7 +81,7 @@
       v-if="pageMode === 'list'"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
-      :total="pager.total"
+      :total="pager.totalNum"
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -95,7 +92,9 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
+import { getAppScreenShot } from '@vss/device/api/ai-app'
 import CardList from './CardList.vue'
+
 
 @Component({
   name: 'alarm-list',
@@ -104,13 +103,8 @@ import CardList from './CardList.vue'
   }
 })
 export default class extends Vue {
-  @Prop() private maxHeight
   @Prop({ default: '' }) private groupId!: string
-  private loading = false
-  private showViewBindDialog = false
-  private currentTemplateId: any = ''
   private selectedDeviceList: any = []
-  private observer: any = null
   private searchFrom: any = {
     deviceName: '',
     timeRange: null,
@@ -121,6 +115,8 @@ export default class extends Vue {
   }
 
   private queryParam: any = {
+    algoType: 'all',
+    appName: 'all',
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
     confidence: [0, 100],
@@ -128,90 +124,12 @@ export default class extends Vue {
     resultTimeInterval: 1
   }
 
-  private filtersArray: any = {
-    alarmPriority: [
-      { text: '一级警情', value: '1' },
-      { text: '二级警情', value: '2' },
-      { text: '三级警情', value: '3' },
-      { text: '四级警情', value: '4' }
-    ],
-    alarmMethod: [
-      { text: '电话报警', value: '1' },
-      { text: '设备报警', value: '2' },
-      { text: '短信报警', value: '3' },
-      { text: 'GPS报警', value: '4' },
-      { text: '视频报警', value: '5' },
-      { text: '设备故障报警', value: '6' },
-      { text: '其他报警', value: '7' }
-    ]
-  }
-  private alarmPriorityOptions: any = [
-    { label: '一级警情', value: '1' },
-    { label: '二级警情', value: '2' },
-    { label: '三级警情', value: '3' },
-    { label: '四级警情', value: '4' }
-  ]
-  private alarmMethodOptions: any = [
-    {
-      value: '1',
-      label: '电话报警'
-    },
-    {
-      value: '2',
-      label: '设备报警',
-      children: [
-        { value: '1', label: '视频丢失报警' },
-        { value: '2', label: '设备防拆报警' },
-        { value: '3', label: '存储设备磁盘满报警' },
-        { value: '4', label: '设备高温报警' },
-        { value: '5', label: '设备低温报警' }
-      ]
-    },
-    {
-      value: '3',
-      label: '短信报警'
-    },
-    {
-      value: '4',
-      label: 'GPS报警'
-    },
-    {
-      value: '5',
-      label: '视频报警',
-      children: [
-        { value: '1', label: '人工视频报警' },
-        { value: '2', label: '运动目标检测报警' },
-        { value: '3', label: '遗留物检测报警' },
-        { value: '4', label: '物体移除检测报警' },
-        { value: '5', label: '绊线检测报警' },
-        { value: '6', label: '入侵检测报警' },
-        { value: '7', label: '逆行检测报警' },
-        { value: '8', label: '徘徊检测报警' },
-        { value: '9', label: '流量统计报警' },
-        { value: '10', label: '密度检测报警' },
-        { value: '11', label: '视频异常检测报警' },
-        { value: '12', label: '快速移动报警' }
-      ]
-    },
-    {
-      value: '6',
-      label: '设备故障报警',
-      children: [
-        { value: '1', label: '存储设备磁盘故障报警' },
-        { value: '2', label: '存储设备风扇故障报警' }
-      ]
-    },
-    {
-      value: '7',
-      label: '其他报警'
-    }
-  ]
   private alarmList: any = []
   private timer: any = null
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 0
+    totalNum: 0
   }
 
   private confidence = 0
@@ -249,7 +167,7 @@ export default class extends Vue {
     this.pager = {
       pageNum: 1,
       pageSize: 10,
-      total: 0
+      totalNum: 0
     }
     const tableDom: any = this.$refs.table
     tableDom.clearSort()
@@ -262,40 +180,49 @@ export default class extends Vue {
   }
 
   private mounted() {
-    // this.$route.query.inProtocol && this.getList()
-    this.getList()
-    this.setTimer()
+    this.getScreenShot()
   }
 
   private async getScreenShot() {
-    this.picInfos = []
+    this.alarmList = []
     const [startTime, endTime] = this.queryParam.period
     const [confidenceMin, confidenceMax] = this.queryParam.confidence
-    const { deviceId, inProtocol } = this.device
+    const deviceId: any = '682033951851757568'
+    const inProtocol = 'rtmp'
     const { pageNum, pageSize } = this.pager
     const query = {
       startTime: Math.floor(startTime / 1000),
       endTime: Math.floor(endTime / 1000),
       confidenceMin,
       confidenceMax,
-      faceDb: this.faceLib.id,
-      faceIdList: this.queryParam.faceSelected,
+      // faceDb: this.faceLib.id,
+      // faceIdList: this.queryParam.faceSelected,
       resultTimeInterval: this.queryParam.resultTimeInterval,
-      appId: this.appInfo.id || this.appInfo.appId,
+      appId: '559',
+      // deviceId: deviceId === 'all' ? undefined : deviceId,
       deviceId: deviceId === 'all' ? undefined : deviceId,
       inProtocol,
       pageNum,
       pageSize }
     try {
-      this.queryLoading.pic = true
-      const res = await getAppScreenShot(query)
-      this.pager.totalNum = res.totalNum
-      this.picInfos = res.screenShotList
+      // this.queryLoading.pic = true
+      // const res = await getAppScreenShot(query)
+      // this.pager.totalNum = res.totalNum
+      const list = [{
+        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+        algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd3', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }, {
+         algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd4', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+      }]
+      this.alarmList = list
     } catch (e) {
       // 异常处理
       console.log(e)
     } finally {
-      this.queryLoading.pic = false
+      // this.queryLoading.pic = false
     }
   }
 
@@ -348,7 +275,7 @@ export default class extends Vue {
       const res: any = await getAlarmRules(params)
       this.$nextTick(() => {
         this.alarmList = res.alarms
-        this.pager.total = res.totalNum
+        this.pager.totalNum = res.totalNum
       })
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
@@ -356,57 +283,7 @@ export default class extends Vue {
       this.loading = false
     }
   }
-  private getLabel(type: string, value: any) {
-    let arr: any = []
-    switch (type) {
-      case 'alarmPriority':
-        arr.push(value)
-        break
-      case 'alarmMethod':
-        arr.push(value)
-        break
-      case 'alarmType':
-        arr = (() => {
-          const key = value.split('-')[0]
-          const obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
-          if (obj) {
-            return obj.children
-          } else {
-            return undefined
-          }
-        })()
-        break
-    }
-    if (!arr) return undefined
-    if (type === 'alarmType') {
-      const obj = arr.find((item: any) => item.value === value.split('-')[1])
-      if (obj) {
-        return obj.label
-      } else {
-        return undefined
-      }
-    } else {
-      let res: any = arr.map((str: any) => {
-        const obj = this[`${type}Options`].find((item: any) => item.value === str)
-        if (obj) {
-          return obj.label
-        } else {
-          return undefined
-        }
-      })
-      res = [...new Set(res)].join('，')
-      return res
-    }
-  }
-  private async deleteAlarm(row: any) {
-    this.$alertDelete({
-      type: '告警信息',
-      msg: '确定删除该告警信息',
-      method: deleteAlarmInfo,
-      payload: { alarmId: row.alarmId },
-      onSuccess: this.getList
-    })
-  }
+
   private filterChange(filters: any) {
     for (const key in filters) {
       const values = filters[key]
@@ -460,7 +337,13 @@ export default class extends Vue {
    */
   public handleChange() {}
 
-  private refresh(){}
+  private refresh(){
+    this.getScreenShot()
+  }
+
+  private rowClick(row){
+
+  }
 
   /**
  * 得到N天前的时间戳
@@ -476,17 +359,27 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .min-contaniner {
-  min-width: 800px;
+  min-width: 1100px;
   width: 100%;
   .filter-container__right{
     display: flex;
     align-items: center;
     & > div {
-      margin: 0 5px;
+      margin: 0 8px;
     }
     ::v-deep .el-input {
       width: 100px;
     }
+  }
+  .el-table{
+    ::v-deep .cell{
+      display: flex;
+      justify-content: center;
+      .el-image{
+        width:100px;
+      }
+    }
+
   }
 }
 

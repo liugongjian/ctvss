@@ -891,7 +891,7 @@ export const v2Router: RouteConfig[] = [
               breadcrumb: true,
               icon: 'dot',
               perms: ['ivs:frontend:AdminAlarm'],
-              activeMenu: '/operation-center/alarm',
+              activeMenu: '/operation-center/ai-alarm',
               groupSelector: false
             }
           }

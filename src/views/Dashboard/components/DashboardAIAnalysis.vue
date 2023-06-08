@@ -15,6 +15,7 @@ import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import { getDeviceStates } from '@/api/dashboard'
 import { Chart, Util } from '@antv/g2'
+import { colors } from '@/dics/color'
 
 @Component({
   name: 'DashboardAIAnalysis',
@@ -36,28 +37,13 @@ export default class extends Mixins(DashboardMixin) {
     this.getData()
   }
 
-  private getData() {
-    this.getDevice()
-  }
 
-   private async getDevice() {
+   private async getData() {
     try {
-      const res = await getDeviceStates()
-      const { video, viid } = res
+      // const res = await getDeviceStates()
+      const statInfo = [ { algoCode: '10014', algoName: '人脸识别', number: 12 }, { algoCode: '10010', algoName: '道路识别', number: 18 }, { algoCode: '10008', algoName: 'XX识别', number: 59 }]
 
-      this.pieDataVideo = this.formatDeviceData(video, 'video')
-
-      this.drawPieToday('pieAI', 'pieAI', this.pieDataVideo)
-
-      const { enable, sum } = viid
-
-      if (enable === 1 && Number(sum) !== 0) {
-        this.ifShowViidPie = true
-        this.$nextTick(() => {
-          this.pieDataViid = this.formatDeviceData(viid, 'viid')
-          this.drawPieToday('pieViidToday', 'pieViidToday', this.pieDataViid)
-        })
-      }
+      this.drawPieToday('pieAI', 'pieAI', statInfo)
 
       this.$nextTick(()=>{
         this.chartHandle()
@@ -69,41 +55,33 @@ export default class extends Mixins(DashboardMixin) {
   }
 
    private drawPieToday(container, chartDom, data) {
+
+    const pie_colors = Object.keys(colors).map(index => colors[index])
+
     this.currentPieChart[chartDom] && this.currentPieChart[chartDom].destroy()
 
-    this[chartDom] = new Chart({
+    this.pieAI = new Chart({
       container,
       autoFit: true,
       width: 700,
       height: 260
     })
 
-    this[chartDom].scale('percent', {
-      formatter: (val) => {
-        val = val * 100 + '%'
-        return val
-      }
+
+    this.pieAI.data(data)
+
+    this.pieAI.coordinate('theta', {
+      radius: 0.75
+    })
+    this.pieAI.tooltip({
+      showMarkers: false
     })
 
-    this[chartDom].coordinate('theta', {
-      radius: 0.5,
-      innerRadius: 0.6
-    })
-
-    this[chartDom].data(data)
-
-    this[chartDom].tooltip({
-      showTitle: false,
-      showMarkers: false,
-      itemTpl:
-        '<li class="g2-tooltip-list-item"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}: {value}</li>'
-    })
-
-    this[chartDom]
+    const interval = this.pieAI
       .interval()
       .adjust('stack')
-      .position('percent')
-      .color('item', ['#36A1FF', '#41CBCB', '#56CB77', '#FBD44B'])
+      .position('number')
+      .color('algoName', pie_colors)
       .style({ opacity: 0.4 })
       .state({
         active: {
@@ -115,7 +93,7 @@ export default class extends Mixins(DashboardMixin) {
           }
         }
       })
-      .label('percent', () => {
+      .label('number', () => {
         return {
           style: {
             fontSize: 12,
@@ -137,19 +115,10 @@ export default class extends Mixins(DashboardMixin) {
             }
           },
           content: (data) => {
-            return `${this.pieTodayToText[data.item]}:${data.value}`
+            return `${data.algoName}:${data.number}`
           }
         }
       })
-      .tooltip('item*percent*value', (item, percent, value) => {
-        percent = (percent * 100).toFixed(2) + '%'
-        return {
-          name: this.pieTodayToText[item],
-          value: value
-        }
-      })
-
-    this[chartDom].legend(false)
 
     this[chartDom].interaction('element-single-selected')
 
