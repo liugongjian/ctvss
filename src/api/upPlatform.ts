@@ -285,3 +285,11 @@ export const validateShareDirsV1 = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// 设备请求文件生成
+export const generateCsr = (params: any): Promise<any> =>
+  request({
+    url: '/platform/generateCsr',
+    method: 'post',
+    data: params
+  })

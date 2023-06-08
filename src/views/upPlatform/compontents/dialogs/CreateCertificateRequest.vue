@@ -10,22 +10,22 @@
   >
     <el-form ref="form" :label-position="'right'" label-width="80px" :rules="rules" :model="form">
       <el-form-item label="国家" prop="country">
-        <el-input v-model="form.country" class="form__input" />
+        <el-input v-model="form.country" disabled class="form__input" />
       </el-form-item>
-      <el-form-item label="省/州" prop="province">
-        <el-input v-model="form.province" class="form__input" />
+      <el-form-item label="省/州" prop="stateOrProvince">
+        <el-input v-model="form.stateOrProvince" class="form__input" />
       </el-form-item>
-      <el-form-item label="地区" prop="area">
-        <el-input v-model="form.area" class="form__input" />
+      <el-form-item label="地区" prop="locality">
+        <el-input v-model="form.locality" class="form__input" />
       </el-form-item>
       <el-form-item label="组织" prop="organization">
         <el-input v-model="form.organization" class="form__input" />
       </el-form-item>
-      <el-form-item label="单位" prop="unit">
-        <el-input v-model="form.unit" class="form__input" />
+      <el-form-item label="单位" prop="organizationalUnit">
+        <el-input v-model="form.organizationalUnit" class="form__input" />
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="form.email" class="form__input" />
+      <el-form-item label="邮箱" prop="emailAddress">
+        <el-input v-model="form.emailAddress" class="form__input" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -36,7 +36,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { } from '@/api/upPlatform'
+import { generateCsr } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
@@ -51,22 +51,31 @@ export default class extends Vue {
     country: [
       { required: true, message: '请填写国家名称', trigger: 'blur' }
     ],
-    email: [
+    stateOrProvince: [
+      { validator: this.validateLetterOnly, trigger: 'blur' }
+    ],
+    locality: [
+      { validator: this.validateLetterOnly, trigger: 'blur' }
+    ],
+    organization: [
+      { validator: this.validateLetterOnly, trigger: 'blur' }
+    ],
+    organizationalUnit: [
+      { validator: this.validateLetterOnly, trigger: 'blur' }
+    ],
+    emailAddress: [
       { validator: this.validateEmail, trigger: 'blur' }
     ]
   }
 
   private loading = false
   private form: any = {
-    country: '',
-    province: '',
-    area: '',
+    country: 'CN',
+    stateOrProvince: '',
+    locality: '',
     organization: '',
-    unit: '',
-    email: ''
-  }
-
-  private async mounted() {
+    organizationalUnit: '',
+    emailAddress: ''
   }
 
   private closeDialog(isRefresh?: boolean) {
@@ -78,7 +87,10 @@ export default class extends Vue {
       const form: any = this.$refs.form
       form.validate(async(valid: boolean) => {
         if (valid) {
-          console.log(this.form)
+          await generateCsr({
+            platformId: this.platformId,
+            ...form
+          })
           this.closeDialog(true)
         } else {
           return false
@@ -87,6 +99,14 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error('操作失败: ' + e.message)
       console.log(e)
+    }
+  }
+
+  private validateLetterOnly(rule: any, value: string, callback: Function) {
+    if (value && !/^[a-zA-Z]*$/.test(value)) {
+      callback(new Error('仅支持大小写字母'))
+    } else {
+      callback()
     }
   }
 
