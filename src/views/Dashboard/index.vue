@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-21 10:53:22
  * @LastEditors: liugj liugj@chinatelecom.cn
- * @LastEditTime: 2023-06-02 16:30:35
+ * @LastEditTime: 2023-06-08 15:37:42
  * @FilePath: /vss-user-web/src/views/Dashboard/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,12 +16,10 @@
         <DashboardPeriodLine />
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
-      <div v-if="aiPakageNum === 0" class="dashboard-wrap-overview__right">
-        <!-- <DashboardAIAbility /> -->
-        <DashboardAIAnalysis />
-        <DashboardAIAlert />
-        <!-- <DashboardAlertLive :is-light="true" />
-        <DashboardAlertToday :is-light="true" :height="19" /> -->
+      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
+        <DashboardAIAbility />
+        <DashboardAlertLive :is-light="true" />
+        <DashboardAlertToday :is-light="true" :height="19" />
       </div>
     </div>
   </div>
