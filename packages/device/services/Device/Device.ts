@@ -290,11 +290,11 @@ const exportDeviceFile = async function (state, data: any) {
       const param: any = {
         sortBy: '',
         sortDirection: 'desc',
-        deviceStatusKeys: query.deviceStatusKeys || '',
-        streamStatusKeys: query.streamStatusKeys || '',
-        matchKeys: query.matchKeys || '',
-        deviceAddresses: query.deviceAddresses || '',
-        searchKey: query.searchKey || '',
+        deviceStatusKeys: query.deviceStatusKeys || undefined,
+        streamStatusKeys: query.streamStatusKeys || undefined,
+        matchKeys: query.matchKeys || undefined,
+        deviceAddresses: query.deviceAddresses && query.deviceAddresses.split(',')[0] ? query.deviceAddresses : undefined,
+        searchKey: query.searchKey || undefined,
         pageNum: 1,
         pageSize: 9999
       }
