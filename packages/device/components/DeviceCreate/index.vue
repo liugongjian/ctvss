@@ -311,8 +311,8 @@ export default class extends Mixins(deviceFormMixin) {
    * 根据接入方式和接入协议返回厂商列表
    */
   private get deviceVendorList() {
-    if (!DeviceVendor) return
     if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      // 设备创建默认选取上一次参数时，过滤不可选的厂商值
       DeviceVendor[this.videoForm.inVideoProtocol] && (this.deviceForm[DeviceEnum.DeviceVendor] = DeviceVendor[this.videoForm.inVideoProtocol][this.deviceForm[DeviceEnum.DeviceVendor]] || '')
       return DeviceVendor[this.videoForm.inVideoProtocol]
     } else {
