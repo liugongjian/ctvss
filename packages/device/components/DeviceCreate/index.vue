@@ -311,7 +311,14 @@ export default class extends Mixins(deviceFormMixin) {
    * 根据接入方式和接入协议返回厂商列表
    */
   private get deviceVendorList() {
-    return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
+    if (!DeviceVendor) return
+    if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      DeviceVendor[this.videoForm.inVideoProtocol] && (this.deviceForm[DeviceEnum.DeviceVendor] = DeviceVendor[this.videoForm.inVideoProtocol][this.deviceForm[DeviceEnum.DeviceVendor]] || '')
+      return DeviceVendor[this.videoForm.inVideoProtocol]
+    } else {
+      DeviceVendor[this.viidForm.inViidProtocol] && (this.deviceForm[DeviceEnum.DeviceVendor] = DeviceVendor[this.viidForm.inViidProtocol][this.deviceForm[DeviceEnum.DeviceVendor]] || '')
+      return DeviceVendor[this.viidForm.inViidProtocol]
+    }
   }
 
   private get currentDirId() {
@@ -364,7 +371,7 @@ export default class extends Mixins(deviceFormMixin) {
     const { device, region, industry } = await getDeviceRecentlyUsed()
     this.deviceForm = {
       ...this.deviceForm,
-      [DeviceEnum.DeviceVendor]: DefaultVendor[device.deviceVendor] ? device.deviceVendor : '',
+      [DeviceEnum.DeviceVendor]: device.deviceVendor,
       [DeviceEnum.Region]: region,
       [DeviceEnum.IndustryCode]: industry.industryCode,
       [DeviceEnum.NetworkCode]: industry.networkCode,
