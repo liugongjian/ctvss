@@ -215,7 +215,7 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Prop, Inject, Provide } from 'vue-property-decorator'
 import { pick } from 'lodash'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, DefaultVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
@@ -311,7 +311,14 @@ export default class extends Mixins(deviceFormMixin) {
    * 根据接入方式和接入协议返回厂商列表
    */
   private get deviceVendorList() {
-    return this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video) ? DeviceVendor[this.videoForm.inVideoProtocol] : DeviceVendor[this.viidForm.inViidProtocol]
+    if (this.deviceForm.deviceInType.includes(this.deviceInTypeEnum.Video)) {
+      // 设备创建默认选取上一次参数时，过滤不可选的厂商值
+      DeviceVendor[this.videoForm.inVideoProtocol] && (this.deviceForm[DeviceEnum.DeviceVendor] = DeviceVendor[this.videoForm.inVideoProtocol][this.deviceForm[DeviceEnum.DeviceVendor]] || '')
+      return DeviceVendor[this.videoForm.inVideoProtocol]
+    } else {
+      DeviceVendor[this.viidForm.inViidProtocol] && (this.deviceForm[DeviceEnum.DeviceVendor] = DeviceVendor[this.viidForm.inViidProtocol][this.deviceForm[DeviceEnum.DeviceVendor]] || '')
+      return DeviceVendor[this.viidForm.inViidProtocol]
+    }
   }
 
   private get currentDirId() {
