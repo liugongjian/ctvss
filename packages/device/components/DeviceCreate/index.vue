@@ -215,7 +215,7 @@
 <script lang="ts">
 import { Component, Mixins, Watch, Prop, Inject, Provide } from 'vue-property-decorator'
 import { pick } from 'lodash'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, DefaultVendor, InVideoProtocolModelMapping, InViidProtocolModelMapping, InNetworkType, OutNetworkType } from '@vss/device/dicts/index'
 import { DeviceModule } from '@vss/device/store/modules/device'
 import { getIndustryList, getNetworkList } from '@vss/device/api/dict'
 import { checkVideoVisible, checkViidVisible } from '@vss/device/utils/param'
@@ -364,7 +364,7 @@ export default class extends Mixins(deviceFormMixin) {
     const { device, region, industry } = await getDeviceRecentlyUsed()
     this.deviceForm = {
       ...this.deviceForm,
-      [DeviceEnum.DeviceVendor]: device.deviceVendor,
+      [DeviceEnum.DeviceVendor]: DefaultVendor[device.deviceVendor] ? device.deviceVendor : '',
       [DeviceEnum.Region]: region,
       [DeviceEnum.IndustryCode]: industry.industryCode,
       [DeviceEnum.NetworkCode]: industry.networkCode,
