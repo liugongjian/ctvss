@@ -280,18 +280,6 @@ export const v1Router: RouteConfig[] = [
     }
   },
   {
-    path: '/sh/replay-debug2',
-    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
-    name: 'sh-replay-debug2',
-    meta: {
-      title: '录像调试',
-      icon: 'menu-replay',
-      hidden: true,
-      perms: ['*'],
-      version: 1
-    }
-  },
-  {
     path: '/replay',
     component: Layout,
     meta: {
