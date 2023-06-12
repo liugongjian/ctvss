@@ -15,7 +15,7 @@
     :expand-on-click-node="false"
     @handle-node="handleNode"
   >
-    <template slot="treeHeader">
+    <template v-if="isSystemUser" slot="treeHeader">
       <el-select v-model="rootKey" size="small" class="common-tree__selector" @rootKeyChange="rootKeyChange">
         <el-option
           v-for="item in treeSelectorOptions"

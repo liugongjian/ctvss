@@ -1,4 +1,4 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -7,6 +7,7 @@ import StreamSelector from '../StreamSelector.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 @Component({
   components: {
     StreamSelector
@@ -99,6 +100,10 @@ export default class TreeMixin extends Vue {
         value: '2'
       },
     ]
+  }
+
+  private get isSystemUser() {
+    return !UserModule.iamUserId && AppModule.system === SystemType.SYSTEM_USER
   }
 
   @Watch('rootKey')
