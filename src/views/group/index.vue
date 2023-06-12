@@ -105,7 +105,7 @@ import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { previewAuthActions } from '@/api/accessManage'
 
 @Component({

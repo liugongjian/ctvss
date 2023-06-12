@@ -26,7 +26,3 @@
 export {
   Resource
 }
-
-export {
-  Resource
-}

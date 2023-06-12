@@ -22,18 +22,19 @@
         >
           <el-table-column
             type="selection"
-            width="55">
+            width="55"
+          >
           </el-table-column>
           <el-table-column label="设备ID/名称" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <template>
-                <span @click="jump2device(row)" class="jump-2-device">{{ row.deviceId + '/' }}</span>
+                <span class="jump-2-device" @click="jump2device(row)">{{ row.deviceId + '/' }}</span>
                 <span>{{ row.deviceName }}</span>
               </template>
             </template>
           </el-table-column>
           <el-table-column label="录像截图" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-image
                 style="width: 150px; height: 100px;"
                 :src="row.cover"
@@ -64,7 +65,7 @@
             :formatter="durationFormatInTable"
           /> -->
           <el-table-column prop="action" label="操作" width="100" fixed="right">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-button type="text" @click.stop.native="replay(row)">
                 播放
               </el-button>
@@ -84,17 +85,17 @@
         />
       </div>
     </div>
-    <UnlockDialog v-if="unlockVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
-    <UnlockDialog v-if="unlockBatchVisable" :unlock-item="recordLockItem" @on-close="closeUnlock" :multiple="multiple" />
+    <UnlockDialog v-if="unlockVisable" :unlock-item="recordLockItem" :multiple="multiple" @on-close="closeUnlock" />
+    <UnlockDialog v-if="unlockBatchVisable" :unlock-item="recordLockItem" :multiple="multiple" @on-close="closeUnlock" />
     <VideoDialog v-if="showVideoDialog" :record="currentRecord" :type="videoType" @on-close="closeVideo" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
-import { getUserLockList} from '@/api/device'
+import { getUserLockList } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import UnlockDialog from '@/views/device/components/dialogs/Unlock.vue'
 import { redirectToDeviceDetail } from '@/utils/device'
 import VideoDialog from './components/dialogs/VideoDialog.vue'
@@ -192,8 +193,8 @@ export default class extends Vue {
       }
       this.recordList = await getUserLockList(params)
       this.lockVolume = this.recordList.lockVolume
-      let {pageNum, pageSize, totalNum} = this.recordList
-      this.pager = {pageNum, pageSize, totalNum}
+      const { pageNum, pageSize, totalNum } = this.recordList
+      this.pager = { pageNum, pageSize, totalNum }
       this.recordList = this.recordList.lockRecords
       this.secToMs(this.recordList)
     } catch (e) {
@@ -261,8 +262,8 @@ export default class extends Vue {
   try {
     this.jumpLoading = true
     await redirectToDeviceDetail(this, row.deviceId, row.inProtocol)
-  } catch(e) {
-    if (e=='Error: 没有查询到该设备') {
+  } catch (e) {
+    if (e == 'Error: 没有查询到该设备') {
       this.$message.error('该设备已删除，无法跳转设备详情')
     } else {
       this.$message.error(e)

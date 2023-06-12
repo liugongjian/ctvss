@@ -187,7 +187,7 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { renderAlertType, getTotalOfTree, setDirsStreamStatus } from '@/utils/device'
 import { getGroups } from '@/api/group'
 import { getDeviceTree } from '@/api/device'

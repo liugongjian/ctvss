@@ -258,33 +258,37 @@ export function checkDeviceColumnsVisible(type: string, prop: DeviceEnum, inProt
  * @returns 判断结果
  */
 export function checkDeviceTabsVisible(type: DeviceTypeEnum | DirectoryTypeEnum, prop: DeviceDetailTab, data?: any): boolean {
-  let allowFlag = true
-
   // 无视频接入特殊处理
   if (data && (!data.hasVideo)) {
-    allowFlag = ![
+    if ([
       DeviceDetailTab.DevicePreview,
       DeviceDetailTab.DeviceReplay,
       DeviceDetailTab.DeviceEvents,
       DeviceDetailTab.DeviceAi
-    ].includes(prop)
+    ].includes(prop)) {
+      return false
+    }
   }
 
   // 无视图接入特殊处理
   if (data && (!data.hasViid)) {
-    allowFlag = ![
+    if ([
       DeviceDetailTab.DeviceViid
-    ].includes(prop)
+    ].includes(prop)) {
+      return false
+    }
   }
 
   // role分享的设备及目录特殊处理
   if (data && data[DeviceEnum.IsRoleShared]) {
     console.log(prop)
-    allowFlag = ![
+    if ([
       DeviceDetailTab.DeviceConfig
-    ].includes(prop)
+    ].includes(prop)) {
+      return false
+    }
   }
 
-  return DeviceDetailTabsAllowParams[type] && DeviceDetailTabsAllowParams[type].has(prop) && allowFlag
+  return DeviceDetailTabsAllowParams[type] && DeviceDetailTabsAllowParams[type].has(prop)
 }
 

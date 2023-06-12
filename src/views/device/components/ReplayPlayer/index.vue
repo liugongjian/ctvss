@@ -2,7 +2,7 @@
   <VssPlayer
     ref="player"
     class="replay-player"
-    :class="{'has-axis': hasAxis}"
+    :class="{ 'has-axis': hasAxis }"
     :url="url"
     :type="type"
     :codec="codec"
@@ -57,7 +57,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { ScreenModule } from '@/store/modules/screen'
 import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import { Screen } from '@/views/device/services/Screen/Screen'
@@ -98,7 +98,7 @@ export default class extends Vue {
   @Prop()
   private isDebug: Boolean
 
-  /* 车辆管理中的录像回放需要隐藏下载功能 */
+  /* 车载监控管理中的录像回放需要隐藏下载功能 */
   @Prop()
   private isCarTask: Boolean
 

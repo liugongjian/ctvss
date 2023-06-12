@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 开始对讲
 export const startTalk = (params: any): Promise<any> =>
   request({
-    url: '/device/talk/start',
+    url: '/device/StartTalk',
     method: 'get',
     params
   })
@@ -11,7 +11,7 @@ export const startTalk = (params: any): Promise<any> =>
 // 结束对讲
 export const stopTalk = (params: any): Promise<any> =>
   request({
-    url: '/device/talk/stop',
+    url: '/device/StopTalk',
     method: 'get',
     params
   })

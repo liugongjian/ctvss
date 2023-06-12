@@ -52,6 +52,11 @@ export default class LayoutMixin extends Vue {
   public pollingStatus = PollingStatusEnum.Free
   // 轮询时间
   public pollingInterval = 20
+  // 目录统计信息
+  public rootSums = {
+    onlineSize: 0,
+    totalSize: 0
+  }
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
@@ -69,7 +74,7 @@ export default class LayoutMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => {
       DeviceScreen.stopPolling(this.getVueComponent)
-      DeviceManager.advanceSearch(this)
+      DeviceManager.advanceSearch(this.getVueComponent)
     },
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
     [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
@@ -84,7 +89,7 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
     [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),
     [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this.getVueComponent),
-    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
+    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this.getVueComponent, filterData),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
     [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
@@ -92,6 +97,10 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
     [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
+  }
+
+  private get UserVersion() {
+    return UserModule.version
   }
 
   private get currentDirId() {
@@ -132,7 +141,7 @@ export default class LayoutMixin extends Vue {
       })
       this.rootActions = permissionRes.result[0].iamUser.actions
     }
-    DeviceManager.initAdvancedSearch(this)
+    DeviceManager.initAdvancedSearch(this.getVueComponent)
   }
 
   /**

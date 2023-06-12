@@ -2,7 +2,7 @@
   <div
     v-if="screenManager"
     class="screen-container"
-    :class="{'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive}"
+    :class="{ 'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive }"
   >
     <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
       <div class="screen-grid" :class="`screen-size--${layout}`">
@@ -15,7 +15,7 @@
           :has-close="!isSingle"
           :is-single="isSingle"
           :style="`grid-area: item${index}`"
-          :class="[{'actived': index === currentIndex && screenList.length > 1}]"
+          :class="[{ 'actived': index === currentIndex && screenList.length > 1 }]"
           @click="selectScreen(index)"
         />
       </div>

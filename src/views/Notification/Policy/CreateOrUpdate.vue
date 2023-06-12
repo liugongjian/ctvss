@@ -95,17 +95,35 @@
             <el-radio label="1">设备消息</el-radio>
             <!-- <el-radio label="2">资源包消息</el-radio> -->
             <el-radio label="3">AI消息</el-radio>
+            <el-radio label="4">平台事件消息</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.source !== '2'" label="子类型：" prop="sourceRules" class="source-rules">
-          <el-select v-model="form.sourceRules" multiple>
-            <el-option
-              v-for="(item, index) in sourceRulesOptions"
-              :key="index"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item v-if="form.source !== '2'" label="子类型：" class="source-rules">
+          <el-form-item prop="sourceRules" :class="{ 'source-rules__name': showSourceRuleValue }">
+            <el-select :key="form.source" v-model="form.sourceRules" :multiple="form.source !== '4'">
+              <el-option
+                v-for="item in sourceRulesOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="showSourceRuleValue" prop="sourceRulesValue" class="source-rules__value">
+            <el-input v-model="form.sourceRulesValue" />
+            <el-popover
+              placement="right"
+              width="300"
+              trigger="hover"
+              :open-delay="300"
+              content=""
+            >
+              <div>
+                <ul><li>触发推送的阈值（百分数形式）</li><li>请输入1-100整数</li></ul>
+              </div>
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </el-form-item>
         </el-form-item>
         <el-form-item label="消息内容：" prop="notifyTemplate">
           <el-input
@@ -192,6 +210,7 @@ export default class extends Vue {
     notifyFreq: '240',
     source: MESSAGE_TYPE.DEVICE_MSG,
     sourceRules: [],
+    sourceRulesValue: '',
     // eslint-disable-next-line no-template-curly-in-string
     notifyTemplate: '',
     notifyResources: [],
@@ -220,12 +239,18 @@ export default class extends Vue {
     { value: '2', label: '流离线' },
     { value: '3', label: '录制失败' }
   ]
+  private platformSourceRulesOptions = [
+    { value: '1', label: '设备离线', needConfig: true }
+  ]
+
 
   private notifyTemplate = {
     // eslint-disable-next-line no-template-curly-in-string
     ai: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到AI告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
     // eslint-disable-next-line no-template-curly-in-string
-    device: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到${主类型}-${子类型}告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。'
+    device: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到${主类型}-${子类型}告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
+    // eslint-disable-next-line no-template-curly-in-string
+    platform: '【天翼云CDN+】尊敬的用户：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件[值:${value}]，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。'
   }
 
   private rules = {
@@ -249,6 +274,10 @@ export default class extends Vue {
     sourceRules: [
       { required: true, message: '请选择子类型', trigger: 'blur' }
     ],
+    sourceRulesValue: [
+      { required: true, message: '阈值不能为空', trigger: 'blur' },
+      { validator: this.validateResourceRuleValue, trigger: 'blur' }
+    ],
     notifyTemplate: [
       { required: true, message: '请选择消息内容', trigger: 'blur' }
     ],
@@ -265,6 +294,14 @@ export default class extends Vue {
   private validatePolicyName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{2,32}$/.test(value)) {
       callback(new Error('策略名称格式错误。2-32位，可包含大小写字母、数字、中文、中划线、空格。'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateResourceRuleValue(rule: any, value: string, callback: Function) {
+    if (!/^([1-9]\d?|100)$/.test(value)) {
+      callback(new Error('请输入1-100的整数'))
     } else {
       callback()
     }
@@ -288,27 +325,41 @@ export default class extends Vue {
 
   private get sourceRulesOptions() {
     switch (this.form.source) {
-      case '1':
+      case MESSAGE_TYPE.DEVICE_MSG:
         return this.deviceSourceRulesOptions
-      case '3':
+      case MESSAGE_TYPE.AI_MSG:
         return this.aiSourceRulesOptions
+      case MESSAGE_TYPE.PLATFORM_MSG:
+        return this.platformSourceRulesOptions
       default:
         return []
     }
+  }
+
+  private get showSourceRuleValue() {
+    const options = this.sourceRulesOptions
+    if (this.form.source === MESSAGE_TYPE.PLATFORM_MSG) {
+      const selectedRule = options.find((option: any) => option.value === this.form.sourceRules[0])
+      return selectedRule && selectedRule.needConfig
+    }
+    return false
   }
 
   private get isUpdate() {
     return this.$route.name === 'NotificationPolicyEdit'
   }
 
-  private handleSourceChange(newValue: string) {
+  private handleSourceChange(newValue: MESSAGE_TYPE) {
     this.form.sourceRules = []
     switch (newValue) {
-      case '1':
+      case MESSAGE_TYPE.DEVICE_MSG:
         this.form.notifyTemplate = this.notifyTemplate.device
         break
-      case '3':
+      case MESSAGE_TYPE.AI_MSG:
         this.form.notifyTemplate = this.notifyTemplate.ai
+        break
+      case MESSAGE_TYPE.PLATFORM_MSG:
+        this.form.notifyTemplate = this.notifyTemplate.platform
         break
     }
   }
@@ -339,7 +390,18 @@ export default class extends Vue {
     try {
       const info = await getNotificationPolicyInfo({ id: this.form.id })
       Object.assign(this.form, pick(info, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
-      this.form.sourceRules = JSON.parse(info.sourceRules)
+      const sourceRules = JSON.parse(info.sourceRules)
+      console.log('sourceRules: ', sourceRules)
+      if (sourceRules[0].includes('_')) {
+        const splitArr = sourceRules[0].split('_')
+        // 平台事件消息的子类型只能单选
+        this.form.sourceRules = splitArr[0]
+        this.form.sourceRulesValue = splitArr[1]
+      } else {
+        this.form.sourceRules = sourceRules
+      }
+      console.log('this.form.sourceRules: ', this.form.sourceRules)
+      console.log('this.form.sourceRulesValue: ', this.form.sourceRulesValue)
       this.form.notifyResources = JSON.parse(info.notifyResources)
       this.form.notifyDestinations = JSON.parse(info.notifyDestinations)
       this.form.effectiveTime = JSON.parse(info.effectiveTime)
@@ -403,7 +465,7 @@ export default class extends Vue {
           const params: any = {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
-          params.sourceRules = JSON.stringify(this.form.sourceRules)
+          params.sourceRules = Array.isArray(this.form.sourceRules) ? JSON.stringify(this.form.sourceRules) : JSON.stringify([this.form.sourceRules + '_' + this.form.sourceRulesValue])
           params.notifyResources = JSON.stringify(this.form.notifyResources)
           params.notifyDestinations = JSON.stringify(this.form.notifyDestinations)
           if (this.isUpdate) {
@@ -424,7 +486,6 @@ export default class extends Vue {
       }
     })
   }
-
   /**
    * 转换form相关字段
    */
@@ -494,8 +555,27 @@ export default class extends Vue {
       width: 600px;
     }
 
+    ::v-deep .source-rules {
+      .el-form-item__content {
+        display: flex;
+
+        .source-rules__name {
+          width: 450px;
+        }
+
+        .source-rules__value {
+          padding-left: 5px;
+          width: 150px;
+        }
+      }
+    }
+
     .el-select {
       width: 600px;
+    }
+
+    .el-select.source-rules-with-value {
+      width: 450px;
     }
   }
 

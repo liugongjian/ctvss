@@ -15,7 +15,7 @@
         prop="policyName"
         label="策略名"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.policyName || row.policyId }}
         </template>
       </el-table-column>
@@ -23,7 +23,7 @@
         prop="policyDesc"
         label="策略描述"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.policyDesc || '-' }}
         </template>
       </el-table-column>
@@ -38,7 +38,7 @@
           <span>是否继承</span>
           <svg-icon name="filter" width="15" height="15" />
         </template>
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <el-tag v-if="row.inherit" type="success">是</el-tag>
           <el-tag v-else type="primary">否</el-tag>
         </template>
@@ -47,12 +47,12 @@
         prop="policyDesc"
         label="继承自"
       >
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.groupDetails && row.groupDetails.groupName || '-' }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="130">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <el-button type="text" :disabled="row.inherit" @click="detachUserPolicy(row)">解绑</el-button>
           <el-button type="text" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
         </template>
@@ -113,12 +113,12 @@ export default class extends Vue {
   }
 
   private async getPolicyList() {
-    let params: any = {
+    const params: any = {
       pageSize: 1000,
       policyType: 'subUser'
     }
     try {
-      let res: any = await getPolicyList(params)
+      const res: any = await getPolicyList(params)
       this.policyList = res.iamPolicies
     } catch (e) {
       this.$message.error(e && e.message)
@@ -127,7 +127,7 @@ export default class extends Vue {
 
   private async getUser() {
     try {
-      let res = await getUser({
+      const res = await getUser({
         iamUserId: this.dialogData.iamUserId
       })
       this.policies = res.policies.map((policy: any) => ({
@@ -141,7 +141,7 @@ export default class extends Vue {
 
   public async initParentGroupInfo(parentGroupId: string) {
     try {
-      let params = {
+      const params = {
         groupId: parentGroupId
       }
       const [inheritedPoliciesRes, groupRes] =

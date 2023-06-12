@@ -4,7 +4,7 @@
       服务配置
       <div class="detail__buttons">
         <el-button
-          v-if="checkPermission(['ivs:UpdateDevice']) && configMode === configModeEnum.View"
+          v-if="checkPermission(['ivs:UpdateDevice'], deviceActions) && configMode === configModeEnum.View"
           type="text"
           @click="configMode = configModeEnum.Edit"
         >
@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
 import { checkPermission } from '@vss/base/utils/permission'
 import { Device, DeviceBasic, VideoDevice } from '@vss/device/type/Device'
 import { ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
@@ -52,6 +52,11 @@ import { updateDeviceResource } from '@vss/device/api/billing'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => ({}) })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Prop() private deviceId: string
   @Prop() private device: Device
   
@@ -114,8 +119,17 @@ export default class extends Vue {
     return tabs
   }
 
-  private forceUpdate() {
-    this.submit()
+  /**
+   * 强制更新
+   * @param isSubmit 是否更新表单
+   */
+  private forceUpdate(isSubmit: boolean) {
+    if (isSubmit) {
+      this.submit()
+    } else {
+      const serviceConfig = this.$refs.serviceConfig as any
+      serviceConfig.init()
+    }
   }
 
   private async submit() {

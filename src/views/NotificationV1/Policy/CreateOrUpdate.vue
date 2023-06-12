@@ -60,7 +60,7 @@
                   </el-button>
                 </el-tooltip> -->
               </template>
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-time-picker
                   v-model="row.effectiveTime"
                   :editable="false"
@@ -100,7 +100,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="子类型：" class="source-rules">
-          <el-form-item prop="sourceRules" :class="{'source-rules__name': showSourceRuleValue}">
+          <el-form-item prop="sourceRules" :class="{ 'source-rules__name': showSourceRuleValue }">
             <el-select :key="form.source" v-model="form.sourceRules" :multiple="form.source !== '4'">
               <el-option
                 v-for="item in sourceRulesOptions"
@@ -192,7 +192,7 @@ export default class extends Vue {
   private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
   public isloading: boolean | null = null
-  public uploadLoading: boolean = false
+  public uploadLoading = false
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -417,8 +417,8 @@ export default class extends Vue {
     } else {
       this.form.effectiveTimeType = 'range'
       this.effectiveTimeList = effectiveTime.map(item => {
-        let start = new Date()
-        let end = new Date()
+        const start = new Date()
+        const end = new Date()
         start.setHours(item.start_time.split(':')[0])
         start.setMinutes(item.start_time.split(':')[1])
         start.setSeconds(item.start_time.split(':')[2])
@@ -458,7 +458,7 @@ export default class extends Vue {
       try {
         if (valid) {
           this.uploadLoading = true
-          let params: any = {}
+          const params: any = {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
           params.sourceRules = Array.isArray(this.form.sourceRules) ? JSON.stringify(this.form.sourceRules) : JSON.stringify([this.form.sourceRules + '_' + this.form.sourceRulesValue])
@@ -494,7 +494,7 @@ export default class extends Vue {
         end_time: '23:59:00'
       }]
     } else {
-      let timeList = this.effectiveTimeList.filter(item => {
+      const timeList = this.effectiveTimeList.filter(item => {
         return item.effectiveTime && item.effectiveTime[0] && item.effectiveTime[1]
       })
       this.form.effectiveTime = timeList.map(item => {

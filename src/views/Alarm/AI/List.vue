@@ -1,0 +1,464 @@
+<template>
+  <div ref="listWrap" class="min-contaniner">
+    <div class="filter-container clearfix">
+      <div ref="filterWrap" class="filter-container__right">
+        <div>算法类型</div>
+        <el-select v-model="value" placeholder="请选择">
+          <el-option
+            label="全部"
+            value="all"
+          >
+          </el-option>
+        </el-select>
+        <div>应用名称</div>
+        <el-select v-model="value" placeholder="请选择">
+          <el-option
+            label="全部"
+            value="all"
+          >
+          </el-option>
+        </el-select>
+        <div>告警时间</div>
+        <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+          <!-- <el-radio-group> -->
+          <el-radio-button label="今天" />
+          <el-radio-button label="近7天" />
+          <el-radio-button label="近30天" />
+          <el-radio-button label="自定义时间" />
+        </el-radio-group>
+        <el-date-picker
+          v-if="period.periodType === '自定义时间'"
+          v-model="period.period"
+          type="daterange"
+          value-format="timestamp"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          @change="handleChange"
+        />
+        <div>置信度</div>
+        <el-slider
+          v-model="confidence"
+          :show-input-controls="false"
+        />
+        <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+        <el-radio-group v-model="pageMode">
+          <el-radio-button label="list">
+            <i class="el-icon-s-operation" />
+          </el-radio-button>
+          <el-radio-button label="card">
+            <i class="el-icon-menu" />
+          </el-radio-button>
+        </el-radio-group>
+      </div>
+    </div>
+    <el-table
+      v-if="pageMode === 'list'"
+      ref="table"
+      v-loading="loading"
+      :height="maxHeight - 200"
+      :data="alarmList"
+      fit
+      class="template__table"
+      empty-text="暂无告警信息"
+      @row-click="1"
+      @filter-change="filterChange"
+      @sort-change="sortChange"
+    >
+      <el-table-column label="应用名称" prop="deviceName" />
+      <el-table-column label="算法类型" prop="deviceName" />
+      <el-table-column label="设备名称" prop="deviceName" />
+      <el-table-column label="告警时间" prop="deviceName" />
+      <el-table-column label="置信度" prop="deviceName" />
+      <el-table-column
+        min-width="240"
+        label="告警截图"
+      >
+        <template slot-scope="{ row }">
+          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) || '-' }}
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      v-if="pageMode === 'list'"
+      :current-page="pager.pageNum"
+      :page-size="pager.pageSize"
+      :total="pager.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
+    <CardList v-if="pageMode === 'card'" />
+  </div>
+</template>
+<script lang="ts">
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
+import CardList from './CardList.vue'
+
+@Component({
+  name: 'alarm-list',
+  components: {
+    CardList
+  }
+})
+export default class extends Vue {
+  @Prop() private maxHeight
+  @Prop({ default: '' }) private groupId!: string
+  private loading = false
+  private showViewBindDialog = false
+  private currentTemplateId: any = ''
+  private selectedDeviceList: any = []
+  private observer: any = null
+  private searchFrom: any = {
+    deviceName: '',
+    timeRange: null,
+    alarmPriority: [],
+    alarmMethod: [],
+    sortBy: '',
+    sortDirection: ''
+  }
+  private filtersArray: any = {
+    alarmPriority: [
+      { text: '一级警情', value: '1' },
+      { text: '二级警情', value: '2' },
+      { text: '三级警情', value: '3' },
+      { text: '四级警情', value: '4' }
+    ],
+    alarmMethod: [
+      { text: '电话报警', value: '1' },
+      { text: '设备报警', value: '2' },
+      { text: '短信报警', value: '3' },
+      { text: 'GPS报警', value: '4' },
+      { text: '视频报警', value: '5' },
+      { text: '设备故障报警', value: '6' },
+      { text: '其他报警', value: '7' }
+    ]
+  }
+  private alarmPriorityOptions: any = [
+    { label: '一级警情', value: '1' },
+    { label: '二级警情', value: '2' },
+    { label: '三级警情', value: '3' },
+    { label: '四级警情', value: '4' }
+  ]
+  private alarmMethodOptions: any = [
+    {
+      value: '1',
+      label: '电话报警'
+    },
+    {
+      value: '2',
+      label: '设备报警',
+      children: [
+        { value: '1', label: '视频丢失报警' },
+        { value: '2', label: '设备防拆报警' },
+        { value: '3', label: '存储设备磁盘满报警' },
+        { value: '4', label: '设备高温报警' },
+        { value: '5', label: '设备低温报警' }
+      ]
+    },
+    {
+      value: '3',
+      label: '短信报警'
+    },
+    {
+      value: '4',
+      label: 'GPS报警'
+    },
+    {
+      value: '5',
+      label: '视频报警',
+      children: [
+        { value: '1', label: '人工视频报警' },
+        { value: '2', label: '运动目标检测报警' },
+        { value: '3', label: '遗留物检测报警' },
+        { value: '4', label: '物体移除检测报警' },
+        { value: '5', label: '绊线检测报警' },
+        { value: '6', label: '入侵检测报警' },
+        { value: '7', label: '逆行检测报警' },
+        { value: '8', label: '徘徊检测报警' },
+        { value: '9', label: '流量统计报警' },
+        { value: '10', label: '密度检测报警' },
+        { value: '11', label: '视频异常检测报警' },
+        { value: '12', label: '快速移动报警' }
+      ]
+    },
+    {
+      value: '6',
+      label: '设备故障报警',
+      children: [
+        { value: '1', label: '存储设备磁盘故障报警' },
+        { value: '2', label: '存储设备风扇故障报警' }
+      ]
+    },
+    {
+      value: '7',
+      label: '其他报警'
+    }
+  ]
+  private alarmList: any = []
+  private timer: any = null
+  private pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
+  }
+
+  public period: any = {
+    periodType: '今天',
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+  }
+
+  private confidence = 0
+
+  private pageMode = 'list'
+
+  @Watch('period.periodType')
+  private periodTypeUpdated(newVal) {
+    switch (newVal) {
+      case '今天':
+        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '近7天':
+        this.period.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '近30天':
+        this.period.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '自定义时间':
+        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        break
+    }
+  }
+
+  @Watch('$route.query', { deep: true })
+  public onRouterChange() {
+    this.searchFrom = {
+      deviceName: '',
+      timeRange: null,
+      alarmPriority: [],
+      alarmMethod: [],
+      sortBy: '',
+      sortDirection: ''
+    }
+    this.pager = {
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    }
+    const tableDom: any = this.$refs.table
+    tableDom.clearSort()
+    tableDom.clearFilter()
+    // this.$route.query.inProtocol && this.getList()
+    // this.getList()
+    this.timer && clearInterval(this.timer)
+    this.getList()
+    this.setTimer()
+  }
+
+  private mounted() {
+    // this.$route.query.inProtocol && this.getList()
+    this.getList()
+    this.setTimer()
+  }
+
+  private destroyed() {
+    this.timer && clearInterval(this.timer)
+  }
+
+  private search() {
+    this.pager.pageNum = 1
+    this.getList()
+    this.setTimer()
+  }
+
+  /**
+   * 定时刷新
+   */
+  private setTimer() {
+    this.timer && clearInterval(this.timer)
+    this.timer = setInterval(() => {
+      this.getList(true)
+    }, 5000)
+  }
+
+  private async getList(forbitLoading?: boolean) {
+    const params: any = {
+      // inProtocol: this.$route.query.inProtocol,
+      deviceName: this.searchFrom.deviceName,
+      startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
+      endTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[1].getTime() : '',
+      sortBy: this.searchFrom.sortBy,
+      sortDirection: this.searchFrom.sortDirection,
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize,
+      inProtocol: this.$route.query.inVideoProtocol || 'gb28181'
+    }
+    const type = this.$route.query.type
+    if (type !== 'ipc' && type !== 'nvr') {
+      // 目录级别
+      params.dirId = this.$route.query.dirId
+      if (typeof(this.$route.query.type) === 'undefined') {
+        // 根目录
+        params.dirId = '0'
+      }
+    } else {
+      // 设备级别
+      params.deviceId = this.$route.query.deviceId
+    }
+    try {
+      !forbitLoading && (this.loading = true) && (this.alarmList = [])
+      const res: any = await getAlarmRules(params)
+      this.$nextTick(() => {
+        this.alarmList = res.alarms
+        this.pager.total = res.totalNum
+      })
+    } catch (e) {
+      this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
+    } finally {
+      this.loading = false
+    }
+  }
+  private getLabel(type: string, value: any) {
+    let arr: any = []
+    switch (type) {
+      case 'alarmPriority':
+        arr.push(value)
+        break
+      case 'alarmMethod':
+        arr.push(value)
+        break
+      case 'alarmType':
+        arr = (() => {
+          const key = value.split('-')[0]
+          const obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
+          if (obj) {
+            return obj.children
+          } else {
+            return undefined
+          }
+        })()
+        break
+    }
+    if (!arr) return undefined
+    if (type === 'alarmType') {
+      const obj = arr.find((item: any) => item.value === value.split('-')[1])
+      if (obj) {
+        return obj.label
+      } else {
+        return undefined
+      }
+    } else {
+      let res: any = arr.map((str: any) => {
+        const obj = this[`${type}Options`].find((item: any) => item.value === str)
+        if (obj) {
+          return obj.label
+        } else {
+          return undefined
+        }
+      })
+      res = [...new Set(res)].join('，')
+      return res
+    }
+  }
+  private async deleteAlarm(row: any) {
+    this.$alertDelete({
+      type: '告警信息',
+      msg: '确定删除该告警信息',
+      method: deleteAlarmInfo,
+      payload: { alarmId: row.alarmId },
+      onSuccess: this.getList
+    })
+  }
+  private filterChange(filters: any) {
+    for (const key in filters) {
+      const values = filters[key]
+      if (values.length) {
+        this.searchFrom[key] = values
+      } else {
+        this.searchFrom[key] = []
+      }
+    }
+  }
+  private sortChange(sort: any) {
+    if (sort.order) {
+      this.searchFrom.sortBy = sort.column.columnKey
+      this.searchFrom.sortDirection = sort.order === 'ascending' ? 'asc' : 'desc'
+      this.search()
+    }
+  }
+  /**
+   * 表格多选框变化
+   */
+  private handleSelectionChange(alarms: any) {
+    this.selectedDeviceList = alarms
+  }
+
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getList()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getList()
+  }
+
+  /**
+   * 批量操作菜单
+   */
+  public handleBatch(command: any) {
+    if (!this.selectedDeviceList.length) {
+      this.$alertError('请先选择告警信息')
+      return
+    }
+    switch (command) {
+      case 'delete':
+        break
+    }
+  }
+
+    /**
+   * 告警搜索时间
+   */
+  public handleChange() {}
+
+  private refresh(){}
+
+  /**
+ * 得到N天前的时间戳
+ */
+  public getDateBefore(dayCount) {
+    const dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    const time = dd.setHours(0, 0, 0)
+    return time
+  }
+
+}
+</script>
+<style lang="scss" scoped>
+.min-contaniner {
+  min-width: 800px;
+  width: 100%;
+  .filter-container__right{
+    display: flex;
+    align-items: center;
+    & > div {
+      margin: 0 5px;
+    }
+    ::v-deep .el-input {
+      width: 100px;
+    }
+  }
+}
+
+.el-date-editor {
+  margin-left: 5px;
+}
+.el-slider{
+  margin-left: 15px;
+  width: 100px;
+}
+</style>

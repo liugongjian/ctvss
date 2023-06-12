@@ -18,7 +18,7 @@
       :visible="true"
       width="600px"
       center
-      @close="closeDialog({isRefresh: false})"
+      @close="closeDialog({ isRefresh: false })"
     >
       <el-form
         ref="searchForm"
@@ -52,7 +52,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submit">确 定</el-button>
-        <el-button @click="closeDialog({isRefresh: false})">取 消</el-button>
+        <el-button @click="closeDialog({ isRefresh: false })">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -251,6 +251,22 @@ export default class extends Vue {
 .advanced-search {
   flex: 1;
   display: flex;
+  // v2暂时没有搜索入口，加之设备告警页面用了common-layout，但是不提供搜索入口，所以将样式控制移到搜索框内部
+  padding: 5px;
+  min-height: 40px;
+  border-top: 1px solid #ddd;
+
+  ::v-deep .el-input--suffix .el-input__inner {
+    padding-right: 0;
+  }
+
+  ::v-deep .el-button--mini {
+    padding: 7px;
+  }
+
+  ::v-deep &-button {
+    margin-left: 5px !important;
+  }
 
   .el-button + .el-button,
   .el-tooltip + .el-button,

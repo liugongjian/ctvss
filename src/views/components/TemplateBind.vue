@@ -109,7 +109,7 @@ import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import { getAIBind, getAlertBind } from '@/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'TemplateBind',

@@ -1097,12 +1097,15 @@ export default class extends Mixins(IndexMixin) {
   private async handleMarkerOn(marker) {
     this.marker = marker
     await this.getDeviceInfo()
-
+    console.log('this.deviceInfo.device--->', this.deviceInfo.device)
     if (
       Number(this.deviceInfo.device.deviceLongitude) &&
       Number(this.deviceInfo.device.deviceLatitude)
     ) {
-      if (this.ifDragging) {
+      if (this.deviceInfo.device.isRoleShared) {
+        // 虚拟业务组
+        this.confirmAddMarker(false)
+      } else if (this.ifDragging) {
         if (!this.dragAddPositionDialogCheck) {
           this.dragAddPositionDialog = true
         } else {
@@ -1256,7 +1259,11 @@ export default class extends Mixins(IndexMixin) {
       const marker = this.markerList.filter(
         (item) => item.deviceId === data.id
       )[0]
-      this.$refs.mapview.setMapZoomAndCenter(16, marker.longitude, marker.latitude)
+      this.$refs.mapview.setMapZoomAndCenter(
+        16,
+        marker.longitude,
+        marker.latitude
+      )
       this.$refs.mapview.chooseDevice(marker)
     }
   }
@@ -1302,7 +1309,8 @@ export default class extends Mixins(IndexMixin) {
         this.$refs.mapview.closeAllPlayer()
         // 跳转到新建地图位置
         this.$nextTick(() => {
-          const mapItems = this.$refs.mapList.$el.querySelectorAll('.choose-map')
+          const mapItems =
+            this.$refs.mapList.$el.querySelectorAll('.choose-map')
           const lastMapItem = mapItems[mapItems.length - 1]
           this.$refs.mapList.$el.scrollTop = lastMapItem.offsetTop
         })
@@ -1392,7 +1400,8 @@ export default class extends Mixins(IndexMixin) {
         marker: map.marker === 'Y',
         groupByGroupId: map.groupByGroupId === 'Y',
         groupByAdjacent: map.groupByAdjacent === 'Y',
-        defaultDeviceColor: map.defaultDeviceColor || settings.defaultDeviceColor
+        defaultDeviceColor:
+          map.defaultDeviceColor || settings.defaultDeviceColor
       }
       this.mapConfigInfo.status = 'edit'
     } else {
@@ -1501,7 +1510,7 @@ export default class extends Mixins(IndexMixin) {
       method: deleteMap,
       payload: { mapId: map.mapId },
       onSuccess: () => {
-        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
+        this.mapList = this.mapList.filter((item) => item.mapId !== map.mapId)
         if (this.curMap.mapId === map.mapId) {
           // this.curMap = this.mapList[0] || null
           this.handleChooseMap(this.mapList[0])
@@ -1516,7 +1525,9 @@ export default class extends Mixins(IndexMixin) {
   private async modifyMap() {
     let checklnglat = true
     let checkzoom = true
-    const originMap = this.mapList.filter(item => item.mapId === this.curMap.mapId)[0]
+    const originMap = this.mapList.filter(
+      (item) => item.mapId === this.curMap.mapId
+    )[0]
     try {
       const params = { ...originMap }
       if (this.modifyMapForm.center) {

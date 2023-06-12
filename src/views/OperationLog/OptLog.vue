@@ -12,10 +12,10 @@
         </el-form-item> 
         <el-form-item>
           <el-date-picker
-            class="custom-time-range"
-            v-model="filter.timeRange"
             v-show="showTimePicker"
             ref="customTimeRange"
+            v-model="filter.timeRange"
+            class="custom-time-range"
             type="datetimerange"
             :clearable="false"
             range-separator="至"
@@ -24,8 +24,9 @@
             :default-time="['00:00:00', '23:59:59']"
             :picker-options="pickerOpts"
             value-format="timestamp"
+            size="mini"
             @blur="checkTimePicker"
-            size="mini">
+          >
           </el-date-picker>
         </el-form-item>
         <el-form-item style="margin-top: 1px;" label="操作名称:" prop="operationNameId">
@@ -35,7 +36,6 @@
               :key="item.operationNameId"
               :label="item.operationName"
               :value="item.operationNameId"
-              
             />
           </el-select>
         </el-form-item>
@@ -44,17 +44,17 @@
         </el-form-item>
         <el-form-item style="margin-top: 1px;">
           <!-- <el-button type="primary" size="mini" @click="handleFilter"><svg-icon name="search" /></el-button> -->
-          <svg-icon name="search" @click="handleFilter" class="search"  />
+          <svg-icon name="search" class="search" @click="handleFilter" />
         </el-form-item>
         <el-form-item style="margin-top: 1px;">
           <el-tooltip placement="top" content="导出">
-            <svg-icon name="export" @click="exportClick" class="export" />
+            <svg-icon name="export" class="export" @click="exportClick" />
           </el-tooltip>
         </el-form-item>
       </el-form>
     </div>
     <div v-loading="loading.list">
-      <el-table height="680px" ref="list" :data="logList" fit @filter-change="optResFilter">
+      <el-table ref="list" height="680px" :data="logList" fit @filter-change="optResFilter">
         <el-table-column label="操作时间" min-width="200" prop="operationTime">
           <template slot-scope="scope">
             {{ scope.row.operationTime || '-' }}
@@ -179,14 +179,14 @@ export default class extends Vue {
   @Prop()
   private operatorId: string
 
-  @Watch('btnSelected',{
+  @Watch('btnSelected', {
     immediate: true
   })
   private handleBtns(val: any) {
     this.timeFilter(+val)
   }
 
-  @Watch('filter',{
+  @Watch('filter', {
     immediate: true,
     deep: true
   })
@@ -262,8 +262,8 @@ export default class extends Vue {
 
   private initParams(type?: any) {
     this.loading.list = true
-    let startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[0]).slice(0,-3) : undefined
-    let endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[1]).slice(0,-3): undefined
+    const startTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[0]).slice(0, -3) : undefined
+    const endTime = (this.filter.timeRange && this.filter.timeRange.length !== 0) ? +('' + this.filter.timeRange[1]).slice(0, -3) : undefined
     const time = {
       startTime: startTime,
       endTime: endTime
@@ -329,7 +329,7 @@ export default class extends Vue {
    * 筛选操作结果
    */
   public async optResFilter(filters: any) {
-    for (let key in filters) {
+    for (const key in filters) {
       this.optRes = filters[key][0] ? filters[key][0] + '' : undefined
     }
     this.getList()
@@ -397,7 +397,7 @@ export default class extends Vue {
       // 2.导出请求
       const params = this.initParams('export')
       const res = await exportLog(params)
-      this.exportLog(res)
+      this.exportLog(res.data)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -406,10 +406,11 @@ export default class extends Vue {
   }
  
   private exportLog(file: any) {
-    let xlsxData = new Blob([file])
+    // const xlsxData = new Blob([file])
     const a = document.createElement('a')
-    a.href = window.URL.createObjectURL(xlsxData)
+    // a.href = window.URL.createObjectURL(xlsxData)
     a.download = '操作日志.xlsx'
+    a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + file
     a.click()
     a.remove()
   }

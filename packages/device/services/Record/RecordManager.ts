@@ -96,7 +96,16 @@ export class RecordManager {
    */
   public async initReplay() {
     this.currentRecord = null
-    this.getRecordListByDate(this.currentDate)
+    if (!this.screen.isCarTask) {
+      this.getRecordListByDate(this.currentDate)
+    } else {
+      let seekTime = this.screen.currentRecordDatetime
+      if (this.screen.datetimeRange) {
+        seekTime = Math.max(this.screen.currentRecordDatetime, this.screen.datetimeRange.startTime)
+      }
+      this.seek(seekTime, true)
+    }
+    // this.getRecordListByDate(this.currentDate)
     this.getRecordStatistic()
     this.getLatestRecord()
   }
@@ -201,7 +210,10 @@ export class RecordManager {
       }
       if (!isConcat) this.screen.isLoading = false
       this.isLoading = false
-      this.seek(this.screen.currentRecordDatetime, true)
+      // 新版录像切割盈余，导致开始部分准确性降低，需要seek配合跳转到指定任务开始时间（车辆管理）
+      if (isSeek) {
+        this.seek(this.screen.currentRecordDatetime, true)
+      }
       // 加载AI热力列表
       const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
       if (date > this.currentDate) {
@@ -267,7 +279,6 @@ export class RecordManager {
         }
         record = this.getRecordByTime(time)
       }
-
       if (record) {
         if (this.screen.recordType === RecordType.Cloud) {
           // 云端录像
@@ -276,7 +287,10 @@ export class RecordManager {
             this.currentRecord.offsetTime = time - record.startTime
           } else {
             this.currentRecord.offsetTime = null
-            this.screen.player && this.screen.player.seek(time - this.currentRecord.startTime)
+            // this.screen.player && this.screen.player.seek(time - this.currentRecord.startTime)
+            if (this.screen.player) {
+              this.screen.player.seek(time - this.currentRecord.startTime)
+            }
           }
         } else {
           // 本地录像
@@ -291,14 +305,19 @@ export class RecordManager {
         this.screen.url = null
         this.currentRecord = null
         if (!this.isLoading) {
-          // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
-          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          if (!UserModule.iamUserId ||
+              (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth) ||
+              (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)
+          ) {
+            // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
+            throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+          }
         }
         // 静默错误信息（不在界面上显示）
         throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {
-      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE) {
+      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE || e.code === this.screen.ERROR_CODE.LOCKED) {
         this.screen.errorMsg = e.message
       }
       this.screen.currentRecordDatetime = time

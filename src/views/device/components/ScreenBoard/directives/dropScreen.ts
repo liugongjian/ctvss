@@ -1,6 +1,6 @@
 import { DirectiveOptions } from 'vue'
 import { removeClass, addClass } from '@/utils'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 const drag: any = {
   isDragging: false,
