@@ -451,10 +451,10 @@ export default class extends Vue {
     // Temp Commit
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
       this.videoForm.inType = 'push'
-    }
-
-    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+    } else if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
       this.videoForm.inType = 'pull'
+    } else {
+      this.videoForm.inType = ''
     }
 
     // 重置验证
