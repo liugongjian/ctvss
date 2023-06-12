@@ -292,6 +292,10 @@ export default class extends Vue {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     this.deviceInfo = this.formInfo
     this.resouceVideoList = await this.getResouces(
@@ -546,12 +550,21 @@ export default class extends Vue {
       this.loadingStatus.resouceAiTable = true
       this.$emit('changeAiDisabledStatus', true)
       const algoListResult = await getAppList({ abilityId: this.algoTabType })
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        algoListResult.aiApps = algoListResult.aiApps.map((aiApp) => {
+          if (aiApp.algorithm.name === '城市治理') {
+            aiApp.algorithm.name = '工业缺陷检测'
+          }
+          return aiApp
+        })
+      }
       this.algoListData = algoListResult.aiApps
 
       if (this.isUpdate) {
         if (this.resourceHasAppIds.length > 0) {
           const tempArr = [...algoListResult.aiApps, ...this.appIdsWithAllData]
-          let hash = {}
+          const hash = {}
 
           this.appIdsWithAllData = tempArr.reduce((preVal, curVal) => {
             // eslint-disable-next-line no-unused-expressions
@@ -685,7 +698,7 @@ export default class extends Vue {
   }
 
   private distinct(arr: any, key: any) {
-    let hash = {}
+    const hash = {}
     const result = arr.reduce((preVal: any, curVal: any) => {
       // eslint-disable-next-line no-unused-expressions
       hash[curVal[key]] ? '' : (hash[curVal[key]] = true && preVal.push(curVal))

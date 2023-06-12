@@ -186,7 +186,7 @@
         </el-checkbox-group>
       </el-form-item>
       <!-- 城市治理监测 -->
-      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+      <el-form-item v-if="ifShow('10037') && !isIndustrialDetection" label="细分检测项" prop="algorithmMetadata.cityGovType">
         <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
           <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
         </el-select>
@@ -308,7 +308,7 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStep({ step: 0 })">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
@@ -322,6 +322,7 @@ import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType, CityGovType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlgoDetail',
@@ -357,7 +358,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   get analyseAiType() {
-    let res = Object.assign({}, ResourceAiType)
+    const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
       delete res['AI-100']
     } else if (this.ifShow('10025', '10032')) {
@@ -368,13 +369,24 @@ export default class extends Mixins(AppMixin) {
   }
 
   private ifShow(...codes) {
-    let res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
+    const res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
     return res.length > 0
   }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     if (this.$route.query.id) { // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        if (this.form.algorithm.name === '城市治理') {
+          this.form.algorithm.name = '工业缺陷检测'
+        }
+      }
       this.$set(this.form, 'algoName', this.form.algorithm.name)
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
@@ -520,7 +532,11 @@ export default class extends Mixins(AppMixin) {
    */
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
-    let algorithmMetadata = this.form.algorithmMetadata
+    const algorithmMetadata = this.form.algorithmMetadata
+    // 工业缺陷检测算法需求
+    if (this.isIndustrialDetection) {
+      algorithmMetadata.cityGovType = ['daoluposun']
+    }
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'

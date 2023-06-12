@@ -90,6 +90,7 @@ import AppMixin from '../mixin/app-mixin'
 import AppSubDetail from './component/AppSubDetail.vue'
 import AttachedDevice from './component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
+import { UserModule } from '@/store/modules/user'
 @Component({
   name: 'AppDetail',
   components: {
@@ -115,9 +116,19 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private tabNum: string | string[] = ''
   private deviceList: any = []
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     this.tabNum = this.$route.query.tabNum
     this.appInfo = await getAppInfo({ id: this.$route.query.appid })
+    if (this.isIndustrialDetection) {
+      // 工业缺陷检测算法需求
+      if (this.appInfo.algorithm.name === '城市治理') {
+        this.appInfo.algorithm.name = '工业缺陷检测'
+      }
+    }
     this.initDirs()
     const { groups } = await listGroup({
       pageNum: 0,

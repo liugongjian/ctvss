@@ -153,6 +153,7 @@ import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoCon
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@vss/device/api/device'
 import { checkPermission } from '@vss/base/utils/permission'
+import { UserModule } from '@/store/modules/user'
 @Component({
   name: 'IpcAiServiceConfig',
   components: {
@@ -242,6 +243,10 @@ export default class extends Vue {
     await this.getAppNums()
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+  
   private async getConfigList() {
     try {
       this.loading.table = true
@@ -249,6 +254,10 @@ export default class extends Vue {
       if (aiInfo && aiInfo.length) {
         const res = aiInfo
         res.forEach((item) => {
+          if (this.isIndustrialDetection && item.algorithmType === '城市治理') {
+            // 工业缺陷检测算法需求
+            item.algorithmType = '工业缺陷检测'
+          }
           if (item.billingMode === BillingModeEnum.Packages) {
             if (this.initPackageRemainObj[item.resourceId] === undefined) {
               this.initPackageRemainObj[item.resourceId] =
