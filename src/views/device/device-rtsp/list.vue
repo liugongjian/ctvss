@@ -22,7 +22,7 @@
     <div ref="filterWrap" class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button
-          v-if="!isVGroup && (isDir || isNVR) && checkPermission(['ivs:CreateDevice'], deviceActions)"
+          v-if="!isVGroup && (isDir) && checkPermission(['ivs:CreateDevice'], deviceActions)"
           key="dir-button"
           type="primary"
           @click="goToCreate"
