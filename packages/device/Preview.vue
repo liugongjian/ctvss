@@ -35,6 +35,7 @@
       </template>
       <template slot="leftBottom">
         <advanced-search
+          v-if="showAdvanceSearch"
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />

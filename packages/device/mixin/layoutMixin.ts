@@ -119,6 +119,10 @@ export default class LayoutMixin extends Vue {
     )
   }
 
+  private get showAdvanceSearch() {
+    return this.$route.query.rootKey === ''
+  }
+
   public async mounted() {
     if (UserModule.iamUserId) {
       const permissionRes = await previewAuthActions({

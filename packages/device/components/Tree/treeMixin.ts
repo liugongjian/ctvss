@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -39,8 +39,6 @@ export default class TreeMixin extends Vue {
 
   /* 树节点的唯一标识字段 */
   public nodeKey = 'id'
-  /* 根节点对应的key值（设有根目录时会用到） */
-  public rootKey = ''
   /* 根节点label值（设有根目录时会用到） */
   public rootLabel = '根目录'
   /* 根节点统计信息（设有根目录时会用到） */
@@ -59,6 +57,20 @@ export default class TreeMixin extends Vue {
   /* 树是否为加载中状态 */
   public loading = false
 
+  /* 根节点对应的key值（设有根目录、选择自定义目录树时会用到） */
+  public set rootKey(val) {
+    this.$router.push({
+      query: {
+        ...this.$route.query,
+        rootKey: val
+      }
+    })
+  }
+
+  public get rootKey() {
+    return this.$route.query.rootKey || ''
+  }
+
   /* 树初始化时默认选中节点对应的key值 */
   public get defaultKey() {
     return this.$route.query.dirId
@@ -70,6 +82,24 @@ export default class TreeMixin extends Vue {
 
   public get playingScreens() {
     return ScreenModule ? ScreenModule.playingScreens : []
+  }
+
+  public get treeSelectorOptions() {
+    return [
+      {
+        label: '根目录',
+        value: ''
+      },
+      {
+        label: '根目录2',
+        value: '2'
+      },
+    ]
+  }
+
+  @Watch('rootKey')
+  public rootKeyChange() {
+    this.initCommonTree()
   }
 
   public initCommonTree() {
@@ -87,7 +117,7 @@ export default class TreeMixin extends Vue {
       // this.loading = true
       try {
         const res = await getNodeInfo({
-          id: '',
+          id: this.rootKey,
           type: DirectoryTypeEnum.Dir,
           inProtocol: this.deviceInType
         })

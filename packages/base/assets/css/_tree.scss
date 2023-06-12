@@ -9,6 +9,16 @@
     font-size: $text-size-medium;
   }
 
+  &__selector {
+    width: 100%;
+    margin-bottom: $margin-small;
+
+    & > span {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
   &__root {
     display: flex;
     align-items: center;

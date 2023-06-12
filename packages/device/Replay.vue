@@ -31,6 +31,7 @@
       <template slot="leftBottom">
         <div class="bottom-tools">
           <advanced-search
+            v-if="showAdvanceSearch"
             :search-form="advancedSearchForm"
             @search="handleTools(toolsEnum.AdvanceSearch, $event)"
           />

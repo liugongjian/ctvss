@@ -14,6 +14,17 @@
     :expand-on-click-node="false"
     @handle-node="handleNode"
   >
+    <template slot="treeHeader">
+      <el-select v-model="rootKey" size="small" class="common-tree__selector" @rootKeyChange="rootKeyChange">
+        <el-option
+          v-for="item in treeSelectorOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+          :disabled="item.disabled"
+        />
+      </el-select>
+    </template>
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
