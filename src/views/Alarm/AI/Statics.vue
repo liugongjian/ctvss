@@ -25,7 +25,8 @@
                 v-for="item in algoTypes"
                 :key="item.value"
                 :label="item.label"
-                :value="item.value">
+                :value="item.value"
+              >
               </el-option>
             </el-select>
             <el-radio-group v-model="period" size="mini">
@@ -40,7 +41,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 
 
@@ -55,28 +56,35 @@ export default class extends Vue {
 
   private chartData: any
 
+  private chartDataOrigin: any
+
   private showButton = false
+
+  private chart
 
   private algoType = []
 
   private algoTypes = [{
-          value: '选项1',
-          label: '黄金糕'
+          value: '1',
+          label: '算法1'
         }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
+          value: '2',
+          label: '算法2'
         }]
 
   private period = '7'
+
+  @Watch('algoType')
+  private algoTypeChange(){
+    console.log('this.algoType:', this.algoType)
+    this.chartData = this.chartDataOrigin.filter(item => this.algoType.includes(item.algoCode))
+    this.initChart()
+    // this.chart.emit('legend:filter', {
+    //   data: { channel: 'algoName', values: this.algoType },
+    // })
+
+    // this.chart.emit('legend:reset', {})
+  }
 
   private ifShowButton(){
     const list: any = this.$refs.alarmList
@@ -88,70 +96,72 @@ export default class extends Vue {
 
   }
 
+
   private mounted(){
     this.getChartData()
     this.ifShowButton()
   }
 
   private async initChart(){
-   const chart = new Chart({
+   this.chart && this.chart.destroy()
+   this.chart = new Chart({
       container: 'stats_chart',
       autoFit: true,
       height: 500,
       width: 500
     })
 
-    chart.data(this.chartData)
-    chart.scale({
-      Date: {
-        tickCount: 10
+    this.chart.data(this.chartData)
+    this.chart.scale({
+      month: {
+        range: [0, 1],
       },
-      Close: {
+      temperature: {
         nice: true,
-      }
+      },
     })
-    chart.axis('Date', {
+
+    this.chart.tooltip({
+      showCrosshairs: true,
+      shared: true,
+    })
+
+    this.chart.axis('number', {
       label: {
-        formatter: text => {
-          const dataStrings = text.split('.')
-          return dataStrings[2] + '-' + dataStrings[1] + '-' + dataStrings[0]
-        }
-      }
+        formatter: (val) => {
+          return val
+        },
+      },
     })
 
-    chart.line().position('Date*Close')
-    // annotation
-    const { min, max } = this.findMaxMin(this.chartData)
-    chart.annotation().dataMarker({
-      top: true,
-      position: [max.Date, max.Close],
-      text: {
-        content: '全部峰值：' + max.Close,
-      },
-      line: {
-        length: 30,
-      }
-    })
-    chart.annotation().dataMarker({
-      top: true,
-      position: [min.Date, min.Close],
-      text: {
-        content: '全部谷值：' + min.Close,
-      },
-      line: {
-        length: 50,
-      }
-    })
-    chart.render()
+    this.chart
+      .line()
+      .position('day*number')
+      .color('algoName')
+      .shape('smooth')
 
+    this.chart
+      .point()
+      .position('day*number')
+      .color('algoName')
+      .shape('circle')
+
+
+    this.chart.interaction('legendFilter', true)
+    this.chart.render()
   }
 
   private getChartData(){
-    fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/nintendo.json').then(res => res.json()).then(data => {
-      this.chartData = data
-      console.log('data:', data)
-      this.initChart()
-    })
+    const data =  [
+                    { day: '2023-05-01', algoName: '算法1', algoCode: '1', number: 7 },
+                    { day: '2023-05-01', algoName: '算法2', algoCode: '2', number: 3.9 },
+                    { day: '2023-05-02', algoName: '算法1', algoCode: '1', number: 6.9 },
+                    { day: '2023-05-02', algoName: '算法2', algoCode: '2', number: 4.2 },
+                    { day: '2023-05-03', algoName: '算法1', algoCode: '1', number: 9.5 },
+                    { day: '2023-05-03', algoName: '算法2', algoCode: '2', number: 5.7 }
+                  ]
+    this.chartDataOrigin = this.chartData = data
+    this.initChart()
   }
 
   private handleScroll(step){

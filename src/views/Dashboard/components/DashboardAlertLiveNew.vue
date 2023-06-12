@@ -15,7 +15,7 @@
         </li>
       </ul>
       <audio ref="audio" :src="alertFile" preload="auto" />
-      <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+      <PicDialogue v-if="dialog" :alarms="list" :current-index="currentIndex" :visible.sync="dialog" />
     </div>
   </component>
 </template>
@@ -28,13 +28,15 @@ import DashboardContainer from './DashboardContainer.vue'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 import { fromUnixTime, format } from 'date-fns'
+import PicDialogue from '@/views/Alarm/AI/components/PicDialogue.vue'
 
 @Component({
   name: 'DashboardAlertLiveNew',
   components: {
     DashboardContainer,
     DashboardAlertLiveDetailDialog,
-    DashboardLightContainer
+    DashboardLightContainer,
+    PicDialogue
   }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -71,13 +73,9 @@ export default class extends Mixins(DashboardMixin) {
     try {
       this.loading = true
       const list = [{
-        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-161445-b929c62e-714a-433a-b5da-22c153b65850.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T062002Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=cc78cc45d5b319e5c4272f8c4c07cfc462bce76b48538e29a17edec28bddec7e'
       }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
-      }, {
-        algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd3', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
-      }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app3',  algoName: 'xxx', deviceName: 'd4', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230607%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230607T082442Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=095a0344e8d14c37d998b488e435a68546d90bb5d50154948c41d87961ae33cc'
+         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T072448Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=b5c024a9c11c2e09af7b69bbc4cd7be8fec9c24ec686e0ccd6e51c10e04fc7ce'
       }]
       this.list = list.map(item => ({ ...item, captureTime: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
 
@@ -98,15 +96,7 @@ export default class extends Mixins(DashboardMixin) {
 
   private openDialog(item: any) {
     this.dialog = true
-    this.currentItem = {
-      event: item.event,
-      streamName: item.streamName,
-      timestamp: item.timeStamp,
-      metaData: item.metaData,
-      url: item.url,
-      deviceName: item.deviceName,
-      appName: item.appName
-    }
+    this.currentIndex = this.list.findIndex(i => i.image === item.image)
   }
 
   private closeDialog() {
