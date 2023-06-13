@@ -56,7 +56,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/Dashboard/index.vue'
+          ),
         name: 'Dashboard',
         meta: {
           title: '概览',
@@ -67,7 +70,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'ai',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/AI/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/Dashboard/AI/index.vue'
+          ),
         name: 'DashboardAI',
         meta: {
           title: 'AI监控告警',
@@ -79,7 +85,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'visualization-dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/VisualizationDashboard.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/Dashboard/VisualizationDashboard.vue'
+          ),
         name: 'VisualizationDashboard',
         meta: {
           title: '可视化大屏',
@@ -107,7 +116,8 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'up-platform',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
         name: 'ViidUpPlatform',
         meta: {
           title: '向上级联',
@@ -118,7 +128,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
         name: 'ViidUpPlatformCreate',
         meta: {
           title: '新建平台',
@@ -129,7 +140,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'up-platform/update/:id?',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
         name: 'ViidUpPlatformUpdate',
         meta: {
           title: '编辑平台',
@@ -151,7 +163,10 @@ export const v2Router: RouteConfig[] = [
       // },
       {
         path: 'subscribe/create',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'
+          ),
         name: 'ViidSubscribeCreate',
         meta: {
           title: '添加订阅',
@@ -162,7 +177,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'subscribe/cancel',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'
+          ),
         name: 'ViidSubscribeCancel',
         meta: {
           title: '取消订阅',
@@ -188,7 +206,8 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
@@ -263,7 +282,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'gb28181',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/index.vue'
+          ),
         name: 'gb28181',
         meta: {
           name: 'certificate',
@@ -275,7 +297,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'gb28181/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'
+          ),
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
@@ -286,7 +311,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'gb28181/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb28181/Create.vue'
+          ),
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
@@ -297,7 +325,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'ga1400',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/index.vue'
+          ),
         name: 'ga1400',
         meta: {
           id: '20210424150201007004',
@@ -310,7 +341,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'ga1400/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'
+          ),
         name: 'ga1400-create',
         meta: {
           id: '20210424150201007005',
@@ -322,7 +356,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'ga1400/update/:id?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Ga1400/Create.vue'
+          ),
         name: 'ga1400-update',
         meta: {
           id: '20210424150201007006',
@@ -350,7 +387,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'record-video',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/RecordV2/Video.vue'
+          ),
         name: 'RecordVideo',
         meta: {
           title: '存储模板',
@@ -361,7 +401,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'record-viid',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/RecordV2/Viid.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/RecordV2/Viid.vue'
+          ),
         name: 'RecordViid',
         meta: {
           title: '视图存储模板',
@@ -373,7 +416,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'callback',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Callback/index.vue'
+          ),
         name: 'Callback',
         meta: {
           title: '回调模板',
@@ -384,7 +430,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'callback/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'
+          ),
         name: 'CallbackCreate',
         meta: {
           title: '新建回调模板',
@@ -395,7 +444,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'callback/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Callback/CreateOrUpdate.vue'
+          ),
         name: 'CallbackUpdate',
         meta: {
           title: '编辑回调模板',
@@ -406,7 +458,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'alert',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Alert/index.vue'
+          ),
         name: 'Alert',
         meta: {
           title: '告警模板',
@@ -417,7 +472,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'alert/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'
+          ),
         name: 'AlertCreate',
         meta: {
           title: '新建告警模板',
@@ -428,7 +486,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'alert/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Alert/CreateOrUpdate.vue'
+          ),
         name: 'AlertUpdate',
         meta: {
           title: '编辑告警模板',
@@ -439,7 +500,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'alert/details/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/Template/Alert/Details.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/Template/Alert/Details.vue'
+          ),
         name: 'AlertDetails',
         meta: {
           title: '模板详情',
@@ -465,7 +529,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'mask-recognation',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/MaskRecognation/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AI/MaskRecognation/index.vue'
+          ),
         name: 'AIMaskRecognation',
         meta: {
           title: '口罩识别',
@@ -478,7 +545,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'ai-app-list',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/index.vue'),
         name: 'AIAppList',
         meta: {
           title: 'AI应用',
@@ -492,7 +560,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
         name: 'AIAddApp',
         meta: {
           title: '添加应用',
@@ -505,7 +574,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'edit',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
         name: 'AIEditApp',
         meta: {
           title: '编辑应用',
@@ -518,7 +588,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'detail',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AppDetail.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AI/AppList/AppDetail.vue'
+          ),
         name: 'AIAppDetail',
         meta: {
           title: '应用详情',
@@ -531,7 +604,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Config/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AI/Config/index.vue'),
         name: 'AIConfig',
         meta: {
           title: '人脸库',
@@ -544,7 +618,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'facelib',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "AI" */ '@/views/AI/Face/index.vue'),
         name: 'facelib',
         meta: {
           title: '人脸库',
@@ -556,7 +631,8 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'facelib/detail',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
+        component: () =>
+          import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
         name: 'facelib-detail',
         meta: {
           title: '人脸库详情',
@@ -583,7 +659,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'dashboard',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/Dashboard.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/User/Dashboard.vue'
+          ),
         name: 'AccessManageDashboard',
         meta: {
           title: '概览',
@@ -595,7 +674,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'user',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/User/index.vue'
+          ),
         name: 'AccessManageUser',
         meta: {
           title: '用户',
@@ -607,7 +689,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'user/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/CreateUser.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/CreateUser.vue'
+          ),
         name: 'AccessManageUserCreate',
         meta: {
           title: '创建用户',
@@ -619,7 +704,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'user/detail',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/UserDetail.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/UserDetail.vue'
+          ),
         name: 'AccessManageUserDetail',
         meta: {
           title: '成员详情',
@@ -631,7 +719,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/index.vue'
+          ),
         name: 'AccessManagePolicy',
         meta: {
           title: '策略',
@@ -643,7 +734,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'
+          ),
         name: 'AccessManagePolicyCreate',
         meta: {
           title: '创建策略',
@@ -655,7 +749,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'
+          ),
         name: 'AccessManagePolicyEdit',
         meta: {
           title: '查看&编辑策略',
@@ -667,7 +764,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'role',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Role/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/Role/index.vue'
+          ),
         name: 'AccessManageRole',
         meta: {
           title: '角色',
@@ -679,7 +779,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'role/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Role/components/CreateRole.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/Role/components/CreateRole.vue'
+          ),
         name: 'AccessManageRoleCreate',
         meta: {
           title: '创建角色',
@@ -691,7 +794,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'secretManage',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManage/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManage/index.vue'
+          ),
         name: 'AccessManageSecretManage',
         meta: {
           title: 'API密钥',
@@ -703,7 +809,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'accessRestriction',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/AccessRestriction/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManage/AccessRestriction/index.vue'
+          ),
         name: 'AccessRestrictionManage',
         meta: {
           title: '访问限制',
@@ -730,7 +839,8 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'alarm',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
         name: 'Alarm',
         meta: {
           title: '设备告警',
@@ -742,7 +852,8 @@ export const v2Router: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
+            component: () =>
+              import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
             name: 'AlarmList',
             meta: {
               title: '设备告警',
@@ -757,7 +868,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'
+          ),
         name: 'statistic',
         meta: {
           title: '统计信息',
@@ -786,7 +900,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'history',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/History/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/Notification/History/index.vue'
+          ),
         name: 'NotificationHistory',
         meta: {
           title: '推送历史',
@@ -798,7 +915,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/Notification/Policy/index.vue'
+          ),
         name: 'NotificationPolicy',
         meta: {
           title: '推送策略',
@@ -810,7 +930,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'
+          ),
         name: 'NotificationPolicyCreate',
         meta: {
           title: '创建推送策略',
@@ -822,7 +945,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'
+          ),
         name: 'NotificationPolicyEdit',
         meta: {
           title: '编辑推送策略',
@@ -844,14 +970,15 @@ export const v2Router: RouteConfig[] = [
       icon: 'menu-car',
       perms: ['ivs:AdminCar'],
       tags: {
-        'isCarShow': ['true']
+        isCarShow: ['true']
       },
       version: 2
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "car" */ '@/views/Car/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "car" */ '@/views/Car/index.vue'),
         name: 'Car',
         meta: {
           id: '20210515200901013321',
@@ -878,7 +1005,8 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "billing" */ '@/views/Billing/index.vue'),
         name: 'Billing',
         redirect: 'resource',
         meta: {
@@ -892,7 +1020,10 @@ export const v2Router: RouteConfig[] = [
         children: [
           {
             path: 'ondemand',
-            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/OnDemand/index.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "billing" */ '@/views/Billing/OnDemand/index.vue'
+              ),
             name: 'OnDemand',
             meta: {
               title: '按需计费管理',
@@ -904,7 +1035,10 @@ export const v2Router: RouteConfig[] = [
           },
           {
             path: 'resource',
-            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'
+              ),
             name: 'BillingResource',
             meta: {
               title: '资源包管理',
@@ -916,7 +1050,10 @@ export const v2Router: RouteConfig[] = [
           },
           {
             path: 'resource/management',
-            component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'
+              ),
             name: 'BillingResourceManagement',
             meta: {
               title: '资源包管理',
@@ -944,7 +1081,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'
+          ),
         name: 'ExportDevices',
         meta: {
           title: '批量导出设备信息',
@@ -969,7 +1109,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/DosageStatistics/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "export-devices" */ '@/views/DosageStatistics/index.vue'
+          ),
         name: 'DosageStatistics',
         meta: {
           title: '用量统计',
@@ -996,7 +1139,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: 'operation-log',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'
+          ),
         name: 'operation-log',
         meta: {
           title: '操作日志',
@@ -1037,7 +1183,10 @@ export const v2Router: RouteConfig[] = [
       },
       {
         path: 'system-config',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'
+          ),
         name: 'SysConfig',
         meta: {
           title: '系统设置',
@@ -1062,7 +1211,10 @@ export const v2Router: RouteConfig[] = [
     children: [
       {
         path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'
+          ),
         meta: {
           title: '修改密码',
           icon: 'tree',
@@ -1073,7 +1225,8 @@ export const v2Router: RouteConfig[] = [
   },
   {
     path: '/player-debug',
-    component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
+    component: () =>
+      import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
     name: 'PlayerDebug',
     meta: {
       title: '播放器调试',
@@ -1085,7 +1238,10 @@ export const v2Router: RouteConfig[] = [
   },
   {
     path: '/replay-debug2',
-    component: () => import(/* webpackChunkName: "debug" */ '@vss/device/components/ReplayPlayer/Debug3.vue'),
+    component: () =>
+      import(
+        /* webpackChunkName: "debug" */ '@vss/device/components/ReplayPlayer/Debug3.vue'
+      ),
     name: 'ReplayDebug2',
     meta: {
       title: '录像调试',

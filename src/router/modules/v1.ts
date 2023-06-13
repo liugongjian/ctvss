@@ -266,6 +266,19 @@ export const v1Router: RouteConfig[] = [
       version: 1
     }
   },
+  // 播放器测试内部路由改为/inner/replay-debug2
+  {
+    path: '/inner/replay-debug2',
+    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
+    name: 'inner-replay-debug2',
+    meta: {
+      title: '录像调试',
+      icon: 'menu-replay',
+      hidden: true,
+      perms: ['*'],
+      version: 1
+    }
+  },
   {
     path: '/replay',
     component: Layout,
@@ -1237,7 +1250,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'),
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevicesV1/index.vue'),
         name: 'ExportDevices',
         meta: {
           title: '批量导出设备信息',

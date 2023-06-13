@@ -636,14 +636,22 @@ export default class extends Mixins(deviceMixin) {
    */
   private async initTable(isLoading = true) {
     this.loading.table = isLoading
+    const queryData = this.$route.query
     const params = {
+      // 设备列表过滤筛选字段
       [DeviceEnum.DeviceType]: this.filterForm[DeviceEnum.DeviceType],
       [DeviceEnum.DeviceStatus]: this.filterForm[DeviceEnum.VideoStatus],
       [DeviceEnum.StreamStatus]: this.filterForm[DeviceEnum.StreamStatus],
       [DeviceEnum.RecordStatus]: this.filterForm[DeviceEnum.RecordStatus],
       [DeviceEnum.ViidStatus]: this.filterForm[DeviceEnum.ViidStatus],
       [DeviceEnum.PageNum]: this.pager.pageNum,
-      [DeviceEnum.PageSize]: this.pager.pageSize
+      [DeviceEnum.PageSize]: this.pager.pageSize,
+      // 搜索树携带过滤字段
+      searchKey: queryData.searchKey || undefined,
+      deviceStatusKeys: queryData.deviceStatusKeys || undefined,
+      streamStatusKeys: queryData.streamStatusKeys || undefined,
+      deviceAddresses: queryData.deviceAddresses && (queryData.deviceAddresses as string).split(',')[0] ? queryData.deviceAddresses : undefined,
+      matchKeys: queryData.matchKeys || undefined
     }
     if ([DirectoryTypeEnum.Dir, DirectoryTypeEnum.Role].includes(this.currentDirType)) {
       params[DeviceEnum.DirId] = this.currentDirId

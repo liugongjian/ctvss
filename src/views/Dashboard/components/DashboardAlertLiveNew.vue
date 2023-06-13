@@ -12,7 +12,7 @@
       </li>
     </ul>
     <audio ref="audio" :src="alertFile" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @nav="nav" @on-close="closeDialog" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </component>
 </template>
 
@@ -27,7 +27,7 @@ import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 
 @Component({
-  name: 'DashboardAlertLive',
+  name: 'DashboardAlertLiveNew',
   components: {
     DashboardContainer,
     DashboardAlertLiveDetailDialog,
@@ -114,31 +114,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private closeDialog() {
     this.dialog = false
-  }
-
-  private nav(direction) {
-    let index = this.list.findIndex(item => {
-      return item.url === this.currentItem.url
-    })
-    if (index > -1) {
-      if (direction === 'next') {
-        index++
-        if (index > this.list.length - 1) {
-          this.$message.info('已是最后一条了')
-        } else {
-          this.openDialog(this.list[index])
-        }
-      } else {
-        index--
-        if (index < 0) {
-          this.$message.info('已是第一条了')
-        } else {
-          this.openDialog(this.list[index])
-        }
-      }
-    } else {
-      this.openDialog(this.list[0])
-    }
   }
 }
 </script>

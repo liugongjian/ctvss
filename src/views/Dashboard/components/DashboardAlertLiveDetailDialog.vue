@@ -31,6 +31,8 @@
             :has-playback="true"
           />
         </div> -->
+        <div class="alert-body__nav alert-body__prev" @click="nav('prev')"><svg-icon name="arrow-left" /></div>
+        <div class="alert-body__nav alert-body__next" @click="nav('next')"><svg-icon name="arrow-right" /></div>
         <div class="alert-body__image">
           <div class="alert-body__image__decorator--top" />
           <div class="alert-body__image__decorator--bottom" />
@@ -152,6 +154,10 @@ export default class extends Vue {
     this.$set(this.audit, 'locations', transformLocation(locations, img))
   }
 
+  private nav(direction) {
+    this.$emit('nav', direction)
+  }
+
   private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
@@ -251,6 +257,32 @@ export default class extends Vue {
     flex-wrap: wrap;
     max-height: 60vh;
     overflow: auto;
+    position: relative;
+
+    &__nav {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      position: absolute;
+      z-index: 10;
+      font-size: 1.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      top: 50%;
+      margin-top: -15px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: 200ms;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &__next {
+      right: 0;
+    }
 
     &__video {
       position: relative;

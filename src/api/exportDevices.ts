@@ -21,3 +21,15 @@ export const getDetailExport = (params: any, cancelToken?: any): Promise<any> =>
     params,
     cancelToken
   })
+
+/**
+ * 获取设备导出列表V2
+ */
+export const getDetailExportV2 = (params: any, cancelToken?: any): Promise<any> =>
+  request({
+    url: '/device/detail/export',
+    method: 'get',
+    params,
+    responseType: 'blob',
+    cancelToken
+  })
