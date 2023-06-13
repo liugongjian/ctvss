@@ -12,6 +12,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { dateFormat } from '@/utils/date'
 import { Chart } from '@antv/g2'
 
 @Component({
@@ -91,44 +92,89 @@ export default class extends Vue {
     })
   }
 
+  private formatTimeInData(data) {
+    const result = data.map((item) => ({
+      ...item,
+      time: dateFormat(item.time, 'yyyy-MM-dd')
+    }))
+    return result
+  }
+
   private formatterData() {
     const { chartKind } = this.lineData
     if (chartKind === 'device') {
       const { demandData, totalData, currentPeriod } = this.lineData
+      let data = []
 
       this.chartNoDemand = demandData.length === 0
+
+      if (currentPeriod !== 'today' && currentPeriod !== 'yesterday') {
+        if (this.chartNoDemand) {
+          data = [...this.formatTimeInData(totalData)]
+        } else {
+          data = [
+            ...this.formatTimeInData(totalData),
+            ...this.formatTimeInData(demandData)
+          ]
+        }
+      } else {
+        if (this.chartNoDemand) {
+          data = [...totalData]
+        } else {
+          data = [...demandData, ...totalData]
+        }
+      }
 
       if (this.chartNoDemand) {
         this.drawData = {
           total: this.kindToChartAxis[chartKind].total,
-          data: [...demandData, ...totalData],
+          data: data,
           currentPeriod
         }
       } else {
         this.drawData = {
           total: this.kindToChartAxis[chartKind].total,
           demand: this.kindToChartAxis[chartKind].demand,
-          data: [...demandData, ...totalData],
+          data: data,
           currentPeriod
         }
       }
     } else {
       const { selection, demandData, totalData, currentPeriod } = this.lineData
 
+      let data = []
+
       this.chartNoDemand = demandData.length === 0
+
+      if (chartKind !== 'service' && (currentPeriod !== 'today' && currentPeriod !== 'yesterday')) {
+        if (this.chartNoDemand) {
+          data = [...this.formatTimeInData(totalData)]
+        } else {
+          data = [
+            ...this.formatTimeInData(totalData),
+            ...this.formatTimeInData(demandData)
+          ]
+        }
+      } else {
+        if (this.chartNoDemand) {
+          data = [...totalData]
+        } else {
+          data = [...demandData, ...totalData]
+        }
+      }
       // this.chartNoDemand = true
 
       if (this.chartNoDemand) {
         this.drawData = {
           total: this.kindToChartAxis[chartKind][selection].total,
-          data: [...totalData],
+          data: data,
           currentPeriod
         }
       } else {
         this.drawData = {
           total: this.kindToChartAxis[chartKind][selection].total,
           demand: this.kindToChartAxis[chartKind][selection].demand,
-          data: [...demandData, ...totalData],
+          data: data,
           currentPeriod
         }
       }
@@ -142,7 +188,7 @@ export default class extends Vue {
     // 使chart图表重新渲染，changeData不更新legend
     this.currentChart && this.currentChart.destroy()
 
-    const padding  = comeFrom === 'bigData' ? [30, 10, 60, 40] : [30, 50, 50, 80]
+    const padding = comeFrom === 'bigData' ? [30, 10, 60, 40] : [30, 50, 80, 80]
 
     this.chart = new Chart({
       container: 'containerLine',
@@ -195,10 +241,11 @@ export default class extends Vue {
 
     const type = chartKind === 'device' ? { type: 'linear' } : {}
 
+    const times = this.drawData.data.map((item) => item.time)
+
     const getTickIntervaltime = () => {
       switch (currentPeriod) {
         case 'today':
-          const times = this.drawData.data.map((item) => item.time)
           const maxTime = Math.max(...times)
           if (new Date(maxTime).getHours() > 12) {
             return {
@@ -213,7 +260,10 @@ export default class extends Vue {
             tickInterval: 24
           }
         default:
-          return {}
+          return {
+            // tickCount: times.length,
+            tickInterval: 1
+          }
       }
     }
 
@@ -231,7 +281,7 @@ export default class extends Vue {
         type: 'timeCat',
         nice: true,
         mask,
-        ...tickIntervalTime,
+        ...tickIntervalTime
       },
       value: {
         range: [0, 0.95],
@@ -252,7 +302,7 @@ export default class extends Vue {
     this.chart.axis('time', {
       label: {
         autoRotate: true,
-        offset: 14,
+        offset: 5
       },
       grid: null
     })
@@ -361,7 +411,13 @@ export default class extends Vue {
       : [this.lineColor.demand, this.lineColor.total]
 
     // 绘制折线图
-    this.chart.line().position('time*value').color('type', colorList)
+
+    // this.chart.line()
+    this.chart
+      .line()
+      .position('time*value')
+      .color('type', colorList)
+      .shape('smooth')
 
     this.chart.render()
 
