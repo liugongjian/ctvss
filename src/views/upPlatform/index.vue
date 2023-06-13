@@ -876,6 +876,14 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.platform__header {
+  display: flex;
+
+  .platform__header--search {
+    flex-grow: 1;
+  }
+}
+
 .filter-container {
   &__search-group {
     margin-right: 10px;
