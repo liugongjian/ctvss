@@ -87,7 +87,7 @@
       @current-change="handleCurrentChange"
     />
     <CardList v-if="pageMode === 'card'" :alarms="alarmList" />
-    <PicDialogue v-if="dialogueVisibile" :alarms="alarmList" :current-index="currentIndex" :visible.sync="dialogueVisibile" />
+    <PicDialogue v-if="dialogueVisibile" :alarms="alarmList" :current-index.sync="currentIndex" :visible.sync="dialogueVisibile" />
   </div>
 </template>
 <script lang="ts">
@@ -138,6 +138,11 @@ export default class extends Vue {
   private confidence = 0
 
   private pageMode = 'list'
+
+  @Watch('currentIndex')
+  private indexChange(){
+    console.log('this.currentIndex-p:', this.currentIndex)
+  }
 
   @Watch('queryParam.periodType')
   private periodTypeUpdated(newVal) {
@@ -212,9 +217,9 @@ export default class extends Vue {
       // const res = await getAppScreenShot(query)
       // this.pager.totalNum = res.totalNum
       const list = [{
-        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-161445-b929c62e-714a-433a-b5da-22c153b65850.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T062002Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=cc78cc45d5b319e5c4272f8c4c07cfc462bce76b48538e29a17edec28bddec7e'
+        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230612%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230612T082907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=3310bd069e7c3947744b86ed85b06d809158f2c50101479189a20a746c3bb384'
       }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T072448Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=b5c024a9c11c2e09af7b69bbc4cd7be8fec9c24ec686e0ccd6e51c10e04fc7ce'
+         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162745-407cbe7c-f359-46a0-9d8c-52ff74d38040.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230612%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230612T082907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=74bed486a4ebd0bc2e730987e6f424288ea472877613afc20a725d8ffa5b0093'
       }]
       this.alarmList = list
     } catch (e) {
@@ -316,7 +321,6 @@ export default class extends Vue {
     const time = dd.setHours(0, 0, 0)
     return time
   }
-
 }
 </script>
 <style lang="scss" scoped>
