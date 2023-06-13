@@ -123,7 +123,7 @@ export default class TreeMixin extends Vue {
   /**
    * 获取自定义树列表
    */
-  public async getTreeList() {
+  public async getCustomTreeList() {
     try {
       this.loading = true
       const res = await getTreeList({})

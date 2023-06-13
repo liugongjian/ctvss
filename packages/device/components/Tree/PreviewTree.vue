@@ -68,7 +68,7 @@ import { checkPermission } from '@vss/base/utils/permission'
 })
 export default class extends Mixins(treeMixin) {
   public mounted() {
-    this.getTreeList()
+    this.getCustomTreeList()
   }
 
   public async onTreeLoadedHook(node, res) {
