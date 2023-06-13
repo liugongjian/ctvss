@@ -660,8 +660,8 @@ export default class extends Mixins(deviceMixin) {
     }
     let res
     try {
-      // 当前设备-IAM权限查询
-      if (UserModule.iamUserId) {
+      // 当前设备-IAM权限查询（仅用户控制台查询权限）
+      if (AppModule.system === SystemType.SYSTEM_USER &&  UserModule.iamUserId) {
         const type: any = this.currentDirType
         const path: any = this.$route.query.path
         const pathArr = path ? path.split(',') : []
@@ -675,8 +675,8 @@ export default class extends Mixins(deviceMixin) {
       }
 
       res = await this.getDevicesApi(params)
-      // 列表-IAM权限查询
-      if (UserModule.iamUserId && res.devices.length) {
+      // 列表-IAM权限查询（仅用户控制台查询权限）
+      if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId && res.devices.length) {
         const path: any = this.$route.query.path
         const pathArr = path ? path.split(',') : []
         const permissionRes = await previewAuthActions({
