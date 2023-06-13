@@ -121,7 +121,7 @@ export default class extends Vue {
   }
   private delFace(ids) {
     this.$alertDelete({
-      type: '提示',
+      type: '',
       msg: '确定要删除选定人脸库吗',
       method: deleteGroup,
       payload: {

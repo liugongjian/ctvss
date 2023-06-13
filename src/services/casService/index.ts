@@ -80,6 +80,8 @@ function filterRouter(routes) {
       temp.children = filterRouter(temp.children)
       if (temp.children && temp.children.length) {
         result.push(temp)
+      } else {
+        temp.meta.hidden !== true && result.push(temp)
       }
     } else {
       temp.meta.hidden !== true && result.push(temp)

@@ -1,5 +1,5 @@
 <template>
-  <div ref="statisticWrap" class="statistic" :class="[{'statistic__statistic': activeName === 'statistic'}]">
+  <div ref="statisticWrap" class="statistic" :class="[{ 'statistic__statistic': activeName === 'statistic' }]">
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本统计" name="statistic">
         <div class="statistic-box statistic-box__p15-no-t">
@@ -122,7 +122,7 @@
               label="所属目录"
               width="230"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <!-- <span>{{ row.dirName || '_' }}</span> -->
                 <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
                 <span v-else>
@@ -157,7 +157,7 @@
               label="设备状态"
               width="80"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
               </template>
             </el-table-column>
@@ -166,7 +166,7 @@
               label="流状态"
               width="80"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
               </template>
             </el-table-column>
@@ -175,7 +175,7 @@
               label="录制状态"
               width="80"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
               </template>
             </el-table-column>
@@ -184,7 +184,7 @@
               label="经度"
               width="140"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ Number(row.longitude).toFixed(4) }}</span>
               </template>
             </el-table-column>
@@ -193,7 +193,7 @@
               label="纬度"
               width="140"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ Number(row.latitude).toFixed(4) }}</span>
               </template>
             </el-table-column>
@@ -202,7 +202,7 @@
               label="创建时间"
               width="180"
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <span>{{ dateFormat(Number(row.createTime)) }}</span>
               </template>
             </el-table-column>
@@ -390,8 +390,8 @@ import { UserModule } from '@/store/modules/user'
   }
 })
 export default class extends Vue {
-  private activeName: string = 'statistic'
-  private activeTab: string = 'record'
+  private activeName = 'statistic'
+  private activeTab = 'record'
   private bytesToTB = Math.pow(1024, 4)
   private chart: any = {}
 
@@ -399,7 +399,7 @@ export default class extends Vue {
 
   private tableData: any = null
   private tableInfo: any = null
-  private tableLoading: boolean = false
+  private tableLoading = false
 
   private statisticsData: any = {}
   private recordData: any = {}
@@ -417,27 +417,27 @@ export default class extends Vue {
 
   private recordDays: ChartInfo = {}
 
-  private ifThresholdDialog: boolean = false
+  private ifThresholdDialog = false
 
   private thresholdInput: any = ''
 
-  private monthValue: string = ''
-  private daysOfMonth: number = 0
+  private monthValue = ''
+  private daysOfMonth = 0
   private calendarInfo: CalendarItem[] = []
-  private calendarLoading: boolean = true
+  private calendarLoading = true
   private recordDayInfo: any = {}
 
-  private ifDayDialog: boolean = false
+  private ifDayDialog = false
   private dayInfo: CalendarItem = {}
 
-  private dayMissDataLoading: boolean = false
+  private dayMissDataLoading = false
 
   private dayMissTableData: CalendarMissItem[] = []
   private dialogDayMissData: CalendarMissItem[] = []
 
-  private ifShowStatistic: boolean = false
+  private ifShowStatistic = false
 
-  private deviceId: string = ''
+  private deviceId = ''
 
   private filterForm: RecordMissQuery = {
     deviceId: '',

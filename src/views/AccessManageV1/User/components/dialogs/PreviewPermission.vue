@@ -26,7 +26,7 @@
         :props="treeProp"
       >
         <span
-          slot-scope="{node, data}"
+          slot-scope="{ node, data }"
           class="custom-tree-node"
           :class="`custom-tree-node__${data.type}`"
         >
@@ -107,6 +107,22 @@ export default class extends Vue {
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .filter((action: any) => {
+        let neededTagObject = {}
+        if (Array.isArray(action.tags)) {
+          action.tags.forEach(tag => {
+            neededTagObject[tag] = ['Y']
+          })
+        } else {
+          neededTagObject = action.tags || ({})
+        }
+
+        return Object.keys(neededTagObject).every(neededTag => {
+          const tagValue = tagObject[neededTag]
+          const neededValue = neededTagObject[neededTag]
+          return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+        })
+      })
     return res
   }
 
@@ -175,6 +191,7 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
+      this.loading.dir = true
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -214,10 +231,13 @@ export default class extends Vue {
       return result
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading.dir = false
     }
   }
 
   private mounted() {
+    // TODO
   }
 
   private closeDialog() {

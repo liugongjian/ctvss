@@ -1,6 +1,6 @@
 import { getAppList } from '@/api/ai-app'
 import { UserModule } from '@/store/modules/user'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
 export default class DashboardMixin extends Vue {

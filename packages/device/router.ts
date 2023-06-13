@@ -161,7 +161,7 @@ export const videoRouter: RouteConfig = {
     icon: 'menu-live',
     alwaysShow: true,
     breadcrumb: true,
-    perms: ['ivs:GetLiveStream', 'ivs:GetCloudRecord'],
+    perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
     version: 2
   },
   children: [
@@ -172,7 +172,7 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '实时预览',
         breadcrumb: false,
-        perms: ['ivs:GetLiveStream']
+        perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset']
       },
       children: [
         {
@@ -182,7 +182,7 @@ export const videoRouter: RouteConfig = {
           meta: {
             title: '实时预览',
             icon: 'dot',
-            perms: ['ivs:GetLiveStream'],
+            perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
             activeMenu: '/video/preview'
           }
         }
@@ -195,7 +195,7 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '录像回放',
         breadcrumb: false,
-        perms: ['ivs:GetCloudRecord']
+        perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord']
       },
       children: [
         {
@@ -205,7 +205,7 @@ export const videoRouter: RouteConfig = {
           meta: {
             title: '录像回放',
             icon: 'dot',
-            perms: ['ivs:GetCloudRecord'],
+            perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
             activeMenu: '/video/replay'
           }
         }
@@ -235,7 +235,7 @@ export const iboxRouter = {
         breadcrumb: false,
         alwaysShow: false,
         perms: ['ivs:GetDevice'],
-        groupSelector: true
+        groupSelector: false
       }
     },
     {
@@ -249,7 +249,7 @@ export const iboxRouter = {
         alwaysShow: false,
         hidden: true,
         perms: ['ivs:GetDevice'],
-        groupSelector: true
+        groupSelector: false
       },
       children: [
         {
@@ -263,7 +263,7 @@ export const iboxRouter = {
             title: '设备列表',
             perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           }
         },
         {
@@ -274,7 +274,7 @@ export const iboxRouter = {
             title: '设备详情',
             perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           },
           children: [
             {
@@ -290,7 +290,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -302,7 +302,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -318,7 +318,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -330,7 +330,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetLiveStream'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -342,7 +342,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetCloudRecord'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -354,7 +354,7 @@ export const iboxRouter = {
                 breadcrumb: false,
                 perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             }
           ]
@@ -371,7 +371,7 @@ export const iboxRouter = {
             title: '创建设备',
             perms: ['ivs:CreateDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           }
         }
       ]

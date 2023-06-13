@@ -61,7 +61,7 @@ import { GB28181 } from '@/type/Certificate'
 import ViewDetails from './components/ViewDetails.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList } from '@/api/viewLib'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'CertificateGb28181List',

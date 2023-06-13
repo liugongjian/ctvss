@@ -23,7 +23,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Device, DeviceBasic } from '@vss/device/type/Device'
 import { InVideoProtocolModelMapping } from '@vss/device/dicts/index'
 import { InVideoProtocolAllowParams } from '@vss/device/settings'
-import { DeviceEnum } from '@vss/device/enums'
+import { DeviceEnum, DeviceInTypeEnum } from '@vss/device/enums'
 import { DeviceForm, VideoDeviceForm } from '@vss/device/type/Device'
 import { createDevice } from '@vss/device/api/device'
 import { pick } from 'lodash'
@@ -43,7 +43,9 @@ export default class extends Vue {
 
   // 设备基本信息
   private get basicInfo(): DeviceBasic {
-    return this.device[DeviceEnum.Device]
+    const device = this.device[DeviceEnum.Device]
+    device.deviceInType.push(DeviceInTypeEnum.Video)
+    return device
   }
 
   /**
@@ -73,9 +75,9 @@ export default class extends Vue {
             DeviceEnum.DeviceSerialNumber,
             DeviceEnum.DeviceModel,
             DeviceEnum.Description,
-            DeviceEnum.DeviceVendor,
             DeviceEnum.DeviceChannelSize
           ]),
+          deviceVendor: videoForm.videoVendor,
         },
         [DeviceEnum.Resource]: videoForm.resource,
       }

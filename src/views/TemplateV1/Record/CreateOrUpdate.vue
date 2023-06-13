@@ -27,21 +27,21 @@
             <el-table-column type="selection" width="55" align="center" :selectable="defaultSelectable" />
             <el-table-column prop="formatType" label="文件类型" align="center" width="100" />
             <el-table-column label="录制周期时长" align="center" width="250">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-input v-model="row.interval" placeholder="5~120之间的整数" class="transcribe-cycle" size="mini" style="width: 90%;">
                   <template slot="append">分钟</template>
                 </el-input>
               </template>
             </el-table-column>
-            <el-table-column label="存储时长" align="center" width="300">
-              <template slot-scope="{row}">
+            <el-table-column v-if="isPrivateUser" label="存储时长" align="center" width="300">
+              <template slot-scope="{ row }">
                 <el-select v-model="row.storageTime" size="mini" style="width: 80%;">
                   <el-option v-for="item in storageTimeList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </template>
             </el-table-column>
             <el-table-column label="存储路径" align="center" min-width="400">
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <el-input v-model="row.path" :placeholder="placeHolder[userType]" size="mini" disabled />
               </template>
             </el-table-column>
@@ -142,6 +142,10 @@ export default class extends Vue {
 
   get userType() {
     return UserModule.type
+  }
+
+  get isPrivateUser() {
+    return !!UserModule.tags?.privateUser
   }
 
   private async mounted() {

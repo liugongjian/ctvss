@@ -24,7 +24,7 @@
           <el-button v-if="advancedFilterFlag" type="primary" @click="advancedFilterFlag = !advancedFilterFlag">收起</el-button>
           <el-button v-else type="primary" @click="advancedFilterFlag = !advancedFilterFlag">高级筛选</el-button>
         </div>
-        <el-form ref="form" :model="searchForm" label-width="120px" class="filter-container__advance-search" :class="{'filter-container__advance-search__expanded': advancedFilterFlag}">
+        <el-form ref="form" :model="searchForm" label-width="120px" class="filter-container__advance-search" :class="{ 'filter-container__advance-search__expanded': advancedFilterFlag }">
           <el-form-item label="策略名称" prop="policyName">
             <el-input v-model="searchForm.policyName" />
           </el-form-item>
@@ -86,7 +86,7 @@
           label="推送时间"
           min-width="240"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.createTime }}
           </template>
         </el-table-column>
@@ -102,13 +102,13 @@
           </template>
         </el-table-column>
         <el-table-column prop="source" label="消息类型" width="200">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ sourceMap[row.source] }}
           </template>
         </el-table-column>
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
         <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260" show-overflow-tooltip>
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.notifyUserDetails && (row.notifyChannel === '1' ? JSON.parse(row.notifyUserDetails).email : JSON.parse(row.notifyUserDetails).phone) }}
           </template>
         </el-table-column>
@@ -137,25 +137,29 @@ import { getGroupList } from '@/api/accessManage'
 })
 export default class extends Vue {
   private loading = false
-  private timeRangeType: string = '今天'
+  private timeRangeType = '今天'
   private timeRangeTypeList = ['今天', '近3天', '自定义时间']
   private timeRange = []
-  private advancedFilterFlag: boolean = false
+  private advancedFilterFlag = false
   private notifyChannelOptions = [
     { value: '', label: '所有方式' },
     { value: '1', label: '邮件推送' },
     { value: '2', label: '短信推送' }
   ]
+
   private sourceOptions = [
     { value: '', label: '所有类型' },
     { value: '1', label: '设备消息' },
     // { value: '2', label: '资源包消息' },
-    { value: '3', label: 'AI消息' }
+    { value: '3', label: 'AI消息' },
+    { value: '4', label: '平台事件消息' }
   ]
+
   private sourceMap = {
-    '1': '设备消息',
-    '2': '资源包消息',
-    '3': 'AI消息'
+    1: '设备消息',
+    2: '资源包消息',
+    3: 'AI消息',
+    4: '平台事件消息'
   }
   private userGroupOptions = []
   private searchForm = {
@@ -199,7 +203,7 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      let params: any = this.searchForm
+      const params: any = this.searchForm
       if (!this.advancedFilterFlag) {
         params.policyName = ''
         params.description = ''
@@ -260,7 +264,7 @@ export default class extends Vue {
    * @param type 范围类型
    */
   private timeRangeTypeChange(type: string) {
-    let today = new Date(new Date().toLocaleDateString()).getTime()
+    const today = new Date(new Date().toLocaleDateString()).getTime()
     switch (type) {
       case '今天':
         this.searchForm.startTime = today

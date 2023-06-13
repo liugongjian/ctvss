@@ -75,6 +75,7 @@ import {
   getStorageHistoryStatistics,
   getBandwidthHistoryStatistics
 } from '@/api/dosageStatistics'
+import { getIsOndemand } from '@/api/billing'
 
 import { format } from 'date-fns'
 
@@ -141,8 +142,8 @@ export default class extends Vue {
     return this.kindToText[this.chartKind]['name']
   }
 
-  mounted() {
-    this.initDraw()
+  async mounted() {
+    await this.initDraw()
     this.getData()
   }
 
@@ -150,15 +151,25 @@ export default class extends Vue {
     await this[this.kindToText[this.chartKind]['func']]()
   }
 
-  private initDraw() {
-    const { bandwidth, storage, service } = Options
-    const device = {
-      value: 'device',
-      label: '设备',
-      kind: 'device'
+  private async initDraw() {
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      const { bandwidth, storage, service } = Options
+      const device = {
+        value: 'device',
+        label: '设备',
+        kind: 'device'
+      }
+
+      this.periods =
+        isSubscribe === '1'
+          ? [device, ...bandwidth, ...storage]
+          : [device, ...bandwidth]
+
+      this.serviceOption = [...service]
+    } catch (error) {
+      this.$$message.error(error && error.message)
     }
-    this.periods = [device, ...bandwidth, ...storage]
-    this.serviceOption = [...service]
   }
 
   private periodChange(period: string, selection?: string) {

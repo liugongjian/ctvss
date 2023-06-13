@@ -118,7 +118,7 @@ export default class extends Vue {
   }
 
   /**
-   * 是否是车辆管理中的录像回放，是则隐去部分功能按钮
+   * 是否是车载监控管理中的录像回放，是则隐去部分功能按钮
    *  */
   private get isCarTask() {
     return this.screenManager.isCarTask

@@ -1,16 +1,21 @@
 <template>
   <div>
     <div class="detail__buttons">
-      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice]) && !(isChannel && isIbox)" type="text" @click="edit">编辑</el-button>
-      <el-button v-if="checkVisible(deviceEnum.Resources) && checkToolsVisible(toolsEnum.UpdateResource, [policyEnum.UpdateDevice])" type="text">配置资源包</el-button>
+      <el-button v-if="checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice], deviceActions) && !(isChannel && isIbox)" type="text" @click="edit">编辑</el-button>
+      <el-button v-if="checkVisible(deviceEnum.Resources) && checkToolsVisible(toolsEnum.UpdateResource, [policyEnum.UpdateDevice], deviceActions)" type="text">配置资源包</el-button>
       <el-dropdown
-        v-adaptive-hiding="adaptiveHideTag"
+        v-if="checkPermission([policyEnum.UpdateDevice], deviceActions)"
         @command="handleTools($event, handleData, inVideoProtocol)"
       >
         <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
         <el-dropdown-menu slot="dropdown" :class="{ adaptiveHideTag }">
           <div v-if="checkToolsVisible(toolsEnum.StopDevice)">
-            <el-dropdown-item v-if="streamStatus === statusEnum.On && checkToolsVisible(toolsEnum.StopDevice)" :command="toolsEnum.StopDevice">停用流</el-dropdown-item>
+            <el-dropdown-item
+              v-if="streamStatus === statusEnum.On"
+              :command="toolsEnum.StopDevice"
+            >
+              停用流
+            </el-dropdown-item>
             <el-dropdown-item v-else :command="toolsEnum.StartDevice">启用流</el-dropdown-item>
           </div>
           <div v-if="checkToolsVisible(toolsEnum.StartRecord) && !isIbox">
@@ -101,6 +106,7 @@ import { DeviceEnum, StatusEnum, ToolsEnum } from '@vss/device/enums'
 import { PolicyEnum } from '@vss/base/enums/iam'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
+import { checkPermission } from '@vss/base/utils/permission'
 import copy from 'copy-to-clipboard'
 
 @Component({
@@ -110,6 +116,11 @@ import copy from 'copy-to-clipboard'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => ({}) })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Inject('handleTools')
   private handleTools!: Function
   @Inject('checkToolsVisible')
@@ -117,6 +128,7 @@ export default class extends Vue {
   @Prop() private device: Device
   @Prop({ default: false }) private isIbox: boolean
   private dicts = dicts
+  private checkPermission = checkPermission
   private deviceEnum = DeviceEnum
   private statusEnum = StatusEnum
   private toolsEnum = ToolsEnum

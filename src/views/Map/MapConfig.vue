@@ -80,7 +80,7 @@
         </el-form-item>
         <el-form-item>
           <template slot="label">
-            是否启用业务组聚合:
+            是否启用目录聚合:
             <el-popover
               placement="top-start"
               width="400"
@@ -88,7 +88,7 @@
               :open-delay="300"
             >
               <div>
-                <p>当地图缩放比例小于15(1:200m)时，会根据设备所在的业务组进行聚合</p>
+                <p>当地图缩放比例小于15(1:200m)时，会根据设备所在的第一级目录进行聚合</p>
               </div>
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>

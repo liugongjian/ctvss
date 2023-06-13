@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -20,6 +20,10 @@ export default class TreeMixin extends Vue {
   /* 树初始化的所有节点信息（非lazy模式下） */
   @Prop({ default: () => [] })
   public data
+
+  /* 树初始化的设备统计信息（非lazy模式下） */
+  @Prop({ default: () => [0, 0] })
+  public rootSumsArray
 
   /* 树加载子节点信息方法（lazy模式下） */
   @Prop({ default: () => {} })
@@ -52,7 +56,7 @@ export default class TreeMixin extends Vue {
   public emptyText = '暂无目录或设备'
   /* 对应el-tree中props */
   public defaultProps = {
-    children: 'children',
+    children: 'dirs',
     label: 'name',
     isLeaf: 'isLeaf'
   }
@@ -74,6 +78,12 @@ export default class TreeMixin extends Vue {
 
   public initCommonTree() {
     this.commonTree.initTree()
+  }
+
+  @Watch('rootSumsArray', { deep: true })
+  public rootSumsArrayChange(array) {
+    this.rootSums.onlineSize = array[0]
+    this.rootSums.totalSize = array[1]
   }
 
   /**
@@ -111,9 +121,8 @@ export default class TreeMixin extends Vue {
       }
     }
 
-    // 子账号-获取权限数据
-    if (UserModule.iamUserId) {
-      // 构造全路径
+    if (nodeData.length) {
+      // 构造全路径（主账号也拼接全路径，避免path变更导致路由切换两次）
       nodeData.forEach((item: any) => {
         if (!item.path) {
           if (node.level === 0) {
@@ -129,11 +138,12 @@ export default class TreeMixin extends Vue {
           }
         }
       })
-      // 获取权限数据
+      // 子账号-获取权限数据
+      if (UserModule.iamUserId) {
       const permissionRes = await previewAuthActions({
         targetResources: nodeData.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platform') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platform') ? undefined : dir.path[dir.path.length - 1].id
+          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
+          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
         }))
       })
       nodeData = nodeData
@@ -141,6 +151,7 @@ export default class TreeMixin extends Vue {
           ...dir,
           ...permissionRes.result[index].iamUser.actions
         }))
+      }
     }
 
     return nodeData

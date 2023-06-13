@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
 
 @Component({

@@ -7,9 +7,9 @@
           <el-tab-pane label="基本信息" :name="deviceDetailTab.DeviceInfo" />
           <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceConfig)" label="配置信息" :name="deviceDetailTab.DeviceConfig" />
           <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceEvents)" label="设备事件" :name="deviceDetailTab.DeviceEvents" />
-          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DevicePreview)" label="实时预览" :name="deviceDetailTab.DevicePreview" />
-          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceReplay)" label="录像回放" :name="deviceDetailTab.DeviceReplay" />
-          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceAi)" label="AI分析" :name="deviceDetailTab.DeviceAi" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DevicePreview, [policyEnum.GetLiveStream], deviceActions)" label="实时预览" :name="deviceDetailTab.DevicePreview" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceReplay, [policyEnum.GetCloudRecord], deviceActions)" label="录像回放" :name="deviceDetailTab.DeviceReplay" />
+          <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceAi, [policyEnum.GetApp, policyEnum.AdminApp], deviceActions)" label="AI分析" :name="deviceDetailTab.DeviceAi" />
           <el-tab-pane v-if="checkTabsVisible(deviceDetailTab.DeviceViid)" label="视图数据" :name="deviceDetailTab.DeviceViid" />
         </el-tabs>
       </div>
@@ -27,13 +27,22 @@ import { Component, Mixins, Watch, Inject, Provide } from 'vue-property-decorato
 import { ToolsEnum, DeviceTypeEnum, DeviceDetailTab } from '@vss/device/enums/index'
 import { Device } from '@vss/device/type/Device'
 import { checkDeviceToolsVisible, checkDeviceTabsVisible } from '@vss/device/utils/param'
+import { getDirPath, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
+import { UserModule } from '@/store/modules/user'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { PolicyEnum } from '@vss/base/enums/iam'
 
 @Component({
   name: 'DeviceDetail'
 })
 export default class extends Mixins(detailMixin) {
+  @Provide('getActions')
+  public getActions() {
+    return this.deviceActions
+  }
+  public deviceActions = null
+  private policyEnum = PolicyEnum
   @Inject('handleTools')
   private handleTools!: Function
   private activeRouteName = DeviceDetailTab.DeviceInfo
@@ -49,7 +58,30 @@ export default class extends Mixins(detailMixin) {
   })
   public async deviceIdChange(deviceId) {
     this.device = {} as Device
-    this.getDevice(deviceId)
+    await this.getDevice(deviceId)
+    // 当前设备-IAM权限查询
+    try {
+      this.deviceLoading = true
+      if (UserModule.iamUserId) {
+        const type: any = this.$route.query.type
+        // 查询全路径
+        const res = await getDirPath({
+          id: deviceId,
+          type: type
+        })
+        const path = res.dirPathList.map(path => path.id).join(',')
+        const pathArr = path ? path.split(',') : []
+        const permissionRes = await previewAuthActions({
+          targetResources: [{
+            dirPath: ((type === 'dir' || type === 'platformDir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')) || '0',
+            deviceId: deviceId || undefined
+          }]
+        })
+        this.deviceActions = permissionRes.result[0].iamUser.actions
+      }
+    } finally {
+      this.deviceLoading = false
+    }
   }
 
   public destroyed() {
@@ -65,7 +97,7 @@ export default class extends Mixins(detailMixin) {
     }
     this.$router.push({
       name: tab.name,
-      query: { 
+      query: {
         ...this.$route.query,
         deviceId: this.deviceId
       }
@@ -86,11 +118,11 @@ export default class extends Mixins(detailMixin) {
   /**
    * 判断是否显示tools
    * @param prop 字段名
-   * @param permissions 策略名
-   * @param row 具体信息
+   * @param permissions 所需action
+   * @param actions 具体权限数据
    */
   @Provide('checkToolsVisible')
-  private checkToolsVisible(prop, permissions?) {
+  private checkToolsVisible(prop, permissions?, actions?) {
     const data = {
       deviceType: this.deviceType,
       inProtocol: this.inProtocol,
@@ -98,16 +130,16 @@ export default class extends Mixins(detailMixin) {
       isRoleShared: this.isRoleShared,
       deviceChannelNum: this.deviceChannelNum
     }
-    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions)
+    return checkDeviceToolsVisible(this.deviceType, prop, data) && checkPermission(permissions, actions)
   }
 
   /**
    * 判断是否显示tabs
    * @param prop 字段名
-   * @param permissions 策略名
-   * @param row 具体信息
+   * @param permissions 所需action
+   * @param actions 具体权限数据
    */
-  private checkTabsVisible(prop, permissions?) {
+  private checkTabsVisible(prop, permissions?, actions?) {
     const data = {
       deviceType: this.deviceType,
       hasVideo: this.hasVideo,
@@ -115,7 +147,7 @@ export default class extends Mixins(detailMixin) {
       deviceFrom: this.deviceFrom,
       isRoleShared: this.isRoleShared
     }
-    return checkDeviceTabsVisible(this.deviceType, prop, data) && checkPermission(permissions)
+    return checkDeviceTabsVisible(this.deviceType, prop, data) && checkPermission(permissions, actions)
   }
 }
 </script>

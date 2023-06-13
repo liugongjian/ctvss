@@ -441,8 +441,6 @@ export default class extends Vue {
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
-    // 重置vendor
-    this.videoForm.videoVendor = ''
     // 重置主子码流数量
     this.videoForm.deviceStreamSize = 1
     // 重置自动拉取码流
@@ -453,10 +451,10 @@ export default class extends Vue {
     // Temp Commit
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
       this.videoForm.inType = 'push'
-    }
-
-    if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
+    } else if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtsp) {
       this.videoForm.inType = 'pull'
+    } else {
+      this.videoForm.inType = ''
     }
 
     // 重置验证

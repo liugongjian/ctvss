@@ -63,6 +63,7 @@
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
             class="common-tree__item"
+            :title="getTitle(data)"
             :disabled="true"
             :class="{ 'current-node': node.key === currentNodeKey, 'node-disable': isNodeDisabled(node) }"
           >
@@ -131,6 +132,9 @@ export default class extends Vue {
 
   @Prop({ default: () => function(){ return false } })
   private isNodeDisabled: Function | boolean
+
+  @Prop({ default: () => function() { return '' } })
+  private getTitle: Function
 
   @Prop({ default: false })
   private hasCheckbox: boolean

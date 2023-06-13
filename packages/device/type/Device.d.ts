@@ -1,4 +1,4 @@
-import { DeviceEnum, StatusEnum, DeviceTypeEnum, Codec } from '../enums'
+import { DeviceEnum, StatusEnum, DeviceTypeEnum, Codec, DeviceInTypeEnum } from '../enums'
 import { Resource } from './Resource'
 
 /**
@@ -23,6 +23,7 @@ type DeviceBasic = {
   [DeviceEnum.DeviceName]?: string
   [DeviceEnum.DeviceLocalName]?: string // 设备侧名称
   [DeviceEnum.DeviceType]?: DeviceTypeEnum
+  [DeviceEnum.DeviceInType]?: DeviceInTypeEnum[]
   [DeviceEnum.DeviceFrom]?: string
   [DeviceEnum.IsRoleShared]?: string
   [DeviceEnum.DeviceLongitude]?: string
@@ -178,7 +179,7 @@ type DeviceBasicForm = DeviceBasic &
     [DeviceEnum.InNetworkType]?: string
     [DeviceEnum.OutNetworkType]?: string
     [DeviceEnum.Region]?: string
-    [DeviceEnum.DeviceInType]?: string[]
+    [DeviceEnum.DeviceInType]?: DeviceInTypeEnum[]
     [DeviceEnum.Longlat]?: string
   }
 
