@@ -1,4 +1,4 @@
-import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -8,6 +8,7 @@ import { checkPermission } from '@vss/base/utils/permission'
 import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
 import { AppModule, SystemType } from '@/store/modules/app'
+import { getTreeList, getCustomTreeNode } from '@/api/customTree'
 @Component({
   components: {
     StreamSelector
@@ -61,6 +62,13 @@ export default class TreeMixin extends Vue {
   }
   /* 树是否为加载中状态 */
   public loading = false
+  /* 自定义树列表 */
+  public treeSelectorOptions = [
+    {
+      label: '根目录',
+      value: ''
+    }
+  ]
 
   /* 根节点对应的key值（设有根目录、选择自定义目录树时会用到） */
   public set rootKey(val) {
@@ -76,6 +84,10 @@ export default class TreeMixin extends Vue {
     return this.$route.query.rootKey || ''
   }
 
+  public get isCustomTree(): boolean {
+    return !!this.rootKey
+  }
+
   /* 树初始化时默认选中节点对应的key值 */
   public get defaultKey() {
     return this.$route.query.dirId
@@ -87,19 +99,6 @@ export default class TreeMixin extends Vue {
 
   public get playingScreens() {
     return ScreenModule ? ScreenModule.playingScreens : []
-  }
-
-  public get treeSelectorOptions() {
-    return [
-      {
-        label: '根目录',
-        value: ''
-      },
-      {
-        label: '根目录2',
-        value: '2'
-      },
-    ]
   }
 
   private get isSystemUser() {
@@ -122,20 +121,52 @@ export default class TreeMixin extends Vue {
   }
 
   /**
+   * 获取自定义树列表
+   */
+  public async getTreeList() {
+    try {
+      this.loading = true
+      const res = await getTreeList({})
+      res.trees && (this.treeSelectorOptions = [
+        {
+          label: '根目录',
+          value: ''
+        },
+        ...res.trees.map(tree => {
+          return {
+            label: tree.treeName,
+            value: tree.treeId
+          }
+        })
+      ])
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
    * 懒加载时加载节点方法
    * @param node 节点信息
    */
   public async treeLoad(node) {
     let nodeData
-    // 增加 层级关系
+    const getTreeNode = this.isCustomTree ? getCustomTreeNode : getNodeInfo
     if (node.level === 0) {
       // this.loading = true
       try {
-        const res = await getNodeInfo({
-          id: this.rootKey,
-          type: DirectoryTypeEnum.Dir,
-          inProtocol: this.deviceInType
-        })
+        const res = await getTreeNode(
+          this.isCustomTree ? 
+            {
+              dirId: this.rootKey
+            } : 
+            {
+              id: this.rootKey,
+              type: DirectoryTypeEnum.Dir,
+              inProtocol: this.deviceInType
+            }
+        )
         this.rootSums.onlineSize = res.onlineSize
         this.rootSums.totalSize = res.totalSize
         nodeData = await this.onTreeLoadedHook(node, res)
@@ -145,11 +176,17 @@ export default class TreeMixin extends Vue {
       // this.loading = false
     } else {
       try {
-        const res = await getNodeInfo({
-          id: node.data.id,
-          type: node.data.type,
-          inProtocol: this.deviceInType
-        })
+        const res = await getTreeNode(
+          this.isCustomTree ? 
+            {
+              dirId: node.data.id
+            } :
+            {
+              id: node.data.id,
+              type: DirectoryTypeEnum.Dir,
+              inProtocol: this.deviceInType
+            }
+        )
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
         console.log(e)

@@ -178,7 +178,7 @@ export const videoRouter: RouteConfig = {
         {
           path: '',
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
-          name: 'DeviceList',
+          name: 'preview',
           meta: {
             title: '实时预览',
             icon: 'dot',
@@ -201,7 +201,7 @@ export const videoRouter: RouteConfig = {
         {
           path: '',
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
-          name: 'DeviceList',
+          name: 'replay',
           meta: {
             title: '录像回放',
             icon: 'dot',

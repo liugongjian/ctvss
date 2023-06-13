@@ -129,7 +129,11 @@ export default class LayoutMixin extends Vue {
   }
 
   private get showAdvanceSearch() {
-    return this.$route.query.rootKey === ''
+    return !this.$route.query.rootKey
+  }
+
+  private get isShowPolling() {
+    return !this.$route.query.rootKey && this.lazy
   }
 
   public async mounted() {

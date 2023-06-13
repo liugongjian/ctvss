@@ -2,12 +2,12 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <el-tooltip v-if="lazy" effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
+        <el-tooltip v-if="isShowPolling" effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
           <el-button type="text" @click="handleTools(toolsEnum.Polling, null, statusEnum.On)">
             <svg-icon name="polling-play" />
           </el-button>
         </el-tooltip>
-        <el-tooltip v-if="lazy" effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
+        <el-tooltip v-if="isShowPolling" effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
           <el-button type="text" @click="handleTools(toolsEnum.AutoPlay, null, statusEnum.On)">
             <svg-icon name="auto-play" />
           </el-button>
