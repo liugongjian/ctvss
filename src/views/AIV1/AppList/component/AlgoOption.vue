@@ -85,6 +85,7 @@ export default class extends Mixins(AppMixin) {
           if (algo.name === '城市治理') {
             return {
               ...algo,
+              newCode: '10037_industrial_detection',
               name: '工业缺陷检测',
               summary: '检测画面中是否存在裂缝、破损等，适用于工业场景对产品表面的缺陷检测。'
             }
