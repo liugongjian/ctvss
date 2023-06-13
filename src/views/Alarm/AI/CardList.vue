@@ -9,13 +9,15 @@
         @showDialogue="showDialogue"
       />
     </div>
-    <PicDialogue v-if="dialogueVisibile" :alarms="alarms" :current-index="currentIndex" :visible.sync="dialogueVisibile" />
+    <PicDialogue v-if="dialogueVisibile" :alarms="alarms" :current-index.sync="currentIndex" :visible.sync="dialogueVisibile" />
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import PicCardNew from '@vss/ai/component/PicCardNew.vue'
 import PicDialogue from './components/PicDialogue.vue'
+
+
 
 
 @Component({
@@ -33,8 +35,8 @@ export default class extends Vue {
 
   private currentIndex = 0
 
+
   private showDialogue(val) {
-    console.log(1111)
     this.currentIndex = this.alarms.findIndex(item => item.image === val.image)
     console.log(this.currentIndex)
     this.dialogueVisibile = true

@@ -5,12 +5,12 @@
     :custom-class="`light-ai-image-fullscreen`"
     @close="dialogueClose"
   >
-    <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
+    <div slot="title">{{ dialoguePic && dialoguePic.algoName }} | {{ dialoguePic && dialoguePic.captureTime && format(fromUnixTime(dialoguePic.captureTime / 1000), 'HH:mm:ss yyyy-MM-dd') }}</div>
     <div class="ai-recognation__images__item__arrow" @click="changePic(-1)"><i class="el-icon-arrow-left" /></div>
     <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img centered">
       <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
         <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" />
-        <!-- <Locations :type="dialoguePic.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" /> -->
+        <Locations :type="dialoguePic.algoCode" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
       </div>
 
       <!-- <Attributes
@@ -26,9 +26,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import Locations from '@vss/ai/component/Locations.vue'
 import Attributes from '@vss/ai/component/Attributes.vue'
+import { format, fromUnixTime } from 'date-fns'
 
 
 @Component({
@@ -47,6 +48,11 @@ export default class extends Vue {
   private picIndex = 0
 
   private currentLocationIndex = 0
+
+
+  private format = format
+
+  private fromUnixTime = fromUnixTime
 
   private get dialoguePic(){
     return this.alarms[this.currentIndex]
