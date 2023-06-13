@@ -71,10 +71,10 @@ export default class extends Vue {
   private loading = false
   private form: any = {
     country: 'CN',
-    stateOrProvince: '',
-    locality: '',
-    organization: '',
-    organizationalUnit: '',
+    stateOrProvince: 'shanghai',
+    locality: 'shanghai',
+    organization: 'ctyun',
+    organizationalUnit: 'ctyun',
     emailAddress: ''
   }
 
