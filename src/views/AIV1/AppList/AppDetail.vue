@@ -91,6 +91,8 @@ import AppSubDetail from './component/AppSubDetail.vue'
 import AttachedDevice from './component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import { UserModule } from '@/store/modules/user'
+import { CostumColors, HelmetClothType, CityGovType, TrashType, AnimalType } from '@/dics'
+
 @Component({
   name: 'AppDetail',
   components: {
@@ -120,6 +122,64 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
+  /**
+   * 生成检测项数据
+   */
+  public formatData(app) {
+    const algorithmMetadata = JSON.parse(app.algorithmMetadata)
+    switch (app.algorithmsId) {
+      // 工作服检测
+      case '35': case '10035':
+        if (algorithmMetadata.clothesDetectItems?.length) {
+          app.detectItemNames = algorithmMetadata.clothesDetectItems.map((item) => {
+            const itemArr = item.split('_')
+            const styleType = itemArr[0]
+            const styleName = itemArr[1]
+            return CostumColors[styleType][styleName]
+          }).join('；')
+        }
+        break
+      // 安全帽反光服
+      case '4': case '10007':
+        if (algorithmMetadata.helmetReflectiveType?.length) {
+          app.detectItemNames = algorithmMetadata.helmetReflectiveType.map((item) => {
+            const findItem = HelmetClothType.find((innerItem) => innerItem.label === item)
+            return findItem ? findItem.cname : ''
+          }).join('；')
+        }
+        break
+      // 城市治理
+      case '37': case '10037':
+        if (algorithmMetadata.cityGovType?.length) {
+          app.detectItemNames = algorithmMetadata.cityGovType.map((item) => {
+            const findItem = CityGovType.find((innerItem) => innerItem.label === item)
+            return findItem ? findItem.cname : ''
+          }).join('；')
+        }
+        break
+      // 垃圾站检测
+      case '26': case '10026':
+        if (algorithmMetadata.trashRecycleType?.length) {
+          app.detectItemNames = algorithmMetadata.trashRecycleType.map((item) => {
+            const findItem = TrashType.find((innerItem) => innerItem.label === item)
+            return findItem ? findItem.cname : ''
+          }).join('；')
+        }
+        break
+      // 动物检测
+      case '33': case '10033':
+        if (algorithmMetadata.animalDetectType?.length) {
+          app.detectItemNames = algorithmMetadata.animalDetectType.map((item) => {
+            const findItem = AnimalType.find((innerItem) => innerItem.label === item)
+            return findItem ? findItem.cname : ''
+          }).join('；')
+        }
+        break
+    }
+    
+    return app
+  }
+
   private async mounted() {
     this.tabNum = this.$route.query.tabNum
     this.appInfo = await getAppInfo({ id: this.$route.query.appid })
@@ -129,6 +189,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         this.appInfo.algorithm.name = '工业缺陷检测'
       }
     }
+    this.appInfo = this.formatData(this.appInfo)
     this.initDirs()
     const { groups } = await listGroup({
       pageNum: 0,

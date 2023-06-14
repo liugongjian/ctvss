@@ -199,7 +199,7 @@
       </el-form-item>
       <!---->
       <!-- 工作服检测 -->
-      <el-form-item v-if="ifShow('10035')" label="检测项" prop="algorithmMetadata.clothesDetectItems">
+      <el-form-item v-if="ifShow('10035')" label="检测项" class="clothes-detect-form-item" prop="algorithmMetadata.clothesDetectItems">
         <template slot="label">
           检测项
           <el-popover
@@ -469,6 +469,12 @@ export default class extends Mixins(AppMixin) {
       }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
+      // 工作服检测算法-新建的时候默认全部勾选
+      if (!this.isCustomClothModel) {
+        this.clothesDetectCurrentType = '2'
+      }
+      this.clothesDetectSelectedClothes = Object.getOwnPropertyNames(this.clothesDetectColors)
+      this.closeDetectClothChange(this.clothesDetectSelectedClothes)
       this.form = {
         algoName: this.prod.name,
         algorithmMetadata,
@@ -691,6 +697,7 @@ export default class extends Mixins(AppMixin) {
 
   private clothesDetectTypeChange() {
     this.clothesDetectSelectedClothes = []
+    this.$set(this.form.algorithmMetadata, 'clothesDetectItems', this.clothesDetectSelectedClothes )
   }
 
   /**
@@ -878,5 +885,21 @@ export default class extends Mixins(AppMixin) {
     border: 1px solid rgba(221, 221, 221, 100%);
     border-radius: 2px;
   }
+}
+
+.clothes-detect-form-item {
+  v::deep {
+    .el-form-item__error {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #f5212d;
+    }
+  }
+}
+
+v::deep .clothes-detect-form-item .el-form-item__error {
+  margin-top: 25px;
+  font-size: 12px;
+  color: #f5212d;
 }
 </style>

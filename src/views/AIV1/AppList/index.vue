@@ -108,9 +108,9 @@
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { getAppList, getAbilityList, startOrStopApps, deleteApps, getAiAlarm } from '@/api/ai-app'
-import { ResourceAiType } from '@/dics'
 import AppMixin from '../mixin/app-mixin'
 import { UserModule } from '@/store/modules/user'
+import { ResourceAiType } from '@/dics'
 
 @Component({
   name: 'AppList'
