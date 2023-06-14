@@ -75,9 +75,14 @@ export const AiMaskType: any = {
 }
 
 export const CostumColors: any = {
-  light: '浅色',
-  blue: '蓝色',
-  red: '红色',
-  dark: '深色',
-  orange: '橘/黄色'
+  '1': {
+    yangshi1: '样式1'
+  },
+  '2': {
+    light: '浅色',
+    blue: '蓝色',
+    red: '红色',
+    dark: '深色',
+    orange: '橘/黄色'
+  }
 }

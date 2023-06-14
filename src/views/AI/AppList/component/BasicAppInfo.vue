@@ -28,6 +28,9 @@
       <el-descriptions-item v-if="isFaceAlgoCode" label="人脸库">
         {{ faceLib.name || '' }}
       </el-descriptions-item>
+      <el-descriptions-item label="检测项">
+        {{ app.clothesDetectItemNames }}
+      </el-descriptions-item>
       <el-descriptions-item label="描述">
         {{ app.description || '-' }}
       </el-descriptions-item>
@@ -40,6 +43,7 @@ import AppMixin from '../../mixin/app-mixin'
 import { getAppInfo } from '@/api/ai-app'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { ResourceAiType } from '@/dics'
+import { CostumColors } from '@vss/ai/dics/contants'
 
 @Component({
   name: 'BasicAppInfo',
@@ -58,7 +62,20 @@ export default class extends Mixins(AppMixin) {
   }
 
   public created() {
-    this.app = this.appInfo
+    this.app = this.formatData(this.appInfo)
+  }
+
+  public formatData(app) {
+    const algorithmMetadata = JSON.parse(app.algorithmMetadata)
+    if (algorithmMetadata.clothesDetectItems?.length) {
+      app.clothesDetectItemNames = algorithmMetadata.clothesDetectItems.map((item) => {
+        const itemArr = item.split('_')
+        const styleType = itemArr[0]
+        const styleName = itemArr[1]
+        return CostumColors[styleType][styleName]
+      }).join('；')
+    }
+    return app
   }
 
   /**
@@ -66,7 +83,8 @@ export default class extends Mixins(AppMixin) {
    */
   public async refresh() {
     try {
-      this.app = await getAppInfo({ id: this.appInfo.id })
+      const res = await getAppInfo({ id: this.appInfo.id })
+      this.app = this.formatData(res)
     } catch (e) {
       this.$alertError(e && e.message)
     }
