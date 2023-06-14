@@ -26,7 +26,7 @@ export default class extends Vue {
   @Prop() private deviceId?: number
   @Prop() private inProtocol?: string
   @Prop() private deviceName?: string
-  @Prop() private streams?: Stream[]
+  @Prop() private streams?: any
   @Prop() private streamSize?: number
   @Prop({ default: 1 }) private streamNum?: number
 
