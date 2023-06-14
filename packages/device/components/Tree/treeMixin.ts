@@ -183,7 +183,7 @@ export default class TreeMixin extends Vue {
             } :
             {
               id: node.data.id,
-              type: DirectoryTypeEnum.Dir,
+              type: node.data.type,
               inProtocol: this.deviceInType
             }
         )
