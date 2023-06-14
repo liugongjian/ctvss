@@ -17,6 +17,10 @@
   >
     <template v-if="isSystemUser" slot="treeHeader">
       <el-select v-model="rootKey" size="small" class="common-tree__selector" @rootKeyChange="rootKeyChange">
+        <div slot="prefix" class="common-tree__selector--prefix">
+          <span class="common-tree__selector--prefix-label">{{ rootLabel }}</span>
+          <span>{{ `(${rootSums.onlineSize}/${rootSums.totalSize})` }}</span>
+        </div>
         <el-option
           v-for="item in treeSelectorOptions"
           :key="item.value"

@@ -13,6 +13,37 @@
     width: 100%;
     margin-bottom: $margin-small;
 
+    .el-input {
+      overflow: hidden;
+
+      .el-input__prefix {
+        cursor: pointer;
+        background: white;
+        height: 30px;
+        top: 1px;
+        left: 10px;
+        right: 0;
+        bottom: 0;
+        width: calc(100% - 40px);
+        line-height: 30px;
+
+        .common-tree__selector--prefix {
+          width: 100%;
+          overflow: hidden;
+          display: flex;
+
+          &-label {
+            color: #333;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-right: 5px;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+
     & > span {
       display: flex;
       justify-content: space-between;

@@ -63,12 +63,7 @@ export default class TreeMixin extends Vue {
   /* 树是否为加载中状态 */
   public loading = false
   /* 自定义树列表 */
-  public treeSelectorOptions = [
-    {
-      label: '根目录',
-      value: ''
-    }
-  ]
+  public treeSelectorOptions = []
 
   /* 根节点对应的key值（设有根目录、选择自定义目录树时会用到） */
   public set rootKey(val) {
@@ -81,6 +76,8 @@ export default class TreeMixin extends Vue {
   }
 
   public get rootKey() {
+    const currentTree = this.treeSelectorOptions.find(tree => tree.value === (this.$route.query.rootKey || ''))
+    currentTree && (this.rootLabel = currentTree.label)
     return this.$route.query.rootKey || ''
   }
 
@@ -127,18 +124,13 @@ export default class TreeMixin extends Vue {
     try {
       this.loading = true
       const res = await getTreeList({})
-      res.trees && (this.treeSelectorOptions = [
-        {
-          label: '根目录',
-          value: ''
-        },
-        ...res.trees.map(tree => {
+      res.trees && (this.treeSelectorOptions = res.trees.map(tree => {
           return {
             label: tree.treeName,
             value: tree.treeId
           }
         })
-      ])
+      )
     } catch (e) {
       console.log(e && e.message)
     } finally {
@@ -156,16 +148,12 @@ export default class TreeMixin extends Vue {
     if (node.level === 0) {
       // this.loading = true
       try {
-        const res = await getTreeNode(
-          this.isCustomTree ? 
-            {
-              dirId: this.rootKey
-            } : 
-            {
-              id: this.rootKey,
-              type: DirectoryTypeEnum.Dir,
-              inProtocol: this.deviceInType
-            }
+        const res = await getNodeInfo(
+          {
+            id: this.rootKey,
+            type: DirectoryTypeEnum.Dir,
+            inProtocol: this.deviceInType
+          }
         )
         this.rootSums.onlineSize = res.onlineSize
         this.rootSums.totalSize = res.totalSize
@@ -176,16 +164,12 @@ export default class TreeMixin extends Vue {
       // this.loading = false
     } else {
       try {
-        const res = await getTreeNode(
-          this.isCustomTree ? 
-            {
-              dirId: node.data.id
-            } :
-            {
-              id: node.data.id,
-              type: node.data.type,
-              inProtocol: this.deviceInType
-            }
+        const res = await getNodeInfo(
+          {
+            id: node.data.id,
+            type: node.data.type,
+            inProtocol: this.deviceInType
+          }
         )
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
