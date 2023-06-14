@@ -8,6 +8,9 @@
         <el-input v-model="platformKeyword" class="platform__header--search" placeholder="请输入关键词" clearable>
           <svg-icon slot="append" name="search" />
         </el-input>
+        <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+          <el-button class="platform__header--refresh" @click="getPlatformList"><svg-icon name="refresh" /></el-button>
+        </el-tooltip>
       </div>
       <div v-loading="loading.platform" class="platform__list">
         <ul>
@@ -56,12 +59,12 @@
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
-            <div class="platform-status-group">
+            <div v-if="currentPlatform.enabledGB35114" class="platform-status-group">
               <div class="platform-status">
                 创建证书请求: 
-                <el-button :disabled="currentPlatform.status === 'on'" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.status === 'on' ? '已创建' : '创建' }}</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.deviceCsr" type="text" @click="downLoadFile('deviceCsr')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
+                <el-button :disabled="currentPlatform.isGenerated" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.isGenerated ? '已创建' : '创建' }}</el-button>
+                <el-button v-if="currentPlatform.isGenerated" :loading="loading.downLoad.deviceCsr" type="text" @click="downLoadFile('deviceCsr')">下载</el-button>
+                <el-button v-if="currentPlatform.isGenerated" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
               </div>
               <div class="platform-status">
                 生成的证书: 
@@ -72,10 +75,10 @@
                   :show-file-list="false"
                   :http-request="uploadFile.bind(null, 'deviceCert')"
                 >
-                  <el-button :loading="loading.upload.deviceCert" :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                  <el-button :loading="loading.upload.deviceCert" :disabled="currentPlatform.deviceCertUploaded" type="text">{{ currentPlatform.deviceCertUploaded ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.deviceCert" type="text" @click="downLoadFile('deviceCert')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
+                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.downLoad.deviceCert" type="text" @click="downLoadFile('deviceCert')">下载</el-button>
+                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
               </div>
               <div class="platform-status">
                 上级服务证书: 
@@ -86,10 +89,10 @@
                   :show-file-list="false"
                   :http-request="uploadFile.bind(null, 'serverCert')"
                 >
-                  <el-button :loading="loading.upload.serverCert" :disabled="currentPlatform.status === 'on'" type="text">{{ currentPlatform.status === 'on' ? '已上传' : '上传证书' }}</el-button>
+                  <el-button :loading="loading.upload.serverCert" :disabled="currentPlatform.serverCertUploaded" type="text">{{ currentPlatform.serverCertUploaded ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.downLoad.serverCert" type="text" @click="downLoadFile('serverCert')">下载</el-button>
-                <el-button v-if="currentPlatform.status === 'on'" :loading="loading.delete.serverCert" type="text" @click="deleteFile('serverCert')">删除</el-button>
+                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.downLoad.serverCert" type="text" @click="downLoadFile('serverCert')">下载</el-button>
+                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.delete.serverCert" type="text" @click="deleteFile('serverCert')">删除</el-button>
               </div>
             </div>
             
@@ -512,7 +515,8 @@ export default class extends Vue {
    */
   private initPlatform() {
     if (this.platformList.length !== 0) {
-      this.selectPlatform(this.platformList[0])
+      const defaultPlatform = this.platformList.find((platform: any) => platform.platformId === this.$route.query.platformId)
+      this.selectPlatform(defaultPlatform || this.platformList[0])
     }
   }
 
@@ -553,6 +557,12 @@ export default class extends Vue {
    */
   private selectPlatform(platform: any) {
     this.currentPlatform = platform
+    this.$router.push({
+      query: {
+        ...this.$route.query,
+        platformId: platform.platformId
+      }
+    })
     this.initDirs()
   }
 
@@ -881,6 +891,12 @@ export default class extends Vue {
 
   .platform__header--search {
     flex-grow: 1;
+  }
+
+  .platform__header--refresh {
+    width: 35px;
+    margin-left: 10px;
+    padding: 0;
   }
 }
 

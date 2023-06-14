@@ -190,7 +190,7 @@
           </template>
           <el-switch v-model="form.enabledGB35114" :active-value="true" :inactive-value="false" @change="onEnabledGB35114Change" />
         </el-form-item>
-        <el-form-item v-if="form.gB35114Mode" label="强制双向认证">
+        <el-form-item v-if="form.gb35114Mode" label="强制双向认证">
           <template slot="label">
             强制双向认证:
             <el-popover
@@ -204,7 +204,7 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.gB35114Mode" :active-value="2" :inactive-value="1" />
+          <el-switch v-model="form.gb35114Mode" :active-value="2" :inactive-value="1" />
         </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -254,7 +254,7 @@ export default class extends Vue {
     description: '',
     enableLocalChannelName: 0, // 不使用 0， 使用 1
     enabledGB35114: false, // 开启 true, 关闭 false
-    gB35114Mode: 0, // 0:不启用, 1:启用单向模式，2:启用双向模式
+    gb35114Mode: 0, // 0:不启用, 1:启用单向模式，2:启用双向模式
     cascadeNetWork: 'public',
     gbRegion: '',
     gbRegionLevel: '',
@@ -371,7 +371,7 @@ export default class extends Vue {
    * 启用GB35114
    */
   private onEnabledGB35114Change(val: boolean) {
-    this.form.gB35114Mode = val ? 2 : 0
+    this.form.gb35114Mode = val ? 2 : 0
   }
 
   /**

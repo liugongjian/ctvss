@@ -1,6 +1,5 @@
 <template>
   <el-dialog
-    v-loading="loading"
     width="30%"
     title="创建证书请求"
     :visible="true"
@@ -29,8 +28,8 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submit">确 定</el-button>
-      <el-button @click="closeDialog">取 消</el-button>
+      <el-button :loading="loading" type="primary" @click="submit">确 定</el-button>
+      <el-button v-if="!loading" @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
 </template>
@@ -46,6 +45,8 @@ import AddressCascader from '@/views/components/AddressCascader.vue'
 export default class extends Vue {
   @Prop()
   private platformId!: any
+
+  private loading = false
 
   private rules = {
     country: [
@@ -68,7 +69,6 @@ export default class extends Vue {
     ]
   }
 
-  private loading = false
   private form: any = {
     country: 'CN',
     stateOrProvince: 'shanghai',
@@ -87,11 +87,18 @@ export default class extends Vue {
       const form: any = this.$refs.form
       form.validate(async(valid: boolean) => {
         if (valid) {
-          await generateCsr({
-            platformId: this.platformId,
-            ...form
-          })
-          this.closeDialog(true)
+          try {
+            this.loading = true
+            await generateCsr({
+              platformId: this.platformId,
+              ...this.form
+            })
+            this.closeDialog(true)
+          } catch (e) {
+            console.log(e && e.message)
+          } finally {
+            this.loading = false
+          }
         } else {
           return false
         }
@@ -119,5 +126,3 @@ export default class extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped>
-</style>
