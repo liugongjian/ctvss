@@ -198,6 +198,37 @@
         </el-checkbox-group>
       </el-form-item>
       <!---->
+      <!-- 工作服检测 -->
+      <el-form-item v-if="ifShow('10035')" label="检测项" prop="algorithmMetadata.clothesDetectItems">
+        <template slot="label">
+          检测项
+          <el-popover
+            placement="top-start"
+            width="300"
+            trigger="hover"
+            :open-delay="400"
+            content="已勾选的类别将视为正确穿戴，AI应用不会产生告警。"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-radio-group v-if="isCustomClothModel" v-model="clothesDetectCurrentType" @input="clothesDetectTypeChange">
+          <el-radio v-for="(value, key) in clothesDetectTypes" :key="key" :label="key">{{ value }}</el-radio>
+        </el-radio-group>
+        <div>
+          <el-checkbox-group ref="clothes" v-model="clothesDetectSelectedClothes" class="clothes-detect" @change="closeDetectClothChange">
+            <el-checkbox v-for="(value, key) in clothesDetectColors" :key="key" class="inside-pic" :label="key" border>
+              <div class="img">
+                <div class="sub-img">
+                  <el-image :src="require('@vss/ai/assets/costume/' + key + '.png')" />
+                </div>
+                <div class="label"> {{ value }}</div>
+              </div>
+            </el-checkbox>
+          </el-checkbox-group>
+        </div>
+      </el-form-item>
+      <!---->
       <el-form-item label="置信度" prop="confidence">
         <el-slider
           v-model="form.confidence"
@@ -308,7 +339,7 @@
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStep({ step: 0 })">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
@@ -319,9 +350,10 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType, HelmetClothType, AnimalType, CityGovType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType, AnimalType, CityGovType, CostumColors } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlgoDetail',
@@ -337,7 +369,8 @@ export default class extends Mixins(AppMixin) {
       trashRecycleType: [],
       cityGovType: [],
       helmetReflectiveType: [],
-      animalDetectType: ['Bear']
+      animalDetectType: ['Bear'],
+      clothesDetectItems: []
     },
     beeNumber: 1
   }
@@ -350,6 +383,22 @@ export default class extends Mixins(AppMixin) {
   private AnimalType = AnimalType
   private CityGovType = CityGovType
   private HelmetClothType: any = HelmetClothType
+
+  private clothesDetectTypes = {
+    1: '工作服模型1',
+    2: '工作服模型2'
+  }
+  private clothesDetectCurrentType = '1'
+  private clothesDetectManualTypeChange = false
+  private clothesDetectSelectedClothes = []
+  private get clothesDetectColors() {
+    return CostumColors[this.clothesDetectCurrentType]
+  }
+
+  private get isCustomClothModel() {
+    return UserModule.tags && UserModule.tags.customClothModel && UserModule.tags.customClothModel === 'Y'
+  }
+
   private alertDisabled = false
   private interval = {
     alertPeriod: 's',
@@ -357,7 +406,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   get analyseAiType() {
-    let res = Object.assign({}, ResourceAiType)
+    const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
       delete res['AI-100']
     } else if (this.ifShow('10025', '10032')) {
@@ -368,7 +417,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private ifShow(...codes) {
-    let res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
+    const res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
     return res.length > 0
   }
   private async mounted() {
@@ -385,6 +434,8 @@ export default class extends Mixins(AppMixin) {
       this.editTransformEffectiveTime()
       // 处理人脸库选项
       this.editTransformFaceData()
+      // 处理工作服检测选项
+      this.editTransformClothesDetect()
       // 处理老安全帽反光服meta
       this.editTransformHelmetReflectiveType()
       // 处理告警静默参数
@@ -475,6 +526,20 @@ export default class extends Mixins(AppMixin) {
       : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
   }
 
+  /**
+   * 处理工作服检测选项信息
+   */
+  private editTransformClothesDetect() {
+    if (this.form.algorithmMetadata) {
+      const algorithmMetadata = typeof this.form.algorithmMetadata === 'object' ? this.form.algorithmMetadata :  JSON.parse(this.form.algorithmMetadata)
+      if (algorithmMetadata.clothesDetectItems) {
+        const firstItem = algorithmMetadata.clothesDetectItems[0]
+        this.clothesDetectCurrentType = firstItem.split('_')[0]
+        this.clothesDetectSelectedClothes = algorithmMetadata.clothesDetectItems.map((item) => item.split('_')[1])
+      }
+    }
+  }
+
   private editTransformHelmetReflectiveType() {
     !this.form.algorithmMetadata.helmetReflectiveType && this.$set(this.form.algorithmMetadata, 'helmetReflectiveType', ['helmet', 'reflective'])
   }
@@ -520,7 +585,7 @@ export default class extends Mixins(AppMixin) {
    */
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
-    let algorithmMetadata = this.form.algorithmMetadata
+    const algorithmMetadata = this.form.algorithmMetadata
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'
@@ -602,6 +667,15 @@ export default class extends Mixins(AppMixin) {
       })
     }
     this.effectiveTime = JSON.stringify(this.effectiveTime)
+  }
+
+  private closeDetectClothChange(value) {
+    const clothTypeArr = value.map(item => this.clothesDetectCurrentType + '_' + item)
+    this.$set(this.form.algorithmMetadata, 'clothesDetectItems', clothTypeArr )
+  }
+
+  private clothesDetectTypeChange() {
+    this.clothesDetectSelectedClothes = []
   }
 
   /**
@@ -700,6 +774,94 @@ export default class extends Mixins(AppMixin) {
     ::v-deep .el-tag {
       margin-right: 8px;
     }
+  }
+}
+
+.inside-pic {
+  height: fit-content !important;
+  position: relative;
+  padding: 0 !important;
+  line-height: 0;
+  z-index: 2;
+
+  ::v-deep .el-checkbox__input {
+    position: absolute;
+    bottom: -23px;
+    left: 8px;
+  }
+
+  ::v-deep .el-checkbox__label {
+    padding: 0 18px;
+    font-size: 0;
+  }
+
+  .img {
+    position: relative;
+    display: flex;
+
+    .sub-img {
+      width: 44px;
+      height: 80px;
+
+      .el-image {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .label {
+      position: absolute;
+      left: 7px;
+      bottom: -22px;
+    }
+
+    .light {
+      background: grey;
+    }
+
+    .blue {
+      background: blue;
+    }
+
+    .red {
+      background: red;
+    }
+
+    .dark {
+      background: black;
+    }
+
+    .orange {
+      background: orange;
+    }
+
+    .bust {
+      background: rgb(60, 143, 13);
+    }
+
+    .others {
+      background: rgb(148, 113, 130);
+    }
+  }
+}
+
+.clothes-detect.el-checkbox-group {
+  position: relative;
+  margin-top: 10px;
+  min-width: 585px;
+  z-index: 2;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    display: block;
+    width: 585px;
+    height: 120px;
+    background: #f8f8f8;
+    border: 1px solid rgba(221, 221, 221, 100%);
+    border-radius: 2px;
   }
 }
 </style>
