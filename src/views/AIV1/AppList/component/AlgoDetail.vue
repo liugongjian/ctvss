@@ -186,7 +186,7 @@
         </el-checkbox-group>
       </el-form-item>
       <!-- 城市治理监测 -->
-      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
+      <el-form-item v-if="ifShow('10037') && !isIndustrialDetection" label="细分检测项" prop="algorithmMetadata.cityGovType">
         <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
           <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
         </el-select>
@@ -420,10 +420,21 @@ export default class extends Mixins(AppMixin) {
     const res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
     return res.length > 0
   }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     if (this.$route.query.id) { // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        if (this.form.algorithm.name === '城市治理') {
+          this.form.algorithm.name = '工业缺陷检测'
+        }
+      }
       this.$set(this.form, 'algoName', this.form.algorithm.name)
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
@@ -586,6 +597,10 @@ export default class extends Mixins(AppMixin) {
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
+    // 工业缺陷检测算法需求
+    if (this.isIndustrialDetection) {
+      algorithmMetadata.cityGovType = ['daoluposun']
+    }
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'

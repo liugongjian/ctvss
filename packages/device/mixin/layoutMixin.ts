@@ -9,6 +9,7 @@ import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 
 @Component({
   components: {
@@ -129,7 +130,8 @@ export default class LayoutMixin extends Vue {
   }
 
   public async mounted() {
-    if (UserModule.iamUserId) {
+    // 仅用户控制台查询权限
+    if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
       const permissionRes = await previewAuthActions({
         targetResources: [{
           dirPath: '0'
