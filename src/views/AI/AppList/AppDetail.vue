@@ -104,6 +104,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
             const styleName = itemArr[1]
             return CostumColors[styleType][styleName]
           }).join('；')
+        } else {
+          app.detectItemNames = Object.values(CostumColors['2']).join('；')
         }
         break
       // 安全帽反光服

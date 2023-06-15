@@ -547,7 +547,7 @@ export default class extends Mixins(AppMixin) {
         } else if (checkCloth) {
           this.errorMsg = ''
         } else {
-          this.errorMsg = '请选择工作服颜色'
+          this.errorMsg = '请勾选检测项'
         }
       }
     })

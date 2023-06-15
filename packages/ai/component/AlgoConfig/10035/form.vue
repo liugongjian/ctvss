@@ -48,7 +48,7 @@ export default class extends Vue {
   }
 
   private type = '1'
-  private manualChangeType = false
+  private manualChange = false
 
   private clothes = []
 
@@ -62,6 +62,9 @@ export default class extends Vue {
 
   @Watch('form.algorithmMetadata.clothesDetectItems', { immediate: true })
   private clothesDetectItems() {
+    if (this.manualChange) {
+      return
+    }
     if (!this.isCustomClothModel) {
       this.type = '2'
     }
@@ -70,7 +73,7 @@ export default class extends Vue {
         this.type = item[0]
         return item.split('_')[1]
       })
-    } else if (!this.manualChangeType) {
+    } else if (!this.manualChange) {
       // 非编辑状态，默认全选
       this.clothes = Object.getOwnPropertyNames(this.colors)
       this.clothChange(this.clothes)
@@ -89,12 +92,13 @@ export default class extends Vue {
   }
 
   private clothChange(value) {
+    this.manualChange = true
     const cloth_type = value.map(item => this.type + '_' + item)
     this.$set(this.form.algorithmMetadata, 'clothesDetectItems', cloth_type )
   }
 
   private typeChange() {
-    this.manualChangeType = true
+    this.manualChange = true
     this.clothes = []
     this.$set(this.form.algorithmMetadata, 'clothesDetectItems', [] )
   }

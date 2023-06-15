@@ -549,10 +549,15 @@ export default class extends Mixins(AppMixin) {
   private editTransformClothesDetect() {
     if (this.form.algorithmMetadata) {
       const algorithmMetadata = typeof this.form.algorithmMetadata === 'object' ? this.form.algorithmMetadata :  JSON.parse(this.form.algorithmMetadata)
-      if (algorithmMetadata.clothesDetectItems) {
+      if (algorithmMetadata.clothesDetectItems && algorithmMetadata.clothesDetectItems.length) {
         const firstItem = algorithmMetadata.clothesDetectItems[0]
         this.clothesDetectCurrentType = firstItem.split('_')[0]
         this.clothesDetectSelectedClothes = algorithmMetadata.clothesDetectItems.map((item) => item.split('_')[1])
+      } else {
+        // 编辑状态：现网工作服算法的用户默认全选 工作服模型2 下的所有类别
+        this.clothesDetectCurrentType = '2'
+        this.clothesDetectSelectedClothes = Object.getOwnPropertyNames(this.clothesDetectColors)
+        this.clothesDetectClothChange(this.clothesDetectSelectedClothes)
       }
     }
   }
