@@ -893,21 +893,8 @@ export default class extends Mixins(AppMixin) {
 }
 
 .clothes-detect-form-item {
-  v::deep {
-    .el-form-item__error {
-      margin-top: 25px;
-      font-size: 12px;
-      color: #f5212d;
-    }
-  }
-  ::v-deep .el-form-item__error{
+  ::v-deep .el-form-item__error {
     padding-top: 15px;
   }
-}
-
-v::deep .clothes-detect-form-item .el-form-item__error {
-  margin-top: 25px;
-  font-size: 12px;
-  color: #f5212d;
 }
 </style>
