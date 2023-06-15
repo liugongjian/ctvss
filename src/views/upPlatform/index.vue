@@ -63,7 +63,7 @@
               <div class="platform-status">
                 创建证书请求: 
                 <el-button :disabled="currentPlatform.isGenerated" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.isGenerated ? '已创建' : '创建' }}</el-button>
-                <el-button v-if="currentPlatform.isGenerated" :loading="loading.downLoad.deviceCsr" type="text" @click="downLoadFile('deviceCsr')">下载</el-button>
+                <el-button v-if="currentPlatform.isGenerated" :loading="loading.download.deviceCsr" type="text" @click="downloadFile('deviceCsr')">下载</el-button>
                 <el-button v-if="currentPlatform.isGenerated" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
               </div>
               <div class="platform-status">
@@ -77,7 +77,7 @@
                 >
                   <el-button :loading="loading.upload.deviceCert" :disabled="currentPlatform.deviceCertUploaded" type="text">{{ currentPlatform.deviceCertUploaded ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.downLoad.deviceCert" type="text" @click="downLoadFile('deviceCert')">下载</el-button>
+                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.download.deviceCert" type="text" @click="downloadFile('deviceCert')">下载</el-button>
                 <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
               </div>
               <div class="platform-status">
@@ -91,7 +91,7 @@
                 >
                   <el-button :loading="loading.upload.serverCert" :disabled="currentPlatform.serverCertUploaded" type="text">{{ currentPlatform.serverCertUploaded ? '已上传' : '上传证书' }}</el-button>
                 </el-upload>
-                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.downLoad.serverCert" type="text" @click="downLoadFile('serverCert')">下载</el-button>
+                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.download.serverCert" type="text" @click="downloadFile('serverCert')">下载</el-button>
                 <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.delete.serverCert" type="text" @click="deleteFile('serverCert')">删除</el-button>
               </div>
             </div>
@@ -419,7 +419,7 @@ export default class extends Vue {
   /**
    * 下载证书
    */
-  private async downLoadFile(type) {
+  private async downloadFile(type) {
     try {
       this.loading.download[type] = true
       const res = await certDownload({

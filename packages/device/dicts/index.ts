@@ -150,6 +150,14 @@ export const DeviceStreamPullIndex = {
 }
 
 /**
+ * 单双向认证
+ */
+export const Gb35114Mode = {
+  1: '单向认证',
+  2: '双向认证'
+}
+
+/**
  * 设备类型对应的视频接入协议
  */
 export const InVideoProtocolByDeviceType = {

@@ -7,6 +7,7 @@ import StreamSelector from '../StreamSelector.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
+import * as dicts from '@vss/device/dicts'
 @Component({
   components: {
     StreamSelector

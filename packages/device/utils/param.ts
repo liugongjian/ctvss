@@ -69,6 +69,8 @@ export function checkVideoVisible(
   // 是否为非子设备且启用GB35114
   if ((!this.parentDeviceId || this.parentDeviceId === '-1') && this.enabledGB35114 === true) {
     if ([DeviceEnum.InUserName as string].includes(prop)) return false
+  } else {
+    if ([DeviceEnum.Gb35114Mode as string].includes(prop)) return false
   }
 
   // 是否自动拉流

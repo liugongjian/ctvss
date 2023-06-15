@@ -36,7 +36,7 @@
                 </span>
                 {{ node.label }}
                 
-                <span class="security-icon">C</span>
+                <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
               </span>
             </span>
           </el-tree>
@@ -78,7 +78,7 @@
                   <span slot="reference">{{ node.label.substring(0,10)+'...' }}</span>
                 </el-popover>
                 <span v-else>{{ node.label }}</span>
-                <span class="security-icon">C</span>
+                <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
@@ -134,6 +134,7 @@ import InnerDialog from './InnerDialog.vue'
 import debounce from '@/utils/debounce'
 import * as _ from 'lodash'
 import Validate from '../../mixins/validate'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'ManageGroups',
@@ -145,6 +146,7 @@ import Validate from '../../mixins/validate'
 export default class extends Mixins(Validate) {
   @Prop()
   private platformId: any
+  private dicts = dicts
   private dialogVisible = true
   private submitting = false
   private dirList: any = []
