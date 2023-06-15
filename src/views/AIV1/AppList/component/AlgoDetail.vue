@@ -216,7 +216,7 @@
           <el-radio v-for="(value, key) in clothesDetectTypes" :key="key" :label="key">{{ value }}</el-radio>
         </el-radio-group>
         <div>
-          <el-checkbox-group ref="clothes" v-model="clothesDetectSelectedClothes" class="clothes-detect" @change="closeDetectClothChange">
+          <el-checkbox-group ref="clothes" v-model="clothesDetectSelectedClothes" class="clothes-detect" @change="clothesDetectClothChange">
             <el-checkbox v-for="(value, key) in clothesDetectColors" :key="key" class="inside-pic" :label="key" border>
               <div class="img">
                 <div class="sub-img">
@@ -474,7 +474,7 @@ export default class extends Mixins(AppMixin) {
         this.clothesDetectCurrentType = '2'
       }
       this.clothesDetectSelectedClothes = Object.getOwnPropertyNames(this.clothesDetectColors)
-      this.closeDetectClothChange(this.clothesDetectSelectedClothes)
+      this.clothesDetectClothChange(this.clothesDetectSelectedClothes)
       this.form = {
         algoName: this.prod.name,
         algorithmMetadata,
@@ -690,7 +690,7 @@ export default class extends Mixins(AppMixin) {
     this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
 
-  private closeDetectClothChange(value) {
+  private clothesDetectClothChange(value) {
     const clothTypeArr = value.map(item => this.clothesDetectCurrentType + '_' + item)
     this.$set(this.form.algorithmMetadata, 'clothesDetectItems', clothTypeArr )
   }
