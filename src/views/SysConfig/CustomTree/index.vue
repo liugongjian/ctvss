@@ -417,7 +417,7 @@ export default class extends Mixins(TreeMixin) {
   private async getTreeList() {
     try {
       this.treeLoading.platform = true
-      const res = await getTreeList({})
+      const res = await getTreeList({ treeType: 'customize' })
       console.log('res:', res)
       this.treeList = res.trees.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
