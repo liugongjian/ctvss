@@ -21,8 +21,8 @@
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
-    <template slot="itemLabelSuffix" slot-scope="{ node, data }">
-      <span class="security-icon">C</span>
+    <template slot="itemLabelSuffix" slot-scope="{ data }">
+      <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
     </template>
   </common-tree>
 </template>

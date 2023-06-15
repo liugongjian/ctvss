@@ -38,6 +38,7 @@ export default class TreeMixin extends Vue {
   public inVideoProtocolEnum = InVideoProtocolEnum
   public policyEnum = PolicyEnum
 
+  public dicts = dicts
   /* 树节点的唯一标识字段 */
   public nodeKey = 'id'
   /* 根节点对应的key值（设有根目录时会用到） */
