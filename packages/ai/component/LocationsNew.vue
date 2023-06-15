@@ -1,13 +1,13 @@
 <template>
   <div>
     <div
-      v-for="(location, locationIndex) in img && img.locations"
+      v-for="(location, locationIndex) in detectBoxes"
       :key="locationIndex"
     >
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{ 'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective }, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{ 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex }]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
@@ -46,12 +46,13 @@ export default class extends Vue {
   @Prop()
   private img!: any
   @Prop()
-  private type!: string
+  private ratio: any
   @Prop()
   private clickable?: boolean
   private aiMaskType = AiMaskType
   private animalType = AnimalType
   private currentIndex = -1
+   private detectBoxes = []
 
   @Watch('img', {
     immediate: true
@@ -68,6 +69,37 @@ export default class extends Vue {
     if (!this.clickable) return
     this.currentIndex = locationIndex
     this.$emit('click-location', locationIndex)
+  }
+
+    // 处理DetectBoxes数据
+  private getDetectBoxes(img){
+    if (img.detectBoxes && img.detectBoxes.length > 0){
+      const detectBoxes = []
+       for (let i = 0; i < img.detectBoxes.length; i += 4) {
+        detectBoxes.push({
+          top: img.detectBoxes[i + 1],
+          left: img.detectBoxes[i],
+          width: img.detectBoxes[i + 2],
+          height: img.detectBoxes[i + 3],
+          label: img.boxLabels[i / 4]
+        })
+       }
+       this.detectBoxes = detectBoxes.map(box => {
+          const location = {
+            clientTopPercent: box.top * this.ratio.ratioH / this.ratio.clientHeight * 100,
+            clientLeftPercent: box.left * this.ratio.ratioW / this.ratio.clientWidth * 100,
+            clientWidthPercent: box.width * this.ratio.ratioW / this.ratio.clientWidth * 100,
+            clientHeightPercent: box.height * this.ratio.ratioH / this.ratio.clientHeight * 100
+          }
+          if (location.clientTopPercent + location.clientHeightPercent >= 100) {
+            location.clientHeightPercent = 100 - location.clientTopPercent
+          }
+          if (location.clientWidthPercent + location.clientLeftPercent >= 100) {
+            location.clientWidthPercent = 100 - location.clientLeftPercent
+          }
+          return location
+       })
+    }
   }
 }
 </script>

@@ -216,6 +216,7 @@ export default class extends Vue {
       // this.pager.totalNum = res.totalNum
       const list = [{
         algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-163145-1d6ea4e8-019c-4f99-bf50-ffe3c26474bf.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230613%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230613T020922Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=bdbe5ada48f7038e6bcd527643fc60cd6932a9141b773b9c008b20397f1377e6'
+        , detectBoxes: [867, 346, 287, 403 ]
       }, {
          algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162645-b7c09835-91f0-4a63-86f7-9b1d8e6e68a0.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230613%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230613T020922Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=cd644221dc20ab1eb704b990bf857b931fdb97f24ef41c2d5f46b2ac99303ea6'
       }]

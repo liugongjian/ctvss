@@ -9,8 +9,8 @@
     <div class="ai-recognation__images__item__arrow" @click="changePic(-1)"><i class="el-icon-arrow-left" /></div>
     <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img centered">
       <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
-        <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" />
-        <Locations :type="dialoguePic.algoCode" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+        <img v-if="dialoguePic" ref="dialoguePic" :src="dialoguePic.image" />
+        <LocationsNew :img="dialoguePic" :ratio="picRatio" :clickable="true" @click-location="onLocationChanged" />
       </div>
 
       <!-- <Attributes
@@ -27,16 +27,16 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import Locations from '@vss/ai/component/Locations.vue'
-import Attributes from '@vss/ai/component/Attributes.vue'
+import LocationsNew from '@vss/ai/component/LocationsNew.vue'
+import AttributesNew from '@vss/ai/component/AttributesNew.vue'
 import { format, fromUnixTime } from 'date-fns'
 
 
 @Component({
   name: 'PicDialogue',
   components: {
-    Locations,
-    Attributes,
+    LocationsNew,
+    AttributesNew,
   }
 })
 export default class extends Vue {
@@ -56,6 +56,25 @@ export default class extends Vue {
 
   private get dialoguePic(){
     return this.alarms[this.currentIndex]
+  }
+
+  private get picRatio() {
+    const img: any = this.$refs.dialoguePic
+    return img ? {
+                  imgNaturalWidth: img.naturalWidth,
+                  imgNaturalHeight: img.imgNaturalHeight,
+                  clientHeight: img.clientHeight,
+                  clientWidth: img.clientWidth,
+                  ratioW: img.clientWidth / img.naturalWidth,
+                  ratioH: img.clientHeight / img.naturalHeight
+                 } : {
+                  imgNaturalWidth: 0,
+                  imgNaturalHeight: 0,
+                  clientHeight: 0,
+                  clientWidth: 0,
+                  ratioW: 0,
+                  ratioH: 0
+                 }
   }
 
   private onLocationChanged(index: number) {
