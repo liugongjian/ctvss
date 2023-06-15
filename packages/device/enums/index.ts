@@ -277,7 +277,9 @@ export enum ToolsEnum {
   PreviewVideo = 'previewVideo',
   ReplayVideo = 'replayVideo',
   PreviewViid = 'previewViid',
-  GoBack = 'goBack'
+  GoBack = 'goBack',
+  // screenBoard相关
+  ClearAllScreen = 'clearAllScreen'
 }
 
 /**

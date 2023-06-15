@@ -1,4 +1,4 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import { checkTreeToolsVisible } from '../../utils/param'
 import { DeviceTypeEnum, ToolsEnum, DeviceEnum, StatusEnum, DirectoryTypeEnum, DeviceInTypeEnum, InVideoProtocolEnum } from '../../enums/index'
 import { PolicyEnum } from '@vss/base/enums/iam'
@@ -105,6 +105,7 @@ export default class TreeMixin extends Vue {
   @Watch('rootKey')
   public rootKeyChange() {
     this.initCommonTree()
+    this.handleTools(ToolsEnum.ClearAllScreen)
   }
 
   public initCommonTree() {
