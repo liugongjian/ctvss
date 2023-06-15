@@ -900,6 +900,9 @@ export default class extends Mixins(AppMixin) {
       color: #f5212d;
     }
   }
+  ::v-deep .el-form-item__error{
+    padding-top: 15px;
+  }
 }
 
 v::deep .clothes-detect-form-item .el-form-item__error {
