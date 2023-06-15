@@ -248,7 +248,6 @@ import {
   cancleShareDevice,
   deleteCascadeDir,
   getPlatforms,
-  cancleShareDir,
   startShareDevice,
   stopShareDevice,
   uploadCert,
@@ -389,6 +388,7 @@ export default class extends Vue {
           certContents: fileString
         })
         this.getPlatformList()
+        this.$message.success('上传成功')
       } catch (e) {
         this.$message.error(e && e.message)
       }
@@ -463,6 +463,7 @@ export default class extends Vue {
         certType: type
       })
       this.getPlatformList()
+      this.$message.success('删除成功')
     } catch (e) {
       console.log(e && e.message)
     } finally {

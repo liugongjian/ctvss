@@ -94,6 +94,7 @@ export default class extends Vue {
               ...this.form
             })
             this.closeDialog(true)
+            this.$message.success('创建成功')
           } catch (e) {
             console.log(e && e.message)
           } finally {
