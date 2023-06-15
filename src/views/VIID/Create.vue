@@ -47,8 +47,25 @@
             v-model="form.regionCode"
             placeholder="请选择"
             :options="regionList"
+            @change="onRegionCodeChange"
           />
           <el-button v-if="form.regionCode" class="append-button" type="text" @click="openList">查看级联设备列表</el-button>
+        </el-form-item>
+        <el-form-item prop="localApsId" class="form-with-tip">
+          <template slot="label">
+            本级视图编码
+            <el-popover
+              placement="top-start"
+              title="本级视图编码"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="如果您需要自定义本级视图编码，可手动填写该字段；不填写为空时，平台将自动生成该编码。"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-input v-model="form.localApsId" />
         </el-form-item>
         <el-form-item label="网络类型:" prop="network">
           <el-radio-group v-model="form.network">
@@ -76,10 +93,12 @@
               :key="index"
               class="device-list__wrap__item"
             >
-              <status-badge
-                :status="parseInt(item.status) ? 'on' : 'off'"
-              />
-              {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}
+              <span class="device-list__wrap__item-status">
+                <status-badge :status="parseInt(item.status) ? 'on' : 'off'" />
+              </span>
+              <el-tooltip :content="item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111`" placement="top" :open-delay="500">
+                <span class="device-list__wrap__item-label"> {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span>
+              </el-tooltip>
             </div>
           </div>
         </div>
@@ -106,6 +125,7 @@ export default class extends Vue {
     name: '',
     apsId: '',
     regionCode: '',
+    localApsId: '',
     network: 'internal',
     username: '',
     password: '',
@@ -193,14 +213,24 @@ export default class extends Vue {
 
   private openList() {
     this.showDeviceList = true
-    for (let i = 0; i < 1000; i++) 
-    {
-      this.deviceList.push({})
-    }
   }
 
   private closeList() {
     this.showDeviceList = false
+  }
+
+  private async onRegionCodeChange() {
+    try {
+      this.showDeviceListLoading = true
+      console.log('get deviceList')
+      for (let i = 0; i < 1000; i++) {
+        this.deviceList.push({})
+      }
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.showDeviceListLoading = false
+    }
   }
 
   private submit() {
@@ -348,7 +378,15 @@ export default class extends Vue {
 
         &__item {
           line-height: 25px;
-          white-space: nowrap;
+          width: 100%;
+          display: flex;
+
+          &-label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
         }
       }
 

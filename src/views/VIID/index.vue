@@ -9,7 +9,7 @@
           </el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit :height="10" @row-click="viewDetails">
+      <el-table v-loading="loading" :data="dataList" fit :height="10" @row-click="viewViidDetails">
         <el-table-column label="平台ID/名称" min-width="200">
           <template slot-scope="{ row }">
             <div class="device-list__device-name">
@@ -33,8 +33,8 @@
             <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
             <el-button type="text" @click.stop="viewViidDetails(row)">查看</el-button>
             <el-button type="text" @click.stop="edit(row)">编辑</el-button>
+            <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
             <el-button type="text" @click.stop="viewDeviceList(row)">级联设备</el-button>
-            <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -145,7 +145,7 @@ export default class extends Vue {
    */
   private async viewDeviceList(row) {
     this.currentCascadeViidId = row.cascadeViidId
-    this.dialog.viidDetails = true
+    this.dialog.deviceList = true
   }
 
   private async handleSizeChange(val: number) {

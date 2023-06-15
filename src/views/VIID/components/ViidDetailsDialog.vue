@@ -35,7 +35,7 @@
           {{ platformDetails.ipAddr || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="上级服务器端口">
-          {{ platformDetails.port.toString() || '-' }}
+          {{ platformDetails.port && platformDetails.port.toString() || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="用户名">
           {{ platformDetails.username || '-' }}
@@ -52,7 +52,7 @@
           {{ platformDetails.cascadeIp || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="本级服务器端口">
-          {{ platformDetails.cascadePort.toString() || '-' }}
+          {{ platformDetails.cascadePort && platformDetails.cascadePort.toString() || '-' }}
         </el-descriptions-item>
       </el-descriptions>
     </div>

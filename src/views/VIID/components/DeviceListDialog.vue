@@ -1,28 +1,26 @@
 <template>
   <el-dialog
-    title="通知统计"
+    title="级联设备列表"
     :visible="dialogVisible"
     :close-on-click-modal="false"
-    width="700px"
+    width="400px"
     center
     class="dialog"
     @close="closeDialog"
   >
-    <div v-loading="loading" class="device-list">
-      <div class="device-list__wrap">
-        <div class="device-list__wrap__title">级联设备列表</div>
-        <div class="device-list__wrap__list">
-          <div
-            v-for="(item, index) in deviceList"
-            :key="index"
-            class="device-list__wrap__item"
-          >
-            <status-badge
-              :status="parseInt(item.status) ? 'on' : 'off'"
-            />
-            {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}
-          </div>
-        </div>
+    <div class="device-list">
+      <div
+        v-for="(item, index) in deviceList"
+        :key="index"
+        class="device-list__item"
+      >
+        <span class="device-list__item-status">
+          <status-badge :status="parseInt(item.status) ? 'on' : 'off'" />
+        </span>
+        <el-tooltip :content="item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111`" placement="top" :open-delay="500">
+          <span class="device-list__item-label"> {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span>
+        </el-tooltip>
+        <!-- <span class="device-list__item-label">{{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span> -->
       </div>
     </div>
   </el-dialog>
@@ -67,35 +65,22 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .device-list {
-  position: absolute;
-  height: 90%;
-  width: 250px;
-  top: 40px;
-  bottom: 40px;
-  left: 680px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 2px;
+  display: flex;
+  height: 60vh;
+  overflow: auto;
+  flex-direction: column;
 
-  &__wrap {
+  &__item {
     width: 100%;
-    position: relative;
+    line-height: 35px;
+    height: 35px;
+    display: flex;
 
-    &__title {
+    &-label {
       font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    &__list {
-      width: 100%;
-      height: calc(100% - 30px);
-      overflow: auto;
-    }
-
-    &__item {
-      line-height: 25px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
