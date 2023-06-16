@@ -560,7 +560,7 @@ export default class extends Mixins(AppMixin) {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
     // 工业缺陷检测算法需求
-    if (this.isIndustrialDetection) {
+    if (this.isIndustrialDetection && (this.prod?.code === '37' || this.prod?.code === '10037')) {
       algorithmMetadata.cityGovType = ['daoluposun']
     }
     Object.keys(algorithmMetadata).forEach(

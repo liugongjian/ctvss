@@ -142,7 +142,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
         break
       // 安全帽反光服
-      case '4': case '10007':
+      case '7': case '10004':
         if (algorithmMetadata.helmetReflectiveType?.length) {
           app.detectItemNames = algorithmMetadata.helmetReflectiveType.map((item) => {
             const findItem = HelmetClothType.find((innerItem) => innerItem.label === item)
@@ -160,7 +160,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
         break
       // 垃圾站检测
-      case '26': case '10026':
+      case '29': case '10026':
         if (algorithmMetadata.trashRecycleType?.length) {
           app.detectItemNames = algorithmMetadata.trashRecycleType.map((item) => {
             const findItem = TrashType.find((innerItem) => innerItem.label === item)
