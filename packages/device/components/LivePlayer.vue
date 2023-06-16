@@ -13,6 +13,7 @@
     :is-ws="true"
     :is-loading="screen.isLoading"
     :volume="screen.volume"
+    :permission="screen.permission"
     :is-muted="screen.isMuted"
     :has-close="hasClose"
     :has-live-replay-selector="hasLiveReplaySelector"

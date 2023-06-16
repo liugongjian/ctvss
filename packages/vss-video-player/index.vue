@@ -218,6 +218,10 @@ export default class extends Vue {
   @Prop()
   private poster: string
 
+  /* 视频权限 */
+  @Prop()
+  private permission: any
+
   private checkPermission = checkPermission
   /* 播放器实例 */
   private player: PlayerModel = null
@@ -247,7 +251,7 @@ export default class extends Vue {
             // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             // @ts-ignore
-            checkPermission(['ivs:LockDevicePTZ'], this.actions || this.screen.permission)
+            checkPermission(['ivs:LockDevicePTZ'], this.actions || this.permission)
   }
 
   private get showPTZZoom() {
@@ -257,7 +261,7 @@ export default class extends Vue {
             // @ts-ignore
             this.$store.state.user.tags.disablePTZ !== 'Y' &&
             // @ts-ignore
-            checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
+            checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.permission)
   }
 
   private get actions() {
