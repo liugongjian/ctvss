@@ -51,7 +51,7 @@
     </template>
     <template slot="controlRight">
       <!-- <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" /> -->
-      <Lock v-if="canLock && !isCarTask" :screen="screen" />
+      <Lock v-if="checkPermission(['ivs:ivsLockCloudRecord'], actions) && canLock && !isCarTask" :screen="screen" />
       <RecordDownload v-if="checkPermission(['ivs:DownloadCloudRecord'], actions) && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" :type="FullscreenTypeEnum.Screen" @change="onFullscreenChange" />
     </template>
@@ -141,6 +141,12 @@ export default class extends Vue {
 
   /* 是否具有锁定功能 */
   private get canLock() {
+    console.log('this.isRecordLockAvailable   ', this.isRecordLockAvailable)
+    console.log('this.screen.inProtocol  this.screen.recordType ', this.screen.inProtocol, this.screen.recordType)
+    console.log('this.screen.ivsLockCloudRecord   ', this.screen.ivsLockCloudRecord)
+    console.log('!UserModule.iamUserId   ', !UserModule.iamUserId)
+    console.log('actions   ', this.actions)
+    console.log('checkPermission', checkPermission(['ivs:ivsLockCloudRecord'], this.actions))
     if (this.isRecordLockAvailable) {
       if (this.screen.inProtocol === 'gb28181') {
         return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
