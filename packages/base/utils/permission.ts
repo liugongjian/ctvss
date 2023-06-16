@@ -12,6 +12,11 @@ export const checkPermission = (value: string[], data?: any): boolean => {
   if (AppModule.system === SystemType.SYSTEM_USER && !UserModule.iamUserId) {
     return true
   }
+  // 运营平台中权限控制
+  if (AppModule.system === SystemType.SYSTEM_OPERATION && ['ivs:UpdateDevice', 'ivs:DeleteDevice'].indexOf(value && value[0]) === -1) {
+    return true
+  }
+
   if (value && value instanceof Array && value.length > 0) {
     let dataPerms = null
     if (!Array.isArray(data)) {
