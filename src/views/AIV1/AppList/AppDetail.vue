@@ -142,7 +142,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
         break
       // 安全帽反光服
-      case '7': case '10004':
+      case '4': case '10007':
         if (algorithmMetadata.helmetReflectiveType?.length) {
           app.detectItemNames = algorithmMetadata.helmetReflectiveType.map((item) => {
             const findItem = HelmetClothType.find((innerItem) => innerItem.label === item)
