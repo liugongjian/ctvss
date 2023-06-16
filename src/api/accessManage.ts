@@ -284,3 +284,19 @@ export const describeAuthIamUsers = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+// 获取用户登录状态
+export const getLoginState = (params?: any): Promise<any> =>
+  request({
+    url: '/user/loginstate',
+    method: 'get',
+    params
+  })
+
+// 设置独立密码
+export const setLoginPwd = (params?: any): Promise<any> =>
+  request({
+    url: '/user/addpwd',
+    method: 'get',
+    params
+  })
