@@ -192,6 +192,10 @@
           />
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="端侧登录管理" name="loginManage">
+        <LoginManage v-if="activeName === 'loginManage'" />
+      </el-tab-pane>
     </el-tabs>
     <ip-restriction v-if="showIpDialog" :ip-access-rules="ipAccessRules" @on-close="changeIpDialog" @refresh="initData" />
     <lock-rule v-if="showCustomDialog" :active-name="activeName" @on-close="changeCustomDialog" @refresh="initData" @set-lock="setIpRules" />
@@ -215,13 +219,15 @@ import IpRestriction from './components/Dialog/IpRestriction.vue'
 import LockRule from './components/Dialog/LockRule.vue'
 import ListDrawer from './components/ListDrawer.vue'
 import { dateFormat } from '@/utils/date'
+import LoginManage from './components/LoginManage.vue'
 
 @Component({
   name: 'AccessRestriction',
   components: {
     IpRestriction,
     LockRule,
-    ListDrawer
+    ListDrawer,
+    LoginManage
   }
 })
 export default class extends Vue {
