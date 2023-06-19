@@ -19,7 +19,7 @@
           <el-descriptions-item
             v-if="
               billInfo &&
-              (billInfo['VSS_UPLOAD_BW_OD'] || billInfo['VSS_DOWNLOAD_BW_OD'])
+                (billInfo['VSS_UPLOAD_BW_OD'] || billInfo['VSS_DOWNLOAD_BW_OD'])
             "
           >
             <template slot="label"> 带宽 </template>
@@ -30,14 +30,14 @@
                   <span
                     v-if="
                       billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType] &&
-                      billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType]
-                        .length > 0
+                        billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType]
+                          .length > 0
                     "
                   >
                     {{
                       '(' +
-                      billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType] +
-                      ')'
+                        billingType[billInfo['VSS_UPLOAD_BW_OD'].billingType] +
+                        ')'
                     }}
                   </span>
                 </div>
@@ -46,14 +46,14 @@
                   <span
                     v-if="
                       billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType] &&
-                      billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType]
-                        .length > 0
+                        billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType]
+                          .length > 0
                     "
                   >
                     {{
                       '(' +
-                      billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType] +
-                      ')'
+                        billingType[billInfo['VSS_DOWNLOAD_BW_OD'].billingType] +
+                        ')'
                     }}
                   </span>
                 </div>

@@ -19,15 +19,18 @@ import { downloadFileUrl } from '@vss/base/utils/excel'
  * @param filterData 过滤字段
  */
 const advanceSearch = async function (
-  state: {
+  getVueComponent: any,
+  filterData?: any
+) {
+  const state: {
     advancedSearchForm: AdvancedSearch
     lazy: boolean
     loading: any
     treeSearchResult: any
     deviceTree: any
-  },
-  filterData?: any
-) {
+    rootSums: any
+    handleTools: any
+  } = getVueComponent()
   if (filterData) {
     state.advancedSearchForm.deviceStatusKeys = filterData.deviceStatusKeys
     state.advancedSearchForm.streamStatusKeys = filterData.streamStatusKeys
@@ -37,24 +40,14 @@ const advanceSearch = async function (
     state.advancedSearchForm.searchKey = filterData.searchKey
     state.advancedSearchForm.revertSearchFlag = filterData.revertSearchFlag
   }
-  if (!state.lazy) {
-    state.loading.tree = true
-    state.treeSearchResult = await getDeviceTree({
-      // groupId: this.currentGroupId,
-      id: 0,
-      deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-      streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-      matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
-      deviceAddresses: state.advancedSearchForm.deviceAddresses.code
-        ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
-        : undefined,
-      searchKey: state.advancedSearchForm.searchKey || undefined
-    })
-    state.loading.tree = false
-  } else {
+  if (state.lazy) {
     state.treeSearchResult = []
+  } else {
+    // 初始化树
+    await initSearchTree(state)
   }
   state.deviceTree.initCommonTree()
+  state.handleTools(ToolsEnum.RefreshRouterView)
 }
 
 /**
@@ -64,14 +57,16 @@ const advanceSearch = async function (
  * @param state.loading 加载中状态
  * @param state.treeSearchResult 搜索结果
  */
-const initAdvancedSearch = async function (state: {
-  $route: any
-  advancedSearchForm: AdvancedSearch
-  lazy: boolean
-  loading: any
-  treeSearchResult: any
-  deviceTree: any
-}) {
+const initAdvancedSearch = async function (getVueComponent: any) {
+  const state: {
+    $route: any
+    advancedSearchForm: AdvancedSearch
+    lazy: boolean
+    loading: any
+    treeSearchResult: any
+    deviceTree: any
+    rootSums: any
+  } = getVueComponent()
   if (state.lazy) return
   // 初始化数据
   const query: any = state.$route.query
@@ -96,19 +91,49 @@ const initAdvancedSearch = async function (state: {
       state.advancedSearchForm.deviceAddresses.code
   )
   // 初始化树
-  state.loading.tree = true
-  state.treeSearchResult = await getDeviceTree({
-    id: 0,
-    deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
-    streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
-    matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
-    deviceAddresses: state.advancedSearchForm.deviceAddresses.code
-      ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
-      : undefined,
-    searchKey: state.advancedSearchForm.searchKey || undefined
-  })
-  state.loading.tree = false
+  await initSearchTree(state)
   state.deviceTree.initCommonTree()
+}
+
+/**
+ * 初始化搜索树
+ * @param state vue组件对象
+ */
+const initSearchTree = async function (state: any) {
+  try {
+    state.loading.tree = true
+    const res = await getDeviceTree({
+      searchKey: state.advancedSearchForm.searchKey || undefined,
+      deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+      streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+      deviceAddresses: state.advancedSearchForm.deviceAddresses.code
+        ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
+        : undefined,
+      matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
+    })
+    // 递归平铺权限对象authMap
+    const tempArr: any[] = [res]
+    while (tempArr.length) {
+      const item = tempArr.shift()
+      if (item.dirs && item.dirs.length) {
+        for (let i = 0; i < item.dirs.length; i++) {
+          item.dirs[i] = {
+            ...item.dirs[i]['authMap'],
+            ...item.dirs[i]
+          }
+          delete item.dirs[i]['authMap']
+          tempArr.push(item.dirs[i])
+        }
+      }
+    }
+    state.treeSearchResult = res.dirs
+    state.rootSums.onlineSize = res.onlineSize
+    state.rootSums.totalSize = res.totalSize
+  } catch (e) {
+    console.log(e && e.message)
+  } finally {
+    state.loading.tree = false
+  }
 }
 
 /**

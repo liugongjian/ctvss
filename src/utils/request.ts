@@ -89,7 +89,12 @@ function responseHandler(response: AxiosResponse) {
     // const resData = UserModule.version === 2 ? response.data.data : response.data.data
     let resData: AxiosResponse
     // 过滤 导出接口 返回
-    const ifExport = (config: any)=>{ return config.url.includes('/device/exportDeviceAll') || config.url.includes('/device/exportDeviceOption') || config.url.includes('/device/exportFailedDevice') }
+    const ifExport = (config: any)=>{ return (
+      config.url.includes('/device/exportDeviceAll') ||
+      config.url.includes('/device/exportDeviceOption') ||
+      config.url.includes('/device/exportFailedDevice') ||
+      config.url.includes('/device/detail/export')
+    ) }
     if ( UserModule.version === 2 && ifExport(response.config) ){
       resData = response
     } else {

@@ -16,7 +16,7 @@
             :label="item.label"
             min-width="170"
           >
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ deviceParamsMap[item.prop][row[item.prop]] || row[item.prop] }}
             </template>
           </el-table-column>
@@ -26,7 +26,7 @@
             :label="item.label"
             min-width="170"
           >
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row[item.prop] === -1 ? '-' : row[item.prop] }}
             </template>
           </el-table-column>
@@ -48,7 +48,7 @@
 import { Component, Vue, Mixins, Watch } from 'vue-property-decorator'
 import { columnList } from './assets/column-list/qingyuan'
 import { deviceParamsMap } from './assets/dicts/qingyuan'
-import { getDetailList, getDetailExport } from '@/api/exportDevices'
+import { getDetailList, getDetailExportV2 } from '@/api/exportDevices'
 import excelMixin from './mixin/excelMixin'
 @Component({
   name: 'ExportDevices'
@@ -89,22 +89,36 @@ export default class extends Mixins(Vue, excelMixin) {
 
   private async getDeviceList() {
     this.loading.list = true
-    let params = {
+    const params = {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    let res = await getDetailList(params)
+    const res = await getDetailList(params)
     this.deviceList = res.devices
     this.pager.total = res.totalNum
     this.loading.list = false
   }
 
   private async getExportDevices() {
-    let params = {
+    const params = {
       pageNum: -1
     }
-    let res = await getDetailExport(params)
-    res.exportFile && this.downloadFileUrl('设备信息表格', res.exportFile)
+    const res = await getDetailExportV2(params)
+    this.downLoadFile('设备信息表格', res)
+  }
+
+  private downLoadFile(fName, res){
+    try {
+      const blob = new Blob([res.data])
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = `${fName}.xlsx`
+      link.click()
+      link.remove()
+    } catch (e){
+      console.log(e)
+    }
+
   }
 
   private async exportInfo() {

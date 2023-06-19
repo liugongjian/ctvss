@@ -553,7 +553,13 @@ class ExportExcelTemplate {
           },
           {
             title: { header: '*设备厂商', key: 'deviceVendor', width: 16 },
-            validation: this.validation.deviceVendor
+            validation: {
+              type: 'list',
+              allowBlank: false,
+              showErrorMessage: true,
+              formulae: ['"海康,大华,宇视,科达,金三立,华为,其他"'],
+              error: '请选择厂商'
+            }
           },
           {
             title: { header: '*设备名称', key: 'deviceName', width: 16 },
