@@ -2,8 +2,7 @@
   <div class="access-restriction">
     <div class="access-restriction__title">
       <div class="access-restriction__title-text">访问安全设置</div>
-      <!-- :disabled="loginStatus.loginStateCode === 1" -->
-      <el-button type="primary" size="mini" @click="changeLoginDialog">
+      <el-button type="primary" size="mini" :disabled="loginStatus.loginStateCode === 1" @click="changeLoginDialog">
         访问设置
       </el-button>
     </div>
@@ -89,13 +88,13 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="handleClose">确 定</el-button>
+        <el-button type="primary" @click="setLoginPassword">确 定</el-button>
       </span>
     </el-dialog>
 
     <el-dialog
       :visible.sync="ifShowCancelDialog"
-      width="750px"
+      width="770px"
       :before-close="handleCancelClose"
       class="access-restriction__cancel-dialog"
     >
@@ -151,7 +150,7 @@
         <div class="access-restriction__cancel-dialog-footer">
           <el-button style="margin-top: 12px" @click="handleCancelClose">取消</el-button>
           <el-button style="margin-top: 12px" @click="prev">上一步</el-button>
-          <el-button style="margin-top: 12px" type="primary" :disabled="!dialogPwd" @click="next">确定</el-button>
+          <el-button style="margin-top: 12px" type="primary" :disabled="!dialogPwd" @click="cancelUser">确定</el-button>
         </div>
       </div>
 
@@ -168,7 +167,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Form as ElForm, Input } from 'element-ui'
-import { getLoginState, setLoginPwd } from '@/api/accessManage'
+import { getLoginState, setLoginPwd, cancelUser } from '@/api/accessManage'
+import { encrypt } from '@/utils/encrypt'
 
 @Component({
   name: 'LoginManage',
@@ -273,6 +273,7 @@ export default class extends Vue {
     })
   }
 
+
   private openCancelDialog() {
     this.ifShowCancelDialog = true
   }
@@ -296,9 +297,23 @@ export default class extends Vue {
     try {
       const { password } = this.form
       const params = {
-        password
+        password: encrypt(password)
       }
       await setLoginPwd(params)
+      this.handleCancelClose()
+    } catch (error) {
+      this.$message(error && error.message)
+    }
+  }
+
+  private async cancelUser(){
+    try {
+      const password = encrypt(this.dialogPwd)
+      const param = {
+        password
+      }
+      await cancelUser(param)
+      this.next()
     } catch (error) {
       this.$message(error && error.message)
     }

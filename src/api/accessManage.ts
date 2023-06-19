@@ -294,9 +294,19 @@ export const getLoginState = (params?: any): Promise<any> =>
   })
 
 // 设置独立密码
-export const setLoginPwd = (params?: any): Promise<any> =>
+export const setLoginPwd = (data?: any): Promise<any> =>
   request({
     url: '/user/addpwd',
-    method: 'get',
-    params
+    method: 'post',
+    data
   })
+
+// 注销用户
+export const cancelUser = (data: any): Promise<any> =>
+  request({
+    url: '/user/lock',
+    method: 'post',
+    data
+  })
+
+
