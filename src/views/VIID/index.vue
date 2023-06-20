@@ -33,7 +33,7 @@
             <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
             <el-button type="text" @click.stop="viewViidDetails(row)">查看</el-button>
             <el-button type="text" @click.stop="edit(row)">编辑</el-button>
-            <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
+            <el-button :disabled="row.isActive" type="text" @click="deleteViewLibUpPlatform(row)">删除</el-button>
             <el-button type="text" @click.stop="viewDeviceList(row)">级联设备</el-button>
           </template>
         </el-table-column>
@@ -54,7 +54,7 @@
     />
     <device-list-dialog
       v-if="dialog.deviceList"
-      :cascade-viid-id="currentCascadeViidId"
+      :platform-details="platformDetails"
       @on-close="closeDialog('deviceList')"
     />
   </div>
@@ -63,10 +63,9 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
-import { GB28181 } from '@/type/Certificate'
 import ViidDetailsDialog from './components/ViidDetailsDialog.vue'
 import DeviceListDialog from './components/DeviceListDialog.vue'
-import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
+import { enableViewLibUpPlatform, stopViewLibUpPlatform, deleteViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
@@ -144,7 +143,7 @@ export default class extends Vue {
    * 查看级联设备列表
    */
   private async viewDeviceList(row) {
-    this.currentCascadeViidId = row.cascadeViidId
+    this.platformDetails = row
     this.dialog.deviceList = true
   }
 
@@ -198,12 +197,12 @@ export default class extends Vue {
     this.getList()
   }
 
-  private async deleteCertificate(row: GB28181) {
+  private async deleteViewLibUpPlatform(row: any) {
     this.$alertDelete({
       type: '视图库',
-      msg: `是否确认删除视图库"${row.userName}"`,
-      method: () => {},
-      payload: { userName: row.userName },
+      msg: `是否确认删除视图库"${row.name}"`,
+      method: deleteViewLibUpPlatform,
+      payload: row.cascadeViidId,
       onSuccess: this.getList
     })
   }

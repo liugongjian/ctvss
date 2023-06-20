@@ -22,6 +22,12 @@
         <el-descriptions-item label="级联区域">
           {{ regionTxt || '-' }}
         </el-descriptions-item>
+        <el-descriptions-item label="用户名">
+          {{ platformDetails.username || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item label="密码">
+          {{ platformDetails.password || '-' }}
+        </el-descriptions-item>
         <el-descriptions-item label="心跳周期">
           {{ platformDetails.keepaliveInterval || '-' }}
         </el-descriptions-item>
@@ -31,24 +37,18 @@
         <el-descriptions-item label="上级视图编码">
           {{ platformDetails.apsId || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="上级服务器IP">
+        <el-descriptions-item label="上级服务器IP地址">
           {{ platformDetails.ipAddr || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="上级服务器端口">
           {{ platformDetails.port && platformDetails.port.toString() || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item label="用户名">
-          {{ platformDetails.username || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item label="密码">
-          {{ platformDetails.password || '-' }}
         </el-descriptions-item>
       </el-descriptions>
       <el-descriptions title="本级视图库信息" :column="2">
         <el-descriptions-item label="本级视图编码">
           {{ platformDetails.localApsId || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="本级服务器IP">
+        <el-descriptions-item label="本级服务器IP地址">
           {{ platformDetails.cascadeIp || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="本级服务器端口">

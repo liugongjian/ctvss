@@ -51,7 +51,7 @@
           />
           <el-button v-if="form.regionCode" class="append-button" type="text" @click="openList">查看级联设备列表</el-button>
         </el-form-item>
-        <el-form-item prop="localApsId" class="form-with-tip">
+        <el-form-item v-if="!isUpdate" prop="localApsId" class="form-with-tip">
           <template slot="label">
             本级视图编码
             <el-popover
@@ -94,10 +94,10 @@
               class="device-list__wrap__item"
             >
               <span class="device-list__wrap__item-status">
-                <status-badge :status="parseInt(item.status) ? 'on' : 'off'" />
+                <status-badge :status="item.isOnline ? 'on' : 'off'" />
               </span>
-              <el-tooltip :content="item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111`" placement="top" :open-delay="500">
-                <span class="device-list__wrap__item-label"> {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span>
+              <el-tooltip :content="item.deviceName" placement="top" :open-delay="500">
+                <span class="device-list__wrap__item-label"> {{ item.deviceName }}</span>
               </el-tooltip>
             </div>
           </div>
@@ -112,7 +112,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { createViewLibUpPlatform, updateViewLibUpPlatform } from '@/api/viid'
+import { createViewLibUpPlatform, updateViewLibUpPlatform, getCascadeDevicesList } from '@/api/viid'
 import { getRegions } from '@/api/region'
 import { pick } from 'lodash'
 
@@ -190,6 +190,7 @@ export default class extends Vue {
     Object.assign(this.form, pick(platformDetails, ['name', 'apsId', 'network', 'username', 'password', 'ipAddr', 'port', 'keepaliveInterval', 'description']))
     this.cascadeViidId = platformDetails.cascadeViidId
     this.form.regionCode = this.getRegionPath(this.regionList, platformDetails.regionCode)
+    this.onRegionCodeChange()
     this.loading = false
   }
 
@@ -222,10 +223,11 @@ export default class extends Vue {
   private async onRegionCodeChange() {
     try {
       this.showDeviceListLoading = true
-      console.log('get deviceList')
-      for (let i = 0; i < 1000; i++) {
-        this.deviceList.push({})
-      }
+      const res = await getCascadeDevicesList({
+        regionCode: this.form.regionCode && this.form.regionCode[1],
+        cascadeViidId: this.cascadeViidId
+      })
+      this.deviceList = res.data
     } catch (e) {
       console.log(e && e.message)
     } finally {
@@ -386,6 +388,7 @@ export default class extends Vue {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-left: 10px;
           }
         }
       }

@@ -3,7 +3,7 @@
     title="级联设备列表"
     :visible="dialogVisible"
     :close-on-click-modal="false"
-    width="400px"
+    width="500px"
     center
     class="dialog"
     @close="closeDialog"
@@ -15,24 +15,25 @@
         class="device-list__item"
       >
         <span class="device-list__item-status">
-          <status-badge :status="parseInt(item.status) ? 'on' : 'off'" />
+          <status-badge :status="item.isOnline ? 'on' : 'off'" />
         </span>
-        <el-tooltip :content="item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111`" placement="top" :open-delay="500">
-          <span class="device-list__item-label"> {{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span>
+        <el-tooltip :content="item.deviceName" placement="top" :open-delay="500">
+          <span class="device-list__item-label"> {{ item.deviceName }}</span>
         </el-tooltip>
-        <!-- <span class="device-list__item-label">{{ item.deviceName || `设备${index}1111111111111111111111111111111111111111111111111111111111111` }}</span> -->
       </div>
     </div>
   </el-dialog>
 </template>
 <script lang='ts'>
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { getCascadeDevicesList } from '@/api/viid'
 
 @Component({
   name: 'DeviceListDialog'
 })
 export default class extends Vue {
-  @Prop() private subscribeId: string
+  @Prop({ default: {} })
+  private platformDetails
 
   private dialogVisible = true
   private loading = false
@@ -42,14 +43,15 @@ export default class extends Vue {
     this.getDeviceList()
   }
 
-  private getDeviceList() {
+  private async getDeviceList() {
     try {
       this.loading = true
       this.showDeviceList = true
-      for (let i = 0; i < 1000; i++) 
-      {
-        this.deviceList.push({})
-      }
+      const res = await getCascadeDevicesList({
+        cascadeViidId: this.platformDetails.cascadeViidId,
+        regionCode: this.platformDetails.regionCode,
+      })
+      this.deviceList = res.data
     } catch (e) {
       console.log(e && e.message)
     } finally {
@@ -64,6 +66,10 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+::v-deep .el-dialog__body {
+  padding: 25px 50px;
+}
+
 .device-list {
   display: flex;
   height: 60vh;
@@ -81,6 +87,7 @@ export default class extends Vue {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-left: 10px;
     }
   }
 }

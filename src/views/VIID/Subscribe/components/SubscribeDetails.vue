@@ -78,7 +78,7 @@ export default class extends Vue {
   private dialogVisible = true
   private SubscribeStatus = subscribeStatus
   private handleSubscribeDetail(detail) {
-    let res = []
+    const res = []
     const details = detail.split(',')
     details.forEach(item => {
       res.push(subscribeDetailList.find(d => d.value === item).label)
@@ -101,6 +101,7 @@ export default class extends Vue {
   padding: 0 15px;
   overflow: hidden;
 }
+
 ::v-deep .el-descriptions {
   &__header {
     margin: 10px 0;
@@ -128,6 +129,7 @@ export default class extends Vue {
     margin-left: 10px;
   }
 }
+
 .dialog-footer {
   margin-top: 30px;
   text-align: center;
