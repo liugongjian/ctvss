@@ -28,6 +28,9 @@
       <el-descriptions-item v-if="isFaceAlgoCode" label="人脸库">
         {{ faceLib.name || '' }}
       </el-descriptions-item>
+      <el-descriptions-item v-if="app.detectItemNames" label="检测项">
+        {{ app.detectItemNames }}
+      </el-descriptions-item>
       <el-descriptions-item label="描述">
         {{ app.description || '-' }}
       </el-descriptions-item>
@@ -37,7 +40,6 @@
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import AppMixin from '../../mixin/app-mixin'
-import { getAppInfo } from '@/api/ai-app'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { ResourceAiType } from '@/dics'
 
@@ -59,17 +61,6 @@ export default class extends Mixins(AppMixin) {
 
   public created() {
     this.app = this.appInfo
-  }
-
-  /**
-   * 刷新数据
-   */
-  public async refresh() {
-    try {
-      this.app = await getAppInfo({ id: this.appInfo.id })
-    } catch (e) {
-      this.$alertError(e && e.message)
-    }
   }
 
   /**
