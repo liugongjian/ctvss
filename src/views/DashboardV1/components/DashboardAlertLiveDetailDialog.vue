@@ -10,7 +10,7 @@
   >
     <div v-loading="loading" class="alert" :class="{ theme: true, 'light-alert': isLight }">
       <div class="alert-header">
-        <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
+        <div class="alert-header__type">事件类型: {{ isIndustrialDetection && (audit.event === '37' || audit.event === '10037') ? '工业缺陷检测' : alertType[audit.event] }}</div>
         <el-tooltip class="item" effect="dark" :content="deviceNameAndChannelFull" placement="bottom">
           <div class="alert-header__device">设备: {{ deviceNameAndChannel }}</div>
         </el-tooltip>
@@ -53,6 +53,7 @@ import { getRecordAudits, auditEventConfirm } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
 import Locations from '@/views/DashboardV1/AI/components/Locations.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlertBoardDetailDialog',
@@ -83,6 +84,10 @@ export default class extends Vue {
     // this.getRecordAudits()
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+  
   get deviceNameAndChannel() {
     let temp: string
     if (this.audit.channelName && this.audit.channelName !== this.audit.deviceName) {

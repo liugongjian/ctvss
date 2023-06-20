@@ -95,7 +95,7 @@
       <!-- 算法定制项--meta数据，考虑单独提取组件 -->
       <component
         :is="formComponent"
-        v-if="formComponent && form"
+        v-if="formComponent && form && (!ifShow('10037') || ifShow('10037') && !isIndustrialDetection)"
         :form="form"
       />
       <el-form-item label="置信度" prop="confidence">
@@ -254,6 +254,7 @@ import { FormRef } from '@vss/ai/dics'
 import AlgoConfigs from '@vss/ai/component/AlgoConfig'
 import { formRule, formTips } from '@vss/ai/util/form-helper'
 import { getAlgorithmList } from '@/api/ai-app'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlgoDetail',
@@ -352,11 +353,22 @@ export default class extends Mixins(AppMixin) {
       return null
     }
   }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     if (this.$route.query.id) {
       // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        if (this.form.algorithm.name === '城市治理') {
+          this.form.algorithm.name = '工业缺陷检测'
+        }
+      }
       this.$set(this.form, 'algoName', this.form.algorithm.name)
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
@@ -530,6 +542,10 @@ export default class extends Mixins(AppMixin) {
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
+    // 工业缺陷检测算法需求
+    if (this.isIndustrialDetection) {
+      algorithmMetadata.cityGovType = ['daoluposun']
+    }
     Object.keys(algorithmMetadata).forEach(
       (key) => algorithmMetadata[key] === '' && delete algorithmMetadata[key]
     )

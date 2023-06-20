@@ -179,6 +179,7 @@ import { dateFormat } from '@/utils/date'
 import ResourceTree from './components/ResourceTree.vue'
 import DestinationsTree from './components/DestinationsTree.vue'
 import { pick } from 'lodash'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'notification-policy-create-or-update',
@@ -320,6 +321,10 @@ export default class extends Vue {
     }
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private get sourceRulesOptions() {
     switch (this.form.source) {
       case MESSAGE_TYPE.DEVICE_MSG:
@@ -440,7 +445,7 @@ export default class extends Vue {
       this.aiSourceRulesOptions = aiAbilityAlgorithms.map(item => {
         return {
           value: item.id,
-          label: item.name
+          label: this.isIndustrialDetection && item.name === '城市治理' ? '工业缺陷检测' : item.name
         }
       })
     } catch (e) {
