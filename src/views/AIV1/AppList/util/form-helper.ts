@@ -1,5 +1,5 @@
-export const getRule = (msg) => {
-  let rule = []
+export const getRule = (msg, errMsg = '') => {
+  const rule = []
   if (msg === '应用名称') {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
   } else if (['人员数量阈值', '车辆数量阈值',
@@ -73,7 +73,7 @@ export const getRule = (msg) => {
   } else if (msg === '细分检测项') {
     rule.push({ required: true, trigger: 'blur', message: '请选择' + msg })
   }
-  rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
+  rule.push({ required: true, trigger: 'blur', message: errMsg ? errMsg : '请输入' + msg })
   return rule
 }
 
@@ -97,6 +97,7 @@ export const formRule = {
   'algorithmMetadata.trashRecycleType': getRule('细分检测项'),
   'algorithmMetadata.cityGovType': getRule('细分检测项'),
   'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
+  'algorithmMetadata.clothesDetectItems': getRule('检测项', '请勾选检测项'),
   'algorithmMetadata.animalDetectType': getRule('动物列表'),
   beeNumber: getRule('蜜蜂数量'),
   period: getRule('起始时间'),

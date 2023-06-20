@@ -73,3 +73,22 @@ export const AiMaskType: any = {
   1: '戴口罩',
   2: '佩戴不规范'
 }
+
+export const CostumColors: any = {
+  '1': {
+    yangshi1: '样式1'
+  },
+  '2': {
+    light: '浅色',
+    blue: '蓝色',
+    red: '红色',
+    dark: '深色',
+    orange: '橘/黄色'
+  }
+}
+
+export const ResourceAiType = {
+  'AI-100': '分钟级',
+  'AI-200': '秒级',
+  'AI-300': '高算力型'
+}
