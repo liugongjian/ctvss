@@ -69,7 +69,7 @@
         </el-form-item>
         <el-form-item label="网络类型:" prop="network">
           <el-radio-group v-model="form.network">
-            <el-radio label="internal">互联网</el-radio>
+            <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -126,7 +126,7 @@ export default class extends Vue {
     apsId: '',
     regionCode: '',
     localApsId: '',
-    network: 'internal',
+    network: 'public',
     username: '',
     password: '',
     ipAddr: '',
