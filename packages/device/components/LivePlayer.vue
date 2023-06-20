@@ -20,7 +20,6 @@
     :scale="screen.scale"
     :poster="screen.poster"
     :is-debug="isDebug"
-    :permission="screen.permission"
     :check-permission="checkPermission"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
