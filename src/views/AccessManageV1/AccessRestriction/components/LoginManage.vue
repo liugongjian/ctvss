@@ -15,6 +15,7 @@
     <div class="access-restriction__status">
       <span class="access-restriction__status-word">状态</span>
       <el-tooltip
+        v-if="loginStatus.loginStateCode === 1" 
         class="item"
         effect="dark"
         placement="top-start"
@@ -38,6 +39,13 @@
           {{ loginStatus.loginState }}
         </span>
       </el-tooltip>
+      <span v-else class="access-restriction__status-text">
+        <span
+          class="access-restriction__status-badge"
+        >
+        </span>
+        {{ loginStatus.loginState }}
+      </span>
     </div>
 
     <!-- 非页面主体内容 -->
