@@ -2,7 +2,12 @@
   <div class="access-restriction">
     <div class="access-restriction__title">
       <div class="access-restriction__title-text">访问安全设置</div>
-      <el-button type="primary" size="mini" :disabled="loginStatus.loginStateCode === 1" @click="changeLoginDialog">
+      <el-button
+        type="primary"
+        size="mini"
+        :disabled="loginStatus.loginStateCode === 1"
+        @click="changeLoginDialog"
+      >
         访问设置
       </el-button>
     </div>
@@ -23,7 +28,13 @@
           >注销账号</span>
         </div>
         <span class="access-restriction__status-text">
-          <span class="access-restriction__status-badge" :class="{ 'access-restriction__status-badge-on': loginStatus.loginStateCode===1 }"></span>
+          <span
+            class="access-restriction__status-badge"
+            :class="{
+              'access-restriction__status-badge-on':
+                loginStatus.loginStateCode === 1
+            }"
+          ></span>
           {{ loginStatus.loginState }}
         </span>
       </el-tooltip>
@@ -98,7 +109,11 @@
       :before-close="handleCancelClose"
       class="access-restriction__cancel-dialog"
     >
-      <el-steps :active="active" finish-status="success" process-status="process">
+      <el-steps
+        :active="active"
+        finish-status="success"
+        process-status="process"
+      >
         <el-step title="注意事项"></el-step>
         <el-step title="密码确认"></el-step>
         <el-step title="完成"></el-step>
@@ -106,24 +121,37 @@
 
       <div v-if="active === 0">
         <p>进行该操作前，请仔细阅读以下重要信息：</p>
-        
-        为保证用户（又称“您”）的账号、财产安全，在您提交请求前，请先确认并遵守如下事项：<br>
+
+        为保证用户（又称“您”）的账号、财产安全，在您提交请求前，请先确认并遵守如下事项：<br />
         该申请一旦完成即无法登录天翼云瞰App客户端。提交申请前，您应当确保天账号相关的所有App客户端业务均已无需使用。完成后，若因此而无法登录天翼云瞰App客户端或涉及使用App客户端的业务无法正常进行，天翼云瞰不承担任何责任。
         <p>敬请再次关注：</p>
-        提交申请前，您应当确保天翼云账号相关的App客户端所有业务均已无需使用，接受无法登录/使用App客户端服务。<br>
+        提交申请前，您应当确保天翼云账号相关的App客户端所有业务均已无需使用，接受无法登录/使用App客户端服务。<br />
         如果您希望保持与此账号相关联的天翼云瞰App客户端服务，请不要提交操作申请。
         <div class="access-restriction__cancel-dialog-check">
-          <el-checkbox v-model="checked">已了解：天翼云瞰App客户端账号将无法登录，且无法使用App客户端的服务。</el-checkbox>
+          <el-checkbox v-model="checked">
+            已了解：天翼云瞰App客户端账号将无法登录，且无法使用App客户端的服务。
+          </el-checkbox>
         </div>
 
         <div class="access-restriction__cancel-dialog-footer">
-          <el-button style="margin-top: 12px" @click="handleCancelClose">取消</el-button>
-          <el-button style="margin-top: 12px" type="primary" :disabled="!checked" @click="next">下一步</el-button>
+          <el-button style="margin-top: 12px" @click="handleCancelClose">
+            取消
+          </el-button>
+          <el-button
+            style="margin-top: 12px"
+            type="primary"
+            :disabled="!checked"
+            @click="next"
+          >
+            下一步
+          </el-button>
         </div>
       </div>
 
       <div v-if="active === 1">
-        <div class="access-restriction__cancel-dialog-text">请输入密码进行二次确认：</div>
+        <div class="access-restriction__cancel-dialog-text">
+          请输入密码进行二次确认：
+        </div>
         <el-input
           :key="'dialogPwd-' + passwordType.confirmPwd"
           ref="dialogPwd"
@@ -144,20 +172,39 @@
             />
           </span>
         </el-input>
-       
-        <div class="access-restriction__cancel-dialog-text">关闭后，将清空密码配置，账户将无法通过App客户端访问</div>
+
+        <div class="access-restriction__cancel-dialog-text">
+          关闭后，将清空密码配置，账户将无法通过App客户端访问
+        </div>
 
         <div class="access-restriction__cancel-dialog-footer">
-          <el-button style="margin-top: 12px" @click="handleCancelClose">取消</el-button>
+          <el-button style="margin-top: 12px" @click="handleCancelClose">
+            取消
+          </el-button>
           <el-button style="margin-top: 12px" @click="prev">上一步</el-button>
-          <el-button style="margin-top: 12px" type="primary" :disabled="!dialogPwd" @click="cancelUser">确定</el-button>
+          <el-button
+            style="margin-top: 12px"
+            type="primary"
+            :disabled="!dialogPwd"
+            @click="cancelUser"
+          >
+            确定
+          </el-button>
         </div>
       </div>
 
       <div v-if="active === 2">
-        <div class="access-restriction__cancel-dialog-text">已完成App端账号注销</div>
+        <div class="access-restriction__cancel-dialog-text">
+          已完成App端账号注销
+        </div>
         <div class="access-restriction__cancel-dialog-footer">
-          <el-button style="margin-top: 12px" type="primary" @click="handleCancelClose">完成</el-button>
+          <el-button
+            style="margin-top: 12px"
+            type="primary"
+            @click="finishThis"
+          >
+            完成
+          </el-button>
         </div>
       </div>
     </el-dialog>
@@ -198,11 +245,11 @@ export default class extends Vue {
 
   private loginStatus: any = {}
 
-  async mounted () {
+  async mounted() {
     await this.getLoginState()
   }
 
-  private async getLoginState(){
+  private async getLoginState() {
     try {
       const res = await getLoginState()
       this.loginStatus = res
@@ -273,7 +320,6 @@ export default class extends Vue {
     })
   }
 
-
   private openCancelDialog() {
     this.ifShowCancelDialog = true
   }
@@ -289,24 +335,26 @@ export default class extends Vue {
     if (this.active++ > 1) this.active = 0
   }
 
-  private prev(){
+  private prev() {
     this.active--
   }
 
-  private async setLoginPassword(){
+  private async setLoginPassword() {
     try {
       const { password } = this.form
       const params = {
         password: encrypt(password)
       }
       await setLoginPwd(params)
+      await this.getLoginState()
+      this.handleClose()
       this.handleCancelClose()
     } catch (error) {
       this.$message(error && error.message)
     }
   }
 
-  private async cancelUser(){
+  private async cancelUser() {
     try {
       const password = encrypt(this.dialogPwd)
       const param = {
@@ -317,6 +365,11 @@ export default class extends Vue {
     } catch (error) {
       this.$message(error && error.message)
     }
+  }
+
+  private async finishThis() {
+    this.handleCancelClose()
+    await this.getLoginState()
   }
 }
 </script>
@@ -354,7 +407,7 @@ export default class extends Vue {
     display: flex;
     align-items: center;
 
-    &-word{
+    &-word {
       display: inline-block;
       font-size: 12px;
     }
@@ -376,7 +429,7 @@ export default class extends Vue {
       margin-right: 2px;
       background-color: $darkGray;
 
-      &-on{
+      &-on {
         background-color: $success;
       }
     }
@@ -445,41 +498,41 @@ export default class extends Vue {
     }
   }
 
-  &__cancel{
-    &-dialog{
-      ::v-deep{
-        .el-step__head.is-process{
+  &__cancel {
+    &-dialog {
+      ::v-deep {
+        .el-step__head.is-process {
           color: #409eff;
           border-color: #409eff;
         }
-        .el-step__title.is-process{
-           color: #409eff;
+        .el-step__title.is-process {
+          color: #409eff;
           border-color: #409eff;
         }
-        .el-input__suffix{
+        .el-input__suffix {
           top: 10px;
         }
       }
 
-      &-check{
+      &-check {
         margin: 50px 0 20px;
       }
 
-      &-footer{
+      &-footer {
         text-align: right;
       }
 
-      &-text{
+      &-text {
         margin: 20px 0;
         color: #666;
         font-size: 14px;
       }
 
-      &-input{
+      &-input {
         width: 50%;
       }
 
-      .show-pwd{
+      .show-pwd {
         margin: 0 10px;
       }
     }
