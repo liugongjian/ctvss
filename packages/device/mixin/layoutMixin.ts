@@ -9,6 +9,7 @@ import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
 import { deleteDir, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 
 @Component({
   components: {
@@ -96,7 +97,8 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
-    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
+    [ToolsEnum.ClearAllScreen]: () => DeviceScreen.clearAllScreen(this.getVueComponent)
   }
 
   private get UserVersion() {
@@ -128,8 +130,17 @@ export default class LayoutMixin extends Vue {
     )
   }
 
+  private get showAdvanceSearch() {
+    return !this.$route.query.rootKey
+  }
+
+  private get isShowPolling() {
+    return !this.$route.query.rootKey && this.lazy
+  }
+
   public async mounted() {
-    if (UserModule.iamUserId) {
+    // 仅用户控制台查询权限
+    if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
       const permissionRes = await previewAuthActions({
         targetResources: [{
           dirPath: '0'

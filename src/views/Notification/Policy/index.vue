@@ -70,6 +70,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { INotifictionPolicy } from '@/type/Notification'
 import { dateFormatInTable } from '@/utils/date'
 import { toggleNotificationPolicyStatus, getNotificationPolicyList, deleteNotificationPolicy } from '@/api/notification'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ai-template',
@@ -111,6 +112,10 @@ export default class extends Vue {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   private async mounted() {
     await this.getList()
   }
@@ -128,6 +133,12 @@ export default class extends Vue {
         pageSize: this.pager.pageSize
       }
       const res = await getNotificationPolicyList(params)
+      if (this.isIndustrialDetection) {
+        res.data = res.data.map((data) => ({
+          ...data,
+          sourceRulesLabel: data.sourceRulesLabel.split(',').map((label) => label === '城市治理' ? '工业缺陷检测' : label).join(',')
+        }))
+      }
       this.dataList = res.data
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum

@@ -141,12 +141,6 @@ export default class extends Vue {
 
   /* 是否具有锁定功能 */
   private get canLock() {
-    console.log('this.isRecordLockAvailable   ', this.isRecordLockAvailable)
-    console.log('this.screen.inProtocol  this.screen.recordType ', this.screen.inProtocol, this.screen.recordType)
-    console.log('this.screen.ivsLockCloudRecord   ', this.screen.ivsLockCloudRecord)
-    console.log('!UserModule.iamUserId   ', !UserModule.iamUserId)
-    console.log('actions   ', this.actions)
-    console.log('checkPermission', checkPermission(['ivs:ivsLockCloudRecord'], this.actions))
     if (this.isRecordLockAvailable) {
       if (this.screen.inProtocol === 'gb28181') {
         return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)

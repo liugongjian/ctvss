@@ -82,3 +82,14 @@ export const describeTreeIds = (params: any): Promise<any> => {
     params
   })
 }
+
+/**
+ * 查询目录树实时预览与回放（一级）
+ */
+export const getCustomTreeNode = (params: any): Promise<any> => {
+  return request({
+    url: '/tree/customize/nodes/preview',
+    method: 'get',
+    params
+  })
+}

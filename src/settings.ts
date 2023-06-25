@@ -135,7 +135,6 @@ const settings: ISettings = {
       allowAutoSelected: ['ivs:GetLiveStream'],
       denyAutoSelected: ['ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       resourceType: ['directory', 'device', 'channel'],
-      version: 'v1'
     },
     {
       actionName: '设备云台锁定',
@@ -143,7 +142,6 @@ const settings: ISettings = {
       actionDesc: '拥有设备云台锁定权限，并展示实时预览菜单',
       allowAutoSelected: ['ivs:ControlDevicePTZ'],
       resourceType: ['directory', 'device', 'channel'],
-      version: 'v1'
     },
     {
       actionName: '设备预置位配置',

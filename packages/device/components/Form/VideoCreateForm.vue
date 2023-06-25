@@ -49,6 +49,30 @@
           type="number"
         />
       </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.EnabledGB35114)" prop="enabledGB35114">
+        <template slot="label">
+          GB35114协议:
+          <el-popover
+            placement="top-start"
+            title="GB35114协议"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="启用了GB35114协议，就无需添加GB28181凭证。"
+          >
+            <svg-icon
+              slot="reference"
+              class="form-question"
+              name="help"
+            />
+          </el-popover>
+        </template>
+        <el-switch
+          v-model="videoForm.enabledGB35114"
+          :active-value="true"
+          :inactive-value="false"
+        />
+      </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
         <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
       </el-form-item>
@@ -360,6 +384,7 @@ export default class extends Vue {
       [DeviceEnum.PullUrl]: this.videoInfo.pullUrl,
       [DeviceEnum.UserName]: this.videoInfo.userName,
       [DeviceEnum.Password]: this.videoInfo.password,
+      [DeviceEnum.EnabledGB35114]: this.videoInfo.enabledGB35114,
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
@@ -371,7 +396,6 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      // [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] },
       [DeviceEnum.Resource]: { video: [], aI: [] }
     }
     

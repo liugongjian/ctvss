@@ -226,6 +226,7 @@ import { DeviceForm, DeviceBasicForm, VideoDeviceForm, ViidDeviceForm } from '@v
 import { createDevice, getDeviceRecentlyUsed } from '@vss/device/api/device'
 import { previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 import VideoCreateForm from '@vss/device/components/Form/VideoCreateForm.vue'
 import ViidCreateForm from '@vss/device/components/Form/ViidCreateForm.vue'
 import deviceFormMixin from '@vss/device/mixin/deviceFormMixin'
@@ -341,7 +342,10 @@ export default class extends Mixins(deviceFormMixin) {
     this.industryList = await DeviceModule.getIndutryList(getIndustryList)
     this.networkList = await DeviceModule.getNetworkList(getNetworkList)
     this.getLastDeviceBasicInfo()
-    this.initIam()
+    // 仅用户控制台查询权限
+    if (AppModule.system === SystemType.SYSTEM_USER) {
+      this.initIam()
+    }
   }
 
   private async initIam() {

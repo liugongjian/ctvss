@@ -110,7 +110,7 @@ import OptLogStarter from './components/OptLogStarter.vue'
   }
 })
 export default class extends Vue {
-  @Inject({ default: () => {} })
+  @Inject({ default: () => () => null })
   public getActions!: Function
 
   /* 播放器类型 */

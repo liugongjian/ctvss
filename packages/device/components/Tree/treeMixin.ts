@@ -7,6 +7,8 @@ import StreamSelector from '../StreamSelector.vue'
 import { checkPermission } from '@vss/base/utils/permission'
 import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
+import { getTreeList } from '@/api/customTree'
 @Component({
   components: {
     StreamSelector
@@ -43,8 +45,6 @@ export default class TreeMixin extends Vue {
 
   /* 树节点的唯一标识字段 */
   public nodeKey = 'id'
-  /* 根节点对应的key值（设有根目录时会用到） */
-  public rootKey = ''
   /* 根节点label值（设有根目录时会用到） */
   public rootLabel = '根目录'
   /* 根节点统计信息（设有根目录时会用到） */
@@ -62,6 +62,28 @@ export default class TreeMixin extends Vue {
   }
   /* 树是否为加载中状态 */
   public loading = false
+  /* 自定义树列表 */
+  public treeSelectorOptions = []
+
+  /* 根节点对应的key值（设有根目录、选择自定义目录树时会用到） */
+  public set rootKey(val) {
+    this.$router.push({
+      query: {
+        ...this.$route.query,
+        rootKey: val
+      }
+    })
+  }
+
+  public get rootKey() {
+    const currentTree = this.treeSelectorOptions.find(tree => tree.value === (this.$route.query.rootKey || ''))
+    currentTree && (this.rootLabel = currentTree.label)
+    return this.$route.query.rootKey || ''
+  }
+
+  public get isCustomTree(): boolean {
+    return !!this.rootKey
+  }
 
   /* 树初始化时默认选中节点对应的key值 */
   public get defaultKey() {
@@ -76,6 +98,16 @@ export default class TreeMixin extends Vue {
     return ScreenModule ? ScreenModule.playingScreens : []
   }
 
+  private get isSystemUser() {
+    return !UserModule.iamUserId && AppModule.system === SystemType.SYSTEM_USER
+  }
+
+  @Watch('rootKey')
+  public rootKeyChange() {
+    this.initCommonTree()
+    this.handleTools(ToolsEnum.ClearAllScreen)
+  }
+
   public initCommonTree() {
     this.commonTree.initTree()
   }
@@ -87,34 +119,58 @@ export default class TreeMixin extends Vue {
   }
 
   /**
+   * 获取自定义树列表
+   */
+  public async getCustomTreeList() {
+    try {
+      this.loading = true
+      const res = await getTreeList({})
+      res.trees && (this.treeSelectorOptions = res.trees.map(tree => {
+          return {
+            label: tree.treeName,
+            value: tree.treeId
+          }
+        })
+      )
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
    * 懒加载时加载节点方法
    * @param node 节点信息
    */
   public async treeLoad(node) {
     let nodeData
-    // 增加 层级关系
     if (node.level === 0) {
-      this.loading = true
+      // this.loading = true
       try {
-        const res = await getNodeInfo({
-          id: '',
-          type: DirectoryTypeEnum.Dir,
-          inProtocol: this.deviceInType
-        })
+        const res = await getNodeInfo(
+          {
+            id: this.rootKey,
+            type: DirectoryTypeEnum.Dir,
+            inProtocol: this.deviceInType
+          }
+        )
         this.rootSums.onlineSize = res.onlineSize
         this.rootSums.totalSize = res.totalSize
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
         console.log(e)
       }
-      this.loading = false
+      // this.loading = false
     } else {
       try {
-        const res = await getNodeInfo({
-          id: node.data.id,
-          type: node.data.type,
-          inProtocol: this.deviceInType
-        })
+        const res = await getNodeInfo(
+          {
+            id: node.data.id,
+            type: node.data.type,
+            inProtocol: this.deviceInType
+          }
+        )
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
         console.log(e)
@@ -138,19 +194,19 @@ export default class TreeMixin extends Vue {
           }
         }
       })
-      // 子账号-获取权限数据
-      if (UserModule.iamUserId) {
-      const permissionRes = await previewAuthActions({
-        targetResources: nodeData.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
-        }))
-      })
-      nodeData = nodeData
-        .map((dir: any, index: number) => ({
-          ...dir,
-          ...permissionRes.result[index].iamUser.actions
-        }))
+      // 子账号-获取权限数据（仅用户控制台查询权限）
+      if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
+        const permissionRes = await previewAuthActions({
+          targetResources: nodeData.map(dir => ({
+            dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
+            deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
+          }))
+        })
+        nodeData = nodeData
+          .map((dir: any, index: number) => ({
+            ...dir,
+            ...permissionRes.result[index].iamUser.actions
+          }))
       }
     }
 

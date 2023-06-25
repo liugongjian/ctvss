@@ -53,6 +53,7 @@ export enum DeviceEnum {
   PushType = 'pushType',
   UserName = 'userName',
   Password = 'password',
+  EnabledGB35114 = 'enabledGB35114',
   PushUrl = 'pushUrl',
   PullUrl = 'pullUrl',
   OnlyPullUrl = 'onlyPullUrl',
@@ -277,7 +278,9 @@ export enum ToolsEnum {
   PreviewVideo = 'previewVideo',
   ReplayVideo = 'replayVideo',
   PreviewViid = 'previewViid',
-  GoBack = 'goBack'
+  GoBack = 'goBack',
+  // screenBoard相关
+  ClearAllScreen = 'clearAllScreen'
 }
 
 /**

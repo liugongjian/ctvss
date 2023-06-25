@@ -3,7 +3,8 @@
     <el-form ref="form" :model="form" :rules="rules" label-width="240px">
       <el-tabs v-model="activeName" type="border-card">
         <el-tab-pane label="通用" name="common">
-          <el-form-item label="是否启用短信告警">
+          <!-- https://devops.ctcdn.cn/jira/browse/VSS-10578 -->
+          <!-- <el-form-item label="是否启用短信告警">
             <template slot="label">
               是否启用短信告警:
               <el-popover
@@ -21,7 +22,7 @@
           </el-form-item>
           <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
             <el-input v-model="form.phoneNumber" />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item prop="screen">
             <template slot="label">
               实时预览记录功能:
@@ -89,7 +90,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
+// import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
 import { UserModule } from '@/store/modules/user'
 import { updatetUserConfig } from '@/api/users'
 import { scaleKind } from '@/dics/index'
@@ -141,18 +142,18 @@ export default class extends Vue {
     replay: 'false',
     enableCloudChannelName: 'false'
   }
-  private loading: boolean = false
+  private loading = false
 
   private get screenCacheSettings() {
     return UserModule.settings.screenCache
   }
 
   private async mounted() {
-    try {
-      this.form = await getPhoneNumberForAISMS({})
-    } catch (e) {
-      console.log(e)
-    }
+    // try {
+    //   this.form = await getPhoneNumberForAISMS({})
+    // } catch (e) {
+    //   console.log(e)
+    // }
     try {
       await UserModule.getUserConfigInfo()
       this.form = {
@@ -186,14 +187,14 @@ export default class extends Vue {
       if (!valid) return
       try {
         this.loading = true
-        let params = []
+        const params = []
         // 前后端参数不一致，设置转换字典
-        let dic = {
+        const dic = {
           screen: 'live',
           replay: 'record',
           enableCloudChannelName: 'enableCloudChannelName'
         }
-        let keyList = ['screen', 'replay', 'enableCloudChannelName']
+        const keyList = ['screen', 'replay', 'enableCloudChannelName']
         keyList.forEach(item => {
           params.push({
             key: dic[item],
@@ -204,18 +205,18 @@ export default class extends Vue {
           userConfig: params
         })
         await UserModule.getUserConfigInfo()
-        await activatePhone({
-          phoneNumber: this.form.phoneNumber,
-          active: this.form.active
-        })
+        // await activatePhone({
+        //   phoneNumber: this.form.phoneNumber,
+        //   active: this.form.active
+        // })
         this.$message.success('操作成功')
       } catch (e) {
         this.$message.error('操作失败')
       } finally {
-        this.form = {
-          ...this.form,
-          ...await getPhoneNumberForAISMS({})
-        }
+        // this.form = {
+        //   ...this.form,
+        //   ...await getPhoneNumberForAISMS({})
+        // }
         this.loading = false
         // 立即清除对应的缓存
         if (this.cacheForm.replay === 'false') {
@@ -256,7 +257,7 @@ export default class extends Vue {
   // }
   private async getUserConfigInfo() {
     const userScaleConfig = this.$store.state.user.userConfigInfo
-    if (userScaleConfig.length > 0 && userScaleConfig.find((item: any) => item.key === 'videoScale').value) {
+    if (userScaleConfig.length > 0 && userScaleConfig.find((item: any) => item.key === 'videoScale')) {
       this.form.scaleVal = userScaleConfig.find((item: any) => item.key === 'videoScale').value
     } else {
       this.form.scaleVal = '1'
@@ -264,7 +265,6 @@ export default class extends Vue {
   }
 
   private changeThis() {
-    // console.log(this.form.scaleVal)
     console.log(this.form)
     this.$forceUpdate()
   }
@@ -277,7 +277,7 @@ export default class extends Vue {
       const result = temp.find((item: any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
       const tempObj = temp.filter((item: any) => item.key !== 'videoScale') || []
-      const final = [...tempObj, [result]]
+      const final = [...tempObj, ...[result]]
       this.$store.state.user.userConfigInfo = final
       UserModule.getUserConfigInfo()
     }).catch(err => {

@@ -1,5 +1,6 @@
 <template>
   <div v-if="deviceId && !disablePTZ" class="container">
+    <!-- <div v-if="!isClosed && !checkPermission(['ivs:ControlDevicePTZ'], screen)" class="container__disabled-mask" @click="disabledPanelAlert" /> -->
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -26,7 +27,7 @@
                 <i class="icon-ptz-left" />
               </span>
               <span class="direction disabled">
-                <!-- <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
+                <!-- <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)"> -->
                 <i class="icon-ptz-auto" />
               </span>
               <span class="direction" :class="{ 'disabled': !controlDevicePTZ }" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
@@ -47,14 +48,16 @@
                 <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
                 <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
-              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
-                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
-                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
-              </span>
-              <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
-                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
-                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
-              </span>
+              <div v-if="!['ehome'].includes(screen.inProtocol)">
+                <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
+                  <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
+                  <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
+                </span>
+                <span class="operation" :class="{ 'disabled': !controlDevicePTZ }">
+                  <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
+                  <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
+                </span>
+              </div>
             </div>
           </div>
           <div class="ptz-slider">
@@ -162,15 +165,29 @@
       :current-name="cruises[currentIndex.cruise].name"
       :is-create="isCreate"
       :device-id="deviceId"
+      :screen="screen"
       @on-close="closeCruiseDialog"
     />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
-import * as ptzControlApi from '../../../api/ptz_control'
-import UpdateCruise from './UpdateCruise.vue'
+import { startDeviceMove,
+          endDeviceMove,
+          startDeviceAdjust,
+          endDeviceAdjust,
+          setDevicePreset,
+          gotoDevicePreset,
+          deleteDevicePreset,
+          describeDevicePresets,
+          describePTZCruiseList,
+          startPTZCruise,
+          stopPTZCruise,
+          describePTZKeepwatch,
+          updatePTZKeepwatch } from '@vss/device/api/ptz_control'
+import UpdateCruise from '@/views/device/components/dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
+import { getLocalStorage } from '@/utils/storage'
 import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
@@ -192,7 +209,7 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  @Inject({ default: () => {} })
+  @Inject({ default: () => () => null })
   public getActions!: Function
 
   public checkPermission = checkPermission
@@ -204,13 +221,16 @@ export default class extends Vue {
     cruise: false,
     homeposition: false
   }
+
   private currentIndex: any = {
     preset: null,
     cruise: null
   }
+
   private dialog: any = {
     cruise: false
   }
+
   private isCreate = true
   private presets: Array<any> = []
   private cruises: Array<any> = []
@@ -221,6 +241,7 @@ export default class extends Vue {
     waitTime: '',
     presetId: ''
   }
+
   private homepositionRules: any = {
     waitTime: [
       // { required: true, message: '请填写守望时间', trigger: 'blur' },
@@ -236,13 +257,11 @@ export default class extends Vue {
   }
 
   private get controlDevicePreset() {
-    return checkPermission(['ivs:ControlDevicePreset'], this.actions || this.screen.permission)
+    return checkPermission(['ivs:ControlDevicePreset'], this.action || this.screen.permission)
   }
 
   private get controlDevicePTZ() {
-    // v2 设备云台控制权限在IAM中隐藏，暂时放开控制，等中台迁移
-    // return checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
-    return checkPermission(null, this.actions || this.screen.permission)
+    return checkPermission(['ivs:ControlDevicePTZ'], this.action || this.screen.permission)
   }
 
   private get deviceId() {
@@ -268,11 +287,17 @@ export default class extends Vue {
       this.getKeepWatchInfo()
     }
   }
+
   // 获取预置位信息
   private async getPresets() {
     try {
       this.loading.preset = true
-      const res = await ptzControlApi.describeDevicePresets({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describeDevicePresets({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
       this.presets = Array.from({ length: 255 }, (value, index) => {
         const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
         return {
@@ -296,7 +321,12 @@ export default class extends Vue {
   private async getCruises() {
     try {
       this.loading.cruise = true
-      const res = await ptzControlApi.describePTZCruiseList({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describePTZCruiseList({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
       this.cruises = Array.from({ length: 8 }, (value, index) => {
         const found = res.cruiseInfos.find((cruise: any) => cruise.cruiseId === (index + 1).toString())
         return {
@@ -316,7 +346,12 @@ export default class extends Vue {
   private async getKeepWatchInfo() {
     try {
       this.loading.homeposition = true
-      const res = await ptzControlApi.describePTZKeepwatch({ deviceId: this.deviceId })
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      const res = await describePTZKeepwatch({
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
       this.homepositionForm = {
         enable: res.enable,
         waitTime: res.waitTime,
@@ -334,29 +369,42 @@ export default class extends Vue {
 
   private async deletePreset(presetId: number) {
     try {
-      await ptzControlApi.deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
-    } catch (e) {
-      this.$message.error(`删除预置位失败，原因：${e && e.message}`)
-    } finally {
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await deleteDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
       this.getPresets()
+    } catch (e) {
+      this.$message.error(e && e.message)
     }
+    // this.$set(this.presets, presetId - 1, {
+    //   'setFlag': false,
+    //   'name': `预置位 ${presetId}`,
+    //   'editNameFlag': false
+    // })
   }
 
   private async setPreset(presetId: number, presetName: string) {
     try {
-      await ptzControlApi.setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
-    } catch (e) {
-      this.$message.error(`设置预置位失败，原因：${e && e.message}`)
-    } finally {
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await setDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        presetName,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
+      // this.$set(this.presets, presetId - 1, {
+      //   'setFlag': true,
+      //   'name': presetName,
+      //   'editNameFlag': false
+      // })
       this.getPresets()
-    }
-  }
-
-  private async gotoPreset(presetId: number) {
-    try {
-      await ptzControlApi.gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
     } catch (e) {
-      this.$message.error(`调用预置位失败，原因：${e && e.message}`)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -377,9 +425,26 @@ export default class extends Vue {
     preset.editNameFlag = false
   }
 
+  private async gotoPreset(presetId: number) {
+    try {
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await gotoDevicePreset({
+        deviceId: this.deviceId,
+        presetId: String(presetId),
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
+      })
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
+  }
+
   private formatStartParam(direction: number, speed: number) {
+    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+      groupId
     }
     switch (direction) {
       case 5:
@@ -431,9 +496,13 @@ export default class extends Vue {
     }
     return param
   }
+
   private formatEndParam(direction: number) {
+    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
-      deviceId: this.deviceId
+      deviceId: this.deviceId,
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+      groupId
     }
     switch (direction) {
       case 5:
@@ -485,22 +554,35 @@ export default class extends Vue {
     }
     return param
   }
+
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await ptzControlApi.startDeviceMove(data)
+    await startDeviceMove(data)
   }
+
   private async endPtzMove(direction: number) {
-    const data = this.formatEndParam(direction)
-    await ptzControlApi.endDeviceMove(data)
+    try {
+      const data = this.formatEndParam(direction)
+      await endDeviceMove(data)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
+
   private async startPtzAdjust(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await ptzControlApi.startDeviceAdjust(data)
+    await startDeviceAdjust(data)
   }
+
   private async endPtzAdjust(direction: number) {
-    const data = this.formatEndParam(direction)
-    await ptzControlApi.endDeviceAdjust(data)
+    try {
+      const data = this.formatEndParam(direction)
+      await endDeviceAdjust(data)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
+
   private formatToolTip() {
     return '云台速度 ' + this.speed
   }
@@ -520,9 +602,12 @@ export default class extends Vue {
 
   private async handleCruise(cruiseId: any) {
     try {
-      await ptzControlApi.startPTZCruise({
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await startPTZCruise({
         cruiseId: cruiseId.toString(),
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
       })
       this.$message({
         type: 'success',
@@ -535,9 +620,12 @@ export default class extends Vue {
 
   private async stopCruise(cruiseId: any) {
     try {
-      await ptzControlApi.stopPTZCruise({
+      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+      await stopPTZCruise({
         cruiseId: cruiseId.toString(),
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
+        groupId
       })
       this.$message({
         type: 'success',
@@ -554,12 +642,14 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (!valid) return
       try {
-        await ptzControlApi.updatePTZKeepwatch({
+        const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
+        await updatePTZKeepwatch({
           deviceId: this.deviceId,
           enable: this.homepositionForm.enable,
           waitTime: this.homepositionForm.waitTime,
           presetId: this.homepositionForm.presetId,
-          inProtocol: 'gb28181'
+          inProtocol: 'gb28181',
+          groupId
         })
         this.$message({
           type: 'success',
@@ -596,14 +686,36 @@ export default class extends Vue {
       callback()
     }
   }
+
+  private disabledPanelAlert() {
+    this.$message.warning('该设备已锁定，不能进行云台操作')
+  }
 }
 </script>
 <style lang="scss" scoped>
 .container {
+  position: relative;
+
+  &__disabled-mask {
+    position: absolute;
+    z-index: 18;
+    width: 100%;
+    height: 100%;
+    background: #808080;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   &__ptz {
     width: 210px;
     height: 100%;
     position: relative;
+
+    ::v-deep {
+      .el-loading-mask {
+        z-index: 16;
+      }
+    }
 
     &__title {
       height: 40px;
@@ -630,6 +742,9 @@ export default class extends Vue {
           height: 100%;
           overflow: hidden;
           background: url('~@/assets/ptz/expand.png') 0 50% no-repeat;
+          cursor: pointer;
+          position: relative;
+          z-index: 19;
         }
       }
 
@@ -778,6 +893,10 @@ export default class extends Vue {
             .el-slider__runway.show-input {
               margin-right: 56px;
             }
+
+            .el-slider__button-wrapper {
+              z-index: 17 !important;
+            }
           }
         }
 
@@ -904,6 +1023,7 @@ export default class extends Vue {
     cursor: default;
 
     .toggle-icon__closed {
+      margin-top: 10px;
       width: 100%;
       height: 100%;
       overflow: hidden;

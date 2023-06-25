@@ -30,6 +30,7 @@ import { checkDeviceToolsVisible, checkDeviceTabsVisible } from '@vss/device/uti
 import { getDirPath, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 import detailMixin from '@vss/device/mixin/deviceMixin'
 import { PolicyEnum } from '@vss/base/enums/iam'
 
@@ -59,10 +60,10 @@ export default class extends Mixins(detailMixin) {
   public async deviceIdChange(deviceId) {
     this.device = {} as Device
     await this.getDevice(deviceId)
-    // 当前设备-IAM权限查询
-    try {
-      this.deviceLoading = true
-      if (UserModule.iamUserId) {
+    // 当前设备-IAM权限查询（仅用户控制台查询权限）
+    if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
+      try {
+        this.deviceLoading = true
         const type: any = this.$route.query.type
         // 查询全路径
         const res = await getDirPath({
@@ -78,9 +79,9 @@ export default class extends Mixins(detailMixin) {
           }]
         })
         this.deviceActions = permissionRes.result[0].iamUser.actions
+      } finally {
+        this.deviceLoading = false
       }
-    } finally {
-      this.deviceLoading = false
     }
   }
 
