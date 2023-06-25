@@ -14,7 +14,7 @@
           <el-button @click="openDialog('createTree')"><span>+ 添加</span></el-button>
         </el-tooltip>
       </div>
-      <div ref="treeWrap" v-loading="treeLoading.platform" class="platform__list">
+      <div ref="treeWrap" v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="tree in treeList" :key="tree.treeId" :class="{ 'actived': currentTree && (currentTree.treeId === tree.treeId) }" @click="selectTree(tree)">
             <div>
@@ -37,7 +37,7 @@
             </div>
           </li>
         </ul>
-        <div v-if="treeList && !treeList.length && !treeLoading.platform" class="empty-text">请创建设备树</div>
+        <div v-if="treeList && !treeList.length && !loading.platform" class="empty-text">请创建设备树</div>
       </div>
     </el-card>
     <el-card v-if="!treeListEmpty" ref="deviceWrap" class="shared-devices">
@@ -61,7 +61,6 @@
               :load="loadDirs"
               :props="treeProp"
               @check="checkCallback"
-              @node-click="nclick"
             >
               <span
                 slot-scope="{ node, data }"
@@ -69,10 +68,10 @@
                 :class="{ 'online': data.deviceStatus === 'on' }"
               >
                 <span class="node-name" :class="{ 'node-disabled': data.disabled }">
-                  <svg-icon :name="nodeType(node)" width="15" height="15" />
-                  <!-- <span v-else-if="node.level !== 1" class="node-dir">
+                  <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                  <span v-else-if="node.level !== 1" class="node-dir">
                     <svg-icon name="dir-close" width="15" height="15" />
-                  </span> -->
+                  </span>
                   <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                   {{ node.label }}
                   <span class="sum-icon">{{ getTotalOfTree(data) }}</span>
@@ -149,7 +148,7 @@
         </div>
       </div>
       <div v-show="isEditing" class="button">
-        <el-button type="primary" :loading="treeLoading.submitting" @click="submit">确 定</el-button>
+        <el-button type="primary" :loading="loading.submitting" @click="submit">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-card>
@@ -184,7 +183,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Dialogue from './component/dialogue.vue'
 import { checkPermission } from '@vss/base/utils/permission'
@@ -195,7 +194,6 @@ import ElTree from './component/tree/src/tree.vue'
 import { cloneDeep } from 'lodash'
 import { createTree, deleteTree, loadTreeNode, describeTreeIds, getTreeList, updateTreeNodes, updateTreeName } from '@/api/customTree'
 import { getLocalStorage } from '@/utils/storage'
-import TreeMixin from '@vss/device/components/Tree/treeMixin'
 
 /**
  * Attention: 1. 右侧树节点中后端传来的数据有originFlag: true的标记，删除这类节点，是把node.visible设置为false；=> 那么提交的时候根据这两个属性，进行删除操作
@@ -213,8 +211,7 @@ const root = {
   showCheckbox: false,
   originFlag: true,
   totalSize: 0,
-  onlineSize: 0,
-  path: ''
+  onlineSize: 0
 }
 
 @Component({
@@ -225,7 +222,7 @@ const root = {
     ElTree
   }
 })
-export default class extends Mixins(TreeMixin) {
+export default class extends Vue {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private getTotalOfTree = getTotalOfTree
@@ -274,7 +271,7 @@ export default class extends Mixins(TreeMixin) {
 
   private hideDeleteDirDialog = false
 
-  public treeLoading = {
+  public loading = {
     platform: false,
     dir: false,
     sharedDevices: false,
@@ -283,11 +280,6 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private duplicateDirError = ''
-
-  private nclick(n, d){
-    console.log(n)
-    console.log(d)
-  }
 
   private get treeListEmpty() {
     this.calMaxHeight()
@@ -338,17 +330,10 @@ export default class extends Mixins(TreeMixin) {
   private async mounted() {
     await this.getTreeList()
     this.enableCloudChannelName = this.getNvrShowChannelName()
-    // this.initGroups()
-    this.getTotalsOfLeftTree()
+    // this.enableCloudChannelName = getLocalStorage('screenCache')
+    this.initGroups()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-  }
-
-  private nodeType(node){
-    if (node.data.type === 'dir'){
-      return node.expanded ? 'dir' : 'dir-close'
-    }
-    return node.data.type
   }
 
   private getNvrShowChannelName() {
@@ -365,12 +350,17 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private getTotalsOfLeftTree() {
+    const res = { onlineSize: 0, totalSize: 0 }
+    this.groupInfos.length > 0 && this.groupInfos.forEach(group => {
+      res.onlineSize += group.onlineSize
+      res.totalSize += group.totalSize
+    })
     this.$nextTick(() => {
       const dirTree: any = this.$refs.dirTree
       if (dirTree) {
         const rootNode = dirTree.getNode(root.id)
-        this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
-        this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
+        this.$set(rootNode.data, 'totalSize', res.totalSize)
+        this.$set(rootNode.data, 'onlineSize', res.onlineSize)
       }
     })
   }
@@ -417,10 +407,9 @@ export default class extends Mixins(TreeMixin) {
    */
   private async getTreeList() {
     try {
-      this.treeLoading.platform = true
-      const res = await getTreeList({ treeType: 'customize' })
-      console.log('res:', res)
-      this.treeList = res.trees.map(item => ({ ...item, editFlag: false }))
+      this.loading.platform = true
+      const { trees } = await getTreeList({})
+      this.treeList = trees.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
         const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
         this.currentTree = currentTree
@@ -430,7 +419,7 @@ export default class extends Mixins(TreeMixin) {
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
-      this.treeLoading.platform = false
+      this.loading.platform = false
     }
   }
 
@@ -448,7 +437,7 @@ export default class extends Mixins(TreeMixin) {
    */
   public async initDirs(resolve) {
     try {
-      this.treeLoading.dir = true
+      this.loading.dir = true
       if (this.groupInfos.length === 0) {
         // 如果组信息为空，再尝试加载一下，有可能是后端网络错误
         await this.initGroups()
@@ -459,7 +448,7 @@ export default class extends Mixins(TreeMixin) {
       resolve([])
       console.log(e)
     } finally {
-      this.treeLoading.dir = false
+      this.loading.dir = false
     }
   }
 
@@ -499,60 +488,31 @@ export default class extends Mixins(TreeMixin) {
    * 加载业务组树
    */
   private async loadDirs(node: any, resolve: Function) {
-    this.treeLoading.dir = true
-    const subData = await this.treeLoad(node)
-    // if (node.level === 0) return resolve([])
-    // if (node.level === 1) return this.initDirs(resolve) // 展开全部，load业务组信息
+    this.loading.dir = true
+    if (node.level === 0) return resolve([])
+    if (node.level === 1) return this.initDirs(resolve) // 展开全部，load业务组信息
 
-    const dirs = this.resolveSubTreeData(node, subData)
-    // const dirs = await this.getTree(node)
-
-    this.getTotalsOfLeftTree()
+    const dirs = await this.getTree(node)
 
     this.setDirChecked()
     resolve(dirs)
     // this.tagNvrUnchecked(node, dirs)
     this.resetDirStatus(node)
-    this.treeLoading.dir = false
-  }
-
-  private resolveSubTreeData(parentNode, subData){
-    let dirs: any = subData.map((dir: any) => {
-      const inProtocol = dir.inVideoProtocol.length > 0 ? dir.inVideoProtocol : dir.inViidProtocol.length > 0 ? dir.inViidProtocol : parentNode.data.inProtocol
-        return {
-          ...dir,
-          id: dir.id,
-          label: dir.name,
-          inProtocol: inProtocol,
-          channelNum: dir.channelNum + '' || '0',
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          deviceStatus: dir.deviceStatus,
-          streamStatus: dir.streamStatus,
-          disabled: false,
-          showCheckbox: dir.type === 'nvr' || dir.type === 'ipc',
-          orderSequence: +dir.orderSequence,
-          // 如果展开nvr，下面的通道加上nvr设备信息，其它则为null
-          parentDevice: ['nvr'].includes(parentNode.data.type) ? parentNode.data : null,
-          rootPlatForm: parentNode.data.type === 'platform' ? parentNode.data : (parentNode.data.rootPlatForm || null)
-        }
-      })
-      dirs = setDirsStreamStatus(dirs)
-      return dirs
+    this.loading.dir = false
   }
 
   /**
    * 加载树目录
    */
   private async loadTreeDirs(node: any, resolve: Function) {
-    this.treeLoading.dir = true
+    this.loading.dir = true
     if (node.level === 0) return resolve([])
     // 如果是当前编辑中添加的目录节点，且没有load，则返回空
     if (!node.data.originFlag && !node.loaded) return resolve([])
     // if (node.level === 1) return this.initTreeDirs(resolve) // 展开全部，load业务组信息
     const dirs = await this.getTree2(node)
     resolve(dirs)
-    this.treeLoading.dir = false
+    this.loading.dir = false
   }
 
   // 根据nvr节点的checked状态改变disabled
@@ -888,7 +848,7 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private async submit() {
-    this.treeLoading.submitting = true
+    this.loading.submitting = true
     const dirTree2: any = this.$refs.dirTree2
     const treeRoot = dirTree2.getNode(root.id)
     const childNodes = treeRoot.childNodes
@@ -905,7 +865,7 @@ export default class extends Mixins(TreeMixin) {
       console.log(e)
       this.$message.error(e)
     } finally {
-      this.treeLoading.submitting = false
+      this.loading.submitting = false
     }
   }
 
@@ -977,8 +937,8 @@ export default class extends Mixins(TreeMixin) {
   private clearCheckedKeys() {
     const dirTree: any = this.$refs.dirTree
     const dirTree2: any = this.$refs.dirTree2
-    dirTree && dirTree.setCheckedKeys([])
-    dirTree2 && dirTree2.setCheckedKeys([])
+    dirTree.setCheckedKeys([])
+    dirTree2.setCheckedKeys([])
   }
 
   private addDevices() {

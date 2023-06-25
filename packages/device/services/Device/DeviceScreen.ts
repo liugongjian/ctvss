@@ -120,11 +120,22 @@ const resumePolling = function (getVueComponent) {
   }
 }
 
+/**
+ * 初始化分屏列表
+ */
+const clearAllScreen = function (getVueComponent) {
+  const state: { screenManager: any } = getVueComponent()
+  if (state.screenManager) {
+    state.screenManager.clearAllScreen()
+  }
+}
+
 export default {
   openScreen,
   executeQueue,
   intervalChange,
   stopPolling,
   pausePolling,
-  resumePolling
+  resumePolling,
+  clearAllScreen
 }

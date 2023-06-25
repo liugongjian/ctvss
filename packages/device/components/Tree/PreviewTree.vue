@@ -15,6 +15,21 @@
     :expand-on-click-node="false"
     @handle-node="handleNode"
   >
+    <template v-if="isSystemUser" slot="treeHeader">
+      <el-select v-model="rootKey" size="small" class="common-tree__selector" @rootKeyChange="rootKeyChange">
+        <div slot="prefix" class="common-tree__selector--prefix">
+          <span class="common-tree__selector--prefix-label">{{ rootLabel }}</span>
+          <span>{{ `(${rootSums.onlineSize}/${rootSums.totalSize})` }}</span>
+        </div>
+        <el-option
+          v-for="item in treeSelectorOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+          :disabled="item.disabled"
+        />
+      </el-select>
+    </template>
     <template slot="itemLabelPrefix" slot-scope="{ node, data }">
       <svg-icon v-if="!node.expanded && data.type === directoryTypeEnum.Dir" name="dir-close" />
       <svg-icon v-else :class="{ 'active-icon': data[deviceEnum.DeviceStatus] === statusEnum.On }" :name="data.type" />
@@ -34,7 +49,7 @@
       <el-tooltip v-if="checkVisible(data.type, toolsEnum.ShowMore)" effect="dark" content="更多操作" placement="top" :open-delay="300">
         <hover-selector>
           <template slot="tooltipBase">
-            <el-button v-if="lazy" type="text"><svg-icon name="more" /></el-button>
+            <el-button v-if="lazy && !isCustomTree" type="text"><svg-icon name="more" /></el-button>
           </template>
           <template slot="tooltipContent">
             <el-button size="mini" type="text" @click.stop="handleTools(toolsEnum.Polling, data, statusEnum.On)">轮巡</el-button>
@@ -56,6 +71,10 @@ import { checkPermission } from '@vss/base/utils/permission'
   name: 'PreviewTree'
 })
 export default class extends Mixins(treeMixin) {
+  public mounted() {
+    this.getCustomTreeList()
+  }
+
   public async onTreeLoadedHook(node, res) {
     return res.dirs.filter(item => item.inProtocol !== 'viid')
   }

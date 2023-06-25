@@ -1189,19 +1189,18 @@ export const v2Router: RouteConfig[] = [
           perms: ['*']
         }
       },
-      // v2版本会在s5迁移该功能，暂时隐藏
-      // {
-      //   path: 'custom-tree',
-      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
-      //   name: 'CustomTree',
-      //   meta: {
-      //     title: '自定义设备树',
-      //     breadcrumb: true,
-      //     activeMenu: '/sysconfig/custom-tree',
-      //     icon: 'dot',
-      //     perms: ['*']
-      //   }
-      // },
+      {
+        path: 'custom-tree',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/custom-tree',
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
       // v2版本会在s5迁移该功能，暂时隐藏
       // {
       //   path: 'replay-lock-manage',

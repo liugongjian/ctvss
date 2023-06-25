@@ -97,7 +97,8 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
-    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
+    [ToolsEnum.ClearAllScreen]: () => DeviceScreen.clearAllScreen(this.getVueComponent)
   }
 
   private get UserVersion() {
@@ -127,6 +128,14 @@ export default class LayoutMixin extends Vue {
     return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
       param => !this.$route.query[param]
     )
+  }
+
+  private get showAdvanceSearch() {
+    return !this.$route.query.rootKey
+  }
+
+  private get isShowPolling() {
+    return !this.$route.query.rootKey && this.lazy
   }
 
   public async mounted() {
