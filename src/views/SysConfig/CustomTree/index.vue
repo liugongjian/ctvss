@@ -213,7 +213,8 @@ const root = {
   showCheckbox: false,
   originFlag: true,
   totalSize: 0,
-  onlineSize: 0
+  onlineSize: 0,
+  path: ''
 }
 
 @Component({
