@@ -119,7 +119,7 @@ export default class extends Vue {
   @Prop({ default: () => function() { return true } })
   private checkPermission
 
-  @Inject({ default: () => ({}) })
+  @Inject({ default: () => () => null })
   public getActions!: Function
   /* 播放器类型 */
   @Prop()

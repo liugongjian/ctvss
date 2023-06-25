@@ -52,7 +52,7 @@ import { updateDeviceResource } from '@vss/device/api/billing'
   }
 })
 export default class extends Vue {
-  @Inject({ default: () => ({}) })
+  @Inject({ default: () => () => null })
   public getActions!: Function
   private get deviceActions() {
     return this.getActions && this.getActions()

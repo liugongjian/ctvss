@@ -65,7 +65,7 @@ import { PolicyEnum } from '@vss/base/enums/iam'
   }
 })
 export default class extends Mixins(detailMixin) {
-  @Inject({ default: () => ({}) })
+  @Inject({ default: () => () => null })
   public getActions!: Function
   private get deviceActions() {
     return this.getActions && this.getActions()

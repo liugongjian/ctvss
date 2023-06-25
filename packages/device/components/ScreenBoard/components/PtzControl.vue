@@ -209,7 +209,7 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  @Inject({ default: () => ({}) })
+  @Inject({ default: () => () => null })
   public getActions!: Function
 
   public checkPermission = checkPermission
