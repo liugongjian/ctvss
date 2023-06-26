@@ -261,7 +261,7 @@ export default class extends Vue {
  private async jump2device(row: any) {
   try {
     this.jumpLoading = true
-    await redirectToDeviceDetail(this, row.deviceId, row.inProtocol)
+    await redirectToDeviceDetail(this, row.deviceId, 'ipc')
   } catch (e) {
     if (e == 'Error: 没有查询到该设备') {
       this.$message.error('该设备已删除，无法跳转设备详情')
