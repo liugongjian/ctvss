@@ -7,21 +7,20 @@
   >
     <div slot="title">{{ dialoguePic && dialoguePic.algoName }} | {{ dialoguePic && dialoguePic.captureTime && format(fromUnixTime(dialoguePic.captureTime / 1000), 'HH:mm:ss yyyy-MM-dd') }}</div>
     <div class="ai-recognation__images__item__arrow" @click="changePic(-1)"><i class="el-icon-arrow-left" /></div>
-    <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img centered">
+    <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img centered" :class="{ full: dialoguePic.algoCode !== '10009' }">
       <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
-        <img v-if="dialoguePic" ref="dialoguePic" :src="dialoguePic.image" />
-        <LocationsNew :img="dialoguePic" :ratio="picRatio" :clickable="true" @click-location="onLocationChanged" />
+        <img v-if="dialoguePic" ref="dialoguePic" :src="dialoguePic.image" @load="onload" />
+        <LocationsNew v-if="picRatio.ratioW && dialoguePic" :img="dialoguePic" :ratio="picRatio" :clickable="true" @click-location="onLocationChanged" />
       </div>
-
-      <!-- <Attributes
-        v-if="dialoguePic.code === '10009'"
-        class="ai-image-fullscreen__img--attributes"
-        :type="dialoguePic.code"
-        :img="dialoguePic"
-        :attributes-index="currentLocationIndex"
-      /> -->
     </div>
     <div class="ai-recognation__images__item__arrow" @click="changePic(1)"><i class="el-icon-arrow-right" /></div>
+    <AttributesNew
+      v-if="dialoguePic.algoCode === '10009'"
+      class="ai-image-fullscreen__img--attributes"
+      :type="dialoguePic.algoCode"
+      :img="dialoguePic"
+      :attributes-index="currentLocationIndex"
+    />
   </el-dialog>
 </template>
 
@@ -49,6 +48,8 @@ export default class extends Vue {
 
   private currentLocationIndex = 0
 
+  private picRatio: any = {}
+
 
   private format = format
 
@@ -58,23 +59,16 @@ export default class extends Vue {
     return this.alarms[this.currentIndex]
   }
 
-  private get picRatio() {
-    const img: any = this.$refs.dialoguePic
-    return img ? {
-                  imgNaturalWidth: img.naturalWidth,
-                  imgNaturalHeight: img.imgNaturalHeight,
-                  clientHeight: img.clientHeight,
-                  clientWidth: img.clientWidth,
-                  ratioW: img.clientWidth / img.naturalWidth,
-                  ratioH: img.clientHeight / img.naturalHeight
-                 } : {
-                  imgNaturalWidth: 0,
-                  imgNaturalHeight: 0,
-                  clientHeight: 0,
-                  clientWidth: 0,
-                  ratioW: 0,
-                  ratioH: 0
-                 }
+  private onload(){
+    const imgEle: any = this.$refs.dialoguePic
+    this.picRatio = {
+            imgNaturalWidth: imgEle.naturalWidth,
+            imgNaturalHeight: imgEle.naturalHeight,
+            clientHeight: imgEle.clientHeight,
+            clientWidth: imgEle.clientWidth,
+            ratioW: imgEle.clientWidth / imgEle.naturalWidth,
+            ratioH: imgEle.clientHeight / imgEle.naturalHeight
+          }
   }
 
   private onLocationChanged(index: number) {
@@ -110,7 +104,7 @@ export default class extends Vue {
   }
 }
 .centered{
-  width: 92vw;
+  width: 75vw;
   & > div{
     width: 100%;
     img {
@@ -119,6 +113,14 @@ export default class extends Vue {
       object-fit: fill;
     }
   }
-
+}
+.full{
+  width: 92vw;
+}
+.ai-recognation__images__item__img--wrap{
+  position: relative;
+}
+.ai-attributes{
+  align-self: flex-start;
 }
 </style>

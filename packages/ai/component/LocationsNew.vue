@@ -5,27 +5,11 @@
       :key="locationIndex"
     >
       <div
-        v-if="!location.zone"
         class="ai-recognation__images__item__mask"
         :class="[{ 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex }]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="['4', '10001', '34', '10034','19','10016'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }">
-          置信度:{{ location.score }}%<br>
-          <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
-        </div>
-        <div v-if="['29', '10026', '35', '10035'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }">
-          {{ location.label }}
-        </div>
-        <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80 }">
-          {{ location.text }}
-        </div>
-      </div>
-      <div v-else class="ai-recognation__images__item__mask--zone">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
-          <polygon :points="location.zoneSvg" />
-        </svg>
       </div>
     </div>
     <div v-if="img.locations && img.locations.info" class="ai-recognation__images__item__count">
@@ -46,23 +30,17 @@ export default class extends Vue {
   @Prop()
   private img!: any
   @Prop()
-  private ratio: any
+  private ratio!: any
   @Prop()
   private clickable?: boolean
   private aiMaskType = AiMaskType
   private animalType = AnimalType
   private currentIndex = -1
-   private detectBoxes = []
+  private detectBoxes = []
 
-  @Watch('img', {
-    immediate: true
-  })
-  private onImgChanged(img: any) {
-    // 默认选取人体属性的第一个位置
-    if ((this.type === '12' || this.type === '10009') && this.clickable && img && img.locations && img.locations.length) {
-      this.currentIndex = 0
-      this.clickLocation(this.currentIndex)
-    }
+  private mounted(){
+    this.getDetectBoxes(this.img)
+    window.addEventListener('resize', ()=>this.getDetectBoxes(this.img))
   }
 
   private clickLocation(locationIndex: number) {
@@ -73,6 +51,7 @@ export default class extends Vue {
 
     // 处理DetectBoxes数据
   private getDetectBoxes(img){
+    debugger
     if (img.detectBoxes && img.detectBoxes.length > 0){
       const detectBoxes = []
        for (let i = 0; i < img.detectBoxes.length; i += 4) {
@@ -81,7 +60,7 @@ export default class extends Vue {
           left: img.detectBoxes[i],
           width: img.detectBoxes[i + 2],
           height: img.detectBoxes[i + 3],
-          label: img.boxLabels[i / 4]
+          // label: img.boxLabels[i / 4]
         })
        }
        this.detectBoxes = detectBoxes.map(box => {

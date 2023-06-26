@@ -2,19 +2,23 @@
   <div ref="listWrap" class="min-contaniner">
     <div class="filter-container clearfix">
       <div ref="filterWrap" class="filter-container__right">
-        <div>算法类型</div>
-        <el-select v-model="queryParam.algoType" placeholder="请选择">
+        <div v-if="showAlgoType">算法类型</div>
+        <el-select v-if="showAlgoType" v-model="queryParam.algoType" placeholder="请选择">
           <el-option
-            label="全部"
-            value="all"
+            v-for="type in algoTypes"
+            :key="type.code"
+            :label="type.name"
+            :value="type.code"
           >
           </el-option>
         </el-select>
         <div>应用名称</div>
         <el-select v-model="queryParam.appName" placeholder="请选择">
           <el-option
-            label="全部"
-            value="all"
+            v-for="app in apps"
+            :key="app.id"
+            :label="app.name"
+            :value="app.id"
           >
           </el-option>
         </el-select>
@@ -94,7 +98,7 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import CardList from './CardList.vue'
 import PicDialogue from './components/PicDialogue.vue'
-
+import { getAppList, getAlgorithmList } from '@/api/ai-app'
 
 @Component({
   name: 'alarm-list',
@@ -118,8 +122,8 @@ export default class extends Vue {
   private dialogueVisibile = false
 
   private queryParam: any = {
-    algoType: 'all',
-    appName: 'all',
+    algoType: '0',
+    appName: '0',
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
     confidence: [0, 100],
@@ -141,6 +145,14 @@ export default class extends Vue {
 
   private currentIndex = 0
 
+  private apps = []
+
+  private algoTypes = []
+
+  private get showAlgoType(){
+    return this.$route.query.deviceId === '' || !this.$route.query.deviceId
+  }
+
 
   @Watch('queryParam.periodType')
   private periodTypeUpdated(newVal) {
@@ -160,34 +172,29 @@ export default class extends Vue {
     }
   }
 
-  @Watch('$route.query', { deep: true })
+  @Watch('$route.query', { deep: true, immediate: true })
   public onRouterChange() {
-    this.searchFrom = {
-      deviceName: '',
-      timeRange: null,
-      alarmPriority: [],
-      alarmMethod: [],
-      sortBy: '',
-      sortDirection: ''
-    }
-    this.pager = {
-      pageNum: 1,
-      pageSize: 10,
-      totalNum: 0
-    }
-    const tableDom: any = this.$refs.table
-    tableDom.clearSort()
-    tableDom.clearFilter()
-    // this.$route.query.inProtocol && this.getList()
-    // this.getList()
-    this.timer && clearInterval(this.timer)
-    this.getList()
-    this.setTimer()
+    this.getScreenShot()
+    this.getApps()
+    this.showAlgoType && this.getAlgoTypes()
   }
 
-  private mounted() {
-    this.getScreenShot()
+  private async getApps(){
+    const all = [{ id: '0', name: '全部' }]
+    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId, pageSize: 3000 })
+    all.push(...aiApps)
+    this.apps = all
   }
+
+  private async getAlgoTypes(){
+    const all = [{ code: '0', name: '全部' }]
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ deviceId: this.$route.query.deviceId, pageSize: 3000 })
+    all.push(...aiAbilityAlgorithms)
+    this.algoTypes = all
+  }
+
+
+
 
   private async getScreenShot() {
     this.alarmList = []
@@ -215,10 +222,11 @@ export default class extends Vue {
       // const res = await getAppScreenShot(query)
       // this.pager.totalNum = res.totalNum
       const list = [{
-        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-163145-1d6ea4e8-019c-4f99-bf50-ffe3c26474bf.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230613%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230613T020922Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=bdbe5ada48f7038e6bcd527643fc60cd6932a9141b773b9c008b20397f1377e6'
+        algoCode: '10009', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230625%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230625T015412Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4a47dd9c05e6a06022025b91d8a0415adf9c3f5a2df042d8fbbc62a4caff2f40'
         , detectBoxes: [867, 346, 287, 403 ]
       }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162645-b7c09835-91f0-4a63-86f7-9b1d8e6e68a0.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230613%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230613T020922Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=cd644221dc20ab1eb704b990bf857b931fdb97f24ef41c2d5f46b2ac99303ea6'
+         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162745-407cbe7c-f359-46a0-9d8c-52ff74d38040.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230625%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230625T015412Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e6ff96fd3470425d68b59afe6012766808066e32aa0eb3dd6715ec86089e9eea'
+        , detectBoxes: [867, 346, 287, 403 ]
       }]
       this.alarmList = list
     } catch (e) {
