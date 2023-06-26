@@ -3,7 +3,7 @@
     <div class="filter-container clearfix">
       <div ref="filterWrap" class="filter-container__right">
         <div v-if="showAlgoType">算法类型</div>
-        <el-select v-if="showAlgoType" v-model="queryParam.algoType" placeholder="请选择">
+        <el-select v-if="showAlgoType" v-model="queryParam.algoType" placeholder="请选择" @change="algoTypeChange">
           <el-option
             v-for="type in algoTypes"
             :key="type.code"
@@ -99,6 +99,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import CardList from './CardList.vue'
 import PicDialogue from './components/PicDialogue.vue'
 import { getAppList, getAlgorithmList } from '@/api/ai-app'
+import { getTime } from 'date-fns'
 
 @Component({
   name: 'alarm-list',
@@ -311,6 +312,9 @@ export default class extends Vue {
   public handleChange() {}
 
   private refresh(){
+    console.log('this.queryParam.period:', this.queryParam.period)
+    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+    if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
     this.getScreenShot()
   }
 
@@ -328,11 +332,19 @@ export default class extends Vue {
     const time = dd.setHours(0, 0, 0)
     return time
   }
+
+  private async algoTypeChange(val){
+    await this.getApps()
+    if (val !== '0'){
+      this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
+    }
+    this.queryParam.appName = '0'
+  }
 }
 </script>
 <style lang="scss" scoped>
 .min-contaniner {
-  min-width: 1100px;
+  min-width: 1350px;
   width: 100%;
   .filter-container__right{
     display: flex;
@@ -365,5 +377,8 @@ export default class extends Vue {
 .el-slider{
   margin-left: 15px;
   width: 100px;
+}
+.el-button-rect{
+  margin: 0px 10px;
 }
 </style>
