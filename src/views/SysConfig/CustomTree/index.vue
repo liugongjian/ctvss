@@ -214,7 +214,8 @@ const root = {
   originFlag: true,
   totalSize: 0,
   onlineSize: 0,
-  path: ''
+  path: '',
+  isLeaf: false
 }
 
 @Component({
@@ -368,9 +369,13 @@ export default class extends Mixins(TreeMixin) {
     this.$nextTick(() => {
       const dirTree: any = this.$refs.dirTree
       if (dirTree) {
-        const rootNode = dirTree.getNode(root.id)
-        this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
-        this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
+        this.$nextTick(()=>{
+          const rootNode = dirTree.getNode(root.id)
+          debugger
+          this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
+          this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
+        })
+
       }
     })
   }
@@ -500,10 +505,14 @@ export default class extends Mixins(TreeMixin) {
    */
   private async loadDirs(node: any, resolve: Function) {
     this.treeLoading.dir = true
-    const subData = await this.treeLoad(node)
-    // if (node.level === 0) return resolve([])
-    // if (node.level === 1) return this.initDirs(resolve) // 展开全部，load业务组信息
+    // const subData = await this.treeLoad(node)
+    let subData
 
+    if (node.level === 0) {
+      subData = [] // 展开全部，load业务组信息
+    } else {
+      subData = await this.treeLoad(node)
+    }
     const dirs = this.resolveSubTreeData(node, subData)
     // const dirs = await this.getTree(node)
 
