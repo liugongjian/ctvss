@@ -751,7 +751,8 @@ export default class extends Mixins(TreeMixin) {
       if (node.loaded) {
         node.expanded = true
       } else {
-        const dirs = await this.getTree(node)
+        const subData = await this.treeLoad(node)
+        const dirs = this.resolveSubTreeData(node, subData)
         dirs && dirTree.updateKeyChildren(node.data.id, dirs)
         node.expanded = true
         node.loaded = true
