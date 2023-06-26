@@ -93,7 +93,8 @@ function responseHandler(response: AxiosResponse) {
       config.url.includes('/device/exportDeviceAll') ||
       config.url.includes('/device/exportDeviceOption') ||
       config.url.includes('/device/exportFailedDevice') ||
-      config.url.includes('/device/detail/export')
+      config.url.includes('/device/detail/export') ||
+      config.url.includes('/recovery/vehicle/missExport')
     ) }
     if ( UserModule.version === 2 && ifExport(response.config) ){
       resData = response
