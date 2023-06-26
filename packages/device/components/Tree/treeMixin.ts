@@ -164,13 +164,15 @@ export default class TreeMixin extends Vue {
       // this.loading = false
     } else {
       try {
-        const res = await getNodeInfo(
-          {
-            id: node.data.id,
-            type: node.data.type,
-            inProtocol: this.deviceInType
-          }
-        )
+        const res = await getNodeInfo({
+          id: node.data.id === -1 ? '' : node.data.id,
+          type: node.data.type,
+          inProtocol: this.deviceInType
+        })
+        if (node.data.id === -1) {
+          this.rootSums.onlineSize = res.onlineSize
+          this.rootSums.totalSize = res.totalSize
+        }
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
         console.log(e)
@@ -254,7 +256,7 @@ export default class TreeMixin extends Vue {
       } else {
         this.setCurrentKey(key || this.rootKey)
       }
-      
+
     } else {
       // 展开目录
       this.commonTree.loadChildren(payload)
