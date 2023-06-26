@@ -1094,7 +1094,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/Statistic/index.vue'),
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/StatisticV1/index.vue'),
         name: 'statistic',
         meta: {
           title: '统计信息',
