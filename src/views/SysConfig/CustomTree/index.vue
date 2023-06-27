@@ -371,7 +371,6 @@ export default class extends Mixins(TreeMixin) {
       if (dirTree) {
         this.$nextTick(()=>{
           const rootNode = dirTree.getNode(root.id)
-          debugger
           this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
           this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
         })
@@ -424,7 +423,6 @@ export default class extends Mixins(TreeMixin) {
     try {
       this.treeLoading.platform = true
       const res = await getTreeList({ treeType: 'customize' })
-      console.log('res:', res)
       this.treeList = res.trees.map(item => ({ ...item, editFlag: false }))
       if (this.currentTree.treeId) {
         const currentTree = this.treeList.find((tree: any) => tree.treeId === this.currentTree.treeId)
@@ -823,10 +821,25 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private updateDir() {
-    // @ts-ignore
-    this.currentDirNode.data.label = this.dialog.data.name
-    this.tagOriginNodeAsEdited(this.currentDirNode)
-    this.dialogCancel()
+    const parentNode = this.currentDirNode.parent
+    // dialog.data.name
+    let isNameDuplicate = false
+    if (parentNode.childNodes.length > 0) {
+      parentNode.childNodes.forEach(cnode => {
+        // @ts-ignore
+        if (cnode.data.label === this.dialog.data.name) {
+          isNameDuplicate = true
+        }
+      })
+    }
+    if (!isNameDuplicate) {
+      // @ts-ignore
+      this.currentDirNode.data.label = this.dialog.data.name
+      this.tagOriginNodeAsEdited(this.currentDirNode)
+      this.dialogCancel()
+    } else {
+      this.duplicateDirError = '文件名重复，不能修改'
+    }
   }
   /**
    * 将原有的节点打上编辑标记
