@@ -183,7 +183,7 @@ export class ScreenManager {
     if (item.isLeaf) {
       // 检查锁定权限
       // 权限相关属性
-      screen.ivsLockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
+      screen.LockCloudRecord = item['ivs:LockCloudRecord'] ? item['ivs:LockCloudRecord']['auth'] : false
       screen.permission = item
     }
     screen.init()

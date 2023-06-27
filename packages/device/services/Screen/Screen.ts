@@ -42,7 +42,7 @@ export class Screen {
   public roleId?: string
   public realGroupId?: string
   // 用户的设备权限相关
-  public ivsLockCloudRecord?: boolean
+  public LockCloudRecord?: boolean
   // 设备管理相关信息
   public detailInfo: any
   // 用户所有权限

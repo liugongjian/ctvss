@@ -51,7 +51,7 @@ export class RecordManager {
   }
 
   private get canLock() {
-    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
+    return !UserModule.iamUserId || this.screen.LockCloudRecord
   }
 
   public reset(params: any) {
