@@ -20,16 +20,16 @@
         <div class="alarm-stats__chart--add">
           <div>AI告警统计详情（次）</div>
           <div class="alarm-stats__chart--op">
-            <el-select v-model="algoType" multiple placeholder="请选择" size="mini">
+            <el-select v-model="algoType" multiple placeholder="请选择" size="mini" @change="handleChange">
               <el-option
                 v-for="item in algoTypes"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                :key="item.algoCode"
+                :label="item.algoName"
+                :value="item.algoCode"
               >
               </el-option>
             </el-select>
-            <el-radio-group v-model="period" size="mini">
+            <el-radio-group v-model="period" size="mini" @change="handleChange">
               <el-radio-button label="7">近7天</el-radio-button>
               <el-radio-button label="30">近30天</el-radio-button>
             </el-radio-group>
@@ -42,7 +42,10 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
+import { getAiStats, getAiAlgoTypes } from '@/api/ai-app'
 import { Chart } from '@antv/g2'
+import { format } from 'date-fns'
+import { getAuditTrend } from '@/api/dashboard'
 
 
 @Component({
@@ -51,7 +54,7 @@ import { Chart } from '@antv/g2'
 export default class extends Vue {
 
   // private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }]
-  private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, ]
+  private alarmCounts = [ ]
   private timer: any
 
   private chartData: any
@@ -64,26 +67,14 @@ export default class extends Vue {
 
   private algoType = []
 
-  private algoTypes = [{
-          value: '1',
-          label: '算法1'
-        }, {
-          value: '2',
-          label: '算法2'
-        }]
+  private algoTypes = []
 
   private period = '7'
 
   @Watch('algoType')
   private algoTypeChange(){
-    console.log('this.algoType:', this.algoType)
     this.chartData = this.chartDataOrigin.filter(item => this.algoType.includes(item.algoCode))
     this.initChart()
-    // this.chart.emit('legend:filter', {
-    //   data: { channel: 'algoName', values: this.algoType },
-    // })
-
-    // this.chart.emit('legend:reset', {})
   }
 
   private ifShowButton(){
@@ -97,9 +88,23 @@ export default class extends Vue {
   }
 
 
-  private mounted(){
-    this.getChartData()
+  private async mounted(){
+    // this.getAuditTrend()
+    await this.getAiAlgoTypes()
+    await this.getChartData()
     this.ifShowButton()
+
+  }
+
+
+  private async getAuditTrend(){
+    const data = await getAuditTrend({ form: 'day' })
+  }
+
+  private async getAiAlgoTypes(){
+    const res = await getAiAlgoTypes({})
+    this.algoTypes = res.statInfo
+    this.algoType = [this.algoTypes[0].algoCode]
   }
 
   private async initChart(){
@@ -151,17 +156,25 @@ export default class extends Vue {
     this.chart.render()
   }
 
-  private getChartData(){
-    const data =  [
-                    { day: '2023-05-01', algoName: '算法1', algoCode: '1', number: 7 },
-                    { day: '2023-05-01', algoName: '算法2', algoCode: '2', number: 3.9 },
-                    { day: '2023-05-02', algoName: '算法1', algoCode: '1', number: 6.9 },
-                    { day: '2023-05-02', algoName: '算法2', algoCode: '2', number: 4.2 },
-                    { day: '2023-05-03', algoName: '算法1', algoCode: '1', number: 9.5 },
-                    { day: '2023-05-03', algoName: '算法2', algoCode: '2', number: 5.7 }
-                  ]
-    this.chartDataOrigin = this.chartData = data
+  private async getChartData(){
+    const param = {
+      algoCodes: this.algoType,
+      startDay: format(this.getDateBefore(+this.period), 'yyyy-MM-dd'),
+      endDay: format(new Date(), 'yyyy-MM-dd'),
+    }
+    const res = await getAiStats(param)
+    this.chartDataOrigin = this.chartData = res.statInfo
     this.initChart()
+  }
+
+  /**
+   * 得到N天前的时间戳
+   */
+  private getDateBefore(dayCount) {
+    const dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    const time = dd.setHours(0, 0, 0)
+    return time
   }
 
   private handleScroll(step){
@@ -196,6 +209,10 @@ export default class extends Vue {
       }
     }
     return { max: maxObj, min: minObj }
+  }
+
+  private handleChange(){
+    this.getChartData()
   }
 
 }

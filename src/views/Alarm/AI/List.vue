@@ -80,9 +80,8 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <CardList v-if="pageMode === 'card'" :alarms="alarmList" />
     <el-pagination
-      v-if="pageMode === 'list'"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.totalNum"
@@ -90,7 +89,6 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-    <CardList v-if="pageMode === 'card'" :alarms="alarmList" />
     <PicDialogue v-if="dialogueVisibile" :alarms="alarmList" :current-index.sync="currentIndex" :visible.sync="dialogueVisibile" />
   </div>
 </template>
@@ -98,7 +96,7 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import CardList from './CardList.vue'
 import PicDialogue from './components/PicDialogue.vue'
-import { getAppList, getAlgorithmList } from '@/api/ai-app'
+import { getAppList, getAlgorithmList, getAiAlarms } from '@/api/ai-app'
 import { getTime } from 'date-fns'
 
 @Component({
@@ -175,7 +173,8 @@ export default class extends Vue {
 
   @Watch('$route.query', { deep: true, immediate: true })
   public onRouterChange() {
-    this.getScreenShot()
+    // this.getScreenShot()
+    this.getAiAlarms()
     this.getApps()
     this.showAlgoType && this.getAlgoTypes()
   }
@@ -195,48 +194,109 @@ export default class extends Vue {
   }
 
 
-
-
-  private async getScreenShot() {
-    this.alarmList = []
+  private async getAiAlarms(){
     const [startTime, endTime] = this.queryParam.period
-    const [confidenceMin, confidenceMax] = this.queryParam.confidence
-    const deviceId: any = '682033951851757568'
-    const inProtocol = 'rtmp'
-    const { pageNum, pageSize } = this.pager
-    const query = {
-      startTime: Math.floor(startTime / 1000),
-      endTime: Math.floor(endTime / 1000),
-      confidenceMin,
-      confidenceMax,
-      // faceDb: this.faceLib.id,
-      // faceIdList: this.queryParam.faceSelected,
-      resultTimeInterval: this.queryParam.resultTimeInterval,
-      appId: '559',
-      // deviceId: deviceId === 'all' ? undefined : deviceId,
-      deviceId: deviceId === 'all' ? undefined : deviceId,
-      inProtocol,
-      pageNum,
-      pageSize }
-    try {
-      // this.queryLoading.pic = true
-      // const res = await getAppScreenShot(query)
-      // this.pager.totalNum = res.totalNum
-      const list = [{
-        algoCode: '10009', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230625%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230625T015412Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4a47dd9c05e6a06022025b91d8a0415adf9c3f5a2df042d8fbbc62a4caff2f40'
-        , detectBoxes: [867, 346, 287, 403 ]
-      }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162745-407cbe7c-f359-46a0-9d8c-52ff74d38040.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230625%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230625T015412Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e6ff96fd3470425d68b59afe6012766808066e32aa0eb3dd6715ec86089e9eea'
-        , detectBoxes: [867, 346, 287, 403 ]
-      }]
-      this.alarmList = list
-    } catch (e) {
-      // 异常处理
-      console.log(e)
-    } finally {
-      // this.queryLoading.pic = false
+    const param = {
+      appID: this.queryParam.appName === '0' ? '' : this.queryParam.appName,
+      algoCode: this.queryParam.algoType === '0' ? '' : this.queryParam.algoCode,
+      deviceID: this.$route.query.deviceId,
+      confidenceMin: this.queryParam.confidence[0] / 100,
+      confidenceMax: this.queryParam.confidence[1] / 100,
+      startTime: startTime / 1000,
+      endTime: (endTime / 1000).toFixed()
     }
+    await getAiAlarms(param)
   }
+
+
+  // private async getScreenShot() {
+  //   this.alarmList = []
+  //   const [startTime, endTime] = this.queryParam.period
+  //   const [confidenceMin, confidenceMax] = this.queryParam.confidence
+  //   const deviceId: any = '682033951851757568'
+  //   const inProtocol = 'rtmp'
+  //   const { pageNum, pageSize } = this.pager
+  //   const query = {
+  //     startTime: Math.floor(startTime / 1000),
+  //     endTime: Math.floor(endTime / 1000),
+  //     confidenceMin,
+  //     confidenceMax,
+  //     // faceDb: this.faceLib.id,
+  //     // faceIdList: this.queryParam.faceSelected,
+  //     resultTimeInterval: this.queryParam.resultTimeInterval,
+  //     appId: '559',
+  //     // deviceId: deviceId === 'all' ? undefined : deviceId,
+  //     deviceId: deviceId === 'all' ? undefined : deviceId,
+  //     inProtocol,
+  //     pageNum,
+  //     pageSize }
+  //   try {
+  //     // this.queryLoading.pic = true
+  //     // const res = await getAppScreenShot(query)
+  //     // this.pager.totalNum = res.totalNum
+  //     const attr =   {
+  //               'Gender': {
+  //                   'Name': '男',
+  //                   'Score': 0.996
+  //               },
+  //               'FaceMask': {
+  //                   'Name': '无口罩',
+  //                   'Score': 0.9737
+  //               },
+  //               'Attachment': {
+  //                   'Name': '无携带物',
+  //                   'Score': 0.9914
+  //               },
+  //               'Age': {
+  //                   'Name': '十八岁到六十岁',
+  //                   'Score': 0.9976
+  //               },
+  //               'Direction': {
+  //                   'Name': '侧向',
+  //                   'Score': 0.9975
+  //               },
+  //               'UpperWear': {
+  //                   'Name': '长袖',
+  //                   'Score': 0.9991
+  //               },
+  //               'LowerWear': {
+  //                   'Name': '下装-不确定',
+  //                   'Score': 0.8744
+  //               },
+  //               'UpperColor': {
+  //                   'Name': '上装-黑色',
+  //                   'Score': 0.9998
+  //               },
+  //               'LowerColor': {
+  //                   'Name': '下装-颜色不确定',
+  //                   'Score': 0.8744
+  //               },
+  //               'Hat': {
+  //                   'Name': '',
+  //                   'Score': 0
+  //               },
+  //               'Glass': {
+  //                   'Name': '',
+  //                   'Score': 0
+  //               }
+  //           }
+  //     const list = [{
+  //       algoCode: '10009', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=fd43a591f5167d275c8f269a30f9ab96848bdd954f847eefde580a01be2add36'
+  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
+  //       attributesLabel: attr
+  //     }, {
+  //        algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162445-08d90408-0018-4241-873f-433c5fc721f8.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e2fc63f1f3720fa761b1bf78bdfaa1367eadf06f1120080221df5976144feb1a'
+  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
+  //       attributesLabel: attr
+  //     }]
+  //     this.alarmList = list
+  //   } catch (e) {
+  //     // 异常处理
+  //     console.log(e)
+  //   } finally {
+  //     // this.queryLoading.pic = false
+  //   }
+  // }
 
   private destroyed() {
     this.timer && clearInterval(this.timer)
@@ -282,16 +342,6 @@ export default class extends Vue {
     this.selectedDeviceList = alarms
   }
 
-  private async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    await this.getList()
-  }
-
-  private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    await this.getList()
-  }
-
   /**
    * 批量操作菜单
    */
@@ -306,16 +356,11 @@ export default class extends Vue {
     }
   }
 
-    /**
-   * 告警搜索时间
-   */
-  public handleChange() {}
 
   private refresh(){
-    console.log('this.queryParam.period:', this.queryParam.period)
     const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
     if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
-    this.getScreenShot()
+    this.this.getAiAlarms()
   }
 
   private rowClick(row){
@@ -339,6 +384,22 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
+  }
+
+  /**
+   * 分页操作
+   */
+  private handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    this.getAiAlarms()
+  }
+
+  /**
+   * 分页操作
+   */
+  private handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    this.getAiAlarms()
   }
 }
 </script>

@@ -1,9 +1,9 @@
 <template>
   <component :is="container" title="AI分析">
-    <!-- <template slot="header">
-      <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/visualization-dashboard')">可视化大屏</el-button>
-    </template> -->
-    <div v-if="checkPermission(['ivs:GetApp'])">
+    <template slot="header">
+      <el-button type="text" class="dash-btn" @click="$router.push('/ai/ai-app-list')">AI管理>></el-button>
+    </template>
+    <div>
       <div id="pieAI" />
     </div>
   </component>
@@ -13,7 +13,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardLightContainer from './DashboardLightContainer.vue'
-import { getDeviceStates } from '@/api/dashboard'
+import { getAiChannels } from '@/api/ai-app'
 import { Chart, Util } from '@antv/g2'
 import { colors } from '@/dics/color'
 
@@ -33,15 +33,17 @@ export default class extends Mixins(DashboardMixin) {
     return 'DashboardLightContainer'
   }
 
-  private mounted() {
+  private async mounted() {
+
+
     this.getData()
   }
 
 
    private async getData() {
     try {
-      // const res = await getDeviceStates()
-      const statInfo = [ { algoCode: '10014', algoName: '人脸识别', number: 12 }, { algoCode: '10010', algoName: '道路识别', number: 18 }, { algoCode: '10008', algoName: 'XX识别', number: 59 }]
+      const res = await getAiChannels({})
+      const statInfo = res.statInfo
 
       this.drawPieToday('pieAI', 'pieAI', statInfo)
 

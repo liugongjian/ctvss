@@ -1,7 +1,7 @@
 <template>
   <div class="ai-attributes">
     <info-list label-width="100" title="人体属性">
-      <info-list-item v-for="attribute in currentAttributes" :key="attribute.key" :label="aiAttribute[attribute.key]">{{ attribute.value }}</info-list-item>
+      <info-list-item v-for="attribute in currentAttributes" :key="attribute.key" :label="attribute.Name">{{ attribute.Score }}</info-list-item>
     </info-list>
   </div>
 </template>
@@ -41,8 +41,8 @@ export default class extends Vue {
   }
 
   private showAttribute() {
-    if (this.img && this.img.locations && this.attributesIndex > -1) {
-      this.currentAttributes = this.img.locations[this.attributesIndex].attributes
+    if (this.img && this.img.attributesLabel && this.attributesIndex > -1) {
+      this.currentAttributes = this.img.attributesLabel
     }
   }
 }
