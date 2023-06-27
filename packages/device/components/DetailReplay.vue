@@ -48,7 +48,7 @@ export default class extends Vue {
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
     screen.deviceName = this.deviceName
-    screen.ivsLockCloudRecord = this.lockPermission
+    screen.LockCloudRecord = this.lockPermission
     screen.detailInfo = this.info
     screen.permission = this.permission
     screen.isLockTask = this.isLockTask
