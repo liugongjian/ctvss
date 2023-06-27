@@ -54,6 +54,7 @@ export enum DeviceEnum {
   UserName = 'userName',
   Password = 'password',
   EnabledGB35114 = 'enabledGB35114',
+  Gb35114Mode = 'gb35114Mode',
   PushUrl = 'pushUrl',
   PullUrl = 'pullUrl',
   OnlyPullUrl = 'onlyPullUrl',

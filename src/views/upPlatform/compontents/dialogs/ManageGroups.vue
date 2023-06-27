@@ -35,6 +35,8 @@
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 {{ node.label }}
+                
+                <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
               </span>
             </span>
           </el-tree>
@@ -76,6 +78,7 @@
                   <span slot="reference">{{ node.label.substring(0,10)+'...' }}</span>
                 </el-popover>
                 <span v-else>{{ node.label }}</span>
+                <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
@@ -131,6 +134,7 @@ import InnerDialog from './InnerDialog.vue'
 import debounce from '@/utils/debounce'
 import * as _ from 'lodash'
 import Validate from '../../mixins/validate'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'ManageGroups',
@@ -142,6 +146,7 @@ import Validate from '../../mixins/validate'
 export default class extends Mixins(Validate) {
   @Prop()
   private platformId: any
+  private dicts = dicts
   private dialogVisible = true
   private submitting = false
   private dirList: any = []
@@ -589,7 +594,7 @@ export default class extends Mixins(Validate) {
       //     'real-group-id': node.data.realGroupId
       //   }
       // })
-      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id , inProtocol: 'video' })
+      const devices = await getNodeInfo({ type: node.data.type, id: node.data.id, inProtocol: 'video' })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
@@ -1485,6 +1490,14 @@ export default class extends Mixins(Validate) {
 
 .el-popover__reference {
   margin-left: 3px;
+}
+
+.security-icon {
+  background: $primary;
+  color: white;
+  border-radius: 100%;
+  padding: 0 4px;
+  font-size: 12px;
 }
 
 </style>
