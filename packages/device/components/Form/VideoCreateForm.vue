@@ -38,8 +38,9 @@
             v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
             :key="key"
             :label="value"
-            :value="key"
-          />
+          >
+            {{ key }}
+          </el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
@@ -51,6 +52,9 @@
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
         <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
+      </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.EhomeCert)" label="Ehome凭证:" :prop="deviceEnum.EhomeCert">
+        <certificate-select v-model="videoForm.ehomeCert" :type="inVideoProtocolEnum.Ehome" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
         <!-- <el-radio
@@ -292,6 +296,9 @@ export default class extends Vue {
     [DeviceEnum.InUserName]: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
+    [DeviceEnum.EhomeCert]: [
+      { required: true, message: '请选择Ehome凭证', trigger: 'change' }
+    ],
     [DeviceEnum.PullUrl]: [
       { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
     ],
@@ -356,6 +363,7 @@ export default class extends Vue {
       [DeviceEnum.InVersion]: this.videoInfo.inVersion || '2016',
       [DeviceEnum.DeviceChannelSize]: this.basicInfo.deviceChannelSize || 1,
       [DeviceEnum.InUserName]: this.videoInfo.inUserName,
+      [DeviceEnum.EhomeCert]: this.videoInfo.ehomeCert,
       [DeviceEnum.InType]: this.videoInfo.inType || InTypeEnum.Pull,
       [DeviceEnum.PullUrl]: this.videoInfo.pullUrl,
       [DeviceEnum.UserName]: this.videoInfo.userName,

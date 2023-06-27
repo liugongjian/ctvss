@@ -1,6 +1,5 @@
 export interface Certificate {
   id?: string
-  username: string
   userName: string
   userType?: string
   description?: string
@@ -19,3 +18,11 @@ export interface GA1400 extends Certificate {
   newPassword?: string
   confirmPassword?: string
 }
+
+export interface EHOME extends Certificate {
+  password?: string;
+  userName?: string
+  newPassword?: string;
+  confirmPassword?: string;
+}
+

@@ -25,6 +25,7 @@ export const InVideoProtocolCreateParams = {
   [InVideoProtocolEnum.Ehome]: new Set([
     DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
+    DeviceEnum.EhomeCert,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.DeviceStreamPullIndex,

@@ -21,25 +21,31 @@
       @on-close="closeDialog(inVideoProtocolEnum.Gb28181, ...arguments)"
     />
     <create-ga1400-certificate
-      v-if="dialog[inViidProtocolEnum.Ga1400]"
+      v-if="dialog[inViidProtocolEnum.Ehome]"
       @on-close="closeDialog(inViidProtocolEnum.Ga1400, ...arguments)"
+    />
+    <create-ehome-certificate
+      v-if="dialog[inVideoProtocolEnum.Ehome]"
+      @on-close="closeDialog(inVideoProtocolEnum.Ehome, ...arguments)"
     />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Prop, VModel, Vue } from 'vue-property-decorator'
-import { getGb28181CertificateList, getGa1400CertificateList } from '@vss/device/api/certificate'
+import { getGb28181CertificateList, getGa1400CertificateList, getEhomeCertificateList } from '@vss/device/api/certificate'
 import { InVideoProtocolEnum, InViidProtocolEnum } from '@vss/device/enums'
 import { InVideoProtocol, InViidProtocol } from '@vss/device/dicts'
 import CreateGb28181Certificate from './Certificate/Gb28181/components/CreateDialog.vue'
 import CreateGa1400Certificate from './Certificate/Ga1400/components/CreateDialog.vue'
+import CreateEhomeCertificate from './Certificate/Ehome/components/CreateDialog.vue'
 
 @Component({
   name: 'CertificateSelect',
   components: {
     CreateGb28181Certificate,
-    CreateGa1400Certificate
+    CreateGa1400Certificate,
+    CreateEhomeCertificate
   }
 })
 export default class extends Vue {
@@ -61,7 +67,8 @@ export default class extends Vue {
 
   public dialog = {
     [InVideoProtocolEnum.Gb28181]: false,
-    [InViidProtocolEnum.Ga1400]: false
+    [InViidProtocolEnum.Ga1400]: false,
+    [InVideoProtocolEnum.Ehome]: false
   }
 
   private apiMapping = {
@@ -76,6 +83,12 @@ export default class extends Vue {
       body: 'data',
       label: 'username',
       value: 'id'
+    },
+    [InVideoProtocolEnum.Ehome]: {
+      api: getEhomeCertificateList,
+      body: 'data',
+      label: 'username',
+      value: 'userName'
     }
   }
 

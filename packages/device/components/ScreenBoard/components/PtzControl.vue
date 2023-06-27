@@ -487,11 +487,17 @@ export default class extends Vue {
   }
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await ptzControlApi.startDeviceMove(data)
+    await ptzControlApi.startDeviceMove({
+      ...data,
+      inProtocol: this.screen.inProtocol
+    })
   }
   private async endPtzMove(direction: number) {
     const data = this.formatEndParam(direction)
-    await ptzControlApi.endDeviceMove(data)
+    await ptzControlApi.endDeviceMove({
+      ...data,
+      inProtocol: this.screen.inProtocol
+    })
   }
   private async startPtzAdjust(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
