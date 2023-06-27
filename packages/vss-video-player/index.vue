@@ -44,7 +44,10 @@
       <template slot="controlRight">
         <StreamSelector :stream-info="player && streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector && codec !== CodecEnum.H265" :type="type" @dispatch="dispatch" />
-        <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec" />
+        <Intercom
+          v-if="player && isLive && (deviceInfo.inProtocol === 'gb28181' || deviceInfo.inProtocol === 'ehome')" 
+          :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec"
+        />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot v-if="player" :device-info="deviceInfo" :is-live="isLive" />
