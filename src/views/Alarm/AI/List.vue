@@ -203,7 +203,9 @@ export default class extends Vue {
       confidenceMin: this.queryParam.confidence[0] / 100,
       confidenceMax: this.queryParam.confidence[1] / 100,
       startTime: startTime / 1000,
-      endTime: (endTime / 1000).toFixed()
+      endTime: (endTime / 1000).toFixed(),
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize,
     }
     await getAiAlarms(param)
   }
