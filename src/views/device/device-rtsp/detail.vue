@@ -108,9 +108,9 @@
                 </template>
                 <!--NVR信息-->
                 <template v-if="info.deviceType === 'nvr'">
-                  <el-descriptions-item label="自动创建子设备">
+                  <!-- <el-descriptions-item label="自动创建子设备">
                     {{ createSubDevice[info.createSubDevice] }}
-                  </el-descriptions-item>
+                  </el-descriptions-item> -->
                   <el-descriptions-item :label="info.createSubDevice === 2 ? '实际通道数量' : '通道数量'">
                     {{ info.deviceStats && info.deviceStats.channelSize }}
                   </el-descriptions-item>

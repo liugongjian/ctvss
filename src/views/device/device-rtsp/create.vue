@@ -39,7 +39,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           v-if="form.deviceType === 'nvr'"
           label="自动创建子设备:"
           prop="createSubDevice"
@@ -64,7 +64,7 @@
             :inactive-value="2"
             :disabled="isUpdate"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item
           v-if="form.deviceType === 'nvr'"
           label="子设备数量:"
