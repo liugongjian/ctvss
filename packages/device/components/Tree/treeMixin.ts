@@ -271,4 +271,3 @@ export default class TreeMixin extends Vue {
     this.$emit('handle-tools', type, ...payload)
   }
 }
->>>>>>> feature-Sprint6-GB35114
