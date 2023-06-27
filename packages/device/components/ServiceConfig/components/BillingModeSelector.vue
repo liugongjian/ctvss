@@ -114,7 +114,6 @@ import { ResourceAiType, BillingModeType, RecordStreamType, RecordStreamsType } 
 import { BillingEnum, BillingModeEnum, PackagesEnum, ResourceTypeEnum, ConfigModeEnum } from '@vss/device/enums/billing'
 import { DeviceTypeEnum } from '@vss/device/enums/index'
 import { getStorageTemplate, getRecordTemplates } from '@vss/device/api/template'
-import { el } from 'date-fns/locale'
 @Component({
   name: 'BillingModeSelector'
 })
@@ -191,8 +190,23 @@ export default class extends Vue {
     return title
   }
 
+  // 当前实际计费模式
+  private get realBillingMode() {
+    let billingMode = ''
+    if (this.configManager.initInfo.video && this.configManager.initInfo.video.length) {
+      const info = this.configManager.initInfo.video[0]
+      billingMode = info && info.billingMode
+    }
+    return billingMode
+  }
+
   private get hasPagckagesMode() {
     let flag = false
+    // 针对视频服务，该flag保证编辑时资源包与按需的切换必需先切换为停用状态才能实现
+    let editFlag = true
+    if (this.resourceType === ResourceTypeEnum.Video && this.configManager.configMode === ConfigModeEnum.Edit) {
+      editFlag = this.realBillingMode !== BillingModeEnum.OnDemand
+    }
     switch (this.resourceType) {
       case ResourceTypeEnum.Video:
         flag = !!this.configManager[ResourceTypeEnum.Video].length
@@ -205,13 +219,18 @@ export default class extends Vue {
         break
     }
     if (!this.configForm[BillingEnum.BillingMode] && flag) this.configForm[BillingEnum.BillingMode] = BillingModeEnum.Packages
-    return flag
+    return flag && editFlag
   }
 
   private get hasOnDemandMode() {
     const flag = this.configManager.hasOndemand
+    // 针对视频服务，该flag保证编辑时资源包与按需的切换必需先切换为停用状态才能实现
+    let editFlag = true
+    if (this.resourceType === ResourceTypeEnum.Video && this.configManager.configMode === ConfigModeEnum.Edit) {
+      editFlag = this.realBillingMode !== BillingModeEnum.Packages
+    }
     if (!this.configForm[BillingEnum.BillingMode] && flag && !this.hasPagckagesMode) this.configForm[BillingEnum.BillingMode] = BillingModeEnum.OnDemand
-    return flag
+    return flag && editFlag
   }
 
   private get hasUnBindingMode() {

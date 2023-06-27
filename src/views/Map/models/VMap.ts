@@ -1,7 +1,7 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
 import { getDevice } from '@vss/device/api/device'
-// import { checkPermission } from '@/utils/permission'
+// import { checkPermission } from '@vss/base/utils/permission'
 import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'
@@ -453,6 +453,7 @@ export default class VMap {
       div.className = 'index-cluster'
       div.style.width = styleObj.size + 'px'
       div.style.height = styleObj.size + 'px'
+      div.style.backgroundColor = this.curMapOptions.defaultDeviceColor
       // 自定义点击事件
       context.marker.on('click', (e) => {
         let curZoom = this.map.getZoom()

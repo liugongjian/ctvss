@@ -4,7 +4,7 @@
       资源包
       <div class="detail__buttons">
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
@@ -16,7 +16,7 @@
       <template slot="header">
         视频包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Video)"
         >
@@ -47,7 +47,7 @@
       <template slot="header">
         AI包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.AI)"
         >
@@ -85,7 +85,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              v-if="!isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              v-if="!isNvr && checkPermission(['ivs:UpdateDevice'], deviceActions)"
               label="操作"
               min-width="200"
             >
@@ -134,7 +134,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              v-if="isNvr && !isVGroup && checkPermission(['AdminDevice'])"
+              v-if="isNvr && checkPermission(['ivs:UpdateDevice'], deviceActions)"
               label="操作"
               min-width="200"
             >
@@ -166,7 +166,7 @@
       <template slot="header">
         带宽包
         <el-button
-          v-if="!isVGroup && checkPermission(['AdminDevice'])"
+          v-if="checkPermission(['ivs:UpdateDevice'], deviceActions)"
           v-permission="['*']"
           type="text"
           @click="openResourceDialog(ResourceTypeEnum.Upload)"
@@ -210,7 +210,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@vss/device/dicts/resource'
 import { unBindAppResource, startAppResource, stopAppResource } from '@vss/device/api/device'
 import { getAppList, getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
@@ -232,6 +232,11 @@ import { InVideoProtocolModelMapping } from '@vss/device/dicts'
   }
 })
 export default class extends Vue {
+  @Inject({ default: () => () => null })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Prop() private deviceId: string
   @Prop() private device: Device
   
@@ -257,11 +262,6 @@ export default class extends Vue {
   }
   // 封面
   private frameImage = null
-
-  // 是否为虚拟目录下的设备
-  public get isVGroup() {
-    return false
-  }
 
   // 视频接入协议
   private get inVideoProtocol() {

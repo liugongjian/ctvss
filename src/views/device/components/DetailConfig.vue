@@ -226,7 +226,7 @@ import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
 import SetAlertTemplate from '@/views/components/dialogs/SetAlertTemplate.vue'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { UserModule } from '@/store/modules/user'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
@@ -375,6 +375,10 @@ export default class extends Vue {
     return (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou') && (['ipc'].indexOf(this.deviceType) === -1)
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+
   /**
    * 获取录制模板
    */
@@ -486,6 +490,15 @@ export default class extends Vue {
         pageSize: 999
       }
       const algoListResult = await getAppList(param)
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        algoListResult.aiApps = algoListResult.aiApps.map((aiApp) => {
+          if (aiApp.algorithm.name === '城市治理') {
+            aiApp.algorithm.name = '工业缺陷检测'
+          }
+          return aiApp
+        })
+      }
       this.algoListData = algoListResult.aiApps
     } catch (e) {
       if (e && e.code !== 5) {

@@ -1,8 +1,10 @@
 <template>
   <div
-    v-loading="treeLoading"
     class="common-tree"
   >
+    <div>
+      <slot name="treeHeader" />
+    </div>
     <div
       v-show="hasRoot"
       ref="root"
@@ -28,6 +30,7 @@
         <el-tree
           :key="treeKey"
           ref="Tree"
+          v-loading="treeLoading"
           :node-key="nodeKey"
           :current-node-key="currentNodeKey"
           :data="data"
@@ -63,6 +66,7 @@
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
             class="common-tree__item"
+            :title="getTitle(data)"
             :disabled="true"
             :class="{ 'current-node': node.key === currentNodeKey, 'node-disable': isNodeDisabled(node) }"
           >
@@ -123,14 +127,14 @@ export default class extends Vue {
   @Prop({ default: null })
   private getNodeInfo
 
-  @Prop({ default: false })
-  private treeLoading: boolean
-
   @Prop({ default: () => false })
   private isDraggable: Function | boolean
 
   @Prop({ default: () => function(){ return false } })
   private isNodeDisabled: Function | boolean
+
+  @Prop({ default: () => function() { return '' } })
+  private getTitle: Function
 
   @Prop({ default: false })
   private hasCheckbox: boolean
@@ -141,6 +145,7 @@ export default class extends Vue {
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   public currentKey = null
+  public treeLoading = false
 
   private get tree() {
     // tree与treeKey实现数据响应关联
@@ -180,6 +185,7 @@ export default class extends Vue {
    * 懒加载时加载子目录
    */
   public async loadChildren(payload: any, resolve?: Function, enableCache?: boolean) {
+    payload.level === 0 && (this.treeLoading = true)
     // 判断为key则获取node
     if (typeof payload === 'string') {
       payload = this.tree.getNode(payload)
@@ -201,6 +207,7 @@ export default class extends Vue {
     } catch (e) {
       resolve([])
     }
+    this.treeLoading = false
   }
 
   private resolveChildren = function(node, data) {

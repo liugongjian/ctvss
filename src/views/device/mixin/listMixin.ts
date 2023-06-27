@@ -10,7 +10,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import Resource from '../components/dialogs/Resource.vue'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -51,10 +51,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public tableMaxHeight: any = null
   public observer: any = null
   private channelSize: any = null
-  public exportLoading: boolean = false
+  public exportLoading = false
   public selectedFile: any = null
   public fileData: any = {}
-  public times: number = 1
+  public times = 1
 
   public loading: any = {
     info: false,
@@ -164,7 +164,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   }
 
   public get isAllowedDelete() {
-    let validArr = [
+    const validArr = [
       this.isPlatform,
       this.isDir,
       this.deviceInfo && this.deviceInfo.createSubDevice !== 1
@@ -210,7 +210,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
 
   public get filterButtons() {
     const buttons = []
-    for (let key in this.filter) {
+    for (const key in this.filter) {
       const value = this.filter[key]
       if (value) {
         buttons.push({
@@ -253,7 +253,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     this.pager.pageNum = 1
   }
 
-  @Watch('filter', { immediate: true, deep: true })
+  @Watch('filter', { deep: true })
   public onFilterChange() {
     if (this.type === 'dir' || this.type === 'platformDir') this.getDeviceList()
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
@@ -342,6 +342,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    * 初始化
    */
   public init() {
+    console.log('init')
     this.parentDeviceId = ''
     if (!this.groupId || !this.inProtocol) return
 
@@ -379,7 +380,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     if (!statusArr) {
       return false
     }
-    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    const statusObj = statusArr.find((status: any) => status.streamNum === num)
     if (!statusObj) {
       return false
     } else {
@@ -490,9 +491,10 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    * 加载设备列表
    */
   public async getDeviceList() {
+    console.log('getDeviceList')
     const query = this.$route.query
     try {
-      let params: any = {
+      const params: any = {
         groupId: this.groupId,
         inProtocol: this.inProtocol,
         type: this.type === 'role' || this.type === 'group' ? this.type : undefined,
@@ -633,7 +635,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public async getEventsList(device) {
     try {
       this.loading.events = true
-      let params = {
+      const params = {
         deviceId: device.deviceId,
         inProtocal: device.inProtocol,
         pageNum: 0,
@@ -982,7 +984,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    * 当表格的筛选条件发生变化
    */
   public filterChange(filters: any) {
-    for (let key in filters) {
+    for (const key in filters) {
       const values = filters[key]
       if (values.length) {
         this.filter[key] = values[0]
@@ -1017,7 +1019,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    */
   public dictToFilterArray(dict: any) {
     const filterArray = []
-    for (let key in dict) {
+    for (const key in dict) {
       filterArray.push({
         text: dict[key],
         value: key
@@ -1064,7 +1066,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public async exportExcel(command: any) {
     this.exportLoading = true
     try {
-      let params: any = {
+      const params: any = {
         groupId: this.groupId,
         inProtocol: this.inProtocol,
         dirId: this.dirId,
@@ -1097,7 +1099,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    * 导出模板
    */
   public exportTemplate() {
-    let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
+    const currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
     this.exelType = 'template'
     this.exelDeviceType = currentInProtocal
     this.exelName = `${currentInProtocal}导入模板`

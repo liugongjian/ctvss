@@ -10,10 +10,10 @@
     <el-tabs v-model="activeTabName" v-loading="loading.abilityList" type="border-card" @tab-click="handleTabType">
       <el-tab-pane v-for="item in tabInfo" :key="item.id" :label="item.name+' ('+item.aiApps+')'" :name="item.id">
         <div class="filter-container">
-          <el-button v-permission="['AdminAi']" type="primary" @click="addApp">新建AI应用</el-button>
+          <el-button v-if="checkPermission(['ivs:AdminApp'])" type="primary" @click="addApp">新建AI应用</el-button>
           <!-- <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(1)">启用</el-button>
           <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(0)">停用</el-button> -->
-          <el-button v-permission="['AdminAi']" :disabled="batchDisabled" @click="batchDeleteApps()">删除</el-button>
+          <el-button v-if="checkPermission(['ivs:AdminApp'])" :disabled="batchDisabled" @click="batchDeleteApps()">删除</el-button>
           <div class="filter-container__right">
             <el-input v-model="searchInput" class="filter-container__search-group" placeholder="请输入应用名称 / 描述" clearable @keyup.enter.native="handleSearch" @clear="handleSearch">
               <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="search" /></el-button>
@@ -85,8 +85,8 @@
                     <el-dropdown-item :command="{ type: 'detail', app: scope.row }">应用详情</el-dropdown-item>
                     <!-- <el-dropdown-item v-if="parseInt(scope.row.appEnabled)" :command="{type: 'stop', app: scope.row}">停用</el-dropdown-item>
                     <el-dropdown-item v-if="!parseInt(scope.row.appEnabled)" :command="{type: 'start', app: scope.row}">启用</el-dropdown-item> -->
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'edit', app: scope.row }">编辑</el-dropdown-item>
-                    <el-dropdown-item v-permission="['AdminAi']" :command="{ type: 'delete', app: scope.row }">删除</el-dropdown-item>
+                    <el-dropdown-item v-if="checkPermission(['ivs:AdminApp'])" :command="{ type: 'edit', app: scope.row }">编辑</el-dropdown-item>
+                    <el-dropdown-item v-if="checkPermission(['ivs:AdminApp'])" :command="{ type: 'delete', app: scope.row }">删除</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </template>
@@ -110,6 +110,7 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { getAppList, getAbilityList, startOrStopApps, deleteApps, getAiAlarm } from '@/api/ai-app'
 import { ResourceAiType } from '@/dics'
 import AppMixin from '../mixin/app-mixin'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AppList'
@@ -135,6 +136,10 @@ export default class extends Mixins(AppMixin) {
 
   private get batchDisabled() {
     return this.multipleSelection.length === 0
+  }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   @Watch('period.periodType')
@@ -183,7 +188,16 @@ export default class extends Mixins(AppMixin) {
   public async getAppList() {
     try {
       this.loading.appList = true
-      const { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
+      let { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
+      if (this.isIndustrialDetection) {
+        // 工业缺陷检测算法需求
+        aiApps = aiApps.map((aiApp) => {
+          if (aiApp.algorithm.name === '城市治理') {
+            aiApp.algorithm.name = '工业缺陷检测'
+          }
+          return aiApp
+        })
+      }
       this.pager = { pageNum, pageSize, totalNum }
       this.aiApps = aiApps
     } catch (e) {

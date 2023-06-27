@@ -10,7 +10,7 @@
   >
     <div v-loading="loading" class="alert" :class="{ theme: true, 'light-alert': isLight }">
       <div class="alert-header">
-        <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
+        <div class="alert-header__type">事件类型: {{ isIndustrialDetection && (audit.event === '37' || audit.event === '10037') ? '工业缺陷检测' : alertType[audit.event] }}</div>
         <el-tooltip class="item" effect="dark" :content="deviceNameAndChannelFull" placement="bottom">
           <div class="alert-header__device">设备: {{ deviceNameAndChannel }}</div>
         </el-tooltip>
@@ -31,6 +31,8 @@
             :has-playback="true"
           />
         </div> -->
+        <div class="alert-body__nav alert-body__prev" @click="nav('prev')"><svg-icon name="arrow-left" /></div>
+        <div class="alert-body__nav alert-body__next" @click="nav('next')"><svg-icon name="arrow-right" /></div>
         <div class="alert-body__image">
           <div class="alert-body__image__decorator--top" />
           <div class="alert-body__image__decorator--bottom" />
@@ -53,6 +55,7 @@ import { getRecordAudits, auditEventConfirm } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
 import Locations from '@/views/Dashboard/AI/components/Locations.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlertBoardDetailDialog',
@@ -81,6 +84,10 @@ export default class extends Vue {
 
   private mounted() {
     // this.getRecordAudits()
+  }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   get deviceNameAndChannel() {
@@ -150,6 +157,10 @@ export default class extends Vue {
     const img: any = this.$refs.img
     const locations = parseMetaData(this.audit.event, metaData)
     this.$set(this.audit, 'locations', transformLocation(locations, img))
+  }
+
+  private nav(direction) {
+    this.$emit('nav', direction)
   }
 
   private closeDialog(isRefresh = false) {
@@ -251,6 +262,32 @@ export default class extends Vue {
     flex-wrap: wrap;
     max-height: 60vh;
     overflow: auto;
+    position: relative;
+
+    &__nav {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      position: absolute;
+      z-index: 10;
+      font-size: 1.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      top: 50%;
+      margin-top: -15px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: 200ms;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &__next {
+      right: 0;
+    }
 
     &__video {
       position: relative;

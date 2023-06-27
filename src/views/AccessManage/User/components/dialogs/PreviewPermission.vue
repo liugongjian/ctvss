@@ -108,6 +108,22 @@ export default class extends Vue {
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
       .filter((action: any) => !action.version || action.version === userVersion)
+      .filter((action: any) => {
+        let neededTagObject = {}
+        if (Array.isArray(action.tags)) {
+          action.tags.forEach(tag => {
+            neededTagObject[tag] = ['Y']
+          })
+        } else {
+          neededTagObject = action.tags || ({})
+        }
+
+        return Object.keys(neededTagObject).every(neededTag => {
+          const tagValue = tagObject[neededTag]
+          const neededValue = neededTagObject[neededTag]
+          return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+        })
+      })
     return res
   }
 
@@ -121,6 +137,7 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
+      this.loading.dir = true
       const isRoot = node.level === 0
       const devices = await getNodeInfo({
         id: isRoot ? '' : node.data.id,
@@ -143,8 +160,8 @@ export default class extends Vue {
       const isGet = this.dialogData.dialogType === 'get'
       const permissionRes = await previewAuthActions({
         targetResources: dirs.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platform') ? dir.path.slice(1).map(path => path.id).join('/') : dir.path.slice(1).map(path => path.id).join('/').slice(0, -1)) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platform') ? undefined : dir.path[dir.path.length - 1].id
+          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
+          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
         })),
         iamUserId: isGet ? this.dialogData.iamUserId : undefined,
         iamGroupId: isGet ? undefined : this.dialogData.iamGroupId,
@@ -157,6 +174,8 @@ export default class extends Vue {
       return result
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading.dir = false
     }
   }
 

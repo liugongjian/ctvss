@@ -7,6 +7,7 @@ import { getDevicePreview } from '@vss/device/api/device'
 import { Stream } from '@vss/device/type/Device'
 import { Codec, StatusEnum, RecordType } from '@vss/device/enums'
 import { ScreenModule } from '@vss/device/store/modules/screen'
+import { addLog } from '@vss/device/api/operationLog'
 
 export class Screen {
   public key: number
@@ -38,6 +39,16 @@ export class Screen {
   public deviceId?: string
   public inProtocol?: string
   public deviceName?: string
+  public roleId?: string
+  public realGroupId?: string
+  // 用户的设备权限相关
+  public ivsLockCloudRecord?: boolean
+  // 设备管理相关信息
+  public detailInfo: any
+  // 用户所有权限
+  public permission: any
+  /* 锁定录像管理切换请求接口 */
+  public isLockTask: boolean
 
   /**
    * ----------------
@@ -70,7 +81,11 @@ export class Screen {
   /* 当前时间（时间戳/秒），用于缓存恢复和同步向相邻录像时间 */
   public currentRecordDatetime: number
   /* 录像时间范围约束 */
-  public datetimeRange?: { startTime: number; endTime: number }
+  public datetimeRange?: { startTime: number; endTime: number; }
+  /* 录像回放是否是dialog窗口形式 */
+  public isDialogTask?: boolean
+  /* 车辆管理后端时间超前，跳转处理. 引入车辆管理识别符号 */
+  public isCarTask: Boolean
 
   /**
    * ----------------
@@ -90,12 +105,15 @@ export class Screen {
   public ERROR_CODE = {
     NO_RECORD: 13,
     NO_STORE: 8,
-    OUT_OF_RANGE: 14
+    OUT_OF_RANGE: 14,
+    LOCKED: 99 // 锁定录像code，未确认有何影响
   }
+
   public ERROR = {
     NO_RECORD: '该时段没有录像',
     NO_STORE: '视频资源包未包含存储',
-    OUT_OF_RANGE: '超出时间范围'
+    OUT_OF_RANGE: '超出时间范围',
+    LOCKED: '该时段录像已被锁定'
   }
 
   constructor() {
@@ -109,6 +127,9 @@ export class Screen {
     this.deviceId = null
     this.inProtocol = ''
     this.deviceName = ''
+    this.roleId = null
+    this.realGroupId = null
+    this.permission = null
     this.isLive = null
     this.isLoading = false
     this.isFullscreen = false
@@ -130,6 +151,7 @@ export class Screen {
     this._isMuted = null
     this._playbackRate = null
     this._scale = null
+    this.isCarTask = false
     this.log = {
       previewRequestId: null,
       previewStartTimestamp: null,
@@ -142,15 +164,15 @@ export class Screen {
     this.recordManager = new RecordManager({
       screen: this
     })
-    
-    console.log(222)
   }
 
   public get deviceInfo(): DeviceInfo {
     return {
       deviceId: this.deviceId?.toString(),
       inProtocol: this.inProtocol,
-      deviceName: this.deviceName
+      deviceName: this.deviceName,
+      roleId: this.roleId,
+      realGroupId: this.realGroupId
     }
   }
 
@@ -272,7 +294,11 @@ export class Screen {
         {
           deviceId: this.deviceId,
           inProtocol: this.inProtocol,
-          streamNum: this.streamNum
+          streamNum: this.streamNum,
+          'self-defined-headers': {
+            'role-id': this.roleId || '',
+            'real-group-id': this.realGroupId || ''
+          }
         },
         this.axiosSource.token
       )
@@ -298,6 +324,11 @@ export class Screen {
         }
       }
       this.isLoading = false
+      addLog({
+        deviceId: this.deviceId.toString(),
+        inProtocol: this.inProtocol,
+        operationName: '开始播放'
+      })
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
@@ -369,5 +400,11 @@ export class Screen {
   public async initReplay() {
     if (!this.deviceId) return
     this.recordManager.init()
+    const recordTypeName = this.recordType === RecordType.Cloud ? '云端' : '设备'
+    addLog({
+      deviceId: this.deviceId.toString(),
+      inProtocol: this.inProtocol,
+      operationName: `开始${recordTypeName}回放`
+    })
   }
 }

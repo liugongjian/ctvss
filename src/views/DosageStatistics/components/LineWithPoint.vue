@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-17 10:59:01
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-23 10:16:39
+ * @LastEditTime: 2023-05-08 10:13:38
  * @FilePath: /vss-user-web/src/views/DosageStatistics/components/LineWithPoint.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -13,7 +13,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import { dateFormat, getNextHour } from '@/utils/date'
 
 @Component({
   name: 'LineChart',
@@ -139,17 +138,18 @@ export default class extends Vue {
   }
 
   private drawLine() {
-    const { chartKind, selection } = this.lineData
-    const { currentPeriod } = this.lineData
+    const { chartKind, selection, currentPeriod, comeFrom } = this.lineData
     // 使chart图表重新渲染，changeData不更新legend
     this.currentChart && this.currentChart.destroy()
+
+    const padding  = comeFrom === 'bigData' ? [30, 10, 60, 40] : [30, 50, 50, 80]
 
     this.chart = new Chart({
       container: 'containerLine',
       autoFit: true,
       width: 760,
       height: 500,
-      padding: [30, 50, 50, 80]
+      padding
     })
 
     this.chart.data(this.drawData.data)

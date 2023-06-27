@@ -115,6 +115,7 @@ import { getCarTasks, operateCarTask } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import DetailDialog from './component/DetailDialog.vue'
 import VideoDialog from './component/VideoDialog.vue'
+import { subMonths, subDays, subHours } from 'date-fns'
 
 @Component({
   name: 'Car',
@@ -153,6 +154,22 @@ export default class extends Vue {
   private showVideoDialog = false
   private currentRecord: any = {}
   private videoType = ''
+
+  private periods = {
+    'notLimit': '不限',
+    'day': '近一天',
+    'week': '近一周',
+    'month': '近一月',
+    'selfDefine': '自定义',
+  }
+
+  private period = 'notLimit'
+
+  private periodRange = [subDays(new Date(), 7).getTime(), new Date().getTime()]
+
+  private get showRange(){
+    return this.period === 'selfDefine'
+  }
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -193,6 +210,28 @@ export default class extends Vue {
   private setHeaderClass() {
     return 'background: white'
   }
+
+  private resolvePeriod(){
+    const now = new Date()
+    const now_stamp = now.getTime()
+    const aDay = 24 * 60 * 60 * 1000
+    switch (this.period){
+      case 'notLimit':
+        return { taskStartFrom: undefined, taskStartTo: undefined }
+      case 'day':
+        return { taskStartFrom: subHours(now, 24).getTime(), taskStartTo: now_stamp }
+      case 'week':
+        return { taskStartFrom: subDays(now, 7).getTime(), taskStartTo: now_stamp }
+      case 'month':
+        return { taskStartFrom: subMonths(now, 1).getTime(), taskStartTo: now_stamp }
+      case 'selfDefine':
+        if (this.periodRange[0] === this.periodRange[1]){
+          return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[0] + aDay }
+        }
+        return { taskStartFrom: this.periodRange[0], taskStartTo: this.periodRange[1] }
+    }
+  }
+
   private async getList() {
     try {
       this.loading = true

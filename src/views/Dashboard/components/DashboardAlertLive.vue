@@ -7,12 +7,12 @@
           <svg-icon :name="alertIcon[item.level]" />
           {{ alertLevel[item.level] }}
         </div>
-        <div class="alert-list__type">{{ alertType[item.event] }}</div>
+        <div class="alert-list__type">{{ isIndustrialDetection && (item.event === '37' || item.event === '10037') ? '工业缺陷检测' : alertType[item.event] }}</div>
         <div class="alert-list__datetime">{{ item.formatedTime }}</div>
       </li>
     </ul>
     <audio ref="audio" :src="alertFile" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @nav="nav" @on-close="closeDialog" />
   </component>
 </template>
 
@@ -25,6 +25,7 @@ import { getAuditList } from '@/api/dashboard'
 import { dateFormat, getTimestamp } from '@/utils/date'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardAlertLive',
@@ -51,6 +52,10 @@ export default class extends Mixins(DashboardMixin) {
 
   private get container() {
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
+  }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   private mounted() {
@@ -114,6 +119,31 @@ export default class extends Mixins(DashboardMixin) {
 
   private closeDialog() {
     this.dialog = false
+  }
+
+  private nav(direction) {
+    let index = this.list.findIndex(item => {
+      return item.url === this.currentItem.url
+    })
+    if (index > -1) {
+      if (direction === 'next') {
+        index++
+        if (index > this.list.length - 1) {
+          this.$message.info('已是最后一条了')
+        } else {
+          this.openDialog(this.list[index])
+        }
+      } else {
+        index--
+        if (index < 0) {
+          this.$message.info('已是第一条了')
+        } else {
+          this.openDialog(this.list[index])
+        }
+      }
+    } else {
+      this.openDialog(this.list[0])
+    }
   }
 }
 </script>

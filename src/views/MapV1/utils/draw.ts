@@ -1,5 +1,5 @@
 import { markerObject } from '@/views/MapV1/models/VMap'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 import { drawCameraBg } from './svg'
 import settings from '../settings'
 

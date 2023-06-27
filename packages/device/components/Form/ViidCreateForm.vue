@@ -50,7 +50,7 @@
           :tabs="[resourceTypeEnum.Viid]"
           :device-id="deviceForm.deviceId"
           :device-type="deviceForm.deviceType"
-          :device-in-type="deviceInTypeEnum.Viid"
+          :device-in-type="deviceForm.deviceInType"
         />
       </el-form-item>
     </div>

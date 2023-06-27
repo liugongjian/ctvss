@@ -6,8 +6,10 @@ import DeviceManager from '../services/Device/DeviceManager'
 import DeviceScreen from '../services/Device/DeviceScreen'
 import PollingMask from '@vss/device/components/PollingMask.vue'
 import AdvancedSearch from '@vss/device/components/AdvancedSearch.vue'
-import { deleteDir, getNodeInfo } from '@vss/device/api/dir'
+import { deleteDir, previewAuthActions } from '@vss/device/api/dir'
 import { checkPermission } from '@vss/base/utils/permission'
+import { UserModule } from '@/store/modules/user'
+import { AppModule, SystemType } from '@/store/modules/app'
 
 @Component({
   components: {
@@ -16,6 +18,7 @@ import { checkPermission } from '@vss/base/utils/permission'
   }
 })
 export default class LayoutMixin extends Vue {
+  public rootActions = {}
   public deviceInType: DeviceInTypeEnum
   public deviceManager = DeviceManager
   public toolsEnum = ToolsEnum
@@ -50,6 +53,11 @@ export default class LayoutMixin extends Vue {
   public pollingStatus = PollingStatusEnum.Free
   // 轮询时间
   public pollingInterval = 20
+  // 目录统计信息
+  public rootSums = {
+    onlineSize: 0,
+    totalSize: 0
+  }
   public deleteDir = deleteDir
   public dialog = {
     [ToolsEnum.EditDirectory]: false,
@@ -67,7 +75,7 @@ export default class LayoutMixin extends Vue {
     // 设备树相关
     [ToolsEnum.RefreshDirectory]: () => {
       DeviceScreen.stopPolling(this.getVueComponent)
-      DeviceManager.advanceSearch(this)
+      DeviceManager.advanceSearch(this.getVueComponent)
     },
     [ToolsEnum.ExportSearchResult]: () => DeviceManager.exportSearchResult(this),
     [ToolsEnum.AddDirectory]: data => DeviceManager.openDirectoryDialog(this.getVueComponent, ToolsEnum.AddDirectory, data || { id: '', type: DirectoryTypeEnum.Dir }),
@@ -82,14 +90,19 @@ export default class LayoutMixin extends Vue {
     [ToolsEnum.StopPolling]: () => DeviceScreen.stopPolling(this.getVueComponent),
     [ToolsEnum.PausePolling]: () => DeviceScreen.pausePolling(this.getVueComponent),
     [ToolsEnum.ResumePolling]: () => DeviceScreen.resumePolling(this.getVueComponent),
-    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this, filterData),
+    [ToolsEnum.AdvanceSearch]: filterData => DeviceManager.advanceSearch(this.getVueComponent, filterData),
     [ToolsEnum.RefreshRouterView]: (flag?) => DeviceManager.refreshRouterView(this, flag),
     [ToolsEnum.GoBack]: (level) => DeviceManager.goBack(this.getVueComponent, level),
     [ToolsEnum.StartDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StartDevice, row),
     [ToolsEnum.StopDevice]: (row) => DeviceManager.startOrStopDevice(this, ToolsEnum.StopDevice, row),
     [ToolsEnum.StartRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StartRecord, row),
     [ToolsEnum.StopRecord]: (row) => DeviceManager.startOrStopRecord(this, ToolsEnum.StopRecord, row),
-    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol)
+    [ToolsEnum.DeleteDevice]: (row, inProtocol) => DeviceManager.deleteDevice(this, row, inProtocol),
+    [ToolsEnum.ClearAllScreen]: () => DeviceScreen.clearAllScreen(this.getVueComponent)
+  }
+
+  private get UserVersion() {
+    return UserModule.version
   }
 
   private get currentDirId() {
@@ -117,8 +130,25 @@ export default class LayoutMixin extends Vue {
     )
   }
 
-  public mounted() {
-    DeviceManager.initAdvancedSearch(this)
+  private get showAdvanceSearch() {
+    return !this.$route.query.rootKey
+  }
+
+  private get isShowPolling() {
+    return !this.$route.query.rootKey && this.lazy
+  }
+
+  public async mounted() {
+    // 仅用户控制台查询权限
+    if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
+      const permissionRes = await previewAuthActions({
+        targetResources: [{
+          dirPath: '0'
+        }]
+      })
+      this.rootActions = permissionRes.result[0].iamUser.actions
+    }
+    DeviceManager.initAdvancedSearch(this.getVueComponent)
   }
 
   /**

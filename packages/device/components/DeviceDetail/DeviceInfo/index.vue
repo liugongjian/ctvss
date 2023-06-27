@@ -5,8 +5,8 @@
         <div class="detail__title">
           设备信息
           <div class="detail__buttons">
-            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.AdminDevice])" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
-            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.AdminDevice])" type="text" @click="deleteDevice">删除</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.EditDevice, [policyEnum.UpdateDevice], deviceActions)" type="text" @click="isEdit.basicInfo = true">编辑</el-button>
+            <el-button v-if="!isEdit.basicInfo && checkToolsVisible(toolsEnum.DeleteDevice, [policyEnum.DeleteDevice], deviceActions)" type="text" @click="deleteDevice">删除</el-button>
           </div>
         </div>
         <basic-info v-if="!isEdit.basicInfo" :device="device" :is-ibox="isIbox" @updateDevice="updateDevice()" />
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop, Provide, Inject, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Inject, Watch } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import BasicInfoEdit from './BasicInfoEdit.vue'
 import VideoInfo from './VideoInfo.vue'
@@ -65,6 +65,11 @@ import { PolicyEnum } from '@vss/base/enums/iam'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Inject({ default: () => () => null })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && this.getActions()
+  }
   @Inject('handleTools')
   private handleTools!: Function
   @Inject('checkToolsVisible')
@@ -93,6 +98,7 @@ export default class extends Mixins(detailMixin) {
     if (val > 0) {
       this.refreshCount.target = val
       this.refreshCount.index = 0
+      console.log('updateDevice')
       this.updateDevice()
       this.handleTools(ToolsEnum.RefreshRouterView, 0)
     }
@@ -135,11 +141,12 @@ export default class extends Mixins(detailMixin) {
     // 如果设备不存在直接跳出当前目录
     if (!(this.device.device && this.device.device.deviceId)) {
       this.handleTools(ToolsEnum.GoBack, 1)
-    }
-    // 进行多次刷新，保证设备相关状态的更新
-    if (this.refreshCount.index < this.refreshCount.target) {
-      this.refreshTimeout = setTimeout(this.updateDevice, 5000)
-      this.refreshCount.index++
+    } else {
+      // 进行多次刷新，保证设备相关状态的更新
+      if (this.refreshCount.index < this.refreshCount.target) {
+        this.refreshTimeout = setTimeout(this.updateDevice, 5000)
+        this.refreshCount.index++
+      }
     }
   }
 

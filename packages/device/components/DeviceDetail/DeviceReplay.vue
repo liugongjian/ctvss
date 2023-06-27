@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '../../services/Screen/ScreenManager'
 import detailMixin from '@vss/device/mixin/deviceMixin'
@@ -22,6 +22,11 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
+  @Inject({ default: () => () => null })
+  public getActions!: Function
+  private get deviceActions() {
+    return this.getActions && typeof this.getActions === 'function' && this.getActions()
+  }
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
   @Prop() private readonly deviceIdCar?: any
@@ -45,6 +50,10 @@ export default class extends Mixins(detailMixin) {
     screen.deviceId = this.deviceId || this.deviceIdSecondary
     screen.isLive = false
     screen.datetimeRange = this.datetimeRange
+    // 设备管理入口的录像回放Tab，未通过左侧树的点击绑定IAM权限，此处进行补充
+    if (!screen.permission) {
+      screen.permission = this.deviceActions
+    }
     await this.getDevice()
     screen.inProtocol = this.inVideoProtocol
     screen.init()

@@ -12,15 +12,6 @@
               :is-auto-created="isAutoCreated"
               :actions="actions"
             />
-            <!-- <div class="detail__buttons">
-              <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
-              <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
-              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>
-              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
-              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
-              <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
-            </div> -->
             <!--状态信息-->
             <div class="detail__section">
               <div class="detail__title">状态信息</div>
@@ -33,14 +24,10 @@
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ streamStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <!-- <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
-                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link> -->
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <!-- <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
-                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link> -->
                   </el-descriptions-item>
                   <el-descriptions-item label="当前码率">
                     {{ info.bitrate ? (info.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}

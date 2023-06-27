@@ -47,10 +47,10 @@ export default class extends Vue {
   @Prop()
   private checkedList: []
 
-  @Prop({ default: () => ['dir', 'nvr', 'ipc'] })
+  @Prop({ default: () => ['dir', 'nvr', 'ipc', 'platform'] })
   public filterTypeArr
 
-  @Prop({ default: () => ['video'] })
+  @Prop({ default: () => null })
   public filterInProtocolArr
 
   @Prop({ default: () => null })

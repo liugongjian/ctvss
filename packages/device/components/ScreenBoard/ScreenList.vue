@@ -11,11 +11,11 @@
           empty-text="所选日期暂无录像"
         >
           <el-table-column label="录像名称" prop="templateName" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <template v-if="!row.edit">
                 <span>{{ row.templateName }}</span>
                 <el-button
-                  v-if="checkPermission(['AdminRecord'])"
+                  v-if="checkPermission(['ivs:UpdateDevice'], currentScreen.permission)"
                   type="text"
                   icon="el-icon-edit"
                   class="edit-button"
@@ -41,7 +41,7 @@
             </template>
           </el-table-column>
           <el-table-column label="录像截图" min-width="200">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-image
                 style="width: 150px; height: 100px;"
                 :src="row.cover"
@@ -66,9 +66,9 @@
             :formatter="durationFormatInTable"
           />
           <el-table-column prop="action" label="操作" width="200" fixed="right">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <el-button
-                v-if="checkPermission(['AdminRecord'])"
+                v-if="checkPermission(['ivs:GetCloudRecord'], currentScreen.permission) && checkPermission(['ivs:DownloadCloudRecord'], currentScreen.permission)"
                 :disabled="row.loading"
                 type="text"
                 @click="downloadReplay(row)"
@@ -94,7 +94,7 @@
     <div v-else class="tip-select-device">
       <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
-    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <device-dir v-if="dialogs.deviceDir" :is-live="screenManager.isLive" @on-close="onDeviceDirClose" />
     <el-dialog
       v-if="dialogs.play"
       class="video-player"
@@ -103,7 +103,14 @@
       :close-on-click-modal="false"
       @close="closeReplayPlayer()"
     >
-      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codec" :has-progress="true" />
+      <VssPlayer
+        :url="currentListRecord.url"
+        type="hls"
+        :codec="currentListRecord.codec"
+        :has-progress="true"
+        :permission="currentScreen.permission"
+        :check-permission="checkPermission"
+      />
     </el-dialog>
   </div>
 </template>
@@ -113,9 +120,12 @@ import { Record } from '@vss/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@vss/base/utils/date'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@vss/device/api/device'
+import { RecordType } from '@vss/device/enums'
+import { addLog } from '@vss/device/api/operationLog'
 import { checkPermission } from '@vss/base/utils/permission'
 import DeviceDir from '@vss/device/components/DeviceDir.vue'
 import VssPlayer from '@vss/vss-video-player/index.vue'
+
 @Component({
   name: 'ScreenList',
   components: {
@@ -292,6 +302,12 @@ export default class extends Vue {
         link.remove()
       }
       record.loading = false
+      const recordTypeName = this.currentScreen.recordType === RecordType.Cloud ? '云端' : '设备'
+      addLog({
+        deviceId: this.currentScreen.deviceId.toString(),
+        inProtocol: this.currentScreen.inProtocol,
+        operationName: `下载${recordTypeName}录像`
+      })
     } catch (e) {
       this.$message.error(e.message)
     }
@@ -304,6 +320,12 @@ export default class extends Vue {
     // 变了变了
     this.dialogs.play = true
     this.currentListRecord = record
+    const recordTypeName = this.currentScreen.recordType === RecordType.Cloud ? '云端' : '设备'
+    addLog({
+      deviceId: this.currentScreen.deviceId.toString(),
+      inProtocol: this.currentScreen.inProtocol,
+      operationName: `播放${recordTypeName}录像`
+    })
   }
 
   /**

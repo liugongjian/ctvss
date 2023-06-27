@@ -2,14 +2,13 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <!-- TODO -->
-        <el-tooltip effect="dark" content="子目录排序" placement="top" :open-delay="300">
-          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.SortDirectory)">
+        <el-tooltip v-if="checkPermission([policyEnum.UpdateDevice], rootActions)" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+          <el-button type="text" @click="handleTools(toolsEnum.SortDirectory)">
             <svg-icon name="sort" />
           </el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="添加目录" placement="top" :open-delay="300">
-          <el-button v-if="checkPermission([policyEnum.AdminDevice])" type="text" @click="handleTools(toolsEnum.AddDirectory)">
+        <el-tooltip v-if="checkPermission([policyEnum.UpdateDevice], rootActions)" effect="dark" content="添加目录" placement="top" :open-delay="300">
+          <el-button type="text" @click="handleTools(toolsEnum.AddDirectory)">
             <svg-icon name="plus" />
           </el-button>
         </el-tooltip>
@@ -20,32 +19,29 @@
         </el-tooltip>
       </template>
       <template slot="leftBody">
-        <!-- TODO -->
         <device-tree
           ref="deviceTree"
           v-loading="loading.tree"
           :lazy="lazy"
           :data="treeSearchResult"
+          :root-sums-array="[rootSums.onlineSize, rootSums.totalSize]"
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
       </template>
       <template slot="leftBottom">
-        <!-- TODO -->
         <advanced-search
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />
       </template>
       <template slot="rightHeader">
-        <!-- TODO -->
         <breadcrumb
           ref="breadcrumb"
           @node-change="handleTreeNode"
         />
       </template>
       <template slot="rightBody">
-        <!-- TODO -->
         <router-view />
       </template>
     </common-layout>
@@ -88,12 +84,14 @@ export default class extends Mixins(layoutMxin) {
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     const { id, type } = data || {}
+    const path = data?.path?.map(item => item.id).join(',') || ''
     this.deviceTree.setCurrentKey(id)
     if (type === this.deviceTypeEnum.Ipc) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {
           ...this.$route.query,
+          path: path,
           type: type,
           deviceId: id,
           deviceName: data.name,
@@ -101,11 +99,12 @@ export default class extends Mixins(layoutMxin) {
         }
       })
     } else {
-      this.deviceTree.loadChildren(id)
+      this.lazy && this.deviceTree.loadChildren(id)
       this.$router.push({
         name: 'DeviceList',
         query: {
           ...this.$route.query,
+          path: path,
           type: type,
           dirId: id,
           deviceName: data.name,

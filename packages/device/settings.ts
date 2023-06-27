@@ -14,6 +14,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
     DeviceEnum.InUserName,
+    DeviceEnum.EnabledGB35114,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.StreamTransProtocol,
     DeviceEnum.DeviceModel,
@@ -28,7 +29,6 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.DeviceStreamPullIndex,
-    DeviceEnum.StreamTransProtocol,
     DeviceEnum.DeviceMac
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([

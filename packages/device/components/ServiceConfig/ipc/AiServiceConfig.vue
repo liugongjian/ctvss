@@ -71,7 +71,7 @@
             {{ row[ipcAiConfigEnum.Status] === '0' ? '停用' : '启用' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="checkPermission(['AdminDevice'])" label="操作" prop="action" width="180" fixed="right">
+        <el-table-column v-if="checkPermission(['ivs:UpdateDevice'])" label="操作" prop="action" width="180" fixed="right">
           <template slot-scope="{ row }">
             <el-button
               v-if="isView && row[ipcAiConfigEnum.NeedConfig] === '1'"
@@ -83,7 +83,7 @@
             <el-button
               :disabled="row[ipcAiConfigEnum.Status] !== '0'"
               type="text"
-              @click="unBindingApp(row.id)"
+              @click="unBindingApp(row)"
             >
               删除
             </el-button>
@@ -151,8 +151,9 @@ import AiServiceBindingDialog from './AiServiceBindingDialog.vue'
 import AiAppCreateDialog from './AiAppCreateDialog.vue'
 import AlgoConfig from '@vss/device/components/DeviceDetail/DeviceConfig/AlgoConfig/index.vue'
 import { getAlgoStreamFrameShot } from '@vss/device/api/ai-app'
-import { startAppResource, stopAppResource } from '@vss/device/api/device'
+import { startAppResource, stopAppResource, unBindAppResource } from '@vss/device/api/device'
 import { checkPermission } from '@vss/base/utils/permission'
+import { UserModule } from '@/store/modules/user'
 @Component({
   name: 'IpcAiServiceConfig',
   components: {
@@ -242,6 +243,10 @@ export default class extends Vue {
     await this.getAppNums()
   }
 
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
+  }
+  
   private async getConfigList() {
     try {
       this.loading.table = true
@@ -249,6 +254,10 @@ export default class extends Vue {
       if (aiInfo && aiInfo.length) {
         const res = aiInfo
         res.forEach((item) => {
+          if (this.isIndustrialDetection && item.algorithmType === '城市治理') {
+            // 工业缺陷检测算法需求
+            item.algorithmType = '工业缺陷检测'
+          }
           if (item.billingMode === BillingModeEnum.Packages) {
             if (this.initPackageRemainObj[item.resourceId] === undefined) {
               this.initPackageRemainObj[item.resourceId] =
@@ -282,14 +291,6 @@ export default class extends Vue {
 
   private bindingApp() {
     this.showBindingDialog = true
-  }
-
-  private unBindingApp(appId: number) {
-    const target = this.selectedList.findIndex((app) => app.id === appId)
-    if (target >= 0) this.selectedList.splice(target, 1)
-    if (this.configManager.configMode === ConfigModeEnum.View) {
-      this.$emit('force-update')
-    }
   }
 
   private closeDialog(data) {
@@ -371,6 +372,38 @@ export default class extends Vue {
   }
 
   /**
+   * 解绑AI应用
+   */
+  private unBindingApp(rowInfo: any) {
+    const target = this.selectedList.findIndex((app) => app.appId === rowInfo.appId)
+    if (target >= 0) this.selectedList.splice(target, 1)
+    if (this.configManager.configMode === ConfigModeEnum.View) {
+      this.loading.table = true
+      const param = {
+        inProtocol: this.configManager.inVideoProtocol,
+        deviceId: this.configManager.deviceId,
+        deviceType: 'ipc',
+        appId: [rowInfo.appId]
+      }
+      unBindAppResource(param)
+        .then(() => {
+          this.loading.table = false
+          this.$message.success('删除成功！')
+          this.$emit('force-update')
+        })
+        .catch((e) => {
+          this.loading.table = false
+          this.$message.error(
+            `删除失败，原因：${e && e.message}`
+          )
+        })
+        .finally(() => {
+          this.$emit('force-update')
+        })
+    }
+  }
+
+  /**
    * 启用/停用AI应用
    */
   private async changeRunningStatus(rowInfo: any) {
@@ -381,8 +414,6 @@ export default class extends Vue {
       deviceId: this.configManager.deviceId,
       appIds: [rowInfo.appId]
     }
-    console.log(rowInfo)
-    // startAppResource
     if (status) {
       stopAppResource(param)
         .then(() => {

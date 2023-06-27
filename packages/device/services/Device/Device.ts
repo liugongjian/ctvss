@@ -286,13 +286,18 @@ const exportDeviceFile = async function (state, data: any) {
   try {
     let res: any = {}
     if (data.command === 'all') {
+      const query: any = state.$route.query
       const param: any = {
         sortBy: '',
         sortDirection: 'desc',
+        deviceStatusKeys: query.deviceStatusKeys || undefined,
+        streamStatusKeys: query.streamStatusKeys || undefined,
+        matchKeys: query.matchKeys || undefined,
+        deviceAddresses: query.deviceAddresses && query.deviceAddresses.split(',')[0] ? query.deviceAddresses : undefined,
+        searchKey: query.searchKey || undefined,
         pageNum: 1,
         pageSize: 9999
       }
-      const { query } = state.$route
 
       if (query.type === 'nvr') {
         param.parentDeviceId = data.currentDirId
@@ -507,6 +512,29 @@ const openListDialog = function (getVueComponent, type: string, row?: any) {
     case ToolsEnum.UpdateResource:
       state.currentDevice = row
       state.dialog[ToolsEnum.UpdateResource] = true
+      break
+    case ToolsEnum.DescribePermission:
+      const path: any = state.$route.query.path
+      const pathArr = path ? path.split(',') : []
+      
+      if (row && row.deviceId) {
+        const dirPath = pathArr.join('/')
+        state.describePermissonDialogData = {
+          type: row.type,
+          dirPath: dirPath || '0',
+          deviceId: row.deviceId
+        }
+      } else {
+        const deviceId = state.deviceId
+        const deviceType = state.deviceType
+        const dirPath = (deviceType === 'dir') ? pathArr.join('/') : pathArr.slice(0, -1).join('/')
+        state.describePermissonDialogData = {
+          type: deviceType,
+          dirPath: dirPath || '0',
+          deviceId: deviceType === 'dir' ? undefined : deviceId
+        }
+      }
+      state.dialog[ToolsEnum.DescribePermission] = true
       break
   }
 }

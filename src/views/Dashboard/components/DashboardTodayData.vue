@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-23 10:19:12
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-24 14:41:58
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-06-02 15:52:37
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardTodayData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -334,6 +334,7 @@ export default class extends Mixins(DashboardMixin) {
       innerRadius: 0.6
     })
 
+    console.log('data:', data)
     this[chartDom].data(data)
 
     this[chartDom].tooltip({
@@ -363,6 +364,7 @@ export default class extends Mixins(DashboardMixin) {
         return {
           style: {
             fontSize: 12,
+            fontWeight: 'bold',
             shadowBlur: 2,
             shadowColor: 'rgba(0, 0, 0, .45)'
           },
@@ -410,7 +412,7 @@ export default class extends Mixins(DashboardMixin) {
       width: 700,
       height: 260
     })
-    
+
     this[chartDom].scale('percent', {
       formatter: (val) => {
         // val = (val * 100).toFixed(2) + '%'
@@ -454,6 +456,7 @@ export default class extends Mixins(DashboardMixin) {
         return {
           style: {
             fontSize: 12,
+            fontWeight: 'bold',
             shadowBlur: 2,
             shadowColor: 'rgba(0, 0, 0, .45)'
           },
@@ -505,7 +508,7 @@ export default class extends Mixins(DashboardMixin) {
       }
 
       .el-row {
-        margin-bottom: 20px;
+        margin-bottom: $padding-primary;
       }
     }
 
@@ -517,16 +520,17 @@ export default class extends Mixins(DashboardMixin) {
 
       &_detail {
         flex: 1;
-        margin-bottom: 10px;
+        margin-bottom: $margin-small;
         min-width: 260px;
 
         &_pie {
           text-align: center;
           font-weight: bold;
+          font-size: $text-size-large;
         }
 
         &:last-child {
-          margin-top: 20px;
+          margin-top: $padding-primary;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -536,7 +540,7 @@ export default class extends Mixins(DashboardMixin) {
               .el-col {
                 width: 50%;
                 min-width: 130px;
-                margin-bottom: 10px;
+                margin-bottom: $margin-small;
               }
             }
           }

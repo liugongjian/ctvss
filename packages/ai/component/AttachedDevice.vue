@@ -84,14 +84,14 @@
             设备详情
           </el-button>
           <el-button
-            v-permission="['AdminAi']"
+            v-if="checkPermission(['ivs:UpdateDevice'], scope.row)"
             type="text"
             @click.stop="startOrStop(scope.row)"
           >
             {{ parseInt(scope.row.status) ? '停用' : '启用' }}
           </el-button>
           <el-button
-            v-permission="['AdminAi']"
+            v-if="checkPermission(['ivs:UpdateDevice'], scope.row)"
             type="text"
             :disabled="scope.row.status === '1' ? true : false"
             @click.stop="detach(scope.row)"

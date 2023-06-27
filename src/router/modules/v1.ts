@@ -266,6 +266,19 @@ export const v1Router: RouteConfig[] = [
       version: 1
     }
   },
+  // 播放器测试内部路由改为/inner/replay-debug2
+  {
+    path: '/inner/replay-debug2',
+    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
+    name: 'inner-replay-debug2',
+    meta: {
+      title: '录像调试',
+      icon: 'menu-replay',
+      hidden: true,
+      perms: ['*'],
+      version: 1
+    }
+  },
   {
     path: '/replay',
     component: Layout,
@@ -291,6 +304,86 @@ export const v1Router: RouteConfig[] = [
           activeMenu: '/replay',
           groupSelector: true,
           customTreeSelector: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/viid',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '视图服务',
+      icon: 'menu-ga1400',
+      alwaysShow: true,
+      version: 1,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'up-platform',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
+        name: 'ViidUpPlatform',
+        meta: {
+          title: '向上级联',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/create',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformCreate',
+        meta: {
+          title: '新建平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/update/:id?',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        name: 'ViidUpPlatformUpdate',
+        meta: {
+          title: '编辑平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      // {
+      //   path: 'subscribe',
+      //   component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+      //   name: 'ViidSubscribe',
+      //   meta: {
+      //     title: '订阅通知',
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/viid/subscribe'
+      //   }
+      // },
+      {
+        path: 'subscribe/create',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
+        name: 'ViidSubscribeCreate',
+        meta: {
+          title: '添加订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
+      {
+        path: 'subscribe/cancel',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'),
+        name: 'ViidSubscribeCancel',
+        meta: {
+          title: '取消订阅',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
         }
       }
     ]
@@ -1083,10 +1176,13 @@ export const v1Router: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210515200901013321',
-      title: '车辆管理',
+      title: '车载监控管理',
       breadcrumb: true,
       icon: 'menu-car',
       perms: ['ivs:AdminCar'],
+      tags: {
+        'isCarShow': ['true']
+      },
       version: 1
     },
     children: [
@@ -1096,7 +1192,7 @@ export const v1Router: RouteConfig[] = [
         name: 'Car',
         meta: {
           id: '20210515200901013321',
-          title: '车辆管理',
+          title: '车载监控管理',
           breadcrumb: false,
           icon: 'car',
           perms: ['ivs:AdminCar']
@@ -1154,7 +1250,7 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'),
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevicesV1/index.vue'),
         name: 'ExportDevices',
         meta: {
           title: '批量导出设备信息',
@@ -1193,7 +1289,7 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'custom-tree',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfigV1/CustomTree/index.vue'),
         name: 'CustomTree',
         meta: {
           title: '自定义设备树',

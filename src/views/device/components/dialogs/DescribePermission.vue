@@ -36,7 +36,7 @@
           align="center"
           min-width="120"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <i
               :class="{
                 'el-icon-check': row[action.actionKey] && row[action.actionKey].auth,
@@ -76,8 +76,23 @@ export default class extends Vue {
     const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
     const res = settings.systemActionList
       .filter((action: any) => !denyPerms.includes(action.actionKey))
-      .filter((action: any) => action.resourceType !== '*')
+      .filter((action: any) => {
+        let neededTagObject = {}
+        if (Array.isArray(action.tags)) {
+          action.tags.forEach(tag => {
+            neededTagObject[tag] = ['Y']
+          })
+        } else {
+          neededTagObject = action.tags || ({})
+        }
 
+        return Object.keys(neededTagObject).every(neededTag => {
+          const tagValue = tagObject[neededTag]
+          const neededValue = neededTagObject[neededTag]
+          return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+        })
+      })
+      .filter((action: any) => action.resourceType !== '*')
     return res
   }
 
@@ -102,7 +117,7 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

@@ -2,7 +2,7 @@
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-24 10:08:38
  * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-04-23 10:20:52
+ * @LastEditTime: 2023-05-08 10:01:13
  * @FilePath: /vss-user-web/src/views/Dashboard/components/DashboardPeriodLine.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,8 +10,13 @@
   <div class="dashboard-wrap-overview__item">
     <el-card>
       <div class="dashboard-wrap-overview__item_period_content">
-        <div class="dashboard-wrap-overview__item_period_title">{{ chartTitle() }}</div>
-        <div class="dashboard-wrap-overview__item_period_to_detail" @click="toDosageStatistics">
+        <div class="dashboard-wrap-overview__item_period_title">
+          {{ chartTitle() }}
+        </div>
+        <div
+          class="dashboard-wrap-overview__item_period_to_detail"
+          @click="toDosageStatistics"
+        >
           用量详情 >>
         </div>
       </div>
@@ -70,6 +75,7 @@ import {
   getStorageHistoryStatistics,
   getBandwidthHistoryStatistics
 } from '@/api/dosageStatistics'
+import { getIsOndemand } from '@/api/billing'
 
 import { format } from 'date-fns'
 
@@ -103,20 +109,41 @@ export default class extends Vue {
     endTime: new Date().getTime()
   }
 
+  private timeDics = {
+    today: {
+      startTime: this.todayEarly,
+      endTime: new Date().getTime()
+    },
+    yesterday: {
+      startTime: this.todayEarly - this.MILLISECONDS_PER_DAY,
+      endTime: this.todayEarly - 1000
+    },
+    seven: {
+      startTime: this.todayEarly - 6 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
+    },
+    month: {
+      startTime: this.todayEarly - 30 * this.MILLISECONDS_PER_DAY,
+      endTime: new Date().getTime()
+    }
+  }
+
   private chartTitle() {
-    if ((this.chartKind === 'bandwidth' || this.chartKind === 'storage') && this.currentPeriod) {
+    if (
+      (this.chartKind === 'bandwidth' || this.chartKind === 'storage') &&
+      this.currentPeriod
+    ) {
       return `${this.kindToText[this.chartKind][this.currentPeriod]['title']}(${
         this.unit
       })`
-    } else if (this.chartKind === 'service' && this.selection){
-      return  `${this.kindToText[this.chartKind][this.selection]['title']}`
+    } else if (this.chartKind === 'service' && this.selection) {
+      return `${this.kindToText[this.chartKind][this.selection]['title']}`
     }
     return this.kindToText[this.chartKind]['name']
   }
 
-  
-  mounted() {
-    this.initDraw()
+  async mounted() {
+    await this.initDraw()
     this.getData()
   }
 
@@ -124,21 +151,30 @@ export default class extends Vue {
     await this[this.kindToText[this.chartKind]['func']]()
   }
 
-  private initDraw() {
-    const { bandwidth, storage, service } = Options
-    const device = {
-      value: 'device',
-      label: '设备',
-      kind: 'device'
+  private async initDraw() {
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      const { bandwidth, storage, service } = Options
+      const device = {
+        value: 'device',
+        label: '设备',
+        kind: 'device'
+      }
+
+      this.periods =
+        isSubscribe === '1'
+          ? [device, ...bandwidth, ...storage]
+          : [device, ...bandwidth]
+
+      this.serviceOption = [...service]
+    } catch (error) {
+      this.$$message.error(error && error.message)
     }
-    this.periods = [device, ...bandwidth, ...storage]
-    this.serviceOption = [...service]
   }
 
   private periodChange(period: string, selection?: string) {
-
     this.selection = selection
-    
+
     if (!period) {
       const per = this.periods.find((item) => item.value === selection)
       this.chartKind = per.kind
@@ -284,10 +320,11 @@ export default class extends Vue {
       }
 
       const res = await getStorageHistoryStatistics(param)
-      
+
       const { storageSamples } = res
 
-      const [demand, total] = storageSamples
+      const total = storageSamples.find((item) => item.type === 'total')
+      const demand = storageSamples.find((item) => item.type === 'on-demand')
 
       const { samples: demandSamples } = demand
       const { samples: totalSamples } = total
@@ -310,10 +347,10 @@ export default class extends Vue {
         }
       })
 
-       const getUnit = () => {
+      const getUnit = () => {
         const values = [...totalData, ...demandData].map((item) => item.value)
         const minValue = Math.min(...values)
-        if (minValue > 1024 * 1024 * 1024){
+        if (minValue > 1024 * 1024 * 1024) {
           return 'GB'
         }
         return 'MB'
@@ -377,7 +414,7 @@ export default class extends Vue {
     }
   }
 
-  private toDosageStatistics(){
+  private toDosageStatistics() {
     this.$router.push({
       name: 'DosageStatistics',
       query: {

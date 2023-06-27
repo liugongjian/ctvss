@@ -9,7 +9,7 @@ import { setDirsStreamStatus } from '@/utils/device'
 // @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
 import { UserModule } from '@/store/modules/user'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component
 export default class IndexMixin extends Vue {

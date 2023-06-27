@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="loading.policy">
+    <el-card v-loading="loading.resource">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="policyId">
           <el-input v-model="form.policyId" class="form__input" :disabled="isUpdate" />
@@ -13,33 +13,113 @@
         <el-form-item label="描述：" prop="desc">
           <el-input v-model="form.desc" class="form__input" type="textarea" rows="4" :disabled="isCtyunPolicy" />
         </el-form-item>
-        <el-form-item label="操作：" prop="actionList">
-          <span v-if="actionType === 'besideSelected'" style="color: #c0c4cc;">所有操作权限</span>
-          <el-table v-else-if="actionType === 'selected'" ref="actionTable" :data="systemActionList" tooltip-effect="dark" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" :selectable="checkSelectable" :label-class-name="isCtyunPolicy ? 'is-ctyun-policy' : ''" width="55" />
-            <el-table-column label="操作名称" prop="actionName" width="200" />
-            <el-table-column label="操作描述" prop="actionDesc" />
-          </el-table>
-        </el-form-item>
-        <el-form-item label="资源：" prop="resourceList">
-          <el-radio-group v-model="resourceType" style="margin-bottom: 5px;" :disabled="isCtyunPolicy">
-            <el-radio label="all">所有资源</el-radio>
-            <el-radio label="selected">特定资源</el-radio>
-          </el-radio-group>
-          <div v-show="resourceType === 'selected'" class="dialog-wrap">
-            <resource-selector
-              v-if="loading.policy === false || !isUpdate"
-              :checked-list="initResourceList"
-              :filter-type-arr="['dir', 'ipc']"
-              @resourceListChange="resourceListChange"
-              @resourceLoaded="resourceLoaded"
-            />
+        <el-form-item label="权限：" prop="statementList">
+          <div v-for="(statement, index) in form.statementList" :key="statement.id" class="statement-block">
+            <div class="statement-block__headline" @click="toggleOpenStatus(index)">
+              <i v-if="statement.opened" class="el-icon-caret-bottom" />
+              <i v-else class="el-icon-caret-right" />
+              <span style="margin-left: 5px;">{{ '权限集' + (index + 1) }}</span>
+              <el-button type="text" style="float: right; margin-right: 10px;" @click.stop="deleteStatement(index)">删除</el-button>
+            </div>
+            <div v-show="statement.opened">
+              <el-form-item
+                label="效果（Effect）"
+                :prop="'statementList.' + index + '.effect'"
+                label-width="180px"
+              >
+                <el-radio-group
+                  v-model="statement.effect"
+                  :disabled="isCtyunPolicy"
+                  @input="changeEffect(index)"
+                >
+                  <el-radio label="Allow">允许</el-radio>
+                  <el-radio label="Deny">拒绝</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item
+                label="操作（Action）"
+                :rules="innerActionFormRule"
+                :prop="'statementList.' + index + '.actionList'" label-width="180px"
+              >
+                <span
+                  v-if="statement.actionType === 'all'"
+                  style="color: #c0c4cc;"
+                >
+                  所有操作权限
+                </span>
+                <el-table
+                  v-else-if="statement.actionType === 'selected'"
+                  :ref="`actionTable_${index}`"
+                  :data="filteredSystemActionList"
+                  size="small"
+                  max-height="450"
+                  tooltip-effect="dark"
+                  @selection-change="handleSelectionChange($event, index)"
+                >
+                  <el-table-column
+                    type="selection"
+                    :selectable="(row) => checkSelectable(row, index)"
+                    :label-class-name="isCtyunPolicy ? 'is-ctyun-policy' : ''"
+                    width="55"
+                  />
+                  <el-table-column
+                    label="操作名称"
+                    prop="actionName"
+                    width="220"
+                  />
+                  <el-table-column
+                    label="操作级别"
+                    prop="actionValue"
+                    width="200"
+                  >
+                    <template slot-scope="{ row }">
+                      <span v-if="!row.actionValueOption"> - </span>
+                      <el-select v-else v-model="statement.actionLevel[row.actionKey]" :disabled="isCtyunPolicy" size="mini" style="width: 65%;">
+                        <el-option
+                          v-for="option in row.actionValueOption"
+                          :key="option"
+                          :label="option"
+                          :value="option"
+                        />
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="操作描述"
+                    prop="actionDesc"
+                  />
+                </el-table>
+              </el-form-item>
+              <el-form-item
+                label="资源（Resource）"
+                :rules="innerResourceFormRule"
+                :prop="'statementList.' + index + '.resourceList'"
+                label-width="180px"
+              >
+                <el-radio-group
+                  v-model="statement.resourceType"
+                  style="margin-bottom: 5px;"
+                  :disabled="isCtyunPolicy"
+                >
+                  <el-radio label="all">所有资源</el-radio>
+                  <el-radio label="selected">特定资源</el-radio>
+                </el-radio-group>
+                <div v-show="statement.resourceType === 'selected'" class="dialog-wrap">
+                  <resource-selector
+                    :checked-list="statement.resourceIdList"
+                    @resourceListChange="resourceListChange($event, index)"
+                    @resourceLoaded="resourceLoaded"
+                  />
+                </div>
+              </el-form-item>
+            </div>
           </div>
+          <el-button v-if="!isCtyunPolicy" :loading="loading.dir || loading.resource" type="text" @click="addStatement">+ 添加权限</el-button>
         </el-form-item>
         <el-form-item>
-          <el-row style="margin: 20px 0;">
+          <el-row>
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" :loading="loading.resource || loading.policy" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="loading.dir || loading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -54,93 +134,42 @@
 
 <script lang="ts">
 import { createPolicy, editPolicy, getPolicyInfo } from '@/api/accessManage'
+import settings from '@/settings'
+import { UserModule } from '@/store/modules/user'
 import TemplateBind from '@/views/components/TemplateBind.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import ResourceSelector from '@/views/components/ResourceSelector.vue'
 
 @Component({
-  name: 'CreatePolicy',
+  name: 'AddDevices',
   components: {
     TemplateBind,
     ResourceSelector
   }
 })
 export default class extends Vue {
-  public filterTypeArr = ['dir']
-  public hasCheckbox = true
   private breadCrumbContent = ''
-  private systemActionList = [
-    {
-      actionName: '查询设备',
-      actionValue: 'DescribeDevice',
-      actionDesc: '具有设备查询的权限，可以展示设备管理菜单'
-    },
-    {
-      actionName: '管理设备',
-      actionValue: 'AdminDevice',
-      actionDesc: '拥有设备管理的权限，可对设备进行管理操作'
-    },
-    {
-      actionName: '实时预览',
-      actionValue: 'ScreenPreview',
-      actionDesc: '具备实时预览菜单'
-    },
-    {
-      actionName: '录像回放',
-      actionValue: 'ReplayRecord',
-      actionDesc: '具备录像回放菜单'
-    },
-    {
-      actionName: '管理录像',
-      actionValue: 'AdminRecord',
-      actionDesc: '拥有录像下载，录像文件改名的权限'
-    },
-    {
-      actionName: '查看AI应用',
-      actionValue: 'DescribeAi',
-      actionDesc: '拥有AI管理权限'
-    },
-    {
-      actionName: '管理AI应用',
-      actionValue: 'AdminAi',
-      actionDesc: '拥有AI管理权限'
-    },
-    {
-      actionName: '查看电子地图',
-      actionValue: 'DescribeMap',
-      actionDesc: '拥有电子地图的查看权限'
-    },
-    {
-      actionName: '查看概览页面',
-      actionValue: 'DescribeDashboard',
-      actionDesc: '拥有概览页面的查看权限'
-    },
-    {
-      actionName: '车辆管理',
-      actionValue: 'AdminCar',
-      actionDesc: '拥有车辆管理权限'
-    }
-  ]
-  private dirList: any = []
+
   public loading = {
-    policy: null,
-    resource: false,
+    dir: false,
+    resource: false
   }
+
   private treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
   }
+
   private form: any = {
     policyId: '',
     policyName: '',
     desc: '',
     policyType: '',
     scope: '',
-    actionList: [],
-    resourceList: []
+    statementList: []
   }
-  private initResourceList = []
+
   private isCtyunPolicy = false
   private actionType = ''
   private resourceType = 'all'
@@ -149,11 +178,21 @@ export default class extends Vue {
       { required: true, message: '请输入策略名称', trigger: 'blur' },
       { validator: this.validatePolicyName, trigger: 'blur' }
     ],
-    desc: [
-      { validator: this.validatePolicyDesc, trigger: 'blur' }
-    ],
-    actionList: [{ validator: this.validatorActionList, trigger: 'blur' }],
-    resourceList: [{ validator: this.validateResourceList, trigger: 'blur' }]
+    statementList: [
+      {
+        validator: this.validateStatementList, trigger: 'blur'
+      }
+    ]
+  }
+
+  private innerActionFormRule = {
+    validator: this.validateActionList,
+    trigger: 'blur'
+  }
+
+  private innerResourceFormRule = {
+    validator: this.validateResourceList,
+    trigger: 'blur'
   }
 
   private validatePolicyName(rule: any, value: string, callback: Function) {
@@ -168,24 +207,26 @@ export default class extends Vue {
     }
   }
 
-  private validatePolicyDesc(rule: any, value: string, callback: Function) {
-    if (value.length > 255) {
-      callback(new Error('策略描述最多255个字符！'))
-    } else {
-      callback()
-    }
-  }
-
-  private validatorActionList(rule: any, value: string, callback: Function) {
-    if (!this.form.actionList.length) {
+  private validateActionList(rule: any, value: string, callback: Function) {
+    if (!value || !value.length) {
       callback(new Error('操作列表不能为空！'))
     } else {
       callback()
     }
   }
 
+  private validateStatementList(rule: any, value: string, callback: Function) {
+    if (!value || !value.length) {
+      callback(new Error('权限列表不能为空！'))
+    } else {
+      callback()
+    }
+  }
+
   private validateResourceList(rule: any, value: string, callback: Function) {
-    if (this.resourceType === 'selected' && !this.form.resourceList.length) {
+    const index = rule.field.split('.')[1]
+    const statement = this.form.statementList[index]
+    if (statement.resourceType === 'selected' && !statement.resourceList.length) {
       callback(new Error('资源列表不能为空！'))
     } else {
       callback()
@@ -196,7 +237,41 @@ export default class extends Vue {
     return this.$route.name === 'AccessManagePolicyEdit'
   }
 
-  public async created() {
+  private get filteredSystemActionList() {
+    const tagObject = UserModule.tags || ({})
+    const userVersion = UserModule.version
+    const denyPerms = (tagObject.privateUser && settings.privateDenyPerms[tagObject.privateUser]) || []
+    return settings.systemActionList
+      .filter((action: any) => !denyPerms.includes(action.actionKey))
+      .filter((action: any) => !action.version || action.version === userVersion)
+      .filter((action: any) => {
+        let neededTagObject = {}
+        if (Array.isArray(action.tags)) {
+          action.tags.forEach(tag => {
+            neededTagObject[tag] = ['Y']
+          })
+        } else {
+          neededTagObject = action.tags || ({})
+        }
+
+        return Object.keys(neededTagObject).every(neededTag => {
+          const tagValue = tagObject[neededTag]
+          const neededValue = neededTagObject[neededTag]
+          return tagValue && Array.isArray(neededValue) && neededValue.indexOf(tagValue) !== -1
+        })
+      })
+      .map(action => {
+        const options = action.actionValueOption
+        return {
+          ...action,
+          actionValueOption: options && options.every(option => typeof option === 'number')
+            ? Array.from({ length: options[1] - options[0] + 1 }).map((item, index) => options[0] + index)
+            : options
+        }
+      })
+  }
+
+  private async created() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate
       ? this.$route.meta.title
@@ -208,130 +283,143 @@ export default class extends Vue {
       if (policyId) {
         this.$set(this.form, 'policyId', policyId)
         await this.getPolicyInfo()
-        this.loading.resource = true
+        // this.loading.resource = true
       } else {
         this.back()
       }
-    } else {
-      this.actionType = 'selected'
     }
   }
 
-  private handleSelectionChange(actions: any) {
-    const actionTable: any = this.$refs.actionTable
+  private changeEffect(index: number) {
+    const actionTable: any = this.$refs[`actionTable_${index}`][0]
+    actionTable.clearSelection()
+  }
+
+  private handleSelectionChange(actions: any, index: number) {
+    const actionTable: any = this.$refs[`actionTable_${index}`][0]
     this.$nextTick(() => {
       actions.forEach((action: any) => {
-        if (action.actionValue === 'AdminDevice') {
-          actionTable.toggleRowSelection(this.systemActionList[0], true)
+        const statement = this.form.statementList[index]
+        const actionLevel = statement.actionLevel
+        if (actionLevel[action.actionKey] == null) {
+          this.$set(actionLevel, action.actionKey, action.actionValueDefault)
         }
-        if (action.actionValue === 'AdminRecord') {
-          actionTable.toggleRowSelection(this.systemActionList[3], true)
-        }
-        if (action.actionValue === 'AdminAi') {
-          actionTable.toggleRowSelection(this.systemActionList[5], true)
-        }
+        const autoSelectedArr = (statement.effect === 'Allow'
+          ? action.allowAutoSelected
+          : action.denyAutoSelected) || []
+
+        autoSelectedArr.forEach((autoSelected) => {
+          const autoSelectedRow = this.filteredSystemActionList.find((row: any) => row.actionKey === autoSelected)
+          if (autoSelectedRow) {
+            actionTable.toggleRowSelection(autoSelectedRow, true)
+          }
+        })
       })
-      this.form.actionList = actions.map((action: any) => action.actionValue)
+    })
+    this.form.statementList[index].actionList = actions.map((action: any) => action.actionKey)
+  }
+
+  private addStatement() {
+    this.form.statementList.push({
+      id: new Date().getTime().toString() + Math.random(),
+      opened: true,
+      effect: 'Allow',
+      actionType: 'selected',
+      resourceType: 'all',
+      actionList: [],
+      actionLevel: {},
+      resourceList: [],
+      resourceIdList: []
     })
   }
 
-  private handleRowClick(row: any) {
-    const index = this.form.actionList.indexOf(row.actionValue)
-    if (index === -1) {
-      this.form.actionList.push(row.actionValue)
-    } else {
-      this.form.actionList.splice(index, 1)
-    }
-    const actionTable: any = this.$refs.actionTable
-    actionTable.toggleRowSelection(row, index === -1)
+  private deleteStatement(index: number) {
+    this.form.statementList.splice(index, 1)
+  }
+
+  private toggleOpenStatus(index: number) {
+    this.form.statementList[index].opened = !this.form.statementList[index].opened
   }
   /*
    * 获取策略详情
    */
   private async getPolicyInfo() {
     try {
-      this.loading.policy = true
-      this.policyPromise = getPolicyInfo({
+      this.loading.resource = true
+      const res: any = await getPolicyInfo({
         policyId: this.form.policyId
       })
-      const res: any = await this.policyPromise
       this.form.policyName = res.policyName
       this.form.desc = res.desc
       const policyInfo = JSON.parse(res.policyDocument)
-      this.form.actionList = policyInfo.Statement[0].Action
-      if (this.form.actionList[0] === 'vss:*') {
-        this.actionType = 'besideSelected'
-      } else {
-        this.actionType = 'selected'
-        if (this.form.actionList[0] === 'vss:Get*') {
-          this.form.actionList = [
-            'DescribeDevice',
-            'ScreenPreview',
-            'ReplayRecord',
-            'DescribeAi',
-            'DescribeMap',
-            'DescribeDashboard'
-          ]
+
+      this.form.statementList = policyInfo.Statement.map((statement, index) => ({
+        id: new Date().getTime().toString() + Math.random(),
+        opened: index === 0,
+        effect: statement.Effect,
+        actionType: statement.Action[0] === 'ivs:*' ? 'all' : 'selected',
+        actionList: statement.Action,
+        actionLevel: statement.ActionLevel || {},
+        resourceType: statement.Resource[0] === '*' ? 'all' : 'selected',
+        resourceList: [],
+        resourceIdList: statement.Resource
+      }))
+
+      this.form.statementList.forEach(async(statement, index) => {
+        if (statement.actionList[0] === 'ivs:Get*') {
+          statement.actionList = this.filteredSystemActionList
+            .filter((row: any) => row.actionType === 'GET')
+            .map((row: any) => row.actionKey)
         }
         this.$nextTick(() => {
-          const actionTable: any = this.$refs.actionTable
-          this.form.actionList.forEach((action: any) => {
-            const row = this.systemActionList.find(
-              (systemAction: any) => systemAction.actionValue === action
-            )
-            if (row) {
-              actionTable.toggleRowSelection(row)
-            }
-          })
+          const ref = this.$refs[`actionTable_${index}`]
+          const actionTable: any = ref?.[0]
+          if (actionTable) {
+            statement.actionList.forEach((action: any) => {
+              const row = this.filteredSystemActionList.find(
+                (systemAction: any) => systemAction.actionKey === action
+              )
+              if (row) {
+                actionTable.toggleRowSelection(row)
+              }
+            })
+          }
         })
-      }
-      this.initResourceList = policyInfo.Statement[0].Resource
-
-      if (this.initResourceList[0] === '*') {
-        this.resourceType = 'all'
-      } else {
-        this.resourceType = 'selected'
-      }
+      })
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
     } finally {
-      this.loading.policy = false
+      this.loading.resource = false
     }
   }
+
   /**
    * 检测是否禁用
    */
-  private checkSelectable(row: any) {
-    const actionList = this.form.actionList
-    return !(
-      this.isCtyunPolicy ||
-      (row.actionValue === 'DescribeDevice' &&
-        actionList.indexOf('AdminDevice') !== -1) ||
-      (row.actionValue === 'ReplayRecord' &&
-        actionList.indexOf('AdminRecord') !== -1) ||
-      (row.actionValue === 'DescribeAi' && actionList.indexOf('AdminAi') !== -1)
-    )
+  private checkSelectable(row: any, index: number) {
+    if (this.isCtyunPolicy) {
+      return false
+    }
+    const statement = this.form.statementList[index]
+    const relatedActions = this.filteredSystemActionList
+      .filter((action: any) => {
+        const autoSelected = (statement.effect === 'Allow'
+          ? action.allowAutoSelected
+          : action.denyAutoSelected) || []
+        return autoSelected.includes(row.actionKey)
+      })
+      .map(item => item.actionKey)
+    const actionList = statement.actionList
+    return !(relatedActions.length && actionList.filter(action => relatedActions.includes(action)).length)
   }
 
-  private resourceListChange(resourceList) {
-    this.form.resourceList = resourceList
+  private resourceListChange(data: any, index: number) {
+    this.form.statementList[index].resourceList = data
   }
 
   private resourceLoaded() {
     this.loading.resource = false
-  }
-
-  /**
-   * 显示设备所在路径
-   */
-  private renderPath(path: any) {
-    const end = path.length - 1
-    if (path.length > 1) {
-      return path[end].label.indexOf('/') === 0 ? path[end].label.slice(1) : path[end].label
-    } else {
-      return ''
-    }
   }
 
   private upload() {
@@ -344,18 +432,28 @@ export default class extends Vue {
             policyName: this.form.policyName,
             desc: this.form.desc,
             scope: 'local',
+            policyType: 'subUser',
             policyDocument: JSON.stringify({
-              Version: '2022-11-22',
-              Statement: [
-                {
-                  Effect: 'Allow',
-                  Action: this.form.actionList,
+              Version: '2023-01-03',
+              Statement: this.form.statementList.map((statement: any) => {
+                const actionList = statement.actionList
+                // 过滤出已勾选的action值
+                const actionLevel = {}
+                actionList.forEach(action => {
+                  actionLevel[action] = statement.actionLevel[action]
+                })
+                return {
+                  Effect: statement.effect,
+                  Action: actionList,
+                  ActionLevel: actionLevel,
                   Resource:
-                    this.resourceType === 'all'
+                    statement.resourceType === 'all'
                       ? ['*']
-                      : this.form.resourceList
+                      : statement.resourceList
                 }
-              ]
+              }
+
+              )
             })
           }
           await (this.form.policyId ? editPolicy(data) : createPolicy(data))
@@ -367,14 +465,15 @@ export default class extends Vue {
           return false
         }
       } catch (e) {
-        console.log(e)
         this.$message.error(e && e.message)
       } finally {
         // TODO
       }
     })
   }
+
   private back() {
+    // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)
   }
 }
@@ -445,5 +544,28 @@ export default class extends Vue {
     text-align: center;
     padding: 10px;
   }
+}
+
+.statement-block {
+  margin-bottom: 10px;
+
+  &__headline {
+    height: 40px;
+    line-height: 40px;
+    background-color: #f3f3f3;
+    cursor: pointer;
+  }
+}
+
+.statement-block:first-child {
+  margin-top: 36px;
+}
+
+::v-deep .el-form-item.is-error .el-input__inner {
+  border-color: #c0c4cc !important;
+}
+
+::v-deep .el-form-item .el-form-item {
+  margin-bottom: 20px;
 }
 </style>

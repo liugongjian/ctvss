@@ -176,7 +176,7 @@ import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, set
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
   name: 'PtzControl',
@@ -197,7 +197,7 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  @Inject({ default: () => {} })
+  @Inject({ default: () => () => null })
   public getActions!: Function
 
   public checkPermission = checkPermission
@@ -245,11 +245,11 @@ export default class extends Vue {
   }
 
   private get controlDevicePreset() {
-    return checkPermission(['ivs:ControlDevicePreset'], this.action || this.screen.permission)
+    return checkPermission(['ivs:ControlDevicePreset'], this.actions || this.screen.permission)
   }
 
   private get controlDevicePTZ() {
-    return checkPermission(['ivs:ControlDevicePTZ'], this.action || this.screen.permission)
+    return checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.screen.permission)
   }
 
   private get deviceId() {

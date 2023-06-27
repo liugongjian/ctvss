@@ -161,7 +161,7 @@ export const videoRouter: RouteConfig = {
     icon: 'menu-live',
     alwaysShow: true,
     breadcrumb: true,
-    perms: ['ivs:GetLiveStream', 'ivs:GetCloudRecord'],
+    perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset', 'ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
     version: 2
   },
   children: [
@@ -172,17 +172,17 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '实时预览',
         breadcrumb: false,
-        perms: ['ivs:GetLiveStream']
+        perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset']
       },
       children: [
         {
           path: '',
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
-          name: 'DeviceList',
+          name: 'preview',
           meta: {
             title: '实时预览',
             icon: 'dot',
-            perms: ['ivs:GetLiveStream'],
+            perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
             activeMenu: '/video/preview'
           }
         }
@@ -195,17 +195,17 @@ export const videoRouter: RouteConfig = {
       meta: {
         title: '录像回放',
         breadcrumb: false,
-        perms: ['ivs:GetCloudRecord']
+        perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord']
       },
       children: [
         {
           path: '',
           component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
-          name: 'DeviceList',
+          name: 'replay',
           meta: {
             title: '录像回放',
             icon: 'dot',
-            perms: ['ivs:GetCloudRecord'],
+            perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
             activeMenu: '/video/replay'
           }
         }
@@ -221,7 +221,7 @@ export const iboxRouter = {
   meta: {
     title: 'ibox',
     icon: 'menu-live',
-    perms: ['DescribeDevice'],
+    perms: ['ivs:GetDevice'],
     alwaysShow: false
   },
   children: [
@@ -234,8 +234,8 @@ export const iboxRouter = {
         icon: 'menu-device',
         breadcrumb: false,
         alwaysShow: false,
-        perms: ['DescribeDevice'],
-        groupSelector: true
+        perms: ['ivs:GetDevice'],
+        groupSelector: false
       }
     },
     {
@@ -248,8 +248,8 @@ export const iboxRouter = {
         breadcrumb: false,
         alwaysShow: false,
         hidden: true,
-        perms: ['DescribeDevice'],
-        groupSelector: true
+        perms: ['ivs:GetDevice'],
+        groupSelector: false
       },
       children: [
         {
@@ -261,9 +261,9 @@ export const iboxRouter = {
           },
           meta: {
             title: '设备列表',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           }
         },
         {
@@ -272,9 +272,9 @@ export const iboxRouter = {
           name: 'IboxDeviceDetail',
           meta: {
             title: '设备详情',
-            perms: ['DescribeDevice'],
+            perms: ['ivs:GetDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           },
           children: [
             {
@@ -288,9 +288,9 @@ export const iboxRouter = {
               meta: {
                 title: '基本信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -300,9 +300,9 @@ export const iboxRouter = {
               meta: {
                 title: '设备/流信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -316,9 +316,9 @@ export const iboxRouter = {
               meta: {
                 title: '配置信息',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -328,9 +328,9 @@ export const iboxRouter = {
               meta: {
                 title: '实时预览',
                 breadcrumb: false,
-                perms: ['ScreenPreview'],
+                perms: ['ivs:GetLiveStream'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -340,9 +340,9 @@ export const iboxRouter = {
               meta: {
                 title: '录像回放',
                 breadcrumb: false,
-                perms: ['ReplayRecord'],
+                perms: ['ivs:GetCloudRecord'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             },
             {
@@ -352,9 +352,9 @@ export const iboxRouter = {
               meta: {
                 title: 'AI分析',
                 breadcrumb: false,
-                perms: ['DescribeDevice'],
+                perms: ['ivs:GetDevice'],
                 activeMenu: '/ibox',
-                groupSelector: true
+                groupSelector: false
               }
             }
           ]
@@ -369,9 +369,9 @@ export const iboxRouter = {
           },
           meta: {
             title: '创建设备',
-            perms: ['AdminDevice'],
+            perms: ['ivs:CreateDevice'],
             activeMenu: '/ibox',
-            groupSelector: true
+            groupSelector: false
           }
         }
       ]

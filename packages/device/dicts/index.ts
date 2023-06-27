@@ -7,20 +7,28 @@ import * as enums from '../enums'
 /*
   厂商
  */
-const defaultVendor = {
+export const DefaultVendor = {
   '海康': '海康',
   '大华': '大华',
   '宇视': '宇视',
   '其他': '其他'
 }
 export const DeviceVendor = {
-  [enums.InVideoProtocolEnum.Gb28181]: defaultVendor,
+  [enums.InVideoProtocolEnum.Gb28181]: DefaultVendor,
   [enums.InVideoProtocolEnum.Ehome]: {
     '海康': '海康'
   },
-  [enums.InVideoProtocolEnum.Rtmp]: defaultVendor,
-  [enums.InVideoProtocolEnum.Rtsp]: defaultVendor,
-  [enums.InViidProtocolEnum.Ga1400]: defaultVendor
+  [enums.InVideoProtocolEnum.Rtmp]: DefaultVendor,
+  [enums.InVideoProtocolEnum.Rtsp]: {
+    '海康': '海康',
+    '大华': '大华',
+    '宇视': '宇视',
+    '科达': '科达',
+    '金三立': '金三立',
+    '华为': '华为',
+    '其他': '其他'
+  },
+  [enums.InViidProtocolEnum.Ga1400]: DefaultVendor
 }
 
 /*

@@ -6,7 +6,7 @@ import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/st
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
-import { checkPermission } from '@/utils/permission'
+import { checkPermission } from '@vss/base/utils/permission'
 
 interface ScreenManagerConfig {
   inProtocol: string;
@@ -40,7 +40,7 @@ export class ScreenManager {
   public isSync: boolean
   /* 是否只需要单窗口（用于设备管理播放） */
   public isSingle: boolean
-  /* 车辆管理隐藏部分功能 */
+  /* 车载监控管理隐藏部分功能 */
   public isCarTask: boolean
   /* 设备数队列（用于轮巡） */
   public devicesQueue: any[]

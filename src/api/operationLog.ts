@@ -42,6 +42,6 @@ export const exportLog = (params: any): Promise<any> =>
   request({
     url: '/exportOperationLogs',
     method: 'get',
-    responseType: 'blob', //解析 excel xlsx格式数据
+    // responseType: 'blob', //解析 excel xlsx格式数据
     params
   })

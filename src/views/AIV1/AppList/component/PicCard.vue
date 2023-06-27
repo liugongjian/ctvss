@@ -27,8 +27,8 @@
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
-import Locations from '@/views/Dashboard/AI/components/Locations.vue'
-import Attributes from '@/views/Dashboard/AI/components/Attributes.vue'
+import Locations from '@/views/DashboardV1/AI/components/Locations.vue'
+import Attributes from '@/views/DashboardV1/AI/components/Attributes.vue'
 import { parseMetaData, transformLocationAi } from '@/utils/ai'
 
 @Component({

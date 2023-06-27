@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { renderAlertType } from '@/utils/device'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
 
@@ -42,6 +42,9 @@ import treeMixin from '@vss/device/components/Tree/treeMixin'
   name: 'AlarmTree'
 })
 export default class extends Mixins(treeMixin) {
+  @Prop({ default: () => ['dir', 'nvr', 'ipc', 'platform'] })
+  public filterTypeArr
+
   private renderAlertType = renderAlertType
   public async onTreeLoadedHook(node, res) {
     if (node.level === 0) {
@@ -51,7 +54,13 @@ export default class extends Mixins(treeMixin) {
         this.loadChildren(pathList)
       })
     }
-    return res.dirs.filter((dir: any) => [this.inVideoProtocolEnum.Gb28181].includes(dir.inVideoProtocol))
+    // 节点类型过滤
+    if (Array.isArray(this.filterTypeArr) && this.filterTypeArr.length) {
+      res.dirs = res.dirs.filter((dir: any) => this.filterTypeArr.includes(dir.type))
+    }
+    // 节点协议过滤
+    res.dirs = res.dirs.filter((dir: any) => [this.inVideoProtocolEnum.Gb28181, ''].includes(dir.inVideoProtocol))
+    return res.dirs
   }
 }
 </script>

@@ -2,8 +2,7 @@
   <div class="app-container">
     <common-layout>
       <template slot="leftHeader">
-        <!-- TODO -->
-        <el-tooltip effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
+        <el-tooltip v-if="isShowPolling" effect="dark" content="一键播放根目录" placement="top" :open-delay="300">
           <el-button type="text" @click="handleTools(toolsEnum.AutoPlay)">
             <svg-icon name="auto-play" />
           </el-button>
@@ -15,7 +14,6 @@
         </el-tooltip>
       </template>
       <template slot="leftBody">
-        <!-- TODO -->
         <replay-tree
           ref="deviceTree"
           :lazy="lazy"
@@ -31,9 +29,9 @@
         />
       </template>
       <template slot="leftBottom">
-        <!-- TODO -->
         <div class="bottom-tools">
           <advanced-search
+            v-if="showAdvanceSearch"
             :search-form="advancedSearchForm"
             @search="handleTools(toolsEnum.AdvanceSearch, $event)"
           />
@@ -51,7 +49,6 @@
         </div>
       </template>
       <template slot="rightBody">
-        <!-- TODO -->
         <screen-board
           ref="screenBoard"
           class="screen-board"
@@ -120,7 +117,7 @@ export default class extends Mixins(layoutMxin) {
     ScreenModule.clearPlayingScreen()
   }
 
-  public mounted() {
+  public async mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard?.screenManager
