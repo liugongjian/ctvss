@@ -262,7 +262,7 @@
                 <div class="statistic-box__title">
                   <div class="statistic-box__title-text">设备录像统计</div>
                 </div>
-                <div v-if="calendarInfo.length > 0">
+                <div>
                   <el-date-picker
                     v-model="monthValue"
                     type="month"
@@ -272,8 +272,7 @@
                   />
                   <div
                     v-if="
-                      recordDayInfo.status !== 'unbind' &&
-                        recordDayInfo.status !== 'stop'
+                      calendarInfo.length > 0 && recordDayInfo.status !== 'unbind' && recordDayInfo.status !== 'stop'
                     "
                     class="statistic-box__calendar"
                   >
