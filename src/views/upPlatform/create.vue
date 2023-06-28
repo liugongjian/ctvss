@@ -394,7 +394,10 @@ export default class extends Vue {
 
   private back() {
     this.$router.push({
-      name: 'VideoUpPlatform'
+      name: 'VideoUpPlatform',
+      query: {
+        ...this.$route.query
+      }
     })
   }
 
