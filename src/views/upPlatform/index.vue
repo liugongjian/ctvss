@@ -286,7 +286,6 @@ export default class extends Vue {
   private currentPlatform: any = {}
   private currentNodeData: any = {}
   private defaultExpandedKeys: Array<any> = []
-  private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = null
   private tableMaxHeight = null
@@ -534,7 +533,7 @@ export default class extends Vue {
       },
       onSuccess: async() => {
         if (platform.platformId === this.currentPlatform.platformId) {
-          this.currentPlatform = {}
+          this.currentPlatform = this.filteredPlatformList[0]
         }
         await this.getPlatformList()
       }
@@ -545,6 +544,7 @@ export default class extends Vue {
    * 编辑上级平台
    */
   private editPlatform(platform: any) {
+    this.currentPlatform = platform
     this.$router.push({
       name: 'VideoUpPlatformUpdate',
       query: {
@@ -571,8 +571,8 @@ export default class extends Vue {
    * 查看平台详情
    */
   private viewPlatform(platform: any) {
+    this.currentPlatform = platform
     this.dialog.platformDetail = true
-    this.currentPlatformDetail = platform
   }
 
   /**
