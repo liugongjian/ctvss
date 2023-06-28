@@ -99,7 +99,7 @@ export default class extends Mixins(layoutMxin) {
         }
       })
     } else {
-      this.lazy && this.deviceTree.loadChildren(id)
+      this.deviceTree.loadChildren(id)
       this.$router.push({
         name: 'DeviceList',
         query: {
