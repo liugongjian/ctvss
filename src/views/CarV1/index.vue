@@ -2,6 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
+        <el-button v-if="authority" type="primary" size="mini" @click="exportRecord">录像断点导出</el-button>
         <div class="filter-container__right">
           <span class="filter-container__search-time">任务开始时间</span>
           <el-radio-group v-model="period" class="filter-container__search-time">
@@ -121,6 +122,7 @@
     </el-card>
     <detail-dialog v-if="showDetailDialog" :record="currentRecord" @on-close="closeDetail" />
     <video-dialog v-if="showVideoDialog" :record="currentRecord" :type="videoType" @on-close="closeVideo" />
+    <export-dialog v-if="showExportDialog" @on-close="closeExport" />
   </div>
 </template>
 
@@ -128,10 +130,11 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
-import { getCarTasks, operateCarTask } from '@/api/car'
+import { getCarTasks, operateCarTask, getAuthority } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import DetailDialog from './component/DetailDialog.vue'
 import VideoDialog from './component/VideoDialog.vue'
+import ExportDialog from './component/ExportDialog.vue'
 import { subMonths, subDays, subHours } from 'date-fns'
 
 
@@ -141,7 +144,8 @@ import { subMonths, subDays, subHours } from 'date-fns'
   components: {
     StatusBadge,
     DetailDialog,
-    VideoDialog
+    VideoDialog,
+    ExportDialog
   },
   filters: {
     translateOperate: (val: any) => {
@@ -171,6 +175,7 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private showDetailDialog = false
   private showVideoDialog = false
+  private showExportDialog = false
   private currentRecord: any = {}
   private videoType = ''
 
@@ -186,6 +191,8 @@ export default class extends Vue {
 
   private periodRange = [subDays(new Date(), 7).getTime(), new Date().getTime()]
 
+  private authority = false
+
   private get showRange(){
     return this.period === 'selfDefine'
   }
@@ -197,6 +204,12 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getList()
+    this.getAuth()
+  }
+
+  private async getAuth(){
+    const { authority } = await getAuthority({})
+    this.authority = authority !== 'NOT_ALL'
   }
 
   private async refresh() {
@@ -225,6 +238,10 @@ export default class extends Vue {
   private closeVideo() {
     this.currentRecord = {}
     this.showVideoDialog = false
+  }
+
+  private closeExport() {
+    this.showExportDialog = false
   }
   private setHeaderClass() {
     return 'background: white'
@@ -335,6 +352,10 @@ export default class extends Vue {
 
   private changePicker(){
     console.log('this.periodRange:', this.periodRange)
+  }
+
+  private exportRecord(){
+    this.showExportDialog = true
   }
 }
 </script>
