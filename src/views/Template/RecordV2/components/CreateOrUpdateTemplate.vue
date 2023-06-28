@@ -65,8 +65,8 @@
               end-placeholder="结束时间"
               placeholder="选择时间范围"
               value-format="timestamp"
-              format="HH:mm"
               :editable="false"
+              format="HH:mm"
               :picker-options="pickerOptions"
               @change="timepickerChange"
             />

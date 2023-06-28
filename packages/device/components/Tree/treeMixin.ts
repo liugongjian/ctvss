@@ -99,7 +99,7 @@ export default class TreeMixin extends Vue {
   }
 
   private get isSystemUser() {
-    return AppModule.system === SystemType.SYSTEM_USER
+    return !UserModule.iamUserId && AppModule.system === SystemType.SYSTEM_USER
   }
 
   @Watch('rootKey')

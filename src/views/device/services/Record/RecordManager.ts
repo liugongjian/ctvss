@@ -45,7 +45,7 @@ export class RecordManager {
   }
 
   private get canLock() {
-    return !UserModule.iamUserId || this.screen.ivsLockCloudRecord
+    return !UserModule.iamUserId || this.screen.LockCloudRecord
   }
 
   constructor(params: any) {
@@ -223,7 +223,7 @@ export class RecordManager {
             // this.screen.url = res.url
           }
           // 没有锁定权限禁止播放锁定片段
-          // if (this.currentRecord.isLock === 1 && !this.screen.ivsLockCloudRecord) {
+          // if (this.currentRecord.isLock === 1 && !this.screen.LockCloudRecord) {
           if (this.screen.recordType === 0 && this.currentRecord.isLock === 1 && !this.canLock) {
             throw new VSSError(this.screen.ERROR_CODE.LOCKED, this.screen.ERROR.LOCKED)
             // this.currentRecord = null

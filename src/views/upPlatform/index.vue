@@ -8,6 +8,9 @@
         <el-input v-model="platformKeyword" class="platform__header--search" placeholder="请输入关键词" clearable>
           <svg-icon slot="append" name="search" />
         </el-input>
+        <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+          <el-button class="platform__header--refresh" @click="getPlatformList"><svg-icon name="refresh" /></el-button>
+        </el-tooltip>
       </div>
       <div v-loading="loading.platform" class="platform__list">
         <ul>
@@ -56,6 +59,43 @@
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
+            <div v-if="currentPlatform.enabledGB35114" class="platform-status-group">
+              <div class="platform-status">
+                创建证书请求: 
+                <el-button :disabled="currentPlatform.isGenerated" type="text" @click="dialog.createCertificateRequest = true">{{ currentPlatform.isGenerated ? '已创建' : '创建' }}</el-button>
+                <el-button v-if="currentPlatform.isGenerated" :loading="loading.download.deviceCsr" type="text" @click="downloadFile('deviceCsr')">下载</el-button>
+                <el-button v-if="currentPlatform.isGenerated" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
+              </div>
+              <div class="platform-status">
+                生成的证书: 
+                <el-upload
+                  ref="upload"
+                  action="#"
+                  class="platform-status__upload"
+                  :show-file-list="false"
+                  :http-request="uploadFile.bind(null, 'deviceCert')"
+                >
+                  <el-button :loading="loading.upload.deviceCert" :disabled="currentPlatform.deviceCertUploaded" type="text">{{ currentPlatform.deviceCertUploaded ? '已上传' : '上传证书' }}</el-button>
+                </el-upload>
+                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.download.deviceCert" type="text" @click="downloadFile('deviceCert')">下载</el-button>
+                <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
+              </div>
+              <div class="platform-status">
+                上级服务证书: 
+                <el-upload
+                  ref="upload"
+                  action="#"
+                  class="platform-status__upload"
+                  :show-file-list="false"
+                  :http-request="uploadFile.bind(null, 'serverCert')"
+                >
+                  <el-button :loading="loading.upload.serverCert" :disabled="currentPlatform.serverCertUploaded" type="text">{{ currentPlatform.serverCertUploaded ? '已上传' : '上传证书' }}</el-button>
+                </el-upload>
+                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.download.serverCert" type="text" @click="downloadFile('serverCert')">下载</el-button>
+                <el-button v-if="currentPlatform.serverCertUploaded" :loading="loading.delete.serverCert" type="text" @click="deleteFile('serverCert')">删除</el-button>
+              </div>
+            </div>
+            
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
           </div>
         </div>
@@ -192,20 +232,34 @@
         请选择或创建一个向上级联平台
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
-    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
-    <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
+    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog('addDevices', $event)" />
+    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog('manageGroups', $event)" />
+    <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatform.platformId" @on-close="dialog.platformDetail = false" />
+    <CreateCertificateRequest v-if="dialog.createCertificateRequest" :platform-id="currentPlatform.platformId" @on-close="closeDialog('createCertificateRequest', $event)" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, deleteCascadeDir, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { 
+  describeShareDirs,
+  describeShareDevices,
+  deletePlatform,
+  cancleShareDevice,
+  deleteCascadeDir,
+  getPlatforms,
+  startShareDevice,
+  stopShareDevice,
+  uploadCert,
+  certDownload,
+  certDelete
+} from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import ManageGroups from './compontents/dialogs/ManageGroups.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
+import CreateCertificateRequest from './compontents/dialogs/CreateCertificateRequest.vue'
 
 @Component({
   name: 'UpPlatformList',
@@ -213,7 +267,8 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
     AddDevices,
     PlatformDetail,
     StatusBadge,
-    ManageGroups
+    ManageGroups,
+    CreateCertificateRequest
   }
 })
 export default class extends Vue {
@@ -258,12 +313,28 @@ export default class extends Vue {
     platform: false,
     dir: false,
     sharedDevices: false,
-    startStop: false
+    startStop: false,
+    upload: {
+      deviceCert: false,
+      serverCert: false
+    },
+    download: {
+      deviceCsr: false,
+      deviceCert: false,
+      serverCert: false
+    },
+    delete: {
+      deviceCsr: false,
+      deviceCert: false,
+      serverCert: false
+    }
   }
   public dialog = {
     addDevices: false,
     platformDetail: false,
-    manageGroups: false
+    manageGroups: false,
+    createCertificateRequest: false
+
   }
   public treeProp = {
     label: 'label',
@@ -302,6 +373,102 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 上传文件
+   */
+  private uploadFile(type: string, data: any) {
+    this.loading.upload.deviceCert = true
+    this.fileToText(data && data.file, new FileReader()).then(async(fileString: any) => {
+      try {
+        await uploadCert({
+          platformId: this.currentPlatform.platformId,
+          certType: type,
+          certContents: fileString
+        })
+        this.getPlatformList()
+        this.$message.success('上传成功')
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
+    }).catch(e => {
+      this.$message.error(e)
+    }).finally(() => {
+      this.loading.upload.deviceCert = false
+    })
+  }
+
+  // 读取文件内容
+  private fileToText(file, reader) {
+    return new Promise((resolve, reject) => {
+      let fileResult: any = ''
+      reader.readAsText(file)
+      reader.onload = function() {
+        fileResult = reader.result
+      }
+      reader.onerror = function(error: any) {
+        reject(error)
+      }
+      reader.onloadend = () => {
+        resolve(fileResult)
+      }
+    })
+  }
+
+  /**
+   * 下载证书
+   */
+  private async downloadFile(type) {
+    try {
+      this.loading.download[type] = true
+      const res = await certDownload({
+        platformId: this.currentPlatform.platformId,
+        certType: type
+      })
+      const file = res.certsZip
+      const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = `${type}-${this.currentPlatform.platformId}`
+      link.click()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.download[type] = false
+    }
+  }
+
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    const arr = base64.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
+  }
+
+  /**
+   * 删除证书
+   */
+  private async deleteFile(type) {
+    try {
+      this.loading.delete[type] = true
+      await certDelete({
+        platformId: this.currentPlatform.platformId,
+        certType: type
+      })
+      this.getPlatformList()
+      this.$message.success('删除成功')
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.loading.delete[type] = false
+    }
   }
 
   /**
@@ -349,7 +516,8 @@ export default class extends Vue {
    */
   private initPlatform() {
     if (this.platformList.length !== 0) {
-      this.selectPlatform(this.platformList[0])
+      const defaultPlatform = this.platformList.find((platform: any) => platform.platformId === this.$route.query.platformId)
+      this.selectPlatform(defaultPlatform || this.platformList[0])
     }
   }
 
@@ -390,6 +558,12 @@ export default class extends Vue {
    */
   private selectPlatform(platform: any) {
     this.currentPlatform = platform
+    this.$router.push({
+      query: {
+        ...this.$route.query,
+        platformId: platform.platformId
+      }
+    })
     this.initDirs()
   }
 
@@ -637,10 +811,21 @@ export default class extends Vue {
     this.breadcrumb = this.getNodePath(node)
   }
 
-  private closeDialog(refresh: boolean) {
-    this.dialog.addDevices = false
-    this.dialog.manageGroups = false
-    refresh === true && this.initDirs()
+  private closeDialog(dialogType: string, refresh: boolean) {
+    switch (dialogType) {
+      case 'addDevices':
+        this.dialog.addDevices = false
+        refresh === true && this.initDirs()
+        break
+      case 'manageGroups':
+        this.dialog.manageGroups = false
+        refresh === true && this.initDirs()
+        break
+      case 'createCertificateRequest':
+        this.dialog.createCertificateRequest = false
+        refresh === true && this.getPlatformList()
+        break
+    }
   }
 
   private getNodePath(node: any) {
@@ -702,6 +887,20 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.platform__header {
+  display: flex;
+
+  .platform__header--search {
+    flex-grow: 1;
+  }
+
+  .platform__header--refresh {
+    width: 35px;
+    margin-left: 10px;
+    padding: 0;
+  }
+}
+
 .filter-container {
   &__search-group {
     margin-right: 10px;
@@ -712,8 +911,17 @@ export default class extends Vue {
     margin-right: 10px;
   }
 
+  .platform-status-group {
+    display: inline-block;
+  }
+
   .platform-status {
-    margin: 10px 10px 0 0;
+    display: inline-block;
+    margin: 0 15px;
+
+    &__upload {
+      display: inline-block;
+    }
   }
 }
 

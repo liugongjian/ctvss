@@ -4,17 +4,9 @@ import { prefixZero } from '@vss/base/utils/number'
 
 type Unit = 's' | 'ms'
 
-export const dateFormat = (date: Date | number | string, formatString = 'yyyy-MM-dd HH:mm:ss') => {
+export const dateFormat = (date: Date | number, formatString = 'yyyy-MM-dd HH:mm:ss') => {
   if (!date) return ''
-  let _date: Date | number
-  if (typeof date === 'object') {
-    _date = date as Date
-  } else if (!isNaN(date as number)) {
-    _date = parseInt(date as string)
-  } else if (typeof date === 'string') {
-    _date = new Date(date)
-  }
-  return format(_date, formatString)
+  return format(date, formatString)
 }
 
 export const dateFormatInTable = (row: any, col: any, val: any) => {
@@ -163,4 +155,17 @@ export const currentTimeZeroMsec = (currentTime: number) => {
 export const isCrossDays = (moveStartTime: number, moveEndTime: number) => {
   if (moveStartTime === moveEndTime) return false
   return new Date(moveStartTime).getDate() - new Date(moveEndTime).getDate() !== 0
+}
+
+/**
+ * 转换成 YYYY-MM-DD 24小时 时间格式
+ */
+ export const time24Format = (time: number, isTrans?: boolean) => {
+  const front = (new Date(time)).toLocaleDateString().replaceAll('/','-')
+  let end = (new Date(time)).toLocaleString().split(' ')[1]
+  /* 将晚上12点转换成24：00：00 */
+  if (isTrans) {
+    return end === '00:00:00' ? '24:00:00' : end
+  }
+  return front + ' ' + end
 }

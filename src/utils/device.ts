@@ -78,22 +78,19 @@ export const setDirsStreamStatus = (dirs: any) => {
 export const redirectToDeviceDetail = async(vueInstance, deviceId, inProtocol) => {
   // 获取设备路径
   const devicePath = await getDevicePath({
-    deviceId,
-    inProtocol
+    id: deviceId,
+    type: inProtocol
   })
-  const pathList = devicePath.path.split('/')
-  // 返回的数组第一级为业务组ID
-  const groupId = pathList.shift()
-  const group = await queryGroup({ groupId })
-  // 设置当前业务组
-  GroupModule.SetGroup(group)
+  let pathList: any = []
+  devicePath.dirPathList.map((item: any) => {
+    pathList.push(item.id)
+  })
   // 拼出设备所在路径
   pathList.push(deviceId)
   vueInstance.$router.push({
-    name: 'device-detail',
+    name: 'DeviceInfo',
     query: {
       deviceId,
-      inProtocol,
       type: 'ipc',
       path: pathList.join(',')
     }

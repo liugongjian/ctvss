@@ -338,6 +338,94 @@ export const setRecordScale = (params: any): Promise<any> =>
   })
 
 /**
+ * 获取设备录制模板
+ */
+export const getDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record',
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取设备回调模板
+ */
+export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback',
+    method: 'get',
+    params
+  })
+
+/**
+ * 设置设备录制模板
+ */
+export const setDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 设置设备回调模板
+ */
+export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback/bind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 解绑设备录制模板
+ */
+export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/unbind',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 解绑设备回调模板
+ */
+export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback/unbind',
+    method: 'post',
+    data: params
+  })
+/**
+ * 设备批量绑定
+ */
+ export const setDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+  //  url: '/device/record/batchBind',
+   url: '/device/batchBind', // 合并后接口
+   method: 'post',
+   data: params
+ })
+
+// 视图批量绑定临时联调接口
+export const setViidDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+request({
+  url: '/viid/template/bind/batch', 
+  method: 'post',
+  data: params
+})
+
+/**
+* 设备批量解绑
+*/
+export const unbindDeviceRecordTemplateBatch = (params: any): Promise<any> =>
+ request({
+  //  url: '/device/record/batchUnbind',
+   url: '/device/batchUnbind', // 合并后接口
+   method: 'post',
+   data: params
+ })
+/**
  * 启用设备
  */
 export const startDevice = (params: any): Promise<any> =>
@@ -623,4 +711,53 @@ export const getViewDetail = (params: any): Promise<any> =>
   request({
     url: '/viid/videoImages/' + `${params.deviceId}/${params.type}/${params.id}`,
     method: 'get'
+  })
+
+/**
+*  提交录像锁定时段
+*/
+export const setLock = (data: any): Promise<any> =>
+  request({
+    url: '/record/lock',
+    method: 'post',
+    data
+  })
+
+/**
+* 提交解锁录像
+*/
+export const unLock = (data: any): Promise<any> =>
+  request({
+    url: '/record/unlock',
+    method: 'post',
+    data
+  })
+
+/**
+* 获取设备录像锁列表
+*/
+export const getDeviceLockList = (params?: any) =>
+  request({
+    url: '/record/lock',
+    method: 'get',
+    params
+  })
+/*
+ * 获取用户锁定列表
+ */
+export const getUserLockList = (params?: any) =>
+  request({
+    url: '/record/lock/list',
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取设备所在路径
+ */
+export const getDevicePath = (params: any): Promise<any> =>
+  request({
+    url: '/device/desc/path',
+    method: 'get',
+    params
   })
