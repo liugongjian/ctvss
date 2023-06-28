@@ -433,6 +433,7 @@ export default class extends Vue {
           border-left: 1px solid #ddd;
           margin-left: -1px;
           padding: $padding-small $padding-small;
+          width: 76px;
         }
 
         &:last-child .el-radio-button__inner {
@@ -446,12 +447,15 @@ export default class extends Vue {
 
       .el-dropdown {
         vertical-align: middle;
+        width: 76px;
         height: 30px;
         margin-left: -1px;
 
         .el-button--mini {
           border-radius: 0 2px 2px 0;
+          width: 76px;
           height: 30px;
+          padding: 7px 8px;
         }
       }
     }
