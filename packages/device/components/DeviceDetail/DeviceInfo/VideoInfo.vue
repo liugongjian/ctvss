@@ -70,6 +70,22 @@
         </template>
         {{ videoInfo.enabledGB35114 ? '已启用' : '未启用' }}
       </el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible(deviceEnum.Gb35114Mode) && videoInfo.enabledGB35114">
+        <template slot="label">
+          认证方式
+          <el-popover
+            placement="top-start"
+            title="认证方式"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="若选择单向认证，平台侧需校验下级设备证书；若选择双向认证，下级设备也需同时校验平台侧证书。"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        {{ dicts.Gb35114Mode[videoInfo.gb35114Mode] || '-' }}
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.InUserName)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InUserName]">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.SipTransType)" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.DeviceStreamSize)" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>

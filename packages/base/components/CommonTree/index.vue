@@ -195,6 +195,11 @@ export default class extends Vue {
       payload.parent.expanded = true
       return
     }
+    // 非懒加载树不需要加载节点直接展开或收缩
+    if (!this.lazy) {
+      payload.expanded = !payload.expanded
+      return
+    }
 
     // 未传则使用自定义resolve
     if (!resolve) {

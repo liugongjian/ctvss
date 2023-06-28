@@ -74,7 +74,7 @@
                 type="text"
                 @click="downloadReplay(row)"
               >
-                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
+                <!-- :disabled="row.loading || (!currentScreen.LockCloudRecord && row.isLock === 1)" -->
                 下载录像
               </el-button>
               <el-button
@@ -82,7 +82,7 @@
                 :disabled="(!canLock && row.isLock === 1)"
                 @click="playReplay(row)"
               >
-                <!-- :disabled="row.loading || (!currentScreen.ivsLockCloudRecord && row.isLock === 1)" -->
+                <!-- :disabled="row.loading || (!currentScreen.LockCloudRecord && row.isLock === 1)" -->
                 播放录像
               </el-button>
             </template>
@@ -140,7 +140,7 @@ export default class extends Vue {
 
   private get canLock() {
     // 国标下设备   不受限制
-    return !UserModule.iamUserId || this.screenManager.currentScreen.ivsLockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
+    return !UserModule.iamUserId || this.screenManager.currentScreen.LockCloudRecord || (this.screenManager.currentScreen.inProtocol === 'gb28181' && this.screenManager.currentScreen.recordType === 1)
   }
 
   public get isLiuzhou() {
@@ -149,9 +149,9 @@ export default class extends Vue {
 
   // private get canLock() {
   //   if (this.screenManager.currentScreen.inProtocol === 'gb28181') {
-  //     return this.screenManager.currentScreen.recordType === 1 ? false : (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //     return this.screenManager.currentScreen.recordType === 1 ? false : (this.screenManager.currentScreen.LockCloudRecord || !UserModule.iamUserId)
   //   } else {
-  //     return (this.screenManager.currentScreen.ivsLockCloudRecord || !UserModule.iamUserId)
+  //     return (this.screenManager.currentScreen.LockCloudRecord || !UserModule.iamUserId)
   //   }
   // }
 

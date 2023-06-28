@@ -356,6 +356,16 @@ export default class extends Vue {
       &_condition {
         margin-left: auto;
       }
+
+      &_radio{
+        .el-radio-button{
+          width: 76px;
+          &__inner{
+            width: 100%;
+          }
+        }
+        
+      }
     }
   }
 }

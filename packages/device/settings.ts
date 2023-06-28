@@ -15,6 +15,7 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.InVersion,
     DeviceEnum.InUserName,
     DeviceEnum.EnabledGB35114,
+    DeviceEnum.Gb35114Mode,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.StreamTransProtocol,
     DeviceEnum.DeviceModel,

@@ -21,6 +21,9 @@
     <template slot="itemLabel" slot-scope="{ node }">
       {{ node.label }}
     </template>
+    <template slot="itemLabelSuffix" slot-scope="{ data }">
+      <span v-if="data.securityLevel" class="security-icon">{{ dicts.SecurityLevel[data.securityLevel] }}</span>
+    </template>
   </common-tree>
 </template>
 
@@ -123,5 +126,13 @@ export default class extends Mixins(treeMixin) {
 
 .active-icon {
   color: $color-status-success;
+}
+
+.security-icon {
+  background: $primary;
+  color: white;
+  border-radius: 100%;
+  padding: 0 4px;
+  font-size: 12px;
 }
 </style>

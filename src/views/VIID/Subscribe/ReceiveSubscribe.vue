@@ -1,10 +1,16 @@
 <template>
   <div class="subscribe-view-body">
     <div class="subscribe-view-left">
-      <div :class="{active: !curPlatformId}" class="up-platform-item" @click="choosePlatform('')">
+      <div :class="{ active: !curPlatformId }" class="up-platform-item" @click="choosePlatform('')">
         <span class="text">全部上级平台</span>
       </div>
-      <div v-for="platform in platformList" :key="platform.cascadeViidId" :class="{active: curPlatformId === platform.cascadeViidId}" class="up-platform-item" @click="choosePlatform(platform.cascadeViidId)">
+      <div
+        v-for="platform in platformList"
+        :key="platform.cascadeViidId"
+        :class="{ active: curPlatformId === platform.cascadeViidId }"
+        class="up-platform-item"
+        @click="choosePlatform(platform.cascadeViidId)"
+      >
         <span class="text">{{ platform.name }}</span>
       </div>
     </div>
@@ -23,9 +29,9 @@
             <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
           </div>
         </div>
-        <el-table v-loading="loading" :data="dataList" fit @row-click="viewDetails">
+        <el-table v-loading="loading" :data="dataList" fit :height="100" @row-click="viewDetails" @filter-change="filterChange">
           <el-table-column label="订阅ID/订阅标题" min-width="180">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <div class="device-list__device-name">
                 <div class="device-list__device-id">{{ row.subscribeID }}</div>
                 <div>{{ row.title }}</div>
@@ -34,25 +40,35 @@
           </el-table-column>
           <el-table-column prop="applicantName" label="申请人" />
           <el-table-column prop="applicantOrg" label="申请单位" />
-          <el-table-column prop="subscribeDetail" label="订阅类别">
-            <template slot-scope="{row}">
+          <el-table-column
+            column-key="subscribeDetail"
+            prop="subscribeDetail"
+            label="订阅类别"
+            :filters="subscribeDetailFilters"
+            :filter-multiple="false"
+          >
+            <template slot="header">
+              <span class="filtersArrayDeviceStatus&quot;filter&quot;">订阅类别</span>
+              <svg-icon class="filter" name="filter" width="15" height="15" />
+            </template>
+            <template slot-scope="{ row }">
               {{ handleSubscribeDetail(row.subscribeDetail) }}
             </template>
           </el-table-column>
           <el-table-column prop="subscribeStatus" label="执行状态">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ SubscribeStatus[row.subscribeStatus] }}
             </template>
           </el-table-column>
           <el-table-column prop="createTime" label="创建时间">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ formatTime(row.createTime) }}
             </template>
           </el-table-column>
           <el-table-column prop="action" label="操作" fixed="right">
-            <template slot-scope="{row}">
-              <el-button type="text" @click.stop="viewDetails(row)">查看详情</el-button>
-              <el-button type="text" style="margin-left: 0;" @click.stop="toStatistics(row)">通知统计</el-button>
+            <template slot-scope="{ row }">
+              <el-button class="operate-btn" type="text" @click.stop="viewDetails(row)">查看详情</el-button>
+              <el-button class="operate-btn" type="text" @click.stop="toStatistics(row)">通知统计</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -81,7 +97,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { subscribeDetailList, subscribeStatus } from '@/dics/viid'
-import { getViewLibPlatformList, getAllReceiveSubscribesList, getOneReceiveSubscribesList } from '@/api/viid'
+import { getViewLibPlatformList, getAllReceiveSubscribesListV2, getOneReceiveSubscribesListV2 } from '@/api/viid'
 import { dateFormat } from '@/utils/date'
 import SubscribeDetails from './components/SubscribeDetails.vue'
 import StatisticsDialog from './components/StatisticsDialog.vue'
@@ -109,10 +125,29 @@ export default class extends Vue {
   private detail = null
   private showStatistics = false
   private subscribeId = ''
+  private filterForm = {
+    subscribeDetail: ''
+  }
   private SubscribeStatus = subscribeStatus
 
+  private get subscribeDetailFilters() {
+    return subscribeDetailList.map(item => {
+      return {
+        text: item.label,
+        value: item.value
+      }
+    })
+  }
+
+  private async filterChange(filterObj) {
+    for (const key in filterObj) {
+      this.filterForm[key] = filterObj[key][0]
+    }
+    this.getList()
+  }
+
   private async getPlatformList() {
-    let params = {
+    const params = {
       pageNum: 0,
       pageSize: 2000
     }
@@ -142,17 +177,18 @@ export default class extends Vue {
 
   private async getList() {
     const params = {
-      pageNum: this.pager.pageNum - 1,
+      pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    params[this.searchKey] = this.keywords
+    this.keywords && (params[this.searchKey] = this.keywords)
+    this.filterForm.subscribeDetail && (params['subscribeDetail'] = this.filterForm.subscribeDetail)
     try {
       this.loading = true
       let res
       if (this.curPlatformId) {
-        res = await getOneReceiveSubscribesList({ ...params, cascadeViidId: this.curPlatformId })
+        res = await getOneReceiveSubscribesListV2({ ...params, cascadeViidId: this.curPlatformId })
       } else {
-        res = await getAllReceiveSubscribesList(params)
+        res = await getAllReceiveSubscribesListV2(params)
       }
       this.dataList = res.data
       this.pager.total = res.totalNum
@@ -164,7 +200,7 @@ export default class extends Vue {
   }
 
   private handleSubscribeDetail(detail) {
-    let res = []
+    const res = []
     const details = detail.split(',')
     details.forEach(item => {
       res.push(subscribeDetailList.find(d => d.value === item).label)
@@ -222,7 +258,9 @@ export default class extends Vue {
 .subscribe-view-body {
   position: relative;
   background: #fff;
+  height: 100%;
 }
+
 .subscribe-view-left {
   position: absolute;
   left: 0;
@@ -231,6 +269,7 @@ export default class extends Vue {
   width: 180px;
   padding: 15px 12px;
   border-right: 1px solid #eee;
+
   .up-platform-item {
     width: 100%;
     height: 33px;
@@ -253,21 +292,40 @@ export default class extends Vue {
     }
   }
 }
+
 .subscribe-view-right {
   position: relative;
+  height: 100%;
   margin-left: 180px;
   padding: 15px;
-  overflow: scroll;
+  overflow: auto;
+
   .wrap {
     width: 100%;
+    height: 100%;
     min-width: 800px;
+    display: flex;
+    flex-direction: column;
+
+    .el-table {
+      ::v-deep .el-table__column-filter-trigger {
+        visibility: hidden;
+      }
+    }
   }
 }
+
 .input-with-select {
   margin-right: 10px;
+
+  .operate-btn + .operate-btn {
+    margin-left: 10px;
+  }
+
   ::v-deep .el-input-group__prepend {
     background: #fff;
   }
+
   ::v-deep .el-select .el-input {
     width: 120px;
   }

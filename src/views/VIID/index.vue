@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-card class="card-layout">
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加平台</el-button>
         <div class="filter-container__right">
@@ -9,7 +9,7 @@
           </el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit @row-click="viewDetails">
+      <el-table v-loading="loading" :data="dataList" fit :height="10" @row-click="viewViidDetails">
         <el-table-column label="平台ID/名称" min-width="200">
           <template slot-scope="{ row }">
             <div class="device-list__device-name">
@@ -31,9 +31,10 @@
           <template slot-scope="{ row }">
             <el-button v-if="row.isActive" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
             <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
-            <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
+            <el-button type="text" @click.stop="viewViidDetails(row)">查看</el-button>
             <el-button type="text" @click.stop="edit(row)">编辑</el-button>
-            <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
+            <el-button :disabled="row.isActive" type="text" @click="deleteViewLibUpPlatform(row)">删除</el-button>
+            <el-button type="text" @click.stop="viewDeviceList(row)">级联设备</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -46,10 +47,15 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <view-details
-      v-if="dialog.viewDetails"
+    <viid-details-dialog
+      v-if="dialog.viidDetails"
       :platform-details="platformDetails"
-      @on-close="closeDialog('viewDetails')"
+      @on-close="closeDialog('viidDetails')"
+    />
+    <device-list-dialog
+      v-if="dialog.deviceList"
+      :platform-details="platformDetails"
+      @on-close="closeDialog('deviceList')"
     />
   </div>
 </template>
@@ -57,15 +63,16 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
-import { GB28181 } from '@/type/Certificate'
-import ViewDetails from './components/ViewDetails.vue'
-import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
+import ViidDetailsDialog from './components/ViidDetailsDialog.vue'
+import DeviceListDialog from './components/DeviceListDialog.vue'
+import { enableViewLibUpPlatform, stopViewLibUpPlatform, deleteViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'CertificateGb28181List',
   components: {
-    ViewDetails,
+    ViidDetailsDialog,
+    DeviceListDialog,
     StatusBadge
   }
 })
@@ -79,9 +86,11 @@ export default class extends Vue {
   }
   private platformDetails = null
   private dialog = {
-    viewDetails: false
+    viidDetails: false,
+    deviceList: false
   }
   private dateFormatInTable = dateFormatInTable
+  private currentCascadeViidId = ''
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -119,15 +128,23 @@ export default class extends Vue {
   /**
    * 查看级联详情
    */
-  private async viewDetails(row, column?: any) {
+  private async viewViidDetails(row, column?: any) {
     if (column && column.property === 'action') return
     try {
       const res = await getViewLibPlatformDetail({ cascadeViidId: row.cascadeViidId })
       this.platformDetails = res.data
-      this.dialog.viewDetails = true
+      this.dialog.viidDetails = true
     } catch (e) {
       this.$message.error(e && e.message)
     }
+  }
+
+  /**
+   * 查看级联设备列表
+   */
+  private async viewDeviceList(row) {
+    this.platformDetails = row
+    this.dialog.deviceList = true
   }
 
   private async handleSizeChange(val: number) {
@@ -180,12 +197,12 @@ export default class extends Vue {
     this.getList()
   }
 
-  private async deleteCertificate(row: GB28181) {
+  private async deleteViewLibUpPlatform(row: any) {
     this.$alertDelete({
       type: '视图库',
-      msg: `是否确认删除视图库"${row.userName}"`,
-      method: () => {},
-      payload: { userName: row.userName },
+      msg: `是否确认删除视图库"${row.name}"`,
+      method: deleteViewLibUpPlatform,
+      payload: row.cascadeViidId,
       onSuccess: this.getList
     })
   }
@@ -193,14 +210,26 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.filter-container {
-  &__search-group {
-    margin-right: 10px;
+.card-layout {
+  ::v-deep {
+    > .el-card__body {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - $header-height - $padding-medium * 2 - 3px);
+    }
   }
 
-  &__select {
-    display: inline;
-    margin-right: 10px;
+  .filter-container {
+    &__search-group {
+      margin-right: 10px;
+    }
+
+    &__select {
+      display: inline;
+      margin-right: 10px;
+    }
   }
 }
 </style>

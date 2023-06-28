@@ -39,6 +39,15 @@ export const stopViewLibUpPlatform = (params: any) =>
   })
 
 /**
+ * 删除上级视图库
+ */
+export const deleteViewLibUpPlatform = (params: any) =>
+request({
+  url: `/viid/cascade_viids/${params}`,
+  method: 'delete'
+})
+
+/**
  * 获取上级视图库列表
  */
 export const getViewLibPlatformList = (params: any) =>
@@ -69,11 +78,31 @@ export const getAllReceiveSubscribesList = (params: any) =>
   })
 
 /**
+ * 获取全部上级平台订阅列表V2
+ */
+export const getAllReceiveSubscribesListV2 = (params: any) =>
+  request({
+    url: '/viid/subscribes/cascade_viids',
+    method: 'get',
+    params
+  })
+
+/**
  * 获取单一上级平台订阅列表
  */
 export const getOneReceiveSubscribesList = (params: any) =>
   request({
     url: `/viid/cascade_viids/${params.cascadeViidId}/subscribes`,
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取全部上级平台订阅列表V2
+ */
+export const getOneReceiveSubscribesListV2 = (params: any) =>
+  request({
+    url: `/viid/subscribes/cascade_viids/${params.cascadeViidId}`,
     method: 'get',
     params
   })
@@ -133,9 +162,19 @@ export const cancelSubscribes = (params: any) => {
 /**
  * 查询订阅详情
  */
-export const getSubscribesDetail= (params: any) =>
+export const getSubscribesDetail = (params: any) =>
   request({
     url: `viid/subscribes/${params.subscribeID}`,
+    method: 'get',
+    params
+  })
+
+/**
+ * 查询订阅详情V2
+ */
+export const getSubscribesDetailV2 = (params: any) =>
+  request({
+    url: `viid/subscribes/describe/${params.subscribeID}`,
     method: 'get',
     params
   })
@@ -159,3 +198,13 @@ export const getLowerViidDevicesList = (params: any) =>
     method: 'get',
     params
   })
+
+/**
+ * 获取区域/级联的设备列表
+ */
+export const getCascadeDevicesList = (params: any) =>
+ request({
+   url: '/viid/cascade_devices',
+   method: 'get',
+   params
+ })
