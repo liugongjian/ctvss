@@ -150,17 +150,17 @@ export const v2Router: RouteConfig[] = [
           activeMenu: '/viid/up-platform'
         }
       },
-      // {
-      //   path: 'subscribe',
-      //   component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
-      //   name: 'ViidSubscribe',
-      //   meta: {
-      //     title: '订阅通知',
-      //     icon: 'dot',
-      //     perms: ['*'],
-      //     activeMenu: '/viid/subscribe'
-      //   }
-      // },
+      {
+        path: 'subscribe',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+        name: 'ViidSubscribe',
+        meta: {
+          title: '订阅通知',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
       {
         path: 'subscribe/create',
         component: () =>
@@ -1202,21 +1202,21 @@ export const v2Router: RouteConfig[] = [
         }
       },
       // v2版本会在s5迁移该功能，暂时隐藏
-      // {
-      //   path: 'replay-lock-manage',
-      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
-      //   name: 'ReplayLockManage',
-      //   meta: {
-      //     title: '锁定录像管理',
-      //     breadcrumb: true,
-      //     icon: 'dot',
-      //     perms: ['*'],
-      //     activeMenu: '/sysconfig/replay-lock-manage',
-      //     tags: {
-      //       isRecordLockAvailable: ['Y']
-      //     }
-      //   }
-      // },
+      {
+        path: 'replay-lock-manage',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+        name: 'ReplayLockManage',
+        meta: {
+          title: '锁定录像管理',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/sysconfig/replay-lock-manage',
+          tags: {
+            isRecordLockAvailable: ['Y']
+          }
+        }
+      },
       {
         path: 'system-config',
         component: () =>

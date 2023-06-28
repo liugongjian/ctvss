@@ -133,9 +133,9 @@ export default class extends Vue {
   private get canLock() {
     if (this.isRecordLockAvailable) {
       if (this.screen.inProtocol === 'gb28181') {
-        return this.screen.recordType === 1 ? false : (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+        return this.screen.recordType === 1 ? false : (this.screen.LockCloudRecord || !UserModule.iamUserId)
       } else {
-        return (this.screen.ivsLockCloudRecord || !UserModule.iamUserId)
+        return (this.screen.LockCloudRecord || !UserModule.iamUserId)
       }
     }
     return false

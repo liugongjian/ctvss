@@ -28,6 +28,8 @@
         <info-list-item label="字符集:">{{ platform.characterType }}</info-list-item>
         <info-list-item label="权限集合:">{{ platform.permissionSet }}</info-list-item>
         <info-list-item label="级联类型:">{{ platform.cascadeType === 1 ? '行政区划' : '虚拟业务组' }}</info-list-item>
+        <info-list-item label="35114国密认证:">{{ platform.enabledGB35114 ? '已启用' : '未启用' }}</info-list-item>
+        <info-list-item v-if="platform.enabledGB35114" label="强制双向认证:">{{ platform.gb35114Mode === 2 ? '已启用' : '未启用' }}</info-list-item>
         <info-list-item label="描述:">{{ platform.description }}</info-list-item>
       </info-list>
     </div>

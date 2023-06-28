@@ -4,8 +4,8 @@ import { login, logout, getMainUserInfo, getIAMUserInfo, getIAMUserMergedPolicie
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import { resetRouter } from '@/router'
-import { GroupModule } from './group'
-import { TagsViewModule } from './tags-view'
+import { GroupModule } from '@/store/modules/group'
+import { TagsViewModule } from '@/store/modules//tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import settings from '@/settings'
@@ -249,11 +249,8 @@ class User extends VuexModule implements IUserState {
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
-      this.SET_MAIN_USER_TAGS(userInfo.tags)
-      // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, customClothModel: 'Y' })
-      // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, 'isIndustrialDetection': 'Y' })
-      // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isLianZhouEdu: 'Y' })
-      // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isRecordLockAvailable: 'Y' })   // 录像锁定 ---  本地测试用
+      console.log('tag: ', Object.assign(userInfo.tags, { privateUser: 'liuzhou', isRecordLockAvailable: 'Y'}))
+      this.SET_MAIN_USER_TAGS(Object.assign(userInfo.tags, { privateUser: 'liuzhou', isRecordLockAvailable: 'Y' }))
       this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)
     }
 

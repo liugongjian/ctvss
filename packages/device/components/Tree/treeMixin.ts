@@ -196,8 +196,8 @@ export default class TreeMixin extends Vue {
           }
         }
       })
-      // 子账号-获取权限数据（仅用户控制台查询权限）
-      if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
+      // 子账号-获取权限数据（仅用户控制台子账号查询权限，且自定义设备树中台会直接返回权限数据，不用查询）
+      if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId && !this.rootKey) {
         const permissionRes = await previewAuthActions({
           targetResources: nodeData.map(dir => ({
             dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
@@ -208,6 +208,12 @@ export default class TreeMixin extends Vue {
           .map((dir: any, index: number) => ({
             ...dir,
             ...permissionRes.result[index].iamUser.actions
+          }))
+      } else if (this.rootKey) {
+        nodeData = nodeData
+          .map((dir: any) => ({
+            ...dir,
+            ...dir.authMap
           }))
       }
     }

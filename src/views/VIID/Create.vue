@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card>
+    <el-card class="form-container">
       <el-form
         ref="dataForm"
         v-loading="loading"
+        class="form"
         :rules="rules"
         :model="form"
         label-position="right"
@@ -46,11 +47,29 @@
             v-model="form.regionCode"
             placeholder="请选择"
             :options="regionList"
+            @change="onRegionCodeChange"
           />
+          <el-button v-if="form.regionCode" class="append-button" type="text" @click="openList">查看级联设备列表</el-button>
+        </el-form-item>
+        <el-form-item v-if="!isUpdate" prop="localApsId" class="form-with-tip">
+          <template slot="label">
+            本级视图编码
+            <el-popover
+              placement="top-start"
+              title="本级视图编码"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="如果您需要自定义本级视图编码，可手动填写该字段；不填写为空时，平台将自动生成该编码。"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-input v-model="form.localApsId" />
         </el-form-item>
         <el-form-item label="网络类型:" prop="network">
           <el-radio-group v-model="form.network">
-            <el-radio label="internal">互联网</el-radio>
+            <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -65,12 +84,35 @@
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
+      <div v-if="showDeviceList" v-loading="showDeviceListLoading" class="device-list">
+        <div class="device-list__wrap">
+          <div class="device-list__wrap__title">级联设备列表</div>
+          <div class="device-list__wrap__list">
+            <div
+              v-for="(item, index) in deviceList"
+              :key="index"
+              class="device-list__wrap__item"
+            >
+              <span class="device-list__wrap__item-status">
+                <status-badge :status="item.isOnline ? 'on' : 'off'" />
+              </span>
+              <el-tooltip :content="item.deviceName" placement="top" :open-delay="500">
+                <span class="device-list__wrap__item-label"> {{ item.deviceName }}</span>
+              </el-tooltip>
+            </div>
+          </div>
+        </div>
+        
+        <el-button class="device-list__close-button" type="text" @click="closeList">
+          <svg-icon name="close" />
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { createViewLibUpPlatform, updateViewLibUpPlatform } from '@/api/viid'
+import { createViewLibUpPlatform, updateViewLibUpPlatform, getCascadeDevicesList } from '@/api/viid'
 import { getRegions } from '@/api/region'
 import { pick } from 'lodash'
 
@@ -83,7 +125,8 @@ export default class extends Vue {
     name: '',
     apsId: '',
     regionCode: '',
-    network: 'internal',
+    localApsId: '',
+    network: 'public',
     username: '',
     password: '',
     ipAddr: '',
@@ -94,6 +137,9 @@ export default class extends Vue {
   private cascadeViidId = ''
   private submitting = false
   private loading = false
+  private showDeviceListLoading = false
+  private showDeviceList = false
+  private deviceList = []
   private regionList = []
 
   private rules = {
@@ -144,6 +190,7 @@ export default class extends Vue {
     Object.assign(this.form, pick(platformDetails, ['name', 'apsId', 'network', 'username', 'password', 'ipAddr', 'port', 'keepaliveInterval', 'description']))
     this.cascadeViidId = platformDetails.cascadeViidId
     this.form.regionCode = this.getRegionPath(this.regionList, platformDetails.regionCode)
+    this.onRegionCodeChange()
     this.loading = false
   }
 
@@ -163,6 +210,29 @@ export default class extends Vue {
 
   private back() {
     this.$router.push('/viid/up-platform')
+  }
+
+  private openList() {
+    this.showDeviceList = true
+  }
+
+  private closeList() {
+    this.showDeviceList = false
+  }
+
+  private async onRegionCodeChange() {
+    try {
+      this.showDeviceListLoading = true
+      const res = await getCascadeDevicesList({
+        regionCode: this.form.regionCode && this.form.regionCode[1],
+        cascadeViidId: this.cascadeViidId
+      })
+      this.deviceList = res.data
+    } catch (e) {
+      console.log(e && e.message)
+    } finally {
+      this.showDeviceListLoading = false
+    }
   }
 
   private submit() {
@@ -268,6 +338,67 @@ export default class extends Vue {
 
   .short-width {
     width: 200px;
+  }
+
+  .append-button {
+    margin-left: 10px;
+  }
+
+  .form-container {
+    min-width: 950px;
+
+    ::v-deep .el-card__body {
+      position: relative;
+    }
+
+    .device-list {
+      position: absolute;
+      height: 90%;
+      width: 250px;
+      top: 40px;
+      bottom: 40px;
+      left: 680px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 2px;
+
+      &__wrap {
+        width: 100%;
+        position: relative;
+
+        &__title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+
+        &__list {
+          width: 100%;
+          height: calc(100% - 30px);
+          overflow: auto;
+        }
+
+        &__item {
+          line-height: 25px;
+          width: 100%;
+          display: flex;
+
+          &-label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: 10px;
+          }
+        }
+      }
+
+      &__close-button {
+        position: absolute;
+        right: 10px;
+        top: 0;
+      }
+    }
   }
 }
 

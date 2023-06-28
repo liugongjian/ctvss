@@ -73,6 +73,29 @@
           :inactive-value="false"
         />
       </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.Gb35114Mode)" prop="gb35114Mode">
+        <template slot="label">
+          认证方式:
+          <el-popover
+            placement="top-start"
+            title="认证方式"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="若选择单向认证，平台侧需校验下级设备证书；若选择双向认证，下级设备也需同时校验平台侧证书。"
+          >
+            <svg-icon
+              slot="reference"
+              class="form-question"
+              name="help"
+            />
+          </el-popover>
+        </template>
+        <el-radio-group v-model="videoForm.gb35114Mode">
+          <el-radio :label="1">单向认证</el-radio>
+          <el-radio :label="2">双向认证</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
         <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
       </el-form-item>
@@ -385,6 +408,7 @@ export default class extends Vue {
       [DeviceEnum.UserName]: this.videoInfo.userName,
       [DeviceEnum.Password]: this.videoInfo.password,
       [DeviceEnum.EnabledGB35114]: this.videoInfo.enabledGB35114,
+      [DeviceEnum.Gb35114Mode]: this.videoInfo.gb35114Mode || 1,
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
