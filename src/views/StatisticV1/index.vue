@@ -1,9 +1,5 @@
 <template>
-  <div
-    ref="statisticWrap"
-    class="statistic"
-    :class="[{ statistic__statistic: activeName === 'statistic' }]"
-  >
+  <div ref="statisticWrap" class="statistic" :class="[{ 'statistic__statistic': activeName === 'statistic' }]">
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本统计" name="statistic">
         <div class="statistic-box statistic-box__p15-no-t">
@@ -13,34 +9,22 @@
           <el-row>
             <el-col :span="5">
               <div class="statistic-box__content">
-                <p class="statistic-box__content__title">
-                  设备在线数<span>(在线/总数)</span>
-                </p>
-                <p class="statistic-box__content__number">
-                  <span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}
-                </p>
+                <p class="statistic-box__content__title">设备在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalDeviceOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="deviceOnlineInfo" />
             </el-col>
             <el-col :span="5">
               <div class="statistic-box__content">
-                <p class="statistic-box__content__title">
-                  流在线数<span>(在线/总数)</span>
-                </p>
-                <p class="statistic-box__content__number">
-                  <span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}
-                </p>
+                <p class="statistic-box__content__title">流在线数<span>(在线/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalStreamOnlineNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="streamOnlineInfo" />
             </el-col>
             <el-col :span="5">
               <div class="statistic-box__content">
-                <p class="statistic-box__content__title">
-                  录制数<span>(录制中/总数)</span>
-                </p>
-                <p class="statistic-box__content__number">
-                  <span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}
-                </p>
+                <p class="statistic-box__content__title">录制数<span>(录制中/总数)</span></p>
+                <p class="statistic-box__content__number"><span>{{ statisticsData.totalRecordNum }}</span>/{{ statisticsData.totalDeviceNum }}</p>
               </div>
               <draw-chart :chart-info="recordOnlineInfo" />
             </el-col>
@@ -50,10 +34,7 @@
                   存储容量
                   <span>(已使用/总容量)</span>
                 </p>
-                <p
-                  v-if="statisticsData.storage"
-                  class="statistic-box__content__number"
-                >
+                <p v-if="recordData.storage" class="statistic-box__content__number">
                   <span>{{ recordUsage }}TB</span>
                   /{{ recordTotal }}TB
                 </p>
@@ -65,81 +46,41 @@
           <div v-if="storageFlag">
             <div class="statistic-box__title">
               <div class="statistic-box__title-text">近7日存储用量趋势</div>
-              <el-button
-                type="primary"
-                size="mini"
-                @click="changeThresholdDialog"
-              >
-                配置
-              </el-button>
+              <el-button type="primary" size="mini" @click="changeThresholdDialog">配置</el-button>
             </div>
-            <div
-              v-if="recordLog.storageWarn && recordLog.storageWarn.show"
-              class="statistic-box__warning"
-            >
-              预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span>
-            </div>
+            <div v-if="recordLog.storageWarn&&recordLog.storageWarn.show" class="statistic-box__warning">预估录制剩余天数 <span>{{ recordLog.storageWarn.days }}天</span></div>
             <div class="statistic-box__line-content">
               <draw-chart :chart-info="recordLogInfo" />
             </div>
           </div>
 
           <el-form ref="form" :model="listQueryForm" :inline="true">
-            <!-- <el-form-item label="业务组" required>
+            <el-form-item label="业务组" required>
               <el-select v-model="listQueryForm.groupInfo" placeholder="请选择业务组">
+                <!-- <el-option label="全部" value="" /> -->
                 <el-option v-for="item in groupList" :key="item.groupId" :label="item.groupName" :value="`${item.groupId}_${item.inProtocol}_${item.groupName}`" />
               </el-select>
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item label="设备状态">
-              <el-select
-                v-model="listQueryForm.deviceStatus"
-                placeholder="请选择设备状态"
-              >
+              <el-select v-model="listQueryForm.deviceStatus" placeholder="请选择设备状态">
                 <el-option label="全部" value="" />
-                <el-option
-                  v-for="item in Object.keys(deviceStatusText)"
-                  :key="item"
-                  :label="`${deviceStatusText[item]}`"
-                  :value="item"
-                />
+                <el-option v-for="item in Object.keys(deviceStatusText)" :key="item" :label="`${deviceStatusText[item]}`" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="流状态">
-              <el-select
-                v-model="listQueryForm.streamStatus"
-                placeholder="请选择流状态"
-              >
+              <el-select v-model="listQueryForm.streamStatus" placeholder="请选择流状态">
                 <el-option label="全部" value="" />
-                <el-option
-                  v-for="item in Object.keys(streamStatusText)"
-                  :key="`${streamStatusText[item]}_${item}`"
-                  :label="streamStatusText[item]"
-                  :value="item"
-                />
+                <el-option v-for="item in Object.keys(streamStatusText)" :key="`${streamStatusText[item]}_${item}`" :label="streamStatusText[item]" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item label="录制状态">
-              <el-select
-                v-model="listQueryForm.recordStatus"
-                placeholder="请选择录制状态"
-              >
+              <el-select v-model="listQueryForm.recordStatus" placeholder="请选择录制状态">
                 <el-option label="全部" value="" />
-                <el-option
-                  v-for="item in Object.keys(recordStatusText)"
-                  :key="`${item}_${recordStatusText[item]}`"
-                  :label="recordStatusText[item]"
-                  :value="item"
-                />
+                <el-option v-for="item in Object.keys(recordStatusText)" :key="`${item}_${recordStatusText[item]}`" :label="recordStatusText[item]" :value="item" />
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button
-                type="primary"
-                :loading="tableLoading"
-                @click="searchDeviceList"
-              >
-                查询
-              </el-button>
+              <el-button type="primary" :disabled="!listQueryForm.groupInfo.length" :loading="tableLoading" @click="searchDeviceList">查询</el-button>
             </el-form-item>
             <el-form-item>
               <el-tooltip placement="top" content="导出">
@@ -150,7 +91,7 @@
 
           <!-- 默认不展示，点击了查询才给展示 -->
 
-          <!-- <div v-if="Array.isArray(tableData)" class="statistic-box__info">
+          <div v-if="Array.isArray(tableData)" class="statistic-box__info">
             <el-row>
               <el-col :span="7">
                 <div class="statistic-box__content">
@@ -168,61 +109,99 @@
                 </div>
               </el-col>
             </el-row>
-          </div> -->
+          </div>
 
           <el-table
             v-if="Array.isArray(tableData)"
             v-loading="tableLoading"
             :data="tableData"
-            style="width: 100%"
+            style="width: 100%;"
           >
-            <el-table-column prop="dirName" label="所属目录" width="230">
+            <el-table-column
+              prop="dirName"
+              label="所属目录"
+              width="230"
+            >
               <template slot-scope="{ row }">
                 <!-- <span>{{ row.dirName || '_' }}</span> -->
                 <span v-if="row.dirName.length < 23">{{ row.dirName }}</span>
                 <span v-else>
-                  <el-tooltip
-                    :content="row.dirName"
-                    effect="dark"
-                    placement="top-start"
-                  >
-                    <div class="statistic-box__table__text">
-                      {{ row.dirName }}
-                    </div>
+                  <el-tooltip :content="row.dirName" effect="dark" placement="top-start">
+                    <div class="statistic-box__table__text">{{ row.dirName }}</div>
                   </el-tooltip>
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="deviceName" label="设备名称" width="160" />
-            <el-table-column prop="gbId" label="国标ID" width="210" />
-            <el-table-column prop="deviceId" label="设备ID" width="210" />
-            <el-table-column prop="deviceIp" label="ip" width="210" />
-            <el-table-column prop="status" label="设备状态" width="80">
+            <el-table-column
+              prop="deviceName"
+              label="设备名称"
+              width="160"
+            />
+            <el-table-column
+              prop="gbId"
+              label="国标ID"
+              width="210"
+            />
+            <el-table-column
+              prop="deviceId"
+              label="设备ID"
+              width="210"
+            />
+            <el-table-column
+              prop="deviceIp"
+              label="ip"
+              width="210"
+            />
+            <el-table-column
+              prop="status"
+              label="设备状态"
+              width="80"
+            >
               <template slot-scope="{ row }">
                 <span>{{ deviceStatusText[row.deviceStatus] || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="status" label="流状态" width="80">
+            <el-table-column
+              prop="status"
+              label="流状态"
+              width="80"
+            >
               <template slot-scope="{ row }">
                 <span>{{ streamStatusText[row.streamStatus] || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="status" label="录制状态" width="80">
+            <el-table-column
+              prop="status"
+              label="录制状态"
+              width="80"
+            >
               <template slot-scope="{ row }">
                 <span>{{ recordStatusText[row.recordStatus] || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="longitude" label="经度" width="140">
+            <el-table-column
+              prop="longitude"
+              label="经度"
+              width="140"
+            >
               <template slot-scope="{ row }">
                 <span>{{ Number(row.longitude).toFixed(4) }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="latitude" label="纬度" width="140">
+            <el-table-column
+              prop="latitude"
+              label="纬度"
+              width="140"
+            >
               <template slot-scope="{ row }">
                 <span>{{ Number(row.latitude).toFixed(4) }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" width="180">
+            <el-table-column
+              prop="createTime"
+              label="创建时间"
+              width="180"
+            >
               <template slot-scope="{ row }">
                 <span>{{ dateFormat(Number(row.createTime)) }}</span>
               </template>
@@ -230,39 +209,24 @@
           </el-table>
           <el-pagination
             v-if="Array.isArray(tableData)"
-            :current-page="pager.pageNum"
-            :page-size="pager.pageSize"
-            :total="pager.totalNum"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
+            :current-page="pager.pageNum" :page-size="pager.pageSize" :total="pager.totalNum" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
         </div>
       </el-tab-pane>
       <!-- 设备统计 -->
       <el-tab-pane label="设备统计" name="device">
-        <div
-          v-if="activeName === 'device'"
-          class="statistic-box statistic-box__device"
-        >
+        <div v-if="activeName === 'device' " class="statistic-box statistic-box__device">
           <div class="statistic-box__left">
-            <device-tree
-              :wrap="$refs.statisticWrap"
-              @treeback="getTreeDeviceId"
-              @noback="setNoStatistic"
-            />
+            <device-tree :wrap="$refs.statisticWrap" @treeback="getTreeDeviceId" @noback="setNoStatistic" />
           </div>
           <div class="statistic-box__right">
             <el-tabs v-if="ifShowStatistic" v-model="activeTab">
-              <el-tab-pane
-                v-loading="calendarLoading"
-                label="录像统计"
-                name="record"
-              >
+              <el-tab-pane v-loading="calendarLoading" label="录像统计" name="record">
                 <div class="statistic-box__title">
                   <div class="statistic-box__title-text">设备录像统计</div>
                 </div>
-                <div>
+                <div v-if="calendarInfo.length > 0">
                   <el-date-picker
                     v-model="monthValue"
                     type="month"
@@ -270,38 +234,19 @@
                     value-format="yyyy-MM"
                     @change="monthValueChange"
                   />
-                  <div
-                    v-if="
-                      calendarInfo.length > 0 && recordDayInfo.status !== 'unbind' && recordDayInfo.status !== 'stop'
-                    "
-                    class="statistic-box__calendar"
-                  >
+                  <div v-if="recordDayInfo.status !== 'unbind' && recordDayInfo.status !== 'stop'" class="statistic-box__calendar">
                     <div class="statistic-box__calendar__chart">
                       <div class="statistic-box__content">
                         <p class="statistic-box__content__title">录制天数</p>
-                        <p class="statistic-box__content__number">
-                          <span>{{ recordDayInfo.totalRecordDays || 0 }}</span>/{{ recordDayInfo.totalDays || 30 }}
-                        </p>
+                        <p class="statistic-box__content__number"><span>{{ recordDayInfo.totalRecordDays || 0 }}</span>/{{ recordDayInfo.totalDays || 30 }}</p>
                       </div>
                       <draw-chart :chart-info="recordDays" />
                     </div>
                     <div class="statistic-box__calendar__line" />
-                    <div
-                      v-loading="dayMissDataLoading"
-                      class="statistic-box__calendar__date"
-                    >
-                      <el-tooltip
-                        v-for="item in calendarInfo"
-                        :key="item.day"
-                        placement="top"
-                        :content="getDateTipContent(item)"
-                      >
-                        <span
-                          class="statistic-box__calendar__date__day"
-                          :class="getThisClass(item)"
-                          @click="openDetail(item)"
-                        >
-                          {{ item.day.substring(6) }}
+                    <div v-loading="dayMissDataLoading" class="statistic-box__calendar__date">
+                      <el-tooltip v-for="item in calendarInfo" :key="item.day" placement="top" :content="getDateTipContent(item)">
+                        <span class="statistic-box__calendar__date__day" :class="getThisClass(item)" @click="openDetail(item)">
+                          {{ item.day.split('-')[2] }}
                         </span>
                       </el-tooltip>
                     </div>
@@ -344,31 +289,17 @@
                         :open-delay="300"
                         content="忽略规定秒内的缺失录像。"
                       >
-                        <svg-icon
-                          slot="reference"
-                          class="form-question"
-                          name="help"
-                        />
+                        <svg-icon slot="reference" class="form-question" name="help" />
                       </el-popover>
                     </template>
                     <el-input v-model="filterForm.ignore" @input="minValue" />
                   </el-form-item>
                   <el-form-item>
-                    <el-button
-                      type="primary"
-                      :loading="tableLoading"
-                      @click="searchList"
-                    >
-                      查询
-                    </el-button>
+                    <el-button type="primary" :loading="tableLoading" @click="searchList">查询</el-button>
                   </el-form-item>
                   <el-form-item>
                     <el-tooltip placement="top" content="导出">
-                      <svg-icon
-                        name="export"
-                        class="export"
-                        @click="exportMissData"
-                      />
+                      <svg-icon name="export" class="export" @click="exportMissData" />
                     </el-tooltip>
                   </el-form-item>
                 </el-form>
@@ -400,11 +331,7 @@
       </div> -->
       <el-form ref="thresholdForm" :model="thresholdForm" :rules="rules">
         <el-form-item label="" prop="thresholdInput">
-          <el-input
-            v-model="thresholdForm.thresholdInput"
-            placeholder="请输入告警阈值"
-            autocomplete="off"
-          >
+          <el-input v-model="thresholdForm.thresholdInput" placeholder="请输入告警阈值" autocomplete="off">
             <template slot="prepend">告警阈值：</template>
             <template slot="append">%</template>
           </el-input>
@@ -423,7 +350,7 @@
       center
       :before-close="changeDayDialog"
     >
-      <p>{{ `录制完整率: ${(dayInfo.complianceRate * 100).toFixed(2)}%` }}</p>
+      <p>{{ `录制完整率: ${(dayInfo.complianceRate*100).toFixed(2)}%` }}</p>
 
       <miss-table from="dialog" :info="dayInfo" />
       <span slot="footer" class="dialog-footer">
@@ -440,23 +367,17 @@ import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
 import MissTable from './components/MissTable.vue'
 import {
-  getStatistics,
-  getRecordLog,
-  setRecordThreshold,
-  getDeviceList,
-  exportDeviceList,
-  getCalendarInfo,
+  getStatistics, getRecord, getRecordLog, setRecordThreshold,
+  getDeviceList, exportDeviceList, getCalendarInfo,
   exportCalendarMissData
 } from '@/api/statistic'
 import {
-  ChartInfo,
-  CalendarListResponse,
-  CalendarQuery,
-  CalendarItem,
-  CalendarMissItem,
+  ChartInfo, CalendarListResponse, CalendarQuery,
+  CalendarItem, CalendarMissItem,
   ExportMissQuery,
   RecordMissQuery
 } from '@/type/Statistic'
+import { getGroups } from '@/api/group'
 import { dateFormat } from '@/utils/date'
 import { UserModule } from '@/store/modules/user'
 
@@ -534,7 +455,7 @@ export default class extends Vue {
   }
 
   private listQueryForm: any = {
-    // groupInfo: '',
+    groupInfo: '',
     deviceStatus: '',
     recordStatus: '',
     streamStatus: ''
@@ -571,15 +492,12 @@ export default class extends Vue {
   private onDeviceIdChange(deviceId: string) {
     this.filterForm = {
       deviceId,
-      // inProtocol: this.inProtocol,
-      // groupId: this.groupId,
+      inProtocol: this.inProtocol,
+      groupId: this.groupId,
       ignore: 0,
       pageNum: 1,
       pageSize: 10,
-      dateValue: [
-        new Date(new Date().setHours(0, 0, 0, 0)),
-        new Date(new Date().setHours(23, 59, 59, 0))
-      ]
+      dateValue: [new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(23, 59, 59, 0))]
     }
     this.searchParam = { ...this.filterForm }
     this.getMonth()
@@ -625,11 +543,11 @@ export default class extends Vue {
   }
 
   private get recordUsage() {
-    return (this.statisticsData.storage.usage / this.bytesToTB).toFixed(2)
+    return (this.recordData.storage.usage / this.bytesToTB).toFixed(2)
   }
 
   private get recordTotal() {
-    return (this.statisticsData.storage.total / this.bytesToTB).toFixed(2)
+    return (this.recordData.storage.total / this.bytesToTB).toFixed(2)
   }
 
   private getMonth() {
@@ -658,11 +576,11 @@ export default class extends Vue {
         this.statisticsData = await getStatistics()
 
         if (this.storageFlag) {
-          // this.recordData = await getRecord()
+          this.recordData = await getRecord()
           this.bytesInfo = {
             kind: 'pie',
-            totalDeviceNum: this.statisticsData.storage.total / this.bytesToTB,
-            onlineNum: this.statisticsData.storage.usage / this.bytesToTB,
+            totalDeviceNum: this.recordData.storage.total / this.bytesToTB,
+            onlineNum: this.recordData.storage.usage / this.bytesToTB,
             label: '使用率',
             name: 'bytes'
           }
@@ -706,11 +624,11 @@ export default class extends Vue {
           name: 'recordOnline'
         }
 
-        // const query = {
-        //   pageSize: 999
-        // }
-        // const res = await getGroups(query)
-        // this.groupList = res.groups
+        const query = {
+          pageSize: 999
+        }
+        const res = await getGroups(query)
+        this.groupList = res.groups
       } catch (error) {
         this.$message.error(error && error.message)
       }
@@ -739,9 +657,7 @@ export default class extends Vue {
         return '该日未启动录像'
       default:
         // return `录制完整率${(item.complianceRate * 100).toFixed(2)}%`
-        return `录制完整率${Number(
-          (item.complianceRate * 100).toString().match(/^\d+(?:\.\d{0,2})?/)
-        )}%`
+        return `录制完整率${Number((item.complianceRate * 100).toString().match(/^\d+(?:\.\d{0,2})?/))}%`
     }
   }
 
@@ -763,12 +679,9 @@ export default class extends Vue {
     if (item.status === 'incomplete') {
       const query = {
         deviceId: this.deviceId,
-        // inProtocol: this.inProtocol,
-        // groupId: this.groupId,
-        dateValue: [
-          new Date(new Date(item.day).setHours(0, 0, 0, 0)),
-          new Date(new Date(item.day).setHours(23, 59, 59, 0))
-        ],
+        inProtocol: this.inProtocol,
+        groupId: this.groupId,
+        dateValue: [new Date(new Date(item.day).setHours(0, 0, 0, 0)), new Date(new Date(item.day).setHours(23, 59, 59, 0))],
         ...item
       }
       this.dayInfo = query
@@ -781,13 +694,9 @@ export default class extends Vue {
   }
 
   // 左侧树点击回调
-  private getTreeDeviceId(
-    deviceId: string,
-    inProtocol: string,
-    groupId: string
-  ) {
+  private getTreeDeviceId(deviceId: string, inProtocol: string, groupId: string) {
     this.deviceId = deviceId
-    // this.inProtocol = inProtocol
+    this.inProtocol = inProtocol
     this.groupId = groupId
     this.ifShowStatistic = true
   }
@@ -803,7 +712,7 @@ export default class extends Vue {
       const param: CalendarQuery = {
         deviceId: this.deviceId,
         month: this.monthValue,
-        // inProtocol: this.inProtocol,
+        inProtocol: this.inProtocol,
         groupId: this.groupId
       }
 
@@ -855,19 +764,14 @@ export default class extends Vue {
   private async getDeviceList() {
     this.tableLoading = true
 
-    const {
-      deviceStatus,
-      streamStatus,
-      recordStatus
-      // groupInfo
-    } = this.listQueryForm
+    const { deviceStatus, streamStatus, recordStatus, groupInfo } = this.listQueryForm
 
-    // const groupId = groupInfo.split('_')[0]
-    // const inProtocol = groupInfo.split('_')[1]
+    const groupId = groupInfo.split('_')[0]
+    const inProtocol = groupInfo.split('_')[1]
 
     this.param = {
-      // inProtocol,
-      // groupId,
+      inProtocol,
+      groupId,
       deviceStatus,
       streamStatus,
       recordStatus,
@@ -892,15 +796,21 @@ export default class extends Vue {
       this.$message.warning('请先查询出实际数据再进行导出')
     } else {
       try {
+        const { groupInfo } = this.listQueryForm
+
+        const groupName = groupInfo.split('_')[2]
+
         const query = {
-          ...this.param
+          ...this.param,
+          groupName
         }
 
         const res = await exportDeviceList(query)
-        const blob = new Blob([res.data])
+
+        const blob = new Blob([res])
         const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
-        link.download = '设备状态.xlsx'
+        link.download = `${groupName}.xlsx`
         link.click()
         link.remove()
       } catch (error) {
@@ -912,22 +822,20 @@ export default class extends Vue {
   private async exportMissData() {
     try {
       const {
-        deviceId,
-        dateValue: [startTime, endTime],
-        ignore
-        // inProtocol, groupId
+        deviceId, dateValue: [startTime, endTime],
+        ignore, inProtocol, groupId
       } = this.filterForm
       const param: ExportMissQuery = {
         deviceId,
-        // inProtocol,
-        // groupId,
+        inProtocol,
+        groupId,
         startTime: dateFormat(startTime, 'yyyy-MM-dd HH:mm:ss'),
         endTime: dateFormat(endTime, 'yyyy-MM-dd HH:mm:ss'),
         ignore
       }
       const res = await exportCalendarMissData(param)
       const date = dateFormat(startTime, 'yyyy-MM-dd')
-      const blob = new Blob([res.data])
+      const blob = new Blob([res])
       const link = document.createElement('a')
       link.href = window.URL.createObjectURL(blob)
       link.download = `${date}.xlsx`
@@ -943,7 +851,7 @@ export default class extends Vue {
       threshold: this.thresholdForm.thresholdInput
     }
     try {
-      (this.$refs.thresholdForm as any).validate(async (valid) => {
+      (this.$refs.thresholdForm as any).validate(async(valid) => {
         if (valid) {
           await setRecordThreshold(param)
           this.getData()
@@ -998,7 +906,7 @@ export default class extends Vue {
       width: 22%;
       display: flex;
       border: 1px solid #d3d3d3;
-      margin: 10px calc((100% - 20.8333% * 4) / 8);
+      margin: 10px calc((100% - 20.8333%*4)/8);
       padding: 10px 0;
       min-width: 230px;
     }
@@ -1178,7 +1086,6 @@ export default class extends Vue {
     &__tree {
       overflow-y: auto;
       position: relative;
-      height: 200px;
     }
 
     .statistic__chart {
