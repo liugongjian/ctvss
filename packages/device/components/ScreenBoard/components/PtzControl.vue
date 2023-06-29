@@ -558,34 +558,48 @@ export default class extends Vue {
   }
 
   private async startPtzMove(direction: number, speed: number) {
-    const data = this.formatStartParam(direction, speed)
-    await startDeviceMove({
-      ...data,
-      inProtocol: this.screen.inProtocol
-    })
+    try {
+      const data = this.formatStartParam(direction, speed)
+      await startDeviceMove({
+        ...data,
+        inProtocol: this.screen.inProtocol
+      })
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 
   private async endPtzMove(direction: number) {
     try {
       const data = this.formatEndParam(direction)
       await endDeviceMove({
-      ...data,
-      inProtocol: this.screen.inProtocol
-    })
+        ...data,
+        inProtocol: this.screen.inProtocol
+      })
     } catch (e) {
       this.$message.error(e && e.message)
     }
   }
 
   private async startPtzAdjust(direction: number, speed: number) {
-    const data = this.formatStartParam(direction, speed)
-    await startDeviceAdjust(data)
+    try {
+      const data = this.formatStartParam(direction, speed)
+      await startDeviceAdjust({
+        ...data,
+        inProtocol: this.screen.inProtocol
+      })
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 
   private async endPtzAdjust(direction: number) {
     try {
       const data = this.formatEndParam(direction)
-      await endDeviceAdjust(data)
+      await endDeviceAdjust({
+        ...data,
+        inProtocol: this.screen.inProtocol
+      })
     } catch (e) {
       this.$message.error(e && e.message)
     }
