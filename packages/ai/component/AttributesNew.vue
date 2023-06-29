@@ -1,7 +1,7 @@
 <template>
   <div class="ai-attributes">
     <info-list label-width="100" title="人体属性">
-      <info-list-item v-for="attribute in currentAttributes" :key="attribute.key" :label="attribute.Name">{{ attribute.Score }}</info-list-item>
+      <info-list-item v-for="(attr,index) in currentAttributes" :key="index" :label="attr.Name">{{ attr.Score }}</info-list-item>
     </info-list>
   </div>
 </template>
@@ -27,22 +27,26 @@ export default class extends Vue {
   private aiAttribute = AiAttribute
 
   @Watch('img', {
-    immediate: true
+    immediate: true,
+    deep: true
   })
   private onImgChanged() {
+    debugger
     this.showAttribute()
   }
 
   @Watch('attributesIndex', {
-    immediate: true
+    immediate: true,
+    deep: true
   })
   private onAttributesIndexChanged() {
     this.showAttribute()
   }
 
   private showAttribute() {
+    console.log('this.img.attributesLabel:', JSON.parse(this.img.attributesLabel[this.attributesIndex]))
     if (this.img && this.img.attributesLabel && this.attributesIndex > -1) {
-      this.currentAttributes = this.img.attributesLabel
+      this.currentAttributes = JSON.parse(this.img.attributesLabel[this.attributesIndex])
     }
   }
 }
@@ -54,5 +58,8 @@ export default class extends Vue {
         padding: 8px 0;
       }
     }
+  }
+  .info-list{
+    margin-top:146px;
   }
 </style>

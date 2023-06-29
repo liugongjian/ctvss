@@ -23,7 +23,7 @@
           </el-option>
         </el-select>
         <div>告警时间</div>
-        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
+        <el-radio-group v-model="queryParam.periodType" size="medium">
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
           <el-radio-button label="近7天" />
@@ -39,7 +39,6 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           :default-time="['00:00:00', '23:59:59']"
-          @change="handleChange"
         />
         <div>置信度</div>
         <el-slider
@@ -50,10 +49,10 @@
         <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         <el-radio-group v-model="pageMode">
           <el-radio-button label="list">
-            <i class="el-icon-s-operation" />
+            <svg-icon name="list-mode" />
           </el-radio-button>
           <el-radio-button label="card">
-            <i class="el-icon-menu" />
+            <svg-icon name="pic-mode" />
           </el-radio-button>
         </el-radio-group>
       </div>
@@ -70,13 +69,21 @@
       <el-table-column label="应用名称" prop="appName" />
       <el-table-column label="算法类型" prop="algoName" />
       <el-table-column label="设备名称" prop="deviceName" />
-      <el-table-column label="告警时间" prop="deviceName" />
-      <el-table-column label="置信度" prop="deviceName" />
+      <el-table-column label="告警时间" prop="captureTime">
+        <template slot-scope="{ row }">
+          {{ format(fromUnixTime(row.captureTime), 'yyyy-MM-dd HH:mm:ss') }}
+        </template>
+      </el-table-column>
+      <el-table-column label="置信度" prop="confidence">
+        <template slot-scope="{ row }">
+          {{ row.confidence * 100 }}
+        </template>
+      </el-table-column>
       <el-table-column
         label="告警截图"
       >
         <template slot-scope="{ row }">
-          <el-image :src="row.image" />
+          <el-image :src="row.imageThumbnail" />
         </template>
       </el-table-column>
     </el-table>
@@ -98,6 +105,8 @@ import CardList from './CardList.vue'
 import PicDialogue from './components/PicDialogue.vue'
 import { getAppList, getAlgorithmList, getAiAlarms } from '@/api/ai-app'
 import { getTime } from 'date-fns'
+import { format, fromUnixTime } from 'date-fns'
+
 
 @Component({
   name: 'alarm-list',
@@ -119,6 +128,9 @@ export default class extends Vue {
   }
 
   private dialogueVisibile = false
+
+  private format = format
+  private fromUnixTime = fromUnixTime
 
   private queryParam: any = {
     algoType: '0',
@@ -197,17 +209,21 @@ export default class extends Vue {
   private async getAiAlarms(){
     const [startTime, endTime] = this.queryParam.period
     const param = {
-      appID: this.queryParam.appName === '0' ? '' : this.queryParam.appName,
-      algoCode: this.queryParam.algoType === '0' ? '' : this.queryParam.algoCode,
+      appID: this.queryParam.appName === '0' ? undefined : this.queryParam.appName,
+      algoCode: this.queryParam.algoType === '0' ? undefined : this.queryParam.algoType,
       deviceID: this.$route.query.deviceId,
       confidenceMin: this.queryParam.confidence[0] / 100,
       confidenceMax: this.queryParam.confidence[1] / 100,
-      startTime: startTime / 1000,
+      startTime: (startTime / 1000).toFixed(),
       endTime: (endTime / 1000).toFixed(),
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize,
     }
-    await getAiAlarms(param)
+    const res = await getAiAlarms(param)
+    this.alarmList = res.analysisResults
+    this.pager.pageNum = res.pageNum
+    this.pager.pageSize = res.pageSize
+    this.pager.totalNum = res.totalNum
   }
 
 
@@ -362,7 +378,7 @@ export default class extends Vue {
   private refresh(){
     const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
     if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
-    this.this.getAiAlarms()
+    this.getAiAlarms()
   }
 
   private rowClick(row){

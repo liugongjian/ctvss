@@ -20,6 +20,14 @@
         <polygon :points="detectArea" />
       </svg>
     </div>
+    <div v-for="box in ocrBoxes" class="ai-recognation__images__item__mask--zone ocr">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${ratio.imgNaturalWidth} ${ratio.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
+        <polygon :points="box.points" />
+      </svg>
+      <div class="label">
+        {{ box.label }}
+      </div>
+    </div>
     <div v-if="imageLabel.length > 0" class="ai-recognation__images__item__count">
       <span>
         {{ imageLabel }}
@@ -28,7 +36,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { AnimalType, AiMaskType } from '@vss/ai/dics/contants'
 
 @Component({
@@ -48,12 +56,18 @@ export default class extends Vue {
 
   private detectArea = ''
 
+  private ocrBoxes = []
+
   private imageLabel = ''
 
   private mounted(){
     this.getDetectBoxes(this.img)
     this.getImageLabel(this.img)
     this.getDetectArea(this.img)
+    if (this.img.ocrBoxes.length > 0 ){
+
+      this.getOcr(this.img)
+    }
     window.addEventListener('resize', ()=>this.getDetectBoxes(this.img))
   }
 
@@ -65,6 +79,19 @@ export default class extends Vue {
 
   private getImageLabel(img){
     Object.keys(img.imageLabel).forEach(k => { this.imageLabel = k + ':' + img.imageLabel[k] + '\n' })
+  }
+
+  private getOcr(img){
+    // `904 266, 973 266, 973 291, 904 291`
+    for (let i = 0; i < img.ocrBoxes.length ; i += 8){
+      const sub = img.ocrBoxes[i] + ' ' + img.ocrBoxes[i + 1] + ','
+                  + img.ocrBoxes[i + 2] + ' ' + img.ocrBoxes[i + 3] + ','
+                  + img.ocrBoxes[i + 4] + ' ' + img.ocrBoxes[i + 5] + ','
+                  + img.ocrBoxes[i + 6] + ' ' + img.ocrBoxes[i + 7]
+      const label = Object.keys(img.boxLabels[i / 8].info)
+      this.ocrBoxes.push({ points: sub, label: label[i / 8] })
+    }
+    console.log('this.ocrBoxes:', this.ocrBoxes)
   }
 
 
@@ -82,6 +109,8 @@ export default class extends Vue {
         zoneSvg += (sub.join(',') + ' ')
       }
       this.detectArea = zoneSvg
+      console.log('this.detectArea:', this.detectArea)
+
   }
 
     // 处理DetectBoxes数据
@@ -89,9 +118,11 @@ export default class extends Vue {
     if (img.detectBoxes && img.detectBoxes.length > 0){
       const detectBoxes = []
        for (let i = 0; i < img.detectBoxes.length; i += 4) {
-        const info = img.boxLabels[i / 4].info
         let infoStr = ''
-        Object.keys(info).forEach(o => { infoStr = o + ':' + info[o] + '\n' })
+        if (img.boxLabels.length > 0){
+          const info = img.boxLabels[i / 4].info
+          Object.keys(info).forEach(o => { infoStr = o + ':' + info[o] + '\n' })
+        }
         detectBoxes.push({
           top: img.detectBoxes[i + 1],
           left: img.detectBoxes[i],
@@ -100,6 +131,8 @@ export default class extends Vue {
           boxLabel: infoStr
         })
        }
+       console.log('detectBoxes:', detectBoxes)
+
        this.detectBoxes = detectBoxes.map(box => {
           const location = {
             clientTopPercent: box.top * this.ratio.ratioH / this.ratio.clientHeight * 100,
@@ -163,6 +196,19 @@ export default class extends Vue {
           }
         }
       }
+      &--zone,.ocr{
+        svg {
+          width: 100%;
+          height: 100%;
+
+          polygon {
+            fill: none;
+            stroke: #6bd174;
+            stroke-width: 6px;
+          }
+        }
+      }
+
       // 冲压机
       &--11 {
         border-width: 4px;
@@ -215,4 +261,5 @@ export default class extends Vue {
       }
     }
   }
+
 </style>

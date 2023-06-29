@@ -8,8 +8,8 @@
         </div>
         <ul ref="alarmList" class="alarm-stats__list">
           <li v-for="item in alarmCounts" :key="item.type" class="alarm-stats__list__item">
-            <div class="alarm-stats__list__item--1">{{ item.count }}</div>
-            <div class="alarm-stats__list__item--2">{{ item.type }}</div>
+            <div class="alarm-stats__list__item--1">{{ item.algoName }}</div>
+            <div class="alarm-stats__list__item--2">{{ item.number }}</div>
           </li>
         </ul>
         <div v-if="showButton" class="right-arrow" @click="() => handleScroll(1)" @mousedown="() => startScroll(1)" @mouseup="stopScroll">
@@ -45,7 +45,6 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { getAiStats, getAiAlgoTypes } from '@/api/ai-app'
 import { Chart } from '@antv/g2'
 import { format } from 'date-fns'
-import { getAuditTrend } from '@/api/dashboard'
 
 
 @Component({
@@ -53,7 +52,6 @@ import { getAuditTrend } from '@/api/dashboard'
 })
 export default class extends Vue {
 
-  // private alarmCounts = [{ count: 10, type: '口罩检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }, { count: 12, type: '人脸检测' }]
   private alarmCounts = [ ]
   private timer: any
 
@@ -71,10 +69,12 @@ export default class extends Vue {
 
   private period = '7'
 
-  @Watch('algoType')
+  @Watch('algoType', )
   private algoTypeChange(){
-    this.chartData = this.chartDataOrigin.filter(item => this.algoType.includes(item.algoCode))
-    this.initChart()
+    if (this.chartDataOrigin){
+      this.chartData = this.chartDataOrigin.filter(item => this.algoType.includes(item.algoCode))
+      this.initChart()
+    }
   }
 
   private ifShowButton(){
@@ -92,13 +92,9 @@ export default class extends Vue {
     // this.getAuditTrend()
     await this.getAiAlgoTypes()
     await this.getChartData()
-    this.ifShowButton()
+    await this.getTodayAlarms()
+    window.addEventListener('resize', this.ifShowButton)
 
-  }
-
-
-  private async getAuditTrend(){
-    const data = await getAuditTrend({ form: 'day' })
   }
 
   private async getAiAlgoTypes(){
@@ -165,6 +161,15 @@ export default class extends Vue {
     const res = await getAiStats(param)
     this.chartDataOrigin = this.chartData = res.statInfo
     this.initChart()
+  }
+
+  private async getTodayAlarms(){
+    const param = {
+      startDay: format(new Date(), 'yyyy-MM-dd'),
+      endDay: format(new Date(), 'yyyy-MM-dd'),
+    }
+    const res = await getAiStats(param)
+    this.alarmCounts = res.statInfo
   }
 
   /**
@@ -278,6 +283,9 @@ export default class extends Vue {
       margin-bottom: 20px;
     }
     &--op {
+      .el-select {
+        width: 400px;
+      }
       & > div {
         margin-left: 10px;
       }

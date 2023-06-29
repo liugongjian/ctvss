@@ -2,15 +2,16 @@
   <component :is="container" title="实时告警信息" :less-padding="true">
     <div class="stats-container">
       <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
-        <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
+        <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
+        <el-divider v-if="noAlarmTody">历史告警</el-divider>
         <li v-for="item in list" :key="item.image" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
           <div class="alert-list__item__pic">
-            <el-image :src="item.image" />
+            <el-image :src="item.imageThumbnail" />
           </div>
           <div class="alert-list__item__info">
             <div>{{ item.appName }}</div>
             <div>{{ item.deviceName }}</div>
-            <div>{{ item.captureTime }}</div>
+            <div>{{ item.captureTime2 }}</div>
           </div>
         </li>
       </ul>
@@ -29,6 +30,7 @@ import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 import { fromUnixTime, format } from 'date-fns'
 import PicDialogue from '@/views/Alarm/AI/components/PicDialogue.vue'
+import { getAiAlarms } from '@/api/ai-app'
 
 @Component({
   name: 'DashboardAlertLiveNew',
@@ -50,6 +52,9 @@ export default class extends Mixins(DashboardMixin) {
   public intervalTime = 15 * 1000
   private lastTime: any = null
   private alertFile = null
+  private noAlarmTody = false
+
+  private currentIndex = 0
 
   @Prop({ default: false })
   private isLight?: boolean
@@ -69,15 +74,36 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.updateAlarmList)
   }
 
+
+  /**
+ * 得到N天前的时间戳
+ */
+  public getDateBefore(dayCount) {
+    const dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    const time = dd.setHours(0, 0, 0)
+    return time
+  }
+
   private async updateAlarmList() {
     try {
+      let list = []
       this.loading = true
-      const list = [{
-        algoCode: '10014', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-161445-b929c62e-714a-433a-b5da-22c153b65850.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T062002Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=cc78cc45d5b319e5c4272f8c4c07cfc462bce76b48538e29a17edec28bddec7e'
-      }, {
-         algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230609%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230609T072448Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=b5c024a9c11c2e09af7b69bbc4cd7be8fec9c24ec686e0ccd6e51c10e04fc7ce'
-      }]
-      this.list = list.map(item => ({ ...item, captureTime: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
+      const param = {
+        startTime: (this.getDateBefore(1) / 1000).toFixed(),
+        endTime: (new Date().getTime() / 1000).toFixed(),
+        pageSize: 5,
+        pageNum: 1
+      }
+      const res = await getAiAlarms(param)
+      this.noAlarmTody = res.analysisResults.length === 0
+      if (this.noAlarmTody) {
+        const res1 = await getAiAlarms({ pageSize: 5, pageNum: 1 })
+        list = res1.analysisResults
+      } else {
+        list = res.analysisResults
+      }
+      this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
 
     } catch (e) {
       console.log(e)
@@ -111,6 +137,7 @@ export default class extends Mixins(DashboardMixin) {
 .stats-container{
   min-width: 360px;
   overflow:auto;
+  min-height: 500px;
 }
 
 .alert-list {
@@ -122,6 +149,10 @@ export default class extends Mixins(DashboardMixin) {
   flex-direction: column;
   // justify-content: space-between;
   justify-content: flex-start;
+  .el-divider--horizontal{
+      background: 0 0;
+      border-top: 1px dashed #17181a;
+  }
 
   &__item{
     display: flex;
@@ -135,6 +166,7 @@ export default class extends Mixins(DashboardMixin) {
       display: flex;
       flex-direction: column;
       justify-content: space-around;
+      margin-left: 10px;
     }
   }
 }

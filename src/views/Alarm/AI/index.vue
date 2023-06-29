@@ -161,4 +161,7 @@ export default class extends Mixins(layoutMxin) {
     line-height: 10vh;
     height: 10vh;
   }
+  .common-layout__right__body{
+    overflow: auto;
+  }
 </style>
