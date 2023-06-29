@@ -532,6 +532,7 @@ export default class extends Vue {
       const locks = []
       const allPointsLocks = []
       let joinLocks: any = []
+      if (!list[0]) return locks
       for (let i = 0; i < list.length; i++) {
         const record = list[i]
         allPointsLocks.push({

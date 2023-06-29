@@ -124,6 +124,7 @@ export default class extends Vue {
       await this.getDeviceInfo()
       // nvr 通道设备名称
       this.deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName
+      if (this.deviceInfo.device.deviceName) this.deviceName = this.deviceInfo.device.deviceName
     } catch (e) {
       this.$message.error(e)
     } finally {
