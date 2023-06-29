@@ -172,19 +172,21 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
-import { startDeviceMove,
-          endDeviceMove,
-          startDeviceAdjust,
-          endDeviceAdjust,
-          setDevicePreset,
-          gotoDevicePreset,
-          deleteDevicePreset,
-          describeDevicePresets,
-          describePTZCruiseList,
-          startPTZCruise,
-          stopPTZCruise,
-          describePTZKeepwatch,
-          updatePTZKeepwatch } from '@vss/device/api/ptz_control'
+import { 
+  startDeviceMove,
+  endDeviceMove,
+  startDeviceAdjust,
+  endDeviceAdjust,
+  setDevicePreset,
+  gotoDevicePreset,
+  deleteDevicePreset,
+  describeDevicePresets,
+  describePTZCruiseList,
+  startPTZCruise,
+  stopPTZCruise,
+  describePTZKeepwatch,
+  updatePTZKeepwatch
+} from '@vss/device/api/ptz_control'
 import UpdateCruise from '@/views/device/components/dialogs/UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
@@ -557,7 +559,7 @@ export default class extends Vue {
 
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    await ptzControlApi.startDeviceMove({
+    await startDeviceMove({
       ...data,
       inProtocol: this.screen.inProtocol
     })
