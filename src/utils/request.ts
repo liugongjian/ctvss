@@ -62,6 +62,9 @@ function requestTransform(config: AxiosRequestConfig) {
   const url = config.url
   if (UserModule.version === 2 || whiteList.includes(url)) {
     config.url = '/v2' + url
+    if (url === '/statistics/record/log'){ //统计信息的该接口 v1版本是post，v2版本变成了get 后续完善此判断逻辑
+      config.method = 'get'
+    }
   } else {
     const apiList = Object.keys(ApiMapping)
     if (apiList.includes(url)) {
@@ -93,7 +96,9 @@ function responseHandler(response: AxiosResponse) {
       config.url.includes('/device/exportDeviceAll') ||
       config.url.includes('/device/exportDeviceOption') ||
       config.url.includes('/device/exportFailedDevice') ||
-      config.url.includes('/device/detail/export')
+      config.url.includes('/device/detail/export') ||
+      config.url.includes('/statistics/deviceExport') ||
+      config.url.includes('/statistics/record/missExport')
     ) }
     if ( UserModule.version === 2 && ifExport(response.config) ){
       resData = response

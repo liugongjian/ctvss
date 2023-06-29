@@ -11,11 +11,11 @@
         访问设置
       </el-button>
     </div>
-    <p class="access-restriction__text">开启后，将支持用户在App客户局端登录</p>
+    <p class="access-restriction__text">开启后，将支持用户在App客户端登录</p>
     <div class="access-restriction__status">
       <span class="access-restriction__status-word">状态</span>
       <el-tooltip
-        v-if="loginStatus.loginStateCode === 1" 
+        v-if="loginStatus.loginStateCode === 1"
         class="item"
         effect="dark"
         placement="top-start"
@@ -40,10 +40,7 @@
         </span>
       </el-tooltip>
       <span v-else class="access-restriction__status-text">
-        <span
-          class="access-restriction__status-badge"
-        >
-        </span>
+        <span class="access-restriction__status-badge"> </span>
         {{ loginStatus.loginState }}
       </span>
     </div>
@@ -107,7 +104,11 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="setLoginPassword">确 定</el-button>
+        <el-button
+          type="primary"
+          :disabled="!ifDisabledBtn"
+          @click="setLoginPassword"
+        >确 定</el-button>
       </span>
     </el-dialog>
 
@@ -220,8 +221,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { Input } from 'element-ui'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Input, Form as ElForm } from 'element-ui'
 import { getLoginState, setLoginPwd, cancelUser } from '@/api/accessManage'
 import { encrypt } from '@/utils/encrypt'
 
@@ -249,9 +250,25 @@ export default class extends Vue {
     dialogPwd: 'password'
   }
 
+  private ifDisabledBtn = false
+
   private dialogPwd = ''
 
   private loginStatus: any = {}
+
+  // private get ifDisabledBtn() {
+    
+  //   return this.$refs.form && (this.$refs.form as any).validate() === true
+  // }
+
+  @Watch('form', { deep: true, immediate: true })
+  private onFormChange() {
+    this.$nextTick(() => {
+     this.$refs.form && (this.$refs.form as ElForm).validate((valid: boolean) => {
+        this.ifDisabledBtn = valid
+      })
+    })
+  }
 
   async mounted() {
     await this.getLoginState()
@@ -267,6 +284,8 @@ export default class extends Vue {
   }
 
   private handleClose() {
+    (this.$refs.form as any).resetFields()
+    this.form = {}
     this.ifShowSetAccessPassword = false
   }
   private changeLoginDialog() {
@@ -510,12 +529,20 @@ export default class extends Vue {
     &-dialog {
       ::v-deep {
         .el-step__head.is-process {
-          color: #409eff;
-          border-color: #409eff;
+          color: #3d73f5;
+          border-color: #3d73f5;
         }
         .el-step__title.is-process {
-          color: #409eff;
-          border-color: #409eff;
+          color: #3d73f5;
+          border-color: #3d73f5;
+        }
+        .el-step__head.is-success {
+          color: #3d73f5;
+          border-color: #3d73f5;
+        }
+        .el-step__title.is-success {
+          color: #3d73f5;
+          border-color: #3d73f5;
         }
         .el-input__suffix {
           top: 10px;

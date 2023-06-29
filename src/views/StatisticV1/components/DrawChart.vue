@@ -20,11 +20,11 @@ export default class extends Vue {
 
   private chart: any = {}
 
-  private container = 'container'
+  private container: string = 'container'
 
   private currentChart: any = null
 
-  private chartClasss = ''
+  private chartClasss: string = ''
 
   mounted() {
     this.drawChart()
