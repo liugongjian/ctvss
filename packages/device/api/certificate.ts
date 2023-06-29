@@ -100,7 +100,7 @@ export const updateEhomeCertificate = (params: any): Promise<any> =>
 
 export const getEhomeCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181',
+    url: '/certificate/gb28181/describe',
     method: 'get',
     params: {
       ...params,
