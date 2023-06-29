@@ -351,3 +351,16 @@ export const billingType = {
   dayPeak: '按带宽日峰值计费',
   traffic: '按流量计费'
 }
+
+export const CostumColors: any = {
+  '1': {
+    yangshi1: '样式1'
+  },
+  '2': {
+    light: '浅色',
+    blue: '蓝色',
+    red: '红色',
+    dark: '深色',
+    orange: '橘/黄色'
+  }
+}

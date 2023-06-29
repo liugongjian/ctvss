@@ -285,3 +285,35 @@ export const validateShareDirsV1 = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// 设备请求文件生成
+export const generateCsr = (params: any): Promise<any> =>
+  request({
+    url: '/platform/generateCsr',
+    method: 'post',
+    data: params
+  })
+
+// 上传证书
+export const uploadCert = (params: any): Promise<any> =>
+  request({
+    url: '/platform/uploadCert',
+    method: 'post',
+    data: params
+  })
+
+// 下载证书
+export const certDownload = (params: any): Promise<any> =>
+  request({
+    url: '/platform/certDownload',
+    method: 'post',
+    data: params
+  })
+
+// 删除证书
+export const certDelete = (params: any): Promise<any> =>
+  request({
+    url: '/platform/certDelete',
+    method: 'post',
+    data: params
+  })

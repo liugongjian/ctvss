@@ -37,9 +37,9 @@
           <el-radio-button
             v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
             :key="key"
-            :label="value"
+            :label="key"
           >
-            {{ key }}
+            {{ value }}
           </el-radio-button>
         </el-radio-group>
       </el-form-item>
@@ -50,11 +50,55 @@
           type="number"
         />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-        <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
+      <el-form-item v-if="checkVisible(deviceEnum.EnabledGB35114)" prop="enabledGB35114">
+        <template slot="label">
+          GB35114协议:
+          <el-popover
+            placement="top-start"
+            title="GB35114协议"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="启用了GB35114协议，就无需添加GB28181凭证。"
+          >
+            <svg-icon
+              slot="reference"
+              class="form-question"
+              name="help"
+            />
+          </el-popover>
+        </template>
+        <el-switch
+          v-model="videoForm.enabledGB35114"
+          :active-value="true"
+          :inactive-value="false"
+        />
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.EhomeCert)" label="Ehome凭证:" :prop="deviceEnum.EhomeCert">
-        <certificate-select v-model="videoForm.ehomeCert" :type="inVideoProtocolEnum.Ehome" />
+      <el-form-item v-if="checkVisible(deviceEnum.Gb35114Mode)" prop="gb35114Mode">
+        <template slot="label">
+          认证方式:
+          <el-popover
+            placement="top-start"
+            title="认证方式"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            content="若选择单向认证，平台侧需校验下级设备证书；若选择双向认证，下级设备也需同时校验平台侧证书。"
+          >
+            <svg-icon
+              slot="reference"
+              class="form-question"
+              name="help"
+            />
+          </el-popover>
+        </template>
+        <el-radio-group v-model="videoForm.gb35114Mode">
+          <el-radio :label="1">单向认证</el-radio>
+          <el-radio :label="2">双向认证</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" :label="`${dicts['VideoParamLabel'][videoForm.inVideoProtocol][deviceEnum.InUserName]}:`" :prop="deviceEnum.InUserName">
+        <certificate-select v-model="videoForm.inUserName" :type="videoForm.inVideoProtocol" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
         <!-- <el-radio
@@ -249,6 +293,7 @@ import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
 import ServiceConfig from '@vss/device/components/ServiceConfig/index.vue'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'VideoCreateForm',
@@ -265,6 +310,7 @@ export default class extends Vue {
   @Prop({ default: false }) private isIbox: boolean
   @Prop({ default: false }) private isEdit: boolean
   public videoForm: VideoDeviceForm = {}
+  private dicts = dicts
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
@@ -294,10 +340,7 @@ export default class extends Vue {
       { validator: this.validateDeviceChannelSize, trigger: 'blur' }
     ],
     [DeviceEnum.InUserName]: [
-      { required: true, message: '请选择账号', trigger: 'change' }
-    ],
-    [DeviceEnum.EhomeCert]: [
-      { required: true, message: '请选择Ehome凭证', trigger: 'change' }
+      { required: true, message: '请选择凭证', trigger: 'change' }
     ],
     [DeviceEnum.PullUrl]: [
       { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
@@ -363,11 +406,12 @@ export default class extends Vue {
       [DeviceEnum.InVersion]: this.videoInfo.inVersion || '2016',
       [DeviceEnum.DeviceChannelSize]: this.basicInfo.deviceChannelSize || 1,
       [DeviceEnum.InUserName]: this.videoInfo.inUserName,
-      [DeviceEnum.EhomeCert]: this.videoInfo.ehomeCert,
       [DeviceEnum.InType]: this.videoInfo.inType || InTypeEnum.Pull,
       [DeviceEnum.PullUrl]: this.videoInfo.pullUrl,
       [DeviceEnum.UserName]: this.videoInfo.userName,
       [DeviceEnum.Password]: this.videoInfo.password,
+      [DeviceEnum.EnabledGB35114]: this.videoInfo.enabledGB35114,
+      [DeviceEnum.Gb35114Mode]: this.videoInfo.gb35114Mode || 1,
       [DeviceEnum.EnableDomain]: this.videoInfo.enableDomain || 2,
       [DeviceEnum.DeviceDomain]: this.videoInfo.deviceDomain,
       [DeviceEnum.DeviceIp]: this.videoInfo.deviceIp,
@@ -379,7 +423,6 @@ export default class extends Vue {
       [DeviceEnum.StreamTransProtocol]: this.videoInfo.streamTransProtocol || 'tcp',
       [DeviceEnum.OutId]: this.videoInfo.outId,
       [DeviceEnum.Tags]: this.videoInfo.tags,
-      // [DeviceEnum.Resource]: { resourceIds: [], aIApps: [] },
       [DeviceEnum.Resource]: { video: [], aI: [] }
     }
     
@@ -455,7 +498,7 @@ export default class extends Vue {
     this.videoForm.deviceStreamPullIndex = 1
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
-    versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+    versionMap && (this.videoForm.inVersion = Object.keys(versionMap)[0] as string)
     // Temp Commit
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
       this.videoForm.inType = 'push'

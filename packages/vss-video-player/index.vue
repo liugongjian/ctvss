@@ -1,5 +1,6 @@
 <template>
-  <div ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
+  <div :id="playerId" ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
+    <OptLogs v-if="optLogVisiable && deviceInfo.inProtocol === 'gb28181'" :device-id="deviceInfo.deviceId" :player-wrap="playerId" />
     <Player
       ref="player"
       v-adaptive-tools
@@ -38,7 +39,7 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
-        <More :has-axis="hasAxis" :player-wrap="$refs.vssPlayerWrap" />
+        <More :has-axis="hasAxis" :player-wrap="$refs.vssPlayerWrap" @isShow="visiableControl" />
         <slot name="controlBody" />
       </template>
       <template slot="controlRight">
@@ -49,9 +50,13 @@
           :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="type" :codec="codec"
         />
         <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
-        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot v-if="player" :device-info="deviceInfo" :is-live="isLive" />
+        <PtzLock v-if="showPTZLock" ref="ptzLock" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <PtzZoom v-if="showPTZZoom" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <Snapshot v-if="player" :device-info="deviceInfo" :is-live="isLive" :name="deviceInfo.deviceName" />
         <Scale v-if="player" :url="videoUrl" :default-scale="scale" @change="onScaleChange" />
+         <!-- <LiveReplaySelector v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))" :is-live="isLive" @dispatch="dispatch" /> -->
+        <OptLogStarter v-if="optUseable && player && isLive && deviceInfo.inProtocol === 'gb28181'" :opt-log-visiable="optLogVisiable" @showOptLog="showOptLog" />
+        <!-- <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" /> -->
         <LiveReplaySelector
           v-if="hasLiveReplaySelector && (isLive ? checkPermission(['ivs:GetCloudRecord'], permission) : checkPermission(['ivs:GetLiveStream'], permission))"
           :is-live="isLive"
@@ -63,13 +68,15 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch, Inject } from 'vue-property-decorator'
 import Player from '@vss/video-player/index.vue'
 import { TypeEnum, CodecEnum } from '@vss/video-player/enums/index'
 import { PlayerEvent, DeviceInfo, StreamInfo } from './types/VssPlayer'
 import { Player as PlayerModel } from '@vss/video-player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 import './styles/index.scss'
+// import { checkPermission } from '@/utils/permission'
+// import { checkPermission } from '@vss/base/utils/permission' 不直接依赖base包
 /**
  * 子组件库
  */
@@ -83,9 +90,12 @@ import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
+import PtzLock from './components/PtzLock.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
 import More from './components/More.vue'
+import OptLogs from './components/OptLogs.vue'
+import OptLogStarter from './components/OptLogStarter.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -103,7 +113,10 @@ import More from './components/More.vue'
     PtzZoom,
     Intercom,
     LiveReplaySelector,
-    More
+    More,
+    OptLogs,
+    OptLogStarter,
+    PtzLock,
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -111,12 +124,16 @@ import More from './components/More.vue'
   }
 })
 export default class extends Vue {
+  /* 用户权限管理 */
+  /* 视频权限 */
   @Prop({ default: () => null })
   private permission
   /* 权限校验函数 */
   @Prop({ default: () => function() { return true } })
   private checkPermission
 
+  @Inject({ default: () => () => null })
+  public getActions!: Function
   /* 播放器类型 */
   @Prop()
   private type!: TypeEnum
@@ -230,6 +247,15 @@ export default class extends Vue {
 
   /* 编码方式 */
   private CodecEnum = CodecEnum
+   /* 播放器标识 */
+  private playerId = null
+
+  /* 是否显示操作日志信息 */
+  private optLogVisiable = false
+
+  /* 是否显示操作日志信息功能 */
+  private optUseable = true
+
 
   /* 获取转换协议后的URL */
   private get videoUrl() {
@@ -244,6 +270,30 @@ export default class extends Vue {
   /* 播放器容器 */
   private get vssPlayerWrap() {
     return this.$refs.vssPlayerWrap
+  }
+
+  private get showPTZLock() {
+    return this.player &&
+            this.isLive &&
+            (this.deviceInfo.inProtocol === 'gb28181' || this.deviceInfo.inProtocol === 'ehome') &&
+            // @ts-ignore
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            // @ts-ignore
+            this.checkPermission(['ivs:LockDevicePTZ'], this.actions || this.permission)
+  }
+
+  private get showPTZZoom() {
+    return this.player &&
+            this.isLive &&
+            this.deviceInfo.inProtocol === 'gb28181' &&
+            // @ts-ignore
+            this.$store.state.user.tags.disablePTZ !== 'Y' &&
+            // @ts-ignore
+            this.checkPermission(['ivs:ControlDevicePTZ'], this.actions || this.permission)
+  }
+
+  private get actions() {
+    return this.getActions && this.getActions()
   }
 
   /* 获取播放器实例Provide */
@@ -262,6 +312,19 @@ export default class extends Vue {
       eventType: 'setPlaybackRate',
       payload: this.player.playbackRate
     })
+  }
+
+  /**
+   * 监听切换设备后关闭操作日志功能
+   */
+  @Watch('deviceInfo.deviceId')
+  private onDeviceChange() {
+    if (!this.optLogVisiable) return
+    this.showOptLog(!this.optLogVisiable)
+  }
+
+  private created() {
+    this.playerId = (Math.random() * 1000000).toFixed(0)
   }
 
   /**
@@ -348,6 +411,17 @@ export default class extends Vue {
       }
     }
     return _url
+  }
+
+  /* 控制是否显示实时预览操作日志功能 */
+  private visiableControl(isShow: boolean) {
+    // this.optUseable = isShow
+    // if (!isShow) this.optLogVisiable = false // 控件图标不显示，功能也会取消
+  }
+
+  /* 操作日志信息显示控制 */
+  private showOptLog(optLogVisiable) {
+    this.optLogVisiable = optLogVisiable
   }
 }
 </script>

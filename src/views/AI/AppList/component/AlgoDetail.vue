@@ -97,6 +97,7 @@
         :is="formComponent"
         v-if="formComponent && form && (!ifShow('10037') || ifShow('10037') && !isIndustrialDetection)"
         :form="form"
+        :error="errorMsg"
       />
       <el-form-item label="置信度" prop="confidence">
         <el-slider
@@ -273,7 +274,8 @@ export default class extends Mixins(AppMixin) {
       trashRecycleType: [],
       cityGovType: [],
       helmetReflectiveType: [],
-      animalDetectType: ['Bear']
+      animalDetectType: ['Bear'],
+      clothesDetectItems: []
     },
     beeNumber: 1
   }
@@ -292,6 +294,8 @@ export default class extends Mixins(AppMixin) {
   }
   private algoList = []
   private frequency = 1
+
+  private errorMsg = ''
 
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
@@ -426,7 +430,7 @@ export default class extends Mixins(AppMixin) {
         beeNumber: 1,
         alertTriggerThreshold: '1',
         alertPeriod: '0',
-        alertSilencePeriod: '3'
+        alertSilencePeriod: '3',
       }
       if (this.quickFlag) {
         await this.getAlgoList()
@@ -529,9 +533,22 @@ export default class extends Mixins(AppMixin) {
    */
   private onSubmit() {
     const form: any = this.$refs.appForm
+
     form.validate(async (valid: any) => {
-      if (valid) {
+
+      if (this.algoCode !== '10035' && valid){
         this.submitValidAppInfo()
+      }
+      if (this.algoCode === '10035'){
+        const checkCloth = this.checkClothesDetectItems()
+        if (valid && checkCloth){
+          this.submitValidAppInfo()
+          this.errorMsg = ''
+        } else if (checkCloth) {
+          this.errorMsg = ''
+        } else {
+          this.errorMsg = '请勾选检测项'
+        }
       }
     })
   }
@@ -543,7 +560,7 @@ export default class extends Mixins(AppMixin) {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
     // 工业缺陷检测算法需求
-    if (this.isIndustrialDetection) {
+    if (this.isIndustrialDetection && (this.prod?.code === '37' || this.prod?.code === '10037')) {
       algorithmMetadata.cityGovType = ['daoluposun']
     }
     Object.keys(algorithmMetadata).forEach(
@@ -646,6 +663,10 @@ export default class extends Mixins(AppMixin) {
 
   private resetFrequency() {
     this.frequency = 1
+  }
+
+  private checkClothesDetectItems(){
+      return this.form.algorithmMetadata.clothesDetectItems.length !== 0
   }
 }
 </script>

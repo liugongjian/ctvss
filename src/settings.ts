@@ -135,7 +135,6 @@ const settings: ISettings = {
       allowAutoSelected: ['ivs:GetLiveStream'],
       denyAutoSelected: ['ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
       resourceType: ['directory', 'device', 'channel'],
-      version: 'v1'
     },
     {
       actionName: '设备云台锁定',
@@ -143,7 +142,6 @@ const settings: ISettings = {
       actionDesc: '拥有设备云台锁定权限，并展示实时预览菜单',
       allowAutoSelected: ['ivs:ControlDevicePTZ'],
       resourceType: ['directory', 'device', 'channel'],
-      version: 'v1'
     },
     {
       actionName: '设备预置位配置',
@@ -183,7 +181,7 @@ const settings: ISettings = {
       actionDesc: '拥有云端录像文件的锁定权限，并展示录像回放菜单',
       allowAutoSelected: ['ivs:GetCloudRecord'],
       resourceType: ['directory', 'device', 'channel'],
-      version: 'v1'
+      // version: 'v1'
     },
     // 视图级联服务(视图级联服务可放入向上级联，作为一种协议进行控制)
     // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）

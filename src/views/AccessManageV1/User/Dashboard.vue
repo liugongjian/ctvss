@@ -66,7 +66,7 @@
       </div> -->
       </div>
     </el-card>
-    <el-card v-if="ifShowAccess" class="dashboard-wrap-overview__container">
+    <!-- <el-card v-if="ifShowAccess" class="dashboard-wrap-overview__container">
       <h2>访问安全设置</h2>
       <p>开启后，将支持用户使用App端、PC客户端登录</p>
       <el-button type="primary" @click="openPasswordDialog">访问设置</el-button>
@@ -81,7 +81,7 @@
           </p>
         </div>
       </div>
-    </el-card>
+    </el-card> -->
 
     <!-- 非页面主体内容  dialog弹层   -->
     <el-dialog

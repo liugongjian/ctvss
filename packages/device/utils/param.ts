@@ -66,9 +66,16 @@ export function checkVideoVisible(
     if ([DeviceEnum.PushType as string].includes(prop)) return false
   }
 
+  // 是否为非子设备且启用GB35114
+  if ((!this.parentDeviceId || this.parentDeviceId === '-1') && this.enabledGB35114 === true) {
+    if ([DeviceEnum.InUserName as string].includes(prop)) return false
+  } else {
+    if ([DeviceEnum.Gb35114Mode as string].includes(prop)) return false
+  }
+
   // Ehome2.0不需要凭证
   if (this.inVideoProtocol === InVideoProtocolEnum.Ehome && this.inVersion === '2.0') {
-    if ([DeviceEnum.EhomeCert as string].includes(prop)) return false
+    if ([DeviceEnum.InUserName as string].includes(prop)) return false
   }
 
   // 是否自动拉流

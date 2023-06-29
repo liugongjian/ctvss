@@ -259,7 +259,7 @@ export default class extends Vue {
   /* 监听设备变化 */
   @Watch('screen.deviceId')
   /* 监听锁定权限变化 */
-  @Watch('screen.ivsLockCloudRecord')
+  @Watch('screen.LockCloudRecord')
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
   /* 监听录像列表 */
@@ -270,7 +270,7 @@ export default class extends Vue {
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
     // 更新锁定权限，控制锁定功能
-    if ((!UserModule.iamUserId || this.screen.ivsLockCloudRecord) && !this.isDialogTask) {
+    if ((!UserModule.iamUserId || this.screen.LockCloudRecord) && !this.isDialogTask) {
       // can lock
       this.canLock = true
       this.canvas && this.canvas.addEventListener('click', this.onClickLock)

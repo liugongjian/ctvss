@@ -89,6 +89,8 @@ type VideoDevice = {
   [DeviceEnum.PullUrl]?: string
   [DeviceEnum.UserName]?: string
   [DeviceEnum.Password]?: string
+  [DeviceEnum.EnabledGB35114]?: boolean
+  [DeviceEnum.Gb35114Mode]?: number
   [DeviceEnum.DeviceIp]?: string
   [DeviceEnum.DevicePort]?: number
   [DeviceEnum.EnableDomain]?: number // 是否启动域名

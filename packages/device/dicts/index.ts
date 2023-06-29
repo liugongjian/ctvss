@@ -39,8 +39,8 @@ export const VersionByInVideoProtocol = {
     '2016': '2016'
   },
   [enums.InVideoProtocolEnum.Ehome]: {
-    'EHOME2.0': '2.0',
-    'ISUP5.0': '5.0'
+    '2.0': 'EHOME2.0',
+    '5.0': 'ISUP5.0'
   }
 }
 
@@ -156,6 +156,14 @@ export const DeviceStreamPullIndex = {
   1: '主码流',
   2: '子码流',
   3: '第三码流'
+}
+
+/**
+ * 单双向认证
+ */
+export const Gb35114Mode = {
+  1: '单向认证',
+  2: '双向认证'
 }
 
 /**
@@ -439,6 +447,15 @@ export const AlertIcon = {
 export const ViewLibStatus: any = {
   'on': '在线',
   'off': '离线'
+}
+
+/**
+ * GB35114安全等级
+ */
+export const SecurityLevel: any = {
+  1: 'A',
+  2: 'B',
+  3: 'C'
 }
 
 /**

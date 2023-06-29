@@ -150,17 +150,17 @@ export const v2Router: RouteConfig[] = [
           activeMenu: '/viid/up-platform'
         }
       },
-      // {
-      //   path: 'subscribe',
-      //   component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
-      //   name: 'ViidSubscribe',
-      //   meta: {
-      //     title: '订阅通知',
-      //     icon: 'dot',
-      //     perms: ['*'],
-      //     activeMenu: '/viid/subscribe'
-      //   }
-      // },
+      {
+        path: 'subscribe',
+        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+        name: 'ViidSubscribe',
+        meta: {
+          title: '订阅通知',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/subscribe'
+        }
+      },
       {
         path: 'subscribe/create',
         component: () =>
@@ -404,6 +404,43 @@ export const v2Router: RouteConfig[] = [
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'gb35114',
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb35114/index.vue'),
+        name: 'gb35114',
+        meta: {
+          id: '20210424150201007007',
+          name: 'certificate',
+          title: 'GB35114凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/create',
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb35114/Create.vue'),
+        name: 'gb35114-create',
+        meta: {
+          id: '20210424150201007008',
+          title: '新建Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
+        }
+      },
+      {
+        path: 'gb35114/update/:outId?/:certId?',
+        component: () => import(/* webpackChunkName: "certificate" */ '@vss/device/components/Certificate/Gb35114/Create.vue'),
+        name: 'gb35114-update',
+        meta: {
+          id: '20210424150201007006',
+          title: '编辑Gb35114凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/gb35114'
         }
       }
     ]
@@ -1189,35 +1226,34 @@ export const v2Router: RouteConfig[] = [
           perms: ['*']
         }
       },
+      {
+        path: 'custom-tree',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
+        name: 'CustomTree',
+        meta: {
+          title: '自定义设备树',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/custom-tree',
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
       // v2版本会在s5迁移该功能，暂时隐藏
-      // {
-      //   path: 'custom-tree',
-      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/CustomTree/index.vue'),
-      //   name: 'CustomTree',
-      //   meta: {
-      //     title: '自定义设备树',
-      //     breadcrumb: true,
-      //     activeMenu: '/sysconfig/custom-tree',
-      //     icon: 'dot',
-      //     perms: ['*']
-      //   }
-      // },
-      // v2版本会在s5迁移该功能，暂时隐藏
-      // {
-      //   path: 'replay-lock-manage',
-      //   component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
-      //   name: 'ReplayLockManage',
-      //   meta: {
-      //     title: '锁定录像管理',
-      //     breadcrumb: true,
-      //     icon: 'dot',
-      //     perms: ['*'],
-      //     activeMenu: '/sysconfig/replay-lock-manage',
-      //     tags: {
-      //       isRecordLockAvailable: ['Y']
-      //     }
-      //   }
-      // },
+      {
+        path: 'replay-lock-manage',
+        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+        name: 'ReplayLockManage',
+        meta: {
+          title: '锁定录像管理',
+          breadcrumb: true,
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/sysconfig/replay-lock-manage',
+          tags: {
+            isRecordLockAvailable: ['Y']
+          }
+        }
+      },
       {
         path: 'system-config',
         component: () =>

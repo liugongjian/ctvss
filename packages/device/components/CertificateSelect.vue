@@ -86,7 +86,7 @@ export default class extends Vue {
     },
     [InVideoProtocolEnum.Ehome]: {
       api: getEhomeCertificateList,
-      body: 'data',
+      body: 'gbCerts',
       label: 'username',
       value: 'userName'
     }

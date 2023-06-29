@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { isIE } from './browser'
-import { prefixZero } from './number'
+import { isIE } from '@vss/base/utils/browser'
+import { prefixZero } from '@vss/base/utils/number'
 
 type Unit = 's' | 'ms'
 

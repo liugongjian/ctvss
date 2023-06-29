@@ -628,7 +628,8 @@ export const getUserLockList = (params?: any) =>
  */
 export const getDevicePath = (params: any): Promise<any> =>
   request({
-    url: '/device/desc/path',
+    // url: '/device/desc/path',
+    url: '/dir/path',
     method: 'get',
     params
   })

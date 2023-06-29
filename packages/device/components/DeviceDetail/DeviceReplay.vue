@@ -22,7 +22,7 @@ import detailMixin from '@vss/device/mixin/deviceMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  @Inject({ default: () => ({}) })
+  @Inject({ default: () => () => null })
   public getActions!: Function
   private get deviceActions() {
     return this.getActions && typeof this.getActions === 'function' && this.getActions()
