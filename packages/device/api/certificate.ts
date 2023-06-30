@@ -5,39 +5,107 @@ import request from '@/utils/request'
  * Video
  * =============================
  */
+
+/* GB28181 */
 export const getGb28181CertificateList = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/list',
     method: 'get',
-    params
+    params: {
+      ...params,
+      inProtocol: 'gb28181'
+    }
   })
 
 export const createGb28181Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/create',
     method: 'post',
-    data: params
+    data: {
+      ...params,
+      inProtocol: 'gb28181'
+    }
   })
 
 export const deleteGb28181Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/delete',
     method: 'post',
-    data: params
+    data: {
+      ...params,
+      inProtocol: 'gb28181'
+    }
   })
 
 export const updateGb28181Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/update',
     method: 'post',
-    data: params
+    data: {
+      ...params,
+      inProtocol: 'gb28181'
+    }
   })
 
 export const getGb28181Certificate = (params: any): Promise<any> =>
   request({
     url: '/certificate/gb28181/describe',
     method: 'get',
-    params
+    params: {
+      ...params,
+      inProtocol: 'gb28181'
+    }
+  })
+
+/* ehome */
+export const getEhomeCertificateList = (params: any): Promise<any> =>
+  request({
+    url: '/certificate/gb28181/list',
+    method: 'get',
+    params: {
+      ...params,
+      inProtocol: 'ehome'
+    }
+  })
+
+export const createEhomeCertificate = (params: any): Promise<any> =>
+  request({
+    url: '/certificate/gb28181/create',
+    method: 'post',
+    data: {
+      ...params,
+      inProtocol: 'ehome'
+    }
+  })
+
+export const deleteEhomeCertificate = (params: any): Promise<any> =>
+  request({
+    url: '/certificate/gb28181/delete',
+    method: 'post',
+    data: {
+      ...params,
+      inProtocol: 'ehome'
+    }
+  })
+
+export const updateEhomeCertificate = (params: any): Promise<any> =>
+  request({
+    url: '/certificate/gb28181/update',
+    method: 'post',
+    data: {
+      ...params,
+      inProtocol: 'ehome'
+    }
+  })
+
+export const getEhomeCertificate = (params: any): Promise<any> =>
+  request({
+    url: '/certificate/gb28181/describe',
+    method: 'get',
+    params: {
+      ...params,
+      inProtocol: 'ehome'
+    }
   })
 
 /**

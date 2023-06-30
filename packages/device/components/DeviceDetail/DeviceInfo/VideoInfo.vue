@@ -53,7 +53,12 @@
         {{ videoInfo.outId || '-' }}
         <copy-tip :copy-value="videoInfo.outId" />
       </el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.InVersion)" :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
+      <el-descriptions-item
+        v-if="checkVisible(deviceEnum.InVersion)"
+        :label="dicts.VideoParamLabel[inVideoProtocol][deviceEnum.InVersion]"
+      >
+        {{ dicts.VersionByInVideoProtocol[inVideoProtocol][videoInfo.inVersion] || '-' }}
+      </el-descriptions-item>
       <el-descriptions-item v-if="checkVisible(deviceEnum.EnabledGB35114) && videoInfo.enabledGB35114">
         <template slot="label">
           GB35114协议

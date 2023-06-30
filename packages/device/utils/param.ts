@@ -73,6 +73,11 @@ export function checkVideoVisible(
     if ([DeviceEnum.Gb35114Mode as string].includes(prop)) return false
   }
 
+  // Ehome2.0不需要凭证
+  if (this.inVideoProtocol === InVideoProtocolEnum.Ehome && this.inVersion === '2.0') {
+    if ([DeviceEnum.InUserName as string].includes(prop)) return false
+  }
+
   // 是否自动拉流
   if (this.deviceStreamAutoPull === 2) {
     if ([DeviceEnum.DeviceStreamPullIndex as string].includes(prop)) return false

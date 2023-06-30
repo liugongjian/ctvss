@@ -33,6 +33,21 @@
         <el-table-column prop="description" label="描述" min-width="160" show-overflow-tooltip />
         <el-table-column prop="deviceName" label="设备名称" min-width="160" />
         <el-table-column prop="outId" label="国标ID" min-width="200" />
+        <el-table-column prop="cryptoModuleId" label="密码模块ID" min-width="220">
+          <template slot-scope="{ row }">
+            {{ row.cryptoModuleId || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="productionDate" label="生产日期" min-width="160">
+          <template slot-scope="{ row }">
+            {{ row.productionDate || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="moduleType" label="模块类型" min-width="160">
+          <template slot-scope="{ row }">
+            {{ row.moduleType || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="160">
           <template slot-scope="{ row }">
             {{ dateFormat(+row.createTime) }}

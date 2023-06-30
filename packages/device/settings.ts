@@ -27,6 +27,7 @@ export const InVideoProtocolCreateParams = {
   [InVideoProtocolEnum.Ehome]: new Set([
     DeviceEnum.InVideoProtocol,
     DeviceEnum.InVersion,
+    DeviceEnum.InUserName,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.DeviceStreamPullIndex,
@@ -248,6 +249,7 @@ export const ChannelAllowParams = {
     DeviceEnum.DeviceStatus,
     DeviceEnum.StreamStatus,
     DeviceEnum.RecordStatus,
+    DeviceEnum.InUserName,
     DeviceEnum.Bitrate,
     DeviceEnum.ErrorMsg,
     DeviceEnum.DeviceStreamAutoPull,

@@ -37,9 +37,10 @@
           <el-radio-button
             v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
             :key="key"
-            :label="value"
-            :value="key"
-          />
+            :label="key"
+          >
+            {{ value }}
+          </el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.DeviceChannelSize)" label="子设备数量:" :prop="deviceEnum.DeviceChannelSize">
@@ -96,8 +97,8 @@
           <el-radio :label="2">双向认证</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GB28181账号:" :prop="deviceEnum.InUserName">
-        <certificate-select v-model="videoForm.inUserName" :type="inVideoProtocolEnum.Gb28181" />
+      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" :label="`${dicts['VideoParamLabel'][videoForm.inVideoProtocol][deviceEnum.InUserName]}:`" :prop="deviceEnum.InUserName">
+        <certificate-select v-model="videoForm.inUserName" :type="videoForm.inVideoProtocol" />
       </el-form-item>
       <el-form-item v-if="checkVisible(deviceEnum.InType)" label="视频流接入方式:" :prop="deviceEnum.InType">
         <!-- <el-radio
@@ -292,6 +293,7 @@ import CertificateSelect from '@vss/device/components/CertificateSelect.vue'
 import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
 import ServiceConfig from '@vss/device/components/ServiceConfig/index.vue'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'VideoCreateForm',
@@ -308,6 +310,7 @@ export default class extends Vue {
   @Prop({ default: false }) private isIbox: boolean
   @Prop({ default: false }) private isEdit: boolean
   public videoForm: VideoDeviceForm = {}
+  private dicts = dicts
   private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
@@ -337,7 +340,7 @@ export default class extends Vue {
       { validator: this.validateDeviceChannelSize, trigger: 'blur' }
     ],
     [DeviceEnum.InUserName]: [
-      { required: true, message: '请选择账号', trigger: 'change' }
+      { required: true, message: '请选择凭证', trigger: 'change' }
     ],
     [DeviceEnum.PullUrl]: [
       { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
@@ -495,7 +498,7 @@ export default class extends Vue {
     this.videoForm.deviceStreamPullIndex = 1
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
-    versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
+    versionMap && (this.videoForm.inVersion = Object.keys(versionMap)[0] as string)
     // Temp Commit
     if (this.videoForm.inVideoProtocol === InVideoProtocolEnum.Rtmp) {
       this.videoForm.inType = 'push'

@@ -39,7 +39,8 @@ export const VersionByInVideoProtocol = {
     '2016': '2016'
   },
   [enums.InVideoProtocolEnum.Ehome]: {
-    '2.0': '2.0'
+    '2.0': 'EHOME2.0',
+    '5.0': 'ISUP5.0'
   }
 }
 

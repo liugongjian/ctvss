@@ -73,6 +73,7 @@ type VideoDevice = {
   [DeviceEnum.OutId]?: string
   [DeviceEnum.InVersion]?: string
   [DeviceEnum.InUserName]?: string
+  [DeviceEnum.EhomeCert]?: string
   [DeviceEnum.DeviceStreamSize]?: number
   [DeviceEnum.DeviceStreamAutoPull]?: number
   [DeviceEnum.DeviceStreamPullIndex]?: number

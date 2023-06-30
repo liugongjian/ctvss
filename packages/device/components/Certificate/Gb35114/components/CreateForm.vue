@@ -34,6 +34,18 @@
           <span class="form-box-item__title">国标ID：</span>
           <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.outId || '待解析') }}</span>
         </div>
+        <div class="form-box-item">
+          <span class="form-box-item__title">	密码模块ID：</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.cryptoModuleId || '待解析') }}</span>
+        </div>
+        <div class="form-box-item">
+          <span class="form-box-item__title">	生产日期：</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.productionDate || '待解析') }}</span>
+        </div>
+        <div class="form-box-item">
+          <span class="form-box-item__title">模块类型：</span>
+          <span class="form-box-item__content">{{ loading.upload ? '解析中...' : (form.moduleType || '待解析') }}</span>
+        </div>
       </div>
     </el-form-item>
     <!-- <el-form-item label="相关证书文件：" prop="certificate">
@@ -116,6 +128,9 @@ export default class extends Vue {
     fileName: '',
     deviceName: '',
     outId: '',
+    cryptoModuleId: '',
+    productionDate: '',
+    moduleType: '',
     expireTime: new Date(getDateByTime(Date.now()) + 24 * 60 * 60 * 1000),
     // certificate: '',
     description: '',
@@ -159,6 +174,9 @@ export default class extends Vue {
         const res = await describeGb35114Certificate({ outId: this.currentOutId })
         this.form.deviceName = res.deviceName
         this.form.outId = res.outId
+        this.form.cryptoModuleId = res.cryptoModuleId
+        this.form.productionDate = res.productionDate
+        this.form.moduleType = res.moduleType
         this.form.description = res.description
         this.form.expireTime = new Date(res.expireTime * 1000)
         this.expireTimeCache = +res.expireTime
@@ -177,6 +195,9 @@ export default class extends Vue {
     this.ifNeedFile = true
     this.form.outId = ''
     this.form.deviceName = ''
+    this.form.cryptoModuleId = ''
+    this.form.productionDate = ''
+    this.form.moduleType = ''
   }
 
   /**
@@ -190,6 +211,9 @@ export default class extends Vue {
     if (this.selectedFile.size > 8192) {
       this.form.outId = ''
       this.form.deviceName = ''
+      this.form.cryptoModuleId = ''
+      this.form.productionDate = ''
+      this.form.moduleType = ''
       return (this.form.errorTip = '请求文件文件格式错误')
     } else {
       this.form.errorTip = ''
@@ -211,9 +235,15 @@ export default class extends Vue {
             const res = await uploadGb35114Csr({ deviceCsr: fileString })
             this.form.deviceName = res.deviceName
             this.form.outId = res.outId
+            this.form.cryptoModuleId = res.cryptoModuleId
+            this.form.productionDate = res.productionDate
+            this.form.moduleType = res.moduleType
           } catch (e) {
             this.form.outId = ''
             this.form.deviceName = ''
+            this.form.cryptoModuleId = ''
+            this.form.productionDate = ''
+            this.form.moduleType = ''
             this.form.errorTip = e && e.message
           } finally {
             this.loading.upload = false
@@ -291,7 +321,10 @@ export default class extends Vue {
               ...params,
               deviceCsr: this.fileString,
               deviceName: this.form.deviceName,
-              outId: this.form.outId
+              outId: this.form.outId,
+              cryptoModuleId: this.form.cryptoModuleId,
+              productionDate: this.form.productionDate,
+              moduleType: this.form.moduleType
             })
             onSuccess()
           }

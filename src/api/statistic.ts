@@ -27,7 +27,7 @@ export const getRecord = (params: any = {}): Promise<any> =>
 export const getRecordLog = (params: any = {}): Promise<any> =>
   request({
     url: '/statistics/record/log',
-    method: 'get',
+    method: 'post',
     params
   })
 
