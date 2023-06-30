@@ -53,28 +53,20 @@ const validateNumber = (rule, value, callback) => {
   }
 
 const validate7days = (rule, value, callback) => {
-  const date1 = getUnixTime(new Date()) - 7 * 24 * 60 * 60 * 1000
-  const date = new Date(value)
-  if (date > date1){
+  const date7 = (getUnixTime(new Date()) - 7 * 24 * 60 * 60) * 1000
+  const date = new Date(value).getTime()
+  if (date < date7){
     callback(new Error('选择7日内的开始时间'))
-  }
-  if (value < 0) {
-
-    callback(new Error('请输入大于等于0的值'))
   } else {
     callback()
   }
 }
 
 const validate2hours = (rule, value, callback) => {
-  const date1 = getUnixTime(new Date()) - 2 * 60 * 60 * 1000
+  const date2 = (getUnixTime(new Date()) - 2 * 60 * 60) * 1000
   const date = new Date(value).getTime()
-  if (date > date1){
+  if (date > date2){
     callback(new Error('选择2小时前的开始时间'))
-  }
-  if (value < 0) {
-
-    callback(new Error('请输入大于等于0的值'))
   } else {
     callback()
   }
