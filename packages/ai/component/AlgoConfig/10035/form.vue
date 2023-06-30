@@ -20,7 +20,8 @@
         <el-checkbox v-for="(value, key) in colors" :key="key" class="inside-pic" :label="key" border>
           <div class="img">
             <div class="sub-img">
-              <el-image :src="require('@vss/ai/assets/costume/' + key + '.png')" />
+              <!-- <el-image :src="require(`@vss/ai/assets/costume/` + key + '.png')" /> -->
+              <el-image :src="require('../../../assets/costume/' + key + '.png')" />
             </div>
             <div class="label"> {{ value }}</div>
           </div>

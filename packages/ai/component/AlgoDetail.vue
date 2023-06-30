@@ -199,7 +199,7 @@
       <span
         v-if="alertDisabled && !ifShow('10001', '10034', '10016')"
         style="margin-left: 16px"
-        >个
+      >个
       </span>
       <br />
       <el-form-item
