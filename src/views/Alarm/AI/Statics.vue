@@ -160,7 +160,8 @@ export default class extends Vue {
       endDay: format(new Date(), 'yyyy-MM-dd'),
     }
     const res = await getAiStats(param)
-    this.chartDataOrigin = this.chartData = res.statInfo
+
+    this.chartDataOrigin = this.chartData = res.statInfo.map(info => ({ ...info, number: +info.number }))
     this.initChart()
   }
 
@@ -170,7 +171,7 @@ export default class extends Vue {
       endDay: format(new Date(), 'yyyy-MM-dd'),
     }
     const res = await getAiStats(param)
-    this.alarmCounts = res.statInfo
+    this.alarmCounts = res.statInfo.filter(info => +info.number !== 0).sort((a, b) => b.number - a.number)
   }
 
   /**

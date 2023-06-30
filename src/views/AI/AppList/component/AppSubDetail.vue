@@ -24,7 +24,7 @@
     </div> -->
 
       <div class="query-wrapper">
-        <span>截图时间：
+        <span>告警时间：
           <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
             <el-radio-button label="今天" />
             <el-radio-button label="近3天" />
@@ -51,7 +51,7 @@
             />
           </div>
         </span>
-        <span>间隔频率：
+        <!-- <span>间隔频率：
           <div class="time-interval">
             <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
               <el-option
@@ -62,7 +62,7 @@
               />
             </el-select>
           </div>
-        </span>
+        </span> -->
         <span>
           <el-button class="el-button-rect" :disabled="dataLoading" @click="refresh"><svg-icon name="refresh" /></el-button>
         </span>
@@ -124,7 +124,7 @@
       <div v-loading="queryLoading.pic" class="pic-wrapper">
         <div class="title">
           <div class="title-block" />
-          <span>视频截图</span>
+          <span>告警截图</span>
         </div>
         <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <PicCard
@@ -206,7 +206,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
-  private currentLocationIndex: number = -1
+  private currentLocationIndex = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
   private timeInterval = ResultTimeInterval

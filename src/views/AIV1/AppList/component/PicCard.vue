@@ -7,7 +7,7 @@
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
-        <el-descriptions-item label="截图时间">
+        <el-descriptions-item label="告警时间">
           {{ pic.time }}
         </el-descriptions-item>
 

@@ -24,7 +24,7 @@
     </div> -->
 
       <div class="query-wrapper">
-        <span>截图时间：
+        <span>告警时间：
           <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
             <el-radio-button label="今天" />
             <el-radio-button label="近3天" />
@@ -51,7 +51,7 @@
             />
           </div>
         </span>
-        <span>间隔频率：
+        <!-- <span>间隔频率：
           <div class="time-interval">
             <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
               <el-option
@@ -62,7 +62,7 @@
               />
             </el-select>
           </div>
-        </span>
+        </span> -->
         <span>
           <el-button class="el-button-rect" :disabled="dataLoading" @click="refresh"><svg-icon name="refresh" /></el-button>
         </span>

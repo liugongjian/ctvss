@@ -13,7 +13,7 @@
           </el-option>
         </el-select>
         <div>应用名称</div>
-        <el-select v-model="queryParam.appName" placeholder="请选择">
+        <el-select v-model="queryParam.appName" placeholder="请选择" @change="handleChange">
           <el-option
             v-for="app in apps"
             :key="app.id"
@@ -23,7 +23,7 @@
           </el-option>
         </el-select>
         <div>告警时间</div>
-        <el-radio-group v-model="queryParam.periodType" size="medium">
+        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
           <el-radio-button label="近7天" />
@@ -39,15 +39,17 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           :default-time="['00:00:00', '23:59:59']"
+          @change="handleChange"
         />
         <div>置信度</div>
         <el-slider
           v-model="queryParam.confidence"
           range
           :show-input-controls="false"
+          @change="handleChange"
         />
         <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
-        <el-radio-group v-model="pageMode">
+        <el-radio-group v-model="pageMode" @change="handleChange">
           <el-radio-button label="list">
             <svg-icon name="list-mode" />
           </el-radio-button>
@@ -227,95 +229,6 @@ export default class extends Vue {
   }
 
 
-  // private async getScreenShot() {
-  //   this.alarmList = []
-  //   const [startTime, endTime] = this.queryParam.period
-  //   const [confidenceMin, confidenceMax] = this.queryParam.confidence
-  //   const deviceId: any = '682033951851757568'
-  //   const inProtocol = 'rtmp'
-  //   const { pageNum, pageSize } = this.pager
-  //   const query = {
-  //     startTime: Math.floor(startTime / 1000),
-  //     endTime: Math.floor(endTime / 1000),
-  //     confidenceMin,
-  //     confidenceMax,
-  //     // faceDb: this.faceLib.id,
-  //     // faceIdList: this.queryParam.faceSelected,
-  //     resultTimeInterval: this.queryParam.resultTimeInterval,
-  //     appId: '559',
-  //     // deviceId: deviceId === 'all' ? undefined : deviceId,
-  //     deviceId: deviceId === 'all' ? undefined : deviceId,
-  //     inProtocol,
-  //     pageNum,
-  //     pageSize }
-  //   try {
-  //     // this.queryLoading.pic = true
-  //     // const res = await getAppScreenShot(query)
-  //     // this.pager.totalNum = res.totalNum
-  //     const attr =   {
-  //               'Gender': {
-  //                   'Name': '男',
-  //                   'Score': 0.996
-  //               },
-  //               'FaceMask': {
-  //                   'Name': '无口罩',
-  //                   'Score': 0.9737
-  //               },
-  //               'Attachment': {
-  //                   'Name': '无携带物',
-  //                   'Score': 0.9914
-  //               },
-  //               'Age': {
-  //                   'Name': '十八岁到六十岁',
-  //                   'Score': 0.9976
-  //               },
-  //               'Direction': {
-  //                   'Name': '侧向',
-  //                   'Score': 0.9975
-  //               },
-  //               'UpperWear': {
-  //                   'Name': '长袖',
-  //                   'Score': 0.9991
-  //               },
-  //               'LowerWear': {
-  //                   'Name': '下装-不确定',
-  //                   'Score': 0.8744
-  //               },
-  //               'UpperColor': {
-  //                   'Name': '上装-黑色',
-  //                   'Score': 0.9998
-  //               },
-  //               'LowerColor': {
-  //                   'Name': '下装-颜色不确定',
-  //                   'Score': 0.8744
-  //               },
-  //               'Hat': {
-  //                   'Name': '',
-  //                   'Score': 0
-  //               },
-  //               'Glass': {
-  //                   'Name': '',
-  //                   'Score': 0
-  //               }
-  //           }
-  //     const list = [{
-  //       algoCode: '10009', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=fd43a591f5167d275c8f269a30f9ab96848bdd954f847eefde580a01be2add36'
-  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
-  //       attributesLabel: attr
-  //     }, {
-  //        algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162445-08d90408-0018-4241-873f-433c5fc721f8.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e2fc63f1f3720fa761b1bf78bdfaa1367eadf06f1120080221df5976144feb1a'
-  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
-  //       attributesLabel: attr
-  //     }]
-  //     this.alarmList = list
-  //   } catch (e) {
-  //     // 异常处理
-  //     console.log(e)
-  //   } finally {
-  //     // this.queryLoading.pic = false
-  //   }
-  // }
-
   private destroyed() {
     this.timer && clearInterval(this.timer)
   }
@@ -385,6 +298,10 @@ export default class extends Vue {
       this.$message.error(e)
     }
 
+  }
+
+  private handleChange(){
+    this.refresh()
   }
 
   private rowClick(row){

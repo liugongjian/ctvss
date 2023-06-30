@@ -1,7 +1,10 @@
 <template>
-  <component :is="container" title="实时告警信息">
-    <div ref="chart" :style="`height:${height}vh`" />
-  </component>
+  <div>
+    <component :is="container" title="实时告警信息">
+      <div ref="chart" :style="`height:${height}vh`" />
+      <slot name="footer"></slot>
+    </component>
+  </div>
 </template>
 
 <script lang="ts">
@@ -21,6 +24,8 @@ import { getAiStats } from '@/api/ai-app'
 export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
+
+  private showChart = true
 
   @Prop({ default: false })
   private isLight?: boolean
@@ -44,7 +49,11 @@ export default class extends Mixins(DashboardMixin) {
     }
     const res = await getAiStats(param)
     this.alarmCounts = res.statInfo
-    this.chartData = this.alarmCounts.map(alarm => { return { type: alarm.algoName, value: alarm.number } })
+
+    const data = this.alarmCounts.map(alarm => { return { type: alarm.algoName, value: +alarm.number } })
+    const dataAbove0 = data.filter(item => +item.value > 0 )
+    const res1 = dataAbove0.sort((a, b) => b.value - a.value)
+    this.chartData = res1
     this.chart ? this.updateChart() : this.drawChart()
     this.updateChart()// update，否则第一次加载图标后显示缺少色块
   }

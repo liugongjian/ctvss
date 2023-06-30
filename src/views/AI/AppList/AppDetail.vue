@@ -22,7 +22,7 @@
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
           <div class="app-container__result__device">
-            <span>设备:</span>
+            <span>设备名称:</span>
             <el-select
               v-model="device"
               placeholder="请选择"
@@ -88,7 +88,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   public get isIndustrialDetection() {
     return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
-  
+
     /**
    * 生成检测项数据
    */
@@ -145,7 +145,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
         break
     }
-    
+
     return app
   }
 

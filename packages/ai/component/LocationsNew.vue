@@ -79,7 +79,13 @@ export default class extends Vue {
   }
 
   private getImageLabel(img){
-    Object.keys(img.imageLabel).forEach(k => { this.imageLabel = k + (img.imageLabel[k].length > 0 ? ':' : '') + img.imageLabel[k] + '\n' })
+    this.imageLabel = ''
+    console.log('img:', img)
+    this.$nextTick(() => {
+      Object.keys(img.imageLabel).forEach(k => { this.imageLabel += k + (img.imageLabel[k].length > 0 ? ':' : '') + img.imageLabel[k] + '\n' })
+      console.log('this.imageLabel:', this.imageLabel)
+    })
+
   }
 
   private getOcr(img){
@@ -121,7 +127,7 @@ export default class extends Vue {
         let infoStr = ''
         if (img.boxLabels.length > 0){
           const info = img.boxLabels[i / 4].info
-          Object.keys(info).forEach(o => { infoStr = o + (info[o].length > 0 ? ':' : '' ) + info[o] + '\n' })
+          Object.keys(info).forEach(o => { infoStr += o + (info[o].length > 0 ? ':' : '' ) + info[o] + '\n' })
         }
         detectBoxes.push({
           top: img.detectBoxes[i + 1],
@@ -131,7 +137,6 @@ export default class extends Vue {
           boxLabel: infoStr
         })
        }
-       console.log('detectBoxes:', detectBoxes)
 
        this.detectBoxes = detectBoxes.map(box => {
           const location = {

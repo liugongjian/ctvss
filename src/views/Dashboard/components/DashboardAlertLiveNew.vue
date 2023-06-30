@@ -15,6 +15,7 @@
           </div>
         </li>
       </ul>
+      <slot name="footer"></slot>
       <audio ref="audio" :src="alertFile" preload="auto" />
       <PicDialogue v-if="dialog" :alarms="list" :current-index.sync="currentIndex" :visible.sync="dialog" />
     </div>

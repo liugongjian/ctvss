@@ -7,6 +7,7 @@
       </div>
       <slot />
     </el-card>
+    <div slot="footer"></div>
   </div>
 </template>
 
