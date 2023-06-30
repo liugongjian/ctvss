@@ -1179,10 +1179,10 @@ export const v1Router: RouteConfig[] = [
       title: '车载监控管理',
       breadcrumb: true,
       icon: 'menu-car',
-      // perms: ['ivs:AdminCar'],
-      // tags: {
-      //   'isCarShow': ['true']
-      // },
+      perms: ['ivs:AdminCar'],
+      tags: {
+        'isCarShow': ['true']
+      },
       version: 1
     },
     children: [
@@ -1195,7 +1195,7 @@ export const v1Router: RouteConfig[] = [
           title: '车载监控管理',
           breadcrumb: false,
           icon: 'car',
-          // perms: ['ivs:AdminCar']
+          perms: ['ivs:AdminCar']
         }
       }
     ]
