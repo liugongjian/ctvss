@@ -90,7 +90,7 @@ export default class extends Mixins(DashboardMixin) {
       let list = []
       this.loading = true
       const param = {
-        startTime: (this.getDateBefore(1) / 1000).toFixed(),
+        startTime: (new Date(new Date().setHours(0, 0, 0, 0)).getTime() / 1000).toFixed(),
         endTime: (new Date().getTime() / 1000).toFixed(),
         pageSize: 5,
         pageNum: 1

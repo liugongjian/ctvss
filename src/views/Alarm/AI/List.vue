@@ -193,14 +193,15 @@ export default class extends Vue {
 
   private async getApps(){
     const all = [{ id: '0', name: '全部' }]
-    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId, pageSize: 3000 })
+    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId || undefined, pageSize: 3000 })
+    console.log('aiApps:', aiApps)
     all.push(...aiApps)
     this.apps = all
   }
 
   private async getAlgoTypes(){
     const all = [{ code: '0', name: '全部' }]
-    const { aiAbilityAlgorithms } = await getAlgorithmList({ deviceId: this.$route.query.deviceId, pageSize: 3000 })
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ deviceId: this.$route.query.deviceId || undefined, pageSize: 3000 })
     all.push(...aiAbilityAlgorithms)
     this.algoTypes = all
   }

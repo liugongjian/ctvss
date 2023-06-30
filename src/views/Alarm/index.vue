@@ -71,6 +71,7 @@ export default class extends Mixins(layoutMxin) {
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
     const { id } = data || {}
+    console.log('data:', data)
     const router = {
       name: 'AlarmList',
       query: {

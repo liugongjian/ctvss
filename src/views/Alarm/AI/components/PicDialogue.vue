@@ -6,14 +6,14 @@
     @close="dialogueClose"
   >
     <div slot="title">{{ dialoguePic && dialoguePic.algoName }} | {{ dialoguePic && dialoguePic.captureTime && format(fromUnixTime(dialoguePic.captureTime), 'HH:mm:ss yyyy-MM-dd') }}</div>
-    <div class="ai-recognation__images__item__arrow" @click="changePic(-1)"><i class="el-icon-arrow-left" /></div>
+    <div v-if="currentIndex > 0" class="ai-recognation__images__item__arrow" @click="changePic(-1)"><i class="el-icon-arrow-left" /></div>
     <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img centered">
       <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
         <img v-if="dialoguePic" ref="dialoguePic" :src="dialoguePic.image" @load="onload" />
         <LocationsNew v-if="picRatio.ratioW && dialoguePic" :img="dialoguePic" :ratio="picRatio" :clickable="true" @click-location="onLocationChanged" />
       </div>
     </div>
-    <div class="ai-recognation__images__item__arrow" @click="changePic(1)"><i class="el-icon-arrow-right" /></div>
+    <div v-if="currentIndex < alarms.length - 1" class="ai-recognation__images__item__arrow" @click="changePic(1)"><i class="el-icon-arrow-right" /></div>
     <AttributesNew
       v-if="dialoguePic && dialoguePic.algoCode === '10009'"
       class="ai-image-fullscreen__img--attributes"

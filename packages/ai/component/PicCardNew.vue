@@ -30,7 +30,7 @@
           </el-tooltip>
         </el-descriptions-item>
         <el-descriptions-item label="告警时间">
-          {{ pic.captureTime }}
+          {{ format(fromUnixTime(pic.captureTime), 'yyyy-MM-dd HH:mm:ss') }}
         </el-descriptions-item>
 
         <el-descriptions-item label="置信度">
@@ -45,9 +45,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@vss/ai/util/base64'
 import Locations from './Locations.vue'
 import Attributes from './Attributes.vue'
-import { transformLocationAi } from '@vss/ai/util/ai'
-import AlgoConfigs from './AlgoConfig'
-import { MetaRef, EventTypeToCode } from '../dics/index'
+import { format, fromUnixTime } from 'date-fns'
 
 @Component({
   name: 'PicCardNew',
@@ -62,6 +60,9 @@ export default class extends Vue {
   private picInfo = null
   private isPicLoaded = true
   private decodeBase64: Function = decodeBase64
+
+  private format = format
+  private fromUnixTime = fromUnixTime
 
   private nopic() {
     const img: any = this.$refs.img

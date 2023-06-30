@@ -24,9 +24,9 @@
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${ratio.imgNaturalWidth} ${ratio.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
         <polygon :points="box.points" />
       </svg>
-      <div class="label">
-        {{ box.label }}
-      </div>
+      <svg class="ocr_text" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${ratio.imgNaturalWidth} ${ratio.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
+        <text :x="box.x" :y="box.y" fill="yellow">{{ box.label }}</text>
+      </svg>
     </div>
     <div v-if="imageLabel.length > 0" class="ai-recognation__images__item__count">
       <span>
@@ -88,8 +88,10 @@ export default class extends Vue {
                   + img.ocrBoxes[i + 2] + ' ' + img.ocrBoxes[i + 3] + ','
                   + img.ocrBoxes[i + 4] + ' ' + img.ocrBoxes[i + 5] + ','
                   + img.ocrBoxes[i + 6] + ' ' + img.ocrBoxes[i + 7]
+
       const label = Object.keys(img.boxLabels[i / 8].info)
-      this.ocrBoxes.push({ points: sub, label: label[i / 8] })
+
+      this.ocrBoxes.push({ points: sub, label: label[0 / 8 ], x: img.ocrBoxes[i], y: img.ocrBoxes[i + 1] })
     }
     console.log('this.ocrBoxes:', this.ocrBoxes)
   }
@@ -207,6 +209,12 @@ export default class extends Vue {
             stroke-width: 6px;
           }
         }
+        .ocr_text{
+          position:absolute;
+          top: 0;
+          left: 0;
+        }
+
       }
 
       // 冲压机
