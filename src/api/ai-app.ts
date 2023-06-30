@@ -139,3 +139,34 @@ export const activatePhone = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getAiChannels = (params: any): Promise<any> =>
+  request({
+    url: '/ai/stat/algos',
+    method: 'get',
+    params
+  })
+
+export const getAiAlarms = (params: any): Promise<any> =>
+  request({
+    url: '/ai/results',
+    method: 'get',
+    params
+  })
+
+export const getAiStats = (params: any): Promise<any> =>
+  request({
+    url: '/ai/stat/results',
+    method: 'post',
+    data: params
+  })
+
+export const getAiAlgoTypes = (params: any): Promise<any> =>
+  request({
+    url: '/ai/stat/results/config',
+    method: 'get',
+    params
+  })
+
+
+

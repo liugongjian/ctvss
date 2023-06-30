@@ -941,6 +941,37 @@ export const v2Router: RouteConfig[] = [
         ]
       },
       {
+        path: 'ai-alarm',
+        component: () =>
+          import(/* webpackChunkName: "alarm" */ '@/views/Alarm/AI/index.vue'),
+        name: 'AiAlarm',
+        meta: {
+          title: 'AI告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: false
+        },
+        children: [
+          {
+            path: '',
+            component: () =>
+              import(
+                /* webpackChunkName: "alarm" */ '@/views/Alarm/AI/List.vue'
+              ),
+            name: 'AIAlarmList',
+            meta: {
+              title: 'AI告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/ai-alarm',
+              groupSelector: false
+            }
+          }
+        ]
+      },
+      {
         path: 'statistic',
         component: () =>
           import(

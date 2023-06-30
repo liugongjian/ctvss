@@ -80,7 +80,7 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
-    if (data.type === 'ipc'){
+    if (data.type === 'ipc' || data.id === ''){
       const { id } = data || {}
       const router = {
         name: 'AIAlarmList',
@@ -159,5 +159,8 @@ export default class extends Mixins(layoutMxin) {
     text-align: center;
     line-height: 10vh;
     height: 10vh;
+  }
+  .common-layout__right__body{
+    overflow: auto;
   }
 </style>

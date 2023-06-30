@@ -2,24 +2,28 @@
   <div ref="listWrap" class="min-contaniner">
     <div class="filter-container clearfix">
       <div ref="filterWrap" class="filter-container__right">
-        <div>算法类型</div>
-        <el-select v-model="value" placeholder="请选择">
+        <div v-if="showAlgoType">算法类型</div>
+        <el-select v-if="showAlgoType" v-model="queryParam.algoType" placeholder="请选择" @change="algoTypeChange">
           <el-option
-            label="全部"
-            value="all"
+            v-for="type in algoTypes"
+            :key="type.code"
+            :label="type.name"
+            :value="type.code"
           >
           </el-option>
         </el-select>
         <div>应用名称</div>
-        <el-select v-model="value" placeholder="请选择">
+        <el-select v-model="queryParam.appName" placeholder="请选择">
           <el-option
-            label="全部"
-            value="all"
+            v-for="app in apps"
+            :key="app.id"
+            :label="app.name"
+            :value="app.id"
           >
           </el-option>
         </el-select>
         <div>告警时间</div>
-        <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+        <el-radio-group v-model="queryParam.periodType" size="medium">
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
           <el-radio-button label="近7天" />
@@ -27,27 +31,28 @@
           <el-radio-button label="自定义时间" />
         </el-radio-group>
         <el-date-picker
-          v-if="period.periodType === '自定义时间'"
-          v-model="period.period"
+          v-if="queryParam.periodType === '自定义时间'"
+          v-model="queryParam.period"
           type="daterange"
           value-format="timestamp"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          @change="handleChange"
+          :default-time="['00:00:00', '23:59:59']"
         />
         <div>置信度</div>
         <el-slider
-          v-model="confidence"
+          v-model="queryParam.confidence"
+          range
           :show-input-controls="false"
         />
         <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         <el-radio-group v-model="pageMode">
           <el-radio-button label="list">
-            <i class="el-icon-s-operation" />
+            <svg-icon name="list-mode" />
           </el-radio-button>
           <el-radio-button label="card">
-            <i class="el-icon-menu" />
+            <svg-icon name="pic-mode" />
           </el-radio-button>
         </el-radio-group>
       </div>
@@ -55,62 +60,64 @@
     <el-table
       v-if="pageMode === 'list'"
       ref="table"
-      v-loading="loading"
-      :height="maxHeight - 200"
       :data="alarmList"
       fit
       class="template__table"
       empty-text="暂无告警信息"
-      @row-click="1"
-      @filter-change="filterChange"
-      @sort-change="sortChange"
+      @row-click="rowClick"
     >
-      <el-table-column label="应用名称" prop="deviceName" />
-      <el-table-column label="算法类型" prop="deviceName" />
+      <el-table-column label="应用名称" prop="appName" />
+      <el-table-column label="算法类型" prop="algoName" />
       <el-table-column label="设备名称" prop="deviceName" />
-      <el-table-column label="告警时间" prop="deviceName" />
-      <el-table-column label="置信度" prop="deviceName" />
+      <el-table-column label="告警时间" prop="captureTime">
+        <template slot-scope="{ row }">
+          {{ format(fromUnixTime(row.captureTime), 'yyyy-MM-dd HH:mm:ss') }}
+        </template>
+      </el-table-column>
+      <el-table-column label="置信度" prop="confidence">
+        <template slot-scope="{ row }">
+          {{ row.confidence * 100 }}
+        </template>
+      </el-table-column>
       <el-table-column
-        min-width="240"
         label="告警截图"
       >
         <template slot-scope="{ row }">
-          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) || '-' }}
+          <el-image :src="row.imageThumbnail" />
         </template>
       </el-table-column>
     </el-table>
-
+    <CardList v-if="pageMode === 'card'" :alarms="alarmList" />
     <el-pagination
-      v-if="pageMode === 'list'"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
-      :total="pager.total"
+      :total="pager.totalNum"
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-    <CardList v-if="pageMode === 'card'" />
+    <PicDialogue v-if="dialogueVisibile" :alarms="alarmList" :current-index.sync="currentIndex" :visible.sync="dialogueVisibile" />
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
 import CardList from './CardList.vue'
+import PicDialogue from './components/PicDialogue.vue'
+import { getAppList, getAlgorithmList, getAiAlarms } from '@/api/ai-app'
+import { getTime } from 'date-fns'
+import { format, fromUnixTime } from 'date-fns'
+
 
 @Component({
   name: 'alarm-list',
   components: {
-    CardList
+    CardList,
+    PicDialogue
   }
 })
 export default class extends Vue {
-  @Prop() private maxHeight
   @Prop({ default: '' }) private groupId!: string
-  private loading = false
-  private showViewBindDialog = false
-  private currentTemplateId: any = ''
   private selectedDeviceList: any = []
-  private observer: any = null
   private searchFrom: any = {
     deviceName: '',
     timeRange: null,
@@ -119,149 +126,195 @@ export default class extends Vue {
     sortBy: '',
     sortDirection: ''
   }
-  private filtersArray: any = {
-    alarmPriority: [
-      { text: '一级警情', value: '1' },
-      { text: '二级警情', value: '2' },
-      { text: '三级警情', value: '3' },
-      { text: '四级警情', value: '4' }
-    ],
-    alarmMethod: [
-      { text: '电话报警', value: '1' },
-      { text: '设备报警', value: '2' },
-      { text: '短信报警', value: '3' },
-      { text: 'GPS报警', value: '4' },
-      { text: '视频报警', value: '5' },
-      { text: '设备故障报警', value: '6' },
-      { text: '其他报警', value: '7' }
-    ]
+
+  private dialogueVisibile = false
+
+  private format = format
+  private fromUnixTime = fromUnixTime
+
+  private queryParam: any = {
+    algoType: '0',
+    appName: '0',
+    periodType: '今天',
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+    confidence: [0, 100],
+    faceSelected: [],
+    resultTimeInterval: 1
   }
-  private alarmPriorityOptions: any = [
-    { label: '一级警情', value: '1' },
-    { label: '二级警情', value: '2' },
-    { label: '三级警情', value: '3' },
-    { label: '四级警情', value: '4' }
-  ]
-  private alarmMethodOptions: any = [
-    {
-      value: '1',
-      label: '电话报警'
-    },
-    {
-      value: '2',
-      label: '设备报警',
-      children: [
-        { value: '1', label: '视频丢失报警' },
-        { value: '2', label: '设备防拆报警' },
-        { value: '3', label: '存储设备磁盘满报警' },
-        { value: '4', label: '设备高温报警' },
-        { value: '5', label: '设备低温报警' }
-      ]
-    },
-    {
-      value: '3',
-      label: '短信报警'
-    },
-    {
-      value: '4',
-      label: 'GPS报警'
-    },
-    {
-      value: '5',
-      label: '视频报警',
-      children: [
-        { value: '1', label: '人工视频报警' },
-        { value: '2', label: '运动目标检测报警' },
-        { value: '3', label: '遗留物检测报警' },
-        { value: '4', label: '物体移除检测报警' },
-        { value: '5', label: '绊线检测报警' },
-        { value: '6', label: '入侵检测报警' },
-        { value: '7', label: '逆行检测报警' },
-        { value: '8', label: '徘徊检测报警' },
-        { value: '9', label: '流量统计报警' },
-        { value: '10', label: '密度检测报警' },
-        { value: '11', label: '视频异常检测报警' },
-        { value: '12', label: '快速移动报警' }
-      ]
-    },
-    {
-      value: '6',
-      label: '设备故障报警',
-      children: [
-        { value: '1', label: '存储设备磁盘故障报警' },
-        { value: '2', label: '存储设备风扇故障报警' }
-      ]
-    },
-    {
-      value: '7',
-      label: '其他报警'
-    }
-  ]
+
   private alarmList: any = []
   private timer: any = null
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 0
-  }
-
-  public period: any = {
-    periodType: '今天',
-    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+    totalNum: 0
   }
 
   private confidence = 0
 
   private pageMode = 'list'
 
-  @Watch('period.periodType')
+  private currentIndex = 0
+
+  private apps = []
+
+  private algoTypes = []
+
+  private get showAlgoType(){
+    return this.$route.query.deviceId === '' || !this.$route.query.deviceId
+  }
+
+
+  @Watch('queryParam.periodType')
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
         break
       case '近7天':
-        this.period.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
         break
       case '近30天':
-        this.period.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
 
-  @Watch('$route.query', { deep: true })
+  @Watch('$route.query', { deep: true, immediate: true })
   public onRouterChange() {
-    this.searchFrom = {
-      deviceName: '',
-      timeRange: null,
-      alarmPriority: [],
-      alarmMethod: [],
-      sortBy: '',
-      sortDirection: ''
-    }
-    this.pager = {
-      pageNum: 1,
-      pageSize: 10,
-      total: 0
-    }
-    const tableDom: any = this.$refs.table
-    tableDom.clearSort()
-    tableDom.clearFilter()
-    // this.$route.query.inProtocol && this.getList()
-    // this.getList()
-    this.timer && clearInterval(this.timer)
-    this.getList()
-    this.setTimer()
+    // this.getScreenShot()
+    this.getAiAlarms()
+    this.getApps()
+    this.showAlgoType && this.getAlgoTypes()
   }
 
-  private mounted() {
-    // this.$route.query.inProtocol && this.getList()
-    this.getList()
-    this.setTimer()
+  private async getApps(){
+    const all = [{ id: '0', name: '全部' }]
+    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId || undefined, pageSize: 3000 })
+    all.push(...aiApps)
+    this.apps = all
   }
+
+  private async getAlgoTypes(){
+    const all = [{ code: '0', name: '全部' }]
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ deviceId: this.$route.query.deviceId || undefined, pageSize: 3000 })
+    all.push(...aiAbilityAlgorithms)
+    this.algoTypes = all
+  }
+
+
+  private async getAiAlarms(){
+    const [startTime, endTime] = this.queryParam.period
+    const param = {
+      appID: this.queryParam.appName === '0' ? undefined : this.queryParam.appName,
+      algoCode: this.queryParam.algoType === '0' ? undefined : this.queryParam.algoType,
+      deviceID: this.$route.query.deviceId,
+      confidenceMin: this.queryParam.confidence[0] / 100,
+      confidenceMax: this.queryParam.confidence[1] / 100,
+      startTime: (startTime / 1000).toFixed(),
+      endTime: (endTime / 1000).toFixed(),
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize,
+    }
+    const res = await getAiAlarms(param)
+    this.alarmList = res.analysisResults
+    this.pager.pageNum = res.pageNum
+    this.pager.pageSize = res.pageSize
+    this.pager.totalNum = res.totalNum
+  }
+
+
+  // private async getScreenShot() {
+  //   this.alarmList = []
+  //   const [startTime, endTime] = this.queryParam.period
+  //   const [confidenceMin, confidenceMax] = this.queryParam.confidence
+  //   const deviceId: any = '682033951851757568'
+  //   const inProtocol = 'rtmp'
+  //   const { pageNum, pageSize } = this.pager
+  //   const query = {
+  //     startTime: Math.floor(startTime / 1000),
+  //     endTime: Math.floor(endTime / 1000),
+  //     confidenceMin,
+  //     confidenceMax,
+  //     // faceDb: this.faceLib.id,
+  //     // faceIdList: this.queryParam.faceSelected,
+  //     resultTimeInterval: this.queryParam.resultTimeInterval,
+  //     appId: '559',
+  //     // deviceId: deviceId === 'all' ? undefined : deviceId,
+  //     deviceId: deviceId === 'all' ? undefined : deviceId,
+  //     inProtocol,
+  //     pageNum,
+  //     pageSize }
+  //   try {
+  //     // this.queryLoading.pic = true
+  //     // const res = await getAppScreenShot(query)
+  //     // this.pager.totalNum = res.totalNum
+  //     const attr =   {
+  //               'Gender': {
+  //                   'Name': '男',
+  //                   'Score': 0.996
+  //               },
+  //               'FaceMask': {
+  //                   'Name': '无口罩',
+  //                   'Score': 0.9737
+  //               },
+  //               'Attachment': {
+  //                   'Name': '无携带物',
+  //                   'Score': 0.9914
+  //               },
+  //               'Age': {
+  //                   'Name': '十八岁到六十岁',
+  //                   'Score': 0.9976
+  //               },
+  //               'Direction': {
+  //                   'Name': '侧向',
+  //                   'Score': 0.9975
+  //               },
+  //               'UpperWear': {
+  //                   'Name': '长袖',
+  //                   'Score': 0.9991
+  //               },
+  //               'LowerWear': {
+  //                   'Name': '下装-不确定',
+  //                   'Score': 0.8744
+  //               },
+  //               'UpperColor': {
+  //                   'Name': '上装-黑色',
+  //                   'Score': 0.9998
+  //               },
+  //               'LowerColor': {
+  //                   'Name': '下装-颜色不确定',
+  //                   'Score': 0.8744
+  //               },
+  //               'Hat': {
+  //                   'Name': '',
+  //                   'Score': 0
+  //               },
+  //               'Glass': {
+  //                   'Name': '',
+  //                   'Score': 0
+  //               }
+  //           }
+  //     const list = [{
+  //       algoCode: '10009', captureTime: 1685514698, appName: 'app1', algoName: 'xxx', deviceName: '的', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-164045-e4ef7e8f-9e0b-4ab2-8611-af509622efb9.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=fd43a591f5167d275c8f269a30f9ab96848bdd954f847eefde580a01be2add36'
+  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
+  //       attributesLabel: attr
+  //     }, {
+  //        algoCode: '10014', captureTime: 1685514698, appName: 'app2', algoName: 'xxx', deviceName: 'd2', image: 'https://vaas.cn-guianxinqu-1.ctyunxs.cn/vss-test-refactor-rai_test01-1/682033951851757568/ai/2023-03-10/20230310-162445-08d90408-0018-4241-873f-433c5fc721f8.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=1ZMJJ907IRQO5R2C4G6S%2F20230627%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20230627T022454Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e2fc63f1f3720fa761b1bf78bdfaa1367eadf06f1120080221df5976144feb1a'
+  //       , detectBoxes: [867, 346, 287, 403 ], boxLabels: [{ info: { MatchPicUrl: 'xxx' } } ], imageLabel: { '离岗': '' }, ocrBoxes: [867, 346, 287, 403, 867, 346, 287, 403], detectArea: [21, 32, 434, 23, 231, 424, 55],
+  //       attributesLabel: attr
+  //     }]
+  //     this.alarmList = list
+  //   } catch (e) {
+  //     // 异常处理
+  //     console.log(e)
+  //   } finally {
+  //     // this.queryLoading.pic = false
+  //   }
+  // }
 
   private destroyed() {
     this.timer && clearInterval(this.timer)
@@ -283,94 +336,6 @@ export default class extends Vue {
     }, 5000)
   }
 
-  private async getList(forbitLoading?: boolean) {
-    const params: any = {
-      // inProtocol: this.$route.query.inProtocol,
-      deviceName: this.searchFrom.deviceName,
-      startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
-      endTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[1].getTime() : '',
-      sortBy: this.searchFrom.sortBy,
-      sortDirection: this.searchFrom.sortDirection,
-      pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize,
-      inProtocol: this.$route.query.inVideoProtocol || 'gb28181'
-    }
-    const type = this.$route.query.type
-    if (type !== 'ipc' && type !== 'nvr') {
-      // 目录级别
-      params.dirId = this.$route.query.dirId
-      if (typeof(this.$route.query.type) === 'undefined') {
-        // 根目录
-        params.dirId = '0'
-      }
-    } else {
-      // 设备级别
-      params.deviceId = this.$route.query.deviceId
-    }
-    try {
-      !forbitLoading && (this.loading = true) && (this.alarmList = [])
-      const res: any = await getAlarmRules(params)
-      this.$nextTick(() => {
-        this.alarmList = res.alarms
-        this.pager.total = res.totalNum
-      })
-    } catch (e) {
-      this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
-    } finally {
-      this.loading = false
-    }
-  }
-  private getLabel(type: string, value: any) {
-    let arr: any = []
-    switch (type) {
-      case 'alarmPriority':
-        arr.push(value)
-        break
-      case 'alarmMethod':
-        arr.push(value)
-        break
-      case 'alarmType':
-        arr = (() => {
-          const key = value.split('-')[0]
-          const obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
-          if (obj) {
-            return obj.children
-          } else {
-            return undefined
-          }
-        })()
-        break
-    }
-    if (!arr) return undefined
-    if (type === 'alarmType') {
-      const obj = arr.find((item: any) => item.value === value.split('-')[1])
-      if (obj) {
-        return obj.label
-      } else {
-        return undefined
-      }
-    } else {
-      let res: any = arr.map((str: any) => {
-        const obj = this[`${type}Options`].find((item: any) => item.value === str)
-        if (obj) {
-          return obj.label
-        } else {
-          return undefined
-        }
-      })
-      res = [...new Set(res)].join('，')
-      return res
-    }
-  }
-  private async deleteAlarm(row: any) {
-    this.$alertDelete({
-      type: '告警信息',
-      msg: '确定删除该告警信息',
-      method: deleteAlarmInfo,
-      payload: { alarmId: row.alarmId },
-      onSuccess: this.getList
-    })
-  }
   private filterChange(filters: any) {
     for (const key in filters) {
       const values = filters[key]
@@ -395,16 +360,6 @@ export default class extends Vue {
     this.selectedDeviceList = alarms
   }
 
-  private async handleSizeChange(val: number) {
-    this.pager.pageSize = val
-    await this.getList()
-  }
-
-  private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
-    await this.getList()
-  }
-
   /**
    * 批量操作菜单
    */
@@ -419,12 +374,23 @@ export default class extends Vue {
     }
   }
 
-    /**
-   * 告警搜索时间
-   */
-  public handleChange() {}
 
-  private refresh(){}
+  private async refresh(){
+    try {
+      const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+      if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
+      await this.getAiAlarms()
+      this.$message.success('查询成功')
+    } catch (e){
+      this.$message.error(e)
+    }
+
+  }
+
+  private rowClick(row){
+    this.currentIndex = this.alarmList.findIndex(item => item.image === row.image)
+    this.dialogueVisibile = true
+  }
 
   /**
  * 得到N天前的时间戳
@@ -436,21 +402,57 @@ export default class extends Vue {
     return time
   }
 
+  private async algoTypeChange(val){
+    await this.getApps()
+    if (val !== '0'){
+      this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
+    }
+    this.queryParam.appName = '0'
+  }
+
+  /**
+   * 分页操作
+   */
+  private handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    this.getAiAlarms()
+  }
+
+  /**
+   * 分页操作
+   */
+  private handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    this.getAiAlarms()
+  }
 }
 </script>
 <style lang="scss" scoped>
 .min-contaniner {
-  min-width: 800px;
+  min-width: 1350px;
   width: 100%;
   .filter-container__right{
     display: flex;
     align-items: center;
     & > div {
-      margin: 0 5px;
+      margin: 0 8px;
     }
     ::v-deep .el-input {
       width: 100px;
     }
+  }
+  .el-table{
+    ::v-deep .cell{
+      display: flex;
+      justify-content: center;
+      .el-image{
+        width:100px;
+      }
+    }
+    ::v-deep .el-table__row{
+      cursor: pointer;
+    }
+
   }
 }
 
@@ -460,5 +462,8 @@ export default class extends Vue {
 .el-slider{
   margin-left: 15px;
   width: 100px;
+}
+.el-button-rect{
+  margin: 0px 10px;
 }
 </style>

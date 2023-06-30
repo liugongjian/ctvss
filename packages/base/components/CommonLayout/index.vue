@@ -258,6 +258,7 @@ $bar-height: 40px;
       display: flex;
       position: relative;
       padding: $padding-medium;
+      overflow: auto;
     }
   }
 }

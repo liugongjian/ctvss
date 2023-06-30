@@ -184,6 +184,7 @@ import debounce from '@vss/ai/util/debounce'
 import { getGroupPersonAlready } from '@vss/device/api/aiConfig'
 import { decodeBase64 } from '@vss/ai/util/base64'
 import { ResultTimeInterval } from '@vss/ai/dics/contants'
+import { getTime } from 'date-fns'
 
 @Component({
   name: 'AppSubDetail',
@@ -206,7 +207,7 @@ export default class extends Vue {
     peopleChart: false,
     carAlarmTable: false
   }
-  private currentLocationIndex: number = -1
+  private currentLocationIndex = -1
   private visibile = false
   private decodeBase64: Function = decodeBase64
   private timeInterval = ResultTimeInterval
@@ -368,6 +369,11 @@ export default class extends Vue {
      * 拦截所有操作，并防抖发起查询请求
      */
   private handleChange() {
+    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+    if (this.queryParam.period[0] < ntDaysBefore)
+      return this.$message.error(
+        '只能查询90天以内的告警记录，请重新选择查询时间'
+      )
     if (this.device.deviceId.length > 0) {
       (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
     } else {

@@ -1,18 +1,23 @@
 <template>
   <component :is="container" title="实时告警信息" :less-padding="true">
-    <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
-      <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
-      <li v-for="item in list" :key="item.id" :class="{ 'new-alert': item.isNew }" @click="openDialog(item)">
-        <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
-          <svg-icon :name="alertIcon[item.level]" />
-          {{ alertLevel[item.level] }}
-        </div>
-        <div class="alert-list__type">{{ alertType[item.event] }}</div>
-        <div class="alert-list__datetime">{{ item.formatedTime }}</div>
-      </li>
-    </ul>
-    <audio ref="audio" :src="alertFile" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+    <div class="stats-container">
+      <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
+        <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
+        <el-divider v-if="noAlarmTody">历史告警</el-divider>
+        <li v-for="item in list" :key="item.image" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
+          <div class="alert-list__item__pic">
+            <el-image :src="item.imageThumbnail" />
+          </div>
+          <div class="alert-list__item__info">
+            <div>{{ item.appName }}</div>
+            <div>{{ item.deviceName }}</div>
+            <div>{{ item.captureTime2 }}</div>
+          </div>
+        </li>
+      </ul>
+      <audio ref="audio" :src="alertFile" preload="auto" />
+      <PicDialogue v-if="dialog" :alarms="list" :current-index.sync="currentIndex" :visible.sync="dialog" />
+    </div>
   </component>
 </template>
 
@@ -21,17 +26,19 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
-import { getAuditList } from '@/api/dashboard'
-import { dateFormat, getTimestamp } from '@/utils/date'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
+import { fromUnixTime, format } from 'date-fns'
+import PicDialogue from '@/views/Alarm/AI/components/PicDialogue.vue'
+import { getAiAlarms } from '@/api/ai-app'
 
 @Component({
   name: 'DashboardAlertLiveNew',
   components: {
     DashboardContainer,
     DashboardAlertLiveDetailDialog,
-    DashboardLightContainer
+    DashboardLightContainer,
+    PicDialogue
   }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -45,6 +52,9 @@ export default class extends Mixins(DashboardMixin) {
   public intervalTime = 15 * 1000
   private lastTime: any = null
   private alertFile = null
+  private noAlarmTody = false
+
+  private currentIndex = 0
 
   @Prop({ default: false })
   private isLight?: boolean
@@ -61,29 +71,40 @@ export default class extends Mixins(DashboardMixin) {
     } else {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
     }
-    this.setInterval(this.updateAuditList)
+    this.setInterval(this.updateAlarmList)
   }
 
-  private async updateAuditList() {
+
+  /**
+ * 得到N天前的时间戳
+ */
+  public getDateBefore(dayCount) {
+    const dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    const time = dd.setHours(0, 0, 0)
+    return time
+  }
+
+  private async updateAlarmList() {
     try {
+      let list = []
       this.loading = true
-      const res = await getAuditList({
-        limit: 6
-      })
-      this.list = res.Result
-      this.list.forEach((item: any) => {
-        item.id = Math.random().toString(16).slice(-10)
-        item.level = this.checkLevel(item)
-        item.isNew = this.lastTime && (getTimestamp(item.timeStamp) > this.lastTime)
-        item.formatedTime = dateFormat(new Date(getTimestamp(item.timeStamp)), 'MM-dd HH:mm:ss')
-      })
-      if (this.list.some((item: any) => item.isNew)) {
-        const audio: any = this.$refs.audio
-        audio.play()
+      const param = {
+        startTime: (new Date(new Date().setHours(0, 0, 0, 0)).getTime() / 1000).toFixed(),
+        endTime: (new Date().getTime() / 1000).toFixed(),
+        pageSize: 5,
+        pageNum: 1
       }
-      if (this.list.length) {
-        this.lastTime = getTimestamp(this.list[0].timeStamp)
+      const res = await getAiAlarms(param)
+      this.noAlarmTody = res.analysisResults.length === 0
+      if (this.noAlarmTody) {
+        const res1 = await getAiAlarms({ pageSize: 5, pageNum: 1 })
+        list = res1.analysisResults
+      } else {
+        list = res.analysisResults
       }
+      this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
+
     } catch (e) {
       console.log(e)
     } finally {
@@ -101,15 +122,7 @@ export default class extends Mixins(DashboardMixin) {
 
   private openDialog(item: any) {
     this.dialog = true
-    this.currentItem = {
-      event: item.event,
-      streamName: item.streamName,
-      timestamp: item.timeStamp,
-      metaData: item.metaData,
-      url: item.url,
-      deviceName: item.deviceName,
-      appName: item.appName
-    }
+    this.currentIndex = this.list.findIndex(i => i.image === item.image)
   }
 
   private closeDialog() {
@@ -121,6 +134,11 @@ export default class extends Mixins(DashboardMixin) {
 .widder-padding {
   padding: 2.7vh 4vw 4vh !important;
 }
+.stats-container{
+  min-width: 360px;
+  overflow:auto;
+  min-height: 500px;
+}
 
 .alert-list {
   min-height: 180px;
@@ -131,51 +149,24 @@ export default class extends Mixins(DashboardMixin) {
   flex-direction: column;
   // justify-content: space-between;
   justify-content: flex-start;
+  .el-divider--horizontal{
+      background: 0 0;
+      border-top: 1px dashed #17181a;
+  }
 
-  li {
-    // flex: 1;
-    height: 16.6%;
+  &__item{
     display: flex;
-    align-items: center;
-    padding: 0.4rem;
-    color: #d8d8d8;
+    justify-content: space-around;
+    margin-bottom: 10px;
     cursor: pointer;
-
-    &:hover {
-      background: #052777;
+    &__pic{
+      width: 175px;
     }
-  }
-
-  &__level {
-    width: 30%;
-
-    &--normal {
-      color: #f4c46c;
-    }
-
-    &--serious {
-      color: #ff4949;
-    }
-  }
-
-  &__datetime {
-    flex: 1;
-    text-align: right;
-  }
-
-  .new-alert {
-    animation: shining 2s;
-    border-radius: 5px;
-  }
-
-  &.light {
-    li {
-      height: 30px;
-      color: $text;
-
-      &:hover {
-        background: #f5f7fa;
-      }
+    &__info{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      margin-left: 10px;
     }
   }
 }
