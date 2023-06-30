@@ -272,7 +272,9 @@
                   />
                   <div
                     v-if="
-                      calendarInfo.length > 0 && recordDayInfo.status !== 'unbind' && recordDayInfo.status !== 'stop'
+                      calendarInfo.length > 0 &&
+                        recordDayInfo.status !== 'unbind' &&
+                        recordDayInfo.status !== 'stop'
                     "
                     class="statistic-box__calendar"
                   >
@@ -459,6 +461,7 @@ import {
 } from '@/type/Statistic'
 import { dateFormat } from '@/utils/date'
 import { UserModule } from '@/store/modules/user'
+import { startOfDay, endOfDay, parse } from 'date-fns'
 
 @Component({
   name: 'Statistic',
@@ -761,14 +764,12 @@ export default class extends Vue {
 
   private openDetail(item: CalendarItem) {
     if (item.status === 'incomplete') {
+      const parsedDate = parse(item.day, 'yyyyMMdd', new Date())
+      const startDate = startOfDay(parsedDate)
+      const endDate = endOfDay(parsedDate)
       const query = {
         deviceId: this.deviceId,
-        // inProtocol: this.inProtocol,
-        // groupId: this.groupId,
-        dateValue: [
-          new Date(new Date(item.day).setHours(0, 0, 0, 0)),
-          new Date(new Date(item.day).setHours(23, 59, 59, 0))
-        ],
+        dateValue: [startDate, endDate],
         ...item
       }
       this.dayInfo = query

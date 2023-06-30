@@ -92,7 +92,7 @@ export default class extends Vue {
       this.layout = 'total, prev, pager, next'
     }
     try {
-      const { deviceId, dateValue: [startTime, endTime], ignore, inProtocol, groupId } = this.info
+      const { deviceId, dateValue: [startTime, endTime], ignore, } = this.info
       const { pageNum, pageSize } = this.pager
       const param: RecordMissQuery = {
         deviceId,
@@ -100,15 +100,13 @@ export default class extends Vue {
         endTime: dateFormat(endTime, 'yyyy-MM-dd HH:mm:ss'),
         ignore,
         pageNum,
-        pageSize,
-        inProtocol,
-        groupId
+        pageSize
       }
       const data: CalendarMissResponse = await getCalendarMissData(param)
       this.pager.totalNum = Number(data.totalNum)
       this.dayMissTableData = data.misses
     } catch (error) {
-      this.$$message.error(error)
+      this.$message.error(error)
     }
   }
 
