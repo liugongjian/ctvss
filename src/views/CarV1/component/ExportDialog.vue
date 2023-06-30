@@ -52,6 +52,26 @@ const validateNumber = (rule, value, callback) => {
     }
   }
 
+const validate7days = (rule, value, callback) => {
+  const date7 = (getUnixTime(new Date()) - 7 * 24 * 60 * 60) * 1000
+  const date = new Date(value).getTime()
+  if (date < date7){
+    callback(new Error('选择7日内的开始时间'))
+  } else {
+    callback()
+  }
+}
+
+const validate2hours = (rule, value, callback) => {
+  const date2 = (getUnixTime(new Date()) - 2 * 60 * 60) * 1000
+  const date = new Date(value).getTime()
+  if (date > date2){
+    callback(new Error('选择2小时前的开始时间'))
+  } else {
+    callback()
+  }
+}
+
 
 @Component({
   name: 'ExportDialog'
@@ -65,8 +85,8 @@ export default class extends Vue {
   }
 
   private rules = {
-    startTime: [{ required: true, message: '请输入开始时间', trigger: 'blur' }],
-    endTime: [{ required: true, message: '请输入结束时间', trigger: 'blur' }],
+    startTime: [{ required: true, message: '请输入开始时间', trigger: 'blur' }, { validator: validate7days, trigger: 'blur' }],
+    endTime: [{ required: true, message: '请输入结束时间', trigger: 'blur' }, { validator: validate2hours, trigger: 'blur' }],
     ignore: [{ required: true, message: '请输入时长', trigger: 'blur' }, { validator: validateNumber, trigger: 'blur' }]
   }
 
