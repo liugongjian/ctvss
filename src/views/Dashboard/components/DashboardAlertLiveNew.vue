@@ -60,6 +60,7 @@ export default class extends Mixins(DashboardMixin) {
   private isLight?: boolean
 
   private get container() {
+
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
   }
 

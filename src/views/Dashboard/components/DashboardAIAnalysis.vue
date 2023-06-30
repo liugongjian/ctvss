@@ -34,8 +34,6 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private async mounted() {
-
-
     this.getData()
   }
 

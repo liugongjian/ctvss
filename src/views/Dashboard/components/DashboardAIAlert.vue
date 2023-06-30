@@ -29,6 +29,7 @@ export default class extends Mixins(DashboardMixin) {
   private isLive = 'live'
 
   private get comp() {
+
     return this.isLive === 'live' ? 'DashboardAlertLiveNew' : 'DashboardAlertToday'
   }
 }

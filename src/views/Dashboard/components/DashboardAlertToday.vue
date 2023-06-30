@@ -1,5 +1,5 @@
 <template>
-  <component :is="container" title="今日告警统计">
+  <component :is="container" title="实时告警信息">
     <div ref="chart" :style="`height:${height}vh`" />
   </component>
 </template>

@@ -20,7 +20,7 @@
         <div class="alarm-stats__chart--add">
           <div>AI告警统计详情（次）</div>
           <div class="alarm-stats__chart--op">
-            <el-select v-model="algoType" multiple placeholder="请选择" size="mini" @change="handleChange">
+            <el-select v-model="algoType" multiple placeholder="请选择" size="mini" @change="handleChangeSelect">
               <el-option
                 v-for="item in algoTypes"
                 :key="item.algoCode"
@@ -42,7 +42,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { getAiStats, getAiAlgoTypes } from '@/api/ai-app'
+import { getAiStats, getAiAlgoTypes, getAlgorithmList, configAlgoStat } from '@/api/ai-app'
 import { Chart } from '@antv/g2'
 import { format } from 'date-fns'
 
@@ -99,8 +99,9 @@ export default class extends Vue {
 
   private async getAiAlgoTypes(){
     const res = await getAiAlgoTypes({})
-    this.algoTypes = res.statInfo
-    this.algoType = [this.algoTypes[0].algoCode]
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityId: 0 })
+    this.algoTypes = aiAbilityAlgorithms.map(algo => ({ algoCode: algo.code, algoName: algo.name }))
+    this.algoType = res.statInfo.map(info => info.algoCode)
   }
 
   private async initChart(){
@@ -216,10 +217,19 @@ export default class extends Vue {
     return { max: maxObj, min: minObj }
   }
 
-  private handleChange(){
+  private async handleChangeSelect(){
+    try {
+      await configAlgoStat({ algoCodes: this.algoType })
+      this.$message.success('配置成功')
+    } catch (e){
+      this.$message.error(e)
+    }
     this.getChartData()
   }
 
+  private async handleChange(){
+    this.getChartData()
+  }
 }
 
 </script>
