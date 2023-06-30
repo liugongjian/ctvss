@@ -72,7 +72,6 @@ export default class extends Vue {
 
   private onLocationChanged(index: number) {
     this.currentLocationIndex = index
-    console.log(this.currentLocationIndex)
   }
 
   private dialogueClose() {

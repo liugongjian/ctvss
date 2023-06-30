@@ -25,7 +25,8 @@
         <polygon :points="box.points" />
       </svg>
       <svg class="ocr_text" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${ratio.imgNaturalWidth} ${ratio.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
-        <text :x="box.x" :y="box.y" fill="yellow">{{ box.label }}</text>
+        <rect :x="box.x - 2" :y="box.y - 18" width="70" height="18" style="fill:#FFF;" />
+        <text :x="box.x" :y="box.y - 4" fill="#000">{{ box.label }}</text>
       </svg>
     </div>
     <div v-if="imageLabel.length > 0" class="ai-recognation__images__item__count">
@@ -93,7 +94,6 @@ export default class extends Vue {
 
       this.ocrBoxes.push({ points: sub, label: label[0 / 8 ], x: img.ocrBoxes[i], y: img.ocrBoxes[i + 1] })
     }
-    console.log('this.ocrBoxes:', this.ocrBoxes)
   }
 
 
@@ -111,8 +111,6 @@ export default class extends Vue {
         zoneSvg += (sub.join(',') + ' ')
       }
       this.detectArea = zoneSvg
-      console.log('this.detectArea:', this.detectArea)
-
   }
 
     // 处理DetectBoxes数据
@@ -122,6 +120,7 @@ export default class extends Vue {
        for (let i = 0; i < img.detectBoxes.length; i += 4) {
         let infoStr = ''
         if (img.boxLabels.length > 0){
+          debugger
           const info = img.boxLabels[i / 4].info
           Object.keys(info).forEach(o => { infoStr = o + ':' + info[o] + '\n' })
         }
@@ -214,7 +213,6 @@ export default class extends Vue {
           top: 0;
           left: 0;
         }
-
       }
 
       // 冲压机

@@ -194,7 +194,6 @@ export default class extends Vue {
   private async getApps(){
     const all = [{ id: '0', name: '全部' }]
     const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId || undefined, pageSize: 3000 })
-    console.log('aiApps:', aiApps)
     all.push(...aiApps)
     this.apps = all
   }
@@ -376,10 +375,16 @@ export default class extends Vue {
   }
 
 
-  private refresh(){
-    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
-    if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
-    this.getAiAlarms()
+  private async refresh(){
+    try {
+      const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+      if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
+      await this.getAiAlarms()
+      this.$message.success('查询成功')
+    } catch (e){
+      this.$message.error(e)
+    }
+
   }
 
   private rowClick(row){

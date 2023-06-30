@@ -31,7 +31,6 @@ export default class extends Vue {
     deep: true
   })
   private onImgChanged() {
-    debugger
     this.showAttribute()
   }
 

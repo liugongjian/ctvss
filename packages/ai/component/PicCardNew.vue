@@ -1,8 +1,9 @@
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
-      <img ref="img" :src="pic.image" @error="nopic">
+      <img ref="img" :src="pic.image" @error="nopic" @load="onload">
       <!-- <Locations v-if="picInfo && isPicLoaded" :type="type" :img="picInfo" /> -->
+      <LocationsNew v-if="picRatio.ratioW && pic" :img="pic" :ratio="picRatio" />
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
@@ -43,15 +44,13 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@vss/ai/util/base64'
-import Locations from './Locations.vue'
-import Attributes from './Attributes.vue'
+import LocationsNew from '@vss/ai/component/LocationsNew.vue'
 import { format, fromUnixTime } from 'date-fns'
 
 @Component({
   name: 'PicCardNew',
   components: {
-    Locations,
-    Attributes
+    LocationsNew
   }
 })
 export default class extends Vue {
@@ -60,6 +59,8 @@ export default class extends Vue {
   private picInfo = null
   private isPicLoaded = true
   private decodeBase64: Function = decodeBase64
+
+  private picRatio: any = {}
 
   private format = format
   private fromUnixTime = fromUnixTime
@@ -72,6 +73,21 @@ export default class extends Vue {
   }
   private viewDetail() {
     this.$emit('showDialogue', this.pic)
+  }
+  private onload(){
+    const imgEle: any = this.$refs.img
+    this.picRatio = {}
+    this.$nextTick(() => {
+      this.picRatio = {
+              imgNaturalWidth: imgEle.naturalWidth,
+              imgNaturalHeight: imgEle.naturalHeight,
+              clientHeight: imgEle.clientHeight,
+              clientWidth: imgEle.clientWidth,
+              ratioW: imgEle.clientWidth / imgEle.naturalWidth,
+              ratioH: imgEle.clientHeight / imgEle.naturalHeight
+            }
+    })
+
   }
 }
 </script>

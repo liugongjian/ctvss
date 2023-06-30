@@ -78,7 +78,6 @@ export default class extends Vue {
       ...this.pic,
       locations: transformLocationAi(locations, img)
     }
-    console.log('this.picInfo.locations:', this.picInfo.locations)
   }
   private nopic() {
     const img: any = this.$refs.img
