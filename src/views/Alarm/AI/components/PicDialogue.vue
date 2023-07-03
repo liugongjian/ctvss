@@ -43,8 +43,6 @@ export default class extends Vue {
   @Prop() private alarms
   @Prop({ default: 0 }) private currentIndex
 
-  private picIndex = 0
-
   private refresh = true
 
   private currentLocationIndex = 0
@@ -84,12 +82,11 @@ export default class extends Vue {
   private changePic(step){
     this.refresh = false
     const newIndex = this.currentIndex + step
-    if (newIndex > -1 && newIndex < this.alarms.length - 1){
+    if (newIndex > -1 && newIndex <= this.alarms.length - 1){
       this.$emit('update:current-index', newIndex)
     }
     this.$nextTick(() => { this.refresh = true })
   }
-
 }
 </script>
 
