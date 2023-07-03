@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
+import AppSubDetail from '@/views/AIV1/AppList/component/AppSubDetail.vue'
 import { getAppList } from '@/api/ai-app'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
 

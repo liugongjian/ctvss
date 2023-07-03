@@ -133,7 +133,7 @@ export const parseMetaData = (type: string, metaData: any) => {
             left: box.TopLeftX,
             width: box.BottomRightX - box.TopLeftX,
             height: box.BottomRightY - box.TopLeftY,
-            isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
+            isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others' || ((type === '35' || type === '10035') && label === '非工作服'),
             label
           }
         } catch (error) {
