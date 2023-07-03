@@ -1,5 +1,5 @@
 <template>
-  <component :is="container" title="实时告警信息" :less-padding="true">
+  <component :is="container" title="今日AI告警" :less-padding="true">
     <div class="stats-container">
       <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
         <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
@@ -15,6 +15,7 @@
           </div>
         </li>
       </ul>
+      <slot name="footer"></slot>
       <audio ref="audio" :src="alertFile" preload="auto" />
       <PicDialogue v-if="dialog" :alarms="list" :current-index.sync="currentIndex" :visible.sync="dialog" />
     </div>
@@ -60,6 +61,7 @@ export default class extends Mixins(DashboardMixin) {
   private isLight?: boolean
 
   private get container() {
+
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
   }
 
@@ -92,13 +94,13 @@ export default class extends Mixins(DashboardMixin) {
       const param = {
         startTime: (new Date(new Date().setHours(0, 0, 0, 0)).getTime() / 1000).toFixed(),
         endTime: (new Date().getTime() / 1000).toFixed(),
-        pageSize: 5,
+        pageSize: 10,
         pageNum: 1
       }
       const res = await getAiAlarms(param)
       this.noAlarmTody = res.analysisResults.length === 0
       if (this.noAlarmTody) {
-        const res1 = await getAiAlarms({ pageSize: 5, pageNum: 1 })
+        const res1 = await getAiAlarms({ pageSize: 10, pageNum: 1 })
         list = res1.analysisResults
       } else {
         list = res.analysisResults
@@ -137,7 +139,7 @@ export default class extends Mixins(DashboardMixin) {
 .stats-container{
   min-width: 360px;
   overflow:auto;
-  min-height: 500px;
+  min-height: 800px;
 }
 
 .alert-list {

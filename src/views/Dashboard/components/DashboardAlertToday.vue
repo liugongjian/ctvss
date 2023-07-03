@@ -1,7 +1,11 @@
 <template>
-  <component :is="container" title="今日告警统计">
-    <div ref="chart" :style="`height:${height}vh`" />
-  </component>
+  <div>
+    <component :is="container" title="今日AI告警">
+      <div ref="chart" :style="`height:${height}vh`" />
+      <div v-if="chartData.length === 0" class="no-data">今日无任何告警</div>
+      <slot name="footer"></slot>
+    </component>
+  </div>
 </template>
 
 <script lang="ts">
@@ -9,7 +13,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardLightContainer from './DashboardLightContainer.vue'
-// import { UserModule } from '@/store/modules/user'
+import { UserModule } from '@/store/modules/user'
 import { Chart } from '@antv/g2'
 import { format } from 'date-fns'
 import { getAiStats } from '@/api/ai-app'
@@ -22,11 +26,17 @@ export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
 
+  private showChart = true
+
   @Prop({ default: false })
   private isLight?: boolean
 
   private get container() {
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
+  }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   private mounted() {
@@ -40,7 +50,11 @@ export default class extends Mixins(DashboardMixin) {
     }
     const res = await getAiStats(param)
     this.alarmCounts = res.statInfo
-    this.chartData = this.alarmCounts.map(alarm => { return { type: alarm.algoName, value: alarm.number } })
+
+    const data = this.alarmCounts.map(alarm => { return { type: alarm.algoName, value: +alarm.number } })
+    const dataAbove0 = data.filter(item => +item.value > 0 )
+    const res1 = dataAbove0.sort((a, b) => b.value - a.value)
+    this.chartData = res1
     this.chart ? this.updateChart() : this.drawChart()
     this.updateChart()// update，否则第一次加载图标后显示缺少色块
   }
@@ -122,3 +136,12 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
+
+
+<style lang="scss" scoped>
+.no-data{
+  display: flex;
+  justify-content: center;
+  min-height: 200px
+}
+</style>

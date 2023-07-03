@@ -14,7 +14,7 @@
           </el-tooltip>
         </template>
         <template slot="leftBody">
-          <alarm-tree
+          <AIAlarmTree
             ref="deviceTree"
             @handle-node="handleTreeNode"
           />
@@ -36,14 +36,14 @@
 <script lang="ts">
 import { Component, Mixins, Provide } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
-import AlarmTree from '@vss/device/components/Tree/AlarmTree.vue'
+import AIAlarmTree from '@vss/device/components/Tree/AIAlarmTree.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import Statics from './Statics.vue'
 
 @Component({
   name: 'Alarm',
   components: {
-    AlarmTree,
+    AIAlarmTree,
     Breadcrumb,
     Statics
   }
@@ -96,61 +96,6 @@ export default class extends Mixins(layoutMxin) {
       this.$router.push(router)
     }
   }
-
-  /**
-   * 删除目录
-   */
-  // private deleteDir(dir: any) {
-  //   this.$alertDelete({
-  //     type: '目录',
-  //     msg: `是否确认删除目录"${dir.label}"`,
-  //     method: deleteDir,
-  //     payload: { dirId: dir.id },
-  //     onSuccess: () => {
-  //       this.initDirs()
-  //       if (dir.id === this.$route.query.dirId) {
-  //         this.gotoRoot()
-  //       }
-  //     }
-  //   })
-  // }
-
-  /**
-   * 打开对话框
-   */
-  // private openDialog(type: string, payload: any) {
-  //   switch (type) {
-  //     case 'createDir':
-  //       if (payload) {
-  //         this.parentDir = payload
-  //       }
-  //       this.dialog.createDir = true
-  //       break
-  //     case 'updateDir':
-  //       if (payload) {
-  //         this.currentDir = payload
-  //       }
-  //       this.dialog.createDir = true
-  //       break
-  //   }
-  // }
-
-  /**
-   * 关闭对话框
-   */
-  // private closeDialog(type: string, payload: any) {
-  //   // @ts-ignore
-  //   this.dialog[type] = false
-  //   switch (type) {
-  //     case 'createDir':
-  //     case 'updateDir':
-  //       this.currentDir = null
-  //       this.parentDir = null
-  //       if (payload) {
-  //         this.initDirs()
-  //       }
-  //   }
-  // }
 
 }
 </script>

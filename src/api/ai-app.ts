@@ -168,5 +168,9 @@ export const getAiAlgoTypes = (params: any): Promise<any> =>
     params
   })
 
-
-
+export const configAlgoStat = (params: any): Promise<any> =>
+  request({
+    url: '/ai/stat/results/config',
+    method: 'post',
+    data: params
+  })

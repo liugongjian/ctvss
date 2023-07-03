@@ -84,6 +84,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 
   private async mounted() {
     try {
+      console.log('app-detail')
       this.tabNum = this.$route.query.tabNum
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
       const { deviceList } = await getAttachedDevice({

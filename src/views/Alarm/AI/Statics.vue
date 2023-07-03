@@ -3,24 +3,27 @@
     <el-card>
       <div class="alarm-stats__title">今日AI告警</div>
       <div ref="alarmContainer" class="alarm-stats__container">
-        <div v-if="showButton" class="left-arrow" @click="() => handleScroll(-1)" @mousedown="() => startScroll(-1)" @mouseup="stopScroll">
-          <i class="el-icon-arrow-left" />
+        <div v-if="alarmCounts.length > 0">
+          <div v-if="showButton" class="left-arrow" @click="() => handleScroll(-1)" @mousedown="() => startScroll(-1)" @mouseup="stopScroll">
+            <i class="el-icon-arrow-left" />
+          </div>
+          <ul ref="alarmList" class="alarm-stats__list">
+            <li v-for="item in alarmCounts" :key="item.type" class="alarm-stats__list__item">
+              <div class="alarm-stats__list__item--1">{{ item.algoName }}</div>
+              <div class="alarm-stats__list__item--2">{{ item.number }}</div>
+            </li>
+          </ul>
+          <div v-if="showButton" class="right-arrow" @click="() => handleScroll(1)" @mousedown="() => startScroll(1)" @mouseup="stopScroll">
+            <i class="el-icon-arrow-right" />
+          </div>
         </div>
-        <ul ref="alarmList" class="alarm-stats__list">
-          <li v-for="item in alarmCounts" :key="item.type" class="alarm-stats__list__item">
-            <div class="alarm-stats__list__item--1">{{ item.algoName }}</div>
-            <div class="alarm-stats__list__item--2">{{ item.number }}</div>
-          </li>
-        </ul>
-        <div v-if="showButton" class="right-arrow" @click="() => handleScroll(1)" @mousedown="() => startScroll(1)" @mouseup="stopScroll">
-          <i class="el-icon-arrow-right" />
-        </div>
+        <div v-else class="no-data">今日无任何告警</div>
       </div>
       <div class="alarm-stats__chart">
         <div class="alarm-stats__chart--add">
           <div>AI告警统计详情（次）</div>
           <div class="alarm-stats__chart--op">
-            <el-select v-model="algoType" multiple placeholder="请选择" size="mini" @change="handleChange">
+            <el-select v-model="algoType" multiple placeholder="请选择" size="mini" collapse-tags @change="handleChangeSelect">
               <el-option
                 v-for="item in algoTypes"
                 :key="item.algoCode"
@@ -42,7 +45,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { getAiStats, getAiAlgoTypes } from '@/api/ai-app'
+import { getAiStats, getAiAlgoTypes, getAlgorithmList, configAlgoStat } from '@/api/ai-app'
 import { Chart } from '@antv/g2'
 import { format } from 'date-fns'
 
@@ -99,8 +102,9 @@ export default class extends Vue {
 
   private async getAiAlgoTypes(){
     const res = await getAiAlgoTypes({})
-    this.algoTypes = res.statInfo
-    this.algoType = [this.algoTypes[0].algoCode]
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityId: 0 })
+    this.algoTypes = aiAbilityAlgorithms.map(algo => ({ algoCode: algo.code, algoName: algo.name }))
+    this.algoType = res.statInfo.map(info => info.algoCode)
   }
 
   private async initChart(){
@@ -159,7 +163,8 @@ export default class extends Vue {
       endDay: format(new Date(), 'yyyy-MM-dd'),
     }
     const res = await getAiStats(param)
-    this.chartDataOrigin = this.chartData = res.statInfo
+
+    this.chartDataOrigin = this.chartData = res.statInfo.map(info => ({ ...info, number: +info.number }))
     this.initChart()
   }
 
@@ -169,7 +174,8 @@ export default class extends Vue {
       endDay: format(new Date(), 'yyyy-MM-dd'),
     }
     const res = await getAiStats(param)
-    this.alarmCounts = res.statInfo
+    this.alarmCounts = res.statInfo.filter(info => +info.number !== 0).sort((a, b) => b.number - a.number)
+    // this.alarmCounts = res.statInfo
   }
 
   /**
@@ -216,10 +222,19 @@ export default class extends Vue {
     return { max: maxObj, min: minObj }
   }
 
-  private handleChange(){
+  private async handleChangeSelect(){
+    try {
+      await configAlgoStat({ algoCodes: this.algoType })
+      this.$message.success('配置成功')
+    } catch (e){
+      this.$message.error(e)
+    }
     this.getChartData()
   }
 
+  private async handleChange(){
+    this.getChartData()
+  }
 }
 
 </script>
@@ -284,13 +299,21 @@ export default class extends Vue {
     }
     &--op {
       .el-select {
-        width: 400px;
+        width: 230px;
       }
       & > div {
         margin-left: 10px;
       }
     }
   }
-
 }
+  .no-data{
+    min-height: 130px;
+    border: 1px solid #cac9c9;
+    border-radius: 3px;
+    color: #cac9c9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

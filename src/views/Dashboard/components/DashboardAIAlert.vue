@@ -6,7 +6,11 @@
         <el-radio-button label="stat">告警统计</el-radio-button>
       </el-radio-group>
     </div>
-    <component :is="comp" :is-light="true" :height="19" />
+    <component :is="comp" :is-light="true" :height="19">
+      <template #footer>
+        <div class="footer" :class="isLive === 'live' ? 'bottom' : ''"><el-button type="text" @click="goRouter">AI告警 >></el-button></div>
+      </template>
+    </component>
   </div>
 </template>
 
@@ -29,7 +33,17 @@ export default class extends Mixins(DashboardMixin) {
   private isLive = 'live'
 
   private get comp() {
+
     return this.isLive === 'live' ? 'DashboardAlertLiveNew' : 'DashboardAlertToday'
+  }
+
+  private goRouter(){
+    this.$router.push({
+      name: 'AIAlarmList',
+      query: {
+        deviceId: ''
+      }
+    })
   }
 }
 </script>
@@ -41,5 +55,18 @@ export default class extends Mixins(DashboardMixin) {
     right: 32px;
     top: 22px;
   }
+}
+.footer{
+  display: flex;
+  justify-content: flex-end;
+}
+.stats-container{
+  position:relative;
+  margin-bottom: 18px;
+}
+.bottom{
+  position:absolute;
+  bottom: 5px;
+  right: 30px;
 }
 </style>

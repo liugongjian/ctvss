@@ -1,10 +1,8 @@
 <template>
   <component :is="container" title="AI分析">
-    <template slot="header">
-      <el-button type="text" class="dash-btn" @click="$router.push('/ai/ai-app-list')">AI管理>></el-button>
-    </template>
     <div>
-      <div id="pieAI" />
+      <div v-show="showChart" id="pieAI" />
+      <div v-show="!showChart" class="no-data">暂未配置AI应用</div>
     </div>
   </component>
 </template>
@@ -29,13 +27,13 @@ export default class extends Mixins(DashboardMixin) {
 
   private currentPieChart: any = {}
 
+  private showChart = true
+
   private get container() {
     return 'DashboardLightContainer'
   }
 
   private async mounted() {
-
-
     this.getData()
   }
 
@@ -44,7 +42,7 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const res = await getAiChannels({})
       const statInfo = res.statInfo
-
+      this.showChart = res.statInfo.length > 0
       this.drawPieToday('pieAI', 'pieAI', statInfo)
 
       this.$nextTick(()=>{
@@ -210,5 +208,12 @@ export default class extends Mixins(DashboardMixin) {
         margin-left: 5px;
       }
     }
+  }
+
+  .no-data{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px
   }
 </style>

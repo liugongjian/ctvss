@@ -9,7 +9,7 @@
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
       <!-- <div v-if="aiPakageNum === 0" class="dashboard-wrap-overview__right"> -->
-      <div class="dashboard-wrap-overview__right">
+      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
         <!-- <DashboardAIAbility /> -->
         <DashboardAIAnalysis />
         <DashboardAIAlert />
