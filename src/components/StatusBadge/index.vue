@@ -36,5 +36,9 @@ export default class extends Vue {
     &--error {
       background-color: #ccc;
     }
+
+    &--fail {
+      background-color: $color-status-danger-1;
+    }
   }
 </style>

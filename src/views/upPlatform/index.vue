@@ -96,7 +96,22 @@
               </div>
             </div>
             
-            <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
+            <div class="platform-status">
+              平台状态:
+              <status-badge :status="currentPlatform.status" />
+              {{ platformStatus[currentPlatform.status] }}
+              <el-popover
+                v-if="currentPlatform.status === 'fail'"
+                placement="top-start"
+                title="平台注册失败"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="currentPlatform.failReason"
+              >
+                <i slot="reference" class="el-icon-info" />
+              </el-popover>
+            </div>
           </div>
         </div>
         <div class="device-list" :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }" :style="{ height: `${maxHeight}px` }">
@@ -918,6 +933,7 @@ export default class extends Vue {
   .platform-status {
     display: inline-block;
     margin: 0 15px;
+    line-height: 36px;
 
     &__upload {
       display: inline-block;

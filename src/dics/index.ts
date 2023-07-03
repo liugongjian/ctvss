@@ -1,6 +1,7 @@
 export const PlatformStatus = {
   'on': '在线',
-  'off': '离线'
+  'off': '离线',
+  'fail': '注册失败'
 }
 
 export const DeviceStatus = {
