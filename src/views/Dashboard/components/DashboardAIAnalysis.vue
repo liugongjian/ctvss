@@ -2,7 +2,7 @@
   <component :is="container" title="AI分析">
     <div>
       <div v-show="showChart" id="pieAI" />
-      <div v-show="!showChart" class="no-data">暂无数据</div>
+      <div v-show="!showChart" class="no-data">暂未配置AI应用</div>
     </div>
   </component>
 </template>

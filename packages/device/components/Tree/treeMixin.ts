@@ -145,6 +145,7 @@ export default class TreeMixin extends Vue {
    */
   public async treeLoad(node) {
     let nodeData
+    debugger
     if (node.level === 0) {
       // this.loading = true
       try {
