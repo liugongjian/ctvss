@@ -2,6 +2,7 @@
   <div>
     <component :is="container" title="实时告警信息">
       <div ref="chart" :style="`height:${height}vh`" />
+      <div v-if="chartData.length === 0" class="no-data">今日无任何告警</div>
       <slot name="footer"></slot>
     </component>
   </div>
@@ -135,3 +136,12 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
+
+
+<style lang="scss" scoped>
+.no-data{
+  display: flex;
+  justify-content: center;
+  min-height: 200px
+}
+</style>

@@ -213,6 +213,7 @@ export default class extends Mixins(DashboardMixin) {
   .no-data{
     display: flex;
     justify-content: center;
+    align-items: center;
     min-height: 200px
   }
 </style>

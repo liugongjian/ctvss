@@ -80,10 +80,8 @@ export default class extends Vue {
 
   private getImageLabel(img){
     this.imageLabel = ''
-    console.log('img:', img)
     this.$nextTick(() => {
       Object.keys(img.imageLabel).forEach(k => { this.imageLabel += k + (img.imageLabel[k].length > 0 ? ':' : '') + img.imageLabel[k] + '\n' })
-      console.log('this.imageLabel:', this.imageLabel)
     })
 
   }
