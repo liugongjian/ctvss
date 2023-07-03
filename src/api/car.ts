@@ -21,3 +21,17 @@ export const operateCarTask = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+export const downLoadExcel = (params: any): Promise<any> =>
+  request({
+    url: '/recovery/vehicle/missExport',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+
+export const getAuthority = (params: any): Promise<any> =>
+  request({
+    url: '/vehicle/authority',
+    method: 'get',
+    params
+  })
