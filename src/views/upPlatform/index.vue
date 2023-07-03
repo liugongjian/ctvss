@@ -933,6 +933,7 @@ export default class extends Vue {
   .platform-status {
     display: inline-block;
     margin: 0 15px;
+    line-height: 36px;
 
     &__upload {
       display: inline-block;
