@@ -109,7 +109,7 @@
                 :open-delay="300"
                 :content="currentPlatform.failReason"
               >
-                <svg-icon slot="reference" class="form-question" name="warning" />
+                <i slot="reference" class="el-icon-info" />
               </el-popover>
             </div>
           </div>
