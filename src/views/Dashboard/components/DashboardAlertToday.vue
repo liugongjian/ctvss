@@ -1,6 +1,6 @@
 <template>
   <div>
-    <component :is="container" title="实时告警信息">
+    <component :is="container" title="今日AI告警">
       <div ref="chart" :style="`height:${height}vh`" />
       <div v-if="chartData.length === 0" class="no-data">今日无任何告警</div>
       <slot name="footer"></slot>

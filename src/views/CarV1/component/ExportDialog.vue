@@ -29,6 +29,12 @@
         <span class="second_title">秒</span>
       </el-form-item>
     </el-form>
+    <el-alert
+      title="请选择录像的起止区间，选定日期区内的全部车辆任务录像断点将被导出，最大支持导出最近7天的断点列表。"
+      type="info"
+      show-icon
+    >
+    </el-alert>
     <div slot="title" class="dialog-title">
       <span>录像断点导出</span>
     </div>
@@ -40,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getUnixTime, parse } from 'date-fns'
+import { getUnixTime, sub, format } from 'date-fns'
 import { downLoadExcel } from '@/api/car'
 
 
@@ -90,6 +96,13 @@ export default class extends Vue {
     ignore: [{ required: true, message: '请输入时长', trigger: 'blur' }, { validator: validateNumber, trigger: 'blur' }]
   }
 
+  private mounted(){
+    const now = sub(new Date(), { hours: 2 })
+    const sevenDaysBefore = sub(new Date(), { days: 7 })
+    this.form.endTime = format(now, 'yyyy-MM-dd HH:mm:ss' )
+    this.form.startTime = format(sevenDaysBefore, 'yyyy-MM-dd HH:mm:ss' )
+  }
+
 
   private async submit(){
     const form: any = this.$refs.dialogForm
@@ -131,7 +144,8 @@ export default class extends Vue {
 ::v-deep .el-dialog__body {
   max-height: 620px;
   display: flex;
-  justify-content: space-evenly;
+  flex-direction: column;
+
 
   .history {
     overflow-y: auto;
@@ -176,4 +190,10 @@ export default class extends Vue {
     margin-left: 10px;
   }
 }
+.second{
+  ::v-deep .el-form-item__content{
+      width: 245px;
+  }
+}
+
 </style>
