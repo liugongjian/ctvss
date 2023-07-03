@@ -216,7 +216,8 @@ export default class extends ComponentMixin {
         this.last = nowTime
         const param = {
           deviceId: this.intercomInfo.deviceId,
-          audioKey: this.audioKey
+          audioKey: this.audioKey,
+          inProtocol: this.intercomInfo.inProtocol,
         }
         this.stopRecord()
         stopTalk(param).then(() => {
