@@ -110,3 +110,11 @@ export const getBandwidthHistory = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 用户反馈
+export const getFeedback = (params: any): Promise<any> =>
+request({
+  url: '/app/feedback',
+  method: 'get',
+  params
+})

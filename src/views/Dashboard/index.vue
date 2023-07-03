@@ -1,13 +1,14 @@
 <!--
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-03-21 10:53:22
- * @LastEditors: liugj liugj@chinatelecom.cn
- * @LastEditTime: 2023-06-08 15:37:42
+ * @LastEditors: 邱文琦
+ * @LastEditTime: 2023-07-03 09:27:21
  * @FilePath: /vss-user-web/src/views/Dashboard/index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div id="container" class="app-container">
+    <DashboardTips />
     <div class="dashboard-wrap-overview">
       <div class="dashboard-wrap-overview__left">
         <!-- <DashboardDataToday /> -->
@@ -35,6 +36,7 @@ import DashboardAIAlert from '@/views/Dashboard/components/DashboardAIAlert.vue'
 import DashboardAIAnalysis from '@/views/Dashboard/components/DashboardAIAnalysis.vue'
 import DashboardDataToday from '@/views/Dashboard/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/Dashboard/components/DashboardResourcePackage.vue'
+import DashboardTips from '@/views/Dashboard/components/DashboardTips.vue'
 import { UserModule } from '@/store/modules/user'
 
 import DashboardTodayData from './components/DashboardTodayData.vue'
@@ -52,7 +54,8 @@ import DashboardPeriodLine from './components/DashboardPeriodLine.vue'
     DashboardTodayData,
     DashboardPeriodLine,
     DashboardAIAnalysis,
-    DashboardAIAlert
+    DashboardAIAlert,
+    DashboardTips
   }
 })
 export default class extends Vue {
