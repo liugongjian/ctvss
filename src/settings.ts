@@ -181,7 +181,9 @@ const settings: ISettings = {
       actionDesc: '拥有云端录像文件的锁定权限，并展示录像回放菜单',
       allowAutoSelected: ['ivs:GetCloudRecord'],
       resourceType: ['directory', 'device', 'channel'],
-      // version: 'v1'
+      tags: {
+        'isRecordLockAvailable': ['Y']
+      }
     },
     // 视图级联服务(视图级联服务可放入向上级联，作为一种协议进行控制)
     // 柳州上公有云暂时屏蔽（https://dcloud.yuque.com/ctyun/poea5w/kcsd37oaspl3s7gx）
