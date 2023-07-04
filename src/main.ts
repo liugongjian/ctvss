@@ -1,3 +1,11 @@
+/*
+ * @Author: liugj liugj@chinatelecom.cn
+ * @Date: 2023-06-15 14:28:28
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-07-04 15:47:41
+ * @FilePath: \vss-user-web\src\main.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
 import { isIE } from '@/utils/browser'
@@ -21,6 +29,10 @@ import { initLogin } from '@/services/loginService'
 import VssBase from '@vss/base'
 import VssDevice from '@vss/device'
 import { loadJs } from '@vss/base/utils/load-resource'
+
+import '@cutedesign/ui/lib/index.css'
+import CuteUI from '@cutedesign/ui'
+Vue.use(CuteUI)
 
 // @ts-ignore
 window._typeof = (e: any) => {

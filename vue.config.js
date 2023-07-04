@@ -39,7 +39,10 @@ console.info(`启动${environment}环境:`, serverAddress)
 console.info('是否开启https:', isHttps)
 
 module.exports = {
-  publicPath: (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'pre') ? '/vss/' : '/',
+  publicPath:
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'pre'
+      ? '/vss/'
+      : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
@@ -136,7 +139,14 @@ module.exports = {
     'style-resources-loader': {
       preProcessor: 'scss',
       patterns: [
-        path.resolve(__dirname, 'node_modules/@vss/base/assets/css/_variables.scss'),
+        path.resolve(
+          __dirname,
+          'node_modules/@vss/base/assets/css/_variables.scss'
+        ),
+        path.resolve(
+          __dirname,
+          'node_modules/@cutedesign/ui/style/themes/default/variables.scss'
+        ),
         path.resolve(__dirname, 'src/styles/_mixins.scss')
       ]
     }
@@ -148,10 +158,9 @@ module.exports = {
     config.set('name', name)
 
     // https://webpack.js.org/configuration/devtool/#development
-    config
-      .when(process.env.NODE_ENV === 'development',
-        config => config.devtool('cheap-eval-source-map')
-      )
+    config.when(process.env.NODE_ENV === 'development', (config) =>
+      config.devtool('cheap-eval-source-map')
+    )
 
     // remove vue-cli-service's progress output
     config.plugins.delete('progress')
@@ -166,78 +175,76 @@ module.exports = {
     //     failOnError: false
     //   }
     // ])
-    config.plugin('simple-progress-webpack-plugin')
-      .use(require.resolve('simple-progress-webpack-plugin'), [{
-        format: 'compact'
-      }])
+    config
+      .plugin('simple-progress-webpack-plugin')
+      .use(require.resolve('simple-progress-webpack-plugin'), [
+        {
+          format: 'compact'
+        }
+      ])
 
     config.module
       .rule('thejs')
       .test(/\.js$/)
-      .include
-      .add(path.resolve('src'))
+      .include.add(path.resolve('src'))
       .add(path.resolve('node_modules/element-ui/packages'))
       .end()
       .use('babel-loader')
       .loader('babel-loader')
       .end()
 
-    config
-      .when(process.env.NODE_ENV !== 'development',
-        config => {
-          config
-            .optimization.splitChunks({
-              chunks: 'all',
-              maxAsyncRequests: 10,
-              maxInitialRequests: 10,
-              cacheGroups: {
-                libs: {
-                  name: 'chunk-libs',
-                  test: /[\\/]node_modules[\\/]/,
-                  priority: 10,
-                  chunks: 'initial' // only package third parties that are initially dependent
-                },
-                elementUI: {
-                  name: 'chunk-elementUI', // split elementUI into a single package
-                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
-                },
-                antv: {
-                  name: 'chunk-antv', // split antv into a single package
-                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?@antv(.*)/ // in order to adapt to cnpm
-                },
-                // exceljs: {
-                //   name: 'chunk-exceljs', // split exceljs into a single package
-                //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                //   test: /[\\/]node_modules[\\/]_?exceljs(.*)/ // in order to adapt to cnpm
-                // },
-                // hlsjs: {
-                //   name: 'chunk-hlsjs', // split hlsjs into a single package
-                //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                //   test: /[\\/]node_modules[\\/]_?hls\.js(.*)/ // in order to adapt to cnpm
-                // },
-                // flvjs: {
-                //   name: 'chunk-flvjs', // split hlsjs into a single package
-                //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                //   test: /[\\/]node_modules[\\/]_?flv\.js(.*)/ // in order to adapt to cnpm
-                // },
-                // player: {
-                //   name: 'chunk-player', // split hlsjs into a single package
-                //   priority: 40, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                //   test: /[\\/]src[\\/]components[\\/]Player(.*)/ // in order to adapt to cnpm
-                // },
-                commons: {
-                  name: 'chunk-commons',
-                  test: path.resolve(__dirname, 'src/components'),
-                  minChunks: 3, //  minimum common number
-                  priority: 5,
-                  reuseExistingChunk: true
-                }
-              }
-            })
-          config.optimization.runtimeChunk('single')
+    config.when(process.env.NODE_ENV !== 'development', (config) => {
+      config.optimization.splitChunks({
+        chunks: 'all',
+        maxAsyncRequests: 10,
+        maxInitialRequests: 10,
+        cacheGroups: {
+          libs: {
+            name: 'chunk-libs',
+            test: /[\\/]node_modules[\\/]/,
+            priority: 10,
+            chunks: 'initial' // only package third parties that are initially dependent
+          },
+          elementUI: {
+            name: 'chunk-elementUI', // split elementUI into a single package
+            priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+            test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+          },
+          antv: {
+            name: 'chunk-antv', // split antv into a single package
+            priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+            test: /[\\/]node_modules[\\/]_?@antv(.*)/ // in order to adapt to cnpm
+          },
+          // exceljs: {
+          //   name: 'chunk-exceljs', // split exceljs into a single package
+          //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+          //   test: /[\\/]node_modules[\\/]_?exceljs(.*)/ // in order to adapt to cnpm
+          // },
+          // hlsjs: {
+          //   name: 'chunk-hlsjs', // split hlsjs into a single package
+          //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+          //   test: /[\\/]node_modules[\\/]_?hls\.js(.*)/ // in order to adapt to cnpm
+          // },
+          // flvjs: {
+          //   name: 'chunk-flvjs', // split hlsjs into a single package
+          //   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+          //   test: /[\\/]node_modules[\\/]_?flv\.js(.*)/ // in order to adapt to cnpm
+          // },
+          // player: {
+          //   name: 'chunk-player', // split hlsjs into a single package
+          //   priority: 40, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+          //   test: /[\\/]src[\\/]components[\\/]Player(.*)/ // in order to adapt to cnpm
+          // },
+          commons: {
+            name: 'chunk-commons',
+            test: path.resolve(__dirname, 'src/components'),
+            minChunks: 3, //  minimum common number
+            priority: 5,
+            reuseExistingChunk: true
+          }
         }
-      )
+      })
+      config.optimization.runtimeChunk('single')
+    })
   }
 }

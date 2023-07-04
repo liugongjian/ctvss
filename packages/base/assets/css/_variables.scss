@@ -1,4 +1,6 @@
 /* stylelint-disable property-case */
+@import '../../../../node_modules/@cutedesign/ui/style/themes/default/variables';
+
 
 /* Color
 -------------------------- */
@@ -223,7 +225,8 @@ $transition-time: 200ms;
 
 /* Others from VSS */
 // Base color
-$primary: #fa8334;
+// $primary: #fa8334;
+$primary: $color-master;
 $primaryHover: #fb9c5d;
 $success: #52c41a;
 $warning: #ff9d3b;
