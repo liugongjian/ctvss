@@ -1,7 +1,7 @@
 <!--
  * @Author: 邱文琦
  * @LastEditors: 邱文琦
- * @LastEditTime: 2023-07-03 15:16:39
+ * @LastEditTime: 2023-07-04 11:02:35
  * @Description: 
 -->
 <template>
@@ -72,7 +72,7 @@ export default class extends Vue {
   }
 
   private checkPhone(rule, value, callback) {
-    if (!(/^1(3|4|5|6|7|8|9)+\d{9}$/.test(value))) {
+    if (value && !(/^1[3456789]\d{9}$/.test(value))) {
       callback(new Error('请输入正确的手机号'))
     } else {
       callback()
@@ -100,8 +100,11 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .dashboard-tips {
+  padding: 0 11px;
 
   a {
+    border-bottom: 1px solid $success;
+    color: $success;
     cursor: pointer;
   }
 
