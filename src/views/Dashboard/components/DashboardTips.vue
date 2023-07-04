@@ -1,7 +1,7 @@
 <!--
  * @Author: 邱文琦
  * @LastEditors: 邱文琦
- * @LastEditTime: 2023-07-04 11:02:35
+ * @LastEditTime: 2023-07-04 14:04:25
  * @Description: 
 -->
 <template>
@@ -27,8 +27,8 @@
       center
     >
       <el-form ref="ruleForm" :model="form" :rules="rules">
-        <el-form-item label="反馈内容" label-width="100px" prop="contnet">
-          <el-input v-model="form.contnet" type="textarea" maxlength="500" rows="6" autocomplete="off"></el-input>
+        <el-form-item label="反馈内容" label-width="100px" prop="content">
+          <el-input v-model="form.content" type="textarea" maxlength="500" rows="6" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="联系电话" label-width="100px" prop="phoneNumber">
           <el-input v-model="form.phoneNumber" autocomplete="off"></el-input>
@@ -56,13 +56,13 @@ export default class extends Vue {
   private dialogVisible = false
   
   private form = {
-    contnet: '',
+    content: '',
     phoneNumber: '',
     source: 'web'
   }
 
   private rules = {
-    contnet: [
+    content: [
       { required: true, message: '请输入反馈内容', trigger: 'blur' },
     ],
     phoneNumber: [
@@ -84,7 +84,7 @@ export default class extends Vue {
       if (valid) {
         try {
           await getFeedback(this.form)
-          this.form.contnet = ''
+          this.form.content = ''
           this.form.phoneNumber = ''
           this.$message.success('提交成功')
           this.dialogVisible = false
