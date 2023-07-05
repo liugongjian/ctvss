@@ -61,8 +61,6 @@ const validateNumber = (rule, value, callback) => {
 const validate7days = (rule, value, callback) => {
   const date7 = (getUnixTime(new Date()) - 7 * 24 * 60 * 60 - 5 * 60) * 1000
   const date = new Date(value).getTime()
-  console.log('date7:', date7)
-  console.log('date:', date)
   if (date < date7){
     callback(new Error('选择7日内的开始时间'))
   } else {

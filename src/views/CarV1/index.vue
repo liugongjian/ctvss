@@ -210,6 +210,7 @@ export default class extends Vue {
   private async getAuth(){
     const { authority } = await getAuthority({})
     this.authority = authority !== 'NOT_ALL'
+    console.log('this.authority:', this.authority)
   }
 
   private async refresh() {
