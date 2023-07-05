@@ -141,11 +141,11 @@ module.exports = {
       patterns: [
         path.resolve(
           __dirname,
-          'node_modules/@vss/base/assets/css/_variables.scss'
+          'node_modules/@cutedesign/ui/style/themes/default/variables.scss'
         ),
         path.resolve(
           __dirname,
-          'node_modules/@cutedesign/ui/style/themes/default/variables.scss'
+          'node_modules/@vss/base/assets/css/_variables.scss'
         ),
         path.resolve(__dirname, 'src/styles/_mixins.scss')
       ]
