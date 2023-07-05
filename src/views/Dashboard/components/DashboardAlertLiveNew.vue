@@ -2,6 +2,9 @@
   <component :is="container" title="今日AI告警" :less-padding="true">
     <div class="stats-container">
       <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
+        <div v-if="noAlarmTody" class="svg-container">
+          <img :src="require('@/icons/svg/empty.svg')" alt="">
+        </div>
         <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
         <el-divider v-if="noAlarmTody">历史告警</el-divider>
         <li v-for="item in list" :key="item.image" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
@@ -140,6 +143,22 @@ export default class extends Mixins(DashboardMixin) {
   min-width: 360px;
   overflow:auto;
   min-height: 800px;
+  padding-top: 80px;
+  .svg-container{
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    color:#F2F2F2;
+  }
+  .empty{
+    width: 40px;
+    height: 25px;
+  }
+  .empty-text{
+    margin-top: 20px;
+    margin-bottom: 80px;
+  }
+
 }
 
 .alert-list {

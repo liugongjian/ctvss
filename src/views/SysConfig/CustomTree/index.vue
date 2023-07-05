@@ -1289,8 +1289,8 @@ export default class extends Mixins(TreeMixin) {
           }
 
           &.actived {
-            border-right: 3px solid #ff7a04;
-            color: #ff7a04;
+            border-right: 3px solid $primary;
+            color: $primary;
 
             svg {
               background: rgba(255, 122, 4, 10%);

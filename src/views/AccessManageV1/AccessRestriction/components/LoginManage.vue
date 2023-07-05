@@ -15,7 +15,7 @@
     <div class="access-restriction__status">
       <span class="access-restriction__status-word">状态</span>
       <el-tooltip
-        v-if="loginStatus.loginStateCode === 1" 
+        v-if="loginStatus.loginStateCode === 1"
         class="item"
         effect="dark"
         placement="top-start"
@@ -394,7 +394,7 @@ export default class extends Vue {
 
   &__title {
     padding-left: 16px;
-    border-left: 8px solid #fa8334;
+    border-left: 8px solid $primary;
     height: 26px;
     line-height: 26px;
     font-size: 16px;
