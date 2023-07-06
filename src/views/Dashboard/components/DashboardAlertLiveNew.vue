@@ -1,7 +1,7 @@
 <template>
   <component :is="container" title="今日AI告警" :less-padding="true">
-    <div class="stats-container">
-      <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
+    <div ref="imgListContainer" class="stats-container" :style="`height:${height}px`">
+      <ul ref="imgList" v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }">
         <div v-if="noAlarmTody" class="svg-container">
           <img :src="require('@/icons/svg/empty.svg')" alt="">
         </div>
@@ -57,6 +57,7 @@ export default class extends Mixins(DashboardMixin) {
   private lastTime: any = null
   private alertFile = null
   private noAlarmTody = false
+  private height = 870
 
   private currentIndex = 0
 
@@ -109,7 +110,9 @@ export default class extends Mixins(DashboardMixin) {
         list = res.analysisResults
       }
       this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-
+      if (this.list.length < 8){
+        this.height = 100 * this.list.length + 250
+      }
     } catch (e) {
       console.log(e)
     } finally {
@@ -142,7 +145,7 @@ export default class extends Mixins(DashboardMixin) {
 .stats-container{
   min-width: 360px;
   overflow:auto;
-  min-height: 800px;
+  height: 870px;
   padding-top: 80px;
   .svg-container{
     height: 30px;

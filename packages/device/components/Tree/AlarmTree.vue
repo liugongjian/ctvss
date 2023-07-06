@@ -47,7 +47,6 @@ export default class extends Mixins(treeMixin) {
 
   private renderAlertType = renderAlertType
   public async onTreeLoadedHook(node, res) {
-    debugger
     if (node.level === 0) {
       const pathStr =  this.$route.query.path as string
       const pathList = pathStr ? pathStr.split(',') : []
