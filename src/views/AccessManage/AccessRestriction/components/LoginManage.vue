@@ -284,11 +284,16 @@ export default class extends Vue {
   }
 
   private handleClose() {
-    (this.$refs.form as any).resetFields()
-    this.form = {}
     this.ifShowSetAccessPassword = false
+    this.form = {}
   }
+
   private changeLoginDialog() {
+    this.$nextTick(() => {
+      if (this.$refs.form ){
+        (this.$refs.form as ElForm).resetFields()
+      }
+    })
     this.ifShowSetAccessPassword = true
   }
 
