@@ -118,12 +118,15 @@ export default class extends Vue {
   }
 
   private get chartTitle() {
-    if ((this.chartKind === 'bandwidth' || this.chartKind === 'storage') && this.selection) {
+    if (
+      (this.chartKind === 'bandwidth' || this.chartKind === 'storage') &&
+      this.selection
+    ) {
       return `${this.kindToText[this.chartKind][this.selection]['title']}(${
         this.unit
       })`
-    } else if (this.chartKind === 'service' && this.selection){
-      return  `${this.kindToText[this.chartKind][this.selection]['title']}`
+    } else if (this.chartKind === 'service' && this.selection) {
+      return `${this.kindToText[this.chartKind][this.selection]['title']}`
     }
     return this.kindToText[this.chartKind]['name']
   }
@@ -248,7 +251,7 @@ export default class extends Vue {
       const getUnit = () => {
         const values = [...totalData, ...demandData].map((item) => item.value)
         const minValue = Math.min(...values)
-        if (minValue > 1024) {
+        if (minValue > 1000) {
           if (this.selection.endsWith('bandwidth')) {
             return 'Gbps'
           } else {
@@ -319,7 +322,7 @@ export default class extends Vue {
       const getUnit = () => {
         const values = [...totalData, ...demandData].map((item) => item.value)
         const minValue = Math.min(...values)
-        if (minValue > 1024 * 1024 * 1024){
+        if (minValue > 1024 * 1024 * 1024) {
           return 'GB'
         }
         return 'MB'
