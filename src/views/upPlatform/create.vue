@@ -284,6 +284,9 @@ export default class extends Vue {
     cascadeRegion: [
       { required: true, message: '请选择级联区域', trigger: 'blur' }
     ],
+    gbRegion: [
+      { required: true, message: '请选择级联区域', trigger: 'blur' }
+    ],
     gbId: [
       { validator: this.validateGbId, trigger: 'blur' }
     ],
