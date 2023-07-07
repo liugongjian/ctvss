@@ -251,6 +251,9 @@ export default class extends Vue {
     cascadeRegion: [
       { required: true, message: '请选择级联区域', trigger: 'blur' }
     ],
+    gbRegion: [
+      { required: true, message: '请选择上级级联区域', trigger: 'blur' }
+    ],
     gbId: [
       { validator: this.validateGbId, trigger: 'blur' }
     ],
@@ -358,6 +361,7 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
+    debugger
     form.validate(async(valid: any) => {
       if (valid) {
         try {
