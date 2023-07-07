@@ -544,12 +544,23 @@ export default class extends Vue {
   }
 
   private async startPtzMove(direction: number, speed: number) {
-    const data = this.formatStartParam(direction, speed)
-    await startDeviceMove(data)
+    try {
+      const data = this.formatStartParam(direction, speed)
+      this.startPromise = startDeviceMove(data)
+      await this.startPromise
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 
   private async endPtzMove(direction: number) {
     try {
+      const tempPromise = this.startPromise
+      await tempPromise
+      if (this.startPromise !== tempPromise) {
+        return
+      }
+
       const data = this.formatEndParam(direction)
       await endDeviceMove(data)
     } catch (e) {
