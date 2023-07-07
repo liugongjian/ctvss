@@ -560,10 +560,11 @@ export default class extends Vue {
   private async startPtzMove(direction: number, speed: number) {
     try {
       const data = this.formatStartParam(direction, speed)
-      await startDeviceMove({
+      this.startPromise = startDeviceMove({
         ...data,
         inProtocol: this.screen.inProtocol
       })
+      await this.startPromise
     } catch (e) {
       this.$message.error(e && e.message)
     }
@@ -571,6 +572,12 @@ export default class extends Vue {
 
   private async endPtzMove(direction: number) {
     try {
+      const tempPromise = this.startPromise
+      await tempPromise
+      if (this.startPromise !== tempPromise) {
+        return
+      }
+
       const data = this.formatEndParam(direction)
       await endDeviceMove({
         ...data,
