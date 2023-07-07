@@ -7,9 +7,8 @@
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
       <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
-        <DashboardAIAbility />
-        <DashboardAlertLive :is-light="true" />
-        <DashboardAlertToday :is-light="true" :height="19" />
+        <DashboardAIAnalysis />
+        <DashboardAIAlert />
       </div>
     </div>
   </div>
@@ -24,6 +23,8 @@ import DashboardAIAbility from '@/views/DashboardV1/components/DashboardAIAbilit
 import DashboardDataToday from '@/views/DashboardV1/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/DashboardV1/components/DashboardResourcePackage.vue'
 import { UserModule } from '@/store/modules/user'
+import DashboardAIAlert from '@/views/Dashboard/components/DashboardAIAlert.vue'
+import DashboardAIAnalysis from '@/views/Dashboard/components/DashboardAIAnalysis.vue'
 
 @Component({
   name: 'Dashboard',
@@ -33,7 +34,9 @@ import { UserModule } from '@/store/modules/user'
     DashboardFlowAndDevice,
     DashboardAIAbility,
     DashboardDataToday,
-    DashboardResourcePackage
+    DashboardResourcePackage,
+    DashboardAIAlert,
+    DashboardAIAnalysis
   }
 })
 export default class extends Vue {
