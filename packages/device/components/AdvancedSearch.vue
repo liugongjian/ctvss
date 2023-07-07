@@ -184,7 +184,8 @@ export default class extends Vue {
                                           this.form.deviceStatusKeys.length ||
                                           this.form.streamStatusKeys.length ||
                                           this.form.deviceAddresses.code)
-    this.$emit('search', this.form)
+                                          
+    this.form.revertSearchFlag ? this.$emit('search', this.form) : this.revertSearchResult()
   }
 
   /**
