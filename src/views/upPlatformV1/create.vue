@@ -96,7 +96,7 @@
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="cascadeRegion" class="form-with-tip">
+        <el-form-item prop="gbRegion" class="form-with-tip">
           <template slot="label">
             上级级联区域:
           </template>
@@ -393,7 +393,7 @@ export default class extends Vue {
    * 递归查找目标区域的所在路径
    */
   private getRegionPath(regions: any, target: string) {
-    let path: Array<any> = []
+    const path: Array<any> = []
     try {
       const _find: any = function(path: Array<string>, children: any, parentValue: any) {
         for (let i = 0; i < children.length; i++) {
