@@ -285,7 +285,7 @@ export default class extends Vue {
       { required: true, message: '请选择级联区域', trigger: 'blur' }
     ],
     gbRegion: [
-      { required: true, message: '请选择级联区域', trigger: 'blur' }
+      { required: true, message: '请选择上级级联区域', trigger: 'blur' }
     ],
     gbId: [
       { validator: this.validateGbId, trigger: 'blur' }
