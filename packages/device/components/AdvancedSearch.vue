@@ -154,6 +154,10 @@ export default class extends Vue {
     {
       label: '杆位',
       value: 'poleId'
+    },
+    {
+      label: '设备ID',
+      value: 'deviceId'
     }
   ]
   private inProtocolList = [
