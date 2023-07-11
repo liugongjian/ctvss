@@ -7,7 +7,7 @@
     :close-on-click-modal="false"
     @close="closeDialog"
   >
-    <div v-if="type === 'record'">
+    <div v-if="info && type === 'record'">
       <div style="margin-bottom: 20px;margin-left: 8px;">任务历史</div>
       <div class="history">
         <div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.operate)} ` }}<span style="color: #9e9e9e;">{{ `${op.operateTime}` }}</span></div>
@@ -15,14 +15,20 @@
     </div>
     <div class="dialog-player-wrapper">
       <detail-preview
-        v-if="type === 'preview'"
-        :device-id-car="record.deviceId"
+        v-if="info && type === 'preview'"
+        :device-id="record.deviceId"
+        :in-protocol="record.inProtocol"
+        :device-name="info.deviceName"
+        :streams="info.deviceStreams"
+        :stream-size="info.multiStreamSize"
       />
       <detail-replay
-        v-if="type === 'record'"
+        v-if="info && type === 'record'"
+        :device-id="record.deviceId"
+        :in-protocol="record.inProtocol"
+        :device-name="info.deviceName"
         :datetime-range="dateTimeRange"
         :is-car-task="true"
-        :device-id-car="record.deviceId"
       />
     </div>
     <div slot="title" class="dialog-title">
@@ -33,9 +39,9 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import DetailPreview from '@vss/device/components/DeviceDetail/DevicePreview.vue'
-import DetailReplay from '@vss/device/components/DeviceDetail/DeviceReplay.vue'
-// import { getDevice } from '@/api/device'
+import DetailPreview from '@/views/device/components/DetailPreview.vue'
+import DetailReplay from '@/views/device/components/DetailReplay.vue'
+import { getDevice } from '@/api/device'
 import { getCarTask } from '@/api/car'
 import { getUnixTime, parse } from 'date-fns'
 
@@ -61,9 +67,12 @@ export default class extends Vue {
   private dateTimeRange = {}
   private Operations = []
 
-
   public async mounted() {
     try {
+      this.info = await getDevice({
+        deviceId: this.record?.deviceId,
+        inProtocol: this.record?.inProtocol
+      })
       if (this.type === 'record') {
         this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
       }
