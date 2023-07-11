@@ -98,7 +98,16 @@ export class RecordManager {
    */
   public async initReplay() {
     this.currentRecord = null
-    this.getRecordListByDate(this.currentDate)
+    if (!this.screen.isCarTask) {
+      this.getRecordListByDate(this.currentDate)
+    } else {
+      let seekTime = this.screen.currentRecordDatetime
+      if (this.screen.datetimeRange) {
+        seekTime = Math.max(this.screen.currentRecordDatetime, this.screen.datetimeRange.startTime)
+      }
+      this.seek(seekTime, true)
+    }
+    // this.getRecordListByDate(this.currentDate)
     this.getRecordStatistic()
     this.getLatestRecord()
   }
