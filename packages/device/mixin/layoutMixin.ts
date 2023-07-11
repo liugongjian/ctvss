@@ -29,11 +29,13 @@ export default class LayoutMixin extends Vue {
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
     deviceStatusKeys: [],
+    viidStatusKeys: [],
     streamStatusKeys: [],
     deviceAddresses: {
       code: '',
       level: ''
     },
+    inProtocolKey: '',
     matchKeys: [],
     inputKey: '',
     searchKey: '',
@@ -125,7 +127,7 @@ export default class LayoutMixin extends Vue {
 
   /* 设备目录树是否懒加载依据 */
   public get lazy(): boolean {
-    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
+    return ['deviceStatusKeys', 'viidStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'inProtocolKey', 'matchKeys', 'searchKey'].every(
       param => !this.$route.query[param]
     )
   }

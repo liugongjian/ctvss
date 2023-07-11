@@ -291,9 +291,11 @@ const exportDeviceFile = async function (state, data: any) {
         sortBy: '',
         sortDirection: 'desc',
         deviceStatusKeys: query.deviceStatusKeys || undefined,
+        viidStatusKeys: query.viidStatusKeys || undefined,
         streamStatusKeys: query.streamStatusKeys || undefined,
         matchKeys: query.matchKeys || undefined,
         deviceAddresses: query.deviceAddresses && query.deviceAddresses.split(',')[0] ? query.deviceAddresses : undefined,
+        inProtocolKey: query.inProtocolKey || undefined,
         searchKey: query.searchKey || undefined,
         pageNum: 1,
         pageSize: 9999

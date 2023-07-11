@@ -648,7 +648,9 @@ export default class extends Mixins(deviceMixin) {
       [DeviceEnum.PageSize]: this.pager.pageSize,
       // 搜索树携带过滤字段
       searchKey: queryData.searchKey || undefined,
+      inProtocolKey: queryData.inProtocolKey || undefined,
       deviceStatusKeys: queryData.deviceStatusKeys || undefined,
+      viidStatusKeys: queryData.viidStatusKeys || undefined,
       streamStatusKeys: queryData.streamStatusKeys || undefined,
       deviceAddresses: queryData.deviceAddresses && (queryData.deviceAddresses as string).split(',')[0] ? queryData.deviceAddresses : undefined,
       matchKeys: queryData.matchKeys || undefined

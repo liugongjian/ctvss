@@ -32,6 +32,11 @@
             <el-checkbox v-for="deviceStatus in deviceStatusList" :key="deviceStatus.value" :label="deviceStatus.value">{{ deviceStatus.label }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="视图接入:" prop="viidStatusKeys">
+          <el-checkbox-group v-model="innerForm.viidStatusKeys">
+            <el-checkbox v-for="viidStatus in viidStatusList" :key="viidStatus.value" :label="viidStatus.value">{{ viidStatus.label }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item label="视频流:" prop="streamStatusKeys">
           <el-checkbox-group v-model="innerForm.streamStatusKeys">
             <el-checkbox v-for="streamStatus in streamStatusList" :key="streamStatus.value" :label="streamStatus.value">{{ streamStatus.label }}</el-checkbox>
@@ -43,6 +48,16 @@
             :level="innerForm.deviceAddresses.level"
             @change="onDeviceAddressChange"
           />
+        </el-form-item>
+        <el-form-item label="接入协议:" prop="inProtocolKey">
+          <el-select v-model="innerForm.inProtocolKey">
+            <el-option
+              v-for="inProtocol in inProtocolList"
+              :key="inProtocol.value"
+              :label="inProtocol.label"
+              :value="inProtocol.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="关键字匹配:" prop="matchKeys">
           <el-checkbox-group v-model="innerForm.matchKeys">
@@ -85,6 +100,28 @@ export default class extends Vue {
     {
       label: '未注册',
       value: 'new'
+    },
+    {
+      label: '停用',
+      value: 'unBinding'
+    }
+  ]
+  private viidStatusList = [
+    {
+      label: '在线',
+      value: 'on'
+    },
+    {
+      label: '离线',
+      value: 'off'
+    },
+    {
+      label: '未注册',
+      value: 'new'
+    },
+    {
+      label: '停用',
+      value: 'unBinding'
     }
   ]
   private streamStatusList = [
@@ -119,16 +156,30 @@ export default class extends Vue {
       value: 'poleId'
     }
   ]
+  private inProtocolList = [
+    { label: 'GB28181', value: 'gb28181' },
+    { label: 'RTMP', value: 'rtmp' },
+    { label: 'RTSP', value: 'rtsp' },
+    { label: 'EHOME', value: 'ehome' },
+    { label: 'GA1400', value: 'ga1400' }
+  ]
   public get highlightFilterButton() {
-    return this.searchForm.deviceStatusKeys.length || this.searchForm.streamStatusKeys.length || this.searchForm.matchKeys.length || this.searchForm.deviceAddresses.code
+    return this.searchForm.deviceStatusKeys.length
+      ||  this.searchForm.viidStatusKeys.length
+      || this.searchForm.streamStatusKeys.length
+      || this.searchForm.matchKeys.length
+      || this.searchForm.inProtocolKey
+      || this.searchForm.deviceAddresses.code
   }
   private form: AdvancedSearch = {
     deviceStatusKeys: [],
+    viidStatusKeys: [],
     streamStatusKeys: [],
     deviceAddresses: {
       code: '',
       level: ''
     },
+    inProtocolKey: '',
     matchKeys: [],
     inputKey: '',
     searchKey: '',
@@ -137,15 +188,14 @@ export default class extends Vue {
 
   private innerForm: any = {
     deviceStatusKeys: [],
+    viidStatusKeys: [],
     streamStatusKeys: [],
     deviceAddresses: {
       code: '',
       level: ''
     },
+    inProtocolKey: '',
     matchKeys: []
-  }
-
-  private mounted() {
   }
 
   private openAdvancedSearch() {
@@ -169,10 +219,11 @@ export default class extends Vue {
   private async filterSearchResult() {
     const query = {
       ...this.$route.query,
-      inProtocol: this.$route.query.inProtocal,
       deviceStatusKeys: this.form.deviceStatusKeys.join(','),
+      viidStatusKeys: this.form.viidStatusKeys.join(','),
       streamStatusKeys: this.form.streamStatusKeys.join(','),
       deviceAddresses: this.form.deviceAddresses.code + ',' + this.form.deviceAddresses.level,
+      inProtocolKey: this.form.inProtocolKey,
       matchKeys: this.form.matchKeys.join(','),
       searchKey: this.form.inputKey
     }
@@ -182,7 +233,9 @@ export default class extends Vue {
     this.form.searchKey = this.form.inputKey
     this.form.revertSearchFlag = Boolean(this.form.searchKey ||
                                           this.form.deviceStatusKeys.length ||
+                                          this.form.viidStatusKeys.length ||
                                           this.form.streamStatusKeys.length ||
+                                          this.form.inProtocolKey ||
                                           this.form.deviceAddresses.code)
                                           
     this.form.revertSearchFlag ? this.$emit('search', this.form) : this.revertSearchResult()
@@ -195,19 +248,23 @@ export default class extends Vue {
     this.form.inputKey = ''
     this.form.searchKey = ''
     this.form.deviceStatusKeys = []
+    this.form.viidStatusKeys = []
     this.form.streamStatusKeys = []
     this.form.deviceAddresses = {
       code: '',
       level: ''
     }
+    this.form.inProtocolKey = ''
     this.form.matchKeys = []
     this.form.revertSearchFlag = false
     // 退出搜索时不清空当前所在路径，便于initDirs后直接定位到之前路径
     const query = {
       ...this.$route.query,
       deviceStatusKeys: '',
+      viidStatusKeys: '',
       streamStatusKeys: '',
       deviceAddresses: '',
+      inProtocolKey: '',
       matchKeys: '',
       searchKey: ''
     }
