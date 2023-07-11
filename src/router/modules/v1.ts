@@ -1313,7 +1313,7 @@ export const v1Router: RouteConfig[] = [
       {
         path: 'ai-alarm',
         component: () =>
-          import(/* webpackChunkName: "alarm" */ '@/views/Alarm/AI/index.vue'),
+          import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/index.vue'),
         name: 'AiAlarm',
         meta: {
           title: 'AI告警',

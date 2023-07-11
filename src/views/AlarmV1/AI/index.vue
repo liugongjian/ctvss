@@ -3,7 +3,7 @@
     <el-card>
       <el-tabs v-model="activeTab">
         <el-tab-pane label="AI告警列表" name="list" />
-        <el-tab-pane label="AI告警统计" name="stats" />
+        <el-tab-pane label="AI告警统计1111" name="stats" />
       </el-tabs>
       <common-layout v-if="activeTab === 'list'" ref="deviceWrap">
         <template slot="leftHeader">
@@ -14,7 +14,7 @@
           </el-tooltip>
         </template>
         <template slot="leftBody">
-          <AIAlarmTree
+          <AIAlarmTreeV1
             ref="deviceTree"
             @handle-node="handleTreeNode"
           />
@@ -36,14 +36,14 @@
 <script lang="ts">
 import { Component, Mixins, Provide } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
-import AIAlarmTree from '@vss/device/components/Tree/AIAlarmTree.vue'
+import AIAlarmTreeV1 from '@vss/device/components/Tree/AIAlarmTreeV1.vue'
 import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import Statics from './Statics.vue'
 
 @Component({
   name: 'Alarm',
   components: {
-    AIAlarmTree,
+    AIAlarmTreeV1,
     Breadcrumb,
     Statics
   }
