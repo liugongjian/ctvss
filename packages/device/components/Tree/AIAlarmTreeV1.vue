@@ -5,7 +5,7 @@
     :node-key="nodeKey"
     :root-key="rootKey"
     :default-key="defaultKey"
-    :data="data"
+    :data="dirList"
     :lazy="lazy"
     :load="treeLoadAiV1"
     :props="defaultProps"
@@ -25,7 +25,7 @@
       <status-badge v-if="checkVisible(data.type, toolsEnum.StreamStatus, null, data)" :status="data[deviceEnum.StreamStatus]" />
     </template>
     <template slot="itemLabel" slot-scope="{ node }">
-      {{ node.label }}
+      {{ node.data.label }}
     </template>
     <template slot="itemLabelSuffix" slot-scope="{ data }">
       <span class="alert-type">{{ renderAlertType(data) }}</span>
@@ -46,6 +46,12 @@ export default class extends Mixins(treeMixin) {
   public filterTypeArr
 
   private renderAlertType = renderAlertType
+
+  private mounted(){
+    this.initDirsAlarm()
+  }
+
+
   public async onTreeLoadedHook(node, res) {
     return res.dirs
   }

@@ -3,7 +3,7 @@
     <el-card>
       <el-tabs v-model="activeTab">
         <el-tab-pane label="AI告警列表" name="list" />
-        <el-tab-pane label="AI告警统计1111" name="stats" />
+        <el-tab-pane label="AI告警统计" name="stats" />
       </el-tabs>
       <common-layout v-if="activeTab === 'list'" ref="deviceWrap">
         <template slot="leftHeader">
@@ -19,12 +19,12 @@
             @handle-node="handleTreeNode"
           />
         </template>
-        <template slot="rightHeader">
+        <!-- <template slot="rightHeader">
           <breadcrumb
             ref="breadcrumb"
             @node-change="handleTreeNode"
           />
-        </template>
+        </template> -->
         <template slot="rightBody">
           <router-view :max-height="maxHeight" />
         </template>
@@ -80,6 +80,7 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
+    console.log('data:', data)
     if (data.type === 'ipc' || data.id === ''){
       const { id } = data || {}
       const router = {

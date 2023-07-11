@@ -10,6 +10,7 @@ import { UserModule } from '@/store/modules/user'
 import { AppModule, SystemType } from '@/store/modules/app'
 import { getTreeList } from '@/api/customTree'
 import { getDeviceTree } from '@/api/device'
+import { getGroups } from '@/api/group'
 
 
 @Component({
@@ -45,6 +46,8 @@ export default class TreeMixin extends Vue {
   public directoryTypeEnum = DirectoryTypeEnum
   public inVideoProtocolEnum = InVideoProtocolEnum
   public policyEnum = PolicyEnum
+
+  public dirList = []
 
   /* 树节点的唯一标识字段 */
   public nodeKey = 'id'
@@ -244,7 +247,6 @@ export default class TreeMixin extends Vue {
    * @param node 节点信息
    */
   public async treeLoadAiV1(node) {
-    debugger
     if (node.level === 0) return []
     const dirs = await this.getTreeV1(node)
     return dirs
@@ -277,6 +279,42 @@ export default class TreeMixin extends Vue {
       return dirs
     } catch (e) {
       console.log(e)
+    }
+  }
+
+  /**
+   * 目录初始化
+   */
+  public async initDirsAlarm() {
+    try {
+      this.loading = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol !== 'vgroup' &&
+          this.dirList.push({
+            id: group.groupId,
+            groupId: group.groupId,
+            label: group.groupName,
+            inProtocol: group.inProtocol,
+            type: 'group',
+            parentId: '0',
+            path: [
+              {
+                id: group.groupId,
+                label: group.groupName,
+                type: 'group'
+              }
+            ],
+            isLeaf: group.inProtocol !== 'gb28181'
+          })
+      })
+    } catch (e) {
+      // this.dirList = []
+    } finally {
+      this.loading = false
     }
   }
 

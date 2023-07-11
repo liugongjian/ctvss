@@ -231,7 +231,7 @@ export default class extends Mixins(TreeMixin) {
   private renderAlertType = renderAlertType
   private getTotalOfTree = getTotalOfTree
 
-  private dirList = []
+  public dirList = []
   private treeDirList = []
   private treeList: Array<any> = []
 
