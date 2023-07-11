@@ -21,7 +21,7 @@
                 size="mini"
               >
                 <el-table-column prop="iamUserName" label="用户名">
-                  <template slot-scope="{row, $index}">
+                  <template slot-scope="{ row, $index }">
                     <el-form-item
                       :prop="'userInfo.' + $index + '.iamUserName'"
                       :rules="rules.iamUserName"
@@ -32,7 +32,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="email" label="邮箱">
-                  <template slot-scope="{row, $index}">
+                  <template slot-scope="{ row, $index }">
                     <el-form-item
                       :prop="'userInfo.' + $index + '.email'"
                       :rules="rules.email"
@@ -43,7 +43,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="phone" label="手机">
-                  <template slot-scope="{row, $index}">
+                  <template slot-scope="{ row, $index }">
                     <el-form-item
                       :prop="'userInfo.' + $index + '.phone'"
                       :rules="rules.phone"
@@ -54,7 +54,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="desc" label="备注">
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <el-input v-model="row.desc" />
                   </template>
                 </el-table-column>
@@ -156,7 +156,7 @@
                       </template>
                     </el-table-column>
                     <el-table-column label="操作" width="80">
-                      <template slot-scope="{row}">
+                      <template slot-scope="{ row }">
                         <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
                       </template>
                     </el-table-column>
@@ -192,12 +192,12 @@
                         <el-table-column type="selection" />
                         <el-table-column prop="iamUserName" label="账号名" min-width="120" />
                         <el-table-column prop="desc" label="备注" min-width="220" show-overflow-tooltip>
-                          <template slot-scope="{row}">
+                          <template slot-scope="{ row }">
                             <span>{{ row.desc || '-' }}</span>
                           </template>
                         </el-table-column>
                         <el-table-column label="账号关联策略" min-width="300">
-                          <template slot-scope="{row}">
+                          <template slot-scope="{ row }">
                             <el-tag v-for="policy in row.policies" :key="policy.policyId" style="margin-right: 3px;">{{ policy.policyName }}</el-tag>
                           </template>
                         </el-table-column>
@@ -266,7 +266,7 @@
                   prop="inherited"
                   label="是否继承"
                 >
-                  <template slot-scope="{row}">
+                  <template slot-scope="{ row }">
                     <el-tag v-if="row.inherited" type="success">是</el-tag>
                     <el-tag v-else type="primary">否</el-tag>
                   </template>
@@ -313,7 +313,7 @@
         <el-table :data="newUserData" style="width: 100%;">
           <el-table-column prop="userName" label="用户名" />
           <el-table-column prop="passwords" label="密码">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <div v-if="row.passwords">
                 <span>{{ row.showPasswords ? row.passwords : '****' }}</span>
                 <span v-if="row.showPasswords" class="text-btn" @click="row.showPasswords = false">隐藏</span>
@@ -325,7 +325,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="secrets" label="密钥">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <div>
                 <span>AccessKeyId：</span>
                 <span>{{ row.secretId ? row.secretId : '--' }}</span>
@@ -392,8 +392,8 @@ export default class extends Vue {
   private userList = []
   private effectivePolicies = []
   private inheritedPolicies = []
-  private cardIndex: string = 'form'
-  private breadCrumbContent: string = ''
+  private cardIndex = 'form'
+  private breadCrumbContent = ''
   private lifeTimeOptions = [
     {
       value: 30,
@@ -443,7 +443,6 @@ export default class extends Vue {
       { validator: this.validateEmail, trigger: 'blur' }
     ],
     phone: [
-      { required: true, message: '手机号不能为空', trigger: ['blur', 'change'] },
       { validator: this.validatePhone, trigger: 'blur' }
     ],
     passwordLifeTime: [
@@ -459,8 +458,8 @@ export default class extends Vue {
   }
   private policyList: Array<object> = []
   private newUserData: Array<object> = []
-  private showSecretKey: boolean = false
-  private fromUrl: string = ''
+  private showSecretKey = false
+  private fromUrl = ''
 
   private editPolicy(row: any) {
     this.$router.push({
@@ -552,7 +551,7 @@ export default class extends Vue {
         pageSize: -1,
         pageNum: -1
       }
-      let res: any = await getUserList(params)
+      const res: any = await getUserList(params)
       this.userList = res.iamUsers.map((iamUser: any) => {
         return {
           iamUserId: iamUser.iamUserId,
@@ -579,8 +578,8 @@ export default class extends Vue {
       const res = await getGroupList({
         parentGroupId: node.data.groupId
       })
-      let groups = res.groups
-      let dirs: any = groups.map((group: any) => {
+      const groups = res.groups
+      const dirs: any = groups.map((group: any) => {
         return {
           groupName: group.groupName,
           groupId: group.groupId
@@ -618,7 +617,7 @@ export default class extends Vue {
 
   private copyRow(row: any, type: any) {
     if (type === 'data') {
-      let str = `
+      const str = `
       主账号ID：${row.mainUserId}
       用户名：${row.userName}
       登录密码：${row.passwords}
@@ -644,7 +643,7 @@ export default class extends Vue {
     if (this.fromUrl === 'access-manage-dashboard') {
       this.$router.go(-1)
     } else {
-      let query: any = this.$route.query
+      const query: any = this.$route.query
       this.$router.push({
         name: 'AccessManageUser',
         params: {
@@ -656,7 +655,7 @@ export default class extends Vue {
 
   private async initParentGroupInfo(parentGroupId: string) {
     try {
-      let params = {
+      const params = {
         groupId: parentGroupId
       }
       const [inheritedPoliciesRes, groupRes] =
@@ -711,12 +710,12 @@ export default class extends Vue {
   }
 
   private async getPolicyList() {
-    let params: any = {
+    const params: any = {
       pageSize: 1000,
       policyType: 'subUser'
     }
     try {
-      let res: any = await getPolicyList(params)
+      const res: any = await getPolicyList(params)
       this.policyList = res.iamPolicies
     } catch (e) {
       this.$message.error(e && e.message)
@@ -726,7 +725,7 @@ export default class extends Vue {
   private async getUser() {
     try {
       const userId = this.$router.currentRoute.query.userId
-      let res = await getUser({
+      const res = await getUser({
         iamUserId: userId
       })
       this.form = {
@@ -749,7 +748,7 @@ export default class extends Vue {
       }
       const policyList: any = this.$refs.policyList
       res.policies.forEach(policy => {
-        let selectRow = this.policyList.find((row: any) => {
+        const selectRow = this.policyList.find((row: any) => {
           return row.policyId === policy.policyId
         })
         policyList.toggleRowSelection(selectRow)
@@ -764,7 +763,7 @@ export default class extends Vue {
     const form: any = this.$refs.userForm
     form.validate(async(valid: any) => {
       const form = this.form
-      let params: any = {
+      const params: any = {
         userProperties: this.form.userInfo,
         policyIds: this.activeName === 'select'
           ? form.policies.map(policy => policy.policyId)
@@ -781,7 +780,7 @@ export default class extends Vue {
           this.loading.submit = true
           if (type === 'add') {
             params.groupId = this.$router.currentRoute.query.groupId
-            let res = await createUser(params)
+            const res = await createUser(params)
             this.cardIndex = 'table'
             this.newUserData = res.createdUserInfos.map(userInfo => ({
               mainUserId: userInfo.mainUserId,
@@ -821,7 +820,7 @@ export default class extends Vue {
    */
   private async exportExel() {
     const ExcelJS = await import(/* webpackChunkName: "exceljs" */ 'exceljs')
-    const exelName: string = '新建用户的所有信息'
+    const exelName = '新建用户的所有信息'
     const workbook = new ExcelJS.Workbook()
     workbook.views = [
       {
@@ -846,8 +845,8 @@ export default class extends Vue {
       worksheet.addRow(user)
     })
     const buffer = await workbook.xlsx.writeBuffer()
-    var blob = new Blob([buffer], { type: 'application/xlsx' })
-    var link = document.createElement('a')
+    const blob = new Blob([buffer], { type: 'application/xlsx' })
+    const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${exelName}.xlsx`
     link.click()

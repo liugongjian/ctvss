@@ -68,15 +68,37 @@
             </div>
           </div>
           <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
-            <el-table-column prop="iamUserName" label="用户名">
+            <el-table-column prop="iamUserName" label="用户名" width="180">
               <template slot-scope="{ row }">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policies" label="策略名" width="280">
+            <el-table-column prop="iamUserId" label="账号ID" width="220" />
+            <el-table-column prop="policies" label="策略名" width="260">
               <template slot-scope="{ row }">
                 <span>{{ row.policies || '-' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="关联信息" width="140" align="center">
+              <template slot-scope="{ row }">
+                <template v-if="row.phone">
+                  <el-tooltip effect="dark" placement="top">
+                    <div slot="content">
+                      <span>{{ formatToolTip(row) }}</span>
+                      <span
+                        v-if="row.phoneVerified === 0"
+                        :class="['resend-button', row.secondCnt > 0 ? 'disabled' : '']"
+                        @click="verifyPhone(row)"
+                      >
+                        {{ `重新发送验证${row.secondCnt > 0 ? '(' + row.secondCnt + ')': ''}` }}
+                      </span>
+                    </div>
+                    <svg-icon v-if="row.phoneVerified === 0" name="mobile-unknown"></svg-icon>
+                    <svg-icon v-else-if="row.phoneVerified === 1" name="mobile-success" style="color: #52c41a;"></svg-icon>
+                    <svg-icon v-else-if="row.phoneVerified === 2" name="mobile-fail" style="color: #f5212d;"></svg-icon>
+                  </el-tooltip>
+                </template>
+                <span v-else>-</span>
               </template>
             </el-table-column>
             <el-table-column prop="createdTime" label="创建时间" width="200" />
@@ -112,7 +134,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
-import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
+import { getGroupList, getUserList, deleteUser, verifyPhone } from '@/api/accessManage'
 import { changeIAMPassword } from '@/api/users'
 import { encrypt } from '@/utils/encrypt'
 import copy from 'copy-to-clipboard'
@@ -212,6 +234,49 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 格式化手机号
+   */
+  private formatToolTip(row: any) {
+    const phoneStr = row.phone.slice(0, 3) + '*****' + row.phone.slice(-3)
+    const tipMap = {
+      '0': '，该消息通道未验证',
+      '1': '，已验证该消息通道',
+      '2': '，该手机号不正确，验证失败，请修改'
+    }
+    const tipStr = tipMap[row.phoneVerified]
+    return phoneStr + tipStr
+  }
+
+  private async verifyPhone(row: any) {
+    console.log('clicked....')
+    if (row.secondCnt <= 0) {
+      try {
+        await verifyPhone({
+          iamUserId: row.iamUserId
+        })
+        this.$message.success('验证短信发送成功!')
+        row.secondCnt = 60
+        clearInterval(row.secondCntTimer)
+        row.secondCntTimer = setInterval(() => {
+          if (row.secondCnt > 0) {
+            row.secondCnt--
+          } else {
+            clearInterval(row.secondCntTimer)
+          }
+        }, 1000)
+      } catch (err) {
+        this.$message.error(err && err.message)
+      }
+    }
+  }
+
+  private beforeDestroy() {
+    this.userList.forEach((row: any) => {
+      clearInterval(row.secondCntTimer)
+    })
   }
 
   /**
@@ -355,7 +420,10 @@ export default class extends Vue {
           iamUserId: iamUser.iamUserId,
           iamUserName: iamUser.iamUserName,
           policies: iamUser.policies.map(policy => policy.policyName).join('|'),
-          createdTime: iamUser.createdTime
+          phone: iamUser.phone,
+          phoneVerified: iamUser.phoneVerified,
+          createdTime: iamUser.createdTime,
+          secondCnt: 0
         }
       })
       pager.total = res.totalNum
@@ -666,5 +734,19 @@ $titleBackground: #f8f8f8;
 
 :hover .click__user {
   cursor: pointer;
+}
+
+.resend-button {
+  margin-left: 5px;
+  font-size: 12px;
+  line-height: 1;
+  text-decoration: underline;
+  cursor: pointer;
+  color: $primary;
+}
+
+.resend-button.disabled {
+  color: $disabled-color;
+  cursor: wait;
 }
 </style>
