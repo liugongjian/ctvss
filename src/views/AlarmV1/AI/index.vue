@@ -19,12 +19,19 @@
             @handle-node="handleTreeNode"
           />
         </template>
-        <!-- <template slot="rightHeader">
-          <breadcrumb
-            ref="breadcrumb"
-            @node-change="handleTreeNode"
-          />
-        </template> -->
+        <template slot="rightHeader">
+          <div class="breadcrumb">
+            <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
+            <span
+              v-for="item in breadcrumbItems"
+              :key="item.id"
+              class="breadcrumb__item"
+              @click="deviceRouter(item)"
+            >
+              {{ item.label }}
+            </span>
+          </div>
+        </template>
         <template slot="rightBody">
           <router-view :max-height="maxHeight" />
         </template>
@@ -37,14 +44,12 @@
 import { Component, Mixins, Provide } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
 import AIAlarmTreeV1 from '@vss/device/components/Tree/AIAlarmTreeV1.vue'
-import Breadcrumb from '@vss/device/components/Breadcrumb.vue'
 import Statics from './Statics.vue'
 
 @Component({
   name: 'Alarm',
   components: {
     AIAlarmTreeV1,
-    Breadcrumb,
     Statics
   }
 })
@@ -55,6 +60,10 @@ export default class extends Mixins(layoutMxin) {
     createDir: false
   }
   private activeTab = 'list'
+  private currentNodeData: any = {}
+
+  public breadcrumbItems = []
+
 
   public async mounted() {
     this.calMaxHeight()
@@ -82,20 +91,58 @@ export default class extends Mixins(layoutMxin) {
   private async handleTreeNode(data: any) {
     console.log('data:', data)
     if (data.type === 'ipc' || data.id === ''){
-      const { id } = data || {}
-      const router = {
-        name: 'AIAlarmList',
-        query: {
-          dirId: data.id,
-          deviceId: data.id,
-          type: data.type,
-          inProtocol: data.inVideoProtocol
+      const { id } = data
+      let router
+      if ( id === '' ){
+        router = {
+          name: 'AIAlarmList',
+          query: {
+            deviceId: id
+          }
+        }
+      } else {
+        router = {
+          name: 'AIAlarmList',
+          query: {
+            deviceId: data.id,
+            type: data.type,
+            path: data.path.map(item => item.id).join(',')
+          }
         }
       }
+
       this.deviceTree.setCurrentKey(id)
       if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
       this.$router.push(router)
+      this.breadcrumbItems = data.path
+      this.currentNodeData = data
     }
+  }
+
+
+    /**
+   * 设备页面路由
+   */
+  public async deviceRouter(dest: any) {
+
+    if (dest.type === 'ipc'){
+      const router = {
+          name: 'AIAlarmList',
+          query: {
+            deviceId: dest.id,
+            type: dest.type,
+            path: dest.path.map(item => item.id).join(',')
+          }
+        }
+        this.$router.push(router)
+      }
+
+  }
+
+
+  private async gotoRoot() {
+    this.handleTreeNode({ id: '' })
+    this.breadcrumbItems = []
   }
 
 }
