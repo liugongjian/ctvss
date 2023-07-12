@@ -1015,7 +1015,7 @@ export default class extends Vue {
 
   &__title {
     padding-left: 16px;
-    border-left: 8px solid #fa8334;
+    border-left: 8px solid $primary;
     height: 26px;
     line-height: 26px;
     font-size: 16px;
