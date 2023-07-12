@@ -94,6 +94,7 @@
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.totalNum"
+      :page-sizes="pager.pageSizes"
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -149,7 +150,8 @@ export default class extends Vue {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    totalNum: 0
+    totalNum: 0,
+    pageSizes: [10, 20, 30, 40, 50]
   }
 
   private confidence = 0
@@ -325,6 +327,7 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
+    this.refresh()
   }
 
   /**
