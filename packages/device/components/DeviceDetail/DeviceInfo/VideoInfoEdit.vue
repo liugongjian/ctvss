@@ -99,9 +99,10 @@ export default class extends Vue {
     }
 
     const currentVideoForm = this.device.videos[0][InVideoProtocolModelMapping[this.device.videos[0].inVideoProtocol]]
+    console.log(currentVideoForm[DeviceEnum.EnabledGB35114], form.videoForm[DeviceEnum.EnabledGB35114], currentVideoForm[DeviceEnum.Gb35114Mode], form.videoForm[DeviceEnum.Gb35114Mode])
     if (
       currentVideoForm[DeviceEnum.EnabledGB35114] !== form.videoForm[DeviceEnum.EnabledGB35114]
-      || currentVideoForm[DeviceEnum.Gb35114Mode] !== form.videoForm[DeviceEnum.Gb35114Mode]
+      || (currentVideoForm[DeviceEnum.Gb35114Mode] && (currentVideoForm[DeviceEnum.Gb35114Mode] !== form.videoForm[DeviceEnum.Gb35114Mode]))
     ) {
       this.$confirm('更改GB35114协议及认证方式，设备将立即下线并重新进行注册。是否确认修改?', '提示', {
         confirmButtonText: '确定',
