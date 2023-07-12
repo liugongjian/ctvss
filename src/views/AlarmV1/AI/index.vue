@@ -89,8 +89,10 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
+    debugger
     console.log('data:', data)
     if (data.type === 'ipc' || data.id === ''){
+      debugger
       const { id } = data
       let router
       if ( id === '' ){
@@ -112,10 +114,9 @@ export default class extends Mixins(layoutMxin) {
       }
 
       this.deviceTree.setCurrentKey(id)
-      if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
-      this.$router.push(router)
       this.breadcrumbItems = data.path
       this.currentNodeData = data
+      this.$router.push(router)
     }
   }
 
@@ -124,18 +125,7 @@ export default class extends Mixins(layoutMxin) {
    * 设备页面路由
    */
   public async deviceRouter(dest: any) {
-
-    if (dest.type === 'ipc'){
-      const router = {
-          name: 'AIAlarmList',
-          query: {
-            deviceId: dest.id,
-            type: dest.type,
-            path: dest.path.map(item => item.id).join(',')
-          }
-        }
-        this.$router.push(router)
-      }
+    this.handleTreeNode(dest)
 
   }
 
