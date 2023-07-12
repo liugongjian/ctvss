@@ -116,10 +116,6 @@ export default class extends Vue {
       value: 'off'
     },
     {
-      label: '未注册',
-      value: 'new'
-    },
-    {
       label: '停用',
       value: 'unBinding'
     }
