@@ -105,6 +105,10 @@ export default class LayoutMixin extends Vue {
     return UserModule.version
   }
 
+  private get currentTreeId() {
+    return this.$route.query.rootKey as string || ''
+  }
+
   private get currentDirId() {
     return this.$route.query.dirId as string
   }
@@ -135,7 +139,7 @@ export default class LayoutMixin extends Vue {
   }
 
   private get isShowPolling() {
-    return !this.$route.query.rootKey && this.lazy
+    return this.lazy
   }
 
   public async mounted() {

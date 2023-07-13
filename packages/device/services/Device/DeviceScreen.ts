@@ -42,6 +42,7 @@ const executeQueue = async function (
 ) {
   const state: {
     currentDir?: any,
+    currentTreeId?: string
     screenManager?: ScreenManager
     queueExecutor?: any
     handleTools?: any
@@ -56,7 +57,7 @@ const executeQueue = async function (
   if (state.queueExecutor) {
     try {
       state.screenManager.executeQueueConfig.query = {
-        id: state.currentDir.id,
+        id: state.currentDir.id || state.currentTreeId,
         type: state.currentDir.type,
         deviceStatus: status,
         pollThreshold: 1000
