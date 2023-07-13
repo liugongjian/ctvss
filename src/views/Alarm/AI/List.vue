@@ -27,7 +27,6 @@
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
           <el-radio-button label="近7天" />
-          <el-radio-button label="近30天" />
           <el-radio-button label="自定义时间" />
         </el-radio-group>
         <el-date-picker
