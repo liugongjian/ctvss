@@ -64,7 +64,12 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <el-row v-if="form.userInfo.length" style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;">用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
+              <el-row
+                v-if="form.userInfo.length"
+                style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;"
+              >
+                用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。创建账号后，将会给该号码发送验证短信，验证通过后完成绑定。
+              </el-row>
               <template v-if="type === 'add'">
                 <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button>
                 <el-button type="text">一次性最多添加10名成员</el-button>

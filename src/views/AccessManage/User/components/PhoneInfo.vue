@@ -16,8 +16,13 @@
         >
           {{ `重新发送验证${detail.secondCnt > 0 ? '(' + detail.secondCnt + ')': ''}` }}
         </span>
-        <span v-else-if="detail.phoneVerified === 2" class="pop-container_tips-error">
-          该手机号不正确
+        <span
+          v-else-if="detail.phoneVerified === 2"
+          :class="['pop-container_tips-error', detail.secondCnt > 0 ? 'disabled' : '']"
+          @click="verifyPhone"
+        >
+          短信发送失败，请确认信息是否填写正确，
+          <span class="pop-container_tips-error_resend">{{ `重新发送验证${detail.secondCnt > 0 ? '(' + detail.secondCnt + ')': ''}` }}</span>
         </span>
       </div>
     </div>
@@ -98,6 +103,17 @@ export default class extends Vue {
 
     &-error {
       color: $danger;
+
+      &_resend {
+        color: $warning;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      &_resend.disabled {
+        color: $disabled-color;
+        cursor: wait;
+      }
     }
   }
 }

@@ -16,9 +16,17 @@
           <span class="node-name">
             {{ data.label }}
           </span>
-          <span v-if="data.phoneVerified === 0">
+          <span v-if="!data.phone">
+            {{ '(未填写手机信息)' }}
+          </span>
+          <span v-else-if="data.phoneVerified === 0">
             {{ '(未完成验证，' }}
             <span class="resend-button" @click="verifyPhone(data)">点击重新发送</span>
+            {{ ')' }}
+          </span>
+          <span v-else-if="data.phoneVerified === 2">
+            {{ '(手机验证失败，' }}
+            <span class="check-button" @click="checkPhone(data)">点击查看</span>
             {{ ')' }}
           </span>
         </span>
@@ -77,6 +85,12 @@ export default class extends Vue {
     }
   }
 
+  private checkPhone(row: any) {
+    this.$router.push({
+      name: 'AccessManageUser'
+    })
+  }
+
   /**
    * 加载目录
    */
@@ -94,6 +108,7 @@ export default class extends Vue {
           parentId: (node.data && node.data.id) || '-1',
           type: guser.type,
           isLeaf: guser.type === 'user',
+          phone: guser.phone,
           phoneVerified: guser.phoneVerified
         }
       })
@@ -245,7 +260,8 @@ export default class extends Vue {
     position: relative;
   }
 
-  .resend-button {
+  .resend-button,
+  .check-button {
     text-decoration: underline;
     cursor: pointer;
     color: $primary;

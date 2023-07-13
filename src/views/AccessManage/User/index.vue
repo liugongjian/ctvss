@@ -86,7 +86,7 @@
                     <div slot="content">
                       <span>{{ formatToolTip(row) }}</span>
                       <span
-                        v-if="row.phoneVerified === 0"
+                        v-if="row.phoneVerified === 0 || row.phoneVerified === 2"
                         :class="['resend-button', row.secondCnt > 0 ? 'disabled' : '']"
                         @click="verifyPhone(row)"
                       >
@@ -249,7 +249,7 @@ export default class extends Vue {
     const tipMap = {
       '0': '，该消息通道未验证',
       '1': '，已验证该消息通道',
-      '2': '，该手机号不正确，验证失败，请修改'
+      '2': '，短信发送失败，请确认信息是否填写正确'
     }
     const tipStr = tipMap[row.phoneVerified]
     return phoneStr + tipStr
