@@ -71,6 +71,19 @@ export async function initLogin() {
         store,
         render: (h) => h(App)
       }).$mount('#app')
+
+
+    const useVuePlugin = () => {
+         //统计日志插件
+         //  @ts-ignore
+        if (window.CtcloudAnalysis){
+          //  @ts-ignore
+          CtcloudAnalysis.install(Vue, {
+            router
+          })
+        }
+    }
+    useVuePlugin()
     })
   } catch (e) {
     console.log('init login error: ', e.message)

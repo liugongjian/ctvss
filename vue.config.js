@@ -130,6 +130,10 @@ module.exports = {
         target: serverAddress,
         changeOrigin: true,
         secure: false
+      },
+      // 新增的cta代理,避免测试环境访问cta报错
+      '/cta': {
+        target: 'http://www.ctyun.cn/'
       }
     },
     historyApiFallback: true,

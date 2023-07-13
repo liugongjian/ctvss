@@ -24,6 +24,9 @@ import { loadJs } from '@vss/base/utils/load-resource'
 
 import '@cutedesign/ui/lib/index.css'
 import CuteUI from '@cutedesign/ui'
+
+
+
 Vue.use(CuteUI)
 
 // @ts-ignore
@@ -63,5 +66,7 @@ if (isIE()) {
 
 // 加载h.265播放器插件
 loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
+// loadJs('/cta/ctcloud-analysis.min.js')
+
 
 initLogin()
