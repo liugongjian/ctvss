@@ -98,7 +98,7 @@ export default class extends Mixins(layoutMxin) {
   public get currentScreen() {
     return this.screenManager && this.screenManager.currentScreen
   }
-  
+
   /**
    * 录像管理器实例
    */
@@ -175,7 +175,7 @@ export default class extends Mixins(layoutMxin) {
   &__replay-type {
     border-top: 1px solid $border-color-light-1;
     margin: 0;
-    padding-top: 5px;
+    padding-top: 45px;
     text-align: center;
 
     ::v-deep {

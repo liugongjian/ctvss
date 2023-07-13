@@ -48,3 +48,12 @@ export default class extends Vue {
 }
 
 </script>
+
+<style lang="scss" scoped>
+.screen-tools__btn{
+  margin-top: -100px;
+  .el-radio-group .el-radio-button--mini .el-radio-button__inner {
+    line-height: 12px;
+  }
+}
+</style>

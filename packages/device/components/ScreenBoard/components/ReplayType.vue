@@ -1,6 +1,6 @@
 <template>
   <el-radio-group v-if="isGb" v-model="recordType" class="screen-tools__btn" size="mini" :disabled="disabled" @change="onChange">
-    <el-radio-button :label="0">云端</el-radio-button>
+    <el-radio-button :label="0">云端111</el-radio-button>
     <el-radio-button :disabled="view === 'list'" :label="1">设备</el-radio-button>
   </el-radio-group>
 </template>
@@ -48,3 +48,9 @@ export default class extends Vue {
 }
 
 </script>
+
+<style lang="scss" scoped>
+.screen-tools__btn{
+  margin-top: -100px;
+}
+</style>

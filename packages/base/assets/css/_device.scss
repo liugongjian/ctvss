@@ -188,7 +188,7 @@
 
           .tools {
             position: absolute;
-            top: 0;
+            top: 6px;
             right: 5px;
             display: none;
             background: #f5f7fa;
@@ -549,7 +549,7 @@
 
   .node-name {
     position: relative;
-    color: $text;
+    // color: $text;
 
     .svg-icon {
       color: #6e7c89;
@@ -678,7 +678,7 @@ script + .el-tooltip__popper {
 
 .node-name {
   position: relative;
-  color: $text;
+  // color: $text;
 
   .svg-icon {
     color: #6e7c89;

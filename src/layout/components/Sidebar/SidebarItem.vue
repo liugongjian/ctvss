@@ -136,14 +136,56 @@ export default class extends Vue {
 }
 
 .full-mode {
+  a{
+    &:hover{
+      text-decoration: none;
+      li span {
+        color: #3d73f5;
+      }
+    }
+    span{
+      color:#333;
+    }
+    .el-menu-item.is-active{
+      svg, span {
+        font-weight: bold !important;
+        color: #3d73f5 !important;
+      }
+    }
+  }
+  .el-menu-item{
+    background-color: #fff !important;
+    li &:hover{
+      color: #3d73f5 !important;
+      background: #f7f8fa !important;
+    }
+  }
+  .el-submenu__title{
+    background-color: #fff !important;
+    li &:hover {
+      color: #3d73f5 !important;
+      background: #f7f8fa !important;
+    }
+    span{
+      color:#333;
+    }
+  }
   .nest-menu .el-submenu > .el-submenu__title,
   .el-submenu .el-menu-item {
     min-width: $sideBarWidth !important;
-    background-color: $subMenuBg !important;
+    // background-color: $subMenuBg !important;
+    background-color: #fff !important;
 
     &:hover {
-      background-color: $subMenuHover !important;
+      // background-color: $subMenuHover !important;
     }
+  }
+  a li .el-menu-item .is-active {
+    span, svg {
+      font-weight: bold !important;
+      color: #3d73f5 !important;
+    }
+
   }
 }
 
