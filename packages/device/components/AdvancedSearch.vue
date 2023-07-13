@@ -3,9 +3,9 @@
     <el-button class="advanced-search__button" :type="highlightFilterButton ? 'primary' : 'default'" size="mini" @click="openAdvancedSearch">
       <svg-icon name="filter" />
     </el-button>
-    <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
+    <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名、设备ID查询" placement="top-start">
       <!-- TIPS 需要处理为空时候的直接回车 -->
-      <el-input v-model="form.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
+      <el-input v-model="form.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名、设备ID查询" @keyup.enter.native="enterKeySearch" />
     </el-tooltip>
     <el-button class="advanced-search__button" type="primary" size="mini" icon="el-icon-search" :disabled="!form.inputKey.length" @click="filterSearchResult" />
     <el-button v-if="form.revertSearchFlag" type="primary" size="mini" @click="revertSearchResult">
