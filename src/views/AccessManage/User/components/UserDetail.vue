@@ -20,7 +20,10 @@
           <p class="detail__content">{{ detail.createdTime || '-' }}</p>
         </el-descriptions-item>
         <el-descriptions-item label="手机">
-          <p class="detail__content">{{ detail.phone || '-' }}</p>
+          <p class="detail__content">
+            {{ detail.phone || '-' }}
+            <phone-info v-if="detail.phone" :detail="detail" />
+          </p>
         </el-descriptions-item>
         <el-descriptions-item label="邮箱">
           <p class="detail__content">{{ detail.email || '-' }}</p>
@@ -36,6 +39,7 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from '@/views/Dashboard/components/DashboardLightContainer.vue'
+import PhoneInfo from './PhoneInfo.vue'
 import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
 import * as loginService from '@/services/loginService'
 import { getUserDetail, deleteUser } from '@/api/iamDashboard'
@@ -43,7 +47,8 @@ import { getUserDetail, deleteUser } from '@/api/iamDashboard'
 @Component({
   name: 'DashboardUserDetail',
   components: {
-    DashboardLightContainer
+    DashboardLightContainer,
+    PhoneInfo
   }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -58,10 +63,12 @@ export default class extends Mixins(DashboardMixin) {
     policyId: '',
     visit: '',
     phone: '',
+    phoneVerified: 0,
+    secondCnt: 0,
     email: ''
   }
 
-  private subUserLoginLink: string = ''
+  private subUserLoginLink = ''
   private nodeKeyPath: any = '-1'
 
   private get container() {
@@ -101,6 +108,8 @@ export default class extends Mixins(DashboardMixin) {
     this.detail['policyId'] = res.policyId
     this.detail['phone'] = res.phone
     this.detail['email'] = res.email
+    this.detail['phoneVerified'] = res.phoneVerified
+
     if (res.consoleEnabled === '1' && res.apiEnabled === '1') {
       this.detail['visit'] = '控制台登录、编程访问'
     } else if (res.consoleEnabled === '1' && res.apiEnabled === '2') {

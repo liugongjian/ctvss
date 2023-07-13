@@ -899,9 +899,7 @@ export default class extends Vue {
   }
 
   private validatePhone(rule: any, value: string, callback: Function) {
-    if (!value) {
-      callback(new Error('手机必填'))
-    } else if (value && !/^\d{11}$/.test(value)) {
+    if (value && !/^\d{11}$/.test(value)) {
       callback(new Error('请输入正确的手机号'))
     } else {
       callback()

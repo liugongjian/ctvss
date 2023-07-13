@@ -141,6 +141,7 @@ import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
 import PreviewPermission from './components/dialogs/PreviewPermission.vue'
 import UserViewBind from './components/dialogs/UserViewBind.vue'
+import { generateTimer } from '@/utils/index'
 
 @Component({
   name: 'AccessManageUser',
@@ -232,6 +233,10 @@ export default class extends Vue {
     window.addEventListener('resize', this.calMaxHeight)
   }
 
+  private beforeDestroy() {
+    this.clearTimer(this.userList)
+  }
+
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
   }
@@ -251,32 +256,35 @@ export default class extends Vue {
   }
 
   private async verifyPhone(row: any) {
-    console.log('clicked....')
     if (row.secondCnt <= 0) {
       try {
         await verifyPhone({
           iamUserId: row.iamUserId
         })
         this.$message.success('验证短信发送成功!')
-        row.secondCnt = 60
-        clearInterval(row.secondCntTimer)
-        row.secondCntTimer = setInterval(() => {
-          if (row.secondCnt > 0) {
-            row.secondCnt--
-          } else {
-            clearInterval(row.secondCntTimer)
-          }
-        }, 1000)
+        generateTimer(row, 60)
       } catch (err) {
         this.$message.error(err && err.message)
+        if (err && err.code === 3) {
+          const regResult = (err.message || '').match(/等待(\d+)/)
+          const secondCnt = regResult && regResult[1]
+          if (secondCnt > 0) {
+            generateTimer(row, secondCnt)
+          }
+        }
       }
     }
   }
 
-  private beforeDestroy() {
-    this.userList.forEach((row: any) => {
-      clearInterval(row.secondCntTimer)
-    })
+  /**
+   * 清空所有定时器
+   */
+  private clearTimer(userList: any[]) {
+    if (userList) {
+      userList.forEach((row: any) => {
+        clearInterval(row.secondCntTimer)
+      })
+    }
   }
 
   /**
@@ -415,6 +423,8 @@ export default class extends Vue {
     try {
       this.loading.body = true
       const res: any = await getUserList(params)
+      // 清空计时器
+      this.clearTimer(this.userList)
       this.userList = res.iamUsers.map((iamUser: any) => {
         return {
           iamUserId: iamUser.iamUserId,
