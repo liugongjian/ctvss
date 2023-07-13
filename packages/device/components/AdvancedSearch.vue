@@ -50,7 +50,7 @@
           />
         </el-form-item>
         <el-form-item label="接入协议:" prop="inProtocolKey">
-          <el-select v-model="innerForm.inProtocolKey">
+          <el-select v-model="innerForm.inProtocolKey" clearable>
             <el-option
               v-for="inProtocol in inProtocolList"
               :key="inProtocol.value"
