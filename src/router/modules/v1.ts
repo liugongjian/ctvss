@@ -1327,7 +1327,7 @@ export const v1Router: RouteConfig[] = [
             path: '',
             component: () =>
               import(
-                /* webpackChunkName: "alarm" */ '@/views/Alarm/AI/List.vue'
+                /* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/List.vue'
               ),
             name: 'AIAlarmList',
             meta: {
