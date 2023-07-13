@@ -371,7 +371,6 @@ export default class extends Mixins(TreeMixin) {
       if (dirTree) {
         this.$nextTick(()=>{
           const rootNode = dirTree.getNode(root.id)
-          debugger
           this.$set(rootNode.data, 'totalSize', this.rootSums.totalSize)
           this.$set(rootNode.data, 'onlineSize', this.rootSums.onlineSize)
         })
