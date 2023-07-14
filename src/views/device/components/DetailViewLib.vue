@@ -5,7 +5,7 @@
         <span>时段：
           <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
             <el-radio-button label="今天" />
-            <el-radio-button label="近3天" />
+            <el-radio-button label="近7天" />
             <el-radio-button label="自定义时间" />
           </el-radio-group>
           <el-date-picker
@@ -109,7 +109,7 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                <div :column="1" label-class-name="desc" :label-style="{ 'font-weight': 'bold', color: 'black' }">
                   <div v-for="(val,key) in objectInfos" :key="key">
                     <div v-if="isShow(detailPic[key],key)" class="dialogue-right__section__item">
                       <span class="dialogue-right__section__item__key">{{ val }}:</span>
@@ -242,8 +242,8 @@ export default class extends Vue {
       case '今天':
         this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
         break
-      case '近3天':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
+      case '近7天':
+        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
         break
       case '自定义时间':
         this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
@@ -282,9 +282,9 @@ export default class extends Vue {
      * 得到N天前的时间戳
      */
   private getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 
@@ -702,6 +702,6 @@ export default class extends Vue {
 }
 
 .active {
-  border: 3px solid #fa8334;
+  border: 3px solid $primary;
 }
 </style>

@@ -1,7 +1,10 @@
 <template>
   <div>
     <el-card>
-      <div class="alarm-stats__title">今日AI告警</div>
+      <div class="title">
+        <div class="title-block" />
+        <span>今日AI告警</span>
+      </div>
       <div ref="alarmContainer" class="alarm-stats__container">
         <div v-if="alarmCounts.length > 0">
           <div v-if="showButton" class="left-arrow" @click="() => handleScroll(-1)" @mousedown="() => startScroll(-1)" @mouseup="stopScroll">
@@ -9,19 +12,26 @@
           </div>
           <ul ref="alarmList" class="alarm-stats__list">
             <li v-for="item in alarmCounts" :key="item.type" class="alarm-stats__list__item">
-              <div class="alarm-stats__list__item--1">{{ item.algoName }}</div>
               <div class="alarm-stats__list__item--2">{{ item.number }}</div>
+              <div class="alarm-stats__list__item--1">{{ item.algoName }}</div>
             </li>
           </ul>
           <div v-if="showButton" class="right-arrow" @click="() => handleScroll(1)" @mousedown="() => startScroll(1)" @mouseup="stopScroll">
             <i class="el-icon-arrow-right" />
           </div>
         </div>
-        <div v-else class="no-data">今日无任何告警</div>
+
+        <div v-else class="no-data">
+          <img :src="require('@/icons/svg/empty.svg')" alt="">
+          <div>今日无任何告警</div>
+        </div>
       </div>
       <div class="alarm-stats__chart">
         <div class="alarm-stats__chart--add">
-          <div>AI告警统计详情（次）</div>
+          <div class="title">
+            <div class="title-block" />
+            <span>AI告警统计详情</span>
+          </div>
           <div class="alarm-stats__chart--op">
             <el-select v-model="algoType" multiple placeholder="请选择" size="mini" collapse-tags @change="handleChangeSelect">
               <el-option
@@ -174,8 +184,8 @@ export default class extends Vue {
       endDay: format(new Date(), 'yyyy-MM-dd'),
     }
     const res = await getAiStats(param)
-    this.alarmCounts = res.statInfo.filter(info => +info.number !== 0).sort((a, b) => b.number - a.number)
-    // this.alarmCounts = res.statInfo
+    this.alarmCounts = res.statInfo.filter(info => +info.number !== 0).sort((a, b) => b.number - a.number).map(info => ({ ...info, algoName: info.algoName + '(次)' }))
+    // this.alarmCounts = res.statInfo.map(info => ({ ...info, algoName: info.algoName + '(次)' }))
   }
 
   /**
@@ -274,15 +284,23 @@ export default class extends Vue {
       width: 140px;
       height: 80px;
       background: #f2f2f2;
-      margin-right: 10px;
-      & > div {
-        padding: 15px 0 0 25px;
-        height: 50%;
-        font-size: 12px;
-        width: 100%;
+      padding-top: 8px;
+      padding-left: 20px;
+      margin-right: 20px;
+      background: #FFFFFF;
+      border: 1px solid rgba(238,238,238,1);
+      border-radius: 4px;
+      &--2{
+        font-size: 28px;
+        color: #333333;
+        line-height: 42px;
+        font-weight: 600;
       }
       &--1{
-        font-weight: bold;
+        font-size: 14px;
+        color: #7C818C;
+        line-height: 24px;
+        font-weight: 400;
       }
     }
   }
@@ -313,7 +331,35 @@ export default class extends Vue {
     border-radius: 3px;
     color: #cac9c9;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    & > img {
+      margin-bottom: 20px;
+    }
   }
+
+  .title {
+  height: 50px;
+  vertical-align: middle;
+
+  & > div {
+    // display: inline-block;
+    padding-top: 5px;
+  }
+
+  .title-block {
+    width: 7px;
+    height: 15px;
+    background-color: rgba(250, 131, 52, 100%);
+    border: none;
+    margin-top: 2px;
+    margin-right: 12px;
+    display: inline-block;
+  }
+
+  span {
+    font-weight: bold;
+  }
+}
 </style>

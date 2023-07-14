@@ -555,7 +555,7 @@ export default class extends Vue {
       .vue__time-picker-dropdown ul li:not([disabled]).active,
       .vue__time-picker-dropdown ul li:not([disabled]).active:hover,
       .vue__time-picker-dropdown ul li:not([disabled]).active:focus {
-        background: #fa8334;
+        background: $primary;
       }
     }
 

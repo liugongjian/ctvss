@@ -441,7 +441,7 @@ export default class extends Vue {
         }
 
         .el-radio-button__orig-radio:checked + .el-radio-button__inner {
-          border-left: 1px solid #fa8334;
+          border-left: 1px solid $primary;
         }
       }
 

@@ -131,7 +131,7 @@
 
   &.selected {
     background: rgba(250, 131, 52, 48%);
-    border: 1px solid #fa8334;
+    border: 1px solid $primary;
     border-radius: 50%;
 
     .marker-options {
@@ -174,7 +174,7 @@
 
   &.selected .text-wrap {
     background: rgba(250, 131, 52, 48%);
-    border: 1px solid #fa8334;
+    border: 1px solid $primary;
     border-radius: 25px;
     text-shadow: none;
   }

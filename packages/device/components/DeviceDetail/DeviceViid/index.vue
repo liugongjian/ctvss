@@ -698,6 +698,6 @@ export default class extends Vue {
 }
 
 .active {
-  border: 3px solid #fa8334;
+  border: 3px solid $primary;
 }
 </style>

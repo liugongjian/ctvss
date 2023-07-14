@@ -1627,7 +1627,7 @@ export default class extends Mixins(IndexMixin) {
       cursor: pointer;
 
       &.active {
-        color: #fa8334;
+        color: $primary;
       }
 
       &:not(:last-child) {
@@ -1738,7 +1738,7 @@ export default class extends Mixins(IndexMixin) {
 
   ::v-deep .el-slider__marks-text {
     width: 30px;
-    color: #fa8334;
+    color: $primary;
   }
 }
 
@@ -1760,7 +1760,7 @@ export default class extends Mixins(IndexMixin) {
     height: 30px;
     line-height: 30px;
     text-align: center;
-    background: #fa8334;
+    background: $primary;
     color: #fff;
     border-radius: 5px;
     font-size: 12px;
@@ -1774,7 +1774,7 @@ export default class extends Mixins(IndexMixin) {
     cursor: pointer;
 
     .active {
-      color: #fa8334;
+      color: $primary;
     }
   }
 
@@ -1794,7 +1794,7 @@ export default class extends Mixins(IndexMixin) {
 
 .device-list {
   &__activeSvg {
-    fill: #fa8334;
+    fill: $primary;
   }
 }
 
@@ -1878,7 +1878,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   &.active {
-    background: #fa8334;
+    background: $primary;
     color: #fff;
   }
 
