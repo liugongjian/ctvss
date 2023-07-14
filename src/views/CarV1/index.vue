@@ -362,19 +362,20 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .filter-container__search-group {
-  width:150px;
+  width: 150px;
   margin-right: 10px;
 }
-.filter-container{
-  &__search-group{
-    width:150px;
+
+.filter-container {
+  &__search-group {
+    width: 150px;
     margin-right: 10px;
   }
-  &__search-time{
+
+  &__search-time {
     margin-right: 10px;
   }
 }
-
 
 .template__table {
   ::v-deep .el-table__body {

@@ -79,6 +79,8 @@ export class Screen {
   public datetimeRange?: { startTime: number; endTime: number; }
   /* 录像回放是否是dialog窗口形式 */
   public isDialogTask?: boolean
+  /* 车辆管理后端时间超前，跳转处理. 引入车辆管理识别符号 */
+  public isCarTask: Boolean
 
   /**
    * ----------------
@@ -138,6 +140,7 @@ export class Screen {
     this._isMuted = null
     this._playbackRate = null
     this._scale = null
+    this.isCarTask = false
     this.log = {
       previewRequestId: null,
       previewStartTimestamp: null,

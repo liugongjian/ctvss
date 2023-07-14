@@ -128,8 +128,8 @@ import {
 } from '@/api/dosageStatistics'
 
 import { getIsOndemand } from '@/api/billing'
-
-import { formatStorage, formatBandWidth } from '@/utils/number'
+import _ from 'lodash'
+import { formatStorage } from '@/utils/number'
 
 @Component({
   name: 'DosageStatistics',
@@ -255,6 +255,18 @@ export default class extends Vue {
     }
   }
 
+  private formatBandWidth = (mbps) => {
+    let i = 0
+    while (Math.abs(mbps) >= 1024) {
+      mbps = mbps / 1024
+      i++
+      if (i === 1) break
+    }
+    const units = ['Mbps', 'Gbps', 'Tbps']
+    const newsize = _.round(mbps, 3)
+    return newsize + units[i]
+  }
+
   private async getBandwidth() {
     try {
       const res = await getBandwidthStatistics()
@@ -265,10 +277,14 @@ export default class extends Vue {
         downloadTrafficValue
       } = res
       this.bandwidth = {
-        uploadBandWidthPeakValue: formatBandWidth(uploadBandWidthPeakValue),
-        downloadBandWidthPeakValue: formatBandWidth(downloadBandWidthPeakValue),
-        uploadTrafficValue: formatBandWidth(uploadTrafficValue),
-        downloadTrafficValue: formatBandWidth(downloadTrafficValue)
+        uploadBandWidthPeakValue: this.formatBandWidth(
+          uploadBandWidthPeakValue
+        ),
+        downloadBandWidthPeakValue: this.formatBandWidth(
+          downloadBandWidthPeakValue
+        ),
+        uploadTrafficValue: this.formatBandWidth(uploadTrafficValue),
+        downloadTrafficValue: this.formatBandWidth(downloadTrafficValue)
       }
     } catch (error) {
       this.$message.error(error && error.message)

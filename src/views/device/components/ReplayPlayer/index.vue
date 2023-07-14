@@ -144,6 +144,7 @@ export default class extends Vue {
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
+    this.screen.isCarTask = this.isCarTask
     if (this.screen.recordType === 0) {
       this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
       this.type = this.recordManager.currentRecord && this.recordManager.currentRecord.fileFormat
