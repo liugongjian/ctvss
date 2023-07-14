@@ -8,10 +8,10 @@
     center
     @close="closeDialog"
   >
-    <div  v-loading="ischecking || isUnbinding || submitting">
+    <div v-loading="ischecking || isUnbinding || submitting">
       <!-- <div v-if="!multiple" v-loading="ischecking"> -->
       <div v-if="!multiple">
-      <!-- <div v-if="!multiple"> -->
+        <!-- <div v-if="!multiple"> -->
         <div class="unlock">
           <div v-if="deviceName!==''" class="label"><span>设备名: </span></div>
           <div v-if="deviceName!==''"><span>{{ deviceName }}</span></div>
@@ -38,7 +38,7 @@
       </div>
       <!-- <div v-if="multiple"  v-loading="isUnbinding"> -->
       <div v-if="multiple">
-      <!-- <div v-if="multiple"> -->
+        <!-- <div v-if="multiple"> -->
         <div class="unlock">
           <div class="label"><span>解锁录像: </span></div>
           <div><span>{{ unlockNum }}个</span></div>
@@ -67,6 +67,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { unLock } from '@/api/device'
+import { getDevice } from '@vss/device/api/device'
 
 @Component({
   name: 'UnlockDialog'
@@ -94,6 +95,7 @@ export default class extends Vue {
   private ischeckingBatch = false
   private periods = []
   private isUnbinding = false
+  private deviceInfo = null
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -101,13 +103,15 @@ export default class extends Vue {
   }
 
   private async created() {
+    console.log('----------', this.screen)
     try {
       this.isUnbinding = true
       this.ischecking = true
+      await this.getDeviceInfo()
+      this.unlockItem[0].deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName
+      if (this.deviceInfo.device.deviceName) this.unlockItem[0].deviceName = this.deviceInfo.device.deviceName
       this.multiple ? this.ischecking = true : this.ischeckingBatch = true
       this.screen && this.screen.deviceId && (this.unlockItem[0].deviceId = this.screen.deviceId)
-      this.screen && (this.unlockItem[0].deviceName = (this.screen.detailInfo && this.screen.detailInfo.deviceChannels.length > 0) ? this.screen.detailInfo.deviceChannels[0].channelName : this.screen.deviceName)
-      // this.screen && this.screen.deviceName && (this.unlockItem[0].deviceName = this.screen.deviceName)
       this.periods = this.unlockItem.map((item: any) => {
         return {
           deviceId: item.deviceId,
@@ -169,6 +173,14 @@ export default class extends Vue {
     // console.log('获取锁定时间    : ', this.recordLockItem)
   }
 
+  // 获取设备信息
+  private async getDeviceInfo() {
+    this.deviceInfo = await getDevice({
+      deviceId: this.screen.deviceId,
+      inProtocol: this.screen.inProtocol
+    })
+  }
+
   // 提交解锁
   private async submit() {
     try {
@@ -195,7 +207,7 @@ export default class extends Vue {
   }
 
   // 关闭 dialog
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh) // 在父级组件中根据true false 判断刷新列表或执行其他操作
   }

@@ -624,7 +624,7 @@ export default class extends Vue {
       登录密码：${row.passwords}
       AccessKeyId：${row.secretId}
       SecretAccessKey：${row.secretKey}
-      
+
       `
       copy(str)
     } else if (type === 'link') {
@@ -978,7 +978,7 @@ export default class extends Vue {
 }
 
 .text-btn {
-  color: #fa8334;
+  color: $primary;
   margin-left: 10px;
   cursor: pointer;
 }

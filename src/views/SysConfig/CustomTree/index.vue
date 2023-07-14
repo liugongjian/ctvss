@@ -96,7 +96,7 @@
               <el-button type="text" @click="editTreeFrame">编辑</el-button>
             </span>
           </div>
-          <div class="tree" :class="{ 'violet-bg': isEditing }">
+          <div v-loading="treeLoading.sharedDevices" class="tree" :class="{ 'violet-bg': isEditing }">
             <el-tree
               key="device-el-tree-original"
               ref="dirTree2"
@@ -365,7 +365,7 @@ export default class extends Mixins(TreeMixin) {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
-  private getTotalsOfLeftTree() {
+  private async getTotalsOfLeftTree() {
     this.$nextTick(() => {
       const dirTree: any = this.$refs.dirTree
       if (dirTree) {
@@ -380,6 +380,7 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private async getTotalsOfRightTree() {
+    this.treeLoading.platform = this.treeLoading.sharedDevices = true
     const dirTree2: any = this.$refs.dirTree2
     if (dirTree2) {
       const { deviceIds, totalSize } = await describeTreeIds({ id: this.currentTree.treeId })
@@ -393,6 +394,7 @@ export default class extends Mixins(TreeMixin) {
         this.checkedNodeIds = deviceIds
       })
     }
+    this.treeLoading.platform = this.treeLoading.sharedDevices = false
   }
 
   private async initGroups() {
@@ -1303,8 +1305,8 @@ export default class extends Mixins(TreeMixin) {
           }
 
           &.actived {
-            border-right: 3px solid #ff7a04;
-            color: #ff7a04;
+            border-right: 3px solid $primary;
+            color: $primary;
 
             svg {
               background: rgba(255, 122, 4, 10%);
