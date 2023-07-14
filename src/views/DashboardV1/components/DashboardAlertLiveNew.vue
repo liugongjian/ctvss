@@ -1,6 +1,6 @@
 <template>
   <component :is="container" title="今日AI告警" :less-padding="true">
-    <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px; padding-top:${ list.length === 0 ? '80' : '0'}px`">
+    <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px;padding-top:${ list.length === 0 ? '80' : '0'}px`">
       <ul ref="imgList" v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }">
         <div v-if="noAlarmTody" class="svg-container">
           <img :src="require('@/icons/svg/empty.svg')" alt="">
@@ -46,7 +46,7 @@ import { getAiAlarms } from '@/api/ai-app'
   }
 })
 export default class extends Mixins(DashboardMixin) {
-   private alertType = AlertType
+  private alertType = AlertType
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
   private currentItem: any = null
@@ -57,7 +57,7 @@ export default class extends Mixins(DashboardMixin) {
   private lastTime: any = null
   private alertFile = null
   private noAlarmTody = false
-  private heigh = 870
+  private heigh = 200
 
   private currentIndex = 0
 
@@ -70,6 +70,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
+
     const userTags = this.$store.state.user.tags
     // 特殊音效
     if (userTags.isSpecialAINotice === 'Y') {
@@ -78,6 +79,8 @@ export default class extends Mixins(DashboardMixin) {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
     }
     this.setInterval(this.updateAlarmList)
+
+    window.onload = () => this.calcHeight()
   }
 
 
@@ -110,14 +113,20 @@ export default class extends Mixins(DashboardMixin) {
         list = res.analysisResults
       }
       this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-      if (this.list.length < 8){
-        this.heigh = 100 * this.list.length + 250
-      }
+      // if (this.list.length < 8){
+      //   this.heigh = 100 * this.list.length + 250
+      // }
     } catch (e) {
       console.log(e)
     } finally {
       this.loading = false
     }
+  }
+
+  private calcHeight(){
+    const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
+    const totalHeight = left.offsetHeight
+    this.heigh = totalHeight - 670
   }
 
   private checkLevel(data: any) {
@@ -145,9 +154,7 @@ export default class extends Mixins(DashboardMixin) {
 }
 .stats-container{
   min-width: 360px;
-  max-height: 500px;
   overflow:auto;
-  height: 870px;
   .svg-container{
     height: 30px;
     display: flex;

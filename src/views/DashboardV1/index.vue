@@ -44,6 +44,7 @@ import {  getIsOndemand } from '@/api/billing'
 })
 export default class extends Vue {
   private aiPakageNum = 0
+  private isSubscribe = true
   private aiChange(packageData: any) {
     this.aiPakageNum = packageData.ai
   }
@@ -54,8 +55,12 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    const { isSubscribe } = await getIsOndemand()
-    this.isSubscribe = isSubscribe === '1'
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      this.isSubscribe = isSubscribe === '1'
+    } catch (e){
+      console.log(e)
+    }
   }
 }
 </script>
