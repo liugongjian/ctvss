@@ -111,6 +111,10 @@ export default class AppMixin extends Vue {
    * 告警搜索时间
    */
   public handleChange() {
+    if (this.period.period[1] - this.period.period[0] > 7 * 24 * 60 * 60 * 1000)
+      return this.$message.error(
+        '只能查询时间跨度最长为7天的告警记录，请重新选择查询时间'
+      )
     this.getAlarms()
   }
 }
