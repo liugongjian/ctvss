@@ -325,6 +325,7 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
+    this.refresh()
   }
 
   /**

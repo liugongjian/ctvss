@@ -1,6 +1,7 @@
 import { deleteApps, startOrStopApps } from '@/api/ai-app'
 import { checkPermission } from '@vss/base/utils/permission'
 import { Component, Vue } from 'vue-property-decorator'
+import { getTime } from 'date-fns'
 
 @Component
 export default class AppMixin extends Vue {
@@ -95,9 +96,9 @@ export default class AppMixin extends Vue {
    * 得到N天前的时间戳
    */
   public getDateBefore(dayCount) {
-    let dd = new Date()
+    const dd = new Date()
     dd.setDate(dd.getDate() - dayCount)
-    let time = dd.setHours(0, 0, 0)
+    const time = dd.setHours(0, 0, 0)
     return time
   }
 
@@ -107,6 +108,18 @@ export default class AppMixin extends Vue {
    * 告警搜索时间
    */
   public handleChange() {
+    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+    if (
+      this.period.period[1] - this.period.period[0] >
+      7 * 24 * 60 * 60 * 1000
+    )
+      return this.$message.error(
+        '只能查询时间跨度最长为7天的告警记录，请重新选择查询时间'
+      )
+    if (this.period.period[0] < ntDaysBefore)
+      return this.$message.error(
+        '只能查询90天以内的告警记录，请重新选择查询时间'
+      )
     this.getAlarms()
   }
 }
