@@ -23,11 +23,30 @@
         height: 160px;
       }
       .container .container-headline {
+        font-size: 28px;
+        font-weight: 400;
+        color: #333333;
+        line-height: 44px;
         margin-top: 40px;
         margin-bottom: 20px;
       }
+      .container .container-message {
+        font-size: 24px;
+        color: #666666;
+        line-height: 36px;
+        font-weight: 400;
+      }
       .container .container-button {
         color: #FFFFFF;
+        font-size: 24px;
+        line-height: 36px;
+        font-weight: 400;
+        background-color: #409eff;
+        border-color: #409eff;
+        cursor: pointer;
+        border-radius: 3px;
+        border-style: none;
+        padding: 12px 20px;
       }
     </style>
 </head>
@@ -38,7 +57,7 @@
     <div class="container">
       <img class="container-img" src="./validate_success.svg" />
       <h2 class="container-headline">验证成功！</h2>
-      <p>您已完成手机号绑定。</p>
+      <p class="container-message">您已完成手机号绑定。</p>
       <p id="message" class="container-message">该手机号将会接收来自账号x******x的消息通知。</p>
       <button class="container-button">前往首页</button>
     </div>
