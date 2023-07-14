@@ -175,10 +175,10 @@ export default class extends Vue {
         this.queryParam.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
         break
       case '近3天':
-        this.queryParam.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(0, 0, 0, 0)]
+        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
@@ -289,7 +289,9 @@ export default class extends Vue {
   private async refresh(){
     try {
       const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+      if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
       if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
+
       await this.getAiAlarms()
       this.$message.success('查询成功')
     } catch (e){
@@ -323,7 +325,6 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
-    this.refresh()
   }
 
   /**

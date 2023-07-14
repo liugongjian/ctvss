@@ -10,7 +10,7 @@
         >
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
-          <el-radio-button label="近7天" />
+          <el-radio-button label="近3天" />
           <el-radio-button label="自定义时间" />
         </el-radio-group>
         <el-date-picker
@@ -150,9 +150,9 @@ export default class extends Mixins(AppMixin) {
           new Date().setHours(23, 59, 59, 999)
         ]
         break
-      case '近7天':
+      case '近3天':
         this.period.period = [
-          this.getDateBefore(6),
+          this.getDateBefore(2),
           new Date().setHours(23, 59, 59, 999)
         ]
         break

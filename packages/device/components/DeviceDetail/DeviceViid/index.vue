@@ -5,7 +5,7 @@
         <span>时段：
           <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
             <el-radio-button label="今天" />
-            <el-radio-button label="近7天" />
+            <el-radio-button label="近3天" />
             <el-radio-button label="自定义时间" />
           </el-radio-group>
           <el-date-picker
@@ -241,7 +241,7 @@ export default class extends Vue {
       case '今天':
         this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
         break
-      case '近7天':
+      case '近3天':
         this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
         break
       case '自定义时间':
