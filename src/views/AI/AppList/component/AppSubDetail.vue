@@ -369,6 +369,9 @@ export default class extends Vue {
      */
   private handleChange() {
     if (this.device.deviceId.length > 0) {
+      if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) {
+        return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
+      }
       (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
     } else {
       this.$message.error('请先选择设备')

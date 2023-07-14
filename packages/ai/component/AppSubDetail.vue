@@ -374,6 +374,7 @@ export default class extends Vue {
       return this.$message.error(
         '只能查询90天以内的告警记录，请重新选择查询时间'
       )
+    if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
     if (this.device.deviceId.length > 0) {
       (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
     } else {
