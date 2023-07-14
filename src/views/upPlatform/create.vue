@@ -407,7 +407,6 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    debugger
     form.validate(async(valid: any) => {
       if (valid) {
         try {
