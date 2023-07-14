@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <span @click="nodeChange({ id: '' })">根目录</span>

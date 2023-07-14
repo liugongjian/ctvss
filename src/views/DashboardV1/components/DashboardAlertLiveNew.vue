@@ -70,6 +70,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
+
     const userTags = this.$store.state.user.tags
     // 特殊音效
     if (userTags.isSpecialAINotice === 'Y') {
@@ -105,6 +106,7 @@ export default class extends Mixins(DashboardMixin) {
       }
       const res = await getAiAlarms(param)
       this.noAlarmTody = res.analysisResults.length === 0
+      // this.noAlarmTody = true
       if (this.noAlarmTody) {
         const res1 = await getAiAlarms({ pageSize: 10, pageNum: 1 })
         list = res1.analysisResults
@@ -144,6 +146,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .widder-padding {
   padding: 2.7vh 4vw 4vh !important;

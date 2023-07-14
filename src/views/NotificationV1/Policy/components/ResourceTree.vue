@@ -12,7 +12,7 @@
         :check-strictly="false"
         @check-change="onCheckDevice"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+        <span slot-scope="{ node, data }" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
           <span class="node-name">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
@@ -28,12 +28,12 @@
       <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
       <el-table ref="deviceTable" :data="resourceList" empty-text="暂无选择资源" fit>
         <el-table-column key="label" prop="label" label="业务组/目录名称/设备名称">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.label || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="path" prop="path" label="所在位置">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ renderPath(row.path) }}
           </template>
         </el-table-column>
@@ -148,7 +148,7 @@ export default class extends Vue {
     }
     try {
       const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
+      const data = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
@@ -195,7 +195,7 @@ export default class extends Vue {
         type: node.data.type === 'group' ? undefined : node.data.type
       })
 
-      let dirs: any = devices.dirs.map((dir: any) => {
+      const dirs: any = devices.dirs.map((dir: any) => {
         return {
           id: dir.id,
           groupId: node.data.groupId,
