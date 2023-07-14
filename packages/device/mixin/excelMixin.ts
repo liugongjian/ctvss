@@ -881,16 +881,19 @@ export default class ExcelMixin extends Vue {
     }
     // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
     try {
+      let res
       if (data.command === 'all') {
         const query = this.$route.query
         params.deviceStatusKeys = query.deviceStatusKeys || undefined
+        params.viidStatusKeys = query.viidStatusKeys || undefined
         params.streamStatusKeys = query.streamStatusKeys || undefined
         params.deviceAddresses = query.deviceAddresses || undefined
+        params.inProtocolKey = query.inProtocolKey
         params.matchKeys = query.matchKeys
         params.searchKey = query.searchKey || undefined
         params.pageSize = 5000
         params.pageNum = 1
-        var res = await exportDeviceAll(params)
+        res = await exportDeviceAll(params)
       } else if (data.command === 'selected') {
         params.deviceIds = data.deviceIds
         res = await exportDeviceOption(params)

@@ -33,9 +33,11 @@ const advanceSearch = async function (
   } = getVueComponent()
   if (filterData) {
     state.advancedSearchForm.deviceStatusKeys = filterData.deviceStatusKeys
+    state.advancedSearchForm.viidStatusKeys = filterData.viidStatusKeys
     state.advancedSearchForm.streamStatusKeys = filterData.streamStatusKeys
     state.advancedSearchForm.matchKeys = filterData.matchKeys
     state.advancedSearchForm.deviceAddresses = filterData.deviceAddresses
+    state.advancedSearchForm.inProtocolKey = filterData.inProtocolKey
     state.advancedSearchForm.inputKey = filterData.inputKey
     state.advancedSearchForm.searchKey = filterData.searchKey
     state.advancedSearchForm.revertSearchFlag = filterData.revertSearchFlag
@@ -72,6 +74,8 @@ const initAdvancedSearch = async function (getVueComponent: any) {
   const query: any = state.$route.query
   state.advancedSearchForm.deviceStatusKeys =
     (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
+  state.advancedSearchForm.viidStatusKeys =
+    (query.viidStatusKeys && query.viidStatusKeys.split(',')) || []
   state.advancedSearchForm.streamStatusKeys =
     (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
   if (query.deviceAddresses) {
@@ -81,13 +85,16 @@ const initAdvancedSearch = async function (getVueComponent: any) {
       level: temp[1]
     }
   }
+  state.advancedSearchForm.inProtocolKey = query.inProtocolKey || ''
   state.advancedSearchForm.matchKeys = (query.matchKeys && query.matchKeys.split(',')) || []
   state.advancedSearchForm.inputKey = query.searchKey || ''
   state.advancedSearchForm.searchKey = query.searchKey || ''
   state.advancedSearchForm.revertSearchFlag = Boolean(
     state.advancedSearchForm.searchKey ||
       state.advancedSearchForm.deviceStatusKeys.length ||
+      state.advancedSearchForm.viidStatusKeys.length ||
       state.advancedSearchForm.streamStatusKeys.length ||
+      state.advancedSearchForm.inProtocolKey ||
       state.advancedSearchForm.deviceAddresses.code
   )
   // 初始化树
@@ -105,10 +112,12 @@ const initSearchTree = async function (state: any) {
     const res = await getDeviceTree({
       searchKey: state.advancedSearchForm.searchKey || undefined,
       deviceStatusKeys: state.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+      viidStatusKeys: state.advancedSearchForm.viidStatusKeys.join(',') || undefined,
       streamStatusKeys: state.advancedSearchForm.streamStatusKeys.join(',') || undefined,
       deviceAddresses: state.advancedSearchForm.deviceAddresses.code
         ? state.advancedSearchForm.deviceAddresses.code + ',' + state.advancedSearchForm.deviceAddresses.level
         : undefined,
+      inProtocolKey: state.advancedSearchForm.inProtocolKey || undefined,
       matchKeys: state.advancedSearchForm.matchKeys.join(',') || undefined,
     })
     // 递归平铺权限对象authMap
@@ -147,11 +156,13 @@ const exportSearchResult = async function (state: { advancedSearchForm: Advanced
       // groupId: this.currentGroupId,
       // inProtocol: this.currentGroupInProtocol,
       deviceStatusKeys: search.deviceStatusKeys.join(',') || undefined,
+      viidStatusKeys: search.viidStatusKeys.join(',') || undefined,
       streamStatusKeys: search.streamStatusKeys.join(',') || undefined,
       matchKeys: search.matchKeys.join(',') || undefined,
       deviceAddresses: search.deviceAddresses.code
         ? search.deviceAddresses.code + ',' + search.deviceAddresses.level
         : undefined,
+      inProtocolKey: search.inProtocolKey || undefined,
       searchKey: search.searchKey || undefined,
       sortBy: 'OrderSequence',
       sortDirection: 'asc',
