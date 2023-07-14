@@ -206,8 +206,8 @@ export default class extends Vue {
     const getConversion = () => {
       const minValue = Math.min(...values)
       if (chartKind === 'bandwidth') {
-        if (minValue > 1024) {
-          return 1024
+        if (minValue > 1000) {
+          return 1000
         }
         return 1
       } else if (chartKind === 'storage') {
@@ -330,7 +330,7 @@ export default class extends Vue {
         const content = items.map((item) => {
           if (chartKind === 'bandwidth') {
             if (selection.endsWith('bandwidth')) {
-              unit = getConversion() === 1024 ? 'Gbps' : 'Mbps'
+              unit = getConversion() === 1000 ? 'Gbps' : 'Mbps'
             } else {
               unit = getConversion() === 1024 ? 'GB' : 'MB'
             }

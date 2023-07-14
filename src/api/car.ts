@@ -36,4 +36,3 @@ export const getAuthority = (params: any): Promise<any> =>
     method: 'get',
     params
   })
-

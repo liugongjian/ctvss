@@ -78,7 +78,8 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import { getDeviceStates, getUserStorage } from '@/api/dashboard'
 import { getBandwidthStatistics } from '@/api/dosageStatistics'
-import { formatStorage, formatBandWidth } from '@/utils/number'
+import _ from 'lodash'
+import { formatStorage } from '@/utils/number'
 import { Chart, Util } from '@antv/g2'
 
 @Component({
@@ -171,6 +172,18 @@ export default class extends Mixins(DashboardMixin) {
     ]
   }
 
+  private formatBandWidth = (mbps) => {
+    let i = 0
+    while (Math.abs(mbps) >= 1024) {
+      mbps = mbps / 1024
+      i++
+      if (i === 1) break
+    }
+    const units = ['Mbps', 'Gbps', 'Tbps']
+    const newsize = _.round(mbps, 3)
+    return newsize + units[i]
+  }
+
   private formatDeviceData(res, kind) {
     const {
       offline = 0,
@@ -227,10 +240,9 @@ export default class extends Mixins(DashboardMixin) {
         })
       }
 
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.chartHandle()
       })
-
     } catch (error) {
       this.$message.error(error && error.message)
     }
@@ -239,19 +251,6 @@ export default class extends Mixins(DashboardMixin) {
   private async getBandwidth() {
     try {
       const res = await getBandwidthStatistics()
-      // const {
-      //   downstreamBandwidth,
-      //   realDownstreamBandwidth,
-      //   realUpstreamBandwidth,
-      //   upstreamBandwidth
-      // } = res
-      // this.bandWidthData = {
-      //   downstreamBandwidth: formatBandWidth(downstreamBandwidth),
-      //   realDownstreamBandwidth: formatBandWidth(realDownstreamBandwidth),
-      //   realUpstreamBandwidth: formatBandWidth(realUpstreamBandwidth),
-      //   upstreamBandwidth: formatBandWidth(upstreamBandwidth)
-      // }
-
       const {
         downloadBandWidthCurrentValue = 0,
         uploadBandWidthCurrentValue = 0,
@@ -259,14 +258,14 @@ export default class extends Mixins(DashboardMixin) {
         downloadTrafficValue = 0
       } = res
       this.bandwidth = {
-        downloadBandWidthCurrentValue: formatBandWidth(
+        downloadBandWidthCurrentValue: this.formatBandWidth(
           downloadBandWidthCurrentValue
         ),
-        uploadBandWidthCurrentValue: formatBandWidth(
+        uploadBandWidthCurrentValue: this.formatBandWidth(
           uploadBandWidthCurrentValue
         ),
-        uploadTrafficValue: formatBandWidth(uploadTrafficValue),
-        downloadTrafficValue: formatBandWidth(downloadTrafficValue)
+        uploadTrafficValue: this.formatBandWidth(uploadTrafficValue),
+        downloadTrafficValue: this.formatBandWidth(downloadTrafficValue)
       }
     } catch (error) {
       this.$message.error(error && error.message)
@@ -296,7 +295,7 @@ export default class extends Mixins(DashboardMixin) {
         this.pieDataStorage
       )
 
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.chartHandle()
       })
     } catch (error) {
@@ -417,7 +416,6 @@ export default class extends Mixins(DashboardMixin) {
       radius: 0.5,
       innerRadius: 0.6
     })
-
 
     this[chartDom].data(data)
 

@@ -43,6 +43,7 @@ export default class extends Vue {
     this.screenManager.isCarTask = this.isCarTask
     // this.screenManager.isLockTask = this.isLockTask
     const screen = this.screenManager.currentScreen
+    screen.isCarTask = this.isCarTask
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
     screen.isLive = false

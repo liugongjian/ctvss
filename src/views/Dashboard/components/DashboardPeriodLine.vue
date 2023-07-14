@@ -277,7 +277,7 @@ export default class extends Vue {
       const getUnit = () => {
         const values = [...totalData, ...demandData].map((item) => item.value)
         const minValue = Math.min(...values)
-        if (minValue > 1024) {
+        if (minValue > 1000) {
           if (this.selection.endsWith('bandwidth')) {
             return 'Gbps'
           } else {
