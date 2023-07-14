@@ -38,7 +38,6 @@ export default class extends Vue {
 
   private showDialogue(val) {
     this.currentIndex = this.alarms.findIndex(item => item.image === val.image)
-    console.log(this.currentIndex)
     this.dialogueVisibile = true
   }
 }

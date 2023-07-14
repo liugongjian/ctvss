@@ -6,7 +6,7 @@
         <DashboardFlowAndDevice :height="34" />
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
-      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
+      <div v-if="isSubscribe || aiPakageNum > 0" class="dashboard-wrap-overview__right">
         <DashboardAIAnalysis />
         <DashboardAIAlert />
       </div>
@@ -23,8 +23,11 @@ import DashboardAIAbility from '@/views/DashboardV1/components/DashboardAIAbilit
 import DashboardDataToday from '@/views/DashboardV1/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/DashboardV1/components/DashboardResourcePackage.vue'
 import { UserModule } from '@/store/modules/user'
-import DashboardAIAlert from '@/views/Dashboard/components/DashboardAIAlert.vue'
-import DashboardAIAnalysis from '@/views/Dashboard/components/DashboardAIAnalysis.vue'
+import DashboardAIAlert from '@/views/DashboardV1/components/DashboardAIAlert.vue'
+import DashboardAIAnalysis from '@/views/DashboardV1/components/DashboardAIAnalysis.vue'
+import {  getIsOndemand } from '@/api/billing'
+
+
 
 @Component({
   name: 'Dashboard',
@@ -48,6 +51,11 @@ export default class extends Vue {
   // 隐藏资源包配置
   public get disableResourceTab() {
     return !UserModule.token || (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou')
+  }
+
+  private async mounted() {
+    const { isSubscribe } = await getIsOndemand()
+    this.isSubscribe = isSubscribe === '1'
   }
 }
 </script>
