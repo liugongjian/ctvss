@@ -113,9 +113,7 @@ export default class extends Mixins(DashboardMixin) {
         list = res.analysisResults
       }
       this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-      // if (this.list.length < 8){
-      //   this.heigh = 100 * this.list.length + 250
-      // }
+      this.calcHeight()
     } catch (e) {
       console.log(e)
     } finally {
