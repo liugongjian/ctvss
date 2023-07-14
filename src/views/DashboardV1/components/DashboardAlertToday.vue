@@ -6,7 +6,7 @@
         <!-- <svg-icon name="nodata" width="200" height="200" /> -->
         <img :src="require('@/icons/svg/nodata.svg')" alt="">
       </div>
-      <div v-if="chartData.length === 0" class="no-data">暂未配置AI应用</div>
+      <div v-if="chartData.length === 0" class="no-data">暂无数据</div>
       <slot name="footer"></slot>
     </component>
   </div>
@@ -147,22 +147,23 @@ export default class extends Mixins(DashboardMixin) {
 .no-data{
   display: flex;
   justify-content: center;
-  min-height: 200px;
   font-size: 14px;
   color: #999999;
 }
 
 .svg-container{
   width:100%;
-  height:200px;
+  min-width: 150px;
   display: flex;
   justify-content: center;
+  align-items: flex-end;
   color: black;
   margin-bottom: 10px;
-  margin-top: 94px;
-  svg{
+  margin-top: px;
+  img{
     height:100px;
     width: 100px;
+    margin-bottom: 10px;
   }
 }
 </style>

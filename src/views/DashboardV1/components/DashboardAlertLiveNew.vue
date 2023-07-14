@@ -1,11 +1,11 @@
 <template>
   <component :is="container" title="今日AI告警" :less-padding="true">
     <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px;padding-top:${ list.length === 0 ? '80' : '0'}px`">
+      <div v-if="noAlarmTody" class="svg-container">
+        <img :src="require('@/icons/svg/empty.svg')" alt="">
+      </div>
+      <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
       <ul ref="imgList" v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }">
-        <div v-if="noAlarmTody" class="svg-container">
-          <img :src="require('@/icons/svg/empty.svg')" alt="">
-        </div>
-        <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
         <el-divider v-if="noAlarmTody">历史告警</el-divider>
         <li v-for="(item, index) in list" :key="index" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
           <div class="alert-list__item__pic">
@@ -106,6 +106,7 @@ export default class extends Mixins(DashboardMixin) {
       }
       const res = await getAiAlarms(param)
       this.noAlarmTody = res.analysisResults.length === 0
+      // this.noAlarmTody = true
       if (this.noAlarmTody) {
         const res1 = await getAiAlarms({ pageSize: 10, pageNum: 1 })
         list = res1.analysisResults
@@ -154,6 +155,7 @@ export default class extends Mixins(DashboardMixin) {
   min-width: 360px;
   overflow:auto;
   .svg-container{
+    margin-top:80px;
     height: 30px;
     display: flex;
     justify-content: center;

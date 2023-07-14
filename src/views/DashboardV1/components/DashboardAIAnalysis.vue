@@ -1,8 +1,11 @@
 <template>
   <component :is="container" title="AI分析">
-    <div>
+    <div class="alert-live">
       <div v-show="showChart" id="pieAI" />
-      <div v-show="!showChart" class="no-data">暂未配置AI应用</div>
+      <div v-show="!showChart" class="no-data">
+        <img :src="require('@/icons/svg/nodata.svg')" alt="">
+        <div>暂未配置AI应用</div>
+      </div>
     </div>
   </component>
 </template>
@@ -43,6 +46,7 @@ export default class extends Mixins(DashboardMixin) {
       const res = await getAiChannels({})
       const statInfo = res.statInfo
       this.showChart = res.statInfo.length > 0
+    //   this.showChart = false
       this.drawPieToday('pieAI', 'pieAI', statInfo)
 
       this.$nextTick(()=>{
@@ -209,11 +213,20 @@ export default class extends Mixins(DashboardMixin) {
       }
     }
   }
-
+.alert-live{
   .no-data{
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 200px
+    min-height: 450px;
+    color: #999;
+    img {
+      margin-bottom: 10px;
+      height:200px;
+      width: 200px;
+    }
   }
+}
+
 </style>
