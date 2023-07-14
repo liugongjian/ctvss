@@ -289,6 +289,7 @@ export default class extends Vue {
   private async refresh(){
     try {
       const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+      if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
       if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
       await this.getAiAlarms()
       this.$message.success('查询成功')

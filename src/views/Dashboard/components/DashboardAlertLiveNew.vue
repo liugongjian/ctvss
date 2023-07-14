@@ -1,6 +1,6 @@
 <template>
   <component :is="container" title="今日AI告警" :less-padding="true">
-    <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px`">
+    <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px;padding-top:${ list.length === 0 ? '80' : '0'}px`">
       <ul ref="imgList" v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }">
         <div v-if="noAlarmTody" class="svg-container">
           <img :src="require('@/icons/svg/empty.svg')" alt="">
@@ -78,6 +78,8 @@ export default class extends Mixins(DashboardMixin) {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
     }
     this.setInterval(this.updateAlarmList)
+
+    window.onload = () => this.calcHeight()
   }
 
 
@@ -118,6 +120,12 @@ export default class extends Mixins(DashboardMixin) {
     } finally {
       this.loading = false
     }
+  }
+
+  private calcHeight(){
+    const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
+    const totalHeight = left.offsetHeight
+    this.heigh = totalHeight - 670
   }
 
   private checkLevel(data: any) {
