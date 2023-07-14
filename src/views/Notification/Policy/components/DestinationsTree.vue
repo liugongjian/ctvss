@@ -16,19 +16,21 @@
           <span class="node-name">
             {{ data.label }}
           </span>
-          <span v-if="!data.phone">
-            {{ '(未填写手机信息)' }}
-          </span>
-          <span v-else-if="data.phoneVerified === 0">
-            {{ '(未完成验证，' }}
-            <span class="resend-button" @click="verifyPhone(data)">点击重新发送</span>
-            {{ ')' }}
-          </span>
-          <span v-else-if="data.phoneVerified === 2">
-            {{ '(手机验证失败，' }}
-            <span class="check-button" @click="checkPhone(data)">点击查看</span>
-            {{ ')' }}
-          </span>
+          <template v-if="data.isLeaf">
+            <span v-if="!data.phone">
+              {{ '(未填写手机信息)' }}
+            </span>
+            <span v-else-if="data.phoneVerified === 0">
+              {{ '(未完成验证，' }}
+              <span class="resend-button" @click="verifyPhone(data)">点击重新发送</span>
+              {{ ')' }}
+            </span>
+            <span v-else-if="data.phoneVerified === 2">
+              {{ '(手机验证失败，' }}
+              <span class="check-button" @click="checkPhone(data)">点击查看</span>
+              {{ ')' }}
+            </span>
+          </template>
         </span>
       </el-tree>
     </div>

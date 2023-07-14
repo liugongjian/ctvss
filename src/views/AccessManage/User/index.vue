@@ -68,13 +68,13 @@
             </div>
           </div>
           <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
-            <el-table-column prop="iamUserName" label="用户名" width="180">
+            <el-table-column prop="iamUserName" label="用户名" width="160">
               <template slot-scope="{ row }">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" width="220" />
-            <el-table-column prop="policies" label="策略名" width="260">
+            <el-table-column prop="policies" label="策略名" width="250">
               <template slot-scope="{ row }">
                 <span>{{ row.policies || '-' }}</span>
               </template>
