@@ -76,7 +76,7 @@ export default class extends Vue {
       if (this.type === 'record') {
         this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
       }
-      let params = {
+      const params = {
         taskId: this.record?.id,
         deviceId: this.record?.deviceId
       }

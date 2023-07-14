@@ -7,6 +7,7 @@ export interface Secret {
   status: boolean | string;
   hidden?: boolean;
   description?: string;
+  edit?: boolean;
 }
 
 export interface SecretTip {

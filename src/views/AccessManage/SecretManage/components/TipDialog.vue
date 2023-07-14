@@ -47,12 +47,7 @@ export default class extends Mixins(ExcelMixin) {
   @Prop()
   private step!: number
 
-  @Prop()
   private loading = false
-
-  @Prop()
-  private editFlag!: boolean
-
   private description = ''
 
   private mounted(){
@@ -69,26 +64,26 @@ export default class extends Mixins(ExcelMixin) {
       const res = await exportSecret({ ids: [this.data.id] })
       this.downloadFileUrl(`${this.data.type === 'api' ? 'API密钥' : 'OpenAPI授权'}`, res.exportFile)
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
   }
 
   private async downloadCSV(){
-    this.$emit('loading-change', true)
+    this.loading = true
     try {
       const res = await exportSecretCSV({ ids: [this.data.id] })
       this.downloadFileUrl('API密钥', res.exportFile)
-    } catch (e){
-      console.log(e)
+    } catch (e) {
+      this.$message.error(e && e.message)
     } finally {
-      this.$emit('loading-change', false)
+      this.loading = false
     }
   }
 
   private async confirm(){
-    this.editFlag ? this.$emit('edit-secret', { id: this.data.id, description: this.description }) : this.$emit('create-secret', this.description)
+    this.$emit('edit-secret', { id: this.data.id, description: this.description })
   }
 
   private copySuccess() {

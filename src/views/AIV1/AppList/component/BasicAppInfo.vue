@@ -28,7 +28,7 @@
       <el-descriptions-item v-if="isFaceAlgoCode" label="人脸库">
         {{ faceLib.name || '' }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="app.detectItemNames" label="检测项">
+      <el-descriptions-item v-if="app.detectItemNames && !isIndustrialDetection" label="检测项">
         {{ app.detectItemNames }}
       </el-descriptions-item>
       <el-descriptions-item label="描述">
@@ -42,6 +42,7 @@ import { Component, Prop, Mixins } from 'vue-property-decorator'
 import AppMixin from '../../mixin/app-mixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { ResourceAiType } from '@/dics'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BasicAppInfo',
@@ -61,6 +62,10 @@ export default class extends Mixins(AppMixin) {
 
   public created() {
     this.app = this.appInfo
+  }
+
+  public get isIndustrialDetection() {
+    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   /**

@@ -59,7 +59,7 @@ const validateNumber = (rule, value, callback) => {
   }
 
 const validate7days = (rule, value, callback) => {
-  const date7 = (getUnixTime(new Date()) - 7 * 24 * 60 * 60) * 1000
+  const date7 = (getUnixTime(new Date()) - 7 * 24 * 60 * 60 - 5 * 60) * 1000
   const date = new Date(value).getTime()
   if (date < date7){
     callback(new Error('选择7日内的开始时间'))
@@ -146,7 +146,6 @@ export default class extends Vue {
   display: flex;
   flex-direction: column;
 
-
   .history {
     overflow-y: auto;
     overflow-x: hidden;
@@ -184,15 +183,18 @@ export default class extends Vue {
     color: #9e9e9e;
   }
 }
-::v-deep .el-form-item__content{
+
+::v-deep .el-form-item__content {
   display: flex;
-  .second_title{
+
+  .second_title {
     margin-left: 10px;
   }
 }
-.second{
-  ::v-deep .el-form-item__content{
-      width: 245px;
+
+.second {
+  ::v-deep .el-form-item__content {
+    width: 245px;
   }
 }
 
