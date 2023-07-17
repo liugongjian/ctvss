@@ -305,6 +305,9 @@
                 </el-form>
                 <miss-table v-if="!calendarLoading" :info="searchParam" />
               </el-tab-pane>
+              <el-tab-pane label="自动补录" name="automatic">
+                <automatic-record v-if="activeTab === 'automatic'" />
+              </el-tab-pane>
             </el-tabs>
           </div>
         </div>
@@ -366,6 +369,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import DrawChart from './components/DrawChart.vue'
 import DeviceTree from './components/DeviceTree.vue'
 import MissTable from './components/MissTable.vue'
+import AutomaticRecord from './components/AutomaticRecord.vue'
 import {
   getStatistics, getRecord, getRecordLog, setRecordThreshold,
   getDeviceList, exportDeviceList, getCalendarInfo,
@@ -386,7 +390,8 @@ import { UserModule } from '@/store/modules/user'
   components: {
     DrawChart,
     DeviceTree,
-    MissTable
+    MissTable,
+    AutomaticRecord
   }
 })
 export default class extends Vue {

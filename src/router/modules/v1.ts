@@ -1101,9 +1101,9 @@ export const v1Router: RouteConfig[] = [
           breadcrumb: true,
           icon: 'dot',
           perms: ['*'],
-          tags: {
-            isShowRecordInfo: ['Y']
-          }
+          // tags: {
+          //   isShowRecordInfo: ['Y']
+          // }
         }
       }
     ]

@@ -76,3 +76,26 @@ export const exportCalendarMissData = (params: ExportMissQuery): Promise<any> =>
     params,
     responseType: 'blob'
   })
+
+// 自动补录全局配置
+export const setAutomaticConfig = (data: any): Promise<any> =>
+  request({
+    url: '/recovery/config/global',
+    method: 'post',
+    data
+  })
+
+// 获取自动补录全局配置
+export const getAutomaticConfig = (): Promise<any> =>
+  request({
+    url: '/recovery/config/global',
+    method: 'get'
+  })
+
+// 获取自动补录历史
+export const getAutomaticHistory = (params: any): Promise<any> =>
+  request({
+    url: '/recovery/tasks',
+    method: 'get',
+    params
+  })
