@@ -1,8 +1,8 @@
 <!--
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-04-25 14:51:04
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-05-10 10:28:56
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-07-17 11:13:39
  * @FilePath: /vss-user-web/src/views/Statistic/components/AutomaticRecord.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -32,9 +32,9 @@
         </span>
       </el-form-item>
     </el-form>
-    <div class="statistic-box__title">
+    <div class="statistic-box__title history">
       <div class="statistic-box__title-text">自动补录历史</div>
-      <!-- <el-button type="primary">导出7天补录数据</el-button> -->
+      <el-button type="primary" @click="exportData">导出</el-button>
     </div>
     <el-table :data="tableData" style="width: 100%" height="280">
       <el-table-column prop="deviceId" label="设备ID/名称" min-width="180">
@@ -443,6 +443,11 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.history{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px !important;
+}
 .statistic-box {
   &__title {
     padding-left: 16px;
@@ -452,6 +457,7 @@ export default class extends Vue {
     font-size: 16px;
     font-weight: bold;
     margin: 20px 0 10px;
+
 
     &-text {
       width: 160px;
