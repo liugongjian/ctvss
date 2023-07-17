@@ -81,7 +81,17 @@
             </el-table-column> -->
           </el-table>
         </el-form-item>
-        <el-form-item label="推送频率：" prop="notifyFreq">
+        <el-form-item v-if="isCarSMS" label="推送频率：" prop="notifyFreq">
+          <el-select :value="'-1'" disabled>
+            <el-option
+              v-for="(item, index) in [{ value: '-1', label: '实时推送' }]"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-else label="推送频率：" prop="notifyFreq">
           <el-select v-model="form.notifyFreq">
             <el-option
               v-for="(item, index) in notifyFreqOptions"
@@ -98,6 +108,14 @@
             <el-radio label="3">AI消息</el-radio>
             <el-radio label="4">平台事件消息</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="isCarShow && form.source === '1'" label="车辆专用" prop="isCarSMS">
+          <el-switch
+            v-model="form.isCarSMS"
+            :active-value="true"
+            :inactive-value="false"
+            @change="isCarSMSChange"
+          />
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="子类型：" class="source-rules">
           <el-form-item prop="sourceRules" :class="{ 'source-rules__name': showSourceRuleValue }">
@@ -135,20 +153,30 @@
             disabled
           />
         </el-form-item>
-        <el-form-item v-if="form.source !== '2' && form.source !== '4'" label="生效资源：" prop="notifyResources">
-          <resource-tree
-            v-if="isloading === false"
-            :checked-list="form.notifyResources"
-            @resourceListChange="resourceListChange"
-          />
-        </el-form-item>
-        <el-form-item v-if="form.source !== '4'" label="推送对象：" prop="notifyDestinations">
-          <destinations-tree
-            v-if="isloading === false"
-            :checked-list="form.notifyDestinations"
-            @destinationListChange="destinationListChange"
-          />
-        </el-form-item>
+        <template v-if="isCarSMS">
+          <el-form-item label="生效资源：">
+            <span>有车辆任务正在运行的设备</span>
+          </el-form-item>
+          <el-form-item label="推送对象：">
+            <span>车辆任务对应OEM工厂在通讯录中的人员（最多推送3人）</span>
+          </el-form-item>
+        </template>
+        <template v-else>
+          <el-form-item v-if="form.source !== '2' && form.source !== '4'" label="生效资源：" prop="notifyResources">
+            <resource-tree
+              v-if="isloading === false"
+              :checked-list="form.notifyResources"
+              @resourceListChange="resourceListChange"
+            />
+          </el-form-item>
+          <el-form-item v-if="form.source !== '4'" label="推送对象：" prop="notifyDestinations">
+            <destinations-tree
+              v-if="isloading === false"
+              :checked-list="form.notifyDestinations"
+              @destinationListChange="destinationListChange"
+            />
+          </el-form-item>
+        </template>
         <el-form-item label="立即生效：" prop="active">
           <el-switch
             v-model="form.active"
@@ -208,6 +236,7 @@ export default class extends Vue {
     effectiveTime: [],
     notifyFreq: '240',
     source: MESSAGE_TYPE.DEVICE_MSG,
+    isCarSMS: false,
     sourceRules: [],
     sourceRulesValue: '',
     // eslint-disable-next-line no-template-curly-in-string
@@ -219,6 +248,28 @@ export default class extends Vue {
     effectiveTimeType: 'all',
     policyName: '',
     desc: ''
+  }
+
+  private get isCarShow() {
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'Y'
+  }
+
+  private get isCarSMS() {
+    const form = this.form
+    const result = form.source === MESSAGE_TYPE.DEVICE_MSG && form.isCarSMS
+    if (result) {
+      this.form.notifyTemplate = this.notifyTemplate.car
+    } else {
+      this.form.notifyTemplate = this.notifyTemplate.device
+    }
+    return result
+  }
+
+  private set isCarSMS(source: string | boolean) {
+    if (source === MESSAGE_TYPE.CAR_MSG) {
+      this.form.source = MESSAGE_TYPE.DEVICE_MSG
+      this.form.isCarSMS = true
+    }
   }
 
   private effectiveTimeList: any[] = [{ effectiveTime: [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)] }]
@@ -234,9 +285,9 @@ export default class extends Vue {
 
   private aiSourceRulesOptions = []
   private deviceSourceRulesOptions = [
-    { value: '1', label: '设备离线' },
-    { value: '2', label: '流离线' },
-    { value: '3', label: '录制失败' }
+    { value: '1', label: '设备离线', carSupported: true },
+    { value: '2', label: '流离线', carSupported: true },
+    { value: '3', label: '录制失败', carSupported: false }
   ]
   private platformSourceRulesOptions = [
     { value: '1', label: '设备离线', needConfig: true }
@@ -244,11 +295,13 @@ export default class extends Vue {
 
   private notifyTemplate = {
     // eslint-disable-next-line no-template-curly-in-string
-    ai: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到AI告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
+    ai: '【智能视图服务】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到AI告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
     // eslint-disable-next-line no-template-curly-in-string
-    device: '【天翼云CDN+】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到${主类型}-${子类型}告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
+    device: '【智能视图服务】尊敬的${userName}：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰共检测到${主类型}-${子类型}告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
     // eslint-disable-next-line no-template-curly-in-string
-    platform: '【天翼云CDN+】尊敬的用户：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件[值:${value}]，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。'
+    platform: '【智能视图服务】尊敬的用户：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件[值:${value}]，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
+    // eslint-disable-next-line no-template-curly-in-string
+    car: '【智能视图服务】尊敬的用户${userName}: 检测到运输中的车载任务""出现 ${主类型}-${子类型} 告警，车辆所属工厂为""，管理工厂为""， 司机为XXX，请您及时处理。来自智能视图服务推送策略"${policyName}"'
   }
 
   private rules = {
@@ -328,7 +381,7 @@ export default class extends Vue {
   private get sourceRulesOptions() {
     switch (this.form.source) {
       case MESSAGE_TYPE.DEVICE_MSG:
-        return this.deviceSourceRulesOptions
+        return this.deviceSourceRulesOptions.filter((item: any) => this.isCarSMS ? item.carSupported : true)
       case MESSAGE_TYPE.AI_MSG:
         return this.aiSourceRulesOptions
       case MESSAGE_TYPE.PLATFORM_MSG:
@@ -351,11 +404,20 @@ export default class extends Vue {
     return this.$route.name === 'NotificationPolicyEdit'
   }
 
+  private isCarSMSChange(value) {
+    console.log('isCarSMSChanged, value: ', value)
+    this.form.sourceRules = []
+  }
+
   private handleSourceChange(newValue: MESSAGE_TYPE) {
     this.form.sourceRules = []
     switch (newValue) {
       case MESSAGE_TYPE.DEVICE_MSG:
-        this.form.notifyTemplate = this.notifyTemplate.device
+        if (this.isCarSMS) {
+          this.form.notifyTemplate = this.notifyTemplate.car
+        } else {
+          this.form.notifyTemplate = this.notifyTemplate.device
+        }
         break
       case MESSAGE_TYPE.AI_MSG:
         this.form.notifyTemplate = this.notifyTemplate.ai
@@ -407,6 +469,7 @@ export default class extends Vue {
       this.form.notifyDestinations = JSON.parse(info.notifyDestinations)
       this.form.effectiveTime = JSON.parse(info.effectiveTime)
       this.parseEffectiveTime(this.form.effectiveTime)
+      this.isCarSMS = info.source
     } catch (e) {
       this.$message.error(e && e.message)
     }
@@ -466,6 +529,10 @@ export default class extends Vue {
           const params: any = {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
+          if (this.isCarSMS) {
+            params.source = MESSAGE_TYPE.CAR_MSG
+            params.notifyFreq = '-1'
+          }
           params.sourceRules = Array.isArray(this.form.sourceRules) ? JSON.stringify(this.form.sourceRules) : JSON.stringify([this.form.sourceRules + '_' + this.form.sourceRulesValue])
           params.notifyResources = JSON.stringify(this.form.notifyResources)
           params.notifyDestinations = JSON.stringify(this.form.notifyDestinations)

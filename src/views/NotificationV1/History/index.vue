@@ -101,9 +101,15 @@
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
           </template>
         </el-table-column>
-        <el-table-column prop="source" label="消息类型" width="200">
+        <el-table-column prop="source" label="消息类型" width="140">
           <template slot-scope="{ row }">
             {{ sourceMap[row.source] }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="isCarShow" label="车辆专用" width="140" align="center">
+          <template slot-scope="{ row }">
+            <el-tag v-if="row.source === '5'" type="success">是</el-tag>
+            <el-tag v-else>否</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
@@ -160,7 +166,8 @@ export default class extends Vue {
     1: '设备消息',
     2: '资源包消息',
     3: 'AI消息',
-    4: '平台事件消息'
+    4: '平台事件消息',
+    5: '设备消息'
   }
 
   private userGroupOptions = []
@@ -186,6 +193,10 @@ export default class extends Vue {
 
   get isSubUser() {
     return !!UserModule.iamUserId
+  }
+
+  private get isCarShow() {
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'Y'
   }
 
   private dateFormatInTable = dateFormatInTable

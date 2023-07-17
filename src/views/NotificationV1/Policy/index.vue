@@ -27,18 +27,24 @@
             {{ row.effectiveTime | timeFormat }}
           </template>
         </el-table-column>
-        <el-table-column prop="notifyFreq" label="推送频率" width="200">
+        <el-table-column prop="notifyFreq" label="推送频率" width="140">
           <template slot-scope="{ row }">
             {{ notifyFreqMap[row.notifyFreq] }}
           </template>
         </el-table-column>
-        <el-table-column prop="source" label="消息类型" width="200">
+        <el-table-column prop="source" label="消息类型" width="140">
           <template slot-scope="{ row }">
             {{ sourceMap[row.source] }}
           </template>
         </el-table-column>
+        <el-table-column v-if="isCarShow" prop="source" label="车辆专用" width="140" align="center">
+          <template slot-scope="{ row }">
+            <el-tag v-if="row.source === '5'" type="success">是</el-tag>
+            <el-tag v-else>否</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="sourceRulesLabel" label="子类型" width="200" show-overflow-tooltip />
-        <el-table-column prop="active" label="状态" width="200">
+        <el-table-column prop="active" label="状态" width="150">
           <template slot-scope="{ row }">
             <el-button v-if="row.active === 1" type="success" size="mini">已生效</el-button>
             <el-button v-else type="danger" size="mini">未生效</el-button>
@@ -86,6 +92,7 @@ export default class extends Vue {
   private notificationPolicyName = ''
   private dataList: Array<INotifictionPolicy> = []
   private notifyFreqMap = {
+    '-1': '实时推送',
     '30': '半小时',
     '60': '1小时',
     '120': '2小时',
@@ -97,7 +104,8 @@ export default class extends Vue {
     '1': '设备消息',
     '2': '资源包消息',
     '3': 'AI消息',
-    '4': '平台事件消息'
+    '4': '平台事件消息',
+    '5': '设备消息'
   }
   private pager = {
     pageNum: 1,
@@ -106,6 +114,10 @@ export default class extends Vue {
   }
   private dateFormatInTable = dateFormatInTable
   private currentTemplateId: any
+
+  private get isCarShow() {
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'Y'
+  }
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {

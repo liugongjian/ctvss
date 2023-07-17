@@ -30,6 +30,7 @@ export interface INotifictionPolicyForm {
   effectiveTime: any[]
   notifyFreq: string
   source: MESSAGE_TYPE
+  isCarSMS: boolean
   sourceRules: string[],
   sourceRulesValue?: string,
   notifyTemplate: string
