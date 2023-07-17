@@ -443,7 +443,7 @@ export default class extends Vue {
   }
 
   private closeExport(){
-
+    this.exportDialogVisible = false
   }
 }
 </script>
