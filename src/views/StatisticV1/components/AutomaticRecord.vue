@@ -1,11 +1,3 @@
-<!--
- * @Author: zhaodan zhaodan@telecom.cn
- * @Date: 2023-04-25 14:51:04
- * @LastEditors: liugj liugj@chinatelecom.cn
- * @LastEditTime: 2023-07-17 11:13:39
- * @FilePath: /vss-user-web/src/views/Statistic/components/AutomaticRecord.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div class="statistic-box statistic-box__automatic">
     <div class="statistic-box__title">
@@ -160,6 +152,7 @@
         <el-button type="primary" @click="sureThis">确 定</el-button>
       </span>
     </el-dialog>
+    <export-dialog v-if="exportDialogVisible" @on-close="closeExport" />
   </div>
 </template>
 
@@ -172,9 +165,13 @@ import {
 } from '@/api/statistic'
 
 import { dateFormat, durationFormat } from '@/utils/date'
+import ExportDialog from './ExportDialog.vue'
 
 @Component({
-  name: 'AutomaticRecord'
+  name: 'AutomaticRecord',
+  components: {
+    ExportDialog
+  }
 })
 export default class extends Vue {
   @Prop() private deviceId: string
@@ -183,6 +180,7 @@ export default class extends Vue {
   private maxHeight = 0
   private tableData = []
   private ifShowEditAutomatic = false
+  private exportDialogVisible = false
 
   private layout = 'total, sizes, prev, pager, next, jumper'
 
@@ -439,15 +437,18 @@ export default class extends Vue {
     this.pager.pageSize = val
     await this.getAutomaticHistory()
   }
+
+  private exportData(){
+    this.exportDialogVisible = true
+  }
+
+  private closeExport(){
+
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-.history{
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px !important;
-}
 .statistic-box {
   &__title {
     padding-left: 16px;
@@ -495,5 +496,14 @@ export default class extends Vue {
     }
   }
 
+}
+.history{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px !important;
+  .el-button{
+    display: flex;
+    align-items: center;
+  }
 }
 </style>
