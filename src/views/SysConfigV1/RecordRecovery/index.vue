@@ -1,170 +1,170 @@
 <template>
-  <div class="statistic-box statistic-box__automatic">
-    <div class="statistic-box__title">
-      <div class="statistic-box__title-text">自动补录设置</div>
-      <el-button type="primary" size="mini" @click="editAutomaticDialog">
-        编辑
-      </el-button>
-    </div>
-    <el-form ref="automatic">
-      <el-form-item label="启用自动补录">
-        {{ globalConfig.enableRecordRecovery ? '开启' : '关闭' }}
-      </el-form-item>
-      <el-form-item label="最大并发路数">
-        {{ globalConfig.maxStreamNum }}路
-      </el-form-item>
-      <!-- <el-form-item label="最大补录带宽"> 10Mbps </el-form-item> -->
-      <el-form-item label="自动补录时段">
-        每天
-        <span
-          v-for="(item, index) in globalConfig.operateTimeWindows"
-          :key="index"
-        >
-          {{ item.beginTime }} - {{ item.endTime }}
-        </span>
-      </el-form-item>
-    </el-form>
-    <div class="statistic-box__title history">
-      <div class="statistic-box__title-text">自动补录历史</div>
-      <div class="statistic-box__title-btn">
-        <el-button type="primary" size="mini" @click="exportData">导出</el-button>
-        <el-button type="text" size="mini" @click="refresh">
-          <svg-icon name="refresh" />
-        </el-button>
-      </div>
-    </div>
-    <el-table :data="tableData" style="width: 98%" size="medium" max-height="700">
-      <el-table-column prop="deviceId" label="设备ID/名称" min-width="180">
-        <template slot-scope="{ row }">
-          <div class="statistic-box__device_name">
-            <p class="statistic-box__device_id">{{ row.deviceId }}</p>
-            <p>{{ row.deviceName }}</p>
+  <div class="app-container">
+    <el-card>
+      <div class="statistic-box statistic-box__automatic">
+        <div class="statistic-box__title">
+          <div class="statistic-box__title-text">自动补录设置</div>
+          <el-button type="primary" size="mini" @click="editAutomaticDialog">
+            编辑
+          </el-button>
+        </div>
+        <el-form ref="automatic">
+          <el-form-item label="启用自动补录">
+            {{ globalConfig.enableRecordRecovery ? '开启' : '关闭' }}
+          </el-form-item>
+          <el-form-item label="最大并发路数">
+            {{ globalConfig.maxStreamNum }}路
+          </el-form-item>
+          <!-- <el-form-item label="最大补录带宽"> 10Mbps </el-form-item> -->
+          <el-form-item label="自动补录时段">
+            <span>每天 00:00-24:00</span>
+            <!-- 每天
+            <span
+              v-for="(item, index) in globalConfig.operateTimeWindows"
+              :key="index"
+            >
+              {{ item.beginTime }} - {{ item.endTime }}
+            </span> -->
+          </el-form-item>
+        </el-form>
+        <div class="statistic-box__title history">
+          <div class="statistic-box__title-text">自动补录历史</div>
+          <div class="statistic-box__title-btn">
+            <el-button type="primary" size="mini" @click="exportData">导出</el-button>
+            <el-button type="text" size="mini" @click="refresh">
+              <svg-icon name="refresh" />
+            </el-button>
           </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="recordStartTime" label="断点起始时间" min-width="180">
-        <template slot-scope="{ row }">
-          <span>{{ dateFormat(row.recordStartTime*1000) || '--' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="recordEndTime" label="断点截止时间" min-width="180">
-        <template slot-scope="{ row }">
-          <span>{{ dateFormat(row.recordEndTime*1000) || '--' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="recordDuration" label="补录区间时长" min-width="100">
-        <template slot-scope="{ row }">
-          <!-- <span>{{ row.recordDuration }}秒</span> -->
-          <span>({{ durationFormat(row.recordDuration) }})</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="operateStartTime" label="补录操作时间" min-width="340">
-        <template slot-scope="{ row }">
-          <span>{{ dateFormat(row.operateStartTime*1000) || '--' }} - </span>
-          <span>{{ dateFormat(row.operateEndTime*1000) || '--' }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="补录状态" min-width="100">
-        <template slot-scope="{ row }">
-          <span v-if="row.recoveryStatus === 2" class="statistic-box__device_status">
-            <el-tooltip class="item" effect="dark" :content="row.errorMessage" placement="top-start">
-              <span>{{ statusToText[row.recoveryStatus] }} <i class="el-icon-warning-outline statistic-box__device_warning" /></span>
-            </el-tooltip>
-          </span>
-          <span v-else>{{ statusToText[row.recoveryStatus] }}</span>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      :current-page="pager.pageNum"
-      :page-size="pager.pageSize"
-      :total="pager.totalNum"
-      :layout="layout"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+        </div>
+        <el-table :data="tableData" style="width: 98%" size="medium" max-height="700">
+          <el-table-column prop="deviceId" label="设备ID/名称" min-width="180">
+            <template slot-scope="{ row }">
+              <div class="statistic-box__device_name">
+                <p class="statistic-box__device_id">{{ row.deviceId }}</p>
+                <p>{{ row.deviceName }}</p>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="recordStartTime" label="断点起始时间" min-width="180">
+            <template slot-scope="{ row }">
+              <span>{{ dateFormat(row.recordStartTime*1000) || '--' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="recordEndTime" label="断点截止时间" min-width="180">
+            <template slot-scope="{ row }">
+              <span>{{ dateFormat(row.recordEndTime*1000) || '--' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="recordDuration" label="补录区间时长" min-width="100">
+            <template slot-scope="{ row }">
+              <!-- <span>{{ row.recordDuration }}秒</span> -->
+              <span>({{ durationFormat(row.recordDuration) }})</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="operateStartTime" label="补录操作时间" min-width="340">
+            <template slot-scope="{ row }">
+              <span>{{ dateFormat(row.operateStartTime*1000) || '--' }} - </span>
+              <span>{{ dateFormat(row.operateEndTime*1000) || '--' }} </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="补录状态" min-width="100">
+            <template slot-scope="{ row }">
+              <span>{{ `${statusToText[row.recoveryStatus]}${row.errorMessage.length > 0 ? ':' : ''} ${row.errorMessage}` }} </span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination
+          :current-page="pager.pageNum"
+          :page-size="pager.pageSize"
+          :total="pager.totalNum"
+          :layout="layout"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
 
-    <!-- 非页面主体内容 -->
+        <!-- 非页面主体内容 -->
 
-    <el-dialog
-      title="自动补录配置"
-      :visible="ifShowEditAutomatic"
-      width="600px"
-      :before-close="handleClose"
-      :close-on-click-modal="false"
-    >
-      <el-form
-        ref="automaticForm"
-        :model="automaticForm"
-        label-width="130px"
-        :rules="automaticRules"
-      >
-        <el-form-item label="启用自动补录" prop="enableRecordRecovery">
-          <el-switch v-model="automaticForm.enableRecordRecovery" :disabled="!editFlag" />
-        </el-form-item>
-        <el-form-item label="最大并发路数" prop="maxStreamNum">
-          <el-input v-model="automaticForm.maxStreamNum" class="channels" :disabled="!editFlag" @input="minValue" />
-        </el-form-item>
-        <!-- <el-form-item label="最大补录带宽">
+        <el-dialog
+          title="自动补录配置"
+          :visible="ifShowEditAutomatic"
+          width="600px"
+          :before-close="handleClose"
+          :close-on-click-modal="false"
+        >
+          <el-form
+            ref="automaticForm"
+            :model="automaticForm"
+            label-width="130px"
+            :rules="automaticRules"
+          >
+            <el-form-item label="启用自动补录" prop="enableRecordRecovery">
+              <el-switch v-model="automaticForm.enableRecordRecovery" :disabled="!editFlag" />
+            </el-form-item>
+            <el-form-item label="最大并发路数" prop="maxStreamNum">
+              <el-input v-model="automaticForm.maxStreamNum" class="channels" @input="minValue" />
+            </el-form-item>
+            <!-- <el-form-item label="最大补录带宽">
           <el-input v-model="automaticForm.name" />
         </el-form-item> -->
-        <el-form-item label="自动补录时段">
-          <div>每天</div>
-          <el-form-item
-            v-for="(item, index) in automaticForm.operateTimeWindows"
-            :key="index"
-            class="statistic-box statistic-box__automatic_timeList"
-            prop="operateTimeWindows"
-            :rules="{
-              type: 'array',
-              trigger: 'change',
-              validator: validateOperateTimeWindows
-            }"
-          >
-            <el-time-picker
-              v-model="item.time"
-              is-range
-              value-format="HH:mm"
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              placeholder="选择时间范围"
-              format="HH:mm"
-              :editable="false"
-              :picker-options="pickerOptions"
-              :disabled="!editFlag"
-            />
+            <el-form-item label="自动补录时段">
+              <span>每天 00:00-24:00</span>
+              <!-- <el-form-item
+                v-for="(item, index) in automaticForm.operateTimeWindows"
+                :key="index"
+                class="statistic-box statistic-box__automatic_timeList"
+                prop="operateTimeWindows"
+                :rules="{
+                  type: 'array',
+                  trigger: 'change',
+                  validator: validateOperateTimeWindows
+                }"
+              >
+                <el-time-picker
+                  v-model="item.time"
+                  is-range
+                  value-format="HH:mm"
+                  range-separator="至"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间"
+                  placeholder="选择时间范围"
+                  format="HH:mm"
+                  :editable="false"
+                  :picker-options="pickerOptions"
+                  :disabled="!editFlag"
+                />
+                <el-button
+                  v-if="automaticForm.operateTimeWindows.length > 1"
+                  type="text"
+                  class="statistic-box__automatic-dialog-remove"
+                  @click="removeThis(index)"
+                >
+                  <i class="el-icon-remove" />
+                </el-button> -->
+            </el-form-item>
             <el-button
-              v-if="automaticForm.operateTimeWindows.length > 1"
+              v-if="editFlag"
               type="text"
-              class="statistic-box__automatic-dialog-remove"
-              @click="removeThis(index)"
+              class="statistic-box__automatic-dialog-add"
+              :disabled="automaticForm.operateTimeWindows.length >= 5"
+              @click="addTime"
             >
-              <i class="el-icon-remove" />
+              + 添加
             </el-button>
-          </el-form-item>
-          <el-button
-            v-if="editFlag"
-            type="text"
-            class="statistic-box__automatic-dialog-add"
-            :disabled="automaticForm.operateTimeWindows.length >= 5"
-            @click="addTime"
-          >
-            + 添加
-          </el-button>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="clearDialog">取 消</el-button>
-        <el-button v-if="editFlag" type="primary" @click="sureThis">确 定</el-button>
-      </span>
-    </el-dialog>
-    <export-dialog v-if="exportDialogVisible" @on-close="closeExport" />
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="sureThis">确 定</el-button>
+            <el-button @click="clearDialog">取 消</el-button>
+          </span>
+        </el-dialog>
+        <export-dialog v-if="exportDialogVisible" @on-close="closeExport" />
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import {
   setAutomaticConfig,
   getAutomaticConfig,
@@ -172,7 +172,7 @@ import {
 } from '@/api/statistic'
 
 import { dateFormat, durationFormat } from '@/utils/date'
-import ExportDialog from './ExportDialog.vue'
+import ExportDialog from './components/ExportDialog.vue'
 
 
 @Component({
@@ -182,8 +182,6 @@ import ExportDialog from './ExportDialog.vue'
   }
 })
 export default class extends Vue {
-  @Prop() private deviceId: string
-  @Prop() private wrap
 
   private maxHeight = 0
   private tableData = []
@@ -216,8 +214,8 @@ export default class extends Vue {
     maxStreamNum: 500,
     operateTimeWindows: [
       {
-        startTime: '',
-        endTime: '',
+        startTime: '00:00',
+        endTime: '24:00',
         time: ''
       }
     ]
@@ -237,6 +235,13 @@ export default class extends Vue {
     operateTimeWindows: []
   }
 
+  private globalConfigTemp: any = {
+    enableRecordRecovery: false,
+    maxStreamNum: 500,
+    maxBandWidth: 3,
+    operateTimeWindows: [{ beginTime: '00-00', endTime: '24:00' }]
+  }
+
   private statusToText: any = {
     0: '正在补录',
     1: '已完成',
@@ -244,15 +249,10 @@ export default class extends Vue {
   }
 
 
-  @Watch('deviceId', { immediate: true })
-  private onDeviceIdChange() {
-    this.pager.pageNum = 1
-    this.pager.pageSize = 10
-    this.getAutomaticHistory()
-  }
 
   private async mounted() {
-    await this.getAutomaticConfig()
+    this.getAutomaticConfig()
+    this.getAutomaticHistory()
     // this.calMaxHeight()
     // window.addEventListener('resize', this.calMaxHeight)
   }
@@ -275,8 +275,8 @@ export default class extends Vue {
   private validateNum(rule: any, value: number, callback: Function) {
     if (!value) {
       callback(new Error('请输入最大并发路数'))
-    } else if (value > 5000) {
-      callback(new Error('最大并发路数为5000'))
+    } else if (value > 500) {
+      callback(new Error('最大并发路数为500'))
     } else if (value < 1) {
       callback(new Error('最大并发路数最小值为1'))
     } else {
@@ -425,7 +425,6 @@ export default class extends Vue {
     try {
       const { pageNum, pageSize } = this.pager
       const param = {
-        searchKey: this.deviceId,
         pageNum,
         pageSize
       }

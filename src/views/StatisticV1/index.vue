@@ -305,9 +305,9 @@
                 </el-form>
                 <miss-table v-if="!calendarLoading" :info="searchParam" />
               </el-tab-pane>
-              <el-tab-pane v-if="showCarFlag" label="自动补录" name="automatic">
+              <!-- <el-tab-pane v-if="showCarFlag" label="自动补录" name="automatic">
                 <automatic-record v-if="activeTab === 'automatic'" />
-              </el-tab-pane>
+              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>
