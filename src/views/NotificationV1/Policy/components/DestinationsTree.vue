@@ -12,10 +12,25 @@
         :default-checked-keys="checkedList"
         @check-change="onCheckDevice"
       >
-        <span slot-scope="{data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+        <span slot-scope="{ data }" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
           <span class="node-name">
             {{ data.label }}
           </span>
+          <template v-if="data.isLeaf">
+            <span v-if="!data.phone">
+              {{ '(未填写手机信息)' }}
+            </span>
+            <span v-else-if="data.phoneVerified === 0">
+              {{ '(未完成验证，' }}
+              <span class="resend-button" @click="verifyPhone(data)">点击重新发送</span>
+              {{ ')' }}
+            </span>
+            <span v-else-if="data.phoneVerified === 2">
+              {{ '(手机验证失败，' }}
+              <span class="check-button" @click="checkPhone(data)">点击查看</span>
+              {{ ')' }}
+            </span>
+          </template>
         </span>
       </el-tree>
     </div>
@@ -23,12 +38,12 @@
       <div class="device-wrap__header">已选对象({{ destinationList.length }})</div>
       <el-table ref="deviceTable" :data="destinationList" empty-text="暂无选择资源" fit>
         <el-table-column key="label" prop="label" label="子用户组/子用户名称">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ row.label || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="path" prop="path" label="所在位置">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             {{ renderPath(row.path) || '-' }}
           </template>
         </el-table-column>
@@ -44,7 +59,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getGUserList } from '@/api/accessManage'
+import { getGUserList, verifyPhone } from '@/api/accessManage'
 
 @Component({
   name: 'source-tree'
@@ -61,6 +76,26 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
 
+  private async verifyPhone(row: any) {
+    try {
+      this.loading = true
+      await verifyPhone({
+        iamUserId: row.id
+      })
+      this.$message.success('验证短信发送成功!')
+    } catch (err) {
+      this.$message.error(err && err.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  private checkPhone(row: any) {
+    this.$router.push({
+      name: 'AccessManageUser'
+    })
+  }
+
   /**
    * 加载目录
    */
@@ -70,14 +105,16 @@ export default class extends Vue {
       const res = await getGUserList({
         parentGroupId: (node.data && node.data.id) || '-1'
       })
-      let dirs: any = res.data.map((guser: any) => {
+      const dirs: any = res.data.map((guser: any) => {
         return {
           id: guser.id,
           label: guser.name,
           path: node.data && node.data.path ? node.data.path.concat([guser]) : [guser],
           parentId: (node.data && node.data.id) || '-1',
           type: guser.type,
-          isLeaf: guser.type === 'user'
+          isLeaf: guser.type === 'user',
+          phone: guser.phone,
+          phoneVerified: guser.phoneVerified
         }
       })
       resolve(dirs)
@@ -126,7 +163,7 @@ export default class extends Vue {
     }
     try {
       const dirTree: any = this.$refs.dirTree
-      let res = await getGUserList({
+      const res = await getGUserList({
         parentGroupId: key
       })
       dirTree.updateKeyChildren(key, res.data.map((guser: any) => {
@@ -226,5 +263,12 @@ export default class extends Vue {
   .el-table ::v-deep .is-ctyun-policy .cell .el-checkbox__inner {
     display: none;
     position: relative;
+  }
+
+  .resend-button,
+  .check-button {
+    text-decoration: underline;
+    cursor: pointer;
+    color: $primary;
   }
 </style>
