@@ -787,7 +787,7 @@ export default class extends Vue {
             params.groupId = this.$router.currentRoute.query.groupId
             const res = await createUser(params)
             this.cardIndex = 'table'
-            if (res.VerifySMSSent) {
+            if (res.verifySMSSent) {
               this.$message.success('手机号信息更新，平台将会发送绑定验证短信，请注意查收确认')
             }
             this.newUserData = res.createdUserInfos.map(userInfo => ({
@@ -808,7 +808,7 @@ export default class extends Vue {
             params.desc = row.desc
             delete params.userProperties
             const res = await modifyUser(params)
-            if (res.VerifySMSSent) {
+            if (res.verifySMSSent) {
               this.$message.success('修改用户成功！手机号信息更新，平台将会发送绑定验证短信，请注意查收确认')
             } else {
               this.$message.success('修改用户成功')
