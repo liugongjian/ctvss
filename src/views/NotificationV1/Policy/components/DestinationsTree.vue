@@ -78,12 +78,15 @@ export default class extends Vue {
 
   private async verifyPhone(row: any) {
     try {
+      this.loading = true
       await verifyPhone({
         iamUserId: row.id
       })
       this.$message.success('验证短信发送成功!')
     } catch (err) {
       this.$message.error(err && err.message)
+    } finally {
+      this.loading = false
     }
   }
 

@@ -752,12 +752,14 @@ export default class extends Vue {
         copyUser: []
       }
       const policyList: any = this.$refs.policyList
-      res.policies.forEach(policy => {
-        const selectRow = this.policyList.find((row: any) => {
-          return row.policyId === policy.policyId
+      if (policyList) {
+        res.policies.forEach(policy => {
+          const selectRow = this.policyList.find((row: any) => {
+            return row.policyId === policy.policyId
+          })
+          policyList.toggleRowSelection(selectRow)
         })
-        policyList.toggleRowSelection(selectRow)
-      })
+      }
     } catch (e) {
       this.$message.error(e && e.message)
       this.back()
