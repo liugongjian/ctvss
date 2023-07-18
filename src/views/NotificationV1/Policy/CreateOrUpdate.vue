@@ -251,7 +251,7 @@ export default class extends Vue {
   }
 
   private get isCarShow() {
-    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'Y'
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'true'
   }
 
   private get isCarSMS() {

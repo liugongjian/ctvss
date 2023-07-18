@@ -116,7 +116,7 @@ export default class extends Vue {
   private currentTemplateId: any
 
   private get isCarShow() {
-    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'Y'
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'true'
   }
 
   @Watch('dataList.length')
