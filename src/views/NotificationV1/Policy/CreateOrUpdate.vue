@@ -301,7 +301,7 @@ export default class extends Vue {
     // eslint-disable-next-line no-template-curly-in-string
     platform: '【智能视图服务】尊敬的用户：根据推送策略[${policyName}]，最近${notify_freq}内，天翼云瞰检测到${主类型}-${子类型}事件[值:${value}]，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持。',
     // eslint-disable-next-line no-template-curly-in-string
-    car: '【智能视图服务】尊敬的用户${userName}: 检测到运输中的车载任务""出现 ${主类型}-${子类型} 告警，车辆所属工厂为""，管理工厂为""， 司机为XXX，请您及时处理。来自智能视图服务推送策略"${policyName}"'
+    car: '【智能视图服务】尊敬的${userName}: 检测到运输中的车载任务“${任务名}”出现 ${主类型}-${子类型} 告警，车辆所属工厂为“${所属工厂名}”，管理工厂为“${管理工厂名}”， 司机为XXX，请您及时处理。来自智能视图服务推送策略“${策略名}”'
   }
 
   private rules = {
