@@ -34,12 +34,12 @@
                 </el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="description" label="描述" min-width="160">
+            <!-- <el-table-column prop="description" label="描述" min-width="160">
               <template slot-scope="{ row }">
                 <span>{{ row.description || '-' }}</span>
                 <svg-icon v-if="row.edit" name="edit" class="edit-button" @click="editSecret(row)" />
               </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="createdTime" label="创建时间" min-width="160" />
             <el-table-column prop="updatedTime" label="更新时间" min-width="160" />
             <el-table-column label="状态">
@@ -51,10 +51,11 @@
             <el-table-column label="操作" min-width="200" fixed="right">
               <template slot-scope="scope">
                 <template v-if="scope.row.status === 'on'">
-                  <el-button type="text" @click="disableSecret(scope.row)">禁用</el-button>
+                  <!-- <el-button type="text" @click="disableSecret(scope.row)">禁用</el-button> -->
+                  <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
                 </template>
                 <template v-else>
-                  <el-button type="text" @click="enableSecret(scope.row)">启用</el-button>
+                  <!-- <el-button type="text" @click="enableSecret(scope.row)">启用</el-button> -->
                   <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
                 </template>
               </template>
