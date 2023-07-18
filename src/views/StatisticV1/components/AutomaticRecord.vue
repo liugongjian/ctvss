@@ -26,9 +26,15 @@
     </el-form>
     <div class="statistic-box__title history">
       <div class="statistic-box__title-text">自动补录历史</div>
-      <el-button type="primary" @click="exportData">导出</el-button>
+      <div class="statistic-box__title-btn">
+        <el-button type="primary" size="mini" @click="exportData">导出</el-button>
+        <el-button type="text" size="mini" @click="refresh">
+          <svg-icon name="refresh" />
+        </el-button>
+      </div>
     </div>
-    <el-table :data="tableData" style="width: 100%" height="280">
+    <!-- <el-table :data="tableData" style="width: 98%" height="280"> -->
+    <el-table :data="tableData" style="width: 98%" size="medium">
       <el-table-column prop="deviceId" label="设备ID/名称" min-width="180">
         <template slot-scope="{ row }">
           <div class="statistic-box__device_name">
@@ -47,7 +53,7 @@
           <span>{{ dateFormat(row.recordEndTime*1000) || '--' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="recordDuration" label="缺失时长" min-width="100">
+      <el-table-column prop="recordDuration" label="补录区间时长" min-width="100">
         <template slot-scope="{ row }">
           <!-- <span>{{ row.recordDuration }}秒</span> -->
           <span>({{ durationFormat(row.recordDuration) }})</span>
@@ -84,7 +90,7 @@
     <el-dialog
       title="自动补录配置"
       :visible="ifShowEditAutomatic"
-      width="60%"
+      width="600px"
       :before-close="handleClose"
       :close-on-click-modal="false"
     >
@@ -95,10 +101,10 @@
         :rules="automaticRules"
       >
         <el-form-item label="启用自动补录" prop="enableRecordRecovery">
-          <el-switch v-model="automaticForm.enableRecordRecovery" />
+          <el-switch v-model="automaticForm.enableRecordRecovery" :disabled="!editFlag" />
         </el-form-item>
         <el-form-item label="最大并发路数" prop="maxStreamNum">
-          <el-input v-model="automaticForm.maxStreamNum" @input="minValue" />
+          <el-input v-model="automaticForm.maxStreamNum" class="channels" :disabled="!editFlag" @input="minValue" />
         </el-form-item>
         <!-- <el-form-item label="最大补录带宽">
           <el-input v-model="automaticForm.name" />
@@ -127,6 +133,7 @@
               format="HH:mm"
               :editable="false"
               :picker-options="pickerOptions"
+              :disabled="!editFlag"
             />
             <el-button
               v-if="automaticForm.operateTimeWindows.length > 1"
@@ -138,6 +145,7 @@
             </el-button>
           </el-form-item>
           <el-button
+            v-if="editFlag"
             type="text"
             class="statistic-box__automatic-dialog-add"
             :disabled="automaticForm.operateTimeWindows.length >= 5"
@@ -149,7 +157,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="clearDialog">取 消</el-button>
-        <el-button type="primary" @click="sureThis">确 定</el-button>
+        <el-button v-if="editFlag" type="primary" @click="sureThis">确 定</el-button>
       </span>
     </el-dialog>
     <export-dialog v-if="exportDialogVisible" @on-close="closeExport" />
@@ -167,6 +175,7 @@ import {
 import { dateFormat, durationFormat } from '@/utils/date'
 import ExportDialog from './ExportDialog.vue'
 
+
 @Component({
   name: 'AutomaticRecord',
   components: {
@@ -181,6 +190,9 @@ export default class extends Vue {
   private tableData = []
   private ifShowEditAutomatic = false
   private exportDialogVisible = false
+
+  //手动设置此值，打开编辑状态
+  private editFlag = false
 
   private layout = 'total, sizes, prev, pager, next, jumper'
 
@@ -202,7 +214,7 @@ export default class extends Vue {
 
   private automaticForm: any = {
     enableRecordRecovery: false,
-    maxStreamNum: 1,
+    maxStreamNum: 500,
     operateTimeWindows: [
       {
         startTime: '',
@@ -232,6 +244,8 @@ export default class extends Vue {
     2: '补录失败'
   }
 
+  private get
+
   @Watch('deviceId', { immediate: true })
   private onDeviceIdChange() {
     this.pager.pageNum = 1
@@ -241,8 +255,8 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getAutomaticConfig()
-    this.calMaxHeight()
-    window.addEventListener('resize', this.calMaxHeight)
+    // this.calMaxHeight()
+    // window.addEventListener('resize', this.calMaxHeight)
   }
 
   private destroyed() {
@@ -412,7 +426,6 @@ export default class extends Vue {
   private async getAutomaticHistory() {
     try {
       const { pageNum, pageSize } = this.pager
-
       const param = {
         searchKey: this.deviceId,
         pageNum,
@@ -445,6 +458,10 @@ export default class extends Vue {
   private closeExport(){
     this.exportDialogVisible = false
   }
+
+  private refresh(){
+    this.getAutomaticHistory()
+  }
 }
 </script>
 
@@ -463,6 +480,16 @@ export default class extends Vue {
     &-text {
       width: 160px;
       display: inline-block;
+    }
+    &-btn {
+      display: flex;
+      margin-right: 40px;
+      .el-button{
+        margin-right: 10px;
+      }
+      svg{
+        color:#333;
+      }
     }
   }
 
@@ -505,5 +532,9 @@ export default class extends Vue {
     display: flex;
     align-items: center;
   }
+}
+
+.channels {
+  width: 350px;
 }
 </style>

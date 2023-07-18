@@ -305,7 +305,7 @@
                 </el-form>
                 <miss-table v-if="!calendarLoading" :info="searchParam" />
               </el-tab-pane>
-              <el-tab-pane label="自动补录" name="automatic">
+              <el-tab-pane v-if="showCarFlag" label="自动补录" name="automatic">
                 <automatic-record v-if="activeTab === 'automatic'" />
               </el-tab-pane>
             </el-tabs>
@@ -493,6 +493,10 @@ export default class extends Vue {
 
   private param: any = {}
 
+  private get showCarFlag(){
+    return UserModule.tags.isCarShow === 'true'
+  }
+
   @Watch('deviceId')
   private onDeviceIdChange(deviceId: string) {
     this.filterForm = {
@@ -519,6 +523,7 @@ export default class extends Vue {
   async mounted() {
     await this.getData()
     this.getMonth()
+    console.log('UserModule.tags:', UserModule.tags)
   }
 
   private validateThresholdInput(rule, value, callback) {

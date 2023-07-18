@@ -1,8 +1,8 @@
 /*
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-01-31 10:39:56
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-15 15:32:40
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-07-18 11:06:57
  * @FilePath: /vss-user-web/src/api/statistic.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -98,4 +98,13 @@ export const getAutomaticHistory = (params: any): Promise<any> =>
     url: '/recovery/tasks',
     method: 'get',
     params
+  })
+
+// 自动补录导出
+export const exportRecovery = (params: any): Promise<any> =>
+  request({
+    url: '/recovery/vehicle/recoveryExport',
+    method: 'get',
+    params,
+    responseType: 'blob'
   })

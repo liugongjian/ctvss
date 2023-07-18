@@ -32,8 +32,6 @@
           <el-radio label="part">
             仅导出补录失败记录
           </el-radio>
-          </el-radio>
-          </el-radio>
         </el-radio-group>
         <!-- <el-input v-model.number="form.ignore" />
         <span class="second_title">秒</span> -->
@@ -51,7 +49,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getUnixTime } from 'date-fns'
-import { downLoadExcel } from '@/api/car'
+import { exportRecovery } from '@/api/statistic'
 
 
 
@@ -89,7 +87,7 @@ export default class extends Vue {
   private form = {
     startTime: '',
     endTime: '',
-    partFlag: 'all'
+    partFlag: 'part'
   }
 
   private rules = {
@@ -114,15 +112,15 @@ export default class extends Vue {
   private async downLoadExcel(){
     try {
       const param = {
-        startTime: this.form.startTime,
+        beginTime: this.form.startTime,
         endTime: this.form.endTime,
-        partFlag: this.form.partFlag
+        fail: this.form.partFlag === 'part'
       }
-      const res = await downLoadExcel(param)
+      const res = await exportRecovery(param)
       const blob = new Blob([res])
       const link = document.createElement('a')
       link.href = window.URL.createObjectURL(blob)
-      link.download = '车辆.xlsx'
+      link.download = '车辆补录.xlsx'
       link.click()
       link.remove()
       this.$message.success('导出成功')
