@@ -33,8 +33,7 @@
         </el-button>
       </div>
     </div>
-    <!-- <el-table :data="tableData" style="width: 98%" height="280"> -->
-    <el-table :data="tableData" style="width: 98%" size="medium">
+    <el-table :data="tableData" style="width: 98%" size="medium" max-height="700">
       <el-table-column prop="deviceId" label="设备ID/名称" min-width="180">
         <template slot-scope="{ row }">
           <div class="statistic-box__device_name">
