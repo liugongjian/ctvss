@@ -173,7 +173,9 @@ export default class extends Vue {
           parentId: node.data.id,
           type: guser.type,
           isLeaf: guser.type === 'user',
-          path: node.data.path.concat([guser])
+          path: node.data.path.concat([guser]),
+          phone: guser.phone,
+          phoneVerified: guser.phoneVerified
         }
       }))
       node.expanded = true
