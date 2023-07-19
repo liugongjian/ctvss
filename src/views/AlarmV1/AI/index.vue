@@ -89,6 +89,7 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
+    console.log('data:', data)
     if (data.type === 'ipc' || data.id === ''){
       const { id } = data
       let router

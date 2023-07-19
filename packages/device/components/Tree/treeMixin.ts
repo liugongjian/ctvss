@@ -266,6 +266,7 @@ export default class TreeMixin extends Vue {
 
       const dirs: any = devices.dirs.map((dir: any) => {
         return {
+          ...dir,
           id: dir.id,
           groupId: node.data.groupId,
           label: dir.label,
