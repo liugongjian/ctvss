@@ -309,7 +309,7 @@ export default class TreeMixin extends Vue {
                 type: 'group'
               }
             ],
-            isLeaf: group.inProtocol !== 'gb28181'
+            isLeaf: false
           })
       })
     } catch (e) {
