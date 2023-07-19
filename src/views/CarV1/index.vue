@@ -104,8 +104,8 @@
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="任务操作" width="180" fixed="right">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.status === 0" type="text" @click.stop.native="operate(scope.row)">暂停</el-button>
-            <el-button v-if="scope.row.status === 1" type="text" @click.stop.native="operate(scope.row)">继续</el-button>
+            <!-- <el-button v-if="scope.row.status === 0" type="text" @click.stop.native="operate(scope.row)">暂停</el-button>
+            <el-button v-if="scope.row.status === 1" type="text" @click.stop.native="operate(scope.row)">继续</el-button> -->
             <el-button v-if="scope.row.status === 0 || scope.row.status === 1" type="text" @click.stop.native="stop(scope.row)">结束</el-button>
             <el-button type="text" @click="detail(scope.row)">查看详情</el-button>
           </template>

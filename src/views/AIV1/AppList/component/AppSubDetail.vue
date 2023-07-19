@@ -27,7 +27,7 @@
         <span>告警时间：
           <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
             <el-radio-button label="今天" />
-            <el-radio-button label="近7天" />
+            <el-radio-button label="近3天" /> <!-- <div> -->
             <el-radio-button label="自定义时间" />
           </el-radio-group>
           <el-date-picker
@@ -124,7 +124,7 @@
       <div v-loading="queryLoading.pic" class="pic-wrapper">
         <div class="title">
           <div class="title-block" />
-          <span>视频截图</span>
+          <span>告警截图</span>
         </div>
         <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <PicCard
@@ -184,6 +184,7 @@ import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
 import { ResultTimeInterval } from '@/dics/index'
+import { getTime } from 'date-fns'
 
 @Component({
   name: 'AppSubDetail',
@@ -255,8 +256,8 @@ export default class extends Vue {
       case '今天':
         this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
         break
-      case '近7天':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
+      case '近3天': /** */
+        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])/** */
         break
       case '自定义时间':
         this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
@@ -367,6 +368,10 @@ export default class extends Vue {
      * 拦截所有操作，并防抖发起查询请求
      */
   private handleChange() {
+    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+    if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
+    if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
+
     if (this.device.deviceId.length > 0) {
       (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
     } else {

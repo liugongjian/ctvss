@@ -1,8 +1,8 @@
 /*
  * @Author: zhaodan zhaodan@telecom.cn
  * @Date: 2023-01-31 10:39:56
- * @LastEditors: zhaodan zhaodan@telecom.cn
- * @LastEditTime: 2023-02-15 15:32:40
+ * @LastEditors: liugj liugj@chinatelecom.cn
+ * @LastEditTime: 2023-07-18 11:06:57
  * @FilePath: /vss-user-web/src/api/statistic.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -72,6 +72,38 @@ export const getCalendarMissData = (params: RecordMissQuery): Promise<any> =>
 export const exportCalendarMissData = (params: ExportMissQuery): Promise<any> =>
   request({
     url: '/statistics/record/missExport',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+
+// 自动补录全局配置
+export const setAutomaticConfig = (data: any): Promise<any> =>
+  request({
+    url: '/recovery/config/global',
+    method: 'post',
+    data
+  })
+
+// 获取自动补录全局配置
+export const getAutomaticConfig = (): Promise<any> =>
+  request({
+    url: '/recovery/config/global',
+    method: 'get'
+  })
+
+// 获取自动补录历史
+export const getAutomaticHistory = (params: any): Promise<any> =>
+  request({
+    url: '/recovery/tasks',
+    method: 'get',
+    params
+  })
+
+// 自动补录导出
+export const exportRecovery = (params: any): Promise<any> =>
+  request({
+    url: '/recovery/vehicle/recoveryExport',
     method: 'get',
     params,
     responseType: 'blob'

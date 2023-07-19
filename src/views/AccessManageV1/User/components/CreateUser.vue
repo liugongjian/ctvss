@@ -64,7 +64,12 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <el-row v-if="form.userInfo.length" style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;">用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
+              <el-row
+                v-if="form.userInfo.length"
+                style="color: #888; font-size: 12px; line-height: 1; padding: 6px 0;"
+              >
+                用户名：2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。创建账号后，将会给该号码发送验证短信，验证通过后完成绑定。
+              </el-row>
               <template v-if="type === 'add'">
                 <el-button :disabled="form.userInfo.length >= 10" @click="addUser">添加成员</el-button>
                 <el-button type="text">一次性最多添加10名成员</el-button>
@@ -443,7 +448,6 @@ export default class extends Vue {
       { validator: this.validateEmail, trigger: 'blur' }
     ],
     phone: [
-      { required: true, message: '手机号不能为空', trigger: ['blur', 'change'] },
       { validator: this.validatePhone, trigger: 'blur' }
     ],
     passwordLifeTime: [
@@ -624,7 +628,7 @@ export default class extends Vue {
       登录密码：${row.passwords}
       AccessKeyId：${row.secretId}
       SecretAccessKey：${row.secretKey}
-
+      
       `
       copy(str)
     } else if (type === 'link') {
@@ -748,12 +752,14 @@ export default class extends Vue {
         copyUser: []
       }
       const policyList: any = this.$refs.policyList
-      res.policies.forEach(policy => {
-        const selectRow = this.policyList.find((row: any) => {
-          return row.policyId === policy.policyId
+      if (policyList) {
+        res.policies.forEach(policy => {
+          const selectRow = this.policyList.find((row: any) => {
+            return row.policyId === policy.policyId
+          })
+          policyList.toggleRowSelection(selectRow)
         })
-        policyList.toggleRowSelection(selectRow)
-      })
+      }
     } catch (e) {
       this.$message.error(e && e.message)
       this.back()
@@ -783,6 +789,9 @@ export default class extends Vue {
             params.groupId = this.$router.currentRoute.query.groupId
             const res = await createUser(params)
             this.cardIndex = 'table'
+            if (res.verifySMSSent) {
+              this.$message.success('手机号信息更新，平台将会发送绑定验证短信，请注意查收确认')
+            }
             this.newUserData = res.createdUserInfos.map(userInfo => ({
               mainUserId: userInfo.mainUserId,
               userName: userInfo.iamUserName,
@@ -800,8 +809,12 @@ export default class extends Vue {
             params.email = row.email
             params.desc = row.desc
             delete params.userProperties
-            await modifyUser(params)
-            this.$message.success('修改用户成功')
+            const res = await modifyUser(params)
+            if (res.verifySMSSent) {
+              this.$message.success('修改用户成功！手机号信息更新，平台将会发送绑定验证短信，请注意查收确认')
+            } else {
+              this.$message.success('修改用户成功')
+            }
             this.back()
           }
         } else {
@@ -900,9 +913,7 @@ export default class extends Vue {
   }
 
   private validatePhone(rule: any, value: string, callback: Function) {
-    if (!value) {
-      callback(new Error('手机必填'))
-    } else if (value && !/^\d{11}$/.test(value)) {
+    if (value && !/^\d{11}$/.test(value)) {
       callback(new Error('请输入正确的手机号'))
     } else {
       callback()

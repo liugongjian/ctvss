@@ -1,11 +1,3 @@
-<!--
- * @Author: zhaodan zhaodan@telecom.cn
- * @Date: 2023-03-21 10:53:22
- * @LastEditors: 邱文琦
- * @LastEditTime: 2023-07-03 09:27:21
- * @FilePath: /vss-user-web/src/views/Dashboard/index.vue
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
--->
 <template>
   <div id="container" class="app-container">
     <DashboardTips />
@@ -75,8 +67,12 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    const { isSubscribe } = await getIsOndemand()
-    this.isSubscribe = isSubscribe === '1'
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      this.isSubscribe = isSubscribe === '1'
+    } catch (e){
+      console.log(e)
+    }
   }
 }
 </script>

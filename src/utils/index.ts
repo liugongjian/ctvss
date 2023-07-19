@@ -83,3 +83,20 @@ export const toggleClass = (ele: HTMLElement, className: string) => {
   }
   ele.className = classString
 }
+
+
+/**
+ * 生成定时器
+ */
+export const generateTimer = (row: any, secondCnt: number) => {
+  row.secondCnt = secondCnt
+  clearInterval(row.secondCntTimer)
+  row.secondCntTimer = setInterval(() => {
+    console.log('interval run...')
+    if (row.secondCnt > 0) {
+      row.secondCnt--
+    } else {
+      clearInterval(row.secondCntTimer)
+    }
+  }, 1000)
+}

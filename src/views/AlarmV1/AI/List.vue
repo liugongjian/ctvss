@@ -175,7 +175,7 @@ export default class extends Vue {
         this.queryParam.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
         break
       case '近3天':
-        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
+        this.queryParam.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
         this.queryParam.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
@@ -325,6 +325,7 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
+    this.refresh()
   }
 
   /**

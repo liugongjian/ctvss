@@ -16,7 +16,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/DashboardV1/index.vue'
+          ),
         name: 'Dashboard',
         meta: {
           title: '概览',
@@ -27,7 +30,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/AI/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/DashboardV1/AI/index.vue'
+          ),
         name: 'DashboardAI',
         meta: {
           title: 'AI监控告警',
@@ -39,7 +45,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'visualization-dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/DashboardV1/VisualizationDashboard.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "dashboard" */ '@/views/DashboardV1/VisualizationDashboard.vue'
+          ),
         name: 'VisualizationDashboard',
         meta: {
           title: '可视化大屏',
@@ -57,26 +66,38 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '业务组管理',
       icon: 'menu-group',
-      perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
+      perms: [
+        'ivs:GetGroup',
+        'ivs:CreateGroup',
+        'ivs:UpdateGroup',
+        'ivs:DeleteGroup'
+      ],
       alwaysShow: false,
       version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/group/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "group" */ '@/views/group/index.vue'),
         name: 'group-list',
         meta: {
           title: '业务组管理',
           icon: 'menu-group',
           breadcrumb: false,
-          perms: ['ivs:GetGroup', 'ivs:CreateGroup', 'ivs:UpdateGroup', 'ivs:DeleteGroup'],
+          perms: [
+            'ivs:GetGroup',
+            'ivs:CreateGroup',
+            'ivs:UpdateGroup',
+            'ivs:DeleteGroup'
+          ],
           activeMenu: '/group'
         }
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
         name: 'group-create',
         meta: {
           title: '新建业务组',
@@ -88,7 +109,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'update',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
         name: 'group-update',
         meta: {
           title: '编辑业务组',
@@ -100,7 +122,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/group/config.vue'),
+        component: () =>
+          import(/* webpackChunkName: "group" */ '@/views/group/config.vue'),
         name: 'group-config',
         meta: {
           title: '业务组配置',
@@ -122,12 +145,13 @@ export const v1Router: RouteConfig[] = [
       alwaysShow: false,
       only: true,
       groupSelector: true,
-      version: 1,
+      version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         name: 'device',
         meta: {
           title: '设备管理',
@@ -139,7 +163,10 @@ export const v1Router: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "device" */ '@/views/device/List.vue'
+              ),
             name: 'device-list',
             meta: {
               title: '设备列表',
@@ -151,7 +178,10 @@ export const v1Router: RouteConfig[] = [
           },
           {
             path: 'create',
-            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/Create.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "device-create" */ '@/views/device/Create.vue'
+              ),
             name: 'device-create',
             meta: {
               title: '添加设备',
@@ -163,7 +193,10 @@ export const v1Router: RouteConfig[] = [
           },
           {
             path: 'update',
-            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/Create.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "device-create" */ '@/views/device/Create.vue'
+              ),
             name: 'device-update',
             meta: {
               title: '编辑设备',
@@ -175,7 +208,10 @@ export const v1Router: RouteConfig[] = [
           },
           {
             path: 'detail',
-            component: () => import(/* webpackChunkName: "device-detail" */ '@/views/device/Detail.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "device-detail" */ '@/views/device/Detail.vue'
+              ),
             name: 'device-detail',
             meta: {
               title: '设备详情',
@@ -187,7 +223,10 @@ export const v1Router: RouteConfig[] = [
           },
           {
             path: 'config-channel',
-            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/ConfigChannel.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "device-create" */ '@/views/device/ConfigChannel.vue'
+              ),
             name: 'config-channel',
             meta: {
               title: '配置子通道',
@@ -207,7 +246,12 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '实时预览',
       icon: 'menu-live',
-      perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
+      perms: [
+        'ivs:GetLiveStream',
+        'ivs:ControlDevicePTZ',
+        'ivs:LockDevicePTZ',
+        'ivs:ControlDevicePreset'
+      ],
       alwaysShow: false,
       groupSelector: true,
       customTreeSelector: true,
@@ -216,13 +260,19 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/Live.vue'),
+        component: () =>
+          import(/* webpackChunkName: "screen" */ '@/views/device/Live.vue'),
         name: 'screen',
         meta: {
           title: '实时预览',
           icon: 'menu-live',
           breadcrumb: false,
-          perms: ['ivs:GetLiveStream', 'ivs:ControlDevicePTZ', 'ivs:LockDevicePTZ', 'ivs:ControlDevicePreset'],
+          perms: [
+            'ivs:GetLiveStream',
+            'ivs:ControlDevicePTZ',
+            'ivs:LockDevicePTZ',
+            'ivs:ControlDevicePreset'
+          ],
           activeMenu: '/screen',
           groupSelector: true,
           customTreeSelector: true
@@ -232,7 +282,8 @@ export const v1Router: RouteConfig[] = [
   },
   {
     path: '/player-debug',
-    component: () => import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
+    component: () =>
+      import(/* webpackChunkName: "debug" */ '@vss/vss-video-player/Debug.vue'),
     name: 'device-debug',
     meta: {
       title: '播放器调试',
@@ -244,7 +295,10 @@ export const v1Router: RouteConfig[] = [
   },
   {
     path: '/replay-debug',
-    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug.vue'),
+    component: () =>
+      import(
+        /* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug.vue'
+      ),
     name: 'replay-debug',
     meta: {
       title: '录像调试',
@@ -256,7 +310,10 @@ export const v1Router: RouteConfig[] = [
   },
   {
     path: '/replay-debug2',
-    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
+    component: () =>
+      import(
+        /* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'
+      ),
     name: 'replay-debug2',
     meta: {
       title: '录像调试',
@@ -269,7 +326,10 @@ export const v1Router: RouteConfig[] = [
   // 播放器测试内部路由改为/inner/replay-debug2
   {
     path: '/inner/replay-debug2',
-    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
+    component: () =>
+      import(
+        /* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'
+      ),
     name: 'inner-replay-debug2',
     meta: {
       title: '录像调试',
@@ -285,7 +345,12 @@ export const v1Router: RouteConfig[] = [
     meta: {
       title: '录像回放',
       icon: 'menu-replay',
-      perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
+      perms: [
+        'ivs:GetCloudRecord',
+        'ivs:GetDeviceRecord',
+        'ivs:DownloadCloudRecord',
+        'ivs:LockCloudRecord'
+      ],
       alwaysShow: false,
       groupSelector: true,
       customTreeSelector: true,
@@ -294,13 +359,19 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/Replay.vue'),
+        component: () =>
+          import(/* webpackChunkName: "screen" */ '@/views/device/Replay.vue'),
         name: 'replay',
         meta: {
           title: '录像回放',
           icon: 'menu-replay',
           breadcrumb: false,
-          perms: ['ivs:GetCloudRecord', 'ivs:GetDeviceRecord', 'ivs:DownloadCloudRecord', 'ivs:LockCloudRecord'],
+          perms: [
+            'ivs:GetCloudRecord',
+            'ivs:GetDeviceRecord',
+            'ivs:DownloadCloudRecord',
+            'ivs:LockCloudRecord'
+          ],
           activeMenu: '/replay',
           groupSelector: true,
           customTreeSelector: true
@@ -322,7 +393,8 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'up-platform',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
         name: 'ViidUpPlatform',
         meta: {
           title: '向上级联',
@@ -333,7 +405,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
         name: 'ViidUpPlatformCreate',
         meta: {
           title: '新建平台',
@@ -344,7 +417,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'up-platform/update/:id?',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create.vue'),
         name: 'ViidUpPlatformUpdate',
         meta: {
           title: '编辑平台',
@@ -366,7 +440,10 @@ export const v1Router: RouteConfig[] = [
       // },
       {
         path: 'subscribe/create',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'
+          ),
         name: 'ViidSubscribeCreate',
         meta: {
           title: '添加订阅',
@@ -377,7 +454,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'subscribe/cancel',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'
+          ),
         name: 'ViidSubscribeCancel',
         meta: {
           title: '取消订阅',
@@ -403,7 +483,8 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/MapV1/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "map" */ '@/views/MapV1/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
@@ -430,7 +511,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'gb28121',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/index.vue'
+          ),
         name: 'up-platform',
         meta: {
           title: '国标级联',
@@ -441,7 +525,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-create',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'
+          ),
         name: 'up-platform-gb28121-create',
         meta: {
           title: '新建国标级联',
@@ -452,7 +539,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28121-update',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "up-platform" */ '@/views/upPlatformV1/create.vue'
+          ),
         name: 'up-platform-gb28121-update',
         meta: {
           title: '编辑国标级联',
@@ -478,7 +568,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'gb28181',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/index.vue'
+          ),
         name: 'gb28181',
         meta: {
           name: 'certificate',
@@ -490,7 +583,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28181/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/Create.vue'
+          ),
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
@@ -501,7 +597,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb28181/update/:userName?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb28181/Create.vue'
+          ),
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
@@ -512,7 +611,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ehome',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/index.vue'
+          ),
         name: 'ehome',
         meta: {
           id: '20210424150201007001',
@@ -525,7 +627,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ehome/create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'
+          ),
         name: 'ehome-create',
         meta: {
           id: '20210424150201007002',
@@ -537,7 +642,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ehome/update/:id?',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "tree" */ '@/views/Certificate/Ehome/Create.vue'
+          ),
         name: 'ehome-update',
         meta: {
           id: '20210424150201007003',
@@ -549,7 +657,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ga1400',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/index.vue'
+          ),
         name: 'ga1400',
         meta: {
           id: '20210424150201007004',
@@ -562,7 +673,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ga1400/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/Create.vue'
+          ),
         name: 'ga1400-create',
         meta: {
           id: '20210424150201007005',
@@ -574,7 +688,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ga1400/update/:userName?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Ga1400/Create.vue'
+          ),
         name: 'ga1400-update',
         meta: {
           id: '20210424150201007006',
@@ -586,7 +703,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb35114',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/index.vue'
+          ),
         name: 'gb35114',
         meta: {
           id: '20210424150201007007',
@@ -599,7 +719,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb35114/create',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'
+          ),
         name: 'gb35114-create',
         meta: {
           id: '20210424150201007008',
@@ -611,7 +734,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'gb35114/update/:outId?/:certId?',
-        component: () => import(/* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "certificate" */ '@/views/Certificate/Gb35114/Create.vue'
+          ),
         name: 'gb35114-update',
         meta: {
           id: '20210424150201007006',
@@ -640,7 +766,10 @@ export const v1Router: RouteConfig[] = [
       // 柳州版本录制模板
       {
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/RecordV2/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/RecordV2/index.vue'
+          ),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -655,7 +784,10 @@ export const v1Router: RouteConfig[] = [
       // 现网版本录制模板
       {
         path: 'record',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Record/index.vue'
+          ),
         name: 'record',
         meta: {
           title: '录制模板',
@@ -666,7 +798,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'
+          ),
         name: 'recordCreate',
         meta: {
           title: '新建录制模板',
@@ -677,7 +812,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'record/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Record/CreateOrUpdate.vue'
+          ),
         name: 'recordUpdate',
         meta: {
           title: '编辑录制模板',
@@ -688,7 +826,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/index.vue'
+          ),
         name: 'Callback',
         meta: {
           title: '回调模板',
@@ -699,7 +840,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'
+          ),
         name: 'CallbackCreate',
         meta: {
           title: '新建回调模板',
@@ -710,7 +854,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'callback/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Callback/CreateOrUpdate.vue'
+          ),
         name: 'CallbackUpdate',
         meta: {
           title: '编辑回调模板',
@@ -721,7 +868,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'
+          ),
         name: 'AICreate',
         meta: {
           title: '新建AI模板',
@@ -732,7 +882,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/AI/CreateOrUpdate.vue'
+          ),
         name: 'aiUpdate',
         meta: {
           title: '编辑AI模板',
@@ -743,7 +896,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/index.vue'
+          ),
         name: 'Alert',
         meta: {
           title: '告警模板',
@@ -754,7 +910,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'
+          ),
         name: 'AlertCreate',
         meta: {
           title: '新建告警模板',
@@ -765,7 +924,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/CreateOrUpdate.vue'
+          ),
         name: 'AlertUpdate',
         meta: {
           title: '编辑告警模板',
@@ -776,7 +938,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'alert/details/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/Details.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "template" */ '@/views/TemplateV1/Alert/Details.vue'
+          ),
         name: 'AlertDetails',
         meta: {
           title: '模板详情',
@@ -802,7 +967,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'mask-recognation',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/MaskRecognation/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AIV1/MaskRecognation/index.vue'
+          ),
         name: 'AIMaskRecognation',
         meta: {
           title: '口罩识别',
@@ -815,7 +983,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'ai-app-list',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/index.vue'),
         name: 'AIAppList',
         meta: {
           title: 'AI应用',
@@ -829,7 +998,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'
+          ),
         name: 'AIAddApp',
         meta: {
           title: '添加应用',
@@ -842,7 +1014,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'edit',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AddApp.vue'
+          ),
         name: 'AIEditApp',
         meta: {
           title: '编辑应用',
@@ -855,7 +1030,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'detail',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AppDetail.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "ai" */ '@/views/AIV1/AppList/AppDetail.vue'
+          ),
         name: 'AIAppDetail',
         meta: {
           title: '应用详情',
@@ -868,7 +1046,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AIV1/Config/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "ai" */ '@/views/AIV1/Config/index.vue'),
         name: 'AIConfig',
         meta: {
           title: '人脸库',
@@ -881,7 +1060,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'facelib',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/index.vue'),
         name: 'facelib',
         meta: {
           title: '人脸库',
@@ -893,7 +1073,8 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'facelib/detail',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/Personal.vue'),
+        component: () =>
+          import(/* webpackChunkName: "AI" */ '@/views/AIV1/Face/Personal.vue'),
         name: 'facelib-detail',
         meta: {
           title: '人脸库详情',
@@ -920,7 +1101,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'dashboard',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/Dashboard.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/Dashboard.vue'
+          ),
         name: 'AccessManageDashboard',
         meta: {
           title: '概览',
@@ -932,7 +1116,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'user',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/index.vue'
+          ),
         name: 'AccessManageUser',
         meta: {
           title: '用户',
@@ -944,7 +1131,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'user/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/components/CreateUser.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/components/CreateUser.vue'
+          ),
         name: 'AccessManageUserCreate',
         meta: {
           title: '创建用户',
@@ -956,7 +1146,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'user/detail',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/components/UserDetail.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/User/components/UserDetail.vue'
+          ),
         name: 'AccessManageUserDetail',
         meta: {
           title: '成员详情',
@@ -968,7 +1161,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/index.vue'
+          ),
         name: 'AccessManagePolicy',
         meta: {
           title: '策略',
@@ -980,7 +1176,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/components/CreatePolicy.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/components/CreatePolicy.vue'
+          ),
         name: 'AccessManagePolicyCreate',
         meta: {
           title: '创建策略',
@@ -992,7 +1191,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/components/CreatePolicy.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/Policy/components/CreatePolicy.vue'
+          ),
         name: 'AccessManagePolicyEdit',
         meta: {
           title: '查看&编辑策略',
@@ -1004,7 +1206,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'role',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/Role/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/Role/index.vue'
+          ),
         name: 'AccessManageRole',
         meta: {
           title: '角色',
@@ -1016,7 +1221,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'role/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/Role/components/CreateRole.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/Role/components/CreateRole.vue'
+          ),
         name: 'AccessManageRoleCreate',
         meta: {
           title: '创建角色',
@@ -1028,7 +1236,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'secretManage',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/SecretManage/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/SecretManage/index.vue'
+          ),
         name: 'AccessManageSecretManage',
         meta: {
           title: 'API密钥',
@@ -1040,7 +1251,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'accessRestriction',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManageV1/AccessRestriction/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "iam" */ '@/views/AccessManageV1/AccessRestriction/index.vue'
+          ),
         name: 'AccessRestrictionManage',
         meta: {
           title: '访问限制',
@@ -1067,7 +1281,8 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'alarm',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/index.vue'),
         name: 'Alarm',
         meta: {
           title: '设备告警',
@@ -1079,7 +1294,10 @@ export const v1Router: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'),
+            component: () =>
+              import(
+                /* webpackChunkName: "alarm" */ '@/views/AlarmV1/List.vue'
+              ),
             name: 'AlarmList',
             meta: {
               title: '设备告警',
@@ -1093,8 +1311,42 @@ export const v1Router: RouteConfig[] = [
         ]
       },
       {
+        path: 'ai-alarm',
+        component: () =>
+          import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/index.vue'),
+        name: 'AiAlarm',
+        meta: {
+          title: 'AI告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: false
+        },
+        children: [
+          {
+            path: '',
+            component: () =>
+              import(
+                /* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/List.vue'
+              ),
+            name: 'AIAlarmList',
+            meta: {
+              title: 'AI告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/ai-alarm',
+              groupSelector: false
+            }
+          }
+        ]
+      },
+      {
         path: 'statistic',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/StatisticV1/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "export-devices" */ '@/views/StatisticV1/index.vue'
+          ),
         name: 'statistic',
         meta: {
           title: '统计信息',
@@ -1123,7 +1375,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'history',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/History/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/NotificationV1/History/index.vue'
+          ),
         name: 'NotificationHistory',
         meta: {
           title: '推送历史',
@@ -1135,7 +1390,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/index.vue'
+          ),
         name: 'NotificationPolicy',
         meta: {
           title: '推送策略',
@@ -1147,7 +1405,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'
+          ),
         name: 'NotificationPolicyCreate',
         meta: {
           title: '创建推送策略',
@@ -1159,7 +1420,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "notification" */ '@/views/NotificationV1/Policy/CreateOrUpdate.vue'
+          ),
         name: 'NotificationPolicyEdit',
         meta: {
           title: '编辑推送策略',
@@ -1179,16 +1443,17 @@ export const v1Router: RouteConfig[] = [
       title: '车载监控管理',
       breadcrumb: true,
       icon: 'menu-car',
-      // perms: ['ivs:AdminCar'],
-      // tags: {
-      //   'isCarShow': ['true']
-      // },
+      perms: ['ivs:AdminCar'],
+      tags: {
+        isCarShow: ['true']
+      },
       version: 1
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "car" */ '@/views/CarV1/index.vue'),
+        component: () =>
+          import(/* webpackChunkName: "car" */ '@/views/CarV1/index.vue'),
         name: 'Car',
         meta: {
           id: '20210515200901013321',
@@ -1214,7 +1479,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'resource',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/index.vue'
+          ),
         name: 'BillingResource',
         meta: {
           title: '资源包管理',
@@ -1224,7 +1492,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'resource/management',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/Manage.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "billing" */ '@/views/BillingV1/Resource/Manage.vue'
+          ),
         name: 'BillingResourceManagement',
         meta: {
           title: '资源包管理',
@@ -1250,7 +1521,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevicesV1/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "export-devices" */ '@/views/ExportDevicesV1/index.vue'
+          ),
         name: 'ExportDevices',
         meta: {
           title: '批量导出设备信息',
@@ -1277,7 +1551,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: 'operation-log',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/OperationLog/index.vue'
+          ),
         name: 'operation-log',
         meta: {
           title: '操作日志',
@@ -1289,7 +1566,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'custom-tree',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfigV1/CustomTree/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/SysConfigV1/CustomTree/index.vue'
+          ),
         name: 'CustomTree',
         meta: {
           title: '自定义设备树',
@@ -1301,7 +1581,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'replay-lock-manage',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/device/ReplayLockManage.vue'
+          ),
         name: 'ReplayLockManage',
         meta: {
           title: '锁定录像管理',
@@ -1316,7 +1599,10 @@ export const v1Router: RouteConfig[] = [
       },
       {
         path: 'system-config',
-        component: () => import(/* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/SysConfig/index.vue'
+          ),
         name: 'SysConfig',
         meta: {
           title: '系统设置',
@@ -1324,6 +1610,24 @@ export const v1Router: RouteConfig[] = [
           activeMenu: '/sysconfig/system-config',
           icon: 'dot',
           perms: ['*']
+        }
+      },
+      {
+        path: 'record-recovery',
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/SysConfigV1/RecordRecovery/index.vue'
+          ),
+        name: 'RecordRecovery',
+        meta: {
+          title: '车载自动补录',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/record-recovery',
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            isCarShow: ['true']
+          }
         }
       }
     ]
@@ -1341,7 +1645,10 @@ export const v1Router: RouteConfig[] = [
     children: [
       {
         path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "common-async-page" */ '@/views/changePassword/index.vue'
+          ),
         meta: {
           title: '修改密码',
           icon: 'tree',

@@ -101,9 +101,15 @@
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
           </template>
         </el-table-column>
-        <el-table-column prop="source" label="消息类型" width="200">
+        <el-table-column prop="source" label="消息类型" width="140">
           <template slot-scope="{ row }">
             {{ sourceMap[row.source] }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="isCarShow" label="车辆专用" width="140" align="center">
+          <template slot-scope="{ row }">
+            <el-tag v-if="row.source === '5'" type="success">是</el-tag>
+            <el-tag v-else>否</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
@@ -131,6 +137,7 @@ import { INotifictionPolicy } from '@/type/Notification'
 import { dateFormatInTable } from '@/utils/date'
 import { getNotificationHistory } from '@/api/notification'
 import { getGroupList } from '@/api/accessManage'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'notification-history-list'
@@ -159,7 +166,8 @@ export default class extends Vue {
     1: '设备消息',
     2: '资源包消息',
     3: 'AI消息',
-    4: '平台事件消息'
+    4: '平台事件消息',
+    5: '设备消息'
   }
   private userGroupOptions = []
   private searchForm = {
@@ -180,6 +188,11 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+
+  private get isCarShow() {
+    return UserModule.tags && UserModule.tags.isCarShow && UserModule.tags.isCarShow === 'true'
+  }
+
   private dateFormatInTable = dateFormatInTable
   private currentTemplateId: any
 
