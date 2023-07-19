@@ -433,6 +433,7 @@ export default class extends Vue {
       const { totalNum, recoveryList } = res
       this.tableData = recoveryList
       this.pager.totalNum = Number(totalNum)
+      this.$message.success('查询成功')
     } catch (error) {
       this.$message.error(error && error.message)
     }
