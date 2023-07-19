@@ -1589,7 +1589,7 @@ export const v1Router: RouteConfig[] = [
           ),
         name: 'RecordRecovery',
         meta: {
-          title: '中粮录像补录',
+          title: '车载自动补录',
           breadcrumb: true,
           activeMenu: '/sysconfig/record-recovery',
           icon: 'dot',

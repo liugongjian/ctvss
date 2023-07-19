@@ -97,9 +97,9 @@
             label-width="130px"
             :rules="automaticRules"
           >
-            <el-form-item label="启用自动补录" prop="enableRecordRecovery">
+            <!-- <el-form-item label="启用自动补录" prop="enableRecordRecovery">
               <el-switch v-model="automaticForm.enableRecordRecovery" :disabled="!editFlag" />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="最大并发路数" prop="maxStreamNum">
               <el-input v-model="automaticForm.maxStreamNum" class="channels" @input="minValue" />
             </el-form-item>

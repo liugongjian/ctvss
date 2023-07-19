@@ -37,7 +37,7 @@
         <span class="second_title">秒</span> -->
       </el-form-item>
       <el-alert
-        title="请选择录像断点记录的起止区间，选定日期区内的补录记录将被导出，最大支持导出最近7天的列表。"
+        title="请选择录像断点记录的起止区间，选定日期区内的补录记录将被导出，最大支持7天的导出区间。"
         type="warning"
         show-icon
       >
@@ -51,21 +51,20 @@
       <el-button type="primary" @click="submit">确定</el-button>
       <el-button @click="closeDialog">关闭</el-button>
     </div>
-    </el-alert>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getUnixTime } from 'date-fns'
+import { getUnixTime, sub, format } from 'date-fns'
 import { exportRecovery } from '@/api/statistic'
 
 
 
-const validateIn90Days = (rule, value, callback) => {
-  const date90 = (getUnixTime(new Date()) - 90 * 24 * 60 * 60) * 1000
+const validateIn30Days = (rule, value, callback) => {
+  const date30 = (getUnixTime(new Date()) - 30 * 24 * 60 * 60) * 1000
   const date = new Date(value).getTime()
-  if (date < date90){
-    callback(new Error('请选择90日内的开始时间'))
+  if (date < date30){
+    callback(new Error('请选择30日内的开始时间'))
   } else {
     callback()
   }
@@ -103,10 +102,20 @@ export default class extends Vue {
   }
 
   private rules = {
-    startTime: [{ required: true, message: '请输入开始时间', trigger: 'blur' }, { validator: validateIn90Days, trigger: 'blur' }],
+    startTime: [{ required: true, message: '请输入开始时间', trigger: 'blur' }, { validator: validateIn30Days, trigger: 'blur' }],
     endTime: [{ required: true, message: '请输入结束时间', trigger: 'blur' }, { validator: (rule, value, callback) => validateIn7Days(rule, value, callback, this.form.startTime), trigger: 'blur' }],
   }
 
+
+  private mounted(){
+    this.fillDefaultTimeRange()
+  }
+
+  private fillDefaultTimeRange(){
+    const sevenDaysBefore = sub(new Date(), { days: 7 })
+    this.form.endTime = format(new Date(), 'yyyy-MM-dd HH:mm:ss' )
+    this.form.startTime = format(sevenDaysBefore, 'yyyy-MM-dd HH:mm:ss' )
+  }
 
   private async submit(){
     const form: any = this.$refs.dialogForm
