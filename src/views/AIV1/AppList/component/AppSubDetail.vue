@@ -124,7 +124,7 @@
       <div v-loading="queryLoading.pic" class="pic-wrapper">
         <div class="title">
           <div class="title-block" />
-          <span>视频截图</span>
+          <span>告警截图</span>
         </div>
         <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <PicCard

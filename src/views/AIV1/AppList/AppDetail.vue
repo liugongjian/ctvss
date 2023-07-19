@@ -46,7 +46,7 @@
             </el-tree>
           </div> -->
           <div class="app-container__result__device">
-            <span>设备:</span>
+            <span>设备名称:</span>
             <el-select
               v-model="device"
               placeholder="请选择"
@@ -178,7 +178,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         }
         break
     }
-    
+
     return app
   }
 
