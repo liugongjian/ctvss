@@ -38,7 +38,7 @@
       </el-form-item>
       <el-alert
         title="请选择录像断点记录的起止区间，选定日期区内的补录记录将被导出，最大支持7天的导出区间。"
-        type="warning"
+        type="info"
         show-icon
       >
       </el-alert>
