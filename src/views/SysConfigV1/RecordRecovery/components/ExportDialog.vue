@@ -75,12 +75,16 @@ const validateIn7Days = (rule, value, callback, startTime) => {
   const stamp_startTime = new Date(startTime).getTime()
   const stamp_endTime = new Date(value).getTime()
   const comp = stamp_endTime - stamp_startTime > 7 * 24 * 60 * 60 * 1000
+  const comp2 = stamp_endTime <= stamp_startTime
 
   if (comp){
     callback(new Error('结束时间必须小于开始时间的7天以内'))
   } else {
     if (startTime.length === 0){
       callback(new Error('请先选择开始时间'))
+    }
+    if (comp2){
+      callback(new Error('结束时间不能早于结束时间'))
     }
     callback()
   }

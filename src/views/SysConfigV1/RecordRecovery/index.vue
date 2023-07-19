@@ -58,7 +58,7 @@
           <el-table-column prop="recordDuration" label="补录区间时长" min-width="100">
             <template slot-scope="{ row }">
               <!-- <span>{{ row.recordDuration }}秒</span> -->
-              <span>({{ durationFormat(row.recordDuration) }})</span>
+              <span>{{ durationFormat(row.recordDuration) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="operateStartTime" label="补录操作时间" min-width="340">
@@ -150,10 +150,9 @@
             >
               + 添加
             </el-button>
-            </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="sureThis">确 定</el-button>
+            <el-button type="primary" @click="submit">确 定</el-button>
             <el-button @click="clearDialog">取 消</el-button>
           </span>
         </el-dialog>
@@ -380,6 +379,15 @@ export default class extends Vue {
     ]
   }
 
+  private async submit(){
+    const form: any = this.$refs.automaticForm
+    form.validate(async (valid: any) => {
+      if (valid) {
+        this.sureThis()
+      }
+    })
+  }
+
   private async sureThis() {
     const {
       enableRecordRecovery,
@@ -410,13 +418,14 @@ export default class extends Vue {
   }
 
   private clearDialog() {
+    const automaticForm: any = this.$refs.automaticForm
+    automaticForm.clearValidate()
     this.automaticForm = {
       enableRecordRecovery: false,
       maxStreamNum: 1,
       maxBandWidth: 3,
       operateTimeWindows: []
     }
-
     this.ifShowEditAutomatic = false
   }
 
