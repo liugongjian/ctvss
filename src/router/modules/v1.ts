@@ -1611,6 +1611,24 @@ export const v1Router: RouteConfig[] = [
           icon: 'dot',
           perms: ['*']
         }
+      },
+      {
+        path: 'record-recovery',
+        component: () =>
+          import(
+            /* webpackChunkName: "sysconfig" */ '@/views/SysConfigV1/RecordRecovery/index.vue'
+          ),
+        name: 'RecordRecovery',
+        meta: {
+          title: '车载自动补录',
+          breadcrumb: true,
+          activeMenu: '/sysconfig/record-recovery',
+          icon: 'dot',
+          perms: ['*'],
+          tags: {
+            isCarShow: ['true']
+          }
+        }
       }
     ]
   },

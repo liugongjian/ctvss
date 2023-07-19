@@ -1,7 +1,7 @@
 <template>
   <div
     class="statistic-box__device__tree"
-    :style="{height: `${maxHeight}px`}"
+    :style="{ height: `${maxHeight}px` }"
   >
     <div
       class="device-list__handle"
@@ -41,7 +41,7 @@
           v-loading="loading.dir"
           class="dir-list__tree device-list__max-height"
         >
-          <div class="dir-list__tree--root" :class="{actived: isRootDir}">
+          <div class="dir-list__tree--root" :class="{ actived: isRootDir }">
             <svg-icon name="component" width="12px" />
             根目录
             <span class="sum-icon">{{
@@ -62,7 +62,7 @@
             @node-click="deviceRouter"
           >
             <span
-              slot-scope="{node, data}"
+              slot-scope="{ node, data }"
               class="custom-tree-node"
               :class="{
                 online: data.deviceStatus === 'on',
@@ -135,7 +135,7 @@ export default class extends Vue {
   public isExpanded = true
 
   public defaultKey = null
-  private maxHeight: number = 0
+  private maxHeight = 0
   // private currentGroup = {}
 
   public loading = {
@@ -389,7 +389,7 @@ export default class extends Vue {
           item.type === 'dir'))
     ) {
       await this.loadDirChildren(item.id, _node)
-      this.$nextTick(async() => {
+      this.$nextTick(async () => {
         const dirTree: any = this.$refs.dirTree
         const result = _node.childNodes?.find(
           (item: any) => item.data?.type === 'ipc'
@@ -490,3 +490,14 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+.statistic-box{
+  &__device__tree{
+    position: relative;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
+}
+</style>
+

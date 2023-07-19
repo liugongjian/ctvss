@@ -26,7 +26,15 @@ service.interceptors.request.use(
         const pathname = window.location.pathname
         // 防止虚拟业务组页面加载groupList时带role-id与real-group-id
         // eslint-disable-next-line max-len
-        if (config.url !== '/group/list' && (pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
+        if (
+          config.url !== '/group/list' &&
+          (pathname.startsWith('/vss/device') ||
+            pathname.startsWith('/vss/screen') ||
+            pathname.startsWith('/vss/replay') ||
+            pathname.startsWith('/vss/operation-center')) &&
+          !config.headers['role-id'] &&
+          !config.headers['real-group-id']
+        ) {
           config.headers['role-id'] = VGroupModule.roleId
           config.headers['real-group-id'] = VGroupModule.realGroupId
         }
