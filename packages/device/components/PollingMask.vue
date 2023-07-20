@@ -78,7 +78,9 @@ export default class extends Vue {
   }
 
   private get isShow() {
-    return this.pollingStatus !== PollingStatusEnum.Free || this.isLoading
+    const flag = this.pollingStatus !== PollingStatusEnum.Free || this.isLoading
+    this.$emit('is-show-change', flag)
+    return flag
   } 
 
   private isLoading = false
