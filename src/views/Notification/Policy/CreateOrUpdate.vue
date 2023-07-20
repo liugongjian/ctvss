@@ -439,7 +439,9 @@ export default class extends Vue {
       if (id) {
         this.$set(this.form, 'id', id)
         await this.initNotificationPolicy()
-        this.isResourceLoading = true
+        if (!this.isCarSMS) {
+          this.isResourceLoading = true
+        }
       } else {
         this.back()
       }
