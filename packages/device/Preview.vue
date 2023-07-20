@@ -31,11 +31,12 @@
           :current-dir="currentDir"
           :screen-manager="screenManager"
           @polling-handle="handleTools"
+          @is-show-change="isShowPollingChange"
         />
       </template>
       <template slot="leftBottom">
         <advanced-search
-          v-if="showAdvanceSearch"
+          v-if="showAdvanceSearch && !isShowPollingMask"
           :search-form="advancedSearchForm"
           @search="handleTools(toolsEnum.AdvanceSearch, $event)"
         />

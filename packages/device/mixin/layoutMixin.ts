@@ -50,9 +50,8 @@ export default class LayoutMixin extends Vue {
   public sortDir = null
   public sortNode = null
   // 轮询状态
-  public pollingStatus = PollingStatusEnum.Free
-  // 轮询时间
-  public pollingInterval = 20
+  public isShowPollingMask = false
+  
   // 目录统计信息
   public rootSums = {
     onlineSize: 0,
@@ -135,7 +134,7 @@ export default class LayoutMixin extends Vue {
   }
 
   private get showAdvanceSearch() {
-    return !this.$route.query.rootKey
+    return !this.$route.query.rootKey && !this.isShowPollingMask
   }
 
   private get isShowPolling() {
@@ -153,6 +152,10 @@ export default class LayoutMixin extends Vue {
       this.rootActions = permissionRes.result[0].iamUser.actions
     }
     DeviceManager.initAdvancedSearch(this.getVueComponent)
+  }
+
+  public isShowPollingChange(flag) {
+    this.isShowPollingMask = flag
   }
 
   /**

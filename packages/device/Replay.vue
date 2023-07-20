@@ -26,6 +26,7 @@
           :current-dir="currentDir"
           :screen-manager="screenManager"
           @polling-handle="handleTools"
+          @is-show-change="isShowPollingChange"
         />
       </template>
       <template slot="leftBottom">
