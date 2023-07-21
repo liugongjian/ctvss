@@ -221,7 +221,7 @@ export default class extends Vue {
   }
 
   private automaticRules: any = {
-    maxStreamNum: [{ validator: this.validateNum, trigger: 'blur' }],
+    maxStreamNum: [{ validator: this.validateNum, trigger: 'blur' }, { type: 'number', message: '必须为数字值' }],
     operateTimeWindows: [
       { validator: this.validateOperateTimeWindows, trigger: 'blur' }
     ]
