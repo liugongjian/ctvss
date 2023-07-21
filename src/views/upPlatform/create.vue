@@ -191,7 +191,7 @@
           </template>
           <el-switch v-model="form.enabledGB35114" :active-value="true" :inactive-value="false" @change="onEnabledGB35114Change" />
         </el-form-item>
-        <el-form-item v-if="form.gb35114Mode" label="强制双向认证">
+        <el-form-item v-if="form.enabledGB35114" label="强制双向认证">
           <template slot="label">
             强制双向认证:
             <el-popover
@@ -374,8 +374,8 @@ export default class extends Vue {
   /**
    * 启用GB35114
    */
-  private onEnabledGB35114Change(val: boolean) {
-    this.form.gb35114Mode = val ? 2 : 0
+  private onEnabledGB35114Change() {
+    this.form.gb35114Mode = 1
   }
 
   /**
