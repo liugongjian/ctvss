@@ -113,8 +113,10 @@ export class ScreenManager {
     this._size = size
     let startIndex = 0
     if (this.screenList.length) {
+      for (let i = this._size; i < this.screenList.length; i++) {
+        this.screenList[i].destroy()
+      }
       this.screenList = this.screenList.slice(0, this._size)
-      ScreenModule.SET_PLAYING_SCREENS(ScreenModule.playingScreens.slice(0, this._size))
       startIndex = this.screenList.length
     }
     for (let i = startIndex; i < this._size; i++) {

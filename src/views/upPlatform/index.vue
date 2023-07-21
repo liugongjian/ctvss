@@ -67,7 +67,7 @@
                 <el-button v-if="currentPlatform.isGenerated" :loading="loading.delete.deviceCsr" type="text" @click="deleteFile('deviceCsr')">删除</el-button>
               </div>
               <div class="platform-status">
-                生成的证书: 
+                上级签发证书: 
                 <el-upload
                   ref="upload"
                   action="#"
@@ -81,7 +81,7 @@
                 <el-button v-if="currentPlatform.deviceCertUploaded" :loading="loading.delete.deviceCert" type="text" @click="deleteFile('deviceCert')">删除</el-button>
               </div>
               <div class="platform-status">
-                上级服务证书: 
+                上级平台证书: 
                 <el-upload
                   ref="upload"
                   action="#"
@@ -479,7 +479,7 @@ export default class extends Vue {
       this.getPlatformList()
       this.$message.success('删除成功')
     } catch (e) {
-      console.log(e && e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.delete[type] = false
     }
