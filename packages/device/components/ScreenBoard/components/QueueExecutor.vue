@@ -5,7 +5,6 @@
 import { Component } from 'vue-property-decorator'
 import { PollingStatusEnum } from '@vss/device/enums'
 import ComponentMixin from '@vss/device/components/ScreenBoard/components/mixin'
-import { ScreenModule } from '@vss/device/store/modules/screen'
 
 @Component({
   name: 'QueueExecutor'
@@ -103,10 +102,8 @@ export default class extends ComponentMixin {
         this.screenList[i].inProtocol = this.devicesQueue[i].inProtocol
         this.screenList[i].isLive = this.screenManager.isLive
       }
-      console.log(this.screenList[i].deviceId)
       this.screenList[i].init()
     }
-    console.log(ScreenModule.playingScreens)
     this.resetConfig()
   }
 

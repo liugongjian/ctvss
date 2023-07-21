@@ -263,7 +263,6 @@ export class Screen {
    * 销毁
    */
   public destroy() {
-    console.log(this.deviceId)
     ScreenModule.removePlayingScreen(this.deviceId)
     this.recordManager && this.recordManager.destroy()
     this.axiosSource && this.axiosSource.cancel()
