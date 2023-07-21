@@ -76,13 +76,10 @@
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="开启鉴权:" prop="isAuth">
-          <el-switch v-model="form.isAuth" />
-        </el-form-item>
-        <el-form-item v-if="form.isAuth" label="SIP认证用户名:" prop="sipUser">
+        <el-form-item label="SIP认证用户名:" prop="sipUser">
           <el-input v-model="form.sipUser" placeholder="默认使用设备国标编号" />
         </el-form-item>
-        <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
+        <el-form-item label="SIP认证密码:" prop="sipPassword">
           <el-input v-model="form.sipPassword" />
         </el-form-item>
         <el-form-item label="级联方式:" prop="cascadeType">
@@ -422,13 +419,20 @@ export default class extends Vue {
             params.natPort = 0
           }
           if (this.isUpdate) {
-            await updatePlatform(params)
-            this.$message.success('修改向上级联平台成功！')
+            this.$confirm('更改级联接入相关配置，可能会导致平台离线并需要更新证书。是否确认修改？', {
+              confirmButtonText: '确认',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(async () => {
+              await updatePlatform(params)
+              this.$message.success('修改向上级联平台成功！')
+              this.back()
+            })
           } else {
             await createPlatform(params)
             this.$message.success('创建向上级联平台成功！')
+            this.back()
           }
-          this.back()
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
