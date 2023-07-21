@@ -26,8 +26,7 @@
         <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
           <!-- <el-radio-group> -->
           <el-radio-button label="今天" />
-          <el-radio-button label="近7天" />
-          <el-radio-button label="近30天" />
+          <el-radio-button label="近3天" />
           <el-radio-button label="自定义时间" />
         </el-radio-group>
         <el-date-picker
@@ -94,6 +93,7 @@
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.totalNum"
+      :page-sizes="pager.pageSizes"
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -149,7 +149,8 @@ export default class extends Vue {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    totalNum: 0
+    totalNum: 0,
+    pageSizes: [10, 20, 30, 40, 50]
   }
 
   private confidence = 0
@@ -173,14 +174,11 @@ export default class extends Vue {
       case '今天':
         this.queryParam.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
         break
-      case '近7天':
-        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(23, 59, 59, 999)]
-        break
-      case '近30天':
-        this.queryParam.period = [this.getDateBefore(30), new Date().setHours(23, 59, 59, 999)]
+      case '近3天':
+        this.queryParam.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.queryParam.period = [this.getDateBefore(7), new Date().setHours(0, 0, 0, 0)]
+        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
@@ -291,6 +289,7 @@ export default class extends Vue {
   private async refresh(){
     try {
       const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+      if (this.queryParam.period[1] - this.queryParam.period[0] > 7 * 24 * 60 * 60 * 1000) return this.$message.error('只能查询时间跨度最长为7天的告警记录，请重新选择查询时间')
       if (this.queryParam.period[0] < ntDaysBefore) return this.$message.error('只能查询90天以内的告警记录，请重新选择查询时间')
       await this.getAiAlarms()
       this.$message.success('查询成功')
@@ -325,6 +324,7 @@ export default class extends Vue {
       this.apps = this.apps.filter(app => app.id === '0' || app.algorithm.code === val)
     }
     this.queryParam.appName = '0'
+    this.refresh()
   }
 
   /**

@@ -15,7 +15,7 @@
     <div class="access-restriction__status">
       <span class="access-restriction__status-word">状态</span>
       <el-tooltip
-        v-if="loginStatus.loginStateCode === 1" 
+        v-if="loginStatus.loginStateCode === 1"
         class="item"
         effect="dark"
         placement="top-start"
@@ -40,10 +40,7 @@
         </span>
       </el-tooltip>
       <span v-else class="access-restriction__status-text">
-        <span
-          class="access-restriction__status-badge"
-        >
-        </span>
+        <span class="access-restriction__status-badge"> </span>
         {{ loginStatus.loginState }}
       </span>
     </div>
@@ -53,7 +50,6 @@
       title="访问密码设置"
       :visible.sync="ifShowSetAccessPassword"
       width="50%"
-      :before-close="handleClose"
     >
       <el-form
         ref="form"
@@ -107,7 +103,11 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="setLoginPassword">确 定</el-button>
+        <el-button
+          type="primary"
+          :disabled="!ifDisabledBtn"
+          @click="setLoginPassword"
+        >确 定</el-button>
       </span>
     </el-dialog>
 
@@ -220,8 +220,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { Input } from 'element-ui'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Input, Form as ElForm } from 'element-ui'
 import { getLoginState, setLoginPwd, cancelUser } from '@/api/accessManage'
 import { encrypt } from '@/utils/encrypt'
 
@@ -249,9 +249,21 @@ export default class extends Vue {
     dialogPwd: 'password'
   }
 
+  private ifDisabledBtn = false
+
   private dialogPwd = ''
 
   private loginStatus: any = {}
+
+  @Watch('form', { deep: true, immediate: true })
+  private onFormChange() {
+    this.$nextTick(() => {
+      this.$refs.form &&
+        (this.$refs.form as ElForm).validate((valid: boolean) => {
+          this.ifDisabledBtn = valid
+        })
+    })
+  }
 
   async mounted() {
     await this.getLoginState()
@@ -268,8 +280,15 @@ export default class extends Vue {
 
   private handleClose() {
     this.ifShowSetAccessPassword = false
+    this.form = {}
   }
+
   private changeLoginDialog() {
+    this.$nextTick(() => {
+      if (this.$refs.form ){
+        (this.$refs.form as ElForm).resetFields()
+      }
+    })
     this.ifShowSetAccessPassword = true
   }
 
@@ -394,7 +413,7 @@ export default class extends Vue {
 
   &__title {
     padding-left: 16px;
-    border-left: 8px solid #fa8334;
+    border-left: 8px solid $primary;
     height: 26px;
     line-height: 26px;
     font-size: 16px;

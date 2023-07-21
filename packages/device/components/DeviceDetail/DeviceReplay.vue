@@ -14,6 +14,7 @@ import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '../../services/Screen/ScreenManager'
 import detailMixin from '@vss/device/mixin/deviceMixin'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DeviceReplay',
@@ -54,6 +55,7 @@ export default class extends Mixins(detailMixin) {
     if (!screen.permission) {
       screen.permission = this.deviceActions
     }
+    screen.LockCloudRecord = UserModule.iamUserId ? (screen.permission['ivs:LockCloudRecord'] ? screen.permission['ivs:LockCloudRecord']['auth'] : false) : true
     await this.getDevice()
     screen.inProtocol = this.inVideoProtocol
     screen.init()

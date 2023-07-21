@@ -173,6 +173,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
+          <div v-if="form.enableLocalChannelName" class="cname-tip">该功能仅限GB28181协议、EHOME协议，按钮开启时，其他协议无法获取到设备侧的实际名称</div>
         </el-form-item>
         <el-form-item label="35114国密认证">
           <template slot="label">
@@ -190,7 +191,7 @@
           </template>
           <el-switch v-model="form.enabledGB35114" :active-value="true" :inactive-value="false" @change="onEnabledGB35114Change" />
         </el-form-item>
-        <el-form-item v-if="form.gb35114Mode" label="强制双向认证">
+        <el-form-item v-if="form.enabledGB35114" label="强制双向认证">
           <template slot="label">
             强制双向认证:
             <el-popover
@@ -373,8 +374,8 @@ export default class extends Vue {
   /**
    * 启用GB35114
    */
-  private onEnabledGB35114Change(val: boolean) {
-    this.form.gb35114Mode = val ? 2 : 0
+  private onEnabledGB35114Change() {
+    this.form.gb35114Mode = 1
   }
 
   /**
@@ -544,6 +545,11 @@ export default class extends Vue {
   ::v-deep .el-input,
   ::v-deep .el-textarea {
     width: 400px;
+  }
+
+  .cname-tip {
+    font-size: 14px;
+    color: #888;
   }
 }
 </style>

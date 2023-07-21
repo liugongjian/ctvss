@@ -119,7 +119,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
         break
       // 城市治理
       case '37': case '10037':
-        if (algorithmMetadata.cityGovType?.length) {
+        if (!this.isIndustrialDetection && algorithmMetadata.cityGovType?.length) {
           app.detectItemNames = algorithmMetadata.cityGovType.map((item) => {
             const findItem = CityGovType.find((innerItem) => innerItem.label === item)
             return findItem ? findItem.cname : ''

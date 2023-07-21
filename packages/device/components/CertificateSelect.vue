@@ -21,7 +21,7 @@
       @on-close="closeDialog(inVideoProtocolEnum.Gb28181, ...arguments)"
     />
     <create-ga1400-certificate
-      v-if="dialog[inViidProtocolEnum.Ehome]"
+      v-if="dialog[inViidProtocolEnum.Ga1400]"
       @on-close="closeDialog(inViidProtocolEnum.Ga1400, ...arguments)"
     />
     <create-ehome-certificate

@@ -3,5 +3,6 @@ export enum MESSAGE_TYPE {
   DEVICE_MSG = '1',
   RESOURCE_PACKAGE_MSG = '2',
   AI_MSG = '3',
-  PLATFORM_MSG = '4'
+  PLATFORM_MSG = '4',
+  CAR_MSG = '5'
 }

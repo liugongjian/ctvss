@@ -995,7 +995,7 @@ export default class extends Vue {
                 }
 
                 :hover {
-                  color: #fa8334;
+                  color: $primary;
                 }
               }
             }

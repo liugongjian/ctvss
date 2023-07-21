@@ -1,7 +1,7 @@
 .el-select-dropdown.dark-select {
   background: #33475F;
   border-color: #33475F;
-  
+
   .popper__arrow, .popper__arrow::after {
     border-bottom-color: #33475F;
   }
@@ -35,7 +35,7 @@
 
 .dashboard-alert-live-dialog {
   background: #081032;
-  
+
   .el-dialog__title {
     color: #fff;
   }
@@ -143,7 +143,7 @@
 
   &__item {
     padding: 10px;
-    
+
     &__card {
       height: 100%;
       .dash-btn {
@@ -208,7 +208,7 @@
     }
     &__content {
       &__click{
-        color: #FA8334;
+        color: $primary;
         width: fit-content;
         margin: 0 auto;
       }

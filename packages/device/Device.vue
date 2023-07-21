@@ -83,10 +83,10 @@ export default class extends Mixins(layoutMxin) {
    */
   @Provide('handleTreeNode')
   private async handleTreeNode(data: any) {
-    const { id, type } = data || {}
+    const { id, type, inProtocol } = data || {}
     const path = data?.path?.map(item => item.id).join(',') || ''
     this.deviceTree.setCurrentKey(id)
-    if (type === this.deviceTypeEnum.Ipc) {
+    if (type === this.deviceTypeEnum.Ipc || (type === this.deviceTypeEnum.Platform && inProtocol === 'viid')) {
       this.$router.push({
         name: 'DeviceInfo',
         query: {

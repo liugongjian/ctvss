@@ -133,6 +133,7 @@ export class Screen {
     this.isLive = null
     this.isLoading = false
     this.isFullscreen = false
+    this.LockCloudRecord = false
     this.axiosSource = null
     this.errorMsg = ''
     this.getDevicePreviewApi = getDevicePreview

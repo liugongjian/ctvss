@@ -284,11 +284,16 @@ export default class extends Vue {
   }
 
   private handleClose() {
-    (this.$refs.form as any).resetFields()
-    this.form = {}
     this.ifShowSetAccessPassword = false
+    this.form = {}
   }
+
   private changeLoginDialog() {
+    this.$nextTick(() => {
+      if (this.$refs.form ){
+        (this.$refs.form as ElForm).resetFields()
+      }
+    })
     this.ifShowSetAccessPassword = true
   }
 
@@ -413,7 +418,7 @@ export default class extends Vue {
 
   &__title {
     padding-left: 16px;
-    border-left: 8px solid #fa8334;
+    border-left: 8px solid $primary;
     height: 26px;
     line-height: 26px;
     font-size: 16px;

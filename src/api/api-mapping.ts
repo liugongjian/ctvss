@@ -3,10 +3,11 @@ export const ApiMapping = {
   // OpenAPI
   '/aksk/list': '/openapi/list',
   '/aksk/create': '/openapi/create',
+  '/aksk/update': '/openapi/update',
   '/aksk/delete': '/openapi/delete',
   '/aksk/start': '/openapi/start',
   '/aksk/stop': '/openapi/stop',
-  '/aksk/export': '/openapi/exportAkskOption',
+  '/aksk/exportCSV': '/openapi/exportAkskOption',
   // 电子地图
   '/map/list': '/map/DescribeMaps',
   '/map/create': '/map/CreateMap:get',

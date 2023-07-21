@@ -95,7 +95,7 @@
               <el-button type="text" @click="editTreeFrame">编辑</el-button>
             </span>
           </div>
-          <div class="tree" :class="{ 'violet-bg': isEditing }">
+          <div v-loading="loading.sharedDevices" class="tree" :class="{ 'violet-bg': isEditing }">
             <el-tree
               key="device-el-tree-original"
               ref="dirTree2"
@@ -366,6 +366,7 @@ export default class extends Vue {
   }
 
   private async getTotalsOfRightTree() {
+    this.loading.platform = this.loading.sharedDevices = true
     const dirTree2: any = this.$refs.dirTree2
     if (dirTree2) {
       const { deviceIds, totalSize } = await describeTreeIds({ id: this.currentTree.treeId })
@@ -379,6 +380,7 @@ export default class extends Vue {
         this.checkedNodeIds = deviceIds
       })
     }
+    this.loading.platform = this.loading.sharedDevices = false
   }
 
   private async initGroups() {
@@ -1240,8 +1242,8 @@ export default class extends Vue {
           }
 
           &.actived {
-            border-right: 3px solid #ff7a04;
-            color: #ff7a04;
+            border-right: 3px solid $primary;
+            color: $primary;
 
             svg {
               background: rgba(255, 122, 4, 10%);

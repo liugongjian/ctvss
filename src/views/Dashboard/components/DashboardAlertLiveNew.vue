@@ -1,10 +1,13 @@
 <template>
-  <component :is="container" title="实时告警信息" :less-padding="true">
-    <div class="stats-container">
-      <ul v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }" :style="`height:${height}vh`">
-        <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
+  <component :is="container" title="今日AI告警" :less-padding="true">
+    <div ref="imgListContainer" class="stats-container" :style="`height:${heigh}px;padding-top:${ list.length === 0 ? '80' : '0'}px`">
+      <div v-if="noAlarmTody" class="svg-container">
+        <img :src="require('@/icons/svg/empty.svg')" alt="">
+      </div>
+      <div v-if="noAlarmTody" class="empty-text">今日无任何告警</div>
+      <ul ref="imgList" v-loading="loading && !list.length" class="alert-list" :class="{ 'light': isLight }">
         <el-divider v-if="noAlarmTody">历史告警</el-divider>
-        <li v-for="item in list" :key="item.image" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
+        <li v-for="(item, index) in list" :key="index" :class="{ 'new-alert': item.isNew }" class="alert-list__item" @click="openDialog(item)">
           <div class="alert-list__item__pic">
             <el-image :src="item.imageThumbnail" />
           </div>
@@ -54,6 +57,7 @@ export default class extends Mixins(DashboardMixin) {
   private lastTime: any = null
   private alertFile = null
   private noAlarmTody = false
+  private heigh = 200
 
   private currentIndex = 0
 
@@ -74,6 +78,8 @@ export default class extends Mixins(DashboardMixin) {
       this.alertFile = require('@/assets/dashboard/alert.mp3')
     }
     this.setInterval(this.updateAlarmList)
+
+    window.onload = () => this.calcHeight()
   }
 
 
@@ -94,24 +100,30 @@ export default class extends Mixins(DashboardMixin) {
       const param = {
         startTime: (new Date(new Date().setHours(0, 0, 0, 0)).getTime() / 1000).toFixed(),
         endTime: (new Date().getTime() / 1000).toFixed(),
-        pageSize: 5,
+        pageSize: 10,
         pageNum: 1
       }
       const res = await getAiAlarms(param)
       this.noAlarmTody = res.analysisResults.length === 0
       if (this.noAlarmTody) {
-        const res1 = await getAiAlarms({ pageSize: 5, pageNum: 1 })
+        const res1 = await getAiAlarms({ pageSize: 10, pageNum: 1 })
         list = res1.analysisResults
       } else {
         list = res.analysisResults
       }
       this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-
+      this.calcHeight()
     } catch (e) {
       console.log(e)
     } finally {
       this.loading = false
     }
+  }
+
+  private calcHeight(){
+    const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
+    const totalHeight = left.offsetHeight
+    this.heigh = totalHeight - 670
   }
 
   private checkLevel(data: any) {
@@ -139,7 +151,22 @@ export default class extends Mixins(DashboardMixin) {
 .stats-container{
   min-width: 360px;
   overflow:auto;
-  min-height: 500px;
+  .svg-container{
+    margin-top:80px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    color:#F2F2F2;
+  }
+  .empty{
+    width: 40px;
+    height: 25px;
+  }
+  .empty-text{
+    margin-top: 20px;
+    margin-bottom: 80px;
+  }
+
 }
 
 .alert-list {

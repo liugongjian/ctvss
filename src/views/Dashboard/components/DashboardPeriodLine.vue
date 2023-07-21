@@ -277,7 +277,7 @@ export default class extends Vue {
       const getUnit = () => {
         const values = [...totalData, ...demandData].map((item) => item.value)
         const minValue = Math.min(...values)
-        if (minValue > 1024) {
+        if (minValue > 1000) {
           if (this.selection.endsWith('bandwidth')) {
             return 'Gbps'
           } else {
@@ -441,7 +441,7 @@ export default class extends Vue {
         }
 
         .el-radio-button__orig-radio:checked + .el-radio-button__inner {
-          border-left: 1px solid #fa8334;
+          border-left: 1px solid $primary;
         }
       }
 

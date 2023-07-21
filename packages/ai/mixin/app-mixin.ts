@@ -2,6 +2,7 @@
 import { deleteApps, startOrStopApps } from '@vss/ai/api/index'
 import { checkPermission } from '@vss/base/utils/permission'
 import { Component, Vue } from 'vue-property-decorator'
+import { getTime } from 'date-fns'
 
 @Component
 export default class AppMixin extends Vue {
@@ -111,6 +112,19 @@ export default class AppMixin extends Vue {
    * 告警搜索时间
    */
   public handleChange() {
+
+    const ntDaysBefore = getTime(new Date()) - 90 * 24 * 60 * 60 * 1000
+    if (
+      this.period.period[1] - this.period.period[0] >
+      30 * 24 * 60 * 60 * 1000
+    )
+      return this.$message.error(
+        '只能查询时间跨度最长为30天的告警记录，请重新选择查询时间'
+      )
+    if (this.period.period[0] < ntDaysBefore)
+      return this.$message.error(
+        '只能查询90天以内的告警记录，请重新选择查询时间'
+      )
     this.getAlarms()
   }
 }

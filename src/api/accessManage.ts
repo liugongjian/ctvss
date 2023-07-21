@@ -309,4 +309,10 @@ export const cancelUser = (data: any): Promise<any> =>
     data
   })
 
-
+// 验证用户手机号
+export const verifyPhone = (data: any): Promise<any> =>
+  request({
+    url: '/iam/user/verifyphone',
+    method: 'post',
+    data
+  })

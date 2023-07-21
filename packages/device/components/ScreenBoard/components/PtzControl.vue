@@ -172,7 +172,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
-import { 
+import {
   startDeviceMove,
   endDeviceMove,
   startDeviceAdjust,
@@ -1025,7 +1025,7 @@ export default class extends Vue {
                 }
 
                 :hover {
-                  color: #fa8334;
+                  color: $primary;
                 }
               }
             }

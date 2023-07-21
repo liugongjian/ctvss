@@ -263,7 +263,7 @@ export default class extends Vue {
     }
 
     &.active {
-      background: #fa8334;
+      background: $primary;
       color: #fff;
     }
   }

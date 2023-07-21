@@ -4,6 +4,7 @@
 import { Screen } from './Screen'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@vss/base/utils/storage'
 import { UserModule } from '@/store/modules/user'
+import { ScreenModule } from '@vss/device/store/modules/screen'
 import { Stream } from '@vss/device/type/Device'
 import { StatusEnum } from '@vss/device/enums/index'
 import { pick, cloneDeep } from 'lodash'
@@ -113,6 +114,7 @@ export class ScreenManager {
     let startIndex = 0
     if (this.screenList.length) {
       this.screenList = this.screenList.slice(0, this._size)
+      ScreenModule.SET_PLAYING_SCREENS(ScreenModule.playingScreens.slice(0, this._size))
       startIndex = this.screenList.length
     }
     for (let i = startIndex; i < this._size; i++) {

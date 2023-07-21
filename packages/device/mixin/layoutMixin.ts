@@ -29,11 +29,13 @@ export default class LayoutMixin extends Vue {
   // 设备搜索条件表单
   public advancedSearchForm: AdvancedSearchType = {
     deviceStatusKeys: [],
+    viidStatusKeys: [],
     streamStatusKeys: [],
     deviceAddresses: {
       code: '',
       level: ''
     },
+    inProtocolKey: '',
     matchKeys: [],
     inputKey: '',
     searchKey: '',
@@ -50,9 +52,8 @@ export default class LayoutMixin extends Vue {
   public sortDir = null
   public sortNode = null
   // 轮询状态
-  public pollingStatus = PollingStatusEnum.Free
-  // 轮询时间
-  public pollingInterval = 20
+  public isShowPollingMask = false
+  
   // 目录统计信息
   public rootSums = {
     onlineSize: 0,
@@ -105,6 +106,10 @@ export default class LayoutMixin extends Vue {
     return UserModule.version
   }
 
+  private get currentTreeId() {
+    return this.$route.query.rootKey as string || ''
+  }
+
   private get currentDirId() {
     return this.$route.query.dirId as string
   }
@@ -125,17 +130,17 @@ export default class LayoutMixin extends Vue {
 
   /* 设备目录树是否懒加载依据 */
   public get lazy(): boolean {
-    return ['deviceStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'matchKeys', 'searchKey'].every(
+    return ['deviceStatusKeys', 'viidStatusKeys', 'streamStatusKeys', 'deviceAddresses', 'inProtocolKey', 'matchKeys', 'searchKey'].every(
       param => !this.$route.query[param]
     )
   }
 
   private get showAdvanceSearch() {
-    return !this.$route.query.rootKey
+    return !this.$route.query.rootKey && !this.isShowPollingMask
   }
 
   private get isShowPolling() {
-    return !this.$route.query.rootKey && this.lazy
+    return this.lazy
   }
 
   public async mounted() {
@@ -149,6 +154,10 @@ export default class LayoutMixin extends Vue {
       this.rootActions = permissionRes.result[0].iamUser.actions
     }
     DeviceManager.initAdvancedSearch(this.getVueComponent)
+  }
+
+  public isShowPollingChange(flag) {
+    this.isShowPollingMask = flag
   }
 
   /**

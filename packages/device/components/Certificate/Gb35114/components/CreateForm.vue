@@ -308,7 +308,9 @@ export default class extends Vue {
                   certId: this.currentCertId
                 })
                 onSuccess()
-              }).catch(() => { console.log() })
+              }).catch((e) => { 
+                console.log(e)
+              })
             } else {
               await updateGb35114Certificate({
                 ...params,

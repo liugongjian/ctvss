@@ -425,7 +425,7 @@ export const v2Router: RouteConfig[] = [
         name: 'gb35114-create',
         meta: {
           id: '20210424150201007008',
-          title: '新建Gb35114凭证',
+          title: '新建GB35114凭证',
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/gb35114'
@@ -437,7 +437,7 @@ export const v2Router: RouteConfig[] = [
         name: 'gb35114-update',
         meta: {
           id: '20210424150201007006',
-          title: '编辑Gb35114凭证',
+          title: '编辑GB35114凭证',
           hidden: true,
           perms: ['*'],
           activeMenu: '/certificate/gb35114'

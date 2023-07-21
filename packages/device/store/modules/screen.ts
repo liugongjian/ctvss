@@ -82,7 +82,7 @@ export class Screen extends VuexModule implements IScreenState {
   @Action
   public addPlayingScreen(deviceId: string) {
     if (!this.playingScreens.includes(deviceId)) {
-      this.SET_PLAYING_SCREENS([deviceId, ...this.playingScreens])
+      this.SET_PLAYING_SCREENS([...this.playingScreens, deviceId])
     }
   }
 

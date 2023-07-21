@@ -1,8 +1,12 @@
 <template>
   <div>
-    <component :is="container" title="实时告警信息">
-      <div ref="chart" :style="`height:${height}vh`" />
-      <div v-if="chartData.length === 0" class="no-data">今日无任何告警</div>
+    <component :is="container" title="今日AI告警">
+      <div v-show="chartData.length > 0" ref="chart" :style="`height:${height}vh`" />
+      <div v-show="chartData.length === 0" class="svg-container">
+        <!-- <svg-icon name="nodata" width="200" height="200" /> -->
+        <img :src="require('@/icons/svg/nodata.svg')" alt="">
+      </div>
+      <div v-if="chartData.length === 0" class="no-data">暂无数据</div>
       <slot name="footer"></slot>
     </component>
   </div>
@@ -69,6 +73,7 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
+      width: 400,
       padding: [10, 50, 10, 140],
       theme: { maxColumnWidth: 30 }
     })
@@ -142,6 +147,22 @@ export default class extends Mixins(DashboardMixin) {
 .no-data{
   display: flex;
   justify-content: center;
-  min-height: 200px
+  font-size: 14px;
+  color: #999999;
+}
+.svg-container{
+  width:100%;
+  min-width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  color: black;
+  margin-bottom: 10px;
+  margin-top: px;
+  img{
+    height:100px;
+    width: 100px;
+    margin-bottom: 10px;
+  }
 }
 </style>

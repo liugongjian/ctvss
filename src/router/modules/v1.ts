@@ -1311,6 +1311,37 @@ export const v1Router: RouteConfig[] = [
         ]
       },
       {
+        path: 'ai-alarm',
+        component: () =>
+          import(/* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/index.vue'),
+        name: 'AiAlarm',
+        meta: {
+          title: 'AI告警',
+          icon: 'dot',
+          breadcrumb: false,
+          perms: ['ivs:frontend:AdminAlarm'],
+          groupSelector: false
+        },
+        children: [
+          {
+            path: '',
+            component: () =>
+              import(
+                /* webpackChunkName: "alarm" */ '@/views/AlarmV1/AI/List.vue'
+              ),
+            name: 'AIAlarmList',
+            meta: {
+              title: 'AI告警',
+              breadcrumb: true,
+              icon: 'dot',
+              perms: ['ivs:frontend:AdminAlarm'],
+              activeMenu: '/operation-center/ai-alarm',
+              groupSelector: false
+            }
+          }
+        ]
+      },
+      {
         path: 'statistic',
         component: () =>
           import(
@@ -1429,7 +1460,7 @@ export const v1Router: RouteConfig[] = [
           title: '车载监控管理',
           breadcrumb: false,
           icon: 'car',
-          perms: ['ivs:AdminCar']
+          // perms: ['ivs:AdminCar']
         }
       }
     ]

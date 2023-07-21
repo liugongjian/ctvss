@@ -500,9 +500,10 @@ export default class extends Vue {
   ::v-deep .el-textarea {
     width: 400px;
   }
-  .cname-tip{
-      font-size: 14px;
-      color: #888888;
+
+  .cname-tip {
+    font-size: 14px;
+    color: #888;
   }
 }
 </style>
