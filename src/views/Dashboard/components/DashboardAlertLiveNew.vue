@@ -111,8 +111,13 @@ export default class extends Mixins(DashboardMixin) {
       } else {
         list = res.analysisResults
       }
-      this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-      this.calcHeight()
+      const isUpdated = this.checkAlarmsUpdated(list)
+
+      if (isUpdated){
+        this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
+        this.list.length > 0 && this.playSound() // 首次加载不播放音效
+        this.calcHeight()
+      }
     } catch (e) {
       console.log(e)
     } finally {
@@ -123,9 +128,22 @@ export default class extends Mixins(DashboardMixin) {
   private calcHeight(){
     const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
     const totalHeight = left.offsetHeight
-    this.heigh = totalHeight - 670
+    this.heigh = totalHeight - 500
   }
 
+  private checkAlarmsUpdated(alarms){
+    if ( this.list.length === 0 || alarms.length === 0 ){
+      return true
+    }
+    const idOrigin = this.list[0].captureTime + this.list[0].deviceID + this.list[0].appID
+    const idNew = alarms[0].captureTime + alarms[0].deviceID + alarms[0].appID
+    return idOrigin !== idNew
+  }
+
+  private playSound(){
+    const audio: any = this.$refs.audio
+    audio.play()
+  }
   private checkLevel(data: any) {
     if (data.event === '2' && JSON.parse(data.metaData).result.length <= 10) {
       return 'normal'
@@ -152,7 +170,7 @@ export default class extends Mixins(DashboardMixin) {
   min-width: 360px;
   overflow:auto;
   .svg-container{
-    margin-top:80px;
+    margin-top: 15px;
     height: 30px;
     display: flex;
     justify-content: center;
@@ -164,7 +182,7 @@ export default class extends Mixins(DashboardMixin) {
   }
   .empty-text{
     margin-top: 20px;
-    margin-bottom: 80px;
+    margin-bottom: 15px;
   }
 
 }
