@@ -46,6 +46,7 @@ export default class extends Mixins(DashboardMixin) {
       const res = await getAiChannels({})
       const statInfo = res.statInfo
       this.showChart = res.statInfo.length > 0
+    //   this.showChart = false
       this.drawPieToday('pieAI', 'pieAI', statInfo)
 
       this.$nextTick(()=>{

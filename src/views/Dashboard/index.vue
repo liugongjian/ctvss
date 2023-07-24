@@ -16,10 +16,13 @@
         <DashboardPeriodLine />
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
-      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
-        <DashboardAIAbility />
-        <DashboardAlertLive :is-light="true" />
-        <DashboardAlertToday :is-light="true" :height="19" />
+      <!-- <div v-if="aiPakageNum === 0" class="dashboard-wrap-overview__right"> -->
+      <div v-if="isSubscribe || aiPakageNum > 0" class="dashboard-wrap-overview__right">
+        <!-- <DashboardAIAbility /> -->
+        <DashboardAIAnalysis />
+        <DashboardAIAlert />
+        <!-- <DashboardAlertLive :is-light="true" />
+        <DashboardAlertToday :is-light="true" :height="19" /> -->
       </div>
     </div>
   </div>
@@ -39,6 +42,7 @@ import { UserModule } from '@/store/modules/user'
 
 import DashboardTodayData from './components/DashboardTodayData.vue'
 import DashboardPeriodLine from './components/DashboardPeriodLine.vue'
+import {  getIsOndemand } from '@/api/billing'
 
 @Component({
   name: 'Dashboard',
@@ -57,6 +61,7 @@ import DashboardPeriodLine from './components/DashboardPeriodLine.vue'
 })
 export default class extends Vue {
   private aiPakageNum = 0
+  private isSubscribe = true
   private aiChange(packageData: any) {
     this.aiPakageNum = packageData.ai
   }
@@ -64,6 +69,15 @@ export default class extends Vue {
   // 隐藏资源包配置
   public get disableResourceTab() {
     return !UserModule.token || (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou')
+  }
+
+  private async mounted() {
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      this.isSubscribe = isSubscribe === '1'
+    } catch (e){
+      console.log(e)
+    }
   }
 }
 </script>

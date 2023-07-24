@@ -6,10 +6,9 @@
         <DashboardFlowAndDevice :height="34" />
         <DashboardResourcePackage v-if="!disableResourceTab" @ai-change="aiChange" />
       </div>
-      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
-        <DashboardAIAbility />
-        <DashboardAlertLive :is-light="true" />
-        <DashboardAlertToday :is-light="true" :height="19" />
+      <div v-if="isSubscribe || aiPakageNum > 0" class="dashboard-wrap-overview__right">
+        <DashboardAIAnalysis />
+        <DashboardAIAlert />
       </div>
     </div>
   </div>
@@ -24,6 +23,9 @@ import DashboardAIAbility from '@/views/DashboardV1/components/DashboardAIAbilit
 import DashboardDataToday from '@/views/DashboardV1/components/DashboardDataToday.vue'
 import DashboardResourcePackage from '@/views/DashboardV1/components/DashboardResourcePackage.vue'
 import { UserModule } from '@/store/modules/user'
+import DashboardAIAlert from '@/views/DashboardV1/components/DashboardAIAlert.vue'
+import DashboardAIAnalysis from '@/views/DashboardV1/components/DashboardAIAnalysis.vue'
+import {  getIsOndemand } from '@/api/billing'
 
 @Component({
   name: 'Dashboard',
@@ -33,11 +35,14 @@ import { UserModule } from '@/store/modules/user'
     DashboardFlowAndDevice,
     DashboardAIAbility,
     DashboardDataToday,
-    DashboardResourcePackage
+    DashboardResourcePackage,
+    DashboardAIAlert,
+    DashboardAIAnalysis
   }
 })
 export default class extends Vue {
   private aiPakageNum = 0
+  private isSubscribe = true
   private aiChange(packageData: any) {
     this.aiPakageNum = packageData.ai
   }
@@ -45,6 +50,14 @@ export default class extends Vue {
   // 隐藏资源包配置
   public get disableResourceTab() {
     return !UserModule.token || (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou')
+  }
+  private async mounted() {
+    try {
+      const { isSubscribe } = await getIsOndemand()
+      this.isSubscribe = isSubscribe === '1'
+    } catch (e){
+      console.log(e)
+    }
   }
 }
 </script>

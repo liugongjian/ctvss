@@ -17,8 +17,8 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
-import DashboardAlertToday from '@/views/Dashboard/components/DashboardAlertToday.vue'
-import DashboardAlertLiveNew from '@/views/Dashboard/components/DashboardAlertLiveNew.vue'
+import DashboardAlertToday from '@/views/DashboardV1/components/DashboardAlertToday.vue'
+import DashboardAlertLiveNew from '@/views/DashboardV1/components/DashboardAlertLiveNew.vue'
 
 
 @Component({

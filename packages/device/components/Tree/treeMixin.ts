@@ -8,6 +8,12 @@ import { checkPermission } from '@vss/base/utils/permission'
 import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
 import { AppModule, SystemType } from '@/store/modules/app'
+import { getTreeList } from '@/api/customTree'
+import { getDeviceTree } from '@/api/device'
+import { getGroups } from '@/api/group'
+import * as dicts from '@vss/device/dicts'
+
+
 @Component({
   components: {
     StreamSelector
@@ -41,6 +47,9 @@ export default class TreeMixin extends Vue {
   public directoryTypeEnum = DirectoryTypeEnum
   public inVideoProtocolEnum = InVideoProtocolEnum
   public policyEnum = PolicyEnum
+  public dicts = dicts
+
+  public dirList = []
 
   /* 树节点的唯一标识字段 */
   public nodeKey = 'id'
@@ -112,10 +121,14 @@ export default class TreeMixin extends Vue {
     } else {
       try {
         const res = await getNodeInfo({
-          id: node.data.id,
+          id: node.data.id === -1 ? '' : node.data.id,
           type: node.data.type,
           inProtocol: this.deviceInType
         })
+        if (node.data.id === -1) {
+          this.rootSums.onlineSize = res.onlineSize
+          this.rootSums.totalSize = res.totalSize
+        }
         nodeData = await this.onTreeLoadedHook(node, res)
       } catch (e) {
         console.log(e)
@@ -127,28 +140,40 @@ export default class TreeMixin extends Vue {
       nodeData.forEach((item: any) => {
         if (!item.path) {
           if (node.level === 0) {
-            item.path = [{
-              id: item.id,
-              type: item.type
-            }]
+            item.path = [
+              {
+                id: item.id,
+                type: item.type
+              }
+            ]
           } else {
-            item.path = node.data.path.concat([{
-              id: item.id,
-              type: item.type
-            }])
+            item.path = node.data.path.concat([
+              {
+                id: item.id,
+                type: item.type
+              }
+            ])
           }
         }
       })
       // 子账号-获取权限数据（仅用户控制台查询权限）
       if (AppModule.system === SystemType.SYSTEM_USER && UserModule.iamUserId) {
-      const permissionRes = await previewAuthActions({
-        targetResources: nodeData.map(dir => ({
-          dirPath: ((dir.type === 'dir' || dir.type === 'platformDir') ? dir.path.map(path => path.id).join('/') : dir.path.slice(0, -1).map(path => path.id).join('/')) || '0',
-          deviceId: (dir.type === 'dir' || dir.type === 'platformDir') ? undefined : dir.path[dir.path.length - 1].id
-        }))
-      })
-      nodeData = nodeData
-        .map((dir: any, index: number) => ({
+        const permissionRes = await previewAuthActions({
+          targetResources: nodeData.map((dir) => ({
+            dirPath:
+              (dir.type === 'dir' || dir.type === 'platformDir'
+                ? dir.path.map((path) => path.id).join('/')
+                : dir.path
+                    .slice(0, -1)
+                    .map((path) => path.id)
+                    .join('/')) || '0',
+            deviceId:
+              dir.type === 'dir' || dir.type === 'platformDir'
+                ? undefined
+                : dir.path[dir.path.length - 1].id
+          }))
+        })
+        nodeData = nodeData.map((dir: any, index: number) => ({
           ...dir,
           ...permissionRes.result[index].iamUser.actions
         }))
@@ -156,6 +181,83 @@ export default class TreeMixin extends Vue {
     }
 
     return nodeData
+  }
+
+  /**
+   * V1版本加载设备树
+   * @param node 节点信息
+   */
+  public async treeLoadAiV1(node) {
+    if (node.level === 0) return []
+    const dirs = await this.getTreeV1(node)
+    return dirs
+  }
+
+  /**
+   * 获取菜单树
+   */
+  private async getTreeV1(node: any) {
+    try {
+      const devices: any = await getDeviceTree({
+        groupId: node.data.groupId,
+        id: node.data.type === 'group' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        type: node.data.type === 'group' ? undefined : node.data.type
+      })
+
+      const dirs: any = devices.dirs.map((dir: any) => {
+        return {
+          ...dir,
+          id: dir.id,
+          groupId: node.data.groupId,
+          label: dir.label,
+          inProtocol: node.data.inProtocol,
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          path: node.data.path.concat([dir]),
+          parentId: node.data.id
+        }
+      })
+      return dirs
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /**
+   * 目录初始化
+   */
+  public async initDirsAlarm() {
+    try {
+      this.loading = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol !== 'vgroup' &&
+          this.dirList.push({
+            id: group.groupId,
+            groupId: group.groupId,
+            label: group.groupName,
+            inProtocol: group.inProtocol,
+            type: 'group',
+            parentId: '0',
+            path: [
+              {
+                id: group.groupId,
+                label: group.groupName,
+                type: 'group'
+              }
+            ],
+            isLeaf: false
+          })
+      })
+    } catch (e) {
+      // this.dirList = []
+    } finally {
+      this.loading = false
+    }
   }
 
   /**
@@ -167,7 +269,6 @@ export default class TreeMixin extends Vue {
   public async onTreeLoadedHook(node, res) {
     return res.dirs
   }
-
 
   /**
    * 懒加载展开指定目录
@@ -199,7 +300,6 @@ export default class TreeMixin extends Vue {
       } else {
         this.setCurrentKey(key || this.rootKey)
       }
-      
     } else {
       // 展开目录
       this.commonTree.loadChildren(payload)
@@ -259,14 +359,20 @@ export default class TreeMixin extends Vue {
    * @param data 设备信息
    */
   public checkTreeItemStatus(data: any) {
-    return data.type === DirectoryTypeEnum.Ipc && this.playingScreens.includes(data.id)
+    return (
+      data.type === DirectoryTypeEnum.Ipc &&
+      this.playingScreens.includes(data.id)
+    )
   }
 
   /**
    * 判断是否显示form-item
    */
   public checkVisible(type, prop, permission?, data?) {
-    return checkTreeToolsVisible(type, prop, data) && checkPermission(permission, data)
+    return (
+      checkTreeToolsVisible(type, prop, data) &&
+      checkPermission(permission, data)
+    )
   }
 
   /**

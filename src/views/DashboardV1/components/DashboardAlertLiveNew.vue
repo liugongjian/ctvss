@@ -124,6 +124,7 @@ export default class extends Mixins(DashboardMixin) {
         isMuted && this.playSound()
         this.calcHeight()
       }
+
     } catch (e) {
       console.log(e)
     } finally {
@@ -170,6 +171,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .widder-padding {
   padding: 2.7vh 4vw 4vh !important;

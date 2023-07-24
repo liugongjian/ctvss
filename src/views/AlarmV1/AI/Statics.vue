@@ -248,6 +248,7 @@ export default class extends Vue {
 }
 
 </script>
+
 <style lang="scss" scoped>
 .alarm-stats{
   &__title{
