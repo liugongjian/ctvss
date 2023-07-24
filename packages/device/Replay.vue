@@ -18,6 +18,7 @@
           ref="deviceTree"
           :lazy="lazy"
           :data="treeSearchResult"
+          device-in-type="video"
           @handle-node="handleTreeNode"
           @handle-tools="handleTools"
         />
@@ -34,6 +35,7 @@
           <advanced-search
             v-if="showAdvanceSearch"
             :search-form="advancedSearchForm"
+            :video-only="true"
             @search="handleTools(toolsEnum.AdvanceSearch, $event)"
           />
           <template v-if="showRecordTool">
