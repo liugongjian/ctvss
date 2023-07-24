@@ -22,7 +22,7 @@
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
           <div class="app-container__result__device">
-            <span>设备:</span>
+            <span>设备名称:</span>
             <el-select
               v-model="device"
               placeholder="请选择"

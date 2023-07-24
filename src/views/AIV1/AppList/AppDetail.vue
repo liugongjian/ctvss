@@ -91,6 +91,7 @@ import AppSubDetail from './component/AppSubDetail.vue'
 import AttachedDevice from './component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import { UserModule } from '@/store/modules/user'
+
 @Component({
   name: 'AppDetail',
   components: {
