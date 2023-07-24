@@ -11,6 +11,7 @@ import { AppModule, SystemType } from '@/store/modules/app'
 import { getTreeList } from '@/api/customTree'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import * as dicts from '@vss/device/dicts'
 
 
 @Component({
@@ -46,6 +47,7 @@ export default class TreeMixin extends Vue {
   public directoryTypeEnum = DirectoryTypeEnum
   public inVideoProtocolEnum = InVideoProtocolEnum
   public policyEnum = PolicyEnum
+  public dicts = dicts
 
   public dirList = []
 

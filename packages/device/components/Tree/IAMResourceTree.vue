@@ -30,6 +30,7 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import treeMixin from '@vss/device/components/Tree/treeMixin'
+import * as dicts from '@vss/device/dicts'
 
 @Component({
   name: 'IAMResourceTree'
