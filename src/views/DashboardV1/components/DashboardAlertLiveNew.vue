@@ -71,6 +71,7 @@ export default class extends Mixins(DashboardMixin) {
 
   private mounted() {
 
+    this.muteSound()
     const userTags = this.$store.state.user.tags
     // 特殊音效
     if (userTags.isSpecialAINotice === 'Y') {
@@ -82,6 +83,7 @@ export default class extends Mixins(DashboardMixin) {
 
     window.onload = () => this.calcHeight()
   }
+
 
 
   /**
@@ -117,10 +119,9 @@ export default class extends Mixins(DashboardMixin) {
 
       if (isUpdated){
         this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
-        this.list.length > 0 && this.playSound() // 首次加载不播放音效
+        this.list.length > 0 && this.playSound()
         this.calcHeight()
       }
-
 
     } catch (e) {
       console.log(e)
@@ -146,7 +147,13 @@ export default class extends Mixins(DashboardMixin) {
 
   private playSound(){
     const audio: any = this.$refs.audio
+    audio.muted = false
     audio.play()
+  }
+
+  private muteSound(){
+    const audio: any = this.$refs.audio
+    audio.muted = true
   }
 
   private checkLevel(data: any) {
