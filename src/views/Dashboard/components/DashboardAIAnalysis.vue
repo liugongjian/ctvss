@@ -67,7 +67,7 @@ export default class extends Mixins(DashboardMixin) {
       container,
       autoFit: true,
       width: 700,
-      height: 460
+      height: 300
     })
 
 

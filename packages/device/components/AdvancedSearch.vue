@@ -85,6 +85,9 @@ import { DeviceAddress } from '../type/Device'
 export default class extends Vue {
   @Prop()
   private searchForm!: AdvancedSearch
+  // 是否过滤掉非视频设备
+  @Prop({ default: false })
+  private videoOnly!: boolean
   private dialog = {
     advancedSearch: false
   }
@@ -157,12 +160,20 @@ export default class extends Vue {
     }
   ]
   private inProtocolList = [
-    { label: 'GB28181', value: 'gb28181' },
-    { label: 'RTMP', value: 'rtmp' },
-    { label: 'RTSP', value: 'rtsp' },
-    { label: 'EHOME', value: 'ehome' },
-    { label: 'GA1400', value: 'ga1400' }
-  ]
+    { label: 'GB28181', value: 'gb28181', type: 'video' },
+    { label: 'RTMP', value: 'rtmp', type: 'video' },
+    { label: 'RTSP', value: 'rtsp', type: 'video' },
+    { label: 'EHOME', value: 'ehome', type: 'video' },
+    { label: 'GA1400', value: 'ga1400', type: 'viid' }
+  ].filter(item => {
+    // 针对video-only做特殊处理
+    if (this.videoOnly) {
+      return item.type === 'video'
+    } else {
+      return true
+    }
+  })
+
   public get highlightFilterButton() {
     return this.searchForm.deviceStatusKeys.length
       ||  this.searchForm.viidStatusKeys.length
@@ -237,7 +248,16 @@ export default class extends Vue {
                                           this.form.streamStatusKeys.length ||
                                           this.form.inProtocolKey ||
                                           this.form.deviceAddresses.code)
-                                          
+    // 针对video-only做特殊处理
+    if (this.form.revertSearchFlag && this.videoOnly && !query.inProtocolKey) {
+      this.form.inProtocolKey = 'video'
+      this.$router.push({
+        query: {
+          ...this.$route.query,
+          inProtocolKey: 'video'
+        }
+      })
+    }                                     
     this.form.revertSearchFlag ? this.$emit('search', this.form) : this.revertSearchResult()
   }
 

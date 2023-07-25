@@ -309,7 +309,7 @@ export default class extends Vue {
                 })
                 onSuccess()
               }).catch((e) => { 
-                console.log(e)
+                e && e.message && this.$message.error(e.message)
               })
             } else {
               await updateGb35114Certificate({
