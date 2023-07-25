@@ -124,14 +124,12 @@ class Permission extends VuexModule implements IPermissionState {
       // 过滤 计费管理 一级菜单
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/billing')
 
-      // 过滤 系统管理 一级菜单 下的 自定义设备树 & 录像锁定管理 二级菜单
+      // 过滤 系统管理 一级菜单 下的 锁定录像管理 二级菜单
       const sysconfigRouteIndex = filteredRoutes.findIndex(route => route.path === '/sysconfig')
       if (sysconfigRouteIndex > -1) {
         const sysconfigRoute = filteredRoutes[sysconfigRouteIndex]
         sysconfigRoute.children = sysconfigRoute.children.filter(child =>
-          child.path !== '/custom-tree' &&
-          child.path !== '/replay-lock-manage' &&
-          child.path !== '/operation-log'
+          child.path !== 'replay-lock-manage'
         )
       }
     }
