@@ -238,7 +238,6 @@ export default class extends Vue {
     gbId: '',
     isCascadeMapping: false,
     cascadeRegion: null,
-    isAuth: false,
     enabledNat: 0, // 未启用 0, 启用 1
     natIp: undefined,
     natPort: undefined,
@@ -347,9 +346,6 @@ export default class extends Vue {
     } else {
       platform.permissionSet = []
     }
-    if (platform.sipUser) {
-      platform.isAuth = true
-    }
     platform.cascadeRegion = this.getRegionPath(this.regionList, platform.cascadeRegion)
     this.form = Object.assign(this.form, platform)
   }
@@ -411,10 +407,6 @@ export default class extends Vue {
           const params = Object.assign({}, this.form)
           params.cascadeRegion = this.form.cascadeRegion && this.form.cascadeRegion[1]
           params.permissionSet = this.form.permissionSet && this.form.permissionSet.join(',')
-          if (!params.isAuth) {
-            params.sipUser = ''
-            params.sipPassword = ''
-          }
           if (params.natPort === '') {
             params.natPort = 0
           }
