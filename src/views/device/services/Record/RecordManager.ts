@@ -574,8 +574,8 @@ export class RecordManager {
       deviceId: this.screen.deviceId,
       inProtocol: this.screen.inProtocol,
       recordType: this.screen.recordType,
-      startTime,
-      endTime,
+      startTime: parseInt(startTime + ''),
+      endTime: parseInt(endTime + ''),
       pageSize: 9999,
       aiCode: '10006'
     }, axiosSource.token)
