@@ -38,10 +38,10 @@ export const addLog = (params: LogParams): Promise<any> =>
     data: params
   })
 
-export const exportLog = (params: any): Promise<any> =>
+export const exportLog = (params: any, responseType: any): Promise<any> =>
   request({
     url: '/exportOperationLogs',
     method: 'get',
-    // responseType: 'blob', //解析 excel xlsx格式数据
+    responseType, //v1、v2版本接口返回数据类型不一致，v1返回二进制数据（解析 excel xlsx格式数据），v2返回JSON
     params
   })

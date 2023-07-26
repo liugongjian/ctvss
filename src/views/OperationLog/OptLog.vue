@@ -122,6 +122,7 @@ import { getOptLog, getOptName, exportLog } from '@/api/operationLog'
 import { optResultType } from '@/dics/optResultType'
 import settings from '@/settings'
 import axios from 'axios'
+import { UserModule } from '@/store/modules/user'
  
 @Component({
   name: 'OptLog'
@@ -396,8 +397,9 @@ export default class extends Vue {
       await this.getList()
       // 2.导出请求
       const params = this.initParams('export')
-      const res = await exportLog(params)
-      this.exportLog(res.data)
+      const version = UserModule.version
+      const res = await exportLog(params, version === 2 ? 'json' : 'blob')
+      this.exportLog(version === 2 ? res.data : res)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -406,13 +408,22 @@ export default class extends Vue {
   }
  
   private exportLog(file: any) {
-    // const xlsxData = new Blob([file])
-    const a = document.createElement('a')
-    // a.href = window.URL.createObjectURL(xlsxData)
-    a.download = '操作日志.xlsx'
-    a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + file
-    a.click()
-    a.remove()
+    if (UserModule.version === 2) {
+      // v2返回JSON格式
+      const a = document.createElement('a')
+      a.download = '操作日志.xlsx'
+      a.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + file
+      a.click()
+      a.remove()
+    } else {
+      // v1返回blob二进制数据
+      const xlsxData = new Blob([file])
+      const a = document.createElement('a')
+      a.href = window.URL.createObjectURL(xlsxData)
+      a.download = '操作日志.xlsx'
+      a.click()
+      a.remove()
+    }
   }
 }
 </script>
