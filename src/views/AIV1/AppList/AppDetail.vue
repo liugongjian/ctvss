@@ -20,7 +20,7 @@
         <AttachedDevice v-if="tabNum === '1'" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
-        <div class="app-container__result">
+        <div v-if="tabNum==='2'" class="app-container__result">
           <!-- <div
             class="device-list__handle"
             :style="`left: ${dirDrag.width}px`"
