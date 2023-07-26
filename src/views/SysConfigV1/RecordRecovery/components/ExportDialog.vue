@@ -14,6 +14,7 @@
           type="datetime"
           value-format="yyyy-MM-dd HH:mm:ss"
           placeholder="选择日期时间"
+          :picker-options="pickerOptions"
         />
       </el-form-item>
       <el-form-item label="结束日期" prop="endTime">
@@ -22,6 +23,7 @@
           type="datetime"
           value-format="yyyy-MM-dd HH:mm:ss"
           placeholder="选择日期时间"
+          :picker-options="pickerOptions"
         />
       </el-form-item>
       <el-form-item label="导出内容" class="second">
@@ -83,7 +85,7 @@ const validateIn7Days = (rule, value, callback, startTime) => {
       callback(new Error('请先选择开始时间'))
     }
     if (comp2){
-      callback(new Error('结束时间不能早于结束时间'))
+      callback(new Error('结束时间不能早于开始时间'))
     }
     callback()
   }
@@ -104,6 +106,13 @@ export default class extends Vue {
   private rules = {
     startTime: [{ required: true, message: '请输入开始时间', trigger: 'blur' }, { validator: validateIn30Days, trigger: 'blur' }],
     endTime: [{ required: true, message: '请输入结束时间', trigger: 'blur' }, { validator: (rule, value, callback) => validateIn7Days(rule, value, callback, this.form.startTime), trigger: 'blur' }],
+  }
+
+
+  private pickerOptions = {
+    disabledDate: (date: any) => {
+      return date.getTime() >= new Date().getTime()
+    }
   }
 
 
