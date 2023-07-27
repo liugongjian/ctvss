@@ -9,13 +9,18 @@
   >
     <el-form-item label="用户名" prop="userName" class="form-with-tip">
       <el-input v-model="form.userName" :disabled="disabled" />
+      <div class="form-tip">
+        仅支持输入小写字母和数字
+      </div>
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password auto-complete="new-password" />
     </el-form-item>
     <el-form-item label="密码:" prop="newPassword">
       <el-input v-model="form.newPassword" show-password auto-complete="new-password" />
-      <div class="form-tip">修改凭证密码后，已使用该凭证接入的设备将会下线</div>
+      <div v-if="isEdit" class="form-tip">
+        凭证密码修改后，对于已绑定该凭证的在线设备，新的密码校验将在下次设备上线时起效
+      </div>
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">
       <el-input v-model="form.confirmPassword" show-password auto-complete="new-password" />
@@ -38,6 +43,7 @@ import { createCertificate, queryCertificate, updateCertificate } from '@/api/ce
 })
 export default class extends Vue {
   private loading = false
+  private isEdit = false
   private disabled = false
   private rules = {
     userName: [
@@ -151,8 +157,9 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    let params: any = this.$route.params
+    const params: any = this.$route.params
     if (params.userName) {
+      this.isEdit = true
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
       try {

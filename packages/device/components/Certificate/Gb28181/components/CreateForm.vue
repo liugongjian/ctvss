@@ -20,6 +20,9 @@
     </el-form-item>
     <el-form-item label="密码:" prop="newPassword">
       <el-input v-model="form.newPassword" show-password />
+      <div v-if="isEdit" class="form-tip">
+        凭证密码修改后，对于已绑定该凭证的在线设备，新的密码校验将在下次设备上线时起效
+      </div>
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">
       <el-input v-model="form.confirmPassword" show-password />
@@ -52,6 +55,7 @@ import { GB28181 } from '@/type/Certificate'
 })
 export default class extends Vue {
   private loading = false
+  private isEdit = false
   private disabled = false
   private editDisable = false
   private rules = {
@@ -165,6 +169,7 @@ export default class extends Vue {
   private async mounted() {
     const params: any = this.$route.params
     if (params.userName) {
+      this.isEdit = true
       this.editDisable = !/^[0-9a-z]+$/.test(params.userName)
       this.$emit('editDisabled', this.editDisable)
       this.disabled = true

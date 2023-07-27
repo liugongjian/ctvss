@@ -21,7 +21,7 @@
     <el-form-item label="密码:" prop="newPassword">
       <el-input v-model="form.newPassword" show-password />
       <div v-if="isEdit" class="form-tip">
-        修改凭证密码后，使用该凭证接入的设备，离线后需重新配置设备侧密码才能正常上线！
+        凭证密码修改后，对于已绑定该凭证的在线设备，新的密码校验将在下次设备上线时起效
       </div>
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">

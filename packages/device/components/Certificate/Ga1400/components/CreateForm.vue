@@ -8,14 +8,19 @@
     label-width="140px"
   >
     <el-form-item label="注册用户名" prop="username" class="form-with-tip">
-      <el-input v-model="form.username" :disabled="isUpdate" />
+      <el-input v-model="form.username" :disabled="isEdit" />
+      <div class="form-tip">
+        仅支持输入小写字母和数字
+      </div>
     </el-form-item>
-    <el-form-item v-if="isUpdate" label="旧密码:" prop="password">
+    <el-form-item v-if="isEdit" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password auto-complete="new-password" />
     </el-form-item>
     <el-form-item label="密码:" prop="newPassword">
       <el-input v-model="form.newPassword" show-password auto-complete="new-password" />
-      <div class="form-tip">修改凭证密码后，已使用该凭证接入的设备将会下线</div>
+      <div v-if="isEdit" class="form-tip">
+        凭证密码修改后，对于已绑定该凭证的在线设备，新的密码校验将在下次设备上线时起效
+      </div>
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">
       <el-input v-model="form.confirmPassword" show-password auto-complete="new-password" />
@@ -38,7 +43,7 @@ import { createGa1400Certificate, getGa1400Certificate, updateGa1400Certificate 
 })
 export default class extends Vue {
   private loading = false
-  private isUpdate = false
+  private isEdit = false
   private rules = {
     username: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -79,7 +84,7 @@ export default class extends Vue {
   }
 
   private validatePass(rule: any, value: string, callback: any) {
-    if (!value && !this.isUpdate) {
+    if (!value && !this.isEdit) {
       callback(new Error('请输入密码'))
     } else {
       // if (this.form.newPassword !== '') {
@@ -91,7 +96,7 @@ export default class extends Vue {
   }
 
   private validatePass2(rule: any, value: string, callback: any) {
-    if (!value && !this.isUpdate) {
+    if (!value && !this.isEdit) {
       callback(new Error('请再次输入密码'))
     } else if (value !== this.form.newPassword) {
       callback(new Error('两次输入密码不一致'))
@@ -115,7 +120,7 @@ export default class extends Vue {
       if (valid) {
         this.loading = true
         try {
-          if (this.isUpdate) {
+          if (this.isEdit) {
             data = {
               id: this.form.id,
               username: encrypt(this.form.username),
@@ -134,7 +139,7 @@ export default class extends Vue {
             await createGa1400Certificate(data)
           }
           onSuccess()
-          if (this.isUpdate) {
+          if (this.isEdit) {
             this.$message.success('修改GA1400凭证成功！')
           } else {
             this.$message.success('新建GA1400凭证成功！')
@@ -155,7 +160,7 @@ export default class extends Vue {
     const params: any = this.$route.params
     this.form.id = params.id
     if (this.form.id) {
-      this.isUpdate = true
+      this.isEdit = true
       try {
         const res = await getGa1400Certificate({ id: this.form.id })
         this.form = {
