@@ -3,6 +3,22 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
+          <span class="filter-container__search-time">任务开始时间</span>
+          <el-radio-group v-model="period" class="filter-container__search-time">
+            <el-radio v-for="(value, key) in periods" :key="key" :label="key">{{ value }}</el-radio>
+          </el-radio-group>
+          <el-date-picker
+            v-if="showRange"
+            v-model="periodRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            class="filter-container__search-time"
+            value-format="timestamp"
+            @change="changePicker"
+          >
+          </el-date-picker>
           <el-input v-model="factory" class="filter-container__search-group" placeholder="请输入工厂名" @keyup.enter.native="handleFilter" />
           <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter" />
           <el-button class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -235,6 +251,7 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
+      const range = this.resolvePeriod()
       const params = {
         plateNumber: this.plateNumber || undefined,
         factory: this.factory || undefined,
@@ -242,7 +259,8 @@ export default class extends Vue {
         pageSize: this.pager.pageSize,
         sortBy: 'updateTime',
         sortDirection: 'desc',
-        status: -1
+        status: -1,
+        ...range
       }
       const res = await getCarTasks(params)
       this.loading = false
@@ -316,7 +334,19 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .filter-container__search-group {
+  width: 150px;
   margin-right: 10px;
+}
+
+.filter-container {
+  &__search-group {
+    width: 150px;
+    margin-right: 10px;
+  }
+
+  &__search-time {
+    margin-right: 10px;
+  }
 }
 
 .template__table {
