@@ -173,7 +173,7 @@
         <div>将删除该目录下的所有目录和设备，确定删除吗？</div>
         <el-checkbox v-model="hideDeleteDirDialog">本次编辑不再询问</el-checkbox>
       </div>
-      <el-form v-else :model="dialog.data">
+      <el-form v-else ref="dialogForm" :model="dialog.data">
         <el-form-item :label="`${dialog.type === 'createTree' ? '设备树' : '目录'}名称`" prop="name" :rules="dialog.data.rule" :error="duplicateDirError">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
@@ -679,7 +679,7 @@ export default class extends Vue {
       title: dic[type],
       data: type === 'deleteDir' ? { node } : {
         name: type === 'updateDir' ? cloneDeep(node.data.label) : '',
-        rule: [{ required: true, message: '请输入名称', trigger: 'blur' }]
+        rule: [{ required: true, message: '请输入名称', trigger: 'blur' }, { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }]
       }
     }
   }
@@ -752,8 +752,15 @@ export default class extends Vue {
   }
 
   private async dialogSubmit() {
-    ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
-    this.dialog.type === 'updateDir' && this.updateDir()
+    if (['createDir', 'createDir-root', 'updateDir'].includes(this.dialog.type)){
+      const dialogForm: any = this.$refs.dialogForm
+      dialogForm.validate( valid => {
+        if (valid){
+          ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
+          this.dialog.type === 'updateDir' && this.updateDir()
+        }
+      })
+    }
     this.dialog.type === 'createTree' && await this.createTree()
     if (this.dialog.type === 'deleteDir') {
       // @ts-ignore
@@ -775,10 +782,25 @@ export default class extends Vue {
   }
 
   private updateDir() {
-    // @ts-ignore
-    this.currentDirNode.data.label = this.dialog.data.name
-    this.tagOriginNodeAsEdited(this.currentDirNode)
-    this.dialogCancel()
+    const parentNode = this.currentDirNode.parent
+    // dialog.data.name
+    let isNameDuplicate = false
+    if (parentNode.childNodes.length > 0) {
+      parentNode.childNodes.forEach(cnode => {
+        // @ts-ignore
+        if (cnode.data.label === this.dialog.data.name) {
+          isNameDuplicate = true
+        }
+      })
+    }
+    if (!isNameDuplicate) {
+      // @ts-ignore
+      this.currentDirNode.data.label = this.dialog.data.name
+      this.tagOriginNodeAsEdited(this.currentDirNode)
+      this.dialogCancel()
+    } else {
+      this.duplicateDirError = '文件名重复，不能修改'
+    }
   }
   /**
    * 将原有的节点打上编辑标记

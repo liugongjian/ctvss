@@ -174,7 +174,7 @@
         <div>将删除该目录下的所有目录和设备，确定删除吗？</div>
         <el-checkbox v-model="hideDeleteDirDialog">本次编辑不再询问</el-checkbox>
       </div>
-      <el-form v-else :model="dialog.data">
+      <el-form v-else ref="dialogForm" :model="dialog.data">
         <el-form-item :label="`${dialog.type === 'createTree' ? '设备树' : '目录'}名称`" prop="name" :rules="dialog.data.rule" :error="duplicateDirError">
           <el-input v-model="dialog.data.name" autocomplete="off" />
         </el-form-item>
@@ -800,8 +800,15 @@ export default class extends Mixins(TreeMixin) {
   }
 
   private async dialogSubmit() {
-    ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
-    this.dialog.type === 'updateDir' && this.updateDir()
+    if (['createDir', 'createDir-root', 'updateDir'].includes(this.dialog.type)){
+      const dialogForm: any = this.$refs.dialogForm
+      dialogForm.validate( valid => {
+        if (valid){
+          ['createDir', 'createDir-root'].includes(this.dialog.type) && this.createDir()
+          this.dialog.type === 'updateDir' && this.updateDir()
+        }
+      })
+    }
     this.dialog.type === 'createTree' && await this.createTree()
     if (this.dialog.type === 'deleteDir') {
       // @ts-ignore
