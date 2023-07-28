@@ -411,7 +411,7 @@ export default class extends Vue {
             params.natPort = 0
           }
           if (this.isUpdate) {
-            this.$confirm('更改级联接入相关配置，可能会导致平台离线并需要更新证书。是否确认修改？', {
+            await this.$confirm('更改级联接入相关配置，可能会导致平台离线并需要更新证书。是否确认修改？', {
               confirmButtonText: '确认',
               cancelButtonText: '取消',
               type: 'warning'
@@ -426,7 +426,7 @@ export default class extends Vue {
             this.back()
           }
         } catch (e) {
-          this.$message.error(e && e.message)
+          e && e.message && this.$message.error(e.message)
         } finally {
           this.submitting = false
         }
