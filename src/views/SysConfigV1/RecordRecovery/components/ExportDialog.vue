@@ -85,7 +85,7 @@ const validateIn7Days = (rule, value, callback, startTime) => {
       callback(new Error('请先选择开始时间'))
     }
     if (comp2){
-      callback(new Error('结束时间不能早于开始时间'))
+      callback(new Error('结束时间必须晚于开始时间'))
     }
     callback()
   }
@@ -111,7 +111,7 @@ export default class extends Vue {
 
   private pickerOptions = {
     disabledDate: (date: any) => {
-      return date.getTime() >= new Date().getTime()
+      return date.getTime() > new Date().getTime()
     }
   }
 

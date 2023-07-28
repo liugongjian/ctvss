@@ -101,7 +101,7 @@
               <el-switch v-model="automaticForm.enableRecordRecovery" :disabled="!editFlag" />
             </el-form-item> -->
             <el-form-item label="最大并发路数" prop="maxStreamNum">
-              <el-input v-model="automaticForm.maxStreamNum" class="channels" @input="minValue" />
+              <el-input v-model.number="automaticForm.maxStreamNum" class="channels" @input="minValue" />
             </el-form-item>
             <!-- <el-form-item label="最大补录带宽">
           <el-input v-model="automaticForm.name" />
