@@ -496,6 +496,8 @@ export default class extends Vue {
     this.videoForm.deviceStreamSize = 1
     // 重置自动拉取码流
     this.videoForm.deviceStreamPullIndex = 1
+    // 重置凭证
+    this.videoForm.inUserName = ''
     // 重置version
     const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
     versionMap && (this.videoForm.inVersion = Object.keys(versionMap)[0] as string)
