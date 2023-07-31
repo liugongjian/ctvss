@@ -120,6 +120,7 @@ export default class extends Mixins(DashboardMixin) {
       const isUpdated = this.checkAlarmsUpdated(list)
 
       if (isUpdated){
+        debugger
         this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
         isMuted && this.playSound()
         this.calcHeight()
@@ -139,12 +140,14 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private checkAlarmsUpdated(alarms){
-    if ( this.list.length === 0 || alarms.length === 0 ){
+    if (this.list.length !== alarms.length){
       return true
+    } else if ( this.list.length > 0 && alarms.length > 0 ){
+        const idOrigin = this.list[0].captureTime + this.list[0].deviceID + this.list[0].appID
+        const idNew = alarms[0].captureTime + alarms[0].deviceID + alarms[0].appID
+        return idOrigin !== idNew
     }
-    const idOrigin = this.list[0].captureTime + this.list[0].deviceID + this.list[0].appID
-    const idNew = alarms[0].captureTime + alarms[0].deviceID + alarms[0].appID
-    return idOrigin !== idNew
+    return false
   }
 
   private playSound(){
