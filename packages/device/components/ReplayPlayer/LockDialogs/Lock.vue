@@ -7,48 +7,46 @@
     :append-to-body="true"
     center
     @close="closeDialog"
-    
   >
-  <div v-loading="loadingForm || submitting">
-    <el-form
-      ref="dataForm"
-      class="form"
-      :inline="true"
-      :model="form"
-      :rules="rules"
-      label-position="right"
-      label-width="100px"
-    >
-      <!-- v-loading="loadingForm" -->
-      <el-form-item label="设备名:" class="device">
-        {{ deviceName }}
-      </el-form-item>
-      <el-form-item label="录像时段:" class="date-picker" prop="duration">
-        <el-date-picker
-          ref="datepicker"
-          v-model="form.duration"
-          type="datetimerange"
-          value-format="timestamp"
-          :picker-options="pickerOptions"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
-    </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submit">
-        确 定
-      </el-button>
-      <el-button @click="closeDialog">取 消</el-button>
+    <div v-loading="loadingForm || submitting">
+      <el-form
+        ref="dataForm"
+        class="form"
+        :inline="true"
+        :model="form"
+        :rules="rules"
+        label-position="right"
+        label-width="100px"
+      >
+        <!-- v-loading="loadingForm" -->
+        <el-form-item label="设备名:" class="device">
+          {{ deviceName }}
+        </el-form-item>
+        <el-form-item label="录像时段:" class="date-picker" prop="duration">
+          <el-date-picker
+            ref="datepicker"
+            v-model="form.duration"
+            type="datetimerange"
+            value-format="timestamp"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submit">
+          确 定
+        </el-button>
+        <el-button @click="closeDialog">取 消</el-button>
+      </div>
     </div>
-  </div>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { setLock } from '@vss/device/api/device'
-import { prefixZero } from '@/utils/number'
-import { GroupModule } from '@/store/modules/group'
+import { prefixZero } from '@vss/base/utils/number'
 import { getDevice } from '@vss/device/api/device'
 
 @Component({
@@ -167,7 +165,7 @@ export default class extends Vue {
   }
 
   // 关闭 dialog
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

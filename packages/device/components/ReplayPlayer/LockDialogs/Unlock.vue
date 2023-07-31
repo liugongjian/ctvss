@@ -66,7 +66,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { unLock } from '@/api/device'
+import { unLock } from '@vss/device/api/device'
 import { getDevice } from '@vss/device/api/device'
 
 @Component({
