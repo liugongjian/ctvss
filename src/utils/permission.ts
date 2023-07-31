@@ -104,6 +104,13 @@ class Permission extends VuexModule implements IPermissionState {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     console.log('asyncRoutes:', asyncRoutes)
+
+    // 根据route.meta.tags及用户tags过滤路由
+    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tagObject)
+
+    // 根据route.meta.version及用户version过滤路由
+    filteredRoutes = filterAsyncRoutesByVersion(filteredRoutes, params.version)
+
     if (params.iamUserId) {
       // 子账号管理员
 
@@ -125,12 +132,6 @@ class Permission extends VuexModule implements IPermissionState {
         )
       }
     }
-
-    // 根据route.meta.tags及用户tags过滤路由
-    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tagObject)
-
-    // 根据route.meta.version及用户version过滤路由
-    filteredRoutes = filterAsyncRoutesByVersion(filteredRoutes, params.version)
 
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
