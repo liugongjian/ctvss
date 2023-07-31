@@ -9,8 +9,8 @@ import { getNodeInfo, previewAuthActions } from '@vss/device/api/dir'
 import { UserModule } from '@/store/modules/user'
 import { AppModule, SystemType } from '@/store/modules/app'
 import { getTreeList } from '@vss/device/api/customTree'
-import { getDeviceTree } from '@/api/device'
-import { getGroups } from '@/api/group'
+// import { getDeviceTree } from '@/api/device'
+// import { getGroups } from '@/api/group'
 import * as dicts from '@vss/device/dicts'
 
 
@@ -248,78 +248,78 @@ export default class TreeMixin extends Vue {
    * V1版本加载设备树
    * @param node 节点信息
    */
-  public async treeLoadAiV1(node) {
-    if (node.level === 0) return []
-    const dirs = await this.getTreeV1(node)
-    return dirs
-  }
+  // public async treeLoadAiV1(node) {
+  //   if (node.level === 0) return []
+  //   const dirs = await this.getTreeV1(node)
+  //   return dirs
+  // }
 
   /**
    * 获取菜单树
    */
-  private async getTreeV1(node: any) {
-    try {
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
+  // private async getTreeV1(node: any) {
+  //   try {
+  //     const devices: any = await getDeviceTree({
+  //       groupId: node.data.groupId,
+  //       id: node.data.type === 'group' ? 0 : node.data.id,
+  //       inProtocol: node.data.inProtocol,
+  //       type: node.data.type === 'group' ? undefined : node.data.type
+  //     })
 
-      const dirs: any = devices.dirs.map((dir: any) => {
-        return {
-          ...dir,
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          path: node.data.path.concat([dir]),
-          parentId: node.data.id
-        }
-      })
-      return dirs
-    } catch (e) {
-      console.log(e)
-    }
-  }
+  //     const dirs: any = devices.dirs.map((dir: any) => {
+  //       return {
+  //         ...dir,
+  //         id: dir.id,
+  //         groupId: node.data.groupId,
+  //         label: dir.label,
+  //         inProtocol: node.data.inProtocol,
+  //         isLeaf: dir.isLeaf,
+  //         type: dir.type,
+  //         path: node.data.path.concat([dir]),
+  //         parentId: node.data.id
+  //       }
+  //     })
+  //     return dirs
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
 
   /**
    * 目录初始化
    */
-  public async initDirsAlarm() {
-    try {
-      this.loading = true
-      const res = await getGroups({
-        pageSize: 1000
-      })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        group.inProtocol !== 'vgroup' &&
-          this.dirList.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: 'group',
-            parentId: '0',
-            path: [
-              {
-                id: group.groupId,
-                label: group.groupName,
-                type: 'group'
-              }
-            ],
-            isLeaf: false
-          })
-      })
-    } catch (e) {
-      // this.dirList = []
-    } finally {
-      this.loading = false
-    }
-  }
+  // public async initDirsAlarm() {
+  //   try {
+  //     this.loading = true
+  //     const res = await getGroups({
+  //       pageSize: 1000
+  //     })
+  //     this.dirList = []
+  //     res.groups.forEach((group: any) => {
+  //       group.inProtocol !== 'vgroup' &&
+  //         this.dirList.push({
+  //           id: group.groupId,
+  //           groupId: group.groupId,
+  //           label: group.groupName,
+  //           inProtocol: group.inProtocol,
+  //           type: 'group',
+  //           parentId: '0',
+  //           path: [
+  //             {
+  //               id: group.groupId,
+  //               label: group.groupName,
+  //               type: 'group'
+  //             }
+  //           ],
+  //           isLeaf: false
+  //         })
+  //     })
+  //   } catch (e) {
+  //     // this.dirList = []
+  //   } finally {
+  //     this.loading = false
+  //   }
+  // }
 
   /**
    * 树节点加载完成后执行的钩子

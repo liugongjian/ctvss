@@ -1,5 +1,6 @@
 <template>
-  <common-tree
+  <div />
+  <!-- <common-tree
     ref="commonTree"
     v-loading="loading"
     :node-key="nodeKey"
@@ -30,45 +31,45 @@
     <template slot="itemLabelSuffix" slot-scope="{ data }">
       <span class="alert-type">{{ renderAlertType(data) }}</span>
     </template>
-  </common-tree>
+  </common-tree> -->
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { renderAlertType } from '@/utils/device'
-import treeMixin from '@vss/device/components/Tree/treeMixin'
+// import { Component, Mixins, Prop } from 'vue-property-decorator'
+// import { renderAlertType } from '@/utils/device'
+// import treeMixin from '@vss/device/components/Tree/treeMixin'
 
-@Component({
-  name: 'AIAlarmTree'
-})
-export default class extends Mixins(treeMixin) {
-  @Prop({ default: () => ['dir', 'nvr', 'ipc', 'platform'] })
-  public filterTypeArr
+// @Component({
+//   name: 'AIAlarmTree'
+// })
+// export default class extends Mixins(treeMixin) {
+//   @Prop({ default: () => ['dir', 'nvr', 'ipc', 'platform'] })
+//   public filterTypeArr
 
-  private renderAlertType = renderAlertType
+//   private renderAlertType = renderAlertType
 
-  private mounted(){
-    this.initDirsAlarm()
-  }
+//   private mounted(){
+//     this.initDirsAlarm()
+//   }
 
 
-  public async onTreeLoadedHook(node, res) {
-    return res.dirs
-  }
-}
+//   public async onTreeLoadedHook(node, res) {
+//     return res.dirs
+//   }
+// }
 </script>
 
 <style lang="scss" scoped>
-.status-badge {
-  position: absolute;
-  top: -1px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
-  opacity: 0.7;
-}
+// .status-badge {
+//   position: absolute;
+//   top: -1px;
+//   left: -3px;
+//   width: 6px;
+//   height: 6px;
+//   opacity: 0.7;
+// }
 
-.active-icon {
-  color: $color-status-success;
-}
+// .active-icon {
+//   color: $color-status-success;
+// }
 </style>
