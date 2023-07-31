@@ -13,7 +13,7 @@
         用于设备注册时的SIP用户认证，仅支持输入小写字母和数字
       </div>
       <!-- <div v-if="form.userType === 'anonymous'" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
-      <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div> -->
+      <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div> --> 
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password />

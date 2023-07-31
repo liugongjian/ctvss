@@ -13,7 +13,8 @@ export const checkPermission = (value: string[], data?: any): boolean => {
     const operationSystemAllowActions = [
       'ivs:GetDevice',
       'ivs:GetLiveStream',
-      'ivs:GetCloudRecord'
+      'ivs:GetCloudRecord',
+      'ivs:GetApp'
     ]
     if (!value || !value[0] || operationSystemAllowActions.indexOf(value[0]) !== -1) {
       return true
