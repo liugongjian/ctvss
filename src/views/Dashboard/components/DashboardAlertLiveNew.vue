@@ -120,7 +120,6 @@ export default class extends Mixins(DashboardMixin) {
       const isUpdated = this.checkAlarmsUpdated(list)
 
       if (isUpdated){
-        debugger
         this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
         isMuted && this.playSound()
         this.calcHeight()
