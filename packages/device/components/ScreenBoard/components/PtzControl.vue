@@ -187,9 +187,8 @@ import {
   describePTZKeepwatch,
   updatePTZKeepwatch
 } from '@vss/device/api/ptz_control'
-import UpdateCruise from '@/views/device/components/dialogs/UpdateCruise.vue'
+import UpdateCruise from './UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
-import { getLocalStorage } from '@/utils/storage'
 import { checkPermission } from '@vss/base/utils/permission'
 
 @Component({
@@ -218,7 +217,7 @@ export default class extends Vue {
 
   private speed = 5
   private isClosed = true
-  private startPromise: any 
+  private startPromise: any
   private loading: any = {
     preset: false,
     cruise: false,
@@ -295,11 +294,9 @@ export default class extends Vue {
   private async getPresets() {
     try {
       this.loading.preset = true
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describeDevicePresets({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.presets = Array.from({ length: 255 }, (value, index) => {
         const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
@@ -324,11 +321,9 @@ export default class extends Vue {
   private async getCruises() {
     try {
       this.loading.cruise = true
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describePTZCruiseList({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.cruises = Array.from({ length: 8 }, (value, index) => {
         const found = res.cruiseInfos.find((cruise: any) => cruise.cruiseId === (index + 1).toString())
@@ -349,11 +344,9 @@ export default class extends Vue {
   private async getKeepWatchInfo() {
     try {
       this.loading.homeposition = true
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       const res = await describePTZKeepwatch({
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.homepositionForm = {
         enable: res.enable,
@@ -372,12 +365,10 @@ export default class extends Vue {
 
   private async deletePreset(presetId: number) {
     try {
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await deleteDevicePreset({
         deviceId: this.deviceId,
         presetId: String(presetId),
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.getPresets()
     } catch (e) {
@@ -392,13 +383,11 @@ export default class extends Vue {
 
   private async setPreset(presetId: number, presetName: string) {
     try {
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await setDevicePreset({
         deviceId: this.deviceId,
         presetId: String(presetId),
         presetName,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       // this.$set(this.presets, presetId - 1, {
       //   'setFlag': true,
@@ -430,12 +419,10 @@ export default class extends Vue {
 
   private async gotoPreset(presetId: number) {
     try {
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await gotoDevicePreset({
         deviceId: this.deviceId,
         presetId: String(presetId),
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
     } catch (e) {
       this.$message.error(e && e.message)
@@ -443,11 +430,9 @@ export default class extends Vue {
   }
 
   private formatStartParam(direction: number, speed: number) {
-    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
       deviceId: this.deviceId,
-      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-      groupId
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
     }
     switch (direction) {
       case 5:
@@ -501,11 +486,9 @@ export default class extends Vue {
   }
 
   private formatEndParam(direction: number) {
-    const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
     const param: any = {
       deviceId: this.deviceId,
-      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-      groupId
+      inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
     }
     switch (direction) {
       case 5:
@@ -632,12 +615,10 @@ export default class extends Vue {
 
   private async handleCruise(cruiseId: any) {
     try {
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await startPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.$message({
         type: 'success',
@@ -650,12 +631,10 @@ export default class extends Vue {
 
   private async stopCruise(cruiseId: any) {
     try {
-      const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
       await stopPTZCruise({
         cruiseId: cruiseId.toString(),
         deviceId: this.deviceId,
-        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol,
-        groupId
+        inProtocol: this.$route.query.inProtocol || this.screen.inProtocol
       })
       this.$message({
         type: 'success',
@@ -672,14 +651,12 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (!valid) return
       try {
-        const { groupId } = JSON.parse(getLocalStorage('currentGroup'))
         await updatePTZKeepwatch({
           deviceId: this.deviceId,
           enable: this.homepositionForm.enable,
           waitTime: this.homepositionForm.waitTime,
           presetId: this.homepositionForm.presetId,
-          inProtocol: 'gb28181',
-          groupId
+          inProtocol: 'gb28181'
         })
         this.$message({
           type: 'success',
