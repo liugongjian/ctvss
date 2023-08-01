@@ -32,10 +32,16 @@
         <status-badge :status="videoInfo.deviceStatus.isOnline" />
         {{ dicts.DeviceStatus[videoInfo.deviceStatus.isOnline] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible(deviceEnum.StreamStatus)" label="视频流">
-        <status-badge :status="streamStatus" />
-        {{ dicts.StreamStatus[streamStatus] || '-' }}
-      </el-descriptions-item>
+      <template v-if="checkVisible(deviceEnum.StreamStatus)">
+        <el-descriptions-item v-for="index of videoInfo.deviceStreamSize" :key="index" :label="dicts.DeviceStreamPullIndex[index]">
+          <status-badge :status="getStreamStatus(index)" />
+          {{ dicts.StreamStatus[getStreamStatus(index)] || '-' }}
+        </el-descriptions-item>
+        <!-- <el-descriptions-item v-if="checkVisible(deviceEnum.StreamStatus)" label="视频流">
+          <status-badge :status="streamStatus" />
+          {{ dicts.StreamStatus[streamStatus] || '-' }}
+        </el-descriptions-item> -->
+      </template>
       <el-descriptions-item v-if="checkVisible(deviceEnum.RecordStatus)" label="视频录制">
         <status-badge :status="recordStatus" />
         {{ dicts.RecordStatus[recordStatus] || '-' }}
@@ -228,6 +234,11 @@ export default class extends Vue {
   // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
     return checkVideoVisible.call({ ...this.videoInfo, ...this.basicInfo, isIbox: this.isIbox }, this.basicInfo.deviceType, this.inVideoProtocol, prop)
+  }
+
+  private getStreamStatus(index: number) {
+    const streamInfo = this.videoInfo.streams.find(stream => stream.streamNum === index)
+    return streamInfo && streamInfo.streamStatus
   }
 
   // 进入编辑模式
