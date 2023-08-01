@@ -42,7 +42,10 @@ export const getDevices = (params: any): Promise<any> => {
           const streamInfo = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].find(
             stream => stream[DeviceEnum.StreamNum] === deviceStreamPullIndex
           ) || {}) : {}
-          data[DeviceEnum.StreamStatus] = streamInfo[DeviceEnum.StreamStatus]
+          // data[DeviceEnum.StreamStatus] = streamInfo[DeviceEnum.StreamStatus]
+          data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].some(
+            stream => stream[DeviceEnum.StreamStatus] === 'on'
+          ) ? 'on' : 'off') : undefined
           data[DeviceEnum.RecordStatus] = streamInfo[DeviceEnum.RecordStatus]
           data[DeviceEnum.RecordTaskId] = streamInfo[DeviceEnum.RecordTaskId]
         }
