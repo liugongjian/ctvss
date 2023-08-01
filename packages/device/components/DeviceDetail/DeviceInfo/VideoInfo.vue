@@ -33,7 +33,7 @@
         {{ dicts.DeviceStatus[videoInfo.deviceStatus.isOnline] || '-' }}
       </el-descriptions-item>
       <template v-if="checkVisible(deviceEnum.StreamStatus)">
-        <el-descriptions-item v-for="index of videoInfo.deviceStreamSize" :key="index" :label="videoInfo.deviceStreamSize === 1 ? '视频流' : dicts.DeviceStreamPullIndex[index]">
+        <el-descriptions-item v-for="index of videoInfo.deviceStreamSize" :key="index" :label="dicts.DeviceStreamPullIndex[index]">
           <status-badge :status="getStreamStatus(index)" />
           {{ dicts.StreamStatus[getStreamStatus(index)] || '-' }}
         </el-descriptions-item>
