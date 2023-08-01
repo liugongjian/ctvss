@@ -33,15 +33,15 @@ export const getDevices = (params: any): Promise<any> => {
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
 
         if (inVideoProtocol) {
-          const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+          const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]] || {}
           const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
           data[DeviceEnum.OutId] = videoInfo[DeviceEnum.OutId]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
           data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
           data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus] && videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
-          const streamInfo = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].find(
+          const streamInfo = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].find(
             stream => stream[DeviceEnum.StreamNum] === deviceStreamPullIndex
-          ) || {}) : {}
+          ) || {}) : {}) : {}
           // data[DeviceEnum.StreamStatus] = streamInfo[DeviceEnum.StreamStatus]
           data[DeviceEnum.StreamStatus] = videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].some(
             stream => stream[DeviceEnum.StreamStatus] === 'on'
