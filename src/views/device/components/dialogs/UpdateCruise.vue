@@ -132,11 +132,11 @@ export default class extends Vue {
       this.loading.form = true
       await this.initPresets()
       if (!this.isCreate) {
-        let res: any = await describePTZCruise({
+        const res: any = await describePTZCruise({
           deviceId: this.deviceId,
           cruiseId: this.currentIndex
         })
-        let cruisePath = res.cruisePresets?.map(cruise => {
+        const cruisePath = res.cruisePresets?.map(cruise => {
           return cruise.presetId
         })
         this.form = {
@@ -210,7 +210,7 @@ export default class extends Vue {
     })
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }

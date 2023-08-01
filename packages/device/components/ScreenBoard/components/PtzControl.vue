@@ -187,7 +187,7 @@ import {
   describePTZKeepwatch,
   updatePTZKeepwatch
 } from '@vss/device/api/ptz_control'
-import UpdateCruise from '@/views/device/components/dialogs/UpdateCruise.vue'
+import UpdateCruise from './UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 import { checkPermission } from '@vss/base/utils/permission'
 
