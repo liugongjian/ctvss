@@ -32,8 +32,8 @@ export const getDevices = (params: any): Promise<any> => {
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
 
-        if (inVideoProtocol) {
-          const videoInfo = item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]] || {}
+        const videoInfo = inVideoProtocol && item.videos[0][InVideoProtocolModelMapping[inVideoProtocol]]
+        if (videoInfo) {
           const deviceStreamPullIndex = videoInfo[DeviceEnum.DeviceStreamPullIndex] || 1
           data[DeviceEnum.OutId] = videoInfo[DeviceEnum.OutId]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
@@ -49,8 +49,9 @@ export const getDevices = (params: any): Promise<any> => {
           data[DeviceEnum.RecordStatus] = streamInfo[DeviceEnum.RecordStatus]
           data[DeviceEnum.RecordTaskId] = streamInfo[DeviceEnum.RecordTaskId]
         }
-
-        if (inViidProtocol) {
+      
+        const viidInfo = inViidProtocol && item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
+        if (viidInfo) {
           const viidInfo = item.viids[0][InViidProtocolModelMapping[inViidProtocol]]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Viid])
           data[DeviceEnum.InProtocol].push(InViidProtocol[inViidProtocol])
