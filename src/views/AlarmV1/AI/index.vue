@@ -14,10 +14,6 @@
           </el-tooltip>
         </template>
         <template slot="leftBody">
-          <!-- <AIAlarmTreeV1
-            ref="deviceTree"
-            @handle-node="handleTreeNode"
-          /> -->
           <div class="dir-list">
             <div class="dir-list__tree device-list__max-height">
               <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
@@ -78,7 +74,6 @@
 <script lang="ts">
 import { Component, Mixins, Provide } from 'vue-property-decorator'
 import layoutMxin from '@vss/device/mixin/layoutMixin'
-// import AIAlarmTreeV1 from '@vss/device/components/Tree/AIAlarmTreeV1.vue'
 import Statics from './Statics.vue'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
@@ -87,7 +82,6 @@ import { renderAlertType } from '@/utils/device'
 @Component({
   name: 'Alarm',
   components: {
-    // AIAlarmTreeV1,
     Statics
   }
 })
@@ -290,27 +284,32 @@ export default class extends Mixins(layoutMxin) {
     line-height: 10vh;
     height: 10vh;
   }
-  .common-layout__right__body{
+
+  .common-layout__right__body {
     overflow: auto;
   }
+
   .dir-list {
     width: 100%;
-    &__tree--root {
-        position: relative;
-        padding: 5px 5px 7px;
-        margin-bottom: 5px;
-        cursor: pointer;
-        color: #6e7c89;
-          &.actived {
-            background: #f3f3f3;
-          }
 
-          .sum-icon {
-            color: #888;
-          }
-          svg {
-            margin-right: 5px;
-          }
+    &__tree--root {
+      position: relative;
+      padding: 5px 5px 7px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      color: #6e7c89;
+
+      &.actived {
+        background: #f3f3f3;
+      }
+
+      .sum-icon {
+        color: #888;
+      }
+
+      svg {
+        margin-right: 5px;
+      }
     }
   }
 
