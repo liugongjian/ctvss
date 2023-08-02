@@ -7,14 +7,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="bandWidth" label="上行带宽总量">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.bandWidth }}Mbps
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="开通时间" min-width="140" />
       <el-table-column prop="expireTime" label="到期时间" min-width="140" />
       <el-table-column label="订购类型">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           {{ row.isTrialOrder === '1' ? '试用' : '商用' }}
         </template>
       </el-table-column>
