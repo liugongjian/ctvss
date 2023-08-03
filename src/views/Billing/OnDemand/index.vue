@@ -161,7 +161,7 @@ export default class extends Vue {
       getBillTypeLogs().then((res) => {
         this.tableData = res.historyRecords.map((record) => ({
           billingType:
-            record.billingType === 'DAYPEAK'
+            record.billingType === 'DAY_PEAK'
               ? '带宽计费类型：日峰值带宽'
               : '带宽计费类型：按流量',
           updateTime: dateFormat(+record.updateTime * 1000),

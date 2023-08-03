@@ -349,7 +349,7 @@ export const resourceTypes = {
 }
 
 export const billingType = {
-  DAYPEAK: '按带宽日峰值计费',
+  DAY_PEAK: '按带宽日峰值计费',
   TRAFFIC: '按流量计费'
 }
 

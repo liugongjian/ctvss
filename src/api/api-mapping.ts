@@ -36,4 +36,6 @@ export const ApiMapping = {
   // 国标告警
   '/alarm/info/list': '/alarm/alarmrule/describeAlarms',
   '/alarm/info/delete': '/alarm/alarmrule/deleteAlarmInfo:get',
+  // 向上级联
+  '/cascadeDir/delete': '/cascadeDir/delete:get'
 }

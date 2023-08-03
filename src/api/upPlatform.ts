@@ -233,8 +233,8 @@ export const createCascadeDir = (params: any): Promise<any> =>
 export const deleteCascadeDir = (params: any): Promise<any> =>
   request({
     url: '/cascadeDir/delete',
-    method: 'get',
-    params
+    method: 'post',
+    data: params
   })
 
 export const modifyCascadeDir = (params: any): Promise<any> =>
