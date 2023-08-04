@@ -158,8 +158,8 @@ export function checkTreeToolsVisible(type: string, prop: ToolsEnum, data?: any)
   }
 
   // 流状态绿点特殊处理
-  if (data && (data[DeviceEnum.StreamStatus] !== StatusEnum.On) && (prop === ToolsEnum.StreamStatus)) {
-    return false
+  if (data && (prop === ToolsEnum.StreamStatus)) {
+    return data.streams.some(stream => stream[DeviceEnum.StreamStatus] === 'on') ? true : false
   }
 
   return DirectoryTypeAllowParams[type] && DirectoryTypeAllowParams[type].has(prop) && allowFlag
