@@ -297,7 +297,7 @@ export default class TreeMixin extends Vue {
    * node点击事件
    * @param data node信息
    */
-  public handleNode(data: any) {
+  public handleNode(data, node) {
     this.$emit('handle-node', data)
   }
 
