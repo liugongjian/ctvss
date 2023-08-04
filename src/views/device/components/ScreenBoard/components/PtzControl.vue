@@ -547,6 +547,7 @@ export default class extends Vue {
     try {
       const data = this.formatStartParam(direction, speed)
       this.startPromise = startDeviceMove(data)
+      debugger
       await this.startPromise
     } catch (e) {
       this.$message.error(e && e.message)
@@ -564,7 +565,7 @@ export default class extends Vue {
       const data = this.formatEndParam(direction)
       await endDeviceMove(data)
     } catch (e) {
-      this.$message.error(e && e.message)
+      !this.startPromise && this.$message.error(e && e.message)
     }
   }
 
