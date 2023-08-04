@@ -121,6 +121,7 @@ export default class extends Mixins(DashboardMixin) {
 
       if (isUpdated){
         this.list = list.map(item => ({ ...item, captureTime2: format(fromUnixTime(item.captureTime), 'yyyy-MM-dd HH:mm:ss') }))
+
         isMuted && this.playSound()
         this.calcHeight()
       }
@@ -135,7 +136,10 @@ export default class extends Mixins(DashboardMixin) {
   private calcHeight(){
     const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
     const totalHeight = left.offsetHeight
-    this.heigh = totalHeight - 500
+    //一个告警记录高112px
+    const listHeight = this.list.length * 112 + 10 + ( this.noAlarmTody ? 160 : 0 )
+    const heightWithLeft = totalHeight - 500
+    this.heigh = listHeight < heightWithLeft ? listHeight : heightWithLeft
   }
 
   private checkAlarmsUpdated(alarms){

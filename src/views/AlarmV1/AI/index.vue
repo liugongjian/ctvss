@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-card class="ai-alarm__wrapper">
       <el-tabs v-model="activeTab">
         <el-tab-pane label="AI告警列表" name="list" />
         <el-tab-pane label="AI告警统计" name="stats" />
@@ -15,7 +15,7 @@
         </template>
         <template slot="leftBody">
           <div class="dir-list">
-            <div class="dir-list__tree device-list__max-height">
+            <div class="dir-list__overflow_auto">
               <div class="dir-list__tree--root" :class="{ 'actived': isRootDir }" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
               <el-tree
                 ref="deviceTree"
@@ -279,18 +279,28 @@ export default class extends Mixins(layoutMxin) {
 }
 </script>
 <style lang="scss" scoped>
+.ai-alarm__wrapper{
+
   .warning-info {
     text-align: center;
     line-height: 10vh;
     height: 10vh;
   }
 
-  .common-layout__right__body {
+  ::v-deep .common-layout__left__body {
+    height: 100%;
     overflow: auto;
   }
 
   .dir-list {
     width: 100%;
+    display: flex;
+    flex: 1;
+    overflow: auto;
+
+    &__overflow_auto{
+      width: 100%;
+    }
 
     &__tree--root {
       position: relative;
@@ -312,5 +322,5 @@ export default class extends Mixins(layoutMxin) {
       }
     }
   }
-
+}
 </style>
