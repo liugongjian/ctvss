@@ -290,7 +290,6 @@ export default class TreeMixin extends Vue {
   
   public getStreamStatus(streams = []) {
     // 任意码流在线设备都为流在线
-    console.log('-----', streams)
     return streams.some(stream => stream[DeviceEnum.StreamStatus] === 'on') ? 'on' : 'off'
   }
 
