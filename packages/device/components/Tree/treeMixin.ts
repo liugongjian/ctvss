@@ -287,12 +287,17 @@ export default class TreeMixin extends Vue {
       this.commonTree.loadChildren(payload)
     }
   }
+  
+  public getStreamStatus(streams = []) {
+    // 任意码流在线设备都为流在线
+    return streams.some(stream => stream[DeviceEnum.StreamStatus] === 'on') ? 'on' : 'off'
+  }
 
   /**
    * node点击事件
    * @param data node信息
    */
-  public handleNode(data: any, node: any, component: any) {
+  public handleNode(data, node) {
     this.$emit('handle-node', data)
   }
 
