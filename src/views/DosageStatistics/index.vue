@@ -193,8 +193,8 @@ export default class extends Vue {
 
   private async getIsSubscribe() {
     try {
-      const { isSubscribe } = await getIsOndemand()
-      this.isSubscribe = isSubscribe === '1'
+      const { onDemandSubscribeStatus } = await getIsOndemand()
+      this.isSubscribe = onDemandSubscribeStatus === 0
     } catch (error) {
       this.$$message.error(error && error.message)
     }
@@ -373,14 +373,14 @@ export default class extends Vue {
         margin-left: auto;
       }
 
-      &_radio{
-        .el-radio-button{
+      &_radio {
+        .el-radio-button {
           width: 76px;
-          &__inner{
+
+          &__inner {
             width: 100%;
           }
         }
-        
       }
     }
   }

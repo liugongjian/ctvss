@@ -58,7 +58,7 @@ export default class extends Vue {
     try {
       const { isSubscribe } = await getIsOndemand()
       this.isSubscribe = isSubscribe === '1'
-    } catch (e){
+    } catch (e){  
       console.log(e)
     }
   }

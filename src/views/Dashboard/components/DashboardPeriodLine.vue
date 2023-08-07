@@ -153,7 +153,7 @@ export default class extends Vue {
 
   private async initDraw() {
     try {
-      const { isSubscribe } = await getIsOndemand()
+      const { onDemandSubscribeStatus } = await getIsOndemand()
       const { bandwidth, storage, service } = Options
       const device = {
         value: 'device',
@@ -162,7 +162,7 @@ export default class extends Vue {
       }
 
       this.periods =
-        isSubscribe === '1'
+        onDemandSubscribeStatus === 0
           ? [device, ...bandwidth, ...storage]
           : [device, ...bandwidth]
 

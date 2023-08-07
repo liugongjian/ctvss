@@ -68,8 +68,8 @@ export default class extends Vue {
 
   private async mounted() {
     try {
-      const { isSubscribe } = await getIsOndemand()
-      this.isSubscribe = isSubscribe === '1'
+      const { onDemandSubscribeStatus } = await getIsOndemand()
+      this.isSubscribe = onDemandSubscribeStatus === 0
     } catch (e){
       console.log(e)
     }
