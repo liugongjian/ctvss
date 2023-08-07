@@ -567,8 +567,10 @@ export default class extends Vue {
         ...data,
         inProtocol: this.screen.inProtocol
       })
+
     } catch (e) {
-      this.$message.error(e && e.message)
+
+      !this.startPromise && this.$message.error(e && e.message)
     }
   }
 
