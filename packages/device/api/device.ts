@@ -277,6 +277,12 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
       ...params
     },
     cancelToken
+  }).then((res: any) => {
+    // 修正中台返回开始时间不符合入参区间的录像片段  VSS-11316
+    if (res.records) {
+      res.records = res.records.filter(record => new Date(record.startTime).getTime() / 1000 >= params.startTime)
+    }
+    return res
   })
 
 /**
