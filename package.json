@@ -156,5 +156,8 @@
     "packages/ai",
     "packages/video-player",
     "packages/vss-video-player"
-  ]
+  ],
+  "resolutions": {
+    "element-ui": "2.15.5"
+  }
 }
