@@ -348,29 +348,30 @@ export default class extends Mixins(Validate) {
   private async loadDirs(node: any, resolve: Function) {
     this.loading.dir = true
     if (node.level === 0) return resolve([])
-
     const dirs = await this.getTree(node)
+    const dirParam = dirs.filter(item => ['dir', 'platform', 'platformDir', 'nvr'].includes(item.type)).map(dir => ({
+      dirId: dir.id,
+      parentDirId: node.level === 1 ? '0' : node.id + '' 
+    }))
+    if (dirParam.length) {
+      try {
+        const { groups } = await validateShareDirs({
+          platformId: this.platformId,
+          groups: [{
+            groupId: node.data.groupId,
+            inprotocol: node.data.inprotocol,
+            dirs: dirParam
+          }]
+        })
+        this.setDirChecked(groups, 'dir')
 
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
-      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
-    try {
-      const { groups } = await validateShareDirs({
-        platformId: this.platformId,
-        groups: [{
-          groupId: node.data.groupId,
-          inprotocol: node.data.inprotocol,
-          dirs: dirParam
-        }]
-      })
-      resolve(dirs)
-      this.setDirChecked(groups, 'dir')
-
-      // this.tagNvrUnchecked(node, dirs)
-      this.resetNvrStatus(node)
-    } catch (e){
-      resolve(dirs)
-      console.log(e)
+        // this.tagNvrUnchecked(node, dirs)
+        this.resetNvrStatus(node)
+      } catch (e){
+        console.log(e)
+      }
     }
+    resolve(dirs)
     this.loading.dir = false
   }
 
@@ -597,19 +598,22 @@ export default class extends Mixins(Validate) {
       const devices = await getNodeInfo({ type: node.data.type, id: node.data.id, inProtocol: 'video' })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
-      const param = {
-        platformId: this.platformId,
-        devices: paramNoNvrDevice.map(device => ({
-          deviceId: device.id
-        }))
-      }
-      try {
-        const res = await validateShareDevices(param)
-        if (res.isUsed) {
-          shareDeviceIds = res.isUsed.map(item => item.deviceId)
+      
+      if (paramNoNvrDevice.some(device => device.type === 'ipc')) {
+        const param = {
+          platformId: this.platformId,
+          devices: paramNoNvrDevice.map(device => ({
+            deviceId: device.id
+          }))
         }
-      } catch (e) {
-        console.log(e)
+        try {
+          const res = await validateShareDevices(param)
+          if (res.isUsed) {
+            shareDeviceIds = res.isUsed.map(item => item.deviceId)
+          }
+        } catch (e) {
+          console.log(e)
+        }
       }
       const dirTree: any = this.$refs.dirTree
       const checkedKeys = dirTree.getCheckedKeys()
