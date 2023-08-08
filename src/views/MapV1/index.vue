@@ -1523,7 +1523,7 @@ export default class extends Mixins(IndexMixin) {
 
 .device-list {
   &__activeSvg {
-    fill: $primary;
+    fill:$primary;
   }
 }
 
