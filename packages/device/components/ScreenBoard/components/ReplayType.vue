@@ -48,3 +48,9 @@ export default class extends Vue {
 }
 
 </script>
+
+<style lang="scss" scoped>
+.screen-tools__btn {
+  margin-top: -100px;
+}
+</style>

@@ -5,7 +5,7 @@
       <div
         class="device-list"
         :style="`height: ${maxHeight}px`"
-        :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}"
+        :class="{ 'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging }"
       >
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
@@ -24,13 +24,13 @@
             :is-live="isLive"
           >
             <template v-if="showRecordTool" slot="bottom">
-              <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
+              <div class="device-list__calander" :class="{ 'device-list__calander__hidden': isCollapse }">
                 <div class="device-list__replay-type">
                   <ReplayType :screen-manager="screenManager" :screen="currentScreen" @change="onReplayTypeChange" />
                 </div>
                 <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
               </div>
-              <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
+              <el-button class="device-list__arrow" :class="{ 'device-list__arrow__active': isCollapse }" type="text" @click="isCollapse = !isCollapse">
                 <svg-icon name="arrow-down" />
               </el-button>
             </template>
@@ -92,8 +92,8 @@ export default class extends Mixins(ScreenMixin) {
 <style lang="scss" scoped>
   .device-list__replay-type {
     border-top: 1px solid $borderGrey;
-    margin: 0;
-    padding-top: 5px;
+    margin-top: -30px;
+    padding-top: 95px;
     text-align: center;
 
     ::v-deep {

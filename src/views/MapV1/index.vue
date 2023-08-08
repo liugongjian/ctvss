@@ -1503,7 +1503,7 @@ export default class extends Mixins(IndexMixin) {
     cursor: pointer;
 
     .active {
-      color: #fa8334;
+      color: $primary;
     }
   }
 

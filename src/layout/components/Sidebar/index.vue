@@ -112,6 +112,9 @@ export default class extends Vue {
 
   .el-scrollbar__view {
     height: 100%;
+    .el-menu{
+      background: #fff !important;
+    }
   }
 
   .el-scrollbar__bar {
