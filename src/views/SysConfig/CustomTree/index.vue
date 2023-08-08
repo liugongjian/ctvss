@@ -726,7 +726,7 @@ export default class extends Mixins(TreeMixin) {
       title: dic[type],
       data: type === 'deleteDir' ? { node } : {
         name: type === 'updateDir' ? cloneDeep(node.data.label) : '',
-        rule: [{ required: true, message: '请输入名称', trigger: 'blur' }]
+        rule: [{ required: true, message: '请输入名称', trigger: 'blur' }, { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }]
       }
     }
   }
