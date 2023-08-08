@@ -363,7 +363,7 @@ export default class extends Vue {
   private async initOndemand() {
     try {
       const res = await ondemandSubscribe()
-      this.configManager.hasOndemand = res.isSubscribe === '1'
+      this.configManager.hasOndemand = res.onDemandSubscribeStatus === 0
     } catch (e) {
       console.log(e && e.message)
     }

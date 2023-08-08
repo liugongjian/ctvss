@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card>
-      <template v-if="isSubscribe">
+      <template v-if="subscribeStatus === 0">
         <div class="title">
           <div class="title-block" />
           <div>已开通计费项</div>
@@ -85,14 +85,14 @@
       <div v-else>
         <div class="title no-content">
           <div class="title-block" />
-          <div>计费状态：尚未开通</div>
+          <div>{{ `计费状态：${subscribeStatus === 2 ? '已冻结' : '未开通'}` }}</div>
         </div>
       </div>
       <div class="title">
         <div class="title-block" />
         <div>历史记录</div>
       </div>
-      <el-table :data="tableData" style="width: 100%">
+      <el-table :data="tableData" style="width: 100%;">
         <el-table-column prop="billingType" label="计费模式变更">
         </el-table-column>
         <el-table-column prop="updateTime" label="变更时间"> </el-table-column>
@@ -127,7 +127,7 @@ export default class extends Vue {
 
   private billInfo = {}
 
-  private isSubscribe = false
+  private subscribeStatus = 1
 
   private resourceTypes = resourceTypes
 
@@ -148,9 +148,9 @@ export default class extends Vue {
 
   private async getData() {
     this.resetData()
-    const { isSubscribe } = await getIsOndemand()
-    this.isSubscribe = isSubscribe === '1'
-    if (isSubscribe) {
+    const { onDemandSubscribeStatus } = await getIsOndemand()
+    this.subscribeStatus = onDemandSubscribeStatus
+    if (this.subscribeStatus === 0) {
       getBillOfOndemand().then((res) => {
         if (res.onDemandResources) {
           res.onDemandResources.forEach((resource) => {
