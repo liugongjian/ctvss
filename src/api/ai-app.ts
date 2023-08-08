@@ -151,7 +151,10 @@ export const getAiAlarms = (params: any): Promise<any> =>
   request({
     url: '/ai/results',
     method: 'get',
-    params
+    params: {
+      ...params,
+      outNetwork: UserModule.outNetwork || undefined
+    }
   })
 
 export const getAiStats = (params: any): Promise<any> =>
