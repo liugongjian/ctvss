@@ -19,9 +19,9 @@
           @check="onBindTreeCheck"
         >
           <span
-            slot-scope="{node, data}"
+            slot-scope="{ node, data }"
             class="custom-tree-node"
-            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
+            :class="{ 'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on' }"
           >
             <span class="node-name">
               <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -55,9 +55,9 @@
           @node-expand="onPreviewTreeExpand"
         >
           <span
-            slot-scope="{node, data}"
+            slot-scope="{ node, data }"
             class="custom-tree-node"
-            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
+            :class="{ 'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on' }"
           >
             <span class="node-name">
               <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
@@ -423,7 +423,7 @@ export default class extends Vue {
    */
   private async setChecked(nodes: any) {
     if (!Array.isArray(nodes)) {
-      let item = nodes.data
+      const item = nodes.data
       this.setNodesChecked(item)
     } else {
       nodes.map((item: any) => {
@@ -518,9 +518,9 @@ export default class extends Vue {
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
     })
-    let msg = this.totalCheckedSize > 0 ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？` : `您暂未勾选任何设备`
+    let msg = this.totalCheckedSize > 0 ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？` : '您暂未勾选任何设备'
     if (this.checkedNodes.length > 0 && bindedCheck) {
-      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
+      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的视图数据过期时间不变，新产生的视图数据将使用新模板中的存储时长。'
     }
     if (this.totalCheckedSize > 0) {
       this.$confirm(msg, '提示', {
@@ -542,7 +542,7 @@ export default class extends Vue {
   private async subSubmit() {
     try {
       this.hasBindedNode = false
-      let checkedNodes = this.checkedNodes.filter((item: any) => {
+      const checkedNodes = this.checkedNodes.filter((item: any) => {
         return item.isLeaf
       })
       // 组装 groupId
@@ -570,7 +570,7 @@ export default class extends Vue {
   }
 
   // 关闭 dialog
-  private closeDialog(isBinded: boolean = false) {
+  private closeDialog(isBinded = false) {
     this.$emit('on-close', isBinded)
   }
 
