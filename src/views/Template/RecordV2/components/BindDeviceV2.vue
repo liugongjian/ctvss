@@ -21,21 +21,45 @@
           <span
             slot-scope="{ node, data }"
             class="custom-tree-node"
-            :class="{ 'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on' }"
+            :class="{
+              'has-binded-self': data.bindStatus === 1,
+              online: data.deviceStatus === 'on'
+            }"
           >
             <span class="node-name">
-              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" :class="{ 'active-icon': data.deviceStatus === 'on' }" />
+              <status-badge
+                v-if="data.type === 'ipc'"
+                :status="data.streamStatus"
+              />
+              <svg-icon
+                v-if="data.type !== 'dir' && data.type !== 'platformDir'"
+                :name="data.type"
+                width="15"
+                height="15"
+                :class="{ 'active-icon': data.deviceStatus === 'on' }"
+              />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              <span v-if="node.level === 1">{{ `(已选:${data.checkedSize || data.bindSize} / 总数:${data.totalSize})` }}</span>
-              <span v-else>{{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize} / ${data.totalSize})` }}</span>
+              <span v-if="node.level === 1">{{
+                `(已选:${data.checkedSize || data.bindSize} / 总数:${
+                  data.totalSize
+                })`
+              }}</span>
+              <span v-else>{{
+                data.type === 'ipc'
+                  ? ''
+                  : `(${data.checkedSize || data.bindSize} / ${data.totalSize})`
+              }}</span>
               <span v-if="data.bindStatus === 4">
-                <el-tooltip effect="dark" :content="'当前设备已绑定模板'+data.templateName" placement="top">
-                  <i class="el-icon-info" style="color: #faad15;" />
+                <el-tooltip
+                  effect="dark"
+                  :content="'当前设备已绑定模板' + data.templateName"
+                  placement="top"
+                >
+                  <i class="el-icon-info" style="color: #faad15" />
                 </el-tooltip>
               </span>
             </span>
@@ -57,38 +81,55 @@
           <span
             slot-scope="{ node, data }"
             class="custom-tree-node"
-            :class="{ 'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on' }"
+            :class="{
+              'has-binded-self': data.bindStatus === 1,
+              online: data.deviceStatus === 'on'
+            }"
           >
             <span class="node-name">
-              <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+              <status-badge
+                v-if="data.type === 'ipc'"
+                :status="data.streamStatus"
+              />
+              <svg-icon
+                v-if="data.type !== 'dir' && data.type !== 'platformDir'"
+                :name="data.type"
+                width="15"
+                height="15"
+              />
               <span v-else class="node-dir">
                 <svg-icon name="dir" width="15" height="15" />
                 <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
-              {{ data.type === 'ipc' ? '' : `(${data.checkedSize || data.bindSize})` }}
+              {{
+                data.type === 'ipc'
+                  ? ''
+                  : `(${data.checkedSize || data.bindSize})`
+              }}
             </span>
           </span>
         </el-tree>
       </div>
     </div>
     <div v-if="currentTemplate.recordType === 5" class="bind-body-bottom">
-      <el-checkbox v-model="quickStart">绑定手动录制模板后 ，未录制状态的设备立即启动录制。</el-checkbox>
+      <el-checkbox v-model="quickStart">
+        绑定手动录制模板后 ，未录制状态的设备立即启动录制。
+      </el-checkbox>
     </div>
     <div slot="footer" class="submit-footer">
-      <el-button type="primary" :loading="submitting" :disabled="!submitable" @click="submit">
+      <el-button
+        type="primary"
+        :loading="submitting"
+        :disabled="!submitable"
+        @click="submit"
+      >
         确 定
       </el-button>
       <el-button @click="closeDialog(false)">取 消</el-button>
     </div>
-    <el-dialog
-      width="30%"
-      top="20%"
-      :visible="hasBindedNode"
-      append-to-body
-    >
-      <i class="el-icon-info" style="color: #faad15;" />
+    <el-dialog width="30%" top="20%" :visible="hasBindedNode" append-to-body>
+      <i class="el-icon-info" style="color: #faad15" />
       <span>您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗?</span>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" :disabled="!submitable" @click="subSubmit">
@@ -102,7 +143,10 @@
 <script lang="ts">
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator'
 import { getTemplateDeviceTree } from '@/api/template'
-import { setDeviceRecordTemplateBatch, setViidDeviceRecordTemplateBatch } from '@/api/device'
+import {
+  setDeviceRecordTemplateBatch,
+  setViidDeviceRecordTemplateBatch
+} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { cloneDeep } from 'lodash'
 
@@ -113,8 +157,8 @@ import { cloneDeep } from 'lodash'
   }
 })
 export default class extends Vue {
-  @Prop()private currentTemplate: any
-  @Prop()private type: any
+  @Prop() private currentTemplate: any
+  @Prop() private type: any
 
   @Ref('bindWrap') private bindWrap
   @Ref('bindTree') private bindTree
@@ -145,7 +189,7 @@ export default class extends Vue {
     bindSize: 0,
     children: []
   }
-  private previewDeviceList: any = [ this.rootNode ]
+  private previewDeviceList: any = [this.rootNode]
   private totalCheckedSize = 0
 
   private get checkedNodes() {
@@ -188,9 +232,9 @@ export default class extends Vue {
           id: 0,
           bind: false
         })
-        const root = [ cloneDeep(this.rootNode) ]
+        const root = [cloneDeep(this.rootNode)]
         resolve(root)
-        this.$nextTick(async() => {
+        this.$nextTick(async () => {
           const rootNode = this.bindTree.getNode('-1')
           this.bindTree.updateKeyChildren('-1', res.dirs)
           rootNode.loaded = true
@@ -254,7 +298,7 @@ export default class extends Vue {
         previewTreeNode.loading = false
         // 如果绑定树的节点是勾选状态，需要将子节点全部设为勾选状态
         if (bindTreeNode.checked) {
-          bindTreeNode.childNodes.forEach(node => {
+          bindTreeNode.childNodes.forEach((node) => {
             node.checked = true
           })
         }
@@ -282,7 +326,9 @@ export default class extends Vue {
         this.deepCopy(node)
       }
       this.$nextTick(() => {
-        this.totalCheckedSize = node.checked ? node.data.totalSize : node.data.checkedSize
+        this.totalCheckedSize = node.checked
+          ? node.data.totalSize
+          : node.data.checkedSize
       })
     } else if (node.isLeaf || node.loaded) {
       // 如果是叶子节点更新上层, 将上层全部拷贝到预览树
@@ -344,10 +390,10 @@ export default class extends Vue {
    */
   private deepCopy(node) {
     const children = node.childNodes
-      .filter(childNode => {
+      .filter((childNode) => {
         return childNode.checked || childNode.indeterminate
       })
-      .map(childNode => {
+      .map((childNode) => {
         return childNode.data
       })
     if (children) {
@@ -390,7 +436,7 @@ export default class extends Vue {
       this.previewTree.updateKeyChildren(id, children)
       previewNode.loaded = bindNode.loaded
       previewNode.expanded = bindNode.expanded
-      previewNode.childNodes.forEach(node => {
+      previewNode.childNodes.forEach((node) => {
         node.isLeaf = node.data.isLeaf
       })
     }
@@ -442,7 +488,10 @@ export default class extends Vue {
       // 默认全选
       this.bindTree.setChecked(item.id, true, true)
     }
-    if ((item.bindSize > 0 && item.bindSize < item.totalSize) || (item.checkedSize > 0 && item.checkedSize < item.totalSize)) {
+    if (
+      (item.bindSize > 0 && item.bindSize < item.totalSize) ||
+      (item.checkedSize > 0 && item.checkedSize < item.totalSize)
+    ) {
       // 半选
       const halfNode: any = this.bindTree && this.bindTree.getNode(item.id)
       halfNode.indeterminate = true
@@ -458,7 +507,9 @@ export default class extends Vue {
       this.sumParentCheckedSize(node.parent)
     } else if (node.parent.level === 0) {
       const previewRootNode = this.previewTree.getNode('-1')
-      previewRootNode.data.bindSize = node.checked ? node.data.totalSize : node.data.bindSize
+      previewRootNode.data.bindSize = node.checked
+        ? node.data.totalSize
+        : node.data.bindSize
     }
   }
 
@@ -486,14 +537,16 @@ export default class extends Vue {
    * 计算祖先的勾选的节点数量
    */
   private sumParentCheckedSize(parentNode) {
-    const totalCheckedSize = parentNode.childNodes && parentNode.childNodes.reduce((total, childNode) => {
-      if (childNode.isLeaf && childNode.checked) {
-        total++
-      } else {
-        total += (childNode.data.checkedSize || childNode.data.bindSize)
-      }
-      return total
-    }, 0)
+    const totalCheckedSize =
+      parentNode.childNodes &&
+      parentNode.childNodes.reduce((total, childNode) => {
+        if (childNode.isLeaf && childNode.checked) {
+          total++
+        } else {
+          total += childNode.data.checkedSize || childNode.data.bindSize
+        }
+        return total
+      }, 0)
     this.$set(parentNode.data, 'checkedSize', totalCheckedSize)
     // 如果父级数量为0，删除预览树中对应的节点
     if (totalCheckedSize === 0) {
@@ -518,16 +571,25 @@ export default class extends Vue {
     const bindedCheck = this.checkedNodes.some((item: any) => {
       return item.bindStatus > 1
     })
-    let msg = this.totalCheckedSize > 0 ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？` : '您暂未勾选任何设备'
+    let msg =
+      this.totalCheckedSize > 0
+        ? `确认将${this.currentTemplate.templateName}模板绑定到${this.totalCheckedSize}个设备上吗？`
+        : '您暂未勾选任何设备'
     if (this.checkedNodes.length > 0 && bindedCheck) {
-      msg = '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的视图数据过期时间不变，新产生的视图数据将使用新模板中的存储时长。'
+      if (this.type === 'video') {
+        msg =
+          '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的历史录像过期时间不变，新产生的录像将使用新模板中的存储时长。'
+      } else {
+        msg =
+          '您选择的设备中，有部分设备已绑定其他模板，确认使用新的模板绑定到这些设备上吗？已存在的视图数据过期时间不变，新产生的视图数据将使用新模板中的存储时长。'
+      }
     }
     if (this.totalCheckedSize > 0) {
       this.$confirm(msg, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         customClass: 'vss-warning'
-      }).then(async() => {
+      }).then(async () => {
         await this.subSubmit()
       })
     } else {
@@ -703,7 +765,8 @@ export default class extends Vue {
     width: 14px;
     height: 14px;
     z-index: 1;
-    transition: border-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46), background-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46);
+    transition: border-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46),
+      background-color 0.25s cubic-bezier(0.71, -0.46, 0.29, 1.46);
 
     &:before {
       box-sizing: content-box;
@@ -717,7 +780,8 @@ export default class extends Vue {
       position: absolute;
       top: 1px;
       width: 3px;
-      transition: transform 0.15s ease-in 0.05s, -webkit-transform 0.15s ease-in 0.05s;
+      transition: transform 0.15s ease-in 0.05s,
+        -webkit-transform 0.15s ease-in 0.05s;
       transform: rotate(45deg) scaleY(1);
     }
   }
