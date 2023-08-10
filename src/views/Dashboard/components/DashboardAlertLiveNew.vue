@@ -136,9 +136,15 @@ export default class extends Mixins(DashboardMixin) {
     const left: any = document.getElementsByClassName('dashboard-wrap-overview__left')[0]
     const totalHeight = left.offsetHeight
     //一个告警记录高112px
-    const listHeight = this.list.length * 112 + 10 + ( this.noAlarmTody ? 160 : 0 )
-    const heightWithLeft = totalHeight - 500
-    this.heigh = listHeight < heightWithLeft ? listHeight : heightWithLeft
+    if (this.list.length === 0){
+      this.heigh = 360
+    } else {
+      const listHeight = this.list.length * 112 + 10 + ( this.noAlarmTody ? 160 : 0 )
+      const heightWithLeft = totalHeight - 500
+
+      this.heigh = listHeight < heightWithLeft ? listHeight : heightWithLeft
+    }
+
   }
 
   private checkAlarmsUpdated(alarms){
