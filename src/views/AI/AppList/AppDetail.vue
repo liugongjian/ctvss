@@ -63,7 +63,6 @@ import AppMixin from '../mixin/app-mixin'
 import AppSubDetail from '@vss/ai/component/AppSubDetail.vue'
 import AttachedDevice from '@vss/ai/component/AttachedDevice.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
-import { UserModule } from '@/store/modules/user'
 import { CostumColors, HelmetClothType, CityGovType, TrashType, AnimalType } from '@/dics'
 
 @Component({
@@ -84,10 +83,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private faceLib: any = {}
   private tabNum: string | string[] = ''
   private deviceList: any = []
-
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
 
     /**
    * 生成检测项数据
@@ -153,12 +148,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     try {
       this.tabNum = this.$route.query.tabNum
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求
-        if (this.appInfo.algorithm.name === '城市治理') {
-          this.appInfo.algorithm.name = '工业缺陷检测'
-        }
-      }
       this.appInfo = this.formatData(this.appInfo)
       const { deviceList } = await getAttachedDevice({
         appId: this.$route.query.appid,

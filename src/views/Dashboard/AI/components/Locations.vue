@@ -20,7 +20,7 @@
           <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
         </div>
         <div
-          v-if="['29', '10026', '35', '10035'].includes(type) || (!isIndustrialDetection && ['37', '10037'].includes(type))"
+          v-if="['29', '10026', '35', '10035'].includes(type)"
           class="ai-recognation__images__item__mask__text dustbin"
           :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }"
         >
@@ -50,7 +50,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { AiMaskType, AnimalType, CityGovType } from '@/dics'
 import { colors } from '@/dics/color'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardAILocation'
@@ -65,10 +64,6 @@ export default class extends Vue {
   private aiMaskType = AiMaskType
   private animalType = AnimalType
   private currentIndex = -1
-
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
 
   @Watch('img', {
     immediate: true

@@ -13,7 +13,6 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardLightContainer from './DashboardLightContainer.vue'
-import { UserModule } from '@/store/modules/user'
 import { Chart } from '@antv/g2'
 import { format } from 'date-fns'
 import { getAiStats } from '@/api/ai-app'
@@ -33,10 +32,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private get container() {
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
-  }
-
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   private mounted() {

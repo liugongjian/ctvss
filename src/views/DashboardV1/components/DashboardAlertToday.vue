@@ -13,7 +13,6 @@ import DashboardLightContainer from './DashboardLightContainer.vue'
 import { Chart } from '@antv/g2'
 import { getAuditTrend } from '@/api/dashboard'
 import { AlertType } from '@/dics/index'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardAlertToday',
@@ -30,10 +29,6 @@ export default class extends Mixins(DashboardMixin) {
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   private mounted() {
     this.setInterval(this.getDeviceStates)
   }
@@ -43,10 +38,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getDeviceStates() {
     const data = await getAuditTrend({ form: 'day' })
-    const temp1 = Object.keys(data.trend).map(key => ({
-      type: this.isIndustrialDetection && (key === '37' || key === '10037') ? '工业缺陷检测' : AlertType[key],
-      value: parseInt(data.trend[key])
-    }))
+    const temp1 = Object.keys(data.trend).map(key => ({ type: AlertType[key], value: parseInt(data.trend[key]) }))
     const temp2 = temp1.length > 5 ? temp1.sort((x, y) => y.value - x.value).slice(0, 5) : temp1.sort((x, y) => y.value - x.value)
     // this.chartData = temp1.length > 5 ? temp1.sort((x, y) => y.value - x.value).slice(0, 5) : temp1.sort((x, y) => y.value - x.value)
     this.chartData = temp2.map(item => item.type.length > 8 ? { ...item, type: item.type.slice(0, 4) + '\n' + item.type.slice(4) } : item)

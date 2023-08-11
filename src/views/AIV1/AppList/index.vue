@@ -109,7 +109,6 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { getAppList, getAbilityList, startOrStopApps, deleteApps, getAiAlarm } from '@/api/ai-app'
 import AppMixin from '../mixin/app-mixin'
-import { UserModule } from '@/store/modules/user'
 import { ResourceAiType } from '@/dics'
 
 @Component({
@@ -136,10 +135,6 @@ export default class extends Mixins(AppMixin) {
 
   private get batchDisabled() {
     return this.multipleSelection.length === 0
-  }
-
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   @Watch('period.periodType')
@@ -188,17 +183,8 @@ export default class extends Mixins(AppMixin) {
   public async getAppList() {
     try {
       this.loading.appList = true
-      let { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
+      const { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
       this.pager = { pageNum, pageSize, totalNum }
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求
-        aiApps = aiApps.map((aiApp) => {
-          if (aiApp.algorithm.name === '城市治理') {
-            aiApp.algorithm.name = '工业缺陷检测'
-          }
-          return aiApp
-        })
-      }
       this.aiApps = aiApps
     } catch (e) {
       this.alertError(e && e.message)

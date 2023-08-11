@@ -27,7 +27,6 @@ import { getAbilityList, getAlgorithmList } from '@/api/ai-app'
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
 import AppMixin from '../../mixin/app-mixin'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlgoOption',
@@ -68,31 +67,13 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   /**
    * 获取算法列表
    */
   private async getAlgorithmList() {
     try {
       this.loading.algoList = true
-      let { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求 https://devops.ctcdn.cn/confluence/pages/viewpage.action?pageId=108086991
-        aiAbilityAlgorithms = aiAbilityAlgorithms.map((algo) => {
-          if (algo.name === '城市治理') {
-            return {
-              ...algo,
-              newCode: '10037_industrial_detection',
-              name: '工业缺陷检测',
-              summary: '检测画面中是否存在裂缝、破损等，适用于工业场景对产品表面的缺陷检测。'
-            }
-          }
-          return algo
-        })
-      }
+      const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
       this.algoList = aiAbilityAlgorithms
     } catch (e) {
       this.$alertError(e && e.message)
