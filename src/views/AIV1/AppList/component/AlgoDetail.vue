@@ -3,6 +3,9 @@
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
+        <el-link v-if="ifShow('10038')" style="margin-left:20px" @mouseover.native="showPic" @mouseout.native="hidePic">
+          查看示例
+        </el-link>
       </el-form-item>
       <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
@@ -344,6 +347,9 @@
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
+    <div v-if="dialogVisible" class="dialog">
+      <img src="@/views/AIV1/assets/img/concret.png" alt="">
+    </div>
   </el-card>
 </template>
 <script lang='ts'>
@@ -404,7 +410,7 @@ export default class extends Mixins(AppMixin) {
     alertPeriod: 's',
     alertSilencePeriod: 's'
   }
-
+  private dialogVisible = false
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
@@ -703,6 +709,15 @@ export default class extends Mixins(AppMixin) {
     })
     window.open(addr.href, '_blank')
   }
+
+  private showPic(){
+      this.dialogVisible = true
+
+  }
+
+  private hidePic(){
+      this.dialogVisible = false
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -884,6 +899,24 @@ export default class extends Mixins(AppMixin) {
 .clothes-detect-form-item {
   ::v-deep .el-form-item__error {
     padding-top: 15px;
+  }
+}
+
+.dialog{
+  position: absolute;
+  z-index: 2000;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: #fff;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 100%;
   }
 }
 </style>

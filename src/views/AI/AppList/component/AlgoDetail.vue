@@ -3,6 +3,9 @@
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item v-if="!quickFlag" label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
+        <el-link v-if="ifShow('10038')" style="margin-left:20px" @mouseover.native="showPic" @mouseout.native="hidePic">
+          查看示例
+        </el-link>
       </el-form-item>
       <el-form-item v-if="quickFlag" label="算法类型" prop="algo">
         <el-select v-model="form.algorithmsId" placeholder="请选择算法类型">
@@ -243,6 +246,9 @@
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
+    <div v-if="dialogVisible" class="dialog">
+      <img src="@/views/AI/assets/img/concret.png" alt="">
+    </div>
   </el-card>
 </template>
 <script lang="ts">
@@ -295,6 +301,8 @@ export default class extends Mixins(AppMixin) {
   private frequency = 1
 
   private errorMsg = ''
+
+  private dialogVisible = false
 
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
@@ -653,6 +661,15 @@ export default class extends Mixins(AppMixin) {
   private checkClothesDetectItems(){
       return this.form.algorithmMetadata.clothesDetectItems.length !== 0
   }
+
+  private showPic(){
+      this.dialogVisible = true
+
+  }
+
+  private hidePic(){
+      this.dialogVisible = false
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -746,6 +763,23 @@ export default class extends Mixins(AppMixin) {
   .el-select {
     width: 112px;
     margin-right: 18px;
+  }
+}
+.dialog{
+  position: absolute;
+  z-index: 2000;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: #fff;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 100%;
   }
 }
 // }
