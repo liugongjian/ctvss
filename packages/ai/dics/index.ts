@@ -101,5 +101,7 @@ export const ResourceTemplateInfoCodes =
   '10032',
   '10026',
   '10028',
-  '10033'
+  '10033',
+  '10038'
+
 ]
