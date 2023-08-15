@@ -4,7 +4,6 @@ import { Device } from '@vss/device/type/Device'
 import { getDevice } from '@vss/device/api/device'
 import { getDir } from '@vss/device/api/dir'
 import { DeviceEnum, DeviceTypeEnum, DirectoryTypeEnum, DeviceInTypeEnum } from '../enums/index'
-import { DeviceInType } from '../dicts'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -141,5 +140,11 @@ export default class DeviceMixin extends Vue {
    */
   public async clearDevice() {
     DeviceModule.clearDevice()
+  }
+
+  public getStreamStatus(row: any, index: number) {
+    console.log(row)
+    const streamInfo = row.streams.find(stream => stream.streamNum === index)
+    return streamInfo && streamInfo.streamStatus
   }
 }

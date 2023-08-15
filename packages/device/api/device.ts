@@ -27,7 +27,9 @@ export const getDevices = (params: any): Promise<any> => {
           [DeviceEnum.DeviceVendor]: item.device[DeviceEnum.DeviceVendor],
           [DeviceEnum.IsRoleShared]: item.device[DeviceEnum.IsRoleShared],
           [DeviceEnum.DeviceFrom]: item.device[DeviceEnum.DeviceFrom],
-          [DeviceEnum.CreatedTime]: item[DeviceEnum.CreatedTime]
+          [DeviceEnum.CreatedTime]: item[DeviceEnum.CreatedTime],
+          [DeviceEnum.Streams]: [],
+          [DeviceEnum.DeviceStreamSize]: 1
         }
         const inVideoProtocol = item.videos && item.videos.length && item.videos[0][DeviceEnum.InVideoProtocol]
         const inViidProtocol = item.viids && item.viids.length && item.viids[0][DeviceEnum.InViidProtocol]
@@ -38,6 +40,8 @@ export const getDevices = (params: any): Promise<any> => {
           data[DeviceEnum.OutId] = videoInfo[DeviceEnum.OutId]
           data[DeviceEnum.DeviceInType].push(DeviceInType[DeviceInTypeEnum.Video])
           data[DeviceEnum.InProtocol].push(InVideoProtocol[inVideoProtocol])
+          data[DeviceEnum.Streams] = videoInfo[DeviceEnum.Streams]
+          data[DeviceEnum.DeviceStreamSize] = videoInfo[DeviceEnum.DeviceStreamSize]
           data[DeviceEnum.VideoStatus] = videoInfo[DeviceEnum.DeviceStatus] && videoInfo[DeviceEnum.DeviceStatus][DeviceEnum.IsOnline]
           const streamInfo = videoInfo[DeviceEnum.Streams] ? (videoInfo[DeviceEnum.Streams].length ? (videoInfo[DeviceEnum.Streams].find(
             stream => stream[DeviceEnum.StreamNum] === deviceStreamPullIndex
