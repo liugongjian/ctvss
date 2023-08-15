@@ -209,7 +209,7 @@
                 </div>
                 <div v-for="index of row[deviceEnum.DeviceStreamSize]" v-else :key="index" :label="dicts.DeviceStreamPullIndex[index]">
                   {{ dicts.DeviceStreamPullIndex[index] + ':' }}
-                  <status-badge :status="getStreamStatus(row, index)" />
+                  <status-badge :status="getStreamStatus(row, index) || 'off'" />
                   {{ dicts.StreamStatus[getStreamStatus(row, index)] || '-' }}
                 </div>
                 <!-- <status-badge :status="row[deviceEnum.StreamStatus]" />

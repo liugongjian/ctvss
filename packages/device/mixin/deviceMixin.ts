@@ -143,7 +143,6 @@ export default class DeviceMixin extends Vue {
   }
 
   public getStreamStatus(row: any, index: number) {
-    console.log(row)
     const streamInfo = row.streams.find(stream => stream.streamNum === index)
     return streamInfo && streamInfo.streamStatus
   }
