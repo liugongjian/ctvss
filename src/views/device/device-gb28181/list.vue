@@ -321,7 +321,7 @@
                     停用流
                   </el-dropdown-item>
                   <el-dropdown-item
-                    v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" 
+                    v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)"
                     :command="{ type: 'startDevice', device: scope.row }"
                   >
                     启用流
@@ -333,7 +333,7 @@
                     停止录像
                   </el-dropdown-item>
                   <el-dropdown-item
-                    v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)" 
+                    v-else-if="!isVGroup && checkPermission(['ivs:UpdateDevice'], scope.row)"
                     :command="{ type: 'startRecord', device: scope.row }"
                   >
                     开始录像
