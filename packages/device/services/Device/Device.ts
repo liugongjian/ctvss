@@ -11,7 +11,7 @@ import {
   startRecord,
   stopRecord
 } from '../../api/device'
-
+import { MessageBox } from 'element-ui'
 import ExportExcelTemplate from './DeviceExportTemplate'
 
 /**
@@ -456,13 +456,32 @@ const startOrStopDevice = async function (state, type, data?) {
       const params: any = {
         [DeviceEnum.DeviceId]: data[DeviceEnum.DeviceId]
       }
-      await method(params)
-      state.$message.success(`已通知${methodStr}设备`)
-      // 启停操作为异步操作，过3秒后刷新目录和当前视图
-      setTimeout(() => {
-        state.handleTools(ToolsEnum.RefreshDirectory)
-        state.handleTools(ToolsEnum.RefreshRouterView, 5)
-      }, 3000)
+      if (type === ToolsEnum.StopDevice){
+          MessageBox.confirm(
+            '停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?',
+            '提示',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消'
+            }
+          ).then(async () => {
+            await method(params)
+            state.$message.success(`已通知${methodStr}设备`)
+            // 启停操作为异步操作，过3秒后刷新目录和当前视图
+            setTimeout(() => {
+              state.handleTools(ToolsEnum.RefreshDirectory)
+              state.handleTools(ToolsEnum.RefreshRouterView, 5)
+            }, 3000)
+          })
+      } else {
+        await method(params)
+        state.$message.success(`已通知${methodStr}设备`)
+        // 启停操作为异步操作，过3秒后刷新目录和当前视图
+        setTimeout(() => {
+          state.handleTools(ToolsEnum.RefreshDirectory)
+          state.handleTools(ToolsEnum.RefreshRouterView, 5)
+        }, 3000)
+      }
     } catch (e) {
       state.$message.error(e && e.message)
     }
@@ -516,7 +535,7 @@ const openListDialog = function (getVueComponent, type: string, row?: any) {
     case ToolsEnum.DescribePermission:
       const path: any = state.$route.query.path
       const pathArr = path ? path.split(',') : []
-      
+
       if (row && row.deviceId) {
         const dirPath = pathArr.join('/')
         state.describePermissonDialogData = {

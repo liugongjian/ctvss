@@ -319,6 +319,7 @@
                 v-model="form.pullType"
                 :active-value="1"
                 :inactive-value="2"
+                @change="handleStream"
               />
             </el-form-item>
             <el-form-item

@@ -188,6 +188,7 @@
           v-model="videoForm.deviceStreamAutoPull"
           :active-value="1"
           :inactive-value="2"
+          @change="handleStream"
         />
       </el-form-item>
       <el-form-item
@@ -294,6 +295,7 @@ import Tags from '@vss/device/components/Tags.vue'
 import Resource from '@vss/device/components/Resource/index.vue'
 import ServiceConfig from '@vss/device/components/ServiceConfig/index.vue'
 import * as dicts from '@vss/device/dicts'
+import { MessageBox } from 'element-ui'
 
 @Component({
   name: 'VideoCreateForm',
@@ -425,7 +427,7 @@ export default class extends Vue {
       [DeviceEnum.Tags]: this.videoInfo.tags,
       [DeviceEnum.Resource]: { video: [], aI: [] }
     }
-    
+
     if (this.isEdit) {
       // 编辑模式下RTSP密码不必填
       this.rules.password = []
@@ -532,7 +534,7 @@ export default class extends Vue {
         ...this.videoForm,
         isEdit: this.isEdit,
         isIbox: this.isIbox
-      }, 
+      },
       this.deviceForm.deviceType,
       this.videoForm.inVideoProtocol,
       prop
@@ -657,6 +659,23 @@ export default class extends Vue {
       callback(new Error('子设备数量仅支持16路及以下'))
     } else {
       callback()
+    }
+  }
+
+  private handleStream(state){
+    if (state === 2){
+        MessageBox.confirm(
+          '停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消'
+          }
+        ).then(() => {
+          this.videoForm.deviceStreamAutoPull = 2
+        }).catch(() => {
+          this.videoForm.deviceStreamAutoPull = 1
+        })
     }
   }
 }
