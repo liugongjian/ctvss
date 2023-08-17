@@ -162,9 +162,9 @@
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
         <el-input v-model="form.algorithmMetadata.pedThreshold" />
       </el-form-item>
-      <el-form-item v-if="ifShow('10006')" label="围栏区域">
+      <el-form-item v-if="ifShow('10006','10038')" label="检测区域">
         <el-alert
-          title="围栏区域需在绑定设备后，在设备详情中进行设置。"
+          title="检测区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
           show-icon
           :closable="false"
