@@ -39,6 +39,7 @@ function handleUrlToken() {
 
 export async function initLogin() {
   try {
+    console.log('release-Sprint7-2023 deploy...')
     // 从localstorage中读取选中的业务组
     GroupModule.GetGroupFromLs()
     casService.authCas().then(async(data: any) => {
