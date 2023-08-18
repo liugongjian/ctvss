@@ -270,12 +270,16 @@ export default class extends Mixins(Validate) {
       const dirNode = allNode.filter(node => node.type === 'dir' || node.type === 'platform')
       const deviceNode = allNode.filter(node => node.type === 'ipc' || node.type === 'nvr')
 
-      const { groups } = await validateShareDirs({
+      const { dirs } = await validateShareDirs({
         platformId: this.platformId,
-        groups: dirNode.map(group => ({
-          groupId: group.id,
-          inprotocol: group.inProtocol,
-          dirs: []
+        // groups: dirNode.map(group => ({
+        //   groupId: group.id,
+        //   inprotocol: group.inProtocol,
+        //   dirs: []
+        // }))
+        dirs: dirNode.map(dir => ({
+          dirId: dir.id,
+          dirType: dir.type
         }))
       })
 
@@ -292,7 +296,7 @@ export default class extends Mixins(Validate) {
         this.dirNodeStatus.checked.push(...deviceChekced)
       }
 
-      this.setDirChecked(groups, 'group')
+      this.setDirChecked(dirs, 'group')
 
     } catch (e) {
       this.dirList = []
@@ -302,7 +306,8 @@ export default class extends Mixins(Validate) {
   }
 
   private setDirChecked(groups, type) {
-    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
+    // const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
+    const checkeNodes = groups
     const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
     const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
     const dirTree: any = this.$refs.dirTree
@@ -351,19 +356,21 @@ export default class extends Mixins(Validate) {
     const dirs = await this.getTree(node)
     const dirParam = dirs.filter(item => ['dir', 'platform', 'platformDir', 'nvr'].includes(item.type)).map(dir => ({
       dirId: dir.id,
-      parentDirId: node.level === 1 ? '0' : node.id + '' 
+      // parentDirId: node.level === 1 ? '0' : node.id + '' 
+      type: dir.type
     }))
     if (dirParam.length) {
       try {
-        const { groups } = await validateShareDirs({
+        const { dirs } = await validateShareDirs({
           platformId: this.platformId,
-          groups: [{
-            groupId: node.data.groupId,
-            inprotocol: node.data.inprotocol,
-            dirs: dirParam
-          }]
+          // groups: [{
+          //   groupId: node.data.groupId,
+          //   inprotocol: node.data.inprotocol,
+          //   dirs: dirParam
+          // }]
+          dirs: dirParam
         })
-        this.setDirChecked(groups, 'dir')
+        this.setDirChecked(dirs, 'dir')
 
         // this.tagNvrUnchecked(node, dirs)
         this.resetNvrStatus(node)
