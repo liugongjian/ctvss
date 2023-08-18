@@ -207,6 +207,7 @@ import { dateFormat } from '@/utils/date'
 import ResourceTree from './components/ResourceTree.vue'
 import DestinationsTree from './components/DestinationsTree.vue'
 import { pick } from 'lodash'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'notification-policy-create-or-update',

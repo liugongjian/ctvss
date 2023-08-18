@@ -76,6 +76,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { INotifictionPolicy } from '@/type/Notification'
 import { dateFormatInTable } from '@/utils/date'
 import { toggleNotificationPolicyStatus, getNotificationPolicyList, deleteNotificationPolicy } from '@/api/notification'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ai-template',
