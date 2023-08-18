@@ -252,7 +252,6 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_TAGS(userInfo.tags)
       // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isCarShow: 'true' })
       // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, customClothModel: 'Y' })
-      // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, 'isIndustrialDetection': 'Y' })
       // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isLianZhouEdu: 'Y' })
       // this.SET_MAIN_USER_TAGS({ ...userInfo.tags, isRecordLockAvailable: 'Y' })   // 录像锁定 ---  本地测试用
       this.SET_VERSION(userInfo.overrideApiVersion === 'v2' ? 2 : 1)

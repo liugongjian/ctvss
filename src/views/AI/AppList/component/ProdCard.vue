@@ -1,7 +1,7 @@
 <template>
   <el-card shadow="hover">
     <div class="pic-wrapper">
-      <el-image :src="require(`../../assets/icon/${prod.newCode || prod.code}.svg`)" />
+      <el-image :src="require(`../../assets/icon/${prod.code}.svg`)" />
     </div>
     <div class="content-wrapper">
       <div class="prod__name">{{ prod.name }}</div>

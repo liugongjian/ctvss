@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="17px" height="17px" viewBox="0 0 17 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>水泥表面缺陷检测</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon6.20" transform="translate(-384.000000, -149.000000)" fill="#000000">
+            <g id="水泥表面缺陷检测" transform="translate(384.000000, 149.000000)">
+                <path d="M17,0 L17,17 L0,17 L0,0 L17,0 Z M16.4037866,0.628924947 L0.620677036,0.628924947 L0.620677036,16.4301635 L16.4037866,16.4301635 L16.4037866,0.628924947 Z" id="形状结合"></path>
+                <path d="M15,2 L15,15 L2,15 L2,2 L15,2 Z M14,3 L10.74,3 L9.71197334,4.83337676 L12.7432512,6.5094014 L13.137,6.72337089 L10.3880937,11.3415804 L12.1414403,7.11565698 L8.91244887,5.46025517 L8.34781443,5.22844619 L8.63747771,4.52413868 L9.326,3 L3,3 L3,14 L14,14 L14,3 Z" id="形状结合"></path>
+            </g>
+        </g>
+    </g>
+</svg>

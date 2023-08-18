@@ -7,7 +7,7 @@
           <svg-icon :name="alertIcon[item.level]" />
           {{ alertLevel[item.level] }}
         </div>
-        <div class="alert-list__type">{{ isIndustrialDetection && (item.event === '37' || item.event === '10037') ? '工业缺陷检测' : alertType[item.event] }}</div>
+        <div class="alert-list__type">{{ alertType[item.event] }}</div>
         <div class="alert-list__datetime">{{ item.formatedTime }}</div>
       </li>
     </ul>
@@ -25,7 +25,6 @@ import { getAuditList } from '@/api/dashboard'
 import { dateFormat, getTimestamp } from '@/utils/date'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardAlertLive',
@@ -52,10 +51,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private get container() {
     return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
-  }
-
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
   }
 
   private mounted() {

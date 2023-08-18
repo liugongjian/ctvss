@@ -3,6 +3,9 @@
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item v-if="!quickFlag" label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
+        <el-link v-if="ifShow('10038')" style="margin-left:20px" @mouseover.native="showPic" @mouseout.native="hidePic">
+          查看示例
+        </el-link>
       </el-form-item>
       <el-form-item v-if="quickFlag" label="算法类型" prop="algo">
         <el-select v-model="form.algorithmsId" placeholder="请选择算法类型">
@@ -95,7 +98,7 @@
       <!-- 算法定制项--meta数据，考虑单独提取组件 -->
       <component
         :is="formComponent"
-        v-if="formComponent && form && (!ifShow('10037') || ifShow('10037') && !isIndustrialDetection)"
+        v-if="formComponent && form"
         :form="form"
         :error="errorMsg"
       />
@@ -243,6 +246,9 @@
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
+    <div v-if="dialogVisible" class="dialog">
+      <img src="@/views/AI/assets/img/concret.png" alt="">
+    </div>
   </el-card>
 </template>
 <script lang="ts">
@@ -255,7 +261,6 @@ import { FormRef } from '@vss/ai/dics'
 import AlgoConfigs from '@vss/ai/component/AlgoConfig'
 import { formRule, formTips } from '@vss/ai/util/form-helper'
 import { getAlgorithmList } from '@/api/ai-app'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'AlgoDetail',
@@ -296,6 +301,8 @@ export default class extends Mixins(AppMixin) {
   private frequency = 1
 
   private errorMsg = ''
+
+  private dialogVisible = false
 
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
@@ -358,21 +365,11 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   private async mounted() {
     if (this.$route.query.id) {
       // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求
-        if (this.form.algorithm.name === '城市治理') {
-          this.form.algorithm.name = '工业缺陷检测'
-        }
-      }
       this.$set(this.form, 'algoName', this.form.algorithm.name)
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
@@ -559,10 +556,6 @@ export default class extends Mixins(AppMixin) {
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
-    // 工业缺陷检测算法需求
-    if (this.isIndustrialDetection && (this.prod?.code === '37' || this.prod?.code === '10037')) {
-      algorithmMetadata.cityGovType = ['daoluposun']
-    }
     Object.keys(algorithmMetadata).forEach(
       (key) => algorithmMetadata[key] === '' && delete algorithmMetadata[key]
     )
@@ -668,6 +661,15 @@ export default class extends Mixins(AppMixin) {
   private checkClothesDetectItems(){
       return this.form.algorithmMetadata.clothesDetectItems.length !== 0
   }
+
+  private showPic(){
+      this.dialogVisible = true
+
+  }
+
+  private hidePic(){
+      this.dialogVisible = false
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -761,6 +763,23 @@ export default class extends Mixins(AppMixin) {
   .el-select {
     width: 112px;
     margin-right: 18px;
+  }
+}
+.dialog{
+  position: absolute;
+  z-index: 2000;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: #fff;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 100%;
   }
 }
 // }

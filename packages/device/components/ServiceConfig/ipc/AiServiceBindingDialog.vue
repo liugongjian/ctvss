@@ -80,7 +80,6 @@ import { BillingEnum, BillingModeEnum, ResourceTypeEnum } from '@vss/device/enum
 import BillingModeSelector from '../components/BillingModeSelector.vue'
 import { getAppList, getAbilityList } from '@vss/ai/api'
 import { ResourceAiType } from '@vss/ai/dics/app'
-import { UserModule } from '@/store/modules/user'
 @Component({
   name: 'IpcAiServiceBindingDialog',
   components: {
@@ -174,10 +173,6 @@ export default class extends Vue {
     }
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   /**
    * 查询应用列表
    */
@@ -190,15 +185,6 @@ export default class extends Vue {
       })
       const resArray = await Promise.all(promiseArray)
       this.tabInfo.forEach((info, index) => {
-        if (this.isIndustrialDetection) {
-          // 工业缺陷检测算法需求
-          resArray[index]['aiApps'] = resArray[index]['aiApps'].map((aiApp) => {
-            if (aiApp.algorithm.name === '城市治理') {
-              aiApp.algorithm.name = '工业缺陷检测'
-            }
-            return aiApp
-          })
-        }
         this.aiAppsBaseObj[info.id] = resArray[index]['aiApps']
       })
     } catch (e) {

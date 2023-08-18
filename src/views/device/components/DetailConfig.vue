@@ -375,10 +375,6 @@ export default class extends Vue {
     return (UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou') && (['ipc'].indexOf(this.deviceType) === -1)
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   /**
    * 获取录制模板
    */
@@ -490,15 +486,6 @@ export default class extends Vue {
         pageSize: 999
       }
       const algoListResult = await getAppList(param)
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求
-        algoListResult.aiApps = algoListResult.aiApps.map((aiApp) => {
-          if (aiApp.algorithm.name === '城市治理') {
-            aiApp.algorithm.name = '工业缺陷检测'
-          }
-          return aiApp
-        })
-      }
       this.algoListData = algoListResult.aiApps
     } catch (e) {
       if (e && e.code !== 5) {
@@ -644,6 +631,7 @@ export default class extends Vue {
       case '10035':
       case '10036':
       case '10037':
+      case '10038':
         return true
       default:
         return false

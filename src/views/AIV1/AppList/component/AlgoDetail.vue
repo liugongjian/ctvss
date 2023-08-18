@@ -3,6 +3,9 @@
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
+        <el-link v-if="ifShow('10038')" style="margin-left:20px" @mouseover.native="showPic" @mouseout.native="hidePic">
+          查看示例
+        </el-link>
       </el-form-item>
       <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
@@ -159,9 +162,9 @@
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
         <el-input v-model="form.algorithmMetadata.pedThreshold" />
       </el-form-item>
-      <el-form-item v-if="ifShow('10006')" label="围栏区域">
+      <el-form-item v-if="ifShow('10006','10038')" label="检测区域">
         <el-alert
-          title="围栏区域需在绑定设备后，在设备详情中进行设置。"
+          title="检测区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
           show-icon
           :closable="false"
@@ -186,7 +189,7 @@
         </el-checkbox-group>
       </el-form-item>
       <!-- 城市治理监测 -->
-      <el-form-item v-if="ifShow('10037') && !isIndustrialDetection" label="细分检测项" prop="algorithmMetadata.cityGovType">
+      <el-form-item v-if="ifShow('10037')" label="细分检测项" prop="algorithmMetadata.cityGovType">
         <el-select v-model="form.algorithmMetadata.cityGovType" multiple class="city-gov-type">
           <el-option v-for="type in CityGovType" :key="type.label" :value="type.label" :label="type.cname" />
         </el-select>
@@ -344,6 +347,9 @@
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
+    <div v-if="dialogVisible" class="dialog">
+      <img src="@/views/AIV1/assets/img/concret.png" alt="">
+    </div>
   </el-card>
 </template>
 <script lang='ts'>
@@ -404,7 +410,7 @@ export default class extends Mixins(AppMixin) {
     alertPeriod: 's',
     alertSilencePeriod: 's'
   }
-
+  private dialogVisible = false
   get analyseAiType() {
     const res = Object.assign({}, ResourceAiType)
     if (this.ifShow('10019')) {
@@ -421,20 +427,10 @@ export default class extends Mixins(AppMixin) {
     return res.length > 0
   }
 
-  public get isIndustrialDetection() {
-    return UserModule.tags && UserModule.tags.isIndustrialDetection && UserModule.tags.isIndustrialDetection === 'Y'
-  }
-
   private async mounted() {
     if (this.$route.query.id) { // 编辑
       const id = this.$route.query.id
       this.form = await getAppInfo({ id })
-      if (this.isIndustrialDetection) {
-        // 工业缺陷检测算法需求
-        if (this.form.algorithm.name === '城市治理') {
-          this.form.algorithm.name = '工业缺陷检测'
-        }
-      }
       this.$set(this.form, 'algoName', this.form.algorithm.name)
       if (this.form.callbackKey.length === 0) {
         this.$set(this.form, 'validateType', '无验证')
@@ -611,10 +607,6 @@ export default class extends Mixins(AppMixin) {
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
     const algorithmMetadata = this.form.algorithmMetadata
-    // 工业缺陷检测算法需求
-    if (this.isIndustrialDetection && (this.prod?.code === '37' || this.prod?.code === '10037')) {
-      algorithmMetadata.cityGovType = ['daoluposun']
-    }
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
       algorithmMetadata.faceRatio = '0.7'
@@ -716,6 +708,15 @@ export default class extends Mixins(AppMixin) {
       name: 'facelib'
     })
     window.open(addr.href, '_blank')
+  }
+
+  private showPic(){
+      this.dialogVisible = true
+
+  }
+
+  private hidePic(){
+      this.dialogVisible = false
   }
 }
 </script>
@@ -898,6 +899,24 @@ export default class extends Mixins(AppMixin) {
 .clothes-detect-form-item {
   ::v-deep .el-form-item__error {
     padding-top: 15px;
+  }
+}
+
+.dialog{
+  position: absolute;
+  z-index: 2000;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  background: #fff;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 100%;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <el-form-item label="围栏区域">
+  <el-form-item label="检测区域">
     <el-alert
-      title="围栏区域需在绑定设备后，在设备详情中进行设置。"
+      title="检测区域需在绑定设备后，在设备详情中进行设置。"
       type="info"
       show-icon
       :closable="false"
