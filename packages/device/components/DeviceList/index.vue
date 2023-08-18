@@ -193,7 +193,7 @@
               :key="deviceEnum.StreamStatus"
               :column-key="deviceEnum.StreamStatus"
               :prop="deviceEnum.StreamStatus"
-              min-width="110"
+              min-width="130"
               :filters="filtersArray[deviceEnum.StreamStatus]"
               :filter-multiple="false"
               :filtered-value="[filterForm[deviceEnum.StreamStatus]]"
@@ -203,8 +203,17 @@
                 <svg-icon class="filter" name="filter" width="15" height="15" />
               </template>
               <template slot-scope="{ row }">
-                <status-badge :status="row[deviceEnum.StreamStatus]" />
-                {{ streamStatus[row[deviceEnum.StreamStatus]] || '-' }}
+                <div v-if="row[deviceEnum.DeviceStreamSize] === 1">
+                  <status-badge :status="row[deviceEnum.StreamStatus]" />
+                  {{ streamStatus[row[deviceEnum.StreamStatus]] || '-' }}
+                </div>
+                <div v-for="index of row[deviceEnum.DeviceStreamSize]" v-else :key="index" :label="dicts.DeviceStreamPullIndex[index]">
+                  {{ dicts.DeviceStreamPullIndex[index] + ':' }}
+                  <status-badge :status="getStreamStatus(row, index) || 'off'" />
+                  {{ dicts.StreamStatus[getStreamStatus(row, index)] || '-' }}
+                </div>
+                <!-- <status-badge :status="row[deviceEnum.StreamStatus]" />
+                {{ streamStatus[row[deviceEnum.StreamStatus]] || '-' }} -->
               </template>
             </el-table-column>
             <el-table-column

@@ -695,7 +695,12 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
         if (command.device.inProtocol === 'ehome') {
           command.device.streamNum = command.num
         }
-        this.stopDevice(command.device)
+        this.$confirm('停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(async () => {
+          this.stopDevice(command.device)
+        })
         break
       case 'startRecord':
         this.startRecord(command.device)

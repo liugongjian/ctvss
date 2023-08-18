@@ -18,22 +18,21 @@ import settings from '@/settings'
   }
 })
 export default class CreateMixin extends Vue {
-  @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
+  @Inject({ from: 'deviceRouter', default: null })
+  public deviceRouter!: Function
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
   public activeStep = 0
   public activeTabPane = 'video'
-  public tabPaneList = [
-    { label: '视频接入', name: 'video' }
-  ]
+  public tabPaneList = [{ label: '视频接入', name: 'video' }]
 
   public form: any = {}
   public resourcesMapping: any = {}
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
   public inNetworkType = ''
-  public deviceGbId: string = ''
-  public formExpand: boolean = false
-  public ifUseDeviceName: boolean = false
+  public deviceGbId = ''
+  public formExpand = false
+  public ifUseDeviceName = false
 
   public loading = {
     account: false,
@@ -42,7 +41,15 @@ export default class CreateMixin extends Vue {
 
   public submitting = false
 
-  public deviceVendorList = ['海康', '大华', '宇视', '科达', '金三立', '华为', '其他']
+  public deviceVendorList = [
+    '海康',
+    '大华',
+    '宇视',
+    '科达',
+    '金三立',
+    '华为',
+    '其他'
+  ]
   // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
@@ -60,22 +67,18 @@ export default class CreateMixin extends Vue {
   }
 
   public ga1400Rules = {
-    apeType: [
-      { required: true, message: '请选择设备类型', trigger: 'change' }
-    ],
-    certId: [
-      { required: true, message: '请选择账号', trigger: 'change' }
-    ],
-    ipAddr: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    port: [
-      { validator: this.validateDevicePort, trigger: 'blur' }
-    ]
+    apeType: [{ required: true, message: '请选择设备类型', trigger: 'change' }],
+    certId: [{ required: true, message: '请选择账号', trigger: 'change' }],
+    ipAddr: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
+    port: [{ validator: this.validateDevicePort, trigger: 'blur' }]
   }
 
   public get isLiuzhou() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+    return (
+      UserModule.tags &&
+      UserModule.tags.privateUser &&
+      UserModule.tags.privateUser === 'liuzhou'
+    )
   }
 
   public get currentGroup() {
@@ -91,11 +94,15 @@ export default class CreateMixin extends Vue {
   }
 
   public get inProtocolUpper() {
-    return this.$route.query.inProtocol ? this.$route.query.inProtocol.toString().toLocaleUpperCase() : ''
+    return this.$route.query.inProtocol
+      ? this.$route.query.inProtocol.toString().toLocaleUpperCase()
+      : ''
   }
 
   public get deviceId() {
-    return this.$route.query.deviceId ? this.$route.query.deviceId.toString() : ''
+    return this.$route.query.deviceId
+      ? this.$route.query.deviceId.toString()
+      : ''
   }
 
   public get dirId() {
@@ -107,7 +114,13 @@ export default class CreateMixin extends Vue {
   }
 
   public get isChannel() {
-    return this.$route.query.isChannel === 'true' || this.form.deviceClass === 'channel' || (!this.form.deviceClass && this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
+    return (
+      this.$route.query.isChannel === 'true' ||
+      this.form.deviceClass === 'channel' ||
+      (!this.form.deviceClass &&
+        this.form.parentDeviceId &&
+        this.form.parentDeviceId !== '-1')
+    )
   }
 
   public get breadcrumb() {
@@ -116,7 +129,9 @@ export default class CreateMixin extends Vue {
 
   public get isPrivateInNetwork() {
     // 移植到这里统一判断
-    return this.inNetworkType ? this.inNetworkType !== 'public' : this.currentGroup?.inNetworkType !== 'public'
+    return this.inNetworkType
+      ? this.inNetworkType !== 'public'
+      : this.currentGroup?.inNetworkType !== 'public'
   }
 
   public get isFreeUser() {
@@ -129,7 +144,11 @@ export default class CreateMixin extends Vue {
 
   // 隐藏资源包配置
   public get disableResourceTab() {
-    return UserModule.tags && UserModule.tags.privateUser && UserModule.tags.privateUser === 'liuzhou'
+    return (
+      UserModule.tags &&
+      UserModule.tags.privateUser &&
+      UserModule.tags.privateUser === 'liuzhou'
+    )
   }
 
   private get breadCrumbContent() {
@@ -166,7 +185,16 @@ export default class CreateMixin extends Vue {
       this.activeStep = val
     } else {
       const form: any = this.$refs.dataForm
-      const validArr = ['deviceName', 'deviceType', 'gbVersion', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
+      const validArr = [
+        'deviceName',
+        'deviceType',
+        'gbVersion',
+        'deviceVendor',
+        'industryCode',
+        'networkCode',
+        'gbRegion',
+        'longlat'
+      ]
       let valid = true
       form.validateField(validArr, (err) => {
         if (err !== '') {
@@ -191,7 +219,7 @@ export default class CreateMixin extends Vue {
     this.$confirm('是否添加"视图接入"', '添加接入类型', {
       confirmButtonText: '确定',
       cancelButtonText: '取消'
-    }).then(async() => {
+    }).then(async () => {
       this.activeTabPane = 'view'
       this.tabPaneList.push({ label: '视图接入', name: 'view' })
     })
@@ -212,8 +240,9 @@ export default class CreateMixin extends Vue {
     const perms = userState.perms
     const privateUserTag = userState.tags.privateUser || ''
     const denyPerms = settings.privateDenyPerms[privateUserTag] || []
-    if (denyPerms.includes('DescribeViid') ||
-        (!perms.includes('*') && !perms.includes('DescribeViid'))
+    if (
+      denyPerms.includes('DescribeViid') ||
+      (!perms.includes('*') && !perms.includes('DescribeViid'))
     ) {
       return false
     }
@@ -251,7 +280,9 @@ export default class CreateMixin extends Vue {
     if (!this.isUpdate) {
       this.form.gbRegion = this.currentGroup!.gbRegion
       this.form.gbRegionLevel = this.currentGroup!.gbRegionLevel
-      if (Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1) {
+      if (
+        Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1
+      ) {
         this.form.industryCode = this.currentGroup!.industryCode
         this.form.industryCode = this.currentGroup!.industryCode
         this.form.networkCode = this.currentGroup!.networkCode
@@ -270,7 +301,9 @@ export default class CreateMixin extends Vue {
       if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
         list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
       }
-      if (Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1) {
+      if (
+        Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1
+      ) {
         this.form.networkCode = this.currentGroup!.networkCode
       }
     }
@@ -287,7 +320,11 @@ export default class CreateMixin extends Vue {
   /*
    * 获取绑定资源包列表
    */
-  public async getDeviceResources(deviceId: number, deviceType: string, inProtocol: string) {
+  public async getDeviceResources(
+    deviceId: number,
+    deviceType: string,
+    inProtocol: string
+  ) {
     try {
       const resourcesRes = await getDeviceResources({
         deviceId: deviceId,
@@ -296,7 +333,9 @@ export default class CreateMixin extends Vue {
       })
       this.inNetworkType = resourcesRes.inNetworkType
       this.form.resources = resourcesRes.resources
-      this.orginalResourceIdList = resourcesRes.resources.map((resource: any) => resource.resourceId)
+      this.orginalResourceIdList = resourcesRes.resources.map(
+        (resource: any) => resource.resourceId
+      )
     } catch (e) {
       throw new Error(e)
     }
@@ -307,8 +346,28 @@ export default class CreateMixin extends Vue {
    */
   public onPullTypeChange(payload: number) {
     console.log(payload)
+    this.handleStream(payload)
     if (!this.form.autoStreamNum && payload === 1) {
       this.form.autoStreamNum = 1
+    }
+  }
+
+  public handleStream(state) {
+    if (state === 2) {
+      this.$confirm(
+        '停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }
+      )
+        .then(() => {
+          this.form.pullType = 2
+        })
+        .catch(() => {
+          this.form.pullType = 1
+        })
     }
   }
 
@@ -359,14 +418,15 @@ export default class CreateMixin extends Vue {
     form.validate((valid: any) => {
       if (valid) {
         const ga1400Form: any = this.$refs.ga1400Form
-        this.tabPaneList.length !== 1 && ga1400Form.validate((ga1400Valid: any) => {
-          if (ga1400Valid) {
-            // TODO
-          } else {
-            this.activeTabPane = 'view'
-            valid = false
-          }
-        })
+        this.tabPaneList.length !== 1 &&
+          ga1400Form.validate((ga1400Valid: any) => {
+            if (ga1400Valid) {
+              // TODO
+            } else {
+              this.activeTabPane = 'view'
+              valid = false
+            }
+          })
         if (!valid) return
         // 判断通道数量的变化
         const alertMsg = []
@@ -401,7 +461,12 @@ export default class CreateMixin extends Vue {
             alertMsg.push(resource.msg)
           }
         }
-        if (!this.disableResourceTab && !this.isFreeUser && this.isUpdate && alertMsg.length) {
+        if (
+          !this.disableResourceTab &&
+          !this.isFreeUser &&
+          this.isUpdate &&
+          alertMsg.length
+        ) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',
@@ -417,7 +482,7 @@ export default class CreateMixin extends Vue {
             showCancelButton: true,
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            beforeClose: async(action: any, instance: any, done: Function) => {
+            beforeClose: async (action: any, instance: any, done: Function) => {
               if (action === 'confirm') {
                 instance.confirmButtonLoading = true
                 instance.confirmButtonText = '提交中...'
@@ -451,7 +516,11 @@ export default class CreateMixin extends Vue {
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{2,64}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'))
+      callback(
+        new Error(
+          '设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'
+        )
+      )
     } else if (/^[\s]|[\s]$/.test(value)) {
       callback(new Error('不能以空格作为名称的首尾。'))
     } else {
@@ -463,7 +532,12 @@ export default class CreateMixin extends Vue {
    * 校验设备IP格式
    */
   public validateDeviceIp(rule: any, value: string, callback: Function) {
-    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+    if (
+      value &&
+      !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(
+        value
+      )
+    ) {
       callback(new Error('设备IP格式不正确'))
     } else {
       callback()
@@ -476,9 +550,17 @@ export default class CreateMixin extends Vue {
   public validateLonglat(rule: any, value: string, callback: Function) {
     if (!this.form.deviceLongitude || !this.form.deviceLatitude) {
       callback(new Error('请填写经度及纬度坐标'))
-    } else if (!/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(this.form.deviceLongitude)) {
+    } else if (
+      !/^[-+]?(0(\.\d{1,14})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(
+        this.form.deviceLongitude
+      )
+    ) {
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(this.form.deviceLatitude)) {
+    } else if (
+      !/^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(
+        this.form.deviceLatitude
+      )
+    ) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()
@@ -489,8 +571,15 @@ export default class CreateMixin extends Vue {
    * 校验设备Domain格式
    */
   public validateDeviceDomain(rule: any, value: string, callback: Function) {
-    if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
-      callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
+    if (
+      value &&
+      !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(
+        value
+      )
+    ) {
+      callback(
+        new Error('设备域名格式不正确。正确域名格式例如: www.domain.com')
+      )
     } else {
       callback()
     }
@@ -505,10 +594,15 @@ export default class CreateMixin extends Vue {
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
       // 剩余可接入设备数
-      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
-      const devicesCount = this.form.deviceType === 'ipc' ? 1 : this.form.channelSize
+      const remainDeviceCount = parseInt(
+        this.resourcesMapping[resource.resourceId] &&
+          this.resourcesMapping[resource.resourceId].remainDeviceCount
+      )
+      const devicesCount =
+        this.form.deviceType === 'ipc' ? 1 : this.form.channelSize
       // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
-      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
+      const isChanged =
+        this.orginalResourceIdList.indexOf(resource.resourceId) === -1
       switch (resource.resourceType) {
         case 'VSS_VIDEO':
           hasVideo = true
@@ -526,13 +620,15 @@ export default class CreateMixin extends Vue {
       }
     })
     if (remainError.length) {
-      callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('资源包必须配置视频包与上行带宽包'))
+      callback(
+        new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`)
+      )
+      // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+      //   callback(new Error('资源包必须配置视频包与上行带宽包'))
     } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
       callback(new Error('必须配置视频包'))
-    // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-    //   callback(new Error('必须配置上行带宽包'))
+      // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+      //   callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
     }
@@ -572,7 +668,9 @@ export default class CreateMixin extends Vue {
    * 获取是否使用设备名称
    */
   public setIfUseDeviceName() {
-    const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    const temp = this.$store.state.user.userConfigInfo.find(
+      (item: any) => item.key === 'enableCloudChannelName'
+    )
     const ifUse = temp.value === 'true'
     this.ifUseDeviceName = ifUse
   }

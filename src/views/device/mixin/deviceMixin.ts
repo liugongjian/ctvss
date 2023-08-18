@@ -115,8 +115,22 @@ export default class DeviceMixin extends Vue {
         inType: device.inType,
         streamNum: device.streamNum
       }
-      await stopDevice(params)
-      this.$message.success('已通知停用设备')
+      this.$confirm(
+        '停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }
+      ).then(async () => {
+        try {
+          await stopDevice(params)
+          this.$message.success('已通知停用设备')
+          } catch (e){
+            this.$message.error(e && e.message)
+          }
+      })
+
       return true
     } catch (e) {
       this.$message.error(e && e.message)
