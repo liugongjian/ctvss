@@ -247,17 +247,7 @@ export default class extends Vue {
                                           this.form.viidStatusKeys.length ||
                                           this.form.streamStatusKeys.length ||
                                           this.form.inProtocolKey ||
-                                          this.form.deviceAddresses.code)
-    // 针对video-only做特殊处理
-    if (this.form.revertSearchFlag && this.videoOnly && !query.inProtocolKey) {
-      this.form.inProtocolKey = 'video'
-      this.$router.push({
-        query: {
-          ...this.$route.query,
-          inProtocolKey: 'video'
-        }
-      })
-    }                                     
+                                          this.form.deviceAddresses.code)                                  
     this.form.revertSearchFlag ? this.$emit('search', this.form) : this.revertSearchResult()
   }
 

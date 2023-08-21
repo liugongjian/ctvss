@@ -48,6 +48,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.11.0",
     "echarts": "^4.6.0",
+    "element-ui": "2.15.5",
     "eslint-plugin-vue": "^9.4.0",
     "exceljs": "^4.2.1",
     "export-to-csv": "^0.2.1",
@@ -62,6 +63,7 @@
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
     "path-to-regexp": "^6.1.0",
+    "phantomjs-prebuilt": "^2.1.16",
     "postcss-scss": "^4.0.3",
     "simple-progress-webpack-plugin": "^1.1.2",
     "stylelint-config-standard": "^25.0.0",
@@ -78,8 +80,7 @@
     "vue2-timepicker": "^1.1.6",
     "vuex": "^3.1.2",
     "vuex-module-decorators": "^0.16.1",
-    "xlsx": "^0.15.5",
-    "element-ui": "2.15.5"
+    "xlsx": "^0.15.5"
   },
   "devDependencies": {
     "@babel/compat-data": "^7.11.0",
