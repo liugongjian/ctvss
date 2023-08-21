@@ -130,7 +130,6 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
     method: 'get',
     params: {
       outNetwork: UserModule.outNetwork || undefined,
-      filterColumn: 'endTime',
       ...params
     },
     cancelToken

@@ -200,7 +200,7 @@ export class RecordManager {
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
         // 考虑锁状态的更替
-        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1 && records.isLock === records[0].isLock) return 
+        if (this.recordList.findIndex(record => record.startTime === records[0].startTime) > -1 && records.isLock === records[0].isLock) return
         if (date > this.currentDate) {
           this.recordList = this.recordList.concat(records)
         } else if (date < this.currentDate) {
@@ -353,7 +353,7 @@ export class RecordManager {
         this.screen.player = null
         // if (!this.localLoading) this.screen.isLoading = false
         if (!this.isLoading) {
-          if (!UserModule.iamUserId 
+          if (!UserModule.iamUserId
             || (this.screen.recordType === 0 && this.screen.permission['ivs:GetCloudRecord'].auth)
             || (this.screen.recordType === 1 && this.screen.permission['ivs:GetDeviceRecord'].auth)
           ) {
@@ -460,15 +460,19 @@ export class RecordManager {
     this.axiosSourceList.push(axiosSource)
     startTime = parseInt(startTime + '')
     endTime = parseInt(endTime + '')
-    const res = await getDeviceRecords({
-      deviceId: this.screen.deviceId,
-      inProtocol: this.screen.inProtocol,
-      recordType: this.screen.recordType,
-      startTime,
-      endTime,
-      containsDeleted: containsDeleted || undefined, // 录像锁定已经删除设备查看录像
-      pageSize: 9999
-    }, axiosSource.token)
+    const res = await getDeviceRecords(
+      {
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
+        startTime,
+        endTime,
+        containsDeleted: containsDeleted || undefined, // 录像锁定已经删除设备查看录像
+        pageSize: 9999,
+        filterColumn: this.screen.isCarTask ? 'endTime' : undefined
+      },
+      axiosSource.token
+    )
 
     return res.records.map((record: any, index: number) => {
       /**
