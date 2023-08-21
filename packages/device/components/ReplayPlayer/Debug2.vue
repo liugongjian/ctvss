@@ -29,7 +29,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getDeviceRecords, getDevice } from '@/api/device'
+import { getDeviceRecords, getDevice } from '@vss/device/api/device'
 import { getTimestamp, dateFormat } from '@/utils/date'
 
 @Component({

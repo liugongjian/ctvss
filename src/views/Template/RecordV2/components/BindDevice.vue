@@ -19,9 +19,9 @@
           @check="updateCheckedNum"
         >
           <span
-            slot-scope="{node, data}"
+            slot-scope="{ node, data }"
             class="bind-device-tree"
-            :class="{'has-binded-self': data.bindStatus === 1}"
+            :class="{ 'has-binded-self': data.bindStatus === 1 }"
           >
             <span class="node-name">
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -61,9 +61,9 @@
           <!-- @node-expand="setExpand" -->
           <!-- @node-collapse="setCollapse" -->
           <span
-            slot-scope="{node, data}"
+            slot-scope="{ node, data }"
             class="bind-device-tree"
-            :class="{'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on'}"
+            :class="{ 'has-binded-self': data.bindStatus === 1, 'online': data.deviceStatus === 'on' }"
           >
             <span class="node-name">
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -291,7 +291,7 @@ export default class extends Vue {
   // 已绑定设备勾选状态设置
   private async setChecked(nodes: any, checked?: boolean) {
     if (!Array.isArray(nodes)) {
-      let item = nodes.data || nodes
+      const item = nodes.data || nodes
       this.setNodesChecked(item, checked)
     } else {
       nodes.map((item: any) => {
@@ -387,7 +387,7 @@ export default class extends Vue {
   private async subSubmit() {
     try {
       this.hasBindedNode = false
-      let checkedNodes = this.checkedNodes.filter((item: any) => {
+      const checkedNodes = this.checkedNodes.filter((item: any) => {
         return item.isLeaf
       })
       // 组装 groupId
@@ -412,7 +412,7 @@ export default class extends Vue {
   }
 
   // 关闭 dialog
-  private closeDialog(isBinded: boolean = false) {
+  private closeDialog(isBinded = false) {
     this.$emit('on-close', isBinded)
   }
  
@@ -427,9 +427,9 @@ export default class extends Vue {
     if (!item.isLeaf) {
       if (currentNode.checked) {
         // 选中
-        let testNum = function a(currentNode) {
-          for(let i = 0; i < currentNode.childNodes.length; i++) {
-            if(currentNode.childNodes[i]['isLeaf']){
+        const testNum = function a(currentNode) {
+          for (let i = 0; i < currentNode.childNodes.length; i++) {
+            if (currentNode.childNodes[i]['isLeaf']){
               
               return currentNode.data.totalSize
             } else {
@@ -474,7 +474,7 @@ export default class extends Vue {
 
   // 过滤树
   private filterTree(selectedList: any, data: any) {
-    let res = selectedList.filter((item: any) => {
+    const res = selectedList.filter((item: any) => {
       return item.id === data.id
     })
     return res.length > 0

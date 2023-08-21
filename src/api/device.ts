@@ -130,6 +130,7 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
     method: 'get',
     params: {
       outNetwork: UserModule.outNetwork || undefined,
+      filterColumn: 'endTime',
       ...params
     },
     cancelToken
@@ -281,7 +282,7 @@ export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
 // 视图批量绑定临时联调接口
 export const setViidDeviceRecordTemplateBatch = (params: any): Promise<any> =>
 request({
-  url: '/viid/template/bind/batch', 
+  url: '/viid/template/bind/batch',
   method: 'post',
   data: params
 })
