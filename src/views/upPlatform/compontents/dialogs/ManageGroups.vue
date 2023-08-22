@@ -283,7 +283,6 @@ export default class extends Mixins(Validate) {
         }))
       })
 
-
       let deviceChekced = []
       const { isUsed } = await validateShareDevices({
           platformId: this.platformId,
@@ -299,7 +298,7 @@ export default class extends Mixins(Validate) {
       this.setDirChecked(dirs, 'group')
 
     } catch (e) {
-      this.dirList = []
+      console.log(e)
     } finally {
       this.loading.dir = false
     }
