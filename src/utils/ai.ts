@@ -105,6 +105,7 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '10026':// 垃圾站
     case '35':// 标准工作服检测
     case '10035':// 标准工作服检测
+    case '10038':// 水泥缺陷检测
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           let label

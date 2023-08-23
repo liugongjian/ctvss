@@ -20,7 +20,7 @@
           <span v-if="['4', '10001', '34', '10034','19','10016'].includes(type)">姓名:{{ location.name }}</span>
         </div>
         <div
-          v-if="['29', '10026', '35', '10035'].includes(type)"
+          v-if="['29', '10026', '35', '10035', '10038'].includes(type)"
           class="ai-recognation__images__item__mask__text dustbin"
           :class="{ 'ai-recognation__images__item__mask__text--warning': location.isWarning }"
         >
