@@ -295,7 +295,7 @@ export default class extends Mixins(Validate) {
         this.dirNodeStatus.checked.push(...deviceChekced)
       }
 
-      this.setDirChecked(dirs, 'group')
+      this.setDirChecked(dirs, 'dir')
 
     } catch (e) {
       console.log(e)
@@ -314,6 +314,7 @@ export default class extends Mixins(Validate) {
     checkedIds.forEach(check => {
       this.dirNodeStatus.checked.push(check[type + 'Id'])
     })
+    console.log('halfCheckedIds', halfCheckedIds)
     halfCheckedIds.forEach(half => {
       this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
     })
