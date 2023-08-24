@@ -357,7 +357,7 @@ export default class extends Mixins(Validate) {
     const dirParam = dirs.filter(item => ['dir', 'platform', 'platformDir', 'nvr'].includes(item.type)).map(dir => ({
       dirId: dir.id,
       // parentDirId: node.level === 1 ? '0' : node.id + '' 
-      type: dir.type
+      dirType: dir.type
     }))
     if (dirParam.length) {
       try {
