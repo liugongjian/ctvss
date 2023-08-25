@@ -30,7 +30,7 @@ export const getData = (metaData) => {
         left: box.TopLeftX,
         width: box.BottomRightX - box.TopLeftX,
         height: box.BottomRightY - box.TopLeftY,
-        isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
+        isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others' || box.LabelCh === '工业缺陷',
         label
       }
     } catch (error) {

@@ -150,7 +150,7 @@ export default class extends Vue {
     this.resetData()
     const { onDemandSubscribeStatus } = await getIsOndemand()
     this.subscribeStatus = onDemandSubscribeStatus
-    if (this.subscribeStatus === 0) {
+    if (this.subscribeStatus !== 1) {
       getBillOfOndemand().then((res) => {
         if (res.onDemandResources) {
           res.onDemandResources.forEach((resource) => {

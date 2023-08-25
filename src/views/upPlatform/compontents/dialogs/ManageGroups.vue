@@ -295,7 +295,7 @@ export default class extends Mixins(Validate) {
         this.dirNodeStatus.checked.push(...deviceChekced)
       }
 
-      this.setDirChecked(dirs, 'group')
+      this.setDirChecked(dirs, 'dir')
 
     } catch (e) {
       console.log(e)
@@ -314,6 +314,7 @@ export default class extends Mixins(Validate) {
     checkedIds.forEach(check => {
       this.dirNodeStatus.checked.push(check[type + 'Id'])
     })
+    console.log('halfCheckedIds', halfCheckedIds)
     halfCheckedIds.forEach(half => {
       this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
     })
@@ -356,7 +357,7 @@ export default class extends Mixins(Validate) {
     const dirParam = dirs.filter(item => ['dir', 'platform', 'platformDir', 'nvr'].includes(item.type)).map(dir => ({
       dirId: dir.id,
       // parentDirId: node.level === 1 ? '0' : node.id + '' 
-      type: dir.type
+      dirType: dir.type
     }))
     if (dirParam.length) {
       try {
@@ -369,10 +370,9 @@ export default class extends Mixins(Validate) {
           // }]
           dirs: dirParam
         })
-        this.setDirChecked(dirs, 'dir')
-
-        // this.tagNvrUnchecked(node, dirs)
-        this.resetNvrStatus(node)
+        this.$nextTick(() => {
+          this.setDirChecked(dirs, 'dir')
+        })
       } catch (e){
         console.log(e)
       }
@@ -1152,15 +1152,6 @@ export default class extends Mixins(Validate) {
 
   private clearSelected() {
     this.selectedNode = null
-  }
-
-  // 根据nvr节点的checked状态改变disabled
-  private resetNvrStatus(node) {
-    if (node.data.type === 'nvr') {
-      node.childNodes.forEach(child => {
-        child.checked = child.data.disabled
-      })
-    }
   }
 
   private appendDragInNodes(node) {

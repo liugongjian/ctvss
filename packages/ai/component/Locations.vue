@@ -68,6 +68,10 @@ export default class extends Vue {
     }
   }
 
+  private mounted(){
+    console.log(this.img.locations)
+  }
+
   private clickLocation(locationIndex: number) {
     if (!this.clickable) return
     this.currentIndex = locationIndex
