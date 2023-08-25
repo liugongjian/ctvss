@@ -36,7 +36,7 @@
                         <el-button type="text" @click.stop="editTemplate(template)"><svg-icon name="edit" /></el-button>
                       </el-tooltip> -->
                       <el-tooltip class="item" effect="dark" content="删除模板" placement="top" :open-delay="300">
-                        <el-button :disabled="+template.templateType == 1" type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
+                        <el-button :disabled="+template.templateType === 1" type="text" @click.stop="deleteTemplate(template)"><svg-icon name="trash" /></el-button>
                       </el-tooltip>
                     </div>
                   </li>
@@ -52,7 +52,7 @@
                 <span class="title">模板信息</span>
               </template>
               <template slot="extra">
-                <el-button :disabled="+currentTemplate.templateType == 1" type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
+                <el-button :disabled="+currentTemplate.templateType === 1" type="text" class="btn-edit" @click="editTemplate(currentTemplate)">编辑</el-button>
               </template>
               <el-descriptions-item label="模板名称">{{ renderTemplateInfo.templateName }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">{{ renderTemplateInfo.createdTime }}</el-descriptions-item>
@@ -67,7 +67,7 @@
               </template>
               <el-descriptions-item v-if="handleDevice" colon="false">
                 <!-- <el-descriptions-item colon="false"> -->
-                <el-button type="primary" :disabled="loading.templateDeviceTree" @click="clickBind">+ 绑定设备</el-button>
+                <el-button type="primary" :disabled="loading.templateDeviceTree || (type === 'viid' && isGA1400Trial)" @click="clickBind">+ 绑定设备</el-button>
                 <el-button v-if="type === 'video'" :disabled="loading.templateDeviceTree" @click="delDevice">删除设备</el-button>
               </el-descriptions-item>
             </el-descriptions>
@@ -142,7 +142,7 @@
                 </div>
               </div>
               <!-- 绑定的设备 -->
-              <bind-device v-if="bindDevice" :current-template="currentTemplate" @on-close="bindDialogClose" :type="type" />
+              <bind-device v-if="bindDevice" :current-template="currentTemplate" :type="type" @on-close="bindDialogClose" />
             </div>
           </div>
           <div v-if="createOrUpdateTemplate" class="edit-template">
@@ -177,6 +177,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import BindDevice from './components/BindDeviceV2.vue'
 import CreateOrUpdateTemplate from './components/CreateOrUpdateTemplate.vue'
 import CreateOrUpdateViidTemplate from './components/CreateOrUpdateViidTemplate.vue'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'RecordTemplate',
@@ -257,6 +258,10 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  public get isGA1400Trial() {
+    return UserModule.tags && UserModule.tags.isGA1400Trial === 'Y'
+  }
+
   // 切换页面
   private navigatePage(index) {
     if (index === 'video') {
@@ -273,12 +278,12 @@ export default class extends Vue {
       this.loading.template = true
       this.$nextTick(async() => {
         let res: any = null
-        if(this.type === 'video') {
+        if (this.type === 'video') {
           res = await getRecordTemplates({
             pageSize: 999
           }) // 获取模板列表
         }
-        if(this.type === 'viid') {
+        if (this.type === 'viid') {
           res = await getViidRecordTemplates({
             pageSize: 999
           }) // 获取模板列表
