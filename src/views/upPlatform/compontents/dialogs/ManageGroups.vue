@@ -397,7 +397,6 @@ export default class extends Mixins(Validate) {
             dirId: group.dirId,
             label: group.dirName,
             inProtocol: group.inProtocol,
-            gbId: group.gbId,
             type: this.mode === 'vgroup' ? 'dir' : 'top-group',
             dirType: group.dirType,
             sharedFlag: true,
@@ -410,8 +409,9 @@ export default class extends Mixins(Validate) {
               upGbId: group.gbId || '',
               upGbIdOrigin: group.gbId || ''
             }],
-            upGbId: group.gbId || '',
-            upGbIdOrigin: group.gbId || ''
+            gbId: group.gbId,
+            upGbId: group.upGbId || '',
+            upGbIdOrigin: group.upGbId || ''
           })
         })
       }
@@ -516,8 +516,9 @@ export default class extends Mixins(Validate) {
         sharedFlag: true,
         dragInFlag: false,
         path: node.data.path.concat([dir]),
-        upGbId: dir.gbId || '',
-        upGbIdOrigin: dir.gbId || ''
+        gbId: dir.gbId,
+        upGbId: dir.upGbId || '',
+        upGbIdOrigin: dir.upGbId || ''
       }
     })
     return dirs
@@ -1125,7 +1126,6 @@ export default class extends Mixins(Validate) {
             dirId: group.dirId,
             label: group.dirName,
             inProtocol: group.inProtocol,
-            gbId: group.gbId,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             dirType: group.dirType,
             sharedFlag: true,
@@ -1138,8 +1138,9 @@ export default class extends Mixins(Validate) {
               upGbId: group.gbId || '',
               upGbIdOrigin: group.gbId || ''
             }],
-            upGbId: group.gbId || '',
-            upGbIdOrigin: group.gbId || ''
+            gbId: group.gbId,
+            upGbId: group.upGbId || '',
+            upGbIdOrigin: group.upGbId || ''
           })
         })
       }
