@@ -6,7 +6,7 @@
     >
       <div
         class="ai-recognation__images__item__mask"
-        :class="[{ 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex }]"
+        :class="[{ 'ai-recognation__images__item__mask--warning': isWarning , 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex }]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
@@ -61,7 +61,12 @@ export default class extends Vue {
 
   private imageLabel = ''
 
+  private get isWarning(){
+    return this.img.algoCode === '10038'
+  }
+
   private mounted(){
+    console.log('this.img:', this.img)
     this.getDetectBoxes(this.img)
     this.getImageLabel(this.img)
     this.getDetectArea(this.img)
