@@ -11,7 +11,7 @@
         访问设置
       </el-button>
     </div>
-    <p class="access-restriction__text">开启后，将支持用户在App客户局端登录</p>
+    <p class="access-restriction__text">开启后，将支持用户在App客户端登录</p>
     <div class="access-restriction__status">
       <span class="access-restriction__status-word">状态</span>
       <el-tooltip
