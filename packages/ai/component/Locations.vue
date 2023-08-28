@@ -7,7 +7,7 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{ 'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective }, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{ 'ai-recognation__images__item__mask--warning': location.isWarning || type === '10038', 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective }, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
