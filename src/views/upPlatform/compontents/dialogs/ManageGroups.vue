@@ -270,18 +270,15 @@ export default class extends Mixins(Validate) {
       const dirNode = allNode.filter(node => node.type === 'dir' || node.type === 'platform')
       const deviceNode = allNode.filter(node => node.type === 'ipc' || node.type === 'nvr')
 
-      const { dirs } = await validateShareDirs({
+      const { groups } = await validateShareDirs({
         platformId: this.platformId,
-        // groups: dirNode.map(group => ({
-        //   groupId: group.id,
-        //   inprotocol: group.inProtocol,
-        //   dirs: []
-        // }))
-        dirs: dirNode.map(dir => ({
-          dirId: dir.id,
-          dirType: dir.type
+        groups: dirNode.map(group => ({
+          groupId: group.id,
+          inprotocol: group.inProtocol,
+          dirs: []
         }))
       })
+
 
       let deviceChekced = []
       const { isUsed } = await validateShareDevices({
@@ -295,18 +292,17 @@ export default class extends Mixins(Validate) {
         this.dirNodeStatus.checked.push(...deviceChekced)
       }
 
-      this.setDirChecked(dirs, 'dir')
+      this.setDirChecked(groups, 'group')
 
     } catch (e) {
-      console.log(e)
+      this.dirList = []
     } finally {
       this.loading.dir = false
     }
   }
 
   private setDirChecked(groups, type) {
-    // const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
-    const checkeNodes = groups
+    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
     const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
     const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
     const dirTree: any = this.$refs.dirTree
@@ -314,7 +310,6 @@ export default class extends Mixins(Validate) {
     checkedIds.forEach(check => {
       this.dirNodeStatus.checked.push(check[type + 'Id'])
     })
-    console.log('halfCheckedIds', halfCheckedIds)
     halfCheckedIds.forEach(half => {
       this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
     })
@@ -353,31 +348,29 @@ export default class extends Mixins(Validate) {
   private async loadDirs(node: any, resolve: Function) {
     this.loading.dir = true
     if (node.level === 0) return resolve([])
+
     const dirs = await this.getTree(node)
-    const dirParam = dirs.filter(item => ['dir', 'platform', 'platformDir', 'nvr'].includes(item.type)).map(dir => ({
-      dirId: dir.id,
-      // parentDirId: node.level === 1 ? '0' : node.id + '' 
-      dirType: dir.type
-    }))
-    if (dirParam.length) {
-      try {
-        const { dirs } = await validateShareDirs({
-          platformId: this.platformId,
-          // groups: [{
-          //   groupId: node.data.groupId,
-          //   inprotocol: node.data.inprotocol,
-          //   dirs: dirParam
-          // }]
+
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
+    try {
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: [{
+          groupId: node.data.groupId,
+          inprotocol: node.data.inprotocol,
           dirs: dirParam
-        })
-        this.$nextTick(() => {
-          this.setDirChecked(dirs, 'dir')
-        })
-      } catch (e){
-        console.log(e)
-      }
+        }]
+      })
+      resolve(dirs)
+      this.setDirChecked(groups, 'dir')
+
+      // this.tagNvrUnchecked(node, dirs)
+      this.resetNvrStatus(node)
+    } catch (e){
+      resolve(dirs)
+      console.log(e)
     }
-    resolve(dirs)
     this.loading.dir = false
   }
 
@@ -397,6 +390,7 @@ export default class extends Mixins(Validate) {
             dirId: group.dirId,
             label: group.dirName,
             inProtocol: group.inProtocol,
+            gbId: group.gbId,
             type: this.mode === 'vgroup' ? 'dir' : 'top-group',
             dirType: group.dirType,
             sharedFlag: true,
@@ -409,9 +403,8 @@ export default class extends Mixins(Validate) {
               upGbId: group.gbId || '',
               upGbIdOrigin: group.gbId || ''
             }],
-            gbId: group.gbId,
-            upGbId: group.upGbId || '',
-            upGbIdOrigin: group.upGbId || ''
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
           })
         })
       }
@@ -516,9 +509,8 @@ export default class extends Mixins(Validate) {
         sharedFlag: true,
         dragInFlag: false,
         path: node.data.path.concat([dir]),
-        gbId: dir.gbId,
-        upGbId: dir.upGbId || '',
-        upGbIdOrigin: dir.upGbId || ''
+        upGbId: dir.gbId || '',
+        upGbIdOrigin: dir.gbId || ''
       }
     })
     return dirs
@@ -605,22 +597,19 @@ export default class extends Mixins(Validate) {
       const devices = await getNodeInfo({ type: node.data.type, id: node.data.id, inProtocol: 'video' })
       let shareDeviceIds: any = []
       const paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
-      
-      if (paramNoNvrDevice.some(device => device.type === 'ipc')) {
-        const param = {
-          platformId: this.platformId,
-          devices: paramNoNvrDevice.map(device => ({
-            deviceId: device.id
-          }))
+      const param = {
+        platformId: this.platformId,
+        devices: paramNoNvrDevice.map(device => ({
+          deviceId: device.id
+        }))
+      }
+      try {
+        const res = await validateShareDevices(param)
+        if (res.isUsed) {
+          shareDeviceIds = res.isUsed.map(item => item.deviceId)
         }
-        try {
-          const res = await validateShareDevices(param)
-          if (res.isUsed) {
-            shareDeviceIds = res.isUsed.map(item => item.deviceId)
-          }
-        } catch (e) {
-          console.log(e)
-        }
+      } catch (e) {
+        console.log(e)
       }
       const dirTree: any = this.$refs.dirTree
       const checkedKeys = dirTree.getCheckedKeys()
@@ -1126,6 +1115,7 @@ export default class extends Mixins(Validate) {
             dirId: group.dirId,
             label: group.dirName,
             inProtocol: group.inProtocol,
+            gbId: group.gbId,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             dirType: group.dirType,
             sharedFlag: true,
@@ -1138,9 +1128,8 @@ export default class extends Mixins(Validate) {
               upGbId: group.gbId || '',
               upGbIdOrigin: group.gbId || ''
             }],
-            gbId: group.gbId,
-            upGbId: group.upGbId || '',
-            upGbIdOrigin: group.upGbId || ''
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
           })
         })
       }
@@ -1153,6 +1142,15 @@ export default class extends Mixins(Validate) {
 
   private clearSelected() {
     this.selectedNode = null
+  }
+
+  // 根据nvr节点的checked状态改变disabled
+  private resetNvrStatus(node) {
+    if (node.data.type === 'nvr') {
+      node.childNodes.forEach(child => {
+        child.checked = child.data.disabled
+      })
+    }
   }
 
   private appendDragInNodes(node) {
