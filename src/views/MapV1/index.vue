@@ -512,6 +512,7 @@ export default class extends Mixins(IndexMixin) {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           deviceStreams: dir.deviceStreams,
+          streamStatus: dir.streamStatus,
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
