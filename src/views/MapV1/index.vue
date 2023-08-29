@@ -511,7 +511,7 @@ export default class extends Mixins(IndexMixin) {
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
-          streamStatus: dir.streamStatus,
+          deviceStreams: dir.deviceStreams,
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
