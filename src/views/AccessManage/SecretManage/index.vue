@@ -8,7 +8,7 @@
     >
       <span slot="title">使用提示</span>
       <ul class="alert-desc">
-        <li>API密钥是构建 API 请求的重要凭证。用于您调用智能视图服务API时生成签名，查看<el-link href="https://vaas.ctyun.cn/document/api/RequestMethod/Signature" target="_blank">生成签名算法</el-link></li>
+        <li>API密钥是构建 API 请求的重要凭证。用于您调用智能视图服务API时生成签名，查看<el-link href="https://vaas.ctyun.cn/document/api_v2/RequestMethod/Signature" target="_blank">生成签名算法</el-link></li>
         <li>如果访问密钥泄露，可能造成您的云上资产重大损失。每个访问密钥仅能下载一次，为了帐号安全性，建议您定期更换并妥善保存API密钥。</li>
         <!-- <li>最近使用时间指最近一次使用密钥调用智能视图服务API接口的时间。此时间仅供判断密钥近期是否活跃，以此决定是否要禁用或删除密钥。</li> -->
       </ul>
