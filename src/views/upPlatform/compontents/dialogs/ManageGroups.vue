@@ -1333,10 +1333,7 @@ export default class extends Mixins(Validate) {
   }
 
   &__sub {
-    // flex: 1 0;
-    // display: flex;
-    // justify-content: center;
-    // width: 100%;
+    min-width: 100%;
 
     &__switch {
       height: 36px;
