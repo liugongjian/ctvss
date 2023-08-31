@@ -149,46 +149,46 @@ export const v2Router: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/viid/up-platform'
         }
-      },
-      {
-        path: 'subscribe',
-        component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
-        name: 'ViidSubscribe',
-        meta: {
-          title: '订阅通知',
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/viid/subscribe'
-        }
-      },
-      {
-        path: 'subscribe/create',
-        component: () =>
-          import(
-            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'
-          ),
-        name: 'ViidSubscribeCreate',
-        meta: {
-          title: '添加订阅',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/viid/subscribe'
-        }
-      },
-      {
-        path: 'subscribe/cancel',
-        component: () =>
-          import(
-            /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'
-          ),
-        name: 'ViidSubscribeCancel',
-        meta: {
-          title: '取消订阅',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/viid/subscribe'
-        }
       }
+      // {
+      //   path: 'subscribe',
+      //   component: () => import(/* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/index.vue'),
+      //   name: 'ViidSubscribe',
+      //   meta: {
+      //     title: '订阅通知',
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/viid/subscribe'
+      //   }
+      // },
+      // {
+      //   path: 'subscribe/create',
+      //   component: () =>
+      //     import(
+      //       /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Create.vue'
+      //     ),
+      //   name: 'ViidSubscribeCreate',
+      //   meta: {
+      //     title: '添加订阅',
+      //     hidden: true,
+      //     perms: ['*'],
+      //     activeMenu: '/viid/subscribe'
+      //   }
+      // },
+      // {
+      //   path: 'subscribe/cancel',
+      //   component: () =>
+      //     import(
+      //       /* webpackChunkName: "viid" */ '@/views/VIID/Subscribe/components/Cancel.vue'
+      //     ),
+      //   name: 'ViidSubscribeCancel',
+      //   meta: {
+      //     title: '取消订阅',
+      //     hidden: true,
+      //     perms: ['*'],
+      //     activeMenu: '/viid/subscribe'
+      //   }
+      // }
     ]
   },
   {
