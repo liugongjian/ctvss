@@ -1333,7 +1333,7 @@ export default class extends Mixins(Validate) {
   }
 
   &__sub {
-    min-width: 100%;
+    min-width: 300px;
 
     &__switch {
       height: 36px;
