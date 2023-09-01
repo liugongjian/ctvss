@@ -58,8 +58,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
 import { GB28181 } from '@/type/Certificate'
-import ViewDetails from './components/ViidDetailsDialog.vue'
-// import ViewDetails from './components/ViewDetails.vue'
+import ViewDetails from './components/ViewDetails.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList, getViewLibPlatformDetail } from '@/api/viid'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
