@@ -267,10 +267,14 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   get documentApiUrl() {
+    let api = 'api_v2'
+    if (UserModule.version !== 2) {
+      api = 'api'
+    }
     if (UserModule.tags && UserModule.tags.privateUser) {
-      return '/document/api'
+      return `/document/${api}`
     } else {
-      return 'https://vaas.ctyun.cn/document/api/'
+      return `https://vaas.ctyun.cn/document/${api}/`
     }
   }
 

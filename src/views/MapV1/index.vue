@@ -44,7 +44,7 @@
             >
               <span slot-scope="{ node, data }" class="custom-tree-node" :class="{ 'online': data.deviceStatus === 'on' }" @click.stop.prevent="deviceClick(data)">
                 <span class="node-name">
-                  <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                  <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   <span
                     class="node-label"
@@ -511,6 +511,7 @@ export default class extends Mixins(IndexMixin) {
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
+          deviceStreams: dir.deviceStreams,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),

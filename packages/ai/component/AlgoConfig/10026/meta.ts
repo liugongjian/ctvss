@@ -3,6 +3,7 @@ import { getDangerZone } from '@vss/ai/util/dangerzone'
 export const getData = (metaData) => {
   let locations: Location[] = []
   locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+    console.log('box:', box)
     try {
       let label
       switch (box.Label) {
@@ -30,7 +31,7 @@ export const getData = (metaData) => {
         left: box.TopLeftX,
         width: box.BottomRightX - box.TopLeftX,
         height: box.BottomRightY - box.TopLeftY,
-        isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others' || box.LabelCh === '工业缺陷',
+        isWarning: (box.Score.length > 0 && box.Score > 60) || box.Label === 'others',
         label
       }
     } catch (error) {
