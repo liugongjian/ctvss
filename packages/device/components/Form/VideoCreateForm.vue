@@ -667,7 +667,7 @@ export default class extends Vue {
   private handleStream(state){
     if (state === 2){
         MessageBox.confirm(
-          '停用流后，设备流将立即下线，配置的视频录制和AI分析将不再生效，直到流再次上线。是否确认停用流?',
+          '若关闭自动拉流，只有当播放启动或手动启用流时才开始拉流，流状态在线时才能进行视频录制和AI分析。若您希望流自动上线以确保视频录制和AI分析的有效性，建议开启该选项。',
           '提示',
           {
             confirmButtonText: '确定',
