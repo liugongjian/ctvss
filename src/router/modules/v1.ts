@@ -394,6 +394,42 @@ export const v1Router: RouteConfig[] = [
       {
         path: 'up-platform',
         component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/index0901.vue'),
+        name: 'ViidUpPlatform',
+        meta: {
+          title: '向上级联',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/create',
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create0901.vue'),
+        name: 'ViidUpPlatformCreate',
+        meta: {
+          title: '新建平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/update/:id?',
+        component: () =>
+          import(/* webpackChunkName: "viid" */ '@/views/VIID/Create0901.vue'),
+        name: 'ViidUpPlatformUpdate',
+        meta: {
+          title: '编辑平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/viid/up-platform'
+        }
+      },
+      {
+        path: 'up-platform',
+        component: () =>
           import(/* webpackChunkName: "viid" */ '@/views/VIID/index.vue'),
         name: 'ViidUpPlatform',
         meta: {
