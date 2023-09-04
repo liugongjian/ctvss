@@ -120,10 +120,13 @@ export default class TreeMixin extends Vue {
     this.commonTree.initTree()
   }
 
-  @Watch('rootSumsArray', { deep: true })
+  @Watch('rootSumsArray')
   public rootSumsArrayChange(array) {
-    this.rootSums.onlineSize = array[0]
-    this.rootSums.totalSize = array[1]
+    // 为搜索树时才使用外部传入的数量统计
+    if (!this.lazy) {
+      this.rootSums.onlineSize = array[0]
+      this.rootSums.totalSize = array[1]
+    }
   }
 
   /**
