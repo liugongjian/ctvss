@@ -178,7 +178,7 @@ export default class extends Vue {
         this.queryParam.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        this.queryParam.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
         break
     }
   }
@@ -214,8 +214,8 @@ export default class extends Vue {
       deviceID: this.$route.query.deviceId,
       confidenceMin: this.queryParam.confidence[0] / 100,
       confidenceMax: this.queryParam.confidence[1] / 100,
-      startTime: (startTime / 1000).toFixed(),
-      endTime: (endTime / 1000).toFixed(),
+      startTime: Math.floor(startTime / 1000),
+      endTime: Math.floor(endTime / 1000),
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize,
     }
