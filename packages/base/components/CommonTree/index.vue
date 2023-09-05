@@ -109,9 +109,6 @@ export default class extends Vue {
   @Prop({ default: null })
   private rootKey
 
-  @Prop({ default: null })
-  private defaultKey
-
   @Prop({ default: '' })
   private emptyText
 
@@ -145,6 +142,7 @@ export default class extends Vue {
   private hasRoot = false
   private treeKey: string = 'ct' + new Date().getTime()
   public currentKey = null
+  public defaultKey = null
   public treeLoading = false
 
   private get tree() {
@@ -153,7 +151,7 @@ export default class extends Vue {
   }
 
   private get currentNodeKey() {
-    return this.currentKey === this.rootKey ? null : this.currentKey
+    return (this.currentKey === this.rootKey) ? null : this.currentKey
   }
 
   private mounted() {
@@ -169,14 +167,14 @@ export default class extends Vue {
     this.hasRoot = rootChildren.reduce((pre, cur) => {
       return pre || cur.children.length !== 0
     }, false)
-    this.currentKey = this.rootKey
+    this.currentKey = this.defaultKey || this.rootKey
   }
 
   /**
    * 初始化树
    */
   private initTree() {
-    this.currentKey = this.rootKey
+    this.currentKey = this.defaultKey || this.rootKey
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
   }
@@ -260,7 +258,7 @@ export default class extends Vue {
   }
 
   private setCurrentKey(key) {
-    this.currentKey = key
+    this.defaultKey = key
     return this.tree.setCurrentKey(this.currentNodeKey)
   }
 
