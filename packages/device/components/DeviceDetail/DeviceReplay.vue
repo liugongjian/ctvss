@@ -55,7 +55,7 @@ export default class extends Mixins(detailMixin) {
     if (!screen.permission) {
       screen.permission = this.deviceActions
     }
-    screen.LockCloudRecord = UserModule.iamUserId ? (screen.permission['ivs:LockCloudRecord'] ? screen.permission['ivs:LockCloudRecord']['auth'] : false) : true
+    screen.LockCloudRecord = UserModule.iamUserId ? (screen.permission && screen.permission['ivs:LockCloudRecord'] ? screen.permission['ivs:LockCloudRecord']['auth'] : false) : true
     await this.getDevice()
     screen.inProtocol = this.inVideoProtocol
     screen.init()
