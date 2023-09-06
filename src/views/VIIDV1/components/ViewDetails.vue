@@ -44,7 +44,7 @@
           {{ platformDetails.password || '-' }}
         </el-descriptions-item>
       </el-descriptions>
-      <el-descriptions title="本级视图库信息" :column="2">
+      <!-- <el-descriptions title="本级视图库信息" :column="2">
         <el-descriptions-item label="本级视图编码">
           {{ platformDetails.localApsId || '-' }}
         </el-descriptions-item>
@@ -54,7 +54,7 @@
         <el-descriptions-item label="本级服务器端口">
           {{ platformDetails.cascadePort.toString() || '-' }}
         </el-descriptions-item>
-      </el-descriptions>
+      </el-descriptions> -->
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关 闭</el-button>
