@@ -45,23 +45,6 @@
           @node-click="handleNode"
           @check-change="onCheckChange"
         >
-          <!-- <el-tree
-          :key="treeKey"
-          ref="Tree"
-          :node-key="nodeKey"
-          :current-node-key="currentNodeKey"
-          :data="data"
-          :lazy="lazy"
-          :load="loadChildren"
-          :props="props"
-          :empty-text="emptyText"
-          :default-expand-all="!lazy"
-          :expand-on-click-node="expandOnClickNode"
-          :show-checkbox="hasCheckbox"
-          highlight-current
-          @node-click="handleNode"
-          @check-change="onCheckDevice"
-        > -->
           <div
             slot-scope="{ node, data }"
             v-draggable="{ node, isDraggable }"
@@ -167,14 +150,14 @@ export default class extends Vue {
     this.hasRoot = rootChildren.reduce((pre, cur) => {
       return pre || cur.children.length !== 0
     }, false)
-    this.currentKey = this.defaultKey || this.rootKey
+    this.currentKey = this.currentKey || this.rootKey
   }
 
   /**
    * 初始化树
    */
   private initTree() {
-    this.currentKey = this.defaultKey || this.rootKey
+    this.currentKey = this.currentKey || this.rootKey
     // 更新tree组件key值以保证组件重新渲染
     this.treeKey = 'ct' + new Date().getTime()
   }
@@ -193,9 +176,9 @@ export default class extends Vue {
       payload.parent.expanded = true
       return
     }
-    // 非懒加载树不需要加载节点直接展开或收缩
+    // 非懒加载树不需要加载节点直接展开
     if (!this.lazy) {
-      payload.expanded = !payload.expanded
+      payload.expanded = true
       return
     }
 
@@ -224,8 +207,7 @@ export default class extends Vue {
    * node点击事件
    */
   private handleNode(data: any, node: any) {
-    this.currentKey = data.id
-    this.tree.setCurrentKey(this.currentNodeKey)
+    this.setCurrentKey(data.id)
     this.$emit('handle-node', data, node)
   }
 
@@ -258,7 +240,7 @@ export default class extends Vue {
   }
 
   private setCurrentKey(key) {
-    this.defaultKey = key
+    this.currentKey = key
     return this.tree.setCurrentKey(this.currentNodeKey)
   }
 

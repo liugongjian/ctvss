@@ -46,7 +46,7 @@ const advanceSearch = async function (
   }
   if (state.lazy) {
     state.treeSearchResult = []
-      state.handleTreeNode({ id: '' })
+    state.handleTreeNode({ id: '' })
   } else {
     // 初始化树
     await initSearchTree(state)
@@ -140,18 +140,18 @@ const initSearchTree = async function (state: any) {
     }
     res.dirs && (state.treeSearchResult = res.dirs)
     // 默认选中第一个设备
-    let handleNode = { id: '' }
+    let handleNodeData = { id: '' }
     let dirs = res.dirs
     while (dirs.length) {
       const first = dirs[0]
       if (first.type === DeviceTypeEnum.Ipc) {
-        handleNode = first
+        handleNodeData = first
         break
       }
       dirs = first.dirs
     }
-    state.$nextTick(() => {
-      state.handleTreeNode(handleNode)
+    window.setImmediate(() => {
+      state.handleTreeNode(handleNodeData)
     })
     state.rootSums.onlineSize = res.onlineSize
     state.rootSums.totalSize = res.totalSize
